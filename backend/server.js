@@ -51,7 +51,6 @@ app
     res.write('<p>/features</p>');
     res.write('<p>/features/:id</p>');
     res.write('<p>/featuresOfUser/:user</p>');
-
     res.write('<h2>POST: </h2>');
     res.write('<p>/feature</p>');
     res.write('<p>/feature/:id</p>');
