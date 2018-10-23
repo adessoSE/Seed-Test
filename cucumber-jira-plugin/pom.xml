@@ -3,13 +3,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.adesso.cucumber-jira-plugin</groupId>
-    <artifactId>tutorial-jira-simple-issue-crud</artifactId>
+    <artifactId>cucmber-jira-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
     <organization>
         <name>Example Company</name>
         <url>http://www.example.com/</url>
     </organization>
-    <name>tutorial-jira-simple-issue-crud</name>
+    <name>cucumber-kira-plugin</name>
     <description>This is the com.adesso.cucumber-jira-plugin:tutorial-jira-simple-issue-crud plugin for Atlassian JIRA.</description>
     <packaging>atlassian-plugin</packaging>
     <dependencies>

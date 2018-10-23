@@ -86,5 +86,40 @@
         </form>
     </div>
 </div>
+<div class="content-container">
+    <div>
+        <table class="aui">
+            <thead>
+            <th>Table for some Testing</th>
+            <tr>
+                <th>Column 1</th>
+                <th>Test</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Row 1</td>
+                <td>Row 1</td>
+                <td>Row 1</td>
+                <td>Row 1</td>
+                <td>Row 1</td>
+                <td>Row 1</td>
+            </tr>
+            <tr>
+                <td>$test</td>
+                <td>Row 2</td>
+                <td>Row 2</td>
+                <td>Row 2</td>
+                <td>Row 2</td>
+                <td>Row 2</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>

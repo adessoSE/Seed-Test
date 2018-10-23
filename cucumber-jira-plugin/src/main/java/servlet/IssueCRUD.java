@@ -26,12 +26,15 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.*;
 
 @Scanned
 public class IssueCRUD extends HttpServlet {
@@ -86,9 +89,37 @@ public class IssueCRUD extends HttpServlet {
             default:
                 List<Issue> issues = getIssues();
                 context.put("issues", issues);
+                try{
+                context.put("test", apiTest()); }
+                catch (IOException e) {
+                    //TODO: Fehlermeldung
+                }
                 templateRenderer.render(LIST_ISSUES_TEMPLATE, context, resp.getWriter());
         }
 
+    }
+
+    protected String apiTest() throws IOException {
+        String result = "testing the servlet - no API called yet";
+        // TODO: api call
+        URL url = new URL("https://jsonplaceholder.typicode.com/todos/1");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("Content-Type", "application/json");
+        // String contentType = con.getHeaderField("Content-Type");
+        //con.setConnectTimeout(5000);
+        //con.setReadTimeout(5000);
+        int status = con.getResponseCode();
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuffer content = new StringBuffer();
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        in.close();
+        result = "" + status + " CONTENT: " + content;
+        return result;
     }
 
     /**
