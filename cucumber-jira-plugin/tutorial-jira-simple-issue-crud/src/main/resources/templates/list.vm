@@ -1,0 +1,90 @@
+<html>
+<head>
+    <title>All Tutorial Issues — Issue CRUD Tutorial</title>
+    <meta name="decorator" content="atl.general">
+    <script>
+        AJS.$(document).ready(function() {
+            jQuery('.delete-issue').click(function() {
+                console.log('deleting');
+                var self = jQuery(this);
+                jQuery.ajax({
+                    type: "delete",
+                    url: "issuecrud?key=" + self.data("key"),
+                    success: function(data) {
+                        console.log('dom', self, data);
+                        self.parent().parent().remove();
+                    },
+                    error: function() {
+                        console.log('error', arguments);
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+</head>
+<body class="page-type-admin">
+<div class="content-container">
+
+    <div class="content-body">
+        <h1>You've Got #if($issues.size()==0)<span style="color:red">NO</span>#end Issues!</h1>
+
+        #if ($errors.size()>0)
+            <div class="aui-message error shadowed">
+                #foreach($error in $errors)
+                    <p class="title">
+                        <span class="aui-icon icon-error"></span>
+                        <strong>$error</strong>
+                    </p>
+                #end
+            </div>
+            <!-- .aui-message -->
+        #end
+
+        #if ($issues.size() > 0)
+            <div class="issues">
+                <table class="aui">
+                    <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Summary</th>
+                        <th>Description</th>
+                        <th>Assignee</th>
+                        <th>Reporter</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        #foreach( $issue in $issues )
+                        <tr>
+                            <td>$issue.getKey()</td>
+                            <td>$issue.getSummary()</td>
+                            <td>
+                                #if($issue.getDescription())
+                            $issue.getDescription()
+                        #end
+                            </td>
+                            <td>
+                                $issue.getAssignee().getName()
+                            </td>
+                            <td>
+                                $issue.getReporter().getName()
+                            </td>
+                            <td>
+                                <a href="issuecrud?edit=y&key=$issue.getKey()">Edit</a>
+                                <a href="#" class="delete-issue" data-key="$issue.getKey()">Delete</a>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </div>
+        #end
+        <form method="get" action="issuecrud" class="aui">
+            <input type="hidden" name="new" value="y">
+            <input type="submit" class="button" value="Create new issue">
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -2,21 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fff1d35a-ea41-44a6-a7e1-550a220e8fb8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/cucumber-jira-plugin.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/README" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/META-INF/spring/plugin-context.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/atlassian-plugin.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/css/tutorial-jira-sinple-issue-crud.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/images/pluginIcon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/images/pluginLogo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/js/tutorial-jira-sinple-issue-crud.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/tutorial-jira-sinple-issue-crud.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/java/servlet/IssueCRUD.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/edit.vm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/list.vm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/new.vm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/README" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/README" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/META-INF/spring/plugin-context.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/META-INF/spring/plugin-context.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/atlassian-plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/atlassian-plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/css/tutorial-jira-sinple-issue-crud.css" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/css/tutorial-jira-sinple-issue-crud.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/images/pluginIcon.png" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/images/pluginIcon.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/images/pluginLogo.png" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/images/pluginLogo.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/js/tutorial-jira-sinple-issue-crud.js" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/js/tutorial-jira-sinple-issue-crud.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/src/main/resources/tutorial-jira-sinple-issue-crud.properties" beforeDir="false" afterPath="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/tutorial-jira-sinple-issue-crud.properties" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -29,38 +30,113 @@
       <usages-collector id="statistics.lifecycle.project">
         <counts>
           <entry key="project.open.time.1" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.open.time.6" value="1" />
+          <entry key="project.opened" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="gitignore" value="1" />
+          <entry key="java" value="1" />
+          <entry key="properties" value="1" />
+          <entry key="vm" value="3" />
+          <entry key="xml" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
+          <entry key="JAVA" value="1" />
           <entry key="PLAIN_TEXT" value="1" />
+          <entry key="Properties" value="1" />
+          <entry key="VTL" value="3" />
+          <entry key="XML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="gitignore" value="13" />
+          <entry key="java" value="11" />
+          <entry key="vm" value="1" />
+          <entry key="xml" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
+          <entry key="JAVA" value="11" />
           <entry key="PLAIN_TEXT" value="13" />
+          <entry key="VTL" value="1" />
+          <entry key="XML" value="5" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
               <caret line="1" column="7" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/edit.vm">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="468">
+              <caret line="53" column="7" selection-start-line="53" selection-start-column="7" selection-end-line="53" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/list.vm">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="519">
+              <caret line="89" column="7" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
+              <folding>
+                <element signature="n#style#0;n#span#0;n#h1#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/new.vm">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="663">
+              <caret line="39" column="7" selection-start-line="39" selection-start-column="7" selection-end-line="39" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/atlassian-plugin.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="374">
+              <caret line="22" column="41" selection-start-line="22" selection-start-column="41" selection-end-line="22" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/java/servlet/IssueCRUD.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3774">
+              <caret line="222" lean-forward="true" selection-start-line="222" selection-end-line="222" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -74,6 +150,12 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/tutorial-jira-sinple-issue-crud/pom.xml" />
+        <option value="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/pom.xml" />
+        <option value="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/edit.vm" />
+        <option value="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/list.vm" />
+        <option value="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/new.vm" />
+        <option value="$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/java/servlet/IssueCRUD.java" />
       </list>
     </option>
   </component>
@@ -95,7 +177,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -103,18 +184,77 @@
               <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
               <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="servlet" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cucumber-jira-plugin" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cucumber-jira-plugin" type="462c0819:PsiDirectoryNode" />
+              <item name="tutorial-jira-simple-issue-crud" type="462c0819:PsiDirectoryNode" />
+              <item name="target" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540281253582" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1540289902601" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -142,27 +282,25 @@
       <option name="presentableId" value="Default" />
       <updated>1540279870135</updated>
       <workItem from="1540279872073" duration="1305000" />
+      <workItem from="1540286733339" duration="1877000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1305000" />
+    <option name="totallyTimeSpent" value="3182000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Image Layers" />
-      <window_info id="Designer" />
-      <window_info id="UI Designer" />
-      <window_info id="Capture Tool" />
-      <window_info id="Favorites" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19829424" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20042644" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" />
-      <window_info anchor="bottom" id="Terminal" visible="true" weight="0.329718" />
-      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info id="Image Layers" order="2" />
+      <window_info id="Designer" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Capture Tool" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
@@ -170,16 +308,50 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="right" id="Palette" />
-      <window_info anchor="right" id="Theme Preview" />
-      <window_info anchor="right" id="Capture Analysis" />
-      <window_info anchor="right" id="Palette&#9;" />
-      <window_info anchor="right" id="Database" />
-      <window_info anchor="right" id="Maven Projects" />
+      <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.329718" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Capture Analysis" order="4" />
+      <window_info anchor="right" id="Theme Preview" order="5" />
+      <window_info anchor="right" id="Palette&#9;" order="6" />
+      <window_info anchor="right" id="Database" order="7" />
+      <window_info anchor="right" id="Maven Projects" order="8" />
     </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20042644" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Image Layers" order="2" />
+      <window_info id="Designer" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Capture Tool" order="5" />
+      <window_info id="Favorites" order="6" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" order="0" />
+      <window_info anchor="bottom" id="Message" order="1" />
+      <window_info anchor="bottom" id="Find" order="2" />
+      <window_info anchor="bottom" id="Run" order="3" />
+      <window_info anchor="bottom" id="Debug" order="4" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="7" />
+      <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Terminal" order="9" visible="true" weight="0.329718" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="11" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Capture Analysis" order="4" />
+      <window_info anchor="right" id="Theme Preview" order="5" />
+      <window_info anchor="right" id="Palette&#9;" order="6" />
+      <window_info anchor="right" id="Database" order="7" />
+      <window_info anchor="right" id="Maven Projects" order="8" />
+    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -188,6 +360,61 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/tutorial-jira-sinple-issue-crud.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="44" lean-forward="true" selection-start-line="3" selection-start-column="44" selection-end-line="3" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/edit.vm">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="468">
+          <caret line="53" column="7" selection-start-line="53" selection-start-column="7" selection-end-line="53" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/list.vm">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="519">
+          <caret line="89" column="7" selection-start-line="89" selection-start-column="7" selection-end-line="89" selection-end-column="7" />
+          <folding>
+            <element signature="n#style#0;n#span#0;n#h1#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/templates/new.vm">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="39" column="7" selection-start-line="39" selection-start-column="7" selection-end-line="39" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/resources/atlassian-plugin.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="41" selection-start-line="22" selection-start-column="41" selection-end-line="22" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tutorial-jira-simple-issue-crud/src/main/java/servlet/IssueCRUD.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3774">
+          <caret line="222" lean-forward="true" selection-start-line="222" selection-end-line="222" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
