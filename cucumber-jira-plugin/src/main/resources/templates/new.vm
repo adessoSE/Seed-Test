@@ -1,0 +1,40 @@
+<html>
+<head>
+    <title>Create Issue — Issue CRUD Tutorial</title>
+    <meta name="decorator" content="atl.general">
+</head>
+<body class="page-type-admin">
+<div class="content-container">
+
+    <div class="content-body">
+        <h1>Create issue</h1>
+        <div class="create-issue-panel">
+
+            <form method="post" id="h" action="issuecrud" class="aui">
+                <div class="field-group">
+                    <label for="h-fsummary">
+                        Summary
+                        <span class="aui-icon icon-required"></span>
+                        <span class="content">required</span>
+                    </label>
+                    <input id="h-fsummary" class="text long-field" type="text" name="summary">
+                </div>
+                <div class="field-group">
+                    <label for="h-fdescription">
+                        Description
+                        <span class="aui-icon icon-required"></span>
+                        <span class="content">required</span>
+                    </label>
+                    <textarea id="h-fdescription" name="description"></textarea>
+                </div>
+                <div class="buttons">
+                    <input class="button" type="submit" value="Create">
+                    <a href="issuecrud">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
