@@ -4,7 +4,8 @@ var path = require("path");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 var ObjectID = mongodb.ObjectID;
-var FEATURES_COLLECTION = "Features";
+var SCENARIOS_COLLECTION = "Features";
+var STEP_COLLECTION = "StepDefinition";
 var app = express();
 app.use(bodyParser.json({limit: '100kb'}));
 app.use(bodyParser.urlencoded({limit: '100kb', extended: true}));
@@ -41,50 +42,54 @@ function handleError(res, reason, message, code) {
  */
 app
   .use(cors())
-  .get("/", function (req, res) {
+  .get("/api", function (req, res) {
     res.writeHead(200, {'content-type': 'text/html'});
     res.write('<h1>Cucumber-API</h1>');
-    res.write('<h2>WORKING</h2>');
-    res.write('<p>/features</p>');
+    res.write('<h2>WORKING:</h2>');
     res.write('<h2>PLANNING:</h2>');
-    res.write('<h2>GET: Features</h2>');
-    res.write('<p>/features</p>');
-    res.write('<p>/features/:id</p>');
-    res.write('<p>/featuresOfUser/:user</p>');
-    res.write('<h2>POST: </h2>');
-    res.write('<p>/feature</p>');
-    res.write('<p>/feature/:id</p>');
+    res.write('<h2>GET</h2>');
+    res.write('<p>/api/scenarios/:issueID</p>');
+    res.write('<p>/api/stepDefinitions</p>');
+
+    res.write('<h2>PUT</h2>');
+    res.write('<p>/api/scenario/:id</p>');
+
+    res.write('<h2>POST</h2>');
+    res.write('<p>/api/scenario/add/:issueID</p>');
+
+    res.write('<h2>DELETE</h2>');
+    res.write('<p>/api/scenario/:id</p>');
 
     res.status(200);
     res.end();
   })
   /**
-   * Features API
+   * Scenarios API
    */
-  .get("/features", function (req, res, next) {
-    db.collection(FEATURES_COLLECTION).find({}).toArray(function (err, docs) {
+  .get("/api/stepDefinitions", function (req, res, next) {
+    db.collection(STEP_COLLECTION).find({}).toArray(function (err, docs) {
       if (err) {
-        handleError(res, err.message, "Failed to get movies.");
+        handleError(res, err.message, "Failed to get 'Step Definitions'.");
       } else {
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.status(200).json(docs);
       }
     });
   })
-  .get("/feature/:id", function (req, res) {
-    var id = req.params.id;
-    db.collection(FEATURES_COLLECTION)
+  .get("/api/scenarios/:issueID", function (req, res) {
+    var issueID = req.params.issueID;
+    db.collection(SCENARIOS_COLLECTION)
       .findOne(
         {
           $or: [
-            {'id': parseInt(id)}
+            {'issueID': parseInt(issueID)}
           ]
         },
         function (err, docs) {
           if (err) {
-            handleError(res, err.message, "Failed to get feature with id." + id);
+            handleError(res, err.message, "Failed to get feature with issueID." + issueID);
           } else {
-            console.log("id", id);
+            console.log("issueID", issueID);
             //var filtered = _.where(docs[0], {id: parseInt(id)});
             console.log(docs);
             res.status(200).json(docs);
@@ -92,11 +97,11 @@ app
         }
       )
   })
-  .post("/feature", function (req, res) {
+  .put("/api/scenarios/:id", function (req, res) {
     let json = req.body;
     let id = JSON.stringify(json).substring(7, 13);
     console.log("id", id);
-    db.collection(FEATURES_COLLECTION)
+    db.collection(SCENARIOS_COLLECTION)
       .findOne(
         {
           $or: [
@@ -110,7 +115,7 @@ app
           }
           console.log("docs", docs);
           if (docs == null) {
-            db.collection(FEATURES_COLLECTION)
+            db.collection(SCENARIOS_COLLECTION)
               .insertOne(json, function (err, res) {
                 if (err) throw err;
                 console.log("1 document inserted");
@@ -128,11 +133,11 @@ app
 
         })
   })
-  .post("/feature/:id", function (req, res) {
+  .post("/api/scenarios/add/:id", function (req, res) {
     let json = req.body;
     let id = JSON.stringify(json).substring(7, 13);
     console.log("id", id);
-    db.collection(FEATURES_COLLECTION)
+    db.collection(SCENARIOS_COLLECTION)
       .findOne(
         {
           $or: [
@@ -146,7 +151,7 @@ app
           }
           console.log("docs", docs);
           if (docs == null) {
-            db.collection(FEATURES_COLLECTION)
+            db.collection(SCENARIOS_COLLECTION)
               .insertOne(json, function (err, res) {
                 if (err) throw err;
                 console.log("1 document inserted");
@@ -164,4 +169,40 @@ app
 
         })
   })
+  .delete("/api/scenarios/:id", function (req, res) {
+  let json = req.body;
+  let id = JSON.stringify(json).substring(7, 13);
+  console.log("id", id);
+  db.collection(SCENARIOS_COLLECTION)
+    .findOne(
+      {
+        $or: [
+          {'id': id}
+        ]
+      }
+      ,
+      function (err, docs) {
+        if (err) {
+          handleError(res, err.message, "Failed to get to check if movie already exists.");
+        }
+        console.log("docs", docs);
+        if (docs == null) {
+          db.collection(SCENARIOS_COLLECTION)
+            .insertOne(json, function (err, res) {
+              if (err) throw err;
+              console.log("1 document inserted");
+              //db.close();
+            });
+          console.log("Movie added as new document in Collection: MOVIES", json);
+          res.status(200).send({
+            message: 'Added ' + json
+          })
+        } else {
+          res.status(200).send({
+            message: 'Movie already exists in the collection. Use the Update API to change this.'
+          })
+        }
+
+      })
+})
 module.exports = app;
