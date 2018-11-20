@@ -11,6 +11,7 @@ app.use(bodyParser.json({limit: '100kb'}));
 app.use(bodyParser.urlencoded({limit: '100kb', extended: true}));
 var db;
 var _ = require("underscore");
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 // Connect to the database before starting the application server.
 
@@ -76,8 +77,37 @@ app
       }
     });
   })
+  .get("/api/stories", function (req, res) {
+    let request = new XMLHttpRequest();
+
+    request.open('GET', 'https://api.github.com/repos/fr4gstar/cucumber/issues');
+    request.send();
+
+    request.onreadystatechange=function(){
+      if (this.readyState===4 && this.status===200){
+        var data = JSON.parse(request.responseText);
+        console.log(data[0]["title"] + " " + data[0]["id"]);
+        // console.log(data[1]["title"] + " " + data[1]["id"])
+        let stories = {};
+        console.log(data);
+        for(issue=0; issue<data.length; issue++) {
+          stories["story_id"] = data[issue]["id"];
+          stories["title"] = data[issue]["title"];
+          stories["body"] = data[issue]["body"];
+          stories["assignee"] = data[issue]["assignee"]["login"];
+          stories["assignee_avatar_url"] = data[issue]["assignee"]["avatar_url"];
+          stories["scenarios"] = {};
+        }
+        console.log(stories);
+        res.status(200).json(stories);
+      }else{
+        console.log("Fail");
+      }
+    };
+  })
   .get("/api/scenarios/:issueID", function (req, res) {
     var issueID = req.params.issueID;
+
     db.collection(SCENARIOS_COLLECTION)
       .findOne(
         {
