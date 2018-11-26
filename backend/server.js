@@ -13,6 +13,7 @@ var db;
 var _ = require("underscore");
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
+require('./database')
 // Connect to the database before starting the application server.
 
 mongodb.MongoClient.connect('mongodb://cucumber:cucumberIstSuper12@ds137643.mlab.com:37643/cucumber', function (err, database) {
@@ -24,6 +25,7 @@ mongodb.MongoClient.connect('mongodb://cucumber:cucumberIstSuper12@ds137643.mlab
   // Save database object from the callback for reuse.
   db = database;
   console.log("Database connection ready");
+
 
   // Initialize the app.
   var server = app.listen(process.env.PORT || 8080, function () {

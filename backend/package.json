@@ -19,10 +19,12 @@
     "express": "^4.13.3",
     "express-limit": "0.0.2",
     "imagesloaded": "^4.1.4",
+    "lokijs": "^1.5.5",
     "masonry-layout": "^4.2.2",
     "mocha": "^5.2.0",
     "mongodb": "^2.0.43",
     "underscore": "^1.9.1",
+    "xmlhttprequest": "^1.8.0",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
