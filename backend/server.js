@@ -49,13 +49,15 @@ app
     res.writeHead(200, {'content-type': 'text/html'});
     res.write('<h1>Cucumber-API</h1>');
     res.write('<h2>WORKING:</h2>');
+    res.write('<h2>GET</h2>');
+    res.write('<p>/api/stories</p>');
+
     res.write('<h2>PLANNING:</h2>');
     res.write('<h2>GET</h2>');
-    res.write('<p>/api/scenarios/:issueID</p>');
     res.write('<p>/api/stepDefinitions</p>');
 
     res.write('<h2>PUT</h2>');
-    res.write('<p>/api/scenario/:id</p>');
+    res.write('<p>/api/scenario</p>');
 
     res.write('<h2>POST</h2>');
     res.write('<p>/api/scenario/add/:issueID</p>');
@@ -81,24 +83,23 @@ app
   })
   .get("/api/stories", function (req, res) {
     let request = new XMLHttpRequest();
-
     request.open('GET', 'https://api.github.com/repos/fr4gstar/cucumber/issues');
     request.send();
-
     request.onreadystatechange=function(){
       if (this.readyState===4 && this.status===200){
-        var data = JSON.parse(request.responseText);
-        console.log(data[0]["title"] + " " + data[0]["id"]);
-        // console.log(data[1]["title"] + " " + data[1]["id"])
-        let stories = {};
-        console.log(data);
-        for(issue=0; issue<data.length; issue++) {
-          stories["story_id"] = data[issue]["id"];
-          stories["title"] = data[issue]["title"];
-          stories["body"] = data[issue]["body"];
-          stories["assignee"] = data[issue]["assignee"]["login"];
-          stories["assignee_avatar_url"] = data[issue]["assignee"]["avatar_url"];
-          stories["scenarios"] = {};
+        let data = JSON.parse(request.responseText);
+        let stories = [];
+        for(let i in data) {
+          let story = {};
+          story["story_id"] = data[i]["id"];
+          story["title"] = data[i]["title"];
+          story["body"] = data[i]["body"];
+          if (data[i]["assignee"] !== null) {
+            story["assignee"] = data[i]["assignee"]["login"];
+            story["assignee_avatar_url"] = data[i]["assignee"]["avatar_url"];
+          }
+          story["scenarios"] = {};
+          stories.push(story);
         }
         console.log(stories);
         res.status(200).json(stories);
@@ -107,64 +108,64 @@ app
       }
     };
   })
-  .get("/api/scenarios/:issueID", function (req, res) {
-    var issueID = req.params.issueID;
-
-    db.collection(SCENARIOS_COLLECTION)
-      .findOne(
-        {
-          $or: [
-            {'issueID': parseInt(issueID)}
-          ]
-        },
-        function (err, docs) {
-          if (err) {
-            handleError(res, err.message, "Failed to get feature with issueID." + issueID);
-          } else {
-            console.log("issueID", issueID);
-            //var filtered = _.where(docs[0], {id: parseInt(id)});
-            console.log(docs);
-            res.status(200).json(docs);
-          }
-        }
-      )
-  })
-  .put("/api/scenarios/:id", function (req, res) {
-    let json = req.body;
-    let id = JSON.stringify(json).substring(7, 13);
-    console.log("id", id);
-    db.collection(SCENARIOS_COLLECTION)
-      .findOne(
-        {
-          $or: [
-            {'id': id}
-          ]
-        }
-        ,
-        function (err, docs) {
-          if (err) {
-            handleError(res, err.message, "Failed to get to check if movie already exists.");
-          }
-          console.log("docs", docs);
-          if (docs == null) {
-            db.collection(SCENARIOS_COLLECTION)
-              .insertOne(json, function (err, res) {
-                if (err) throw err;
-                console.log("1 document inserted");
-                //db.close();
-              });
-            console.log("Movie added as new document in Collection: MOVIES", json);
-            res.status(200).send({
-              message: 'Added ' + json
-            })
-          } else {
-            res.status(200).send({
-              message: 'Movie already exists in the collection. Use the Update API to change this.'
-            })
-          }
-
-        })
-  })
+  // .get("/api/scenarios/:issueID", function (req, res) {
+  //   var issueID = req.params.issueID;
+  //
+  //   db.collection(SCENARIOS_COLLECTION)
+  //     .findOne(
+  //       {
+  //         $or: [
+  //           {'issueID': parseInt(issueID)}
+  //         ]
+  //       },
+  //       function (err, docs) {
+  //         if (err) {
+  //           handleError(res, err.message, "Failed to get feature with issueID." + issueID);
+  //         } else {
+  //           console.log("issueID", issueID);
+  //           //var filtered = _.where(docs[0], {id: parseInt(id)});
+  //           console.log(docs);
+  //           res.status(200).json(docs);
+  //         }
+  //       }
+  //     )
+  // })
+  // .put("/api/scenarios/:id", function (req, res) {
+  //   let json = req.body;
+  //   let id = JSON.stringify(json).substring(7, 13);
+  //   console.log("id", id);
+  //   db.collection(SCENARIOS_COLLECTION)
+  //     .findOne(
+  //       {
+  //         $or: [
+  //           {'id': id}
+  //         ]
+  //       }
+  //       ,
+  //       function (err, docs) {
+  //         if (err) {
+  //           handleError(res, err.message, "Failed to get to check if movie already exists.");
+  //         }
+  //         console.log("docs", docs);
+  //         if (docs == null) {
+  //           db.collection(SCENARIOS_COLLECTION)
+  //             .insertOne(json, function (err, res) {
+  //               if (err) throw err;
+  //               console.log("1 document inserted");
+  //               //db.close();
+  //             });
+  //           console.log("Movie added as new document in Collection: MOVIES", json);
+  //           res.status(200).send({
+  //             message: 'Added ' + json
+  //           })
+  //         } else {
+  //           res.status(200).send({
+  //             message: 'Movie already exists in the collection. Use the Update API to change this.'
+  //           })
+  //         }
+  //
+  //       })
+  // })
   .post("/api/scenarios/add/:id", function (req, res) {
     let json = req.body;
     let id = JSON.stringify(json).substring(7, 13);
@@ -236,5 +237,5 @@ app
         }
 
       })
-})
+});
 module.exports = app;
