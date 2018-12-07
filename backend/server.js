@@ -13,7 +13,8 @@ var db;
 var _ = require("underscore");
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
-require('./database')
+var stories_db = require('./database').stories;
+var loki_db = require('./database');
 // Connect to the database before starting the application server.
 
 mongodb.MongoClient.connect('mongodb://cucumber:cucumberIstSuper12@ds137643.mlab.com:37643/cucumber', function (err, database) {
@@ -98,10 +99,10 @@ app
             story["assignee"] = data[i]["assignee"]["login"];
             story["assignee_avatar_url"] = data[i]["assignee"]["avatar_url"];
           }
-          story["scenarios"] = {};
+          story["scenarios"] = [];
           stories.push(story);
         }
-        console.log(stories);
+        console.log("Success!");
         res.status(200).json(stories);
       }else{
         console.log("Fail");
