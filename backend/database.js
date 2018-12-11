@@ -10,14 +10,8 @@ Story.insert([
     {ScenarioName: 'erfolgreicher Login' , StepName: '2' , Typ: 'given' , Pre: 'bla' , Mid: 'bli' , Post: 'blub' , Value: 'vom Frontend'},
     {ScenarioName: 'erfolgreicher Login' , StepName: '3' , Typ: 'given' , Pre: 'bla' , Mid: 'bli' , Post: 'blub' , Value: 'vom Frontend'},
 ]);
-// console.log(Story.get(1));
 
 var stories = db.addCollection('stories');
-
-db.add_stories = function (data){
-  // TODO: sync data (= actual stories from GitHub) with db
-  return stories.find();
-};
 
 var test_story =
   {story_id:386697647, title:"Run test functionality", body:"As a user,\r\nIn want a button to run my scenarios\r\nso I can see if my test passes", assignee: "", avatar: "",
