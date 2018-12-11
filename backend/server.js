@@ -13,7 +13,8 @@ var db;
 var _ = require("underscore");
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
-require('./database')
+var stories_db = require('./database').stories;
+var loki_db = require('./database');
 // Connect to the database before starting the application server.
 
 mongodb.MongoClient.connect('mongodb://cucumber:cucumberIstSuper12@ds137643.mlab.com:37643/cucumber', function (err, database) {
@@ -90,22 +91,20 @@ app
         let data = JSON.parse(request.responseText);
         let stories = [];
         for(let i in data) {
-          let story = {};
-          story["story_id"] = data[i]["id"];
-          story["title"] = data[i]["title"];
-          story["body"] = data[i]["body"];
+          let story = {story_id: data[i]["id"],title: data[i]["title"], body :data[i]["body"]};
           if (data[i]["assignee"] !== null) {
             story["assignee"] = data[i]["assignee"]["login"];
             story["assignee_avatar_url"] = data[i]["assignee"]["avatar_url"];
           }
-          story["scenarios"] = {};
+          if(stories_db.findOne({story_id: data[i]["id"]}) != null){
+            story["scenarios"] = stories_db.findOne({story_id: data[i]["id"]}).scenarios;
+          }
+          stories_db.insert(story);
           stories.push(story);
         }
-        console.log(stories);
+        console.log("Success!");
         res.status(200).json(stories);
-      }else{
-        console.log("Fail");
-      }
+      }else console.log("Fail");
     };
   })
   // .get("/api/scenarios/:issueID", function (req, res) {
