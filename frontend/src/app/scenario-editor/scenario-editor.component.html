@@ -1,0 +1,106 @@
+<div uk-grid>
+
+  <div class="uk-width-1-5">
+    <div class="uk-text-emphasis uk-text-uppercase uk-text-bold">STORIES</div>
+    <ul uk-accordion>
+      <li *ngFor="let s of stories; let i = index ">
+        <a class="uk-accordion-title uk-background-muted" href="#">
+          #{{i}} {{s.title}}
+          <a  uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
+        </a>
+        <div class="uk-accordion-content">
+          <p *ngFor="let scen of s.scenarios; let c = index ">#{{c}} {{scen.name}}</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="(showEditor === true)" class="uk-width-2-3">
+    <div class="uk-card uk-card-default" >
+      <div class="uk-card-title uk-padding">
+        SCENARIO 1
+        <a href="#changeScenario" uk-icon="icon: pencil" uk-toggle></a>
+        <div class="uk-align-right">
+          <button *ngIf="editorLocked === false;" (click)="lockEditor();" class="uk-button uk-button-secondary" type="button">
+            <a uk-icon="icon: lock"></a>
+          </button>
+          <button *ngIf="editorLocked === true;" (click)="lockEditor();" class="uk-button uk-button-success" type="button">
+            <a uk-icon="icon: unlock"></a>
+          </button>
+        </div>
+      </div>
+    </div>
+    <br />
+
+      <div class="uk-card uk-card-default" >
+        <div class="uk-card-title">
+          1. Given
+          <div class="uk-align-right">
+            <button class="uk-button uk-button-primary" type="button"><a uk-icon="icon: plus"></a></button>
+            <div uk-dropdown>
+              <ul class="uk-nav uk-dropdown-nav">
+                <li><a href="#">ELEMENT 1</a></li>
+                <li><a href="#">ELEMENT 2</a></li>
+                <li><a href="#">ELEMENT 3</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <li>uno</li>
+        <li>dos</li>
+        <li>tress</li>
+        <br />
+
+        <div class="uk-card-title">
+          2. When
+          <div class="uk-align-right">
+            <button class="uk-button uk-button-primary" type="button"><a uk-icon="icon: plus"></a></button>
+            <div uk-dropdown>
+              <ul class="uk-nav uk-dropdown-nav">
+                <li><a href="#">ELEMENT 1</a></li>
+                <li><a href="#">ELEMENT 2</a></li>
+                <li><a href="#">ELEMENT 3</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <li>uno</li>
+        <li>dos</li>
+        <li>tress</li>
+        <br />
+
+        <div class="uk-card-title">
+          3. Then
+          <div class="uk-align-right">
+            <button class="uk-button uk-button-primary" type="button"><a uk-icon="icon: plus"></a></button>
+            <div uk-dropdown>
+              <ul class="uk-nav uk-dropdown-nav">
+                <li><a href="#">ELEMENT 1</a></li>
+                <li><a href="#">ELEMENT 2</a></li>
+                <li><a href="#">ELEMENT 3</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <li>uno</li>
+        <li>dos</li>
+        <li>tress</li>
+      </div>
+  </div>
+
+</div>
+
+<div id="changeScenario" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <h2>New Scenario Title</h2>
+    <input type="text" #ScenarioName />
+
+    <p class="uk-text-right">
+      <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+      <button class="uk-button uk-button-primary" type="button">Save</button>
+    </p>
+  </div>
+</div>
