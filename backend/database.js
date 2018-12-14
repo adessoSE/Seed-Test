@@ -4,7 +4,7 @@ var stories = db.addCollection('Stories');
 
 // Test Data
 stories.insert([
-    {git_issue_id: '386695799' , scenarios: [           //todo change id typ if neccesary
+    {git_issue_id: 386695799 , scenarios: [
         {scenario_id: 1, 
         name: 'successfull Login' , 
         stepDefinitions: [
@@ -40,7 +40,7 @@ stories.insert([
             ]
 
         }]}]},
-        {git_issue_id: '386697647' , scenarios: [
+        {git_issue_id: 386697647 , scenarios: [
             {scenario_id: 1, 
             name: 'sign up' , 
             stepDefinitions: [
@@ -80,13 +80,13 @@ stories.insert([
     
             }] } ]},
         
-]) 
+])
 
 // Step Definitions
 var stepDefinitions = db.addCollection('StepDefinitions');
 
 stepDefinitions.insert([
-    {stepType: 'given' , name: '' , type: 'Rolle' , pre: 'As a' , mid: '', post: '', values:[] , selection: ['Guest' , 'User']} ,
+    {stepType: 'given', name: '' , type: 'Rolle' , pre: 'As a' , mid: '', post: '', values:[] , selection: ['Guest' , 'User']} ,
     {stepType: 'when' , name: '' , type: 'Website' , pre: 'I want to visite this site:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Button' , pre: 'I want to click the Button:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Field' , pre: 'I want to insert:' , mid: '', post: '', values:[] } ,
@@ -117,16 +117,16 @@ stepDefinitions: [
 
 }]}
 
-// GET all stories
+// GET all stories TODO: unused right now
 function showStories() {
     stories.find()
 }
 // GET all StepDefinitions
 function showStepdefinitions() {
-    stepDefinitions.find()
+    return stepDefinitions.find()
 }
 
-// PUT SCENARIO
+// PUT SCENARIO //TODO: POST?
 function createScenario (git_id) {
     var story = stories.findOne({git_issue_id: git_id});
     
@@ -147,26 +147,26 @@ function createScenario (git_id) {
 }
 
 
-// POST SCENARIO
-function updateScenario (git_id, scenario) {
+// POST SCENARIO TODO: PUT?
+function updateScenario (git_id, scenarios) {
     var story = stories.findOne({git_issue_id: git_id});
-    
     if (story != null) {
         stories
         .chain()
         .find({ "git_issue_id" : git_id})
-        .where(function(obj) { 
-            for (var i = 0; i < obj.scenarios.length; i++){
-                if(obj.scenarios[i].scenario_id == scenario.scenario_id){
-                    obj.scenarios[i] = scenario
-                    break
-                }
-                                }  
+        .where(function(obj) {
+        //     for (var i = 0; i < obj.scenarios.length; i++){
+        //         if(obj.scenarios[i].scenario_id == scenario.scenario_id){
+        //             obj.scenarios[i] = scenario
+        //             break
+        //         }
+        //     }
+          obj.scenarios = scenarios;
         }); 
     }
 }
 
-// DELETE SCenario
+// DELETE Scenario
 function deleteScenario (git_id, s_id ) {
     stories
         .chain()
@@ -180,3 +180,6 @@ function deleteScenario (git_id, s_id ) {
                                 }  
         }); 
 }
+
+module.exports = {stories: stories, showStepdefinitions: showStepdefinitions,
+  createScenario: createScenario, deleteScenario: deleteScenario, updateScenario: updateScenario};

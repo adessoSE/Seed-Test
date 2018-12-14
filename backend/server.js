@@ -1,41 +1,21 @@
 var express = require("express");
 var cors = require('cors');
-var path = require("path");
 var bodyParser = require("body-parser");
-var mongodb = require("mongodb");
-var ObjectID = mongodb.ObjectID;
-var SCENARIOS_COLLECTION = "Features";
-var STEP_COLLECTION = "StepDefinition";
 var app = express();
 app.use(bodyParser.json({limit: '100kb'}));
 app.use(bodyParser.urlencoded({limit: '100kb', extended: true}));
-var db;
 var _ = require("underscore");
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-
+var db = require('./database');
 var stories_db = require('./database').stories;
-var loki_db = require('./database');
-// Connect to the database before starting the application server.
 
-mongodb.MongoClient.connect('mongodb://cucumber:cucumberIstSuper12@ds137643.mlab.com:37643/cucumber', function (err, database) {
-  if (err) {
-    console.log(err);
-    process.exit(1);
-  }
-
-  // Save database object from the callback for reuse.
-  db = database;
-  console.log("Database connection ready");
-
-
-  // Initialize the app.
-  var server = app.listen(process.env.PORT || 8080, function () {
-    var port = server.address().port;
-    console.log("App now running on port", port);
-  });
+// Initialize the app.
+var server = app.listen(process.env.PORT || 8080, function () {
+  var port = server.address().port;
+  console.log("App now running on port", port);
 });
 
-// var model = mongo.model('users', UsersSchema, 'users');
+// TODO: use this?
 function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason);
   res.status(code || 500).json({"error": message});
@@ -52,20 +32,15 @@ app
     res.write('<h2>WORKING:</h2>');
     res.write('<h2>GET</h2>');
     res.write('<p>/api/stories</p>');
-
-    res.write('<h2>PLANNING:</h2>');
-    res.write('<h2>GET</h2>');
     res.write('<p>/api/stepDefinitions</p>');
 
-    res.write('<h2>PUT</h2>');
-    res.write('<p>/api/scenario</p>');
-
+    res.write('<h2>NOT TESTED:</h2>');
     res.write('<h2>POST</h2>');
     res.write('<p>/api/scenario/add/:issueID</p>');
-
     res.write('<h2>DELETE</h2>');
     res.write('<p>/api/scenario/:id</p>');
-
+    res.write('<h2>PUT</h2>');
+    res.write('<p>/api/scenario</p>');
     res.status(200);
     res.end();
   })
@@ -73,14 +48,7 @@ app
    * Scenarios API
    */
   .get("/api/stepDefinitions", function (req, res, next) {
-    db.collection(STEP_COLLECTION).find({}).toArray(function (err, docs) {
-      if (err) {
-        handleError(res, err.message, "Failed to get 'Step Definitions'.");
-      } else {
-        res.setHeader("Content-Type", "application/json; charset=utf-8");
-        res.status(200).json(docs);
-      }
-    });
+      res.status(200).json(db.showStepdefinitions());
   })
   .get("/api/stories", function (req, res) {
     let request = new XMLHttpRequest();
@@ -96,145 +64,40 @@ app
             story["assignee"] = data[i]["assignee"]["login"];
             story["assignee_avatar_url"] = data[i]["assignee"]["avatar_url"];
           }
-          if(stories_db.findOne({story_id: data[i]["id"]}) != null){
-            story["scenarios"] = stories_db.findOne({story_id: data[i]["id"]}).scenarios;
+          if(stories_db.findOne({git_issue_id: story["story_id"]}) != null){
+            story["scenarios"] = stories_db.findOne({git_issue_id: story["story_id"]}).scenarios;
           }
           stories_db.insert(story);
           stories.push(story);
         }
         console.log("Success!");
         res.status(200).json(stories);
-      }else console.log("Fail");
+      }
     };
   })
-  // .get("/api/scenarios/:issueID", function (req, res) {
-  //   var issueID = req.params.issueID;
-  //
-  //   db.collection(SCENARIOS_COLLECTION)
-  //     .findOne(
-  //       {
-  //         $or: [
-  //           {'issueID': parseInt(issueID)}
-  //         ]
-  //       },
-  //       function (err, docs) {
-  //         if (err) {
-  //           handleError(res, err.message, "Failed to get feature with issueID." + issueID);
-  //         } else {
-  //           console.log("issueID", issueID);
-  //           //var filtered = _.where(docs[0], {id: parseInt(id)});
-  //           console.log(docs);
-  //           res.status(200).json(docs);
-  //         }
-  //       }
-  //     )
-  // })
-  // .put("/api/scenarios/:id", function (req, res) {
-  //   let json = req.body;
-  //   let id = JSON.stringify(json).substring(7, 13);
-  //   console.log("id", id);
-  //   db.collection(SCENARIOS_COLLECTION)
-  //     .findOne(
-  //       {
-  //         $or: [
-  //           {'id': id}
-  //         ]
-  //       }
-  //       ,
-  //       function (err, docs) {
-  //         if (err) {
-  //           handleError(res, err.message, "Failed to get to check if movie already exists.");
-  //         }
-  //         console.log("docs", docs);
-  //         if (docs == null) {
-  //           db.collection(SCENARIOS_COLLECTION)
-  //             .insertOne(json, function (err, res) {
-  //               if (err) throw err;
-  //               console.log("1 document inserted");
-  //               //db.close();
-  //             });
-  //           console.log("Movie added as new document in Collection: MOVIES", json);
-  //           res.status(200).send({
-  //             message: 'Added ' + json
-  //           })
-  //         } else {
-  //           res.status(200).send({
-  //             message: 'Movie already exists in the collection. Use the Update API to change this.'
-  //           })
-  //         }
-  //
-  //       })
-  // })
-  .post("/api/scenarios/add/:id", function (req, res) {
-    let json = req.body;
-    let id = JSON.stringify(json).substring(7, 13);
-    console.log("id", id);
-    db.collection(SCENARIOS_COLLECTION)
-      .findOne(
-        {
-          $or: [
-            {'id': id}
-          ]
-        }
-        ,
-        function (err, docs) {
-          if (err) {
-            handleError(res, err.message, "Failed to get to check if movie already exists.");
-          }
-          console.log("docs", docs);
-          if (docs == null) {
-            db.collection(SCENARIOS_COLLECTION)
-              .insertOne(json, function (err, res) {
-                if (err) throw err;
-                console.log("1 document inserted");
-                //db.close();
-              });
-            console.log("Movie added as new document in Collection: MOVIES", json);
-            res.status(200).send({
-              message: 'Added ' + json
-            })
-          } else {
-            res.status(200).send({
-              message: 'Movie already exists in the collection. Use the Update API to change this.'
-            })
-          }
-
-        })
+  .post("/api/scenario/add/:issueID", function(req, res) {
+    let story = JSON.stringify(req.body);
+    db.createScenario(story.story_id);
+    if (stories_db.findOne({git_issue_id: story.story_id}) != null){
+      res.status(201)}
+    else {
+      res.status(500);
+      res.statusMessage = "No Story with ID: " + story.story_id + " created.";}
   })
-  .delete("/api/scenarios/:id", function (req, res) {
-  let json = req.body;
-  let id = JSON.stringify(json).substring(7, 13);
-  console.log("id", id);
-  db.collection(SCENARIOS_COLLECTION)
-    .findOne(
-      {
-        $or: [
-          {'id': id}
-        ]
-      }
-      ,
-      function (err, docs) {
-        if (err) {
-          handleError(res, err.message, "Failed to get to check if movie already exists.");
-        }
-        console.log("docs", docs);
-        if (docs == null) {
-          db.collection(SCENARIOS_COLLECTION)
-            .insertOne(json, function (err, res) {
-              if (err) throw err;
-              console.log("1 document inserted");
-              //db.close();
-            });
-          console.log("Movie added as new document in Collection: MOVIES", json);
-          res.status(200).send({
-            message: 'Added ' + json
-          })
-        } else {
-          res.status(200).send({
-            message: 'Movie already exists in the collection. Use the Update API to change this.'
-          })
-        }
-
-      })
+  .put("/api/scenario", function (req, res) {
+    let story = JSON.stringify(req.body);
+    if (stories_db.findOne({git_issue_id: story.story_id}) != null) {
+      db.updateScenario(story.story_id, story.scenarios);
+      res.status(200);
+    }
+  })
+  .delete("/api/scenario/:id", function (req, res) {
+    let story = JSON.stringify(req.body);
+    db.deleteScenario(story.story_id ,req.params.id);
+    if (stories_db.findOne({git_issue_id: story.story_id}) == null){
+      res.status(200)}
+    else {
+      res.status(500)}
 });
+
 module.exports = app;
