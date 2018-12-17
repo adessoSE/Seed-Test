@@ -2,12 +2,8 @@
   "name": "cucumber-backend",
   "version": "0.0.1",
   "scripts": {
-    "ng": "ng",
     "start": "node server.js",
-    "build": "ng build",
-    "test": "mocha --reporter spec",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "test": "mocha --reporter spec"
   },
   "private": true,
   "dependencies": {
