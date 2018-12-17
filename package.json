@@ -3,19 +3,32 @@
   "version": "0.0.1",
   "scripts": {
     "ng": "ng",
-    "start": "cd /frontend && ng serve",
+    "start": "cd frontend/ && ng serve",
     "build": "ng build",
     "test": "mocha --reporter spec",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "cd /frontend && ng build --aot --prod"
+    "postinstall": "cd frontend/ && ng build --aot --prod"
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^6.1.0",
+    "@angular/common": "^6.1.0",
+    "@angular/compiler": "^6.1.0",
+    "@angular/core": "^6.1.0",
+    "@angular/forms": "^6.1.0",
+    "@angular/http": "^6.1.0",
+    "@angular/platform-browser": "^6.1.0",
+    "@angular/platform-browser-dynamic": "^6.1.0",
+    "@angular/router": "^6.1.0",
+    "core-js": "^2.5.4",
+    "jquery": "^3.3.1",
+    "rxjs": "~6.2.0",
+    "uikit": "^3.0.0-rc.24",
+    "zone.js": "~0.8.26",
     "body-parser": "^1.13.3",
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
-    "core-js": "^2.5.4",
     "cors": "^2.8.4",
     "express": "^4.13.3",
     "express-limit": "0.0.2",
@@ -25,8 +38,7 @@
     "mocha": "^5.2.0",
     "mongodb": "^2.0.43",
     "underscore": "^1.9.1",
-    "xmlhttprequest": "^1.8.0",
-    "zone.js": "~0.8.26"
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
     "@types/jasmine": "~2.8.8",
