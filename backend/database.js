@@ -6,20 +6,20 @@ var stories = db.addCollection('Stories');
 stories.insert([
     {git_issue_id: 386695799 , scenarios: [
         {scenario_id: 1, 
-        name: 'successfull Login' , 
+        name: 'successful Login' ,
         stepDefinitions: [
             {given: [
                 {id: 1 , name: 'Guest' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: []}
             ] ,
             when: [
-                {id: 1 , name: 'www.addeso.de' , type: 'Website' , pre: 'I want to visite this site:' , mid: '' , post: '' , values: ['']} ,
+                {id: 1 , name: 'www.addeso.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: ['']} ,
                 {id: 2 , name: 'Login' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
                 {id: 3 , name: 'Pets' , type: 'Checkbox' , pre: 'I want to select multiple Values for:' , mid: '' , post: '' , values: ['Cat', 'Dog', 'Spider']} ,
                 
         ],
             then: [
                 {id: 1 , name: 'www.adesso.de/myProfile' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
-                {id: 2 , name: 'Valdidation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Succsessfully logged in']}   
+                {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Successfully logged in']}
             ]
 
         }] } ,
@@ -27,7 +27,7 @@ stories.insert([
         name: 'failed Login' , 
         stepDefinitions: [ 
             {given: [
-                {id: 1 , name: 'User' , type: 'Rolle' , pre: 'As a' , mid: '' , post: '' , values: ['Mustermann' , 'Geheim666']}
+                {id: 1 , name: 'User' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: ['Mustermann' , 'Geheim666']}
             ] ,
             when: [
                 {id: 1 , name: 'www.gamestar.de' , type: 'Website' , pre: 'I want to visite this site:' , mid: '' , post: '' , values: ['']} ,
@@ -36,7 +36,7 @@ stories.insert([
         ],
             then: [
                 {id: 1 , name: 'www.gamestar.de/login' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
-                {id: 2 , name: 'Valdidation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Password or User incorrect']}   
+                {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Password or User incorrect']}
             ]
 
         }]}]},
@@ -48,7 +48,7 @@ stories.insert([
                     {id: 1 , name: 'Guest' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: []}
                 ] ,
                 when: [
-                    {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'I want to visite this site:' , mid: '' , post: '' , values: ['']} ,
+                    {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: ['']} ,
                     {id: 2 , name: 'Username' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Mustermann']} ,
                     {id: 3 , name: 'Password' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Geheim123']} ,
                     {id: 4 , name: 'SignUp' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
@@ -56,7 +56,7 @@ stories.insert([
             ],
                 then: [
                     {id: 1 , name: 'www.abc.de/myProfile' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
-                    {id: 2 , name: 'Valdidation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Succsessfully signed up']}   
+                    {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Successfully signed up']}
                 ]
     
             }] } ,
@@ -64,10 +64,10 @@ stories.insert([
             name: 'user already exist' , 
             stepDefinitions: [ 
                 {given: [
-                    {id: 1 , name: 'Guest' , type: 'Rolle' , pre: 'As a' , mid: '' , post: '' , values: ['']}
+                    {id: 1 , name: 'Guest' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: ['']}
                 ] ,
                 when: [
-                    {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'I want to visite this site:' , mid: '' , post: '' , values: ['']} ,
+                    {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: ['']} ,
                     {id: 2 , name: 'Username' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Mustermann']} ,
                     {id: 3 , name: 'Password' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Geheim123']} ,
                     {id: 4 , name: 'SignUp' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
@@ -75,7 +75,7 @@ stories.insert([
             ],
                 then: [
                     {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
-                    {id: 2 , name: 'Valdidation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['User already exists']}   
+                    {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['User already exists']}
                 ]
     
             }] } ]},
@@ -86,8 +86,8 @@ stories.insert([
 var stepDefinitions = db.addCollection('StepDefinitions');
 
 stepDefinitions.insert([
-    {stepType: 'given', name: '' , type: 'Rolle' , pre: 'As a' , mid: '', post: '', values:[] , selection: ['Guest' , 'User']} ,
-    {stepType: 'when' , name: '' , type: 'Website' , pre: 'I want to visite this site:' , mid: '', post: '', values:[] } ,
+    {stepType: 'given', name: '' , type: 'Role' , pre: 'As a' , mid: '', post: '', values:[] , selection: ['Guest' , 'User']} ,
+    {stepType: 'when' , name: '' , type: 'Website' , pre: 'I want to visit this site:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Button' , pre: 'I want to click the Button:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Field' , pre: 'I want to insert:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Individual_selection' , pre: 'I want to select:' , mid: '', post: '', values:[] } ,
