@@ -6,6 +6,8 @@
 /out-tsc
 
 # dependencies
+/frontend/node_modules
+/backend/node_modules
 /node_modules
 
 # IDEs and editors
@@ -37,3 +39,23 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+frontend/\.editorconfig
+
+frontend/dist/cucumber-frontend/3rdpartylicenses\.txt
+
+frontend/dist/cucumber-frontend/assets/adesso-logo\.jpg
+
+frontend/dist/cucumber-frontend/favicon\.ico
+
+frontend/dist/cucumber-frontend/index\.html
+
+frontend/dist/cucumber-frontend/main\.e9313b2cc4f34e15a426\.js
+
+frontend/dist/cucumber-frontend/polyfills\.f6ae3e8b63939c618130\.js
+
+frontend/dist/cucumber-frontend/runtime\.06daa30a2963fa413676\.js
+
+frontend/dist/cucumber-frontend/scripts\.1783ec7bceeab4026a81\.js
+
+frontend/dist/cucumber-frontend/styles\.929c34a151987d4e0622\.css
