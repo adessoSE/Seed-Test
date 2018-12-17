@@ -10,7 +10,10 @@ declare var UIkit: any;
 })
 export class ScenarioEditorComponent implements OnInit {
   stories;
-  selected;
+  stepDefinitions;
+  selectedStory;
+  selectedFeature;
+  selectedScenario;
   clicked;
   showEditor = false;
   editorLocked: boolean = true;
@@ -18,16 +21,13 @@ export class ScenarioEditorComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    public apiService: ApiService
+    private apiService: ApiService
   ) {
     this.loadStories();
+    this.loadStepDefinitions();
   }
 
   ngOnInit() {
-  }
-
-  showAlert(): void {
-    UIkit.modal.alert('UIkit alert!');
   }
 
   public loadStories(){
@@ -39,16 +39,95 @@ export class ScenarioEditorComponent implements OnInit {
         })
   }
 
+  public loadStepDefinitions(){
+    this.apiService
+      .getStepDefinitions()
+      .subscribe(resp => {
+        this.stepDefinitions = resp;
+        console.log('controller: stepDefinitions loaded', this.stepDefinitions);
+      })
+  }
+
   addScenario (story) {
     let scenario = {
-      id: (this.stories[story.id-1].scenarios.length+1),
-      text: "New" +(this.stories[story.id-1].scenarios.length+1),
-      given_steps: [],
-      when_steps: [],
-      then_steps: [],
-      success: null
+      scenario_id: 125342,
+      name: "New Scenario",
+      stepDefinitions: [
+        {
+          given: [],
+          when: [],
+          then: [],
+        }
+      ]
     };
-    this.stories[this.stories.indexOf(story)].scenarios.push(scenario);
+    console.log("to add scenario", scenario);
+    // this.stories.scenarios.push(scenario);
+  };
+
+  addStepToScenario(step) {
+    console.log("step to add:", step);
+    switch (step.stepType){
+      case 'given':
+        this.selectedScenario.stepDefinitions[0].given.push(step);
+        break;
+      case 'when':
+        this.selectedScenario.stepDefinitions[0].when.push(step);
+        break;
+      case 'then':
+        this.selectedScenario.stepDefinitions[0].then.push(step);
+         break;
+      default:
+        break;
+    }
+    console.log("after adding step", this.selectedScenario);
+
+
+    /*
+        // console.log("feature index: ", this.features.indexOf(this.selectedFeature));
+        // console.log("scenario index: ", this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selected));
+
+        // console.log("nr:", this.features[this.features.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selected)].given_steps.length);
+
+    let nr: number;
+    switch (id){
+      case 1:
+        nr = this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].given_steps.length;
+        break;
+      case 2:
+        nr = this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].when_steps.length;
+        break;
+      case 3:
+        nr = this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].then_steps.length;
+        break;
+      default:
+        nr = 0;
+        break;
+    }
+
+    let step =
+      {
+        id: ( nr + 1),
+        type: type,
+        name: name,
+        value: ['', '', '']
+      };
+
+    switch (id){
+      case 1:
+        this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.stories[this.stories.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].given_steps.push(step);
+        break;
+      case 2:
+        this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.stories[this.stories.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].when_steps.push(step);
+        break;
+      case 3:
+        this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.stories[this.stories.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].then_steps.push(step);
+        break;
+    }
+    */
+  }
+
+  renameScenario(story_ID, scenario) {
+
   };
 
   deleteScenario(feature, scenario) {
@@ -64,12 +143,14 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  select(item) {
-    this.selected = item;
-    // console.log("selected", this.selected)
+  selectScenario(storyID, scenario) {
+    this.selectedScenario = scenario;
+    this.selectedStory = storyID;
     this.showEditor = true;
     this.editorLocked = true;
-    this.clicked = item;
-   //this.selectedRole = '';
+    this.clicked = scenario;
+    console.log("selected scenario", this.selectedScenario)
+    console.log("selected storyID", this.selectedStory)
   };
+
 }

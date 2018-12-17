@@ -4,12 +4,18 @@
     <div class="uk-text-emphasis uk-text-uppercase uk-text-bold">STORIES</div>
     <ul uk-accordion>
       <li *ngFor="let s of stories; let i = index ">
-        <a class="uk-accordion-title uk-background-muted" href="#">
-          #{{i}} {{s.title}}
-          <a  uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
-        </a>
+        <div class="uk-accordion-title uk-background-muted">
+          <a maxlength="10">
+            #{{i+1}} {{s.title | slice:0:25 }}
+          </a>
+          <a uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
+          <!-- <span class="uk-label">{{s.assignee}}</span> -->
+        </div>
         <div class="uk-accordion-content">
-          <p *ngFor="let scen of s.scenarios; let c = index ">#{{c}} {{scen.name}}</p>
+          <a uk-icon="icon: plus-circle" data-uk-tooltip title="Add new scenario" (click)="addScenario(s)"></a>
+          <li *ngFor="let scen of s.scenarios; let c = index">
+            <a href="#" (click)="selectScenario(s.story_id, scen);">#{{i+1}}.{{c+1}} {{scen.name}}</a>
+          </li>
         </div>
       </li>
     </ul>
@@ -18,38 +24,40 @@
   <div *ngIf="(showEditor === true)" class="uk-width-2-3">
     <div class="uk-card uk-card-default" >
       <div class="uk-card-title uk-padding">
-        SCENARIO 1
-        <a href="#changeScenario" uk-icon="icon: pencil" uk-toggle></a>
+        {{selectedScenario.name}}
+        <a href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip title="Change Scenario Title" uk-toggle (click)="renameScenario(selectedScenario);"></a>
         <div class="uk-align-right">
-          <button *ngIf="editorLocked === false;" (click)="lockEditor();" class="uk-button uk-button-secondary" type="button">
+          <a  class="uk-icon-button uk-background-red" data-uk-tooltip title="Delete Scenario" uk-icon="trash"></a>
+          <button data-uk-tooltip title="Edit Scenario."  *ngIf="editorLocked === false;" (click)="lockEditor();" class="uk-button uk-button-secondary" type="button">
             <a uk-icon="icon: lock"></a>
           </button>
-          <button *ngIf="editorLocked === true;" (click)="lockEditor();" class="uk-button uk-button-success" type="button">
-            <a uk-icon="icon: unlock"></a>
+          <button data-uk-tooltip title="Close Editing and Save Scenario." *ngIf="editorLocked === true;" (click)="lockEditor();" class="uk-button uk-button-success" type="button">
+            <a *ngIf="showEditor" uk-icon="icon: unlock"></a>
           </button>
         </div>
       </div>
     </div>
     <br />
 
-      <div class="uk-card uk-card-default" >
+      <div class="uk-card uk-card-default uk-padding" >
         <div class="uk-card-title">
           1. Given
           <div class="uk-align-right">
             <button class="uk-button uk-button-primary" type="button"><a uk-icon="icon: plus"></a></button>
             <div uk-dropdown>
               <ul class="uk-nav uk-dropdown-nav">
-                <li><a href="#">ELEMENT 1</a></li>
-                <li><a href="#">ELEMENT 2</a></li>
-                <li><a href="#">ELEMENT 3</a></li>
+                <li *ngFor="let sd of stepDefinitions; let i = index;">
+                  <a *ngIf="sd.stepType == 'given'" (click)="addStepToScenario(sd);" href="#">{{sd.type}}</a>
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
-        <li>uno</li>
-        <li>dos</li>
-        <li>tress</li>
+        <li *ngFor="let given of selectedScenario.stepDefinitions[0].given; let i = index;">
+          1.{{i+1}} {{given.pre}}
+          <input type="text" value="{{given.name}}"/>
+          {{given.post}}</li>
         <br />
 
         <div class="uk-card-title">
@@ -58,17 +66,18 @@
             <button class="uk-button uk-button-primary" type="button"><a uk-icon="icon: plus"></a></button>
             <div uk-dropdown>
               <ul class="uk-nav uk-dropdown-nav">
-                <li><a href="#">ELEMENT 1</a></li>
-                <li><a href="#">ELEMENT 2</a></li>
-                <li><a href="#">ELEMENT 3</a></li>
+                <li *ngFor="let sd of stepDefinitions; let i = index;">
+                  <a *ngIf="sd.stepType == 'when'" (click)="addStepToScenario(sd);" href="#">{{sd.type}}</a>
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
-        <li>uno</li>
-        <li>dos</li>
-        <li>tress</li>
+        <li *ngFor="let when of selectedScenario.stepDefinitions[0].when; let i = index;">
+          2.{{i+1}} {{when.pre}}
+          <input type="text" value="{{when.name}}"/>
+          {{when.post}}</li>
         <br />
 
         <div class="uk-card-title">
@@ -77,17 +86,17 @@
             <button class="uk-button uk-button-primary" type="button"><a uk-icon="icon: plus"></a></button>
             <div uk-dropdown>
               <ul class="uk-nav uk-dropdown-nav">
-                <li><a href="#">ELEMENT 1</a></li>
-                <li><a href="#">ELEMENT 2</a></li>
-                <li><a href="#">ELEMENT 3</a></li>
+                <li *ngFor="let sd of stepDefinitions; let i = index;">
+                  <a *ngIf="sd.stepType == 'then'" (click)="addStepToScenario(sd);" href="#">{{sd.type}}</a>
+                </li>
               </ul>
             </div>
           </div>
         </div>
-
-        <li>uno</li>
-        <li>dos</li>
-        <li>tress</li>
+        <li *ngFor="let th of selectedScenario.stepDefinitions[0].then; let i = index;">
+          3.{{i+1}} {{th.pre}}
+          <input type="text" value="{{th.name}}"/>
+          {{th.post}}</li>
       </div>
   </div>
 
@@ -95,7 +104,7 @@
 
 <div id="changeScenario" uk-modal>
   <div class="uk-modal-dialog uk-modal-body">
-    <h2>New Scenario Title</h2>
+    <h2>Change Scenario Title</h2>
     <input type="text" #ScenarioName />
 
     <p class="uk-text-right">

@@ -1,0 +1,13 @@
+.uk-accordion-title, .uk-accordion-content, .uk-label {
+  font-size: small;
+}
+
+.uk-background-red {
+  background: red;
+}
+
+.uk-card-title {
+  font-size: medium;
+  font-weight: bold;
+}
+
