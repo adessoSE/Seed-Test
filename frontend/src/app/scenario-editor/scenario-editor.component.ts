@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {tap} from "rxjs/operators";
-import {HttpClient} from "@angular/common/http";
-import {ApiService} from "../Services/api.service";
+import {tap} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
+import {ApiService} from '../Services/api.service';
 declare var UIkit: any;
 @Component({
   selector: 'app-scenario-editor',
@@ -12,12 +12,9 @@ export class ScenarioEditorComponent implements OnInit {
   stories;
   stepDefinitions;
   selectedStory;
-  selectedFeature;
   selectedScenario;
-  clicked;
   showEditor = false;
-  editorLocked: boolean = true;
-  private apiServer: string = "https://cucumberapp.herokuapp.com/api";
+  editorLocked = true;
 
   constructor(
     private http: HttpClient,
@@ -30,43 +27,58 @@ export class ScenarioEditorComponent implements OnInit {
   ngOnInit() {
   }
 
-  public loadStories(){
+  public loadStories() {
       this.apiService
         .getStories()
         .subscribe(resp => {
           this.stories = resp;
           console.log('controller: stories loaded', this.stories);
-        })
+        });
   }
 
-  public loadStepDefinitions(){
+  public loadStepDefinitions() {
     this.apiService
-      .getStepDefinitions()
-      .subscribe(resp => {
-        this.stepDefinitions = resp;
-        console.log('controller: stepDefinitions loaded', this.stepDefinitions);
-      })
+        .getStepDefinitions()
+        .subscribe(resp => {
+            this.stepDefinitions = resp;
+            console.log('controller: stepDefinitions loaded', this.stepDefinitions);
+        });
   }
 
-  addScenario (story) {
-    let scenario = {
-      scenario_id: 125342,
-      name: "New Scenario",
-      stepDefinitions: [
-        {
-          given: [],
-          when: [],
-          then: [],
-        }
-      ]
-    };
-    console.log("to add scenario", scenario);
-    // this.stories.scenarios.push(scenario);
-  };
+  public updateScenario(storyID) {
+    this.apiService
+        .updateScenario(storyID, this.selectedScenario)
+        .subscribe(resp => {
+            console.log('controller: update scenario', resp);
+        });
+  }
 
-  addStepToScenario(step) {
-    console.log("step to add:", step);
-    switch (step.stepType){
+  // todo
+  public addScenario(storyID) {
+      this.apiService
+          .addScenario(storyID, {})
+          .subscribe(resp => {
+            console.log('controller: stepDefinitions loaded', storyID);
+      });
+      // this.loadStories();
+  }
+
+  // todo change api call
+  public deleteScenario() {
+    this.apiService
+        .deleteScenario(this.selectedStory.story_id, this.selectedScenario);
+    /*
+    this.apiService
+        .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
+        .subscribe(resp => {
+            console.log('controller: delete scenario', resp);
+        });
+        */
+  }
+
+  public addStepToScenario(step) {
+    console.log('step to add:', step);
+    switch (step.stepType) {
       case 'given':
         this.selectedScenario.stepDefinitions[0].given.push(step);
         break;
@@ -79,64 +91,19 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
     }
-    console.log("after adding step", this.selectedScenario);
-
-
-    /*
-        // console.log("feature index: ", this.features.indexOf(this.selectedFeature));
-        // console.log("scenario index: ", this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selected));
-
-        // console.log("nr:", this.features[this.features.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selected)].given_steps.length);
-
-    let nr: number;
-    switch (id){
-      case 1:
-        nr = this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].given_steps.length;
-        break;
-      case 2:
-        nr = this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].when_steps.length;
-        break;
-      case 3:
-        nr = this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.features[this.features.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].then_steps.length;
-        break;
-      default:
-        nr = 0;
-        break;
-    }
-
-    let step =
-      {
-        id: ( nr + 1),
-        type: type,
-        name: name,
-        value: ['', '', '']
-      };
-
-    switch (id){
-      case 1:
-        this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.stories[this.stories.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].given_steps.push(step);
-        break;
-      case 2:
-        this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.stories[this.stories.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].when_steps.push(step);
-        break;
-      case 3:
-        this.stories[this.stories.indexOf(this.selectedFeature)].scenarios[this.stories[this.stories.indexOf(this.selectedFeature)].scenarios.indexOf(this.selectedScenario)].then_steps.push(step);
-        break;
-    }
-    */
+    console.log('after adding step', this.selectedScenario);
   }
 
-  renameScenario(story_ID, scenario) {
 
-  };
+  renameScenario(event, name) {
+      if (name) {
+          this.selectedScenario.name = name;
+          console.log('controller: changed name of scenario to: ', this.selectedScenario.name);
+      }
+  }
 
-  deleteScenario(feature, scenario) {
-    this.stories[feature.id-1].scenarios.splice(this.stories[feature.id-1].scenarios.indexOf(scenario), 1);
-    this.showEditor = false;
-  };
-
-  lockEditor(){
-    if(this.editorLocked == false){
+  lockEditor() {
+    if (this.editorLocked == false){
       this.editorLocked = true;
     } else {
       this.editorLocked = false;
@@ -145,12 +112,17 @@ export class ScenarioEditorComponent implements OnInit {
 
   selectScenario(storyID, scenario) {
     this.selectedScenario = scenario;
-    this.selectedStory = storyID;
     this.showEditor = true;
     this.editorLocked = true;
-    this.clicked = scenario;
-    console.log("selected scenario", this.selectedScenario)
-    console.log("selected storyID", this.selectedStory)
-  };
+    console.log('selected scenario', this.selectedScenario);
+    console.log('selected storyID', this.selectedStory);
+  }
+
+  selectStory(story) {
+        this.selectedStory = story;
+        this.showEditor = false;
+        this.editorLocked = true;
+        console.log('selected storyID', this.selectedStory);
+    }
 
 }

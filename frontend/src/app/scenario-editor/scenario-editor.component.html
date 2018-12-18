@@ -4,7 +4,7 @@
     <div class="uk-text-emphasis uk-text-uppercase uk-text-bold">STORIES</div>
     <ul uk-accordion>
       <li *ngFor="let s of stories; let i = index ">
-        <div class="uk-accordion-title uk-background-muted">
+        <div (click)="selectStory(s)" class="uk-accordion-title uk-background-muted">
           <a maxlength="10">
             #{{i+1}} {{s.title | slice:0:25 }}
           </a>
@@ -12,7 +12,7 @@
           <!-- <span class="uk-label">{{s.assignee}}</span> -->
         </div>
         <div class="uk-accordion-content">
-          <a uk-icon="icon: plus-circle" data-uk-tooltip title="Add new scenario" (click)="addScenario(s)"></a>
+          <a uk-icon="icon: plus-circle" data-uk-tooltip title="Add new scenario" (click)="addScenario(s.story_id)"></a>
           <li *ngFor="let scen of s.scenarios; let c = index">
             <a href="#" (click)="selectScenario(s.story_id, scen);">#{{i+1}}.{{c+1}} {{scen.name}}</a>
           </li>
@@ -25,14 +25,14 @@
     <div class="uk-card uk-card-default" >
       <div class="uk-card-title uk-padding">
         {{selectedScenario.name}}
-        <a href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip title="Change Scenario Title" uk-toggle (click)="renameScenario(selectedScenario);"></a>
+        <a href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip title="Change Scenario Title" uk-toggle (click)="renameScenario();"></a>
         <div class="uk-align-right">
-          <a  class="uk-icon-button uk-background-red" data-uk-tooltip title="Delete Scenario" uk-icon="trash"></a>
+          <a  class="uk-icon-button uk-background-red" data-uk-tooltip title="Delete Scenario" uk-icon="trash" (click)="deleteScenario();"></a>
           <button data-uk-tooltip title="Edit Scenario."  *ngIf="editorLocked === false;" (click)="lockEditor();" class="uk-button uk-button-secondary" type="button">
             <a uk-icon="icon: lock"></a>
           </button>
-          <button data-uk-tooltip title="Close Editing and Save Scenario." *ngIf="editorLocked === true;" (click)="lockEditor();" class="uk-button uk-button-success" type="button">
-            <a *ngIf="showEditor" uk-icon="icon: unlock"></a>
+          <button data-uk-tooltip title="Close Editing and Save Scenario." *ngIf="editorLocked === true;" (click)="updateScenario(selectedStory.story_id, selectedScenario);"  class="uk-button uk-button-success" type="button">
+            <a uk-icon="icon: unlock"></a>
           </button>
         </div>
       </div>
@@ -105,11 +105,11 @@
 <div id="changeScenario" uk-modal>
   <div class="uk-modal-dialog uk-modal-body">
     <h2>Change Scenario Title</h2>
-    <input type="text" #ScenarioName />
+    <input type="text" [value]="selectedScenario.name" #ScenarioName />
 
     <p class="uk-text-right">
       <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-      <button class="uk-button uk-button-primary" type="button">Save</button>
+      <button class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)" type="button">Save</button>
     </p>
   </div>
 </div>
