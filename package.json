@@ -3,12 +3,11 @@
   "version": "0.0.1",
   "scripts": {
     "ng": "ng",
-    "start": "cd frontend/ && ng serve",
+    "start": "cd backend/ && node server.js",
     "build": "ng build",
     "test": "mocha --reporter spec",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "postinstall": "cd frontend/ && ng build --aot --prod"
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {

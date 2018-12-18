@@ -46,10 +46,10 @@ app
     res.write('<h2>NOT TESTED:</h2>');
     res.write('<h2>POST</h2>');
     res.write('<p>/api/scenario/add/:issueID</p>');
+    res.write('<p>/api/scenario/update/:issueID</p>');
     res.write('<h2>DELETE</h2>');
-    res.write('<p>/api/scenario/:id</p>');
-    res.write('<h2>PUT</h2>');
-    res.write('<p>/api/scenario</p>');
+    res.write('<p>/api/scenario/delete/:issueID</p>');
+
     res.status(200);
     res.end();
   })
@@ -72,7 +72,6 @@ app
         for(let issue of data) {
           // only relevant issues with label: "story"
           if (isStory(issue)) {
-            //
             let story = {story_id: issue["id"], title: issue["title"], body: issue["body"]};
             if (issue["assignee"] !== null) { // skip in case of "unassigned"
               story["assignee"] = issue["assignee"]["login"];
@@ -89,29 +88,39 @@ app
       }
     };
   })
+  // create scenario
   .post("/api/scenario/add/:issueID", function(req, res) {
-    let story = JSON.stringify(req.body);
-    db.createScenario(story.story_id);
-    if (stories_db.findOne({git_issue_id: story.story_id}) != null){
-      res.status(201)}
-    else {
-      res.status(500);
-      res.statusMessage = "No Story with ID: " + story.story_id + " created.";}
+    if (db.createScenario(parseInt(req.params.issueID))){
+      console.log("Scenario created.")
+      res.status(200).json({});
+    }else {
+      console.log("Could not create scenario.")
+      res.status(500).json({});
+    }
+
   })
-  .put("/api/scenario", function (req, res) {
-    let story = JSON.stringify(req.body);
-    if (stories_db.findOne({git_issue_id: story.story_id}) != null) {
-      db.updateScenario(story.story_id, story.scenarios);
-      res.status(200);
+  // update scenario
+  .post("/api/scenario/update/:issueID", function (req, res) {
+    let scenario = req.body;
+    console.log("Trying to update scenario in issue: " + req.params.issueID + " with ID: " + scenario.scenario_id);
+    if (db.updateScenario(parseInt(req.params.issueID), scenario)){
+      res.status(200).json({});
+      console.log("Scenario updated.")
+    }else {
+      console.log("Could not update the scenario.");
+      res.status(500).json({});;
     }
   })
-  .delete("/api/scenario/:id", function (req, res) {
-    let story = JSON.stringify(req.body);
-    db.deleteScenario(story.story_id ,req.params.id);
-    if (stories_db.findOne({git_issue_id: story.story_id}) == null){
-      res.status(200)}
-    else {
-      res.status(500)}
+  // delete scenario
+  .delete("/api/scenario/delete/:issueID", function (req, res) {
+    let scenario = req.body;
+    console.log("Trying to delete Scenario in Issue: " + req.params.issueID + " with ID: " + scenario.scenario_id);
+    if (db.deleteScenario(parseInt(req.params.issueID), scenario.scenario_id)) {
+      res.status(200).json({})
+    }else {
+      console.log("Could not delete Scenario.");
+      res.status(500).json({})
+    }
   });
 
 module.exports = app;
