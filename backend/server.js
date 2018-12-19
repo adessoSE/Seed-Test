@@ -35,6 +35,11 @@ function isStory(story){
  */
 app
   .use(cors())
+  .use(function (req, res, next) {
+    console.log('Time:', Date.now());
+    console.log('%r %s %n',req, res, next);
+    next();
+  })
   .get("/api", function (req, res) {
     res.writeHead(200, {'content-type': 'text/html'});
     res.write('<h1>Cucumber-API</h1>');
@@ -89,7 +94,7 @@ app
     };
   })
   // create scenario
-  .post("/api/scenario/add/:issueID", function(req, res) {
+  .get("/api/scenario/add/:issueID", function(req, res) {
     if (db.createScenario(parseInt(req.params.issueID))){
       console.log("Scenario created.")
       res.status(200).json({});
@@ -97,7 +102,6 @@ app
       console.log("Could not create scenario.")
       res.status(500).json({});
     }
-
   })
   // update scenario
   .post("/api/scenario/update/:issueID", function (req, res) {
@@ -112,10 +116,9 @@ app
     }
   })
   // delete scenario
-  .delete("/api/scenario/delete/:issueID", function (req, res) {
-    let scenario = req.body;
-    console.log("Trying to delete Scenario in Issue: " + req.params.issueID + " with ID: " + scenario.scenario_id);
-    if (db.deleteScenario(parseInt(req.params.issueID), scenario.scenario_id)) {
+  .delete("/api/story/:issueID/scenario/delete/:scenarioID", function (req, res) {
+    console.log("Trying to delete Scenario in Issue: " + req.params.issueID + " with ID: " + req.params.scenarioID);
+    if (db.deleteScenario(parseInt(req.params.issueID), req.params.scenarioID)) {
       res.status(200).json({})
     }else {
       console.log("Could not delete Scenario.");
