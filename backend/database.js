@@ -14,14 +14,12 @@ stories.insert([
             when: [
                 {id: 1 , name: 'www.addeso.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: ['']} ,
                 {id: 2 , name: 'Login' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
-                {id: 3 , name: 'Pets' , type: 'Checkbox' , pre: 'I want to select multiple Values for:' , mid: '' , post: '' , values: ['Cat', 'Dog', 'Spider']} ,
-                
+                {id: 3 , name: 'Pets' , type: 'Checkbox' , pre: 'I want to select multiple Values for:' , mid: '' , post: '' , values: ['Cat', 'Dog', 'Spider']}
         ],
             then: [
                 {id: 1 , name: 'www.adesso.de/myProfile' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
                 {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Successfully logged in']}
             ]
-
         }] } ,
         {scenario_id: 2, 
         name: 'failed Login' , 
@@ -51,8 +49,7 @@ stories.insert([
                     {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: ['']} ,
                     {id: 2 , name: 'Username' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Mustermann']} ,
                     {id: 3 , name: 'Password' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Geheim123']} ,
-                    {id: 4 , name: 'SignUp' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
-                    
+                    {id: 4 , name: 'SignUp' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']}
             ],
                 then: [
                     {id: 1 , name: 'www.abc.de/myProfile' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
@@ -90,7 +87,7 @@ stepDefinitions.insert([
     {stepType: 'when' , name: '' , type: 'Website' , pre: 'I want to visit this site:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Button' , pre: 'I want to click the Button:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Field' , pre: 'I want to insert:' , mid: '', post: '', values:[] } ,
-    {stepType: 'when' , name: '' , type: 'Individual_selection' , pre: 'I want to select:' , mid: '', post: '', values:[] } ,
+    {stepType: 'when' , name: '' , type: 'Radio (Individual Selection)' , pre: 'I want to select:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Checkbox' , pre: 'I want to select multiple Values for:' , mid: '', post: '', values:[] } ,
     {stepType: 'then' , name: '' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '', post: '', values:[] } ,
     {stepType: 'then' , name: '' , type: 'Text' , pre: 'So i can see the Text:' , mid: '', post: '', values:[] } 
@@ -107,14 +104,15 @@ var emptyStory = {git_issue_id: '' , scenarios: [
         then: []
     }]} ]}
 
-var emptyScenario = {scenario_id: 1, 
-name: '' , 
+var emptyScenario = {
+name: 'New Scenario' ,
 stepDefinitions: [
-    {given: [] ,
-    when: [],
-    then: []
-
-}]}
+    {
+      given: [] ,
+      when: [],
+      then: []
+    }
+]}
 
 // GET all stories TODO: unused right now
 function showStories() {
@@ -125,27 +123,27 @@ function showStepdefinitions() {
     return stepDefinitions.find()
 }
 
-// POST SCENARIO
+// Create SCENARIO
 function createScenario (git_id) {
     var story = stories.findOne({git_issue_id: git_id});
-    
+    var lastScenarioIndex = story.scenarios.length
+    var tmpScenario = emptyScenario;
+
     if (story != null) {
-            var lastScenarioIndex = story.scenarios.length
-            var tmpScenario = emptyScenario
             tmpScenario.scenario_id = story.scenarios[lastScenarioIndex-1].scenario_id + 1
-            tmpScenario.name = 'Scenario ' + (story.scenarios[lastScenarioIndex-1].scenario_id + 1)
+            console.log("scenario id", tmpScenario.scenario_id);
+            tmpScenario.name = 'New Scenario'
+      // todo here is something wrong -> if u add multiple stories the latest id will be applied to all new stories
             stories.chain().find({git_issue_id: git_id}).update(function(obj){
               obj.scenarios.push(tmpScenario)
         })
-    }
-    else {
+    } else {
         var tmpStory = emptyStory
         tmpStory.git_issue_id = git_id
         stories.insert(tmpStory)
     }
     return true;
 }
-
 
 // POST SCENARIO //TODO: create new scenario, if there is none with the ID?
 function updateScenario (git_id, scenario) {
@@ -178,7 +176,7 @@ function deleteScenario (git_id, s_id ) {
             for (var i = 0; i < obj.scenarios.length; i++){
                 if(obj.scenarios[i].scenario_id == s_id){
                     obj.scenarios.splice(i, 1)
-                    console.log("scenario deleted!!!!!!!");
+                    console.log("scenario deleted!");
                     sucess = true;
                     break
                 }
