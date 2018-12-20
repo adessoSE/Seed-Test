@@ -1,26 +1,26 @@
-var express = require("express");
-var cors = require('cors');
-var bodyParser = require("body-parser");
-var app = express();
+let express = require("express");
+let cors = require('cors');
+let bodyParser = require("body-parser");
+let app = express();
 app.use(bodyParser.json({limit: '100kb'}));
 app.use(bodyParser.urlencoded({limit: '100kb', extended: true}));
-var _ = require("underscore");
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var db = require('./database');
-var stories_db = require('./database').stories;
+let XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+let db = require('./database');
+let stories_db = require('./database').stories;
 
 // Initialize the app.
-var server = app.listen(process.env.PORT || 8080, function () {
-  var port = server.address().port;
+let server = app.listen(process.env.PORT || 8080, function () {
+  let port = server.address().port;
   console.log("App now running on port", port);
 });
 
-// TODO: use this?
+// TODO: priority 2 for every api
 function handleError(res, reason, message, code) {
   console.log("ERROR: " + reason);
   res.status(code || 500).json({"error": message});
 }
 function isStory(story){
+  // TODO: do this in GitHUb APi URL (prio 1)
   if (story['labels'] != null) {
     for (let label of story['labels']) {
       if(label['name'] === "story"){
@@ -47,13 +47,11 @@ app
     res.write('<h2>GET</h2>');
     res.write('<p>/api/stories</p>');
     res.write('<p>/api/stepDefinitions</p>');
-
-    res.write('<h2>NOT TESTED:</h2>');
     res.write('<h2>POST</h2>');
     res.write('<p>/api/scenario/add/:issueID</p>');
     res.write('<p>/api/scenario/update/:issueID</p>');
     res.write('<h2>DELETE</h2>');
-    res.write('<p>/api/scenario/delete/:issueID</p>');
+    res.write('<p>/api/story/:issueID/scenario/delete/:issueID</p>');
 
     res.status(200);
     res.end();
@@ -86,43 +84,45 @@ app
               story["scenarios"] = stories_db.findOne({git_issue_id: story["story_id"]}).scenarios;
             }
             stories_db.insert(story); // update database
+            //TODO: delete stories priority 2
             stories.push(story);
           }
         }
-        res.status(200).json(stories);
+        res.status(200).res.measure("Returning stories.").json(stories);
       }
     };
   })
   // create scenario
   .get("/api/scenario/add/:issueID", function(req, res) {
     if (db.createScenario(parseInt(req.params.issueID))){
-      console.log("Scenario created.")
-      res.status(200).json({});
+      console.log("Scenario created.");
+      res.status(200).res.message("Scenario created.");
     }else {
-      console.log("Could not create scenario.")
-      res.status(500).json({});
+      console.log("Could not create scenario.");
+      res.status(500).res.message("Could not create scenario.");
     }
   })
   // update scenario
   .post("/api/scenario/update/:issueID", function (req, res) {
+    // TODO use model to check for scenario (priority 2)
     let scenario = req.body;
     console.log("Trying to update scenario in issue: " + req.params.issueID + " with ID: " + scenario.scenario_id);
     if (db.updateScenario(parseInt(req.params.issueID), scenario)){
-      res.status(200).json({});
+      res.status(200).res.message("Scenario updated.");
       console.log("Scenario updated.")
     }else {
       console.log("Could not update the scenario.");
-      res.status(500).json({});;
+      res.status(500).res.message("Could not update the scenario.");
     }
   })
   // delete scenario
   .delete("/api/story/:issueID/scenario/delete/:scenarioID", function (req, res) {
     console.log("Trying to delete Scenario in Issue: " + req.params.issueID + " with ID: " + req.params.scenarioID);
     if (db.deleteScenario(parseInt(req.params.issueID), req.params.scenarioID)) {
-      res.status(200).json({})
+      res.status(200).res.message("Scenario deleted.").json({});
     }else {
       console.log("Could not delete Scenario.");
-      res.status(500).json({})
+      res.status(500)res.message("Could not delete Scenario.").json({});
     }
   });
 
