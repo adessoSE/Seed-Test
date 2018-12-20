@@ -1,9 +1,7 @@
-let express = require("express");
+let express = require('express');
 let cors = require('cors');
 let bodyParser = require("body-parser");
 let app = express();
-app.use(bodyParser.json({limit: '100kb'}));
-app.use(bodyParser.urlencoded({limit: '100kb', extended: true}));
 let XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 let db = require('./database');
 let stories_db = require('./database').stories;
@@ -35,6 +33,8 @@ function isStory(story){
  */
 app
   .use(cors())
+  .use(bodyParser.json({limit: '100kb'}))
+  .use(bodyParser.urlencoded({limit: '100kb', extended: true}))
   .use(function (req, res, next) {
     console.log('Time:', Date.now());
     console.log('%r %s %n',req, res, next);
@@ -47,8 +47,8 @@ app
     res.write('<h2>GET</h2>');
     res.write('<p>/api/stories</p>');
     res.write('<p>/api/stepDefinitions</p>');
-    res.write('<h2>POST</h2>');
     res.write('<p>/api/scenario/add/:issueID</p>');
+    res.write('<h2>POST</h2>');
     res.write('<p>/api/scenario/update/:issueID</p>');
     res.write('<h2>DELETE</h2>');
     res.write('<p>/api/story/:issueID/scenario/delete/:issueID</p>');
