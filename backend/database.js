@@ -2,17 +2,19 @@ var loki = require('lokijs');
 var db = new loki('db.json');
 var stories = db.addCollection('Stories');
 
-// Test Data
+//TODO Prio 1: try/catch for alle database functions
+
+// Test Data    //TODO: Prio 1: seperate Testdata from database
 stories.insert([
     {git_issue_id: 386695799 , scenarios: [
         {scenario_id: 1, 
         name: 'successful Login' ,
         stepDefinitions: [
-            {given: [
-                {id: 1 , name: 'Guest' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: []}
+            {given: [   //TODO:Prio 1: first Value is the User or Guest, Prio 2: Values array without empty String 
+                {id: 1 , name: 'Role' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: ['Guest']}
             ] ,
             when: [
-                {id: 1 , name: 'www.addeso.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: ['']} ,
+                {id: 1 , name: 'www.addeso.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: [] ,
                 {id: 2 , name: 'Login' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
                 {id: 3 , name: 'Pets' , type: 'Checkbox' , pre: 'I want to select multiple Values for:' , mid: '' , post: '' , values: ['Cat', 'Dog', 'Spider']}
         ],
@@ -24,7 +26,7 @@ stories.insert([
         {scenario_id: 2, 
         name: 'failed Login' , 
         stepDefinitions: [ 
-            {given: [
+            {given: [   //TODO: Prio 1: first Value is the User or Guest
                 {id: 1 , name: 'User' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: ['Mustermann' , 'Geheim666']}
             ] ,
             when: [
@@ -43,7 +45,7 @@ stories.insert([
             name: 'sign up' , 
             stepDefinitions: [
                 {given: [
-                    {id: 1 , name: 'Guest' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: []}
+                    {id: 1 , name: 'Role' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: ['User']}
                 ] ,
                 when: [
                     {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'I want to visit this site:' , mid: '' , post: '' , values: ['']} ,
@@ -82,6 +84,7 @@ stories.insert([
 // Step Definitions
 var stepDefinitions = db.addCollection('StepDefinitions');
 
+// TODO: Prio 2: change pre,mid,post /delete
 stepDefinitions.insert([
     {stepType: 'given', name: '' , type: 'Role' , pre: 'As a' , mid: '', post: '', values:[] , selection: ['Guest' , 'User']} ,
     {stepType: 'when' , name: '' , type: 'Website' , pre: 'I want to visit this site:' , mid: '', post: '', values:[] } ,
@@ -94,7 +97,7 @@ stepDefinitions.insert([
     
 ])
 
-// Mockups for empty Story and Scenarios
+// Mockups for empty Story and Scenarios    //TODO Prio 2: define as Model 
 var emptyStory = {git_issue_id: '' , scenarios: [
     {scenario_id: 1, 
     name: '' , 
@@ -114,7 +117,7 @@ stepDefinitions: [
     }
 ]}
 
-// GET all stories TODO: unused right now
+// GET all stories TODO: unused right now  //TODO Prio 1: check
 function showStories() {
     stories.find()
 }
@@ -123,7 +126,7 @@ function showStepdefinitions() {
     return stepDefinitions.find()
 }
 
-// Create SCENARIO
+// Create SCENARIO //TODO Prio 1: divde into two seperate functions, solve bug
 function createScenario (git_id) {
     var story = stories.findOne({git_issue_id: git_id});
     var lastScenarioIndex = story.scenarios.length
@@ -142,7 +145,7 @@ function createScenario (git_id) {
         tmpStory.git_issue_id = git_id
         stories.insert(tmpStory)
     }
-    return true;
+    return true; //TODO Prio 1: try/catch
 }
 
 // POST SCENARIO //TODO: create new scenario, if there is none with the ID?
@@ -166,7 +169,7 @@ function updateScenario (git_id, scenario) {
   return success;
 }
 
-// DELETE Scenario
+// DELETE Scenario //TODO Prio 1: try/catch
 function deleteScenario (git_id, s_id ) {
   let sucess = false;
     stories
@@ -174,7 +177,7 @@ function deleteScenario (git_id, s_id ) {
         .find({ "git_issue_id" : git_id})
         .where(function(obj) {
             for (var i = 0; i < obj.scenarios.length; i++){
-                if(obj.scenarios[i].scenario_id == s_id){
+                if(obj.scenarios[i].scenario_id === s_id){
                     obj.scenarios.splice(i, 1)
                     console.log("scenario deleted!");
                     sucess = true;
