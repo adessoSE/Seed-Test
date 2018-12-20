@@ -122,7 +122,7 @@ app
       res.status(200).res.message("Scenario deleted.").json({});
     }else {
       console.log("Could not delete Scenario.");
-      res.status(500)res.message("Could not delete Scenario.").json({});
+      res.status(500).res.message("Could not delete Scenario.").json({});
     }
   });
 
