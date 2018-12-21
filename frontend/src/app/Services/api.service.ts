@@ -26,7 +26,6 @@ export class ApiService {
       ));
   }
 
-  // todo delete scenario BODY
   public addScenario(storyID) {
       return this.http
           .get<any>(this.apiServer + '/scenario/add/' + storyID)

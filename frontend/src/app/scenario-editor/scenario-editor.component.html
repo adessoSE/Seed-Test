@@ -53,7 +53,7 @@
         <li *ngFor="let given of selectedScenario.stepDefinitions[0].given; let i = index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true"a uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, 1, i);"></button>
           1.{{i+1}} {{given.pre}}
-          <input [disabled]="editorLocked == true" type="text" value="{{given.name}}"/>
+            <input [disabled]="editorLocked == true" type="text" value="{{given.name}}"/>
           {{given.post}}</li>
         <br /><br />
 
@@ -75,7 +75,11 @@
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, 2, i);"></button>
           2.{{i+1}} {{when.pre}}
           <input [disabled]="editorLocked == true" type="text" value="{{when.name}}"/>
-          {{when.post}}</li>
+            <a *ngIf="when.values.length > 0" >
+                {{when.mid}}
+                <input *ngFor="let value of when.values;" [disabled]="editorLocked == true" type="text" value="{{value}}"/>
+            </a>
+        </li>
         <br /><br />
 
         <div class="uk-card-title">
@@ -95,7 +99,11 @@
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, 3, i);"></button>
           3.{{i+1}} {{th.pre}}
           <input [disabled]="editorLocked == true" type="text" value="{{th.name}}"/>
-          {{th.post}}</li>
+            <a *ngIf="th.values.length > 0" >
+                {{th.mid}}
+                <input *ngFor="let value of th.values;" [disabled]="editorLocked == true" type="text" value="{{value}}"/>
+            </a>
+        </li>
       </div>
   </div>
 
