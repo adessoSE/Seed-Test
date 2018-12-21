@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {tap} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {ApiService} from '../Services/api.service';
-declare var UIkit: any;
 @Component({
   selector: 'app-scenario-editor',
   templateUrl: './scenario-editor.component.html',
@@ -27,7 +25,7 @@ export class ScenarioEditorComponent implements OnInit {
   ngOnInit() {
   }
 
-  public loadStories() {
+  loadStories() {
       this.apiService
         .getStories()
         .subscribe(resp => {
@@ -36,7 +34,7 @@ export class ScenarioEditorComponent implements OnInit {
         });
   }
 
-  public loadStepDefinitions() {
+  loadStepDefinitions() {
     this.apiService
         .getStepDefinitions()
         .subscribe(resp => {
@@ -45,7 +43,7 @@ export class ScenarioEditorComponent implements OnInit {
         });
   }
 
-  public updateScenario(storyID) {
+  updateScenario(storyID) {
     this.apiService
         .updateScenario(storyID, this.selectedScenario)
         .subscribe(resp => {
@@ -53,30 +51,44 @@ export class ScenarioEditorComponent implements OnInit {
         });
   }
 
-  // todo
-  public addScenario(storyID) {
+  // todo scenario not added to the array from api call
+  addScenario(storyID) {
       this.apiService
-          .addScenario(storyID, {})
+          .addScenario(storyID)
           .subscribe(resp => {
             console.log('controller: stepDefinitions loaded', storyID);
+            const indexStory: number = this.stories.indexOf(this.selectedStory);
+              console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
+              if (indexStory !== -1) {
+                  this.stories[indexStory].scenarios.push(
+                      {
+                          name: 'New Scenario', stepDefinitions: [
+                          {
+                              given: [] ,
+                              when: [],
+                              then: []
+                          }
+                      ]});
+              }
       });
-      // this.loadStories();
   }
 
-  // todo change api call
-  public deleteScenario() {
-    this.apiService
-        .deleteScenario(this.selectedStory.story_id, this.selectedScenario);
-    /*
+  deleteScenario(event) {
     this.apiService
         .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
         .subscribe(resp => {
             console.log('controller: delete scenario', resp);
+            this.showEditor = false;
+
+            const indexStory: number = this.stories.indexOf(this.selectedStory);
+            const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
+            if (indexScenario !== -1) {
+                this.stories[indexStory].scenarios.splice(indexScenario, 1);
+            }
         });
-        */
   }
 
-  public addStepToScenario(step) {
+  addStepToScenario(step) {
     console.log('step to add:', step);
     switch (step.stepType) {
       case 'given':
@@ -94,6 +106,20 @@ export class ScenarioEditorComponent implements OnInit {
     console.log('after adding step', this.selectedScenario);
   }
 
+  removeStepToScenario(event, stepDefTypeID, index) {
+      console.log('remove step in ' + stepDefTypeID + ' on index ' + index);
+      switch (stepDefTypeID) {
+          case 1:
+              this.selectedScenario.stepDefinitions[0].given.splice(index, 1);
+              break;
+          case 2:
+              this.selectedScenario.stepDefinitions[0].when.splice(index, 1);
+              break;
+          case 3:
+              this.selectedScenario.stepDefinitions[0].then.splice(index, 1);
+              break;
+      }
+    }
 
   renameScenario(event, name) {
       if (name) {
@@ -103,7 +129,7 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   lockEditor() {
-    if (this.editorLocked == false){
+    if (this.editorLocked === false) {
       this.editorLocked = true;
     } else {
       this.editorLocked = false;

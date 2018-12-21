@@ -27,9 +27,9 @@ export class ApiService {
   }
 
   // todo delete scenario BODY
-  public addScenario(storyID, scenario) {
+  public addScenario(storyID) {
       return this.http
-          .post<any>(this.apiServer + '/scenario/add/' + storyID, scenario)
+          .get<any>(this.apiServer + '/scenario/add/' + storyID)
           .pipe(tap(resp =>
             console.log('Add new scenario in story ' + storyID + '!', resp)
       ));
@@ -43,7 +43,6 @@ export class ApiService {
         ));
   }
 
-  //todo
   public deleteScenario(storyID, scenario) {
    return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/scenario/delete/' + scenario.scenario_id)
