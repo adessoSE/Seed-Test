@@ -4,8 +4,8 @@ var stories = db.addCollection('Stories');
 
 // Test Data
 stories.insert([
-    {git_issue_id: 386695799 , scenarios: [
-        {scenario_id: 1, 
+    {story_id: 386695799 , scenarios: [
+        {scenario_id: 1,
         name: 'successful Login' ,
         stepDefinitions: [
             {given: [
@@ -21,16 +21,16 @@ stories.insert([
                 {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Successfully logged in']}
             ]
         }] } ,
-        {scenario_id: 2, 
-        name: 'failed Login' , 
-        stepDefinitions: [ 
+        {scenario_id: 2,
+        name: 'failed Login' ,
+        stepDefinitions: [
             {given: [
                 {id: 1 , name: 'User' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: ['Mustermann' , 'Geheim666']}
             ] ,
             when: [
                 {id: 1 , name: 'www.gamestar.de' , type: 'Website' , pre: 'I want to visite this site:' , mid: '' , post: '' , values: ['']} ,
                 {id: 2 , name: 'Login' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
-                {id: 3 , name: 'Games' , type: 'individual_selection' , pre: 'I want to select:' , mid: '' , post: '' , values: ['Rpg']}       
+                {id: 3 , name: 'Games' , type: 'individual_selection' , pre: 'I want to select:' , mid: '' , post: '' , values: ['Rpg']}
         ],
             then: [
                 {id: 1 , name: 'www.gamestar.de/login' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
@@ -38,9 +38,9 @@ stories.insert([
             ]
 
         }]}]},
-        {git_issue_id: 386697647 , scenarios: [
-            {scenario_id: 1, 
-            name: 'sign up' , 
+        {story_id: 386697647 , scenarios: [
+            {scenario_id: 1,
+            name: 'sign up' ,
             stepDefinitions: [
                 {given: [
                     {id: 1 , name: 'Guest' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: []}
@@ -55,11 +55,11 @@ stories.insert([
                     {id: 1 , name: 'www.abc.de/myProfile' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
                     {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['Successfully signed up']}
                 ]
-    
+
             }] } ,
-            {scenario_id: 2, 
-            name: 'user already exist' , 
-            stepDefinitions: [ 
+            {scenario_id: 2,
+            name: 'user already exist' ,
+            stepDefinitions: [
                 {given: [
                     {id: 1 , name: 'Guest' , type: 'Role' , pre: 'As a' , mid: '' , post: '' , values: ['']}
                 ] ,
@@ -68,15 +68,15 @@ stories.insert([
                     {id: 2 , name: 'Username' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Mustermann']} ,
                     {id: 3 , name: 'Password' , type: 'Website' , pre: 'I want to insert:' , mid: '' , post: '' , values: ['Geheim123']} ,
                     {id: 4 , name: 'SignUp' , type: 'Button' , pre: 'I want to click the Button:' , mid: '' , post: '' , values: ['']} ,
-                          
+
             ],
                 then: [
                     {id: 1 , name: 'www.abc.de' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '' , post: '' , values: ['']} ,
                     {id: 2 , name: 'Validation' , type: 'Text' , pre: 'So i can see the Text:' , mid: '' , post: '' , values: ['User already exists']}
                 ]
-    
+
             }] } ]},
-        
+
 ])
 
 // Step Definitions
@@ -90,14 +90,14 @@ stepDefinitions.insert([
     {stepType: 'when' , name: '' , type: 'Radio (Individual Selection)' , pre: 'I want to select:' , mid: '', post: '', values:[] } ,
     {stepType: 'when' , name: '' , type: 'Checkbox' , pre: 'I want to select multiple Values for:' , mid: '', post: '', values:[] } ,
     {stepType: 'then' , name: '' , type: 'Website' , pre: 'So I will be navigated to:' , mid: '', post: '', values:[] } ,
-    {stepType: 'then' , name: '' , type: 'Text' , pre: 'So i can see the Text:' , mid: '', post: '', values:[] } 
-    
+    {stepType: 'then' , name: '' , type: 'Text' , pre: 'So i can see the Text:' , mid: '', post: '', values:[] }
+
 ])
 
 // Mockups for empty Story and Scenarios
-var emptyStory = {git_issue_id: '' , scenarios: [
-    {scenario_id: 1, 
-    name: '' , 
+var emptyStory = {story_id: '' , scenarios: [
+    {scenario_id: 1,
+    name: '' ,
     stepDefinitions: [
         {given: [] ,
         when: [],
@@ -125,7 +125,7 @@ function showStepdefinitions() {
 
 // Create SCENARIO
 function createScenario (git_id) {
-    var story = stories.findOne({git_issue_id: git_id});
+    var story = stories.findOne({story_id: git_id});
     var lastScenarioIndex = story.scenarios.length
     var tmpScenario = emptyScenario;
 
@@ -134,12 +134,12 @@ function createScenario (git_id) {
             console.log("scenario id", tmpScenario.scenario_id);
             tmpScenario.name = 'New Scenario'
       // todo here is something wrong -> if u add multiple stories the latest id will be applied to all new stories
-            stories.chain().find({git_issue_id: git_id}).update(function(obj){
+            stories.chain().find({story_id: git_id}).update(function(obj){
               obj.scenarios.push(tmpScenario)
         })
     } else {
         var tmpStory = emptyStory
-        tmpStory.git_issue_id = git_id
+        tmpStory.story_id = git_id
         stories.insert(tmpStory)
     }
     return true;
@@ -148,11 +148,11 @@ function createScenario (git_id) {
 // POST SCENARIO //TODO: create new scenario, if there is none with the ID?
 function updateScenario (git_id, scenario) {
   let success = false;
-    var story = stories.findOne({git_issue_id: git_id});
+    var story = stories.findOne({story_id: git_id});
     if (story != null) {
         stories
         .chain()
-        .find({ "git_issue_id" : git_id})
+        .find({ "story_id" : git_id})
         .where(function(obj) {
             for (let i in obj.scenarios){
                 if(obj.scenarios[i].scenario_id === scenario.scenario_id){
@@ -171,7 +171,7 @@ function deleteScenario (git_id, s_id ) {
   let sucess = false;
     stories
         .chain()
-        .find({ "git_issue_id" : git_id})
+        .find({ "story_id" : git_id})
         .where(function(obj) {
             for (var i = 0; i < obj.scenarios.length; i++){
                 if(obj.scenarios[i].scenario_id == s_id){
