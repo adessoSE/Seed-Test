@@ -1,22 +1,24 @@
-let express = require('express');
-let cors = require('cors');
-let bodyParser = require("body-parser");
-let app = express();
-let XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-let db = require('./database');
-let stories_db = require('./database').stories;
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require("body-parser");
+const app = express();
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+const db = require('./database');
+const stories_db = require('./database').stories;
+const process = require('process');
+
 
 // Initialize the app.
-let server = app.listen(process.env.PORT || 8080, function () {
+const server = app.listen(process.env.PORT || 8080, function () {
   let port = server.address().port;
   console.log("App now running on port", port);
 });
 
 // TODO: priority 2 for every api
-function handleError(res, reason, statusMessage, code) {
-  console.log("ERROR: " + reason);
-  res.status(code || 500).json({"error": statusMessage});
-}
+// function handleError(res, reason, statusMessage, code) {
+//   console.log("ERROR: " + reason);
+//   res.status(code || 500).json({"error": statusMessage});
+// }
 
 /**
  * API Description
@@ -27,7 +29,7 @@ app
   .use(bodyParser.urlencoded({limit: '100kb', extended: true}))
   .use(function (req, res, next) {
     console.log('Time:', Date.now());
-    console.log('%r %s %n',req, res, next);
+    console.log('%r %s %n', req, res, next);
     next();
   })
   .get("/api", function (req, res) {
@@ -48,7 +50,7 @@ app
   /**
    * Scenarios API
    */
-  .get("/api/stepDefinitions", function (req, res, next) {
+  .get("/api/stepDefinitions", function (req, res) {
     res.status(200).json(db.showStepdefinitions());
   })
   .get("/api/stories", function (req, res) {
@@ -56,24 +58,24 @@ app
     let request = new XMLHttpRequest();
     request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story');
     request.send();
-    request.onreadystatechange=function(){
-      if (this.readyState===4 && this.status===200){
+    request.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
         let data = JSON.parse(request.responseText);
         // init result
         let stories = [];
-        for(let issue of data) {
+        for (let issue of data) {
           // only relevant issues with label: "story"
-            let story = {story_id: issue["id"], title: issue["title"], body: issue["body"], state: issue['state']};
-            if (issue["assignee"] !== null) { // skip in case of "unassigned"
-              story["assignee"] = issue["assignee"]["login"];
-              story["assignee_avatar_url"] = issue["assignee"]["avatar_url"];
-            }
-            if (stories_db.findOne({story_id: story.story_id}) != null) { // skip if there is no data for the issue yet
-              story["scenarios"] = stories_db.findOne({story_id: story.story_id}).scenarios;
-            }
-            stories_db.insert(story); // update database
-            //TODO: delete stories priority 2
-            stories.push(story);
+          let story = {story_id: issue["id"], title: issue["title"], body: issue["body"], state: issue['state']};
+          if (issue["assignee"] !== null) { // skip in case of "unassigned"
+            story["assignee"] = issue["assignee"]["login"];
+            story["assignee_avatar_url"] = issue["assignee"]["avatar_url"];
+          }
+          if (stories_db.findOne({story_id: story.story_id}) != null) { // skip if there is no data for the issue yet
+            story["scenarios"] = stories_db.findOne({story_id: story.story_id}).scenarios;
+          }
+          stories_db.insert(story); // update database
+          //TODO: delete stories priority 2
+          stories.push(story);
         }
         res.status(200).json(stories);
         console.log("Returning stories.")
@@ -81,11 +83,11 @@ app
     };
   })
   // create scenario
-  .get("/api/scenario/add/:issueID", function(req, res) {
-    if (db.createScenario(parseInt(req.params.issueID))){
+  .get("/api/scenario/add/:issueID", function (req, res) {
+    if (db.createScenario(parseInt(req.params.issueID))) {
       res.status(200);
       console.log("Scenario created.");
-    }else {
+    } else {
       console.log("Could not create scenario.");
       res.status(500);
     }
@@ -95,10 +97,10 @@ app
     // TODO use model to check for scenario (priority 2)
     let scenario = req.body;
     console.log("Trying to update scenario in issue: " + req.params.issueID + " with ID: " + scenario.scenario_id);
-    if (db.updateScenario(parseInt(req.params.issueID), scenario)){
+    if (db.updateScenario(parseInt(req.params.issueID), scenario)) {
       res.status(200);
       console.log("Scenario updated.");
-    }else {
+    } else {
       console.log("Could not update the scenario.");
       res.status(500);
     }
@@ -109,7 +111,7 @@ app
     if (db.deleteScenario(parseInt(req.params.issueID), req.params.scenarioID)) {
       res.status(200).json({});
       console.log("Scenario deleted.");
-    }else {
+    } else {
       console.log("Could not delete Scenario.");
       res.status(500).json({});
     }
