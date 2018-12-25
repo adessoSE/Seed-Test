@@ -3,14 +3,10 @@
   "version": "0.0.1",
   "scripts": {
     "start": "node server.js",
-<<<<<<< HEAD
-    "test": "mocha --reporter spec"
-=======
     "build": "npm run lint",
     "clean": "rimraf ./dist",
     "lint": "eslint *.js",
     "tsc": "tsc"
->>>>>>> develop-backend
   },
   "private": true,
   "dependencies": {
