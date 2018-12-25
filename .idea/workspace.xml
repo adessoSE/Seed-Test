@@ -4,13 +4,22 @@
     <list default="true" id="37eddd6a-4b83-4cb2-822b-e0a269934f51" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
 <<<<<<< HEAD
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
 =======
+=======
+      <change beforePath="$PROJECT_DIR$/backend/.eslintrc.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.eslintrc.json" afterDir="false" />
+>>>>>>> develop-backend
       <change beforePath="$PROJECT_DIR$/backend/database.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/server.js" afterDir="false" />
+<<<<<<< HEAD
 >>>>>>> develop-backend
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+=======
+>>>>>>> develop-backend
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -21,6 +30,7 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+<<<<<<< HEAD
   <component name="FUSProjectUsageTrigger">
     <session id="-1906988765">
       <usages-collector id="statistics.lifecycle.project">
@@ -162,26 +172,47 @@
       </usages-collector>
     </session>
   </component>
+=======
+>>>>>>> develop-backend
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/backend/server.js">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
+<<<<<<< HEAD
             <state>
               <caret line="83" column="56" selection-start-line="83" selection-start-column="56" selection-end-line="83" selection-end-column="56" />
 =======
             <state relative-caret-position="226">
               <caret line="101" column="20" lean-forward="true" selection-start-line="101" selection-start-column="20" selection-end-line="101" selection-end-column="20" />
+=======
+            <state relative-caret-position="153">
+              <caret line="9" selection-start-line="9" selection-end-line="9" />
+>>>>>>> develop-backend
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/package.json">
+        <entry file="file://$PROJECT_DIR$/backend/.eslintrc.json">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="153">
               <caret line="9" column="19" lean-forward="true" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+>>>>>>> develop-backend
+=======
+            <state relative-caret-position="85">
+              <caret line="5" column="36" lean-forward="true" selection-start-line="5" selection-start-column="36" selection-end-line="5" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/backend/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="8" column="16" lean-forward="true" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
 >>>>>>> develop-backend
             </state>
           </provider>
@@ -190,6 +221,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/backend/database.js">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
 <<<<<<< HEAD
             <state relative-caret-position="238">
               <caret line="98" selection-start-line="98" selection-end-line="98" />
@@ -205,6 +237,10 @@
 =======
             <state relative-caret-position="158">
               <caret line="149" column="75" selection-start-line="149" selection-start-column="75" selection-end-line="149" selection-end-column="75" />
+>>>>>>> develop-backend
+=======
+            <state relative-caret-position="68">
+              <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
 >>>>>>> develop-backend
             </state>
           </provider>
@@ -226,6 +262,14 @@
       <find>put</find>
       <find>findOne</find>
       <find>data[i]</find>
+      <find>git_issue_id</find>
+      <find>git_issue_idd</find>
+      <find>message</find>
+      <find>.statusMessage</find>
+      <find>.statusText</find>
+      <find>res.responseText</find>
+      <find>let</find>
+      <find>var</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -242,6 +286,8 @@
         <option value="$PROJECT_DIR$/backend/queries.js" />
         <option value="$PROJECT_DIR$/backend/github-api.js" />
         <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/backend/.eslintrc.json" />
+        <option value="$PROJECT_DIR$/backend/package.json" />
         <option value="$PROJECT_DIR$/backend/server.js" />
 <<<<<<< HEAD
         <option value="$PROJECT_DIR$/backend/package.json" />
@@ -252,6 +298,7 @@
       </list>
     </option>
   </component>
+<<<<<<< HEAD
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsGulpfileManager">
@@ -1419,6 +1466,10 @@
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="542" />
+=======
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="160" />
+>>>>>>> develop-backend
     <option name="width" value="980" />
     <option name="height" value="885" />
   </component>
@@ -1428,7 +1479,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -1450,10 +1500,12 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="editor.config.ad.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.tslint" value="project" />
@@ -1475,8 +1527,13 @@
       </list>
     </option>
   </component>
+<<<<<<< HEAD
   <component name="RunManager" selected="npm.postinstall">
     <configuration name="github-api.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" nameIsGenerated="true" path-to-js-file="github-api.js" working-dir="$PROJECT_DIR$/backend">
+=======
+  <component name="RunManager">
+    <configuration name="github-api.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="github-api.js" working-dir="$PROJECT_DIR$/backend">
+>>>>>>> develop-backend
       <method v="2" />
     </configuration>
     <configuration name="postinstall" type="js.build_tools.npm" factoryName="npm" temporary="true" nameIsGenerated="true">
@@ -1539,15 +1596,24 @@
       <workItem from="1545062873362" duration="1067000" />
 =======
       <workItem from="1545123015598" duration="13166000" />
+<<<<<<< HEAD
+>>>>>>> develop-backend
+=======
+      <workItem from="1545754320838" duration="452000" />
+      <workItem from="1545754960439" duration="2073000" />
 >>>>>>> develop-backend
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
 <<<<<<< HEAD
+<<<<<<< HEAD
     <option name="totallyTimeSpent" value="42457000" />
 =======
     <option name="totallyTimeSpent" value="54409000" />
+>>>>>>> develop-backend
+=======
+    <option name="totallyTimeSpent" value="59857000" />
 >>>>>>> develop-backend
   </component>
   <component name="TodoView">
@@ -1561,24 +1627,29 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16920027" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24983476" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32952183" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32907802" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3286119" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.32952183" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286119" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
 <<<<<<< HEAD
       <window_info anchor="bottom" id="Version Control" order="8" />
 =======
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32907802" />
+<<<<<<< HEAD
 >>>>>>> develop-backend
       <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.3460993" />
+=======
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.34560907" />
+>>>>>>> develop-backend
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="TypeScript" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -1586,19 +1657,19 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
     <layout-to-restore>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16920027" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24983476" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32952183" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32907802" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3286119" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.32952183" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286119" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.3460993" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32907802" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.34560907" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="TypeScript" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -1608,9 +1679,6 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
-  </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/backend/queries.js" />
@@ -1635,21 +1703,37 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/util/db.js" />
-    <entry file="file://$PROJECT_DIR$/backend/package.json">
+    <entry file="file://$PROJECT_DIR$/package.json" />
+    <entry file="file://$PROJECT_DIR$/backend/.editorconfig">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backend/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="30" lean-forward="true" selection-start-line="5" selection-start-column="30" selection-end-line="5" selection-end-column="30" />
+        <state relative-caret-position="187">
+          <caret line="11" column="6" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/backend/.eslintrc.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="36" lean-forward="true" selection-start-line="5" selection-start-column="36" selection-end-line="5" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/package.json">
+>>>>>>> develop-backend
+=======
+    <entry file="file://$PROJECT_DIR$/backend/server.js">
 >>>>>>> develop-backend
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
-          <caret line="9" column="19" lean-forward="true" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
 <<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/backend/util/db.js" />
     <entry file="file://$PROJECT_DIR$/package-lock.json">
@@ -1665,11 +1749,18 @@
         <state relative-caret-position="226">
           <caret line="101" column="20" lean-forward="true" selection-start-line="101" selection-start-column="20" selection-end-line="101" selection-end-column="20" />
 >>>>>>> develop-backend
+=======
+    <entry file="file://$PROJECT_DIR$/backend/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="16" lean-forward="true" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
+>>>>>>> develop-backend
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/database.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
 <<<<<<< HEAD
         <state relative-caret-position="238">
           <caret line="98" selection-start-line="98" selection-end-line="98" />
@@ -1695,6 +1786,10 @@
 =======
         <state relative-caret-position="158">
           <caret line="149" column="75" selection-start-line="149" selection-start-column="75" selection-end-line="149" selection-end-column="75" />
+>>>>>>> develop-backend
+=======
+        <state relative-caret-position="68">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
 >>>>>>> develop-backend
         </state>
       </provider>
