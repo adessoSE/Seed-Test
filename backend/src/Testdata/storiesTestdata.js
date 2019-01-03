@@ -7,11 +7,32 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              {id: 1, label: 'Guest', type: 'Role', pre: 'As a', mid: '', values: []}
+              { id: 1, 
+                label: 'Guest', 
+                type: 'Role', 
+                pre: 'As a', 
+                mid: '', 
+                values: [], 
+                selection: ['Guest']
+              }
             ],
             when: [
-              {id: 1, label: 'www.addeso.de', type: 'Website', pre: 'I want to visit this site:', mid: '', values: []},
-              {id: 2, label: 'Login', type: 'Button', pre: 'I want to click the Button:', mid: '', values: []},
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.addeso.de']
+              },
+              {
+                id: 2,
+                label: 'Login',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
               {
                 id: 3,
                 label: 'Pets',
@@ -24,11 +45,11 @@ module.exports.testdata = [
             then: [
               {
                 id: 1,
-                label: 'www.adesso.de/myProfile',
+                label: 'Website',
                 type: 'Website',
                 pre: 'So I will be navigated to:',
                 mid: '',
-                values: []
+                values: ['www.adesso.de/myProfile']
               },
               {
                 id: 2,
@@ -47,28 +68,50 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              {id: 1, label: 'User', type: 'Role', pre: 'As a', mid: '', values: ['Mustermann', 'Geheim666']}
+              {
+                id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Mustermann', 'Geheim666'],
+                selection: ['User']
+              }
             ],
             when: [
               {
                 id: 1,
-                label: 'www.gamestar.de',
+                label: 'Website',
                 type: 'Website',
                 pre: 'I want to visite this site:',
                 mid: '',
+                values: ['www.gamestar.de']
+              },
+              {
+                id: 2,
+                label: 'Login',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
                 values: []
               },
-              {id: 2, label: 'Login', type: 'Button', pre: 'I want to click the Button:', mid: '', values: []},
-              {id: 3, label: 'Games', type: 'individual_selection', pre: 'I want to select:', mid: '', values: ['Rpg']}
+              {
+                id: 3,
+                label: 'Games',
+                type: 'individual_selection',
+                pre: 'I want to select:',
+                mid: '',
+                values: ['Rpg']
+              }
             ],
             then: [
               {
                 id: 1,
-                label: 'www.gamestar.de/login',
+                label: 'Website',
                 type: 'Website',
                 pre: 'So I will be navigated to:',
                 mid: '',
-                values: []
+                values: ['www.gamestar.de/login']
               },
               {
                 id: 2,
@@ -91,22 +134,60 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              {id: 1, label: 'Role', type: 'Role', pre: 'As a', mid: '', values: ['User']}
+              {
+                id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Mustermann', 'Geheim666'],
+                selection: ['User']
+              }
             ],
             when: [
-              {id: 1, label: 'www.abc.de', type: 'Website', pre: 'I want to visit this site:', mid: '', values: []},
-              {id: 2, label: 'Username', type: 'Website', pre: 'I want to insert:', mid: '', values: ['Mustermann']},
-              {id: 3, label: 'Password', type: 'Website', pre: 'I want to insert:', mid: '', values: ['Geheim123']},
-              {id: 4, label: 'SignUp', type: 'Button', pre: 'I want to click the Button:', mid: '', values: []}
+              {
+                id: 1, label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.abc.de']
+              },
+
+              {
+                id: 2,
+                label: 'Username',
+                type: 'Website',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['Mustermann']
+              },
+
+              {
+                id: 3,
+                label: 'Password',
+                type: 'Website',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['Geheim123']
+              },
+
+              {
+                id: 4,
+                label: 'SignUp',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              }
             ],
             then: [
               {
                 id: 1,
-                label: 'www.abc.de/myProfile',
+                label: 'Website',
                 type: 'Website',
                 pre: 'So I will be navigated to:',
                 mid: '',
-                values: []
+                values: ['www.abc.de/myProfile']
               },
               {
                 id: 2,
@@ -126,10 +207,25 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              {id: 1, label: 'Guest', type: 'Role', pre: 'As a', mid: '', values: ['']}
+              {
+                id: 1,
+                label: 'Guest',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: [''],
+                selection: ['Guest']
+              }
             ],
             when: [
-              {id: 1, label: 'www.abc.de', type: 'Website', pre: 'I want to visit this site:', mid: '', values: []},
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.abc.de']
+              },
               {
                 id: 2,
                 label: 'Username',
@@ -138,12 +234,33 @@ module.exports.testdata = [
                 mid: 'field, the value/text',
                 values: ['Mustermann']
               },
-              {id: 3, label: 'Password', type: 'Field', pre: 'I want to insert:', mid: '', values: ['Geheim123']},
-              {id: 4, label: 'SignUp', type: 'Button', pre: 'I want to click the Button:', mid: '', values: ['']},
+              {
+                id: 3,
+                label: 'Password',
+                type: 'Field',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['Geheim123']
+              },
+              {
+                id: 4,
+                label: 'SignUp',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: ['']
+              },
 
             ],
             then: [
-              {id: 1, label: 'www.abc.de', type: 'Website', pre: 'So I will be navigated to:', mid: '', values: []},
+              {
+                id: 1,
+                label: 'www.abc.de',
+                type: 'Website',
+                pre: 'So I will be navigated to:',
+                mid: '',
+                values: []
+              },
               {
                 id: 2,
                 label: 'Validation',
