@@ -6,7 +6,7 @@ const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const db = require('./database');
 const stories_db = require('./database').stories;
 const process = require('process');
-
+const emptyStory = require('./models/emptyStory');
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, function () {
@@ -14,11 +14,11 @@ const server = app.listen(process.env.PORT || 8080, function () {
   console.log("App now running on port", port);
 });
 
-// TODO: priority 2 for every api
-// function handleError(res, reason, statusMessage, code) {
-//   console.log("ERROR: " + reason);
-//   res.status(code || 500).json({"error": statusMessage});
-// }
+
+function handleError(res, reason, statusMessage, code) {
+  console.log("ERROR: " + reason);
+  res.status(code || 500).json({"error": statusMessage});
+}
 
 /**
  * API Description
@@ -70,8 +70,20 @@ app
             story["assignee"] = issue["assignee"]["login"];
             story["assignee_avatar_url"] = issue["assignee"]["avatar_url"];
           }
-          if (stories_db.findOne({story_id: story.story_id}) != null) { // skip if there is no data for the issue yet
-            story["scenarios"] = stories_db.findOne({story_id: story.story_id}).scenarios;
+          if (stories_db.findOne({story_id: issue["id"]}) !== null) { // skip if there is no data for the issue yet
+            story["scenarios"] = stories_db.findOne({story_id: issue["id"]}).scenarios;
+          } else {
+            story["scenarios"] =[
+              {
+                scenario_id: 1,
+                name: '',
+                stepDefinitions: [
+                  {
+                    given: [],
+                    when: [],
+                    then: []
+                  }]
+              }]
           }
           stories_db.insert(story); // update database
           //TODO: delete stories priority 2
@@ -84,12 +96,12 @@ app
   })
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
-    if (db.createScenario(parseInt(req.params.issueID))) {
-      res.status(200).json();
-      console.log("Scenario created.");
+    scenario = db.createScenario(parseInt(req.params.issueID));
+    if (typeof(scenario) == "string") {
+      handleError(res, req, scenario, 500);
     } else {
-      console.log("Could not create scenario.");
-      res.status(500);
+      res.status(200).json(scenario);
+      console.log("Scenario created.");
     }
   })
   // update scenario

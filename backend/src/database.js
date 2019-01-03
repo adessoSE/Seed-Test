@@ -1,7 +1,7 @@
 const loki = require('lokijs');
 const db = new loki('db.json');
 const stepDefinitions = db.addCollection('Step Definitions');
-const testdata = require('./Testdata/storiesTestdata');
+const testdata = require('./Testdata/storiesTestdata').testdata;
 const emptyScenario = require('./models/emptyScenario');
 const stories = db.addCollection('Stories');
 
@@ -61,21 +61,26 @@ function createScenario(git_id) {
   try {
     let story = stories.findOne({story_id: git_id});
     let lastScenarioIndex = story.scenarios.length;
-    let tmpScenario = emptyScenario;
+    let tmpScenario = {
+      scenario_id : 0,
+      name : 'New Scenario',
+      stepDefinitions : [
+        {
+          given: [],
+          when: [],
+          then: []
+        }
+      ]
+    };
     if (story != null) {
       tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
       stories.chain().find({"story_id": git_id}).where(function (obj) {
         obj.scenarios.push(tmpScenario)
       });
-      // }// else {
-      //     let tmpStory = emptyStory
-      //     tmpStory.story_id = git_id
-      //     stories.insert(tmpStory)
-      // }
-      return true;
+      return tmpScenario;
     }
   } catch (error) {
-
+    return "Could not create Scenario." + error;
   }
 }
 

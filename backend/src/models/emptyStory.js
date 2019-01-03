@@ -1,4 +1,4 @@
-module.export.emptyStory= {
+const story ={
   story_id: '',
   scenarios: [
     {
@@ -12,3 +12,5 @@ module.export.emptyStory= {
         }]
     }]
 };
+
+module.exports = story;

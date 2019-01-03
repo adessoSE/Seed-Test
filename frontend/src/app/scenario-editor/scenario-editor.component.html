@@ -56,7 +56,7 @@
 
         <li *ngFor="let given of selectedScenario.stepDefinitions[0].given; let i = index;">
           1.{{i+1}} {{given.pre}}
-          <input type="text" value="{{given.name}}"/>
+          <input type="text" value="{{given.label}}"/>
           {{given.post}}</li>
         <br />
 
@@ -76,7 +76,7 @@
 
         <li *ngFor="let when of selectedScenario.stepDefinitions[0].when; let i = index;">
           2.{{i+1}} {{when.pre}}
-          <input type="text" value="{{when.name}}"/>
+          <input type="text" value="{{when.label}}"/>
           {{when.post}}</li>
         <br />
 
@@ -95,7 +95,7 @@
         </div>
         <li *ngFor="let th of selectedScenario.stepDefinitions[0].then; let i = index;">
           3.{{i+1}} {{th.pre}}
-          <input type="text" value="{{th.name}}"/>
+          <input type="text" value="{{th.label}}"/>
           {{th.post}}</li>
       </div>
   </div>

@@ -1,4 +1,4 @@
-module.exports.emptyScenario=  {
+module.exports = {
   scenario_id : 0,
   name : 'New Scenario',
   stepDefinitions : [
