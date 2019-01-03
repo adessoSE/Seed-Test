@@ -85,7 +85,7 @@ app
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
     if (db.createScenario(parseInt(req.params.issueID))) {
-      res.status(200);
+      res.status(200).json();
       console.log("Scenario created.");
     } else {
       console.log("Could not create scenario.");

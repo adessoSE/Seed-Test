@@ -2,10 +2,10 @@
   "name": "cucumber-backend",
   "version": "0.0.1",
   "scripts": {
-    "start": "node server.js",
+    "start": "node src/server.js",
     "build": "npm run lint",
     "clean": "rimraf ./dist",
-    "lint": "eslint *.js",
+    "lint": "eslint src/*.js",
     "tsc": "tsc"
   },
   "private": true,
