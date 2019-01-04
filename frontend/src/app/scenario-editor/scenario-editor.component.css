@@ -6,6 +6,15 @@
   background: red;
 }
 
+.uk-background-green {
+  background: #32d296;
+}
+
+.disabled {
+  color: gray !important;
+  background: white !important;;
+}
+
 .uk-card-title {
   font-size: medium;
   font-weight: bold;
