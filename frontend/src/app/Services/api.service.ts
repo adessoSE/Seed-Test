@@ -38,7 +38,7 @@ export class ApiService {
     return this.http
         .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
         .pipe(tap(resp =>
-          console.log('Update scenario ' + scenario + ' in story ' + storyID, resp)
+          console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
         ));
   }
 

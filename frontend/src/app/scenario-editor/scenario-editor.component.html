@@ -28,8 +28,8 @@
         <button [disabled]="editorLocked == true" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
         <div class="uk-align-right">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash" (click)="deleteScenario($event);"></button>
-          <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="editorLocked === false;" data-uk-tooltip title="Lock and Save Scenario" uk-icon="unlock" (click)="lockEditor();"></a>
-          <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked === true;" data-uk-tooltip title="Unlock Scenario" uk-icon="lock" (click)="updateScenario(selectedStory.story_id, selectedScenario);lockEditor();"></a>
+          <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="editorLocked === false;" data-uk-tooltip title="Lock and Save Scenario" uk-icon="unlock" (click)="updateScenario(selectedStory.story_id, selectedScenario);lockEditor();"></a>
+          <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked === true;" data-uk-tooltip title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@
         <li *ngFor="let given of selectedScenario.stepDefinitions[0].given; let i = index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true"a uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, 1, i);"></button>
           1.{{i+1}} {{given.pre}}
-            <input [disabled]="editorLocked == true" type="text" value="{{given.label}}"/>
+            <input #value [disabled]="editorLocked == true" type="text" value="{{given.label}}" on-change="given.label = value.value"/>
           {{given.post}}</li>
         <br /><br />
 
@@ -74,10 +74,10 @@
         <li *ngFor="let when of selectedScenario.stepDefinitions[0].when; let i = index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, 2, i);"></button>
           2.{{i+1}} {{when.pre}}
-          <input [disabled]="editorLocked == true" type="text" value="{{when.label}}"/>
+          <input #when_value [disabled]="editorLocked == true" type="text" value="{{when.label}}" on-change="when.label = when_value.value"/>
             <a *ngIf="when.values.length > 0" >
                 {{when.mid}}
-                <input *ngFor="let value of when.values;" [disabled]="editorLocked == true" type="text" value="{{value}}"/>
+                <input *ngFor="let value of when.values;" [disabled]="editorLocked == true" type="text" value="{{value}} "/>
             </a>
         </li>
         <br /><br />
@@ -98,7 +98,7 @@
         <li *ngFor="let th of selectedScenario.stepDefinitions[0].then; let i = index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, 3, i);"></button>
           3.{{i+1}} {{th.pre}}
-          <input [disabled]="editorLocked == true" type="text" value="{{th.label}}"/>
+          <input #then_value [disabled]="editorLocked == true" type="text" value="{{th.label}}" on-change="th.label = then_value.value"/>
             <a *ngIf="th.values.length > 0" >
                 {{th.mid}}
                 <input *ngFor="let value of th.values;" [disabled]="editorLocked == true" type="text" value="{{value}}"/>

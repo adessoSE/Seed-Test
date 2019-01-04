@@ -76,7 +76,7 @@ app
             story["scenarios"] =[
               {
                 scenario_id: 1,
-                name: '',
+                name: 'New Scenario',
                 stepDefinitions: [
                   {
                     given: [],
@@ -97,8 +97,8 @@ app
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
     scenario = db.createScenario(parseInt(req.params.issueID));
-    if (typeof(scenario) == "string") {
-      handleError(res, req, scenario, 500);
+    if (typeof(scenario) === "string") {
+      handleError(res, scenario, scenario, 500);
     } else {
       res.status(200).json(scenario);
       console.log("Scenario created.");
@@ -109,12 +109,12 @@ app
     // TODO use model to check for scenario (priority 2)
     let scenario = req.body;
     console.log("Trying to update scenario in issue: " + req.params.issueID + " with ID: " + scenario.scenario_id);
-    if (db.updateScenario(parseInt(req.params.issueID), scenario)) {
-      res.status(200);
-      console.log("Scenario updated.");
+    let updated_scenario = db.updateScenario(parseInt(req.params.issueID), scenario);
+    if (typeof(updated_scenario) === "string") {
+      handleError(res, updated_scenario, updated_scenario, 500);
     } else {
-      console.log("Could not update the scenario.");
-      res.status(500);
+      res.status(200).json(updated_scenario);
+      console.log('Scenario', scenario.scenario_id ,'updated in Story', req.params.issueID);
     }
   })
   // delete scenario

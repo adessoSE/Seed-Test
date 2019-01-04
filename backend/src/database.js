@@ -90,12 +90,12 @@ function showStepdefinitions() {
 // Create SCENARIO //TODO Prio 1: divide into two seperate functions
 function createScenario(git_id) {
   try {
-    let story = stories.findOne({ story_id: git_id });
+    let story = stories.findOne({story_id: git_id});
     let lastScenarioIndex = story.scenarios.length;
     let tmpScenario = {
-      scenario_id : 0,
-      name : 'New Scenario',
-      stepDefinitions : [
+      scenario_id: 0,
+      name: 'New Scenario',
+      stepDefinitions: [
         {
           given: [],
           when: [],
@@ -105,7 +105,7 @@ function createScenario(git_id) {
     };
     if (story != null) {
       tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-      stories.chain().find({ "story_id": git_id }).where(function (obj) {
+      stories.chain().find({"story_id": git_id}).where(function (obj) {
         obj.scenarios.push(tmpScenario)
       });
       return tmpScenario;
@@ -116,34 +116,28 @@ function createScenario(git_id) {
 }
 
 // POST SCENARIO
-function updateScenario(git_id, scenario) {
+function updateScenario(git_id, updated_scenario) {
   try {
-    let success = false;
-    let scenarioCheck = stories.findOne({ story_id: git_id }.scenarios);
-    if (scenarioCheck != null) { // replace scenario
       stories
         .chain()
-        .find({ "story_id": git_id })
+        .find({"story_id": git_id})
         .where(function (obj) {
-          for (let i in obj.scenarios) {
-            if (obj.scenarios[i].scenario_id === scenario.scenario_id) {
-              obj.scenarios.splice(i, 1, scenario);
-              success = true;
+          for (let scenario of obj.scenarios) {
+            if (obj.scenarios.indexOf(scenario) === obj.scenarios.length){
+              obj.scenarios.push(scenario);
               break;
             }
-            if (i === obj.scenarios.length - 1) { // insert scenario
-              stories.chain().find({ "story_id": git_id }).where(function (obj) {
-                obj.scenarios.push(scenario)
-
-              })
+            if (scenario.scenario_id === updated_scenario.scenario_id) {
+              obj.scenarios.splice(obj.scenarios.indexOf(scenario), 1, updated_scenario);
+              break;
             }
           }
+          return "fail";
         })
-    }
-    return success;
   } catch (error) {
-
+    return error;
   }
+  return updated_scenario;
 }
 
 // DELETE Scenario
@@ -152,7 +146,7 @@ function deleteScenario(git_id, s_id) {
     let success = false;
     stories
       .chain()
-      .find({ "story_id": git_id })
+      .find({"story_id": git_id})
       .where(function (obj) {
         for (let i = 0; i < obj.scenarios.length; i++) {
           if (obj.scenarios[i].scenario_id === s_id) {

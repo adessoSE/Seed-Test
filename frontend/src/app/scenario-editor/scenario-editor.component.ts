@@ -47,29 +47,20 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
         .updateScenario(storyID, this.selectedScenario)
         .subscribe(resp => {
-            console.log('controller: update scenario', resp);
+            console.log('controller: update scenario:', resp);
         });
   }
 
-  // todo scenario not added to the array from api call
   addScenario(storyID) {
       this.apiService
           .addScenario(storyID)
           .subscribe(resp => {
             console.log('controller: stepDefinitions loaded', storyID);
             const indexStory: number = this.stories.indexOf(this.selectedStory);
-              console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
+            console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
               if (indexStory !== -1) {
-                  this.stories[indexStory].scenarios.push(
-                      {
-                          name: 'New Scenario', stepDefinitions: [
-                          {
-                              given: [] ,
-                              when: [],
-                              then: []
-                          }
-                      ]});
-              }
+                  this.stories[indexStory].scenarios.push(resp);
+            }
       });
   }
 
