@@ -13,7 +13,7 @@ module.exports.testdata = [
                 pre: 'As a', 
                 mid: '', 
                 values: [], 
-                selection: ['Guest']
+                selection: ['Guest', 'User']
               }
             ],
             when: [
@@ -75,7 +75,7 @@ module.exports.testdata = [
                 pre: 'As a',
                 mid: '',
                 values: ['Mustermann', 'Geheim666'],
-                selection: ['User']
+                selection: ['Guest', 'User']
               }
             ],
             when: [
@@ -141,7 +141,7 @@ module.exports.testdata = [
                 pre: 'As a',
                 mid: '',
                 values: ['Mustermann', 'Geheim666'],
-                selection: ['User']
+                selection: ['Guest', 'User']
               }
             ],
             when: [
@@ -156,7 +156,7 @@ module.exports.testdata = [
               {
                 id: 2,
                 label: 'Username',
-                type: 'Website',
+                type: 'Field',
                 pre: 'I want to insert:',
                 mid: '',
                 values: ['Mustermann']
@@ -165,7 +165,7 @@ module.exports.testdata = [
               {
                 id: 3,
                 label: 'Password',
-                type: 'Website',
+                type: 'Field',
                 pre: 'I want to insert:',
                 mid: '',
                 values: ['Geheim123']
@@ -214,7 +214,7 @@ module.exports.testdata = [
                 pre: 'As a',
                 mid: '',
                 values: [''],
-                selection: ['Guest']
+                selection: ['Guest', 'User']
               }
             ],
             when: [
