@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="37eddd6a-4b83-4cb2-822b-e0a269934f51" name="Default Changelist" comment="">
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -20,6 +21,13 @@
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
 =======
 >>>>>>> develop-backend
+=======
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+>>>>>>> develop-frontend
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -31,6 +39,9 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> develop-frontend
   <component name="FUSProjectUsageTrigger">
     <session id="-1906988765">
       <usages-collector id="statistics.lifecycle.project">
@@ -110,6 +121,7 @@
       <usages-collector id="statistics.lifecycle.project">
         <counts>
 <<<<<<< HEAD
+<<<<<<< HEAD
           <entry key="project.closed" value="8" />
           <entry key="project.open.time.0" value="5" />
           <entry key="project.open.time.1" value="1" />
@@ -126,30 +138,48 @@
           <entry key="project.open.time.6" value="1" />
           <entry key="project.opened" value="10" />
 >>>>>>> develop-backend
+=======
+          <entry key="project.closed" value="6" />
+          <entry key="project.open.time.0" value="5" />
+          <entry key="project.open.time.1" value="1" />
+          <entry key="project.open.time.4" value="1" />
+          <entry key="project.open.time.5" value="1" />
+          <entry key="project.open.time.6" value="1" />
+          <entry key="project.opened" value="9" />
+>>>>>>> develop-frontend
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="js" value="12" />
 <<<<<<< HEAD
+<<<<<<< HEAD
           <entry key="json" value="7" />
 =======
           <entry key="json" value="3" />
 >>>>>>> develop-backend
+=======
+          <entry key="json" value="1" />
+>>>>>>> develop-frontend
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
 <<<<<<< HEAD
+<<<<<<< HEAD
           <entry key="JSON" value="7" />
 =======
           <entry key="JSON" value="3" />
 >>>>>>> develop-backend
+=======
+          <entry key="JSON" value="1" />
+>>>>>>> develop-frontend
           <entry key="JavaScript" value="12" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
+<<<<<<< HEAD
 <<<<<<< HEAD
           <entry key="js" value="4247" />
           <entry key="json" value="48" />
@@ -157,10 +187,14 @@
           <entry key="js" value="5803" />
           <entry key="json" value="26" />
 >>>>>>> develop-backend
+=======
+          <entry key="js" value="3957" />
+>>>>>>> develop-frontend
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
+<<<<<<< HEAD
 <<<<<<< HEAD
           <entry key="JSON" value="48" />
           <entry key="JavaScript" value="4247" />
@@ -168,10 +202,65 @@
           <entry key="JSON" value="26" />
           <entry key="JavaScript" value="5803" />
 >>>>>>> develop-backend
+=======
+          <entry key="JavaScript" value="3957" />
+        </counts>
+      </usages-collector>
+    </session>
+    <session id="366750723">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.0" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.vcs.git.usages">
+        <counts>
+          <entry key="git.branch.checkout.local" value="1" />
+          <entry key="git.branch.checkout.remote" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="css" value="1" />
+          <entry key="gitignore" value="1" />
+          <entry key="html" value="2" />
+          <entry key="js" value="2" />
+          <entry key="json" value="6" />
+          <entry key="ts" value="3" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="CSS" value="1" />
+          <entry key="HTML" value="2" />
+          <entry key="JSON" value="6" />
+          <entry key="JavaScript" value="2" />
+          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="TypeScript" value="3" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="js" value="1" />
+          <entry key="json" value="45" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="JSON" value="45" />
+          <entry key="JavaScript" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.js.language.service.starts">
+        <counts>
+          <entry key="Angular2LanguageService" value="1" />
+>>>>>>> develop-frontend
         </counts>
       </usages-collector>
     </session>
   </component>
+<<<<<<< HEAD
 =======
 >>>>>>> develop-backend
   <component name="FileEditorManager">
@@ -190,11 +279,24 @@
             <state relative-caret-position="153">
               <caret line="9" selection-start-line="9" selection-end-line="9" />
 >>>>>>> develop-backend
+=======
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/frontend/src/app/Services/api.service.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="476">
+              <caret line="30" column="43" selection-start-line="30" selection-start-column="43" selection-end-line="30" selection-end-column="43" />
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
+>>>>>>> develop-frontend
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+<<<<<<< HEAD
         <entry file="file://$PROJECT_DIR$/backend/.eslintrc.json">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
@@ -204,31 +306,61 @@
 =======
             <state relative-caret-position="85">
               <caret line="5" column="36" lean-forward="true" selection-start-line="5" selection-start-column="36" selection-end-line="5" selection-end-column="36" />
+=======
+        <entry file="file://$PROJECT_DIR$/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="170">
+              <caret line="10" column="42" selection-start-line="10" selection-start-column="42" selection-end-line="10" selection-end-column="42" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/frontend/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="5" column="28" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
+>>>>>>> develop-frontend
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+<<<<<<< HEAD
         <entry file="file://$PROJECT_DIR$/backend/package.json">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="136">
               <caret line="8" column="16" lean-forward="true" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
 >>>>>>> develop-backend
+=======
+        <entry file="file://$PROJECT_DIR$/frontend/server.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="11" column="61" selection-start-line="11" selection-start-column="61" selection-end-line="11" selection-end-column="61" />
+>>>>>>> develop-frontend
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+<<<<<<< HEAD
         <entry file="file://$PROJECT_DIR$/backend/database.js">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
 <<<<<<< HEAD
             <state relative-caret-position="238">
               <caret line="98" selection-start-line="98" selection-end-line="98" />
+=======
+        <entry file="file://$PROJECT_DIR$/../cucumber-app/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="476">
+              <caret line="31" column="24" selection-start-line="14" selection-start-column="4" selection-end-line="31" selection-end-column="24" />
+>>>>>>> develop-frontend
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
@@ -242,6 +374,50 @@
             <state relative-caret-position="68">
               <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
 >>>>>>> develop-backend
+=======
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/frontend/src/app/app.component.html">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="20" column="9" selection-start-line="20" selection-start-column="9" selection-end-line="20" selection-end-column="9" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="170">
+              <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.spec.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#73#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="518">
+              <caret line="50" column="13" selection-start-line="50" selection-start-column="2" selection-end-line="50" selection-end-column="13" />
+              <folding>
+                <element signature="e#0#50#0" expanded="true" />
+              </folding>
+>>>>>>> develop-frontend
             </state>
           </provider>
         </entry>
@@ -261,6 +437,7 @@
       <find>386695799</find>
       <find>put</find>
       <find>findOne</find>
+<<<<<<< HEAD
       <find>data[i]</find>
       <find>git_issue_id</find>
       <find>git_issue_idd</find>
@@ -270,6 +447,8 @@
       <find>res.responseText</find>
       <find>let</find>
       <find>var</find>
+=======
+>>>>>>> develop-frontend
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -285,6 +464,7 @@
       <list>
         <option value="$PROJECT_DIR$/backend/queries.js" />
         <option value="$PROJECT_DIR$/backend/github-api.js" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/backend/.eslintrc.json" />
         <option value="$PROJECT_DIR$/backend/package.json" />
@@ -299,6 +479,17 @@
     </option>
   </component>
 <<<<<<< HEAD
+=======
+        <option value="$PROJECT_DIR$/backend/database.js" />
+        <option value="$PROJECT_DIR$/backend/server.js" />
+        <option value="$PROJECT_DIR$/../cucumber-app/package.json" />
+        <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/frontend/server.js" />
+        <option value="$PROJECT_DIR$/frontend/package.json" />
+      </list>
+    </option>
+  </component>
+>>>>>>> develop-frontend
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsGulpfileManager">
@@ -306,13 +497,17 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="NodeModulesDirectoryManager">
+<<<<<<< HEAD
     <handled-path value="$PROJECT_DIR$/backend/node_modules" />
+=======
+>>>>>>> develop-frontend
     <handled-path value="$PROJECT_DIR$/frontend/node_modules" />
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths>
       <path value="$PROJECT_DIR$/backend/package.json" />
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
       <path value="$PROJECT_DIR$/frontend/node_modules/@angular-devkit/architect/package.json" />
@@ -1460,11 +1655,14 @@
       <path value="$PROJECT_DIR$/frontend/node_modules/yn/package.json" />
       <path value="$PROJECT_DIR$/frontend/node_modules/zone.js/package.json" />
 >>>>>>> develop-backend
+=======
+>>>>>>> develop-frontend
       <path value="$PROJECT_DIR$/frontend/package.json" />
       <path value="$PROJECT_DIR$/package.json" />
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
+<<<<<<< HEAD
     <option name="x" value="542" />
 =======
   <component name="ProjectFrameBounds" extendedState="6">
@@ -1472,6 +1670,12 @@
 >>>>>>> develop-backend
     <option name="width" value="980" />
     <option name="height" value="885" />
+=======
+    <option name="x" value="-217" />
+    <option name="y" value="-25" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
+>>>>>>> develop-frontend
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -1479,10 +1683,15 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+<<<<<<< HEAD
+=======
+      <pane id="Scope" />
+>>>>>>> develop-frontend
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
+<<<<<<< HEAD
               <item name="Projekt Gurke" type="b2602c69:ProjectViewProjectNode" />
               <item name="Projekt Gurke" type="462c0819:PsiDirectoryNode" />
             </path>
@@ -1494,17 +1703,29 @@
             <path>
               <item name="Projekt Gurke" type="b2602c69:ProjectViewProjectNode" />
               <item name="Projekt Gurke" type="462c0819:PsiDirectoryNode" />
+=======
+              <item name="Projekt-Gurke" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Projekt-Gurke" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Projekt-Gurke" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Projekt-Gurke" type="462c0819:PsiDirectoryNode" />
+>>>>>>> develop-frontend
               <item name="frontend" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+<<<<<<< HEAD
       <pane id="Scope" />
+=======
+>>>>>>> develop-frontend
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
+<<<<<<< HEAD
     <property name="editor.config.ad.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -1514,6 +1735,18 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="ts.external.directory.path" value="C:\Users\bardin\Desktop\Projekt-Gurke\backend\node_modules\typescript\lib" />
+=======
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="ts.external.directory.path" value="C:\Users\siggi\Desktop\Projekt-Gurke\node_modules\typescript\lib" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\siggi\Desktop\Projekt-Gurke\frontend" />
+    </key>
+>>>>>>> develop-frontend
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -1527,6 +1760,7 @@
       </list>
     </option>
   </component>
+<<<<<<< HEAD
 <<<<<<< HEAD
   <component name="RunManager" selected="npm.postinstall">
     <configuration name="github-api.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" nameIsGenerated="true" path-to-js-file="github-api.js" working-dir="$PROJECT_DIR$/backend">
@@ -1565,6 +1799,15 @@
       <list>
         <item itemvalue="npm.postinstall" />
         <item itemvalue="npm.start" />
+=======
+  <component name="RunManager">
+    <configuration name="github-api.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" nameIsGenerated="true" path-to-js-file="github-api.js" working-dir="$PROJECT_DIR$/backend">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Node.js.github-api.js" />
+>>>>>>> develop-frontend
         <item itemvalue="Node.js.github-api.js" />
       </list>
     </recent_temporary>
@@ -1592,6 +1835,7 @@
       <workItem from="1544598187043" duration="21000" />
       <workItem from="1544782084034" duration="6530000" />
 <<<<<<< HEAD
+<<<<<<< HEAD
       <workItem from="1545062586739" duration="147000" />
       <workItem from="1545062873362" duration="1067000" />
 =======
@@ -1602,10 +1846,14 @@
       <workItem from="1545754320838" duration="452000" />
       <workItem from="1545754960439" duration="2073000" />
 >>>>>>> develop-backend
+=======
+      <workItem from="1545005944733" duration="3344000" />
+>>>>>>> develop-frontend
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     <option name="totallyTimeSpent" value="42457000" />
@@ -1615,6 +1863,9 @@
 =======
     <option name="totallyTimeSpent" value="59857000" />
 >>>>>>> develop-backend
+=======
+    <option name="totallyTimeSpent" value="43219000" />
+>>>>>>> develop-frontend
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1626,14 +1877,22 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
+<<<<<<< HEAD
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24983476" />
+=======
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1691254" />
+>>>>>>> develop-frontend
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32952183" />
+<<<<<<< HEAD
       <window_info anchor="bottom" id="Run" order="2" weight="0.3286119" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -1651,17 +1910,33 @@
       <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.34560907" />
 >>>>>>> develop-backend
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+=======
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3253796" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286334" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49947312" visible="true" weight="0.34924078" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50052685" side_tool="true" visible="true" weight="0.34924078" />
+>>>>>>> develop-frontend
       <window_info anchor="bottom" id="TypeScript" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
     <layout-to-restore>
+<<<<<<< HEAD
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24983476" />
+=======
+      <window_info content_ui="combo" id="Project" order="0" weight="0.3830645" />
+>>>>>>> develop-frontend
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32952183" />
+<<<<<<< HEAD
       <window_info anchor="bottom" id="Run" order="2" weight="0.3286119" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -1670,6 +1945,16 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32907802" />
       <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.34560907" />
+=======
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32907802" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32952183" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.3460993" />
+>>>>>>> develop-frontend
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="TypeScript" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -1680,6 +1965,12 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+<<<<<<< HEAD
+=======
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+>>>>>>> develop-frontend
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/backend/queries.js" />
     <entry file="file://$USER_HOME$/OneDrive - adesso Group/adesso/Projekt-Gurke/allianz_cucumber/features/step_definitions/test_stepdefs.js" />
@@ -1692,10 +1983,22 @@
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/backend/github-api.js" />
     <entry file="file://$PROJECT_DIR$/backend/test/server.js">
 <<<<<<< HEAD
 =======
+=======
+    <entry file="file://$PROJECT_DIR$/backend/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="30" selection-start-line="5" selection-start-column="30" selection-end-line="5" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backend/github-api.js" />
+    <entry file="file://$PROJECT_DIR$/backend/test/server.js">
+>>>>>>> develop-frontend
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="109">
           <caret line="17" column="47" lean-forward="true" selection-start-line="17" selection-start-column="47" selection-end-line="17" selection-end-column="47" />
@@ -1703,6 +2006,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/util/db.js" />
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/package.json" />
     <entry file="file://$PROJECT_DIR$/backend/.editorconfig">
       <provider selected="true" editor-type-id="text-editor" />
@@ -1755,11 +2059,51 @@
         <state relative-caret-position="136">
           <caret line="8" column="16" lean-forward="true" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
 >>>>>>> develop-backend
+=======
+    <entry file="file://$PROJECT_DIR$/backend/server.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="28" selection-start-line="28" selection-end-line="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.spec.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#73#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/app/app.component.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="9" selection-start-line="20" selection-start-column="9" selection-end-line="20" selection-end-column="9" />
+>>>>>>> develop-frontend
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/database.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         <state relative-caret-position="238">
@@ -1777,11 +2121,37 @@
     <entry file="file://$PROJECT_DIR$/frontend/package.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-544" />
+=======
+        <state relative-caret-position="425">
+          <caret line="25" column="16" selection-start-line="25" selection-start-column="16" selection-end-line="25" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="518">
+          <caret line="50" column="13" selection-start-line="50" selection-start-column="2" selection-end-line="50" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#50#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/app/Services/api.service.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="30" column="43" selection-start-line="30" selection-start-column="43" selection-end-line="30" selection-end-column="43" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+>>>>>>> develop-frontend
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
+<<<<<<< HEAD
           <caret line="10" column="4" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="4" />
 =======
         <state relative-caret-position="158">
@@ -1791,6 +2161,30 @@
         <state relative-caret-position="68">
           <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
 >>>>>>> develop-backend
+=======
+          <caret line="10" column="42" selection-start-line="10" selection-start-column="42" selection-end-line="10" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../cucumber-app/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="31" column="24" selection-start-line="14" selection-start-column="4" selection-end-line="31" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/server.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" column="61" selection-start-line="11" selection-start-column="61" selection-end-line="11" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="28" selection-start-line="5" selection-start-column="28" selection-end-line="5" selection-end-column="28" />
+>>>>>>> develop-frontend
         </state>
       </provider>
     </entry>
