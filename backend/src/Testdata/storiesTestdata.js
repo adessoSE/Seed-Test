@@ -7,12 +7,13 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              { id: 1, 
-                label: 'Guest', 
-                type: 'Role', 
-                pre: 'As a', 
-                mid: '', 
-                values: [], 
+              {
+                id: 1,
+                label: 'Guest',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: [],
                 selection: ['Guest', 'User']
               }
             ],
@@ -60,7 +61,8 @@ module.exports.testdata = [
                 values: ['Successfully logged in']
               }
             ]
-          }]
+          }
+        ]
       },
       {
         scenario_id: 2,
@@ -123,8 +125,10 @@ module.exports.testdata = [
               }
             ]
 
-          }]
-      }]
+          }
+        ]
+      }
+    ]
   },
   {
     story_id: 386697647, scenarios: [
@@ -199,7 +203,8 @@ module.exports.testdata = [
               }
             ]
 
-          }]
+          }
+        ]
       },
       {
         scenario_id: 2,
@@ -271,8 +276,459 @@ module.exports.testdata = [
               }
             ]
 
-          }]
-      }]
+          }
+        ]
+      }
+    ]
   },
 
-];
+]
+
+/*
+
+  {
+    story_id: 386696256, scenarios: [
+      {
+        scenario_id: 1,
+        name: 'successful Sign Up',
+        stepDefinitions: [
+          {
+            given: [
+              { id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Superman', 'kryptonit'],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.superhelden.de']
+              },
+              {
+                id: 2,
+                label: 'Sign Up',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+              {
+                id: 3,
+                label: 'Username',
+                type: 'Field',
+                pre: 'I want to insert into the',
+                mid: 'field, the value/text',
+                values: ['Superman']
+              },
+              {
+                id: 4,
+                label: 'Password',
+                type: 'Field',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['kryptonit']
+              },
+              {
+                id: 5,
+                label: 'Finish',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'So I will be navigated to:',
+                mid: '',
+                values: ['www.superhelden.de/newProfile']
+              },
+              {
+                id: 2,
+                label: 'Validation',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['Successfully Signed Up']
+              }
+            ]
+          }
+        ]
+      },
+      {
+        scenario_id: 2,
+        name: 'failed Sign Up',
+        stepDefinitions: [
+          {
+            given: [
+              {
+                id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Superman', 'kryptonit'],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visite this site:',
+                mid: '',
+                values: ['www.superhelden.de']
+              },
+              {
+                id: 2,
+                label: 'Sign Up',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+              {
+                id: 3,
+                label: 'Username',
+                type: 'Field',
+                pre: 'I want to insert into the',
+                mid: 'field, the value/text',
+                values: ['Superman']
+              },
+              {
+                id: 4,
+                label: 'Password',
+                type: 'Field',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['kryptonit']
+              },
+              {
+                id: 5,
+                label: 'Finish',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'So I will be navigated to:',
+                mid: '',
+                values: ['www.sperhelden.de/newProfile']
+              },
+              {
+                id: 2,
+                label: 'Validation',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['Error code 4711']
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    story_id: 386696070, scenarios: [
+      {
+        scenario_id: 1,
+        name: 'successful Authentication',
+        stepDefinitions: [
+          {
+            given: [
+              { id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Spiderman', 'MaryJane'],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.mjdiaries.de']
+              },
+              {
+                id: 2,
+                label: 'Forum',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+              {
+                id: 3,
+                label: 'Username',
+                type: 'Field',
+                pre: 'I want to insert into the',
+                mid: 'field, the value/text',
+                values: ['Spiderman']
+              },
+              {
+                id: 4,
+                label: 'Password',
+                type: 'Field',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['MaryJane']
+              },
+              {
+                id: 5,
+                label: 'Enter',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'So I will be navigated to:',
+                mid: '',
+                values: ['www.mjdiaries.de/forum']
+              },
+            ]
+          }
+        ]
+      },
+      {
+        scenario_id: 2,
+        name: 'failed Authentication',
+        stepDefinitions: [
+          {
+            given: [
+              { id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Spiderman', 'MaryJane'],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.mjdiaries.de']
+              },
+              {
+                id: 2,
+                label: 'Forum',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+              {
+                id: 3,
+                label: 'Username',
+                type: 'Field',
+                pre: 'I want to insert into the',
+                mid: 'field, the value/text',
+                values: ['Spiderman']
+              },
+              {
+                id: 4,
+                label: 'Password',
+                type: 'Field',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['MaryJane']
+              },
+              {
+                id: 5,
+                label: 'Enter',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'So I will be navigated to:',
+                mid: '',
+                values: ['www.mjdiaries.de/nope']
+              },
+              {
+                id: 2,
+                label: 'User not allowed',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['You dont have ther permission to enter the forum!']
+              }
+            ]
+
+          }
+        ]
+      }
+    ]
+  },
+
+   {
+    story_id: 386693823, scenarios: [
+      {
+        scenario_id: 1,
+        name: 'successful Deletion',
+        stepDefinitions: [
+          {
+            given: [
+              { id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Punisher', 'Bullseye'],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.cucumber.de']
+              },
+              {
+                id: 2,
+                label: 'Username',
+                type: 'Field',
+                pre: 'I want to insert into the',
+                mid: 'field, the value/text',
+                values: ['Punisher']
+              },
+              {
+                id: 3,
+                label: 'Password',
+                type: 'Field',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['Bullseye']
+              },
+              {
+                id: 4,
+                label: 'Delete Scenario',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+             {
+                id: 1,
+                label: 'Scenario Deleted',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['Scenario successfully deleted']
+              }
+            ]
+          }
+        ]
+      },
+      {
+        scenario_id: 2,
+        name: 'No Scenario to delete',
+        stepDefinitions: [
+          {
+            given: [
+              { id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Punisher', 'Bullseye'],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.cucumber.de']
+              },
+              {
+                id: 2,
+                label: 'Username',
+                type: 'Field',
+                pre: 'I want to insert into the',
+                mid: 'field, the value/text',
+                values: ['Punisher']
+              },
+              {
+                id: 3,
+                label: 'Password',
+                type: 'Field',
+                pre: 'I want to insert:',
+                mid: '',
+                values: ['Bullseye']
+              },
+              {
+                id: 4,
+                label: 'Delete Scenario',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+             {
+                id: 1,
+                label: 'Scenario not found',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['Scenario_Id does not exist']
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+
+*/
