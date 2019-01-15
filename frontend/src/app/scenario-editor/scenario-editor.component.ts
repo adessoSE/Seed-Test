@@ -6,6 +6,8 @@ import {ApiService} from '../Services/api.service';
   templateUrl: './scenario-editor.component.html',
   styleUrls: ['./scenario-editor.component.css']
 })
+
+
 export class ScenarioEditorComponent implements OnInit {
   stories;
   stepDefinitions;

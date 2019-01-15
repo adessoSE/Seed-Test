@@ -124,7 +124,6 @@ module.exports.testdata = [
                 values: ['Password or User incorrect']
               }
             ]
-
           }
         ]
       }
@@ -281,11 +280,6 @@ module.exports.testdata = [
       }
     ]
   },
-
-]
-
-/*
-
   {
     story_id: 386696256, scenarios: [
       {
@@ -294,7 +288,8 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              { id: 1,
+              {
+                id: 1,
                 label: 'User',
                 type: 'Role',
                 pre: 'As a',
@@ -447,7 +442,6 @@ module.exports.testdata = [
       }
     ]
   },
-
   {
     story_id: 386696070, scenarios: [
       {
@@ -456,7 +450,8 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              { id: 1,
+              {
+                id: 1,
                 label: 'User',
                 type: 'Role',
                 pre: 'As a',
@@ -526,7 +521,8 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              { id: 1,
+              {
+                id: 1,
                 label: 'User',
                 type: 'Role',
                 pre: 'As a',
@@ -595,14 +591,12 @@ module.exports.testdata = [
                 values: ['You dont have ther permission to enter the forum!']
               }
             ]
-
           }
         ]
       }
     ]
   },
-
-   {
+  {
     story_id: 386693823, scenarios: [
       {
         scenario_id: 1,
@@ -610,7 +604,8 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              { id: 1,
+              {
+                id: 1,
                 label: 'User',
                 type: 'Role',
                 pre: 'As a',
@@ -654,7 +649,7 @@ module.exports.testdata = [
               },
             ],
             then: [
-             {
+              {
                 id: 1,
                 label: 'Scenario Deleted',
                 type: 'Text',
@@ -672,7 +667,8 @@ module.exports.testdata = [
         stepDefinitions: [
           {
             given: [
-              { id: 1,
+              {
+                id: 1,
                 label: 'User',
                 type: 'Role',
                 pre: 'As a',
@@ -716,7 +712,7 @@ module.exports.testdata = [
               },
             ],
             then: [
-             {
+              {
                 id: 1,
                 label: 'Scenario not found',
                 type: 'Text',
@@ -729,6 +725,268 @@ module.exports.testdata = [
         ]
       }
     ]
+  },
+    {
+    story_id: 386693457, scenarios: [
+      {
+        scenario_id: 1,
+        name: 'successful Story creation',
+        stepDefinitions: [
+          {
+            given: [
+              {
+                id: 1,
+                label: 'Guest',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: [],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.cucumber.de']
+              },
+              {
+                id: 2,
+                label: 'Create Story',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 2,
+                label: 'Success',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['New Story created']
+              }
+            ]
+          }
+        ]
+      },
+      {
+        scenario_id: 2,
+        name: 'failed Story creation',
+        stepDefinitions: [
+          {
+            given: [
+              {
+                id: 1,
+                label: 'Guest',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: [],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.cucumber.de']
+              },
+              {
+                id: 2,
+                label: 'Create Story',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 2,
+                label: 'Error',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['Could not create Story']
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    story_id: 382626033, scenarios: [
+      {
+        scenario_id: 1,
+        name: 'successful Scenario creation',
+        stepDefinitions: [
+          {
+            given: [
+              {
+                id: 1,
+                label: 'Guest',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: [],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.cucumber.de']
+              },
+              {
+                id: 2,
+                label: 'Create Scenario',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 1,
+                label: 'Success',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['New Scenario created']
+              }
+            ]
+          }
+        ]
+      },
+      {
+        scenario_id: 2,
+        name: 'failed Scenario creation',
+        stepDefinitions: [
+          {
+            given: [
+              {
+                id: 1,
+                label: 'Guest',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: [],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.cucumber.de']
+              },
+              {
+                id: 2,
+                label: 'Create Scenario',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 1,
+                label: 'Error',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['Could not create Scenario']
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    story_id: 386692544, scenarios: [
+      {
+        scenario_id: 1,
+        name: 'Visual Test Response',
+        stepDefinitions: [
+          {
+            given: [
+              {
+                id: 1,
+                label: 'User',
+                type: 'Role',
+                pre: 'As a',
+                mid: '',
+                values: ['Superman', 'kryptonit'],
+                selection: ['Guest', 'User']
+              }
+            ],
+            when: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'I want to visit this site:',
+                mid: '',
+                values: ['www.cucumber.de']
+              },
+              {
+                id: 2,
+                label: 'Test it',
+                type: 'Button',
+                pre: 'I want to click the Button:',
+                mid: '',
+                values: []
+              },
+            ],
+            then: [
+              {
+                id: 1,
+                label: 'Website',
+                type: 'Website',
+                pre: 'So I will be navigated to:',
+                mid: '',
+                values: ['www.cucumber.de/results']
+              },
+              {
+                id: 2,
+                label: 'Result',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['ThenStep 1 Success']
+              },
+              {
+                id: 3,
+                label: 'Result',
+                type: 'Text',
+                pre: 'So i can see the Text:',
+                mid: '',
+                values: ['ThenStep 2 Failed']
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
-
-*/
+]

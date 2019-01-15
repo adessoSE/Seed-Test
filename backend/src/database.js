@@ -18,6 +18,14 @@ stepDefinitions.insert([
     selection: ['Guest', 'User']
   },
   {
+    stepType: 'given',
+    label: 'Website',
+    type: 'Website',
+    pre: 'I am at the Website:',
+    mid: '',
+    values: [],
+  },
+  {
     stepType: 'when',
     label: 'Website',
     type: 'Website',
@@ -163,32 +171,6 @@ function deleteScenario(git_id, s_id) {
 
   }
 }
-
-console.log('Die Story *******************************************' , stories.find({"story_id" :386697647}))
-console.log('Die Scenarios *******************************************' , stories.find({"story_id" :386697647})[0].scenarios)
-
-createScenario(386697647),
-createScenario(386697647),
-
-console.log('Die Scenarios nach dem Create *******************************************' , stories.find({"story_id" :386697647})[0].scenarios)
-
-updateScenario(386697647, {
-  scenario_id: 4,
-  name: 'UpdateTestScenario',
-  stepDefinitions: [
-    {
-      given: [],
-      when: [],
-      then: []
-    }
-  ]
-})
-
-console.log('Die Scenarios nach dem Update *******************************************' , stories.find({"story_id" :386697647})[0].scenarios)
-
-deleteScenario(386697647, 4)
-
-console.log('Die Scenarios nach dem Delete *******************************************' , stories.find({"story_id" :386697647})[0].scenarios)
 
 module.exports = {
   stories: stories, showStepdefinitions: showStepdefinitions,
