@@ -140,7 +140,7 @@ function updateScenario(git_id, updated_scenario) {
               break;
             }
           }
-          return "fail";
+          return "Something went wrong!";
         })
   } catch (error) {
     return error;
@@ -151,24 +151,22 @@ function updateScenario(git_id, updated_scenario) {
 // DELETE Scenario
 function deleteScenario(git_id, s_id) {
   try {
-    let success = false;
     stories
       .chain()
       .find({"story_id": git_id})
-      .where(function (obj) {
+      .where(function (story) {
+        console.log(story);
         for (let i = 0; i < obj.scenarios.length; i++) {
-          if (obj.scenarios[i].scenario_id === s_id) {
-            obj.scenarios.splice(i, 1);
-            console.log("scenario deleted!");
-            success = true;
-            break
+          if (story.scenarios[i].scenario_id === s_id) {
+            console.log(story.scenarios[i]);
+            story.scenarios.splice(i, 1);
+            return true;
           }
         }
       });
-    return success;
-
+    return "Scenario not found in database";
   } catch (error) {
-
+    return error;
   }
 }
 

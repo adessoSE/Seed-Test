@@ -120,12 +120,13 @@ app
   // delete scenario
   .delete("/api/story/:issueID/scenario/delete/:scenarioID", function (req, res) {
     console.log("Trying to delete Scenario in Issue: " + req.params.issueID + " with ID: " + req.params.scenarioID);
-    if (db.deleteScenario(parseInt(req.params.issueID), req.params.scenarioID)) {
+    let result = db.deleteScenario(parseInt(req.params.issueID), parseInt(req.params.scenarioID));
+    if (typeof(result) === "string") {
+      handleError(res, result, result, 500);
+      console.log("Could not delete Scenario.");
+    } else {
       res.status(200).json({});
       console.log("Scenario deleted.");
-    } else {
-      console.log("Could not delete Scenario.");
-      res.status(500).json({});
     }
   });
 
