@@ -34,6 +34,7 @@
     "masonry-layout": "^4.2.2",
     "mocha": "^5.2.0",
     "mongodb": "^2.0.43",
+    "nodemon": "^1.18.9",
     "rxjs": "^6.2.2",
     "uikit": "^3.0.0-rc.24",
     "underscore": "^1.9.1",

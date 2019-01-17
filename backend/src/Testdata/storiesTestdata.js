@@ -1,5 +1,6 @@
 module.exports.testdata = [
   {
+    // Logout scenario
     story_id: 386695799, scenarios: [
       {
         scenario_id: 1,
@@ -59,6 +60,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Run test functionality
     story_id: 386697647, scenarios: [
       {
         scenario_id: 1,
@@ -100,89 +102,17 @@ module.exports.testdata = [
                 type: 'Text',
                 pre: 'So i can see the Text:',
                 mid: '',
-                values: ['Start running test cases. Please wait for completion.']
+                values: ['Start running test cases.']
               }
             ]
 
           }
         ]
       },
-      {
-        scenario_id: 2,
-        name: 'user already exist',
-        stepDefinitions: [
-          {
-            given: [
-              {
-                id: 1,
-                label: 'Guest',
-                type: 'Role',
-                pre: 'As a',
-                mid: '',
-                values: [''],
-                selection: ['Guest', 'User']
-              }
-            ],
-            when: [
-              {
-                id: 1,
-                label: 'Website',
-                type: 'Website',
-                pre: 'I want to visit this site:',
-                mid: '',
-                values: ['www.abc.com']
-              },
-              {
-                id: 2,
-                label: 'Username',
-                type: 'Field',
-                pre: 'I want to insert into the',
-                mid: 'field, the value/text',
-                values: ['SomeUsername']
-              },
-              {
-                id: 3,
-                label: 'Password',
-                type: 'Field',
-                pre: 'I want to insert:',
-                mid: '',
-                values: ['Secret123']
-              },
-              {
-                id: 4,
-                label: 'SignUp',
-                type: 'Button',
-                pre: 'I want to click the Button:',
-                mid: '',
-                values: ['']
-              },
-
-            ],
-            then: [
-              {
-                id: 1,
-                label: 'www.abc.com',
-                type: 'Website',
-                pre: 'So I will be navigated to:',
-                mid: '',
-                values: []
-              },
-              {
-                id: 2,
-                label: 'Validation',
-                type: 'Text',
-                pre: 'So i can see the Text:',
-                mid: '',
-                values: ['User already exists']
-              }
-            ]
-
-          }
-        ]
-      }
     ]
   },
   {
+    // Sign-Up scenario
     story_id: 386696256, scenarios: [
       {
         scenario_id: 1,
@@ -345,6 +275,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Access scenario
     story_id: 386696070, scenarios: [
       {
         scenario_id: 1,
@@ -499,6 +430,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Delete scenarios
     story_id: 386693823, scenarios: [
       {
         scenario_id: 1,
@@ -629,6 +561,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Story creation
     story_id: 386693457, scenarios: [
       {
         scenario_id: 1,
@@ -727,6 +660,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Scenario creation
     story_id: 382626033, scenarios: [
       {
         scenario_id: 1,
@@ -825,6 +759,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Visual test response
     story_id: 386692544, scenarios: [
       {
         scenario_id: 1,
@@ -892,6 +827,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Login scenario
     story_id: 386694507, scenarios: [
       {
         scenario_id: 1,
@@ -1022,6 +958,7 @@ module.exports.testdata = [
     ]
   },
   {
+    // Rename scenarios
     story_id: 386692174, scenarios: [
       {
         scenario_id: 1,

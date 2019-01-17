@@ -17,7 +17,7 @@ const server = app.listen(process.env.PORT || 8080, function () {
 
 function handleError(res, reason, statusMessage, code) {
   console.log("ERROR: " + reason);
-  res.status(code || 500).json({"error": statusMessage});
+  res.status(code || 500).json({ "error": statusMessage });
 }
 
 /**
@@ -25,15 +25,15 @@ function handleError(res, reason, statusMessage, code) {
  */
 app
   .use(cors())
-  .use(bodyParser.json({limit: '100kb'}))
-  .use(bodyParser.urlencoded({limit: '100kb', extended: true}))
+  .use(bodyParser.json({ limit: '100kb' }))
+  .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
   .use(function (req, res, next) {
     console.log('Time:', Date.now());
     console.log('%r %s %n', req, res, next);
     next();
   })
   .get("/api", function (req, res) {
-    res.writeHead(200, {'content-type': 'text/html'});
+    res.writeHead(200, { 'content-type': 'text/html' });
     res.write('<h1>Cucumber-API</h1>');
     res.write('<h2>WORKING:</h2>');
     res.write('<h2>GET</h2>');
@@ -43,7 +43,7 @@ app
     res.write('<h2>POST</h2>');
     res.write('<p>/api/scenario/update/:issueID</p>');
     res.write('<h2>DELETE</h2>');
-    res.write('<p>/api/story/:issueID/scenario/delete/:issueID</p>');
+    res.write('<p>/api/story/:issueID/scenario/delete/:scenarioID</p>');
     res.status(200);
     res.end();
   })
@@ -65,15 +65,15 @@ app
         let stories = [];
         for (let issue of data) {
           // only relevant issues with label: "story"
-          let story = {story_id: issue["id"], title: issue["title"], body: issue["body"], state: issue['state']};
+          let story = { story_id: issue["id"], title: issue["title"], body: issue["body"], state: issue['state'] };
           if (issue["assignee"] !== null) { // skip in case of "unassigned"
             story["assignee"] = issue["assignee"]["login"];
             story["assignee_avatar_url"] = issue["assignee"]["avatar_url"];
           }
-          if (stories_db.findOne({story_id: issue["id"]}) !== null) { // skip if there is no data for the issue yet
-            story["scenarios"] = stories_db.findOne({story_id: issue["id"]}).scenarios;
+          if (stories_db.findOne({ story_id: issue["id"] }) !== null) { // skip if there is no data for the issue yet
+            story["scenarios"] = stories_db.findOne({ story_id: issue["id"] }).scenarios;
           } else {
-            story["scenarios"] =[
+            story["scenarios"] = [
               {
                 scenario_id: 1,
                 name: 'New Scenario',
@@ -97,7 +97,7 @@ app
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
     scenario = db.createScenario(parseInt(req.params.issueID));
-    if (typeof(scenario) === "string") {
+    if (typeof (scenario) === "string") {
       handleError(res, scenario, scenario, 500);
     } else {
       res.status(200).json(scenario);
@@ -110,22 +110,22 @@ app
     let scenario = req.body;
     console.log("Trying to update scenario in issue: " + req.params.issueID + " with ID: " + scenario.scenario_id);
     let updated_scenario = db.updateScenario(parseInt(req.params.issueID), scenario);
-    if (typeof(updated_scenario) === "string") {
+    if (typeof (updated_scenario) === "string") {
       handleError(res, updated_scenario, updated_scenario, 500);
     } else {
       res.status(200).json(updated_scenario);
-      console.log('Scenario', scenario.scenario_id ,'updated in Story', req.params.issueID);
+      console.log('Scenario', scenario.scenario_id, 'updated in Story', req.params.issueID);
     }
   })
   // delete scenario
   .delete("/api/story/:issueID/scenario/delete/:scenarioID", function (req, res) {
     console.log("Trying to delete Scenario in Issue: " + req.params.issueID + " with ID: " + req.params.scenarioID);
     let result = db.deleteScenario(parseInt(req.params.issueID), parseInt(req.params.scenarioID));
-    if (typeof(result) === "string") {
+    if (typeof (result) === "string") {
       handleError(res, result, result, 500);
       console.log("Could not delete Scenario.");
     }
-    if (result === true){
+    if (result === true) {
       res.status(200).json({});
       console.log("Scenario deleted.");
     }

@@ -82,10 +82,11 @@
       <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: minus-circle"
         class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, 2, i);"></button>
       2.{{i+1}} {{when.pre}}
-        <input #when_value *ngFor="let value of when.values; let i = index" [disabled]="editorLocked == true"
-               type="text" value="{{value.label}}" on-change="when.values[i] = when_value.value" />
-      <p style="display:inline" *ngIf="i==0">
-        {{when.mid}} </p>
+      <input #when_value [disabled]="editorLocked == true" type="text" value="{{when.label}}" on-change="when.label = when_value.value" />
+      <p style="display:inline" *ngIf="when.values.length > 0">
+        {{when.mid}}
+        <input #when_value *ngFor="let value of when.values;" [disabled]=" editorLocked==true" type="text" value="{{when.value}}"
+          on-change="when.value = when_value.value" />
     </li>
     <br /><br />
 
