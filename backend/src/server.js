@@ -124,7 +124,8 @@ app
     if (typeof(result) === "string") {
       handleError(res, result, result, 500);
       console.log("Could not delete Scenario.");
-    } else {
+    }
+    if (result === true){
       res.status(200).json({});
       console.log("Scenario deleted.");
     }

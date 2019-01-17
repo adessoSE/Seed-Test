@@ -156,7 +156,7 @@ function deleteScenario(git_id, s_id) {
       .find({"story_id": git_id})
       .where(function (story) {
         console.log(story);
-        for (let i = 0; i < obj.scenarios.length; i++) {
+        for (let i = 0; i < story.scenarios.length; i++) {
           if (story.scenarios[i].scenario_id === s_id) {
             console.log(story.scenarios[i]);
             story.scenarios.splice(i, 1);
@@ -164,9 +164,9 @@ function deleteScenario(git_id, s_id) {
           }
         }
       });
-    return "Scenario not found in database";
+    return true;
   } catch (error) {
-    return error;
+    return "Could not delete scenario " + error;
   }
 }
 
