@@ -47,7 +47,7 @@ stepDefinitions.insert([
     type: 'Field',
     pre: 'I want to insert into the',
     mid: 'field, the value/text',
-    values: []
+    values: [""]
   },
   {
     stepType: 'when',
@@ -101,7 +101,7 @@ function createScenario(git_id) {
     let story = stories.findOne({story_id: git_id});
     let lastScenarioIndex = story.scenarios.length;
     let tmpScenario = {
-      scenario_id: 0,
+      scenario_id: 1,
       name: 'New Scenario',
       stepDefinitions: [
         {
@@ -112,10 +112,16 @@ function createScenario(git_id) {
       ]
     };
     if (story != null) {
-      tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-      stories.chain().find({"story_id": git_id}).where(function (obj) {
-        obj.scenarios.push(tmpScenario)
-      });
+      if (story.scenarios.length ===0){
+        stories.chain().find({"story_id": git_id}).where(function (obj) {
+          obj.scenarios.push(tmpScenario)
+        });
+      }else {
+        tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+        stories.chain().find({"story_id": git_id}).where(function (obj) {
+          obj.scenarios.push(tmpScenario)
+        });
+      }
       return tmpScenario;
     }
   } catch (error) {
