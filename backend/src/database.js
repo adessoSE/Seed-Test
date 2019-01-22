@@ -1,12 +1,11 @@
 const loki = require('lokijs');
 const db = new loki('db.json');
-const stepDefinitions = db.addCollection('Step Definitions');
 const testdata = require('./Testdata/storiesTestdata').testdata;
 const emptyScenario = require('./models/emptyScenario');
 const stories = db.addCollection('Stories');
+const stepDefinitions = db.addCollection('Step Definitions');
 
 stories.insert(testdata); // move to Testdata
-
 stepDefinitions.insert([
   {
     stepType: 'given',
@@ -148,7 +147,6 @@ function deleteScenario(git_id, s_id) {
       .chain()
       .find({"story_id": git_id})
       .where(function (story) {
-        console.log(story);
         for (let i = 0; i < story.scenarios.length; i++) {
           if (story.scenarios[i].scenario_id === s_id) {
             console.log(story.scenarios[i]);
