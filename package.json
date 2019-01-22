@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "start": "cd backend/src && node server.js",
-    "dev": "concurrently \"cd backend/src && nodemon server.js\" \"cd frontend/ && npm start\""
+    "dev": "concurrently \"cd backend/src && nodemon server.js\" \"cd frontend/ && ng serve\""
   },
   "private": true,
   "dependencies": {
