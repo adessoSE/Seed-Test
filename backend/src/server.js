@@ -6,7 +6,7 @@ const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const db = require('./database');
 const stories_db = require('./database').stories;
 const process = require('process');
-const emptyStory = require('./models/emptyStory');
+const emptyScenario = require('./models/emptyScenario');
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, function () {
@@ -73,17 +73,7 @@ app
           if (stories_db.findOne({ story_id: issue["id"] }) !== null) { // skip if there is no data for the issue yet
             story["scenarios"] = stories_db.findOne({ story_id: issue["id"] }).scenarios;
           } else {
-            story["scenarios"] = [
-              {
-                scenario_id: 1,
-                name: 'New Scenario',
-                stepDefinitions: [
-                  {
-                    given: [],
-                    when: [],
-                    then: []
-                  }]
-              }]
+            story["scenarios"] = [emptyScenario()];
           }
           stories_db.insert(story); // update database
           //TODO: delete stories priority 2

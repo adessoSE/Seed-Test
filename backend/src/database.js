@@ -100,17 +100,7 @@ function createScenario(git_id) {
   try {
     let story = stories.findOne({story_id: git_id});
     let lastScenarioIndex = story.scenarios.length;
-    let tmpScenario = {
-      scenario_id: 1,
-      name: 'New Scenario',
-      stepDefinitions: [
-        {
-          given: [],
-          when: [],
-          then: []
-        }
-      ]
-    };
+    let tmpScenario = emptyScenario();
     if (story != null) {
       if (story.scenarios.length ===0) {
         story.scenarios.push(tmpScenario)
