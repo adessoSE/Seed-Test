@@ -29,7 +29,7 @@ app
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
   .use(function (req, res, next) {
     console.log('Time:', Date.now());
-    console.log('%r %s %n', req, res, next);
+    //console.log('%r %s %n', req, res, next);
     next();
   })
   .get("/api", function (req, res) {
@@ -96,12 +96,12 @@ app
   })
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
-    scenario = db.createScenario(parseInt(req.params.issueID));
+    let scenario = db.createScenario(parseInt(req.params.issueID));
     if (typeof (scenario) === "string") {
       handleError(res, scenario, scenario, 500);
     } else {
       res.status(200).json(scenario);
-      console.log("Scenario created.");
+      console.log("Scenario created");
     }
   })
   // update scenario

@@ -112,16 +112,13 @@ function createScenario(git_id) {
       ]
     };
     if (story != null) {
-      if (story.scenarios.length ===0){
-        stories.chain().find({"story_id": git_id}).where(function (obj) {
-          obj.scenarios.push(tmpScenario)
-        });
+      if (story.scenarios.length ===0) {
+        story.scenarios.push(tmpScenario)
       }else {
         tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-        stories.chain().find({"story_id": git_id}).where(function (obj) {
-          obj.scenarios.push(tmpScenario)
-        });
+        story.scenarios.push(tmpScenario)
       }
+      stories.update(story);
       return tmpScenario;
     }
   } catch (error) {

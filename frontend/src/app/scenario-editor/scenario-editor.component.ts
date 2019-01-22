@@ -58,11 +58,8 @@ export class ScenarioEditorComponent implements OnInit {
           .addScenario(storyID)
           .subscribe(resp => {
             console.log('controller: stepDefinitions loaded', storyID);
-            const indexStory: number = this.stories.indexOf(this.selectedStory);
             console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
-              if (indexStory !== -1) {
-                  this.stories[indexStory].scenarios.push(resp);
-            }
+            this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
       });
   }
 
