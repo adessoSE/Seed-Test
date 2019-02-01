@@ -2,6 +2,15 @@
   font-size: small;
 }
 
+.uk-accordion{
+  width: 100%;
+}
+
+.github-avatar{
+  float: right;
+}
+
+
 .uk-background-red {
   background: red;
 }

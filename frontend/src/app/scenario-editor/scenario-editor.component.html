@@ -8,8 +8,8 @@
           <a maxlength="10">
             #{{i+1}} {{s.title | slice:0:25 }}
           </a>
+          <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px">{{s.assignee}}</span>
           <a uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
-          <!-- <span class="uk-label">{{s.assignee}}</span> -->
         </div>
         <div class="uk-accordion-content">
           <a uk-icon="icon: plus-circle" class="uk-text-primary" data-uk-tooltip title="Add new scenario" (click)="addScenario(s.story_id)"></a>
