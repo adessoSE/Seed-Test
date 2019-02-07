@@ -82,7 +82,6 @@ export class ScenarioEditorComponent implements OnInit {
 
   addStepToScenario(storyID, step) {
     var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions[0], step.stepType) + 1;
-    alert(new_id);
     console.log('step to add:', step);
     var new_step = {
       id: new_id, //Used as the unique ID of a step (produces something like 1549025639350
