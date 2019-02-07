@@ -15,6 +15,7 @@ export class ScenarioEditorComponent implements OnInit {
   selectedScenario;
   showEditor = false;
   editorLocked = true;
+  
 
   constructor(
     private http: HttpClient,
@@ -49,7 +50,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
         .updateScenario(storyID, this.selectedScenario)
         .subscribe(resp => {
-            console.log('controller: update scenario:', resp);
+            console.log('controller:  scenario:', resp);
         });
   }
 
@@ -78,38 +79,84 @@ export class ScenarioEditorComponent implements OnInit {
         });
   }
 
-  addStepToScenario(step) {
+  addStepToScenario(storyID,step) {
     console.log('step to add:', step);
-    switch (step.stepType) {
+    var new_step = { 
+      id : new Date().valueOf(), //Used as the unique ID of a step (produces something like 1549025639350
+      label: step.label,
+      mid: step.mid,
+      pre: step.pre,
+      stepType: step.stepType,
+      type: step.type,
+      values: [""]
+    }
+    switch (new_step.stepType) {
       case 'given':
-        this.selectedScenario.stepDefinitions[0].given.push(step);
+        this.selectedScenario.stepDefinitions[0].given.push(new_step);
         break;
       case 'when':
-        this.selectedScenario.stepDefinitions[0].when.push(step);
+        this.selectedScenario.stepDefinitions[0].when.push(new_step);
         break;
       case 'then':
-        this.selectedScenario.stepDefinitions[0].then.push(step);
+        this.selectedScenario.stepDefinitions[0].then.push(new_step);
          break;
       default:
         break;
     }
-    console.log('after adding step', this.selectedScenario);
+    console.log('added step', new_step);
   }
 
-  removeStepToScenario(event, stepDefTypeID, index) {
-      console.log('remove step in ' + stepDefTypeID + ' on index ' + index);
-      switch (stepDefTypeID) {
-          case 1:
+  removeStepToScenario(event, stepDefType, index) {
+      console.log('remove step in ' + stepDefType + ' on index ' + index);
+      console.log(stepDefType);
+      switch (stepDefType) {
+          case 'given':
               this.selectedScenario.stepDefinitions[0].given.splice(index, 1);
               break;
-          case 2:
+          case 'when':
               this.selectedScenario.stepDefinitions[0].when.splice(index, 1);
               break;
-          case 3:
+          case 'then':
               this.selectedScenario.stepDefinitions[0].then.splice(index, 1);
               break;
       }
     }
+  keysList (stepDefs){
+    if (stepDefs != null){
+      return Object.keys(stepDefs);
+    }else {
+      return "";
+    }
+  }
+
+  stepsList(stepDefs,i:number){
+    if (i==0){
+      return stepDefs.given;
+    }else if (i==1){
+      return stepDefs.when;
+    }else {
+      return stepDefs.then;
+    }
+  }
+
+
+  addToValues(input:string,stepType,index){
+    switch (stepType){
+      case 'given':
+          this.selectedScenario.stepDefinitions[0].given[index].values[0]=input;
+        break;
+      case 'when':
+          this.selectedScenario.stepDefinitions[0].when[index].values[0]=input;
+      break;
+      case 'then':
+          this.selectedScenario.stepDefinitions[0].then[index].values[0]=input;
+      break;
+    }
+  }
+
+  getValue (i,values:string[]){
+    return values[i];
+  }
 
   renameScenario(event, name) {
       if (name) {
