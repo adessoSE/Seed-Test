@@ -41,10 +41,10 @@
 
   <div class="uk-card uk-card-default uk-padding">
     <div class="uk-card-title">
-      <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions[0]);let i = index;">{{ sd | titlecase }}
+      <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">{{ sd | titlecase }}
         <div class="uk-align-right">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
-        class="uk-text-primary" title="Add new step" uk-tooltip></button>
+            class="uk-text-primary" title="Add new step" uk-tooltip></button>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of stepDefinitions;">
@@ -53,30 +53,31 @@
             </ul>
           </div>
         </div>
-        <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions[0],i); let j=index;">
-            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a uk-icon="icon: minus-circle"
+        <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
+          <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a uk-icon="icon: minus-circle"
             class="uk-text-danger" uk-tooltip title="Delete step" (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
           {{i+1}}.{{j+1}} {{currentStep.pre}}
           <input #step_type_input [disabled]="editorLocked == true" type="text" value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
-              {{currentStep.mid}}
-              <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked == true" type="text" value="{{value}}" 
-              on-change="addToValues(step_type_input.value,currentStep.stepType,j)" />
-            </p>
-          {{currentStep.post}}</li>
-        <br /><br /> 
+            {{currentStep.mid}}
+            <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked == true" type="text"
+              value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,j)" />
+          </p>
+          {{currentStep.post}}
+        </li>
+        <br /><br />
       </div>
     </div>
 
-<div id="changeScenario" uk-modal>
-  <div class="uk-modal-dialog uk-modal-body">
-    <h2>Change Scenario Title</h2>
-    <input type="text" [value]="selectedScenario.name" #ScenarioName />
+    <div id="changeScenario" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2>Change Scenario Title</h2>
+        <input type="text" [value]="selectedScenario.name" #ScenarioName />
 
-    <p class="uk-text-right">
-      <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-      <button class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)"
-        type="button">Save</button>
-    </p>
-  </div>
-</div>
+        <p class="uk-text-right">
+          <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+          <button class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)"
+            type="button">Save</button>
+        </p>
+      </div>
+    </div>

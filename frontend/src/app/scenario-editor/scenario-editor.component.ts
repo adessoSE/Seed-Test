@@ -81,7 +81,7 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   addStepToScenario(storyID, step) {
-    var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions[0], step.stepType) + 1;
+    var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
     console.log('step to add:', step);
     var new_step = {
       id: new_id, //Used as the unique ID of a step (produces something like 1549025639350
@@ -94,13 +94,13 @@ export class ScenarioEditorComponent implements OnInit {
     }
     switch (new_step.stepType) {
       case 'given':
-        this.selectedScenario.stepDefinitions[0].given.push(new_step);
+        this.selectedScenario.stepDefinitions.given.push(new_step);
         break;
       case 'when':
-        this.selectedScenario.stepDefinitions[0].when.push(new_step);
+        this.selectedScenario.stepDefinitions.when.push(new_step);
         break;
       case 'then':
-        this.selectedScenario.stepDefinitions[0].then.push(new_step);
+        this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
       default:
         break;
@@ -123,13 +123,13 @@ export class ScenarioEditorComponent implements OnInit {
     console.log(stepDefType);
     switch (stepDefType) {
       case 'given':
-        this.selectedScenario.stepDefinitions[0].given.splice(index, 1);
+        this.selectedScenario.stepDefinitions.given.splice(index, 1);
         break;
       case 'when':
-        this.selectedScenario.stepDefinitions[0].when.splice(index, 1);
+        this.selectedScenario.stepDefinitions.when.splice(index, 1);
         break;
       case 'then':
-        this.selectedScenario.stepDefinitions[0].then.splice(index, 1);
+        this.selectedScenario.stepDefinitions.then.splice(index, 1);
         break;
     }
   }
@@ -155,13 +155,13 @@ export class ScenarioEditorComponent implements OnInit {
   addToValues(input: string, stepType, index) {
     switch (stepType) {
       case 'given':
-        this.selectedScenario.stepDefinitions[0].given[index].values[0] = input;
+        this.selectedScenario.stepDefinitions.given[index].values[0] = input;
         break;
       case 'when':
-        this.selectedScenario.stepDefinitions[0].when[index].values[0] = input;
+        this.selectedScenario.stepDefinitions.when[index].values[0] = input;
         break;
       case 'then':
-        this.selectedScenario.stepDefinitions[0].then[index].values[0] = input;
+        this.selectedScenario.stepDefinitions.then[index].values[0] = input;
         break;
     }
   }
