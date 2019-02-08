@@ -9,7 +9,7 @@ stories.insert(testdata); // move to Testdata
 stepDefinitions.insert([
   {
     stepType: 'given',
-    label: '',
+    label: null,
     type: 'Role',
     pre: 'As a',
     mid: '',
@@ -18,7 +18,7 @@ stepDefinitions.insert([
   },
   {
     stepType: 'given',
-    label: 'Website',
+    label: null,
     type: 'Website',
     pre: 'I am at the Website:',
     mid: '',
@@ -26,7 +26,7 @@ stepDefinitions.insert([
   },
   {
     stepType: 'when',
-    label: 'Website',
+    label: null,
     type: 'Website',
     pre: 'I want to visit this site:',
     mid: '',
@@ -34,11 +34,11 @@ stepDefinitions.insert([
   },
   {
     stepType: 'when',
-    label: '',
+    label: null,
     type: 'Button',
     pre: 'I want to click the Button:',
     mid: '',
-    values: []
+    values: [],
   },
   {
     stepType: 'when',
@@ -46,7 +46,7 @@ stepDefinitions.insert([
     type: 'Field',
     pre: 'I want to insert into the',
     mid: 'field, the value/text',
-    values: [""]
+    values: []
   },
   {
     stepType: 'when',
@@ -66,7 +66,7 @@ stepDefinitions.insert([
   },
   {
     stepType: 'then',
-    label: 'Website',
+    label: null,
     type: 'Website',
     pre: 'So I will be navigated to the site:',
     mid: '',
@@ -80,7 +80,6 @@ stepDefinitions.insert([
     mid: 'textbox, the text',
     values: []
   }
-
 ]);
 
 // GET all stories TODO: unused right now  //TODO Prio 1: check if needed
@@ -97,13 +96,13 @@ function showStepdefinitions() {
 // Create SCENARIO //TODO Prio 1: divide into two seperate functions
 function createScenario(git_id) {
   try {
-    let story = stories.findOne({story_id: git_id});
+    let story = stories.findOne({ story_id: git_id });
     let lastScenarioIndex = story.scenarios.length;
     let tmpScenario = emptyScenario();
     if (story != null) {
-      if (story.scenarios.length ===0) {
+      if (story.scenarios.length === 0) {
         story.scenarios.push(tmpScenario)
-      }else {
+      } else {
         tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
         story.scenarios.push(tmpScenario)
       }
@@ -118,22 +117,22 @@ function createScenario(git_id) {
 // POST SCENARIO
 function updateScenario(git_id, updated_scenario) {
   try {
-      stories
-        .chain()
-        .find({"story_id": git_id})
-        .where(function (obj) {
-          for (let scenario of obj.scenarios) {
-            if (obj.scenarios.indexOf(scenario) === obj.scenarios.length){
-              obj.scenarios.push(scenario);
-              break;
-            }
-            if (scenario.scenario_id === updated_scenario.scenario_id) {
-              obj.scenarios.splice(obj.scenarios.indexOf(scenario), 1, updated_scenario);
-              break;
-            }
+    stories
+      .chain()
+      .find({ "story_id": git_id })
+      .where(function (obj) {
+        for (let scenario of obj.scenarios) {
+          if (obj.scenarios.indexOf(scenario) === obj.scenarios.length) {
+            obj.scenarios.push(scenario);
+            break;
           }
-          return "Something went wrong!";
-        })
+          if (scenario.scenario_id === updated_scenario.scenario_id) {
+            obj.scenarios.splice(obj.scenarios.indexOf(scenario), 1, updated_scenario);
+            break;
+          }
+        }
+        return "Something went wrong!";
+      })
   } catch (error) {
     return error;
   }
@@ -145,7 +144,7 @@ function deleteScenario(git_id, s_id) {
   try {
     stories
       .chain()
-      .find({"story_id": git_id})
+      .find({ "story_id": git_id })
       .where(function (story) {
         for (let i = 0; i < story.scenarios.length; i++) {
           if (story.scenarios[i].scenario_id === s_id) {

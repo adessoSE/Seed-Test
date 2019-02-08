@@ -74,7 +74,7 @@ module.exports.testdata = [
               type: 'Role',
               pre: 'As a',
               mid: '',
-              values: ['SomeUsername', 'Secret666'],
+              values: [],
               selection: ['Guest', 'User']
             }
           ],

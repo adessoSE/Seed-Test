@@ -2,13 +2,12 @@ function emptyScenario() {
   return {
     scenario_id: 1,
     name: 'New Scenario',
-    stepDefinitions: [
-      {
-        given: [],
-        when: [],
-        then: []
-      }
-    ]
+    stepDefinitions:
+    {
+      given: [],
+      when: [],
+      then: []
+    }
   }
 }
 

@@ -108,16 +108,25 @@ export class ScenarioEditorComponent implements OnInit {
     console.log('added step', new_step);
   }
 
-  getLastIDinStep(stepDefs, stepType): number {
+  getLastIDinStep(stepDefs, stepType) {
     switch (stepType) {
       case 'given':
-        return stepDefs.given[stepDefs.given.length - 1].id;
+        return this.buildID(stepDefs.given);
       case 'when':
-        return stepDefs.when[stepDefs.when.length - 1].id;
+        return this.buildID(stepDefs.when);
       case 'then':
-        return stepDefs.when[stepDefs.then.length - 1].id;
+        return this.buildID(stepDefs.then);
     }
   }
+
+  buildID(stepType): number {
+    if (stepType.length !== 0) {
+      return stepType[stepType.length - 1].id;
+    } else {
+      return 0;
+    }
+  }
+
   removeStepToScenario(event, stepDefType, index) {
     console.log('remove step in ' + stepDefType + ' on index ' + index);
     console.log(stepDefType);
@@ -133,10 +142,12 @@ export class ScenarioEditorComponent implements OnInit {
         break;
     }
   }
+
   keysList(stepDefs) {
     if (stepDefs != null) {
       return Object.keys(stepDefs);
     } else {
+      console.log("No Step Definitions found!");
       return "";
     }
   }
@@ -150,7 +161,6 @@ export class ScenarioEditorComponent implements OnInit {
       return stepDefs.then;
     }
   }
-
 
   addToValues(input: string, stepType, index) {
     switch (stepType) {

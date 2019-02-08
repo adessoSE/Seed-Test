@@ -28,9 +28,16 @@
 .text-inline{
   font-weight:normal;
 }
+
 .uk-card-title {
   font-size: medium;
   font-weight: bold;
   /* line-height: 1.5; */
+}
+
+.uk-align-right {
+  margin-top: 0;
+  float: right;
+  margin-bottom: 0;
 }
 
