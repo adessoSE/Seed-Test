@@ -1,12 +1,12 @@
 Feature: Logout scenario
 
 Scenario: successful Logout
-Given As a 
+Given As a User   
 
-When I am on this site: www.somehomepage.com/myhome
-When I want to click the Button: 
+When I want to visit this site: Website  www.somehomepage.com/myhome 
+When I want to click the Button: Logout   
 
-Then So I will be navigated to: www.somehomepage.com
-Then So i can see the Text: Successfully logged out
+Then So I will be navigated to: Website  www.somehomepage.com 
+Then So i can see in  the Validation textbox, the text Successfully logged out 
 
 

@@ -1,28 +1,28 @@
 Feature: Sign-Up scenario
 
 Scenario: successful Sign Up
-Given As a Supermankryptonite
+Given As a User  Supermankryptonite 
 
-When I want to visit this site: www.superheroes.com
-When I want to click the Button: 
-When I want to insert into the Supermanfield, the value/text
-When I want to insert: kryptonite
-When I want to click the Button: 
+When I want to visit this site: Website  www.superheroes.com 
+When I want to click the Button: Sign Up   
+When I want to insert into the Username field, the value/text Superman 
+When I want to insert into the Password field, the value/text kryptonite 
+When I want to click the Button: Finish   
 
-Then So I will be navigated to: www.superheroes.com/newProfile
-Then So i can see the Text: Successfully Signed Up
+Then So I will be navigated to: Website  www.superheroes.com/newProfile 
+Then So i can see in  the Validation textbox, the text Successfully Signed Up 
 
 
 Scenario: failed Sign Up
-Given As a Supermankryptonite
+Given As a User  Supermankryptonite 
 
-When I want to visite this site: www.superheroes.com
-When I want to click the Button: 
-When I want to insert into the Supermanfield, the value/text
-When I want to insert: kryptonite
-When I want to click the Button: 
+When I want to visite this site: Website  www.superheroes.com 
+When I want to click the Button: Sign Up   
+When I want to insert into the Username field, the value/text Superman 
+When I want to insert into the Password field, the value/text kryptonite 
+When I want to click the Button: Finish   
 
-Then So I will be navigated to: www.superheroes.com/newProfile
-Then So i can see the Text: Error code 4711
+Then So I will be navigated to: Website  www.superheroes.com/newProfile 
+Then So i can see in  the Validation textbox, the text Error code 4711 
 
 

@@ -23,7 +23,7 @@ module.exports.testdata = [
               id: 1,
               label: 'Website',
               type: 'Website',
-              pre: 'I am on this site:',
+              pre: 'I want to visit this site:',
               mid: '',
               values: ['www.somehomepage.com/myhome']
             },
@@ -49,8 +49,8 @@ module.exports.testdata = [
               id: 2,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Successfully logged out']
             }
           ]
@@ -70,7 +70,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
-              label: 'User',
+              label: 'Guest',
               type: 'Role',
               pre: 'As a',
               mid: '',
@@ -100,8 +100,8 @@ module.exports.testdata = [
               id: 1,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Start running test cases.']
             }
           ]
@@ -159,8 +159,8 @@ module.exports.testdata = [
               id: 4,
               label: 'Password',
               type: 'Field',
-              pre: 'I want to insert:',
-              mid: '',
+              pre: 'I want to insert into the',
+              mid: 'field, the value/text',
               values: ['kryptonite']
             },
             {
@@ -185,8 +185,8 @@ module.exports.testdata = [
               id: 2,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Successfully Signed Up']
             }
           ]
@@ -238,8 +238,8 @@ module.exports.testdata = [
               id: 4,
               label: 'Password',
               type: 'Field',
-              pre: 'I want to insert:',
-              mid: '',
+              pre: 'I want to insert into the',
+              mid: 'field, the value/text',
               values: ['kryptonite']
             },
             {
@@ -264,8 +264,8 @@ module.exports.testdata = [
               id: 2,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Error code 4711']
             }
           ]
@@ -322,8 +322,8 @@ module.exports.testdata = [
               id: 4,
               label: 'Password',
               type: 'Field',
-              pre: 'I want to insert:',
-              mid: '',
+              pre: 'I want to insert into the',
+              mid: 'field, the value/text',
               values: ['MaryJane']
             },
             {
@@ -393,8 +393,8 @@ module.exports.testdata = [
               id: 4,
               label: 'Password',
               type: 'Field',
-              pre: 'I want to insert:',
-              mid: '',
+              pre: 'I want to insert into the',
+              mid: 'field, the value/text',
               values: ['MaryJane']
             },
             {
@@ -419,8 +419,8 @@ module.exports.testdata = [
               id: 2,
               label: 'User not allowed',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['You dont have ther permission to enter the forum!']
             }
           ]
@@ -469,8 +469,8 @@ module.exports.testdata = [
               id: 3,
               label: 'Password',
               type: 'Field',
-              pre: 'I want to insert:',
-              mid: '',
+              pre: 'I want to insert into the',
+              mid: 'field, the value/text',
               values: ['Bullseye']
             },
             {
@@ -487,8 +487,8 @@ module.exports.testdata = [
               id: 1,
               label: 'Scenario Deleted',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Scenario successfully deleted']
             }
           ]
@@ -532,8 +532,8 @@ module.exports.testdata = [
               id: 3,
               label: 'Password',
               type: 'Field',
-              pre: 'I want to insert:',
-              mid: '',
+              pre: 'I want to insert into the',
+              mid: 'field, the value/text',
               values: ['Bullseye']
             },
             {
@@ -550,8 +550,8 @@ module.exports.testdata = [
               id: 1,
               label: 'Scenario not found',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Scenario_Id does not exist']
             }
           ]
@@ -602,8 +602,8 @@ module.exports.testdata = [
               id: 2,
               label: 'Success',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['New Story created']
             }
           ]
@@ -649,8 +649,8 @@ module.exports.testdata = [
               id: 2,
               label: 'Error',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Could not create Story']
             }
           ]
@@ -701,8 +701,8 @@ module.exports.testdata = [
               id: 1,
               label: 'Success',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['New Scenario created']
             }
           ]
@@ -748,8 +748,8 @@ module.exports.testdata = [
               id: 1,
               label: 'Error',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Could not create Scenario']
             }
           ]
@@ -808,16 +808,16 @@ module.exports.testdata = [
               id: 2,
               label: 'Result',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['ThenStep 1 Success']
             },
             {
               id: 3,
               label: 'Result',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['ThenStep 2 Failed']
             }
           ]
@@ -866,8 +866,8 @@ module.exports.testdata = [
               id: 3,
               label: 'Pets',
               type: 'Checkbox',
-              pre: 'I want to select multiple Values for:',
-              mid: '',
+              pre: 'I want to select from the',
+              mid: 'multiple selection, the values',
               values: ['Cat', 'Dog', 'Spider']
             }
           ],
@@ -884,8 +884,8 @@ module.exports.testdata = [
               id: 2,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Successfully logged in']
             }
           ]
@@ -928,9 +928,9 @@ module.exports.testdata = [
             {
               id: 3,
               label: 'Games',
-              type: 'individual_selection',
-              pre: 'I want to select:',
-              mid: '',
+              type: 'Radio',
+              pre: 'I want to select from the',
+              mid: 'selection, the value',
               values: ['Rpg']
             }
           ],
@@ -947,8 +947,8 @@ module.exports.testdata = [
               id: 2,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Password or User incorrect']
             }
           ]
@@ -1015,8 +1015,8 @@ module.exports.testdata = [
               id: 1,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Updated scenario name.']
             }
           ]
@@ -1078,8 +1078,8 @@ module.exports.testdata = [
               id: 1,
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see the Text:',
-              mid: '',
+              pre: 'So i can see in  the',
+              mid: 'textbox, the text',
               values: ['Could not update scenario name!']
             }
           ]

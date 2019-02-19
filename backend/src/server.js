@@ -52,7 +52,11 @@ function getSteps(steps, stepType) {
 
   for (var i = 0; i < steps.length; i++) {
     data += jsUcfirst(stepType) + " ";
-    data += steps[i].pre + " " + getValues(steps[i].values) + steps[i].mid + "\n";
+    if ((steps[i].label) != null) {
+      data += steps[i].pre + " " + getLabel(steps[i].label) + " " + steps[i].mid + " " + getValues(steps[i].values) + " " + "\n";
+    }else {
+      data += steps[i].pre + " " + steps[i].mid + " " + getValues(steps[i].values) + " " + "\n";
+    }
   }
   return data;
 }
@@ -66,6 +70,11 @@ function getValues(values) {
   return data;
 }
 
+function getLabel(label) {
+  data = label;
+
+  return data;
+}
 function jsUcfirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }

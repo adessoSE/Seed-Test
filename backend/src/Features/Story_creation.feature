@@ -1,20 +1,20 @@
 Feature: Story creation
 
 Scenario: successful Story creation
-Given As a 
+Given As a Guest   
 
-When I want to visit this site: www.cucumber.com
-When I want to click the Button: 
+When I want to visit this site: Website  www.cucumber.com 
+When I want to click the Button: Create Story   
 
-Then So i can see the Text: New Story created
+Then So i can see in  the Success textbox, the text New Story created 
 
 
 Scenario: failed Story creation
-Given As a 
+Given As a Guest   
 
-When I want to visit this site: www.cucumber.com
-When I want to click the Button: 
+When I want to visit this site: Website  www.cucumber.com 
+When I want to click the Button: Create Story   
 
-Then So i can see the Text: Could not create Story
+Then So i can see in  the Error textbox, the text Could not create Story 
 
 
