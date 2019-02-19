@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
 import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
+import { TestBed } from '@angular/core/testing';
+
 @Component({
   selector: 'app-scenario-editor',
   templateUrl: './scenario-editor.component.html',
@@ -16,7 +18,6 @@ export class ScenarioEditorComponent implements OnInit {
   selectedScenario;
   showEditor = false;
   editorLocked = true;
-
 
   constructor(
     private http: HttpClient,
@@ -44,6 +45,7 @@ export class ScenarioEditorComponent implements OnInit {
       .subscribe(resp => {
         this.stepDefinitions = resp;
         console.log('controller: stepDefinitions loaded', this.stepDefinitions);
+        this.someTest();
       });
   }
 
@@ -210,4 +212,40 @@ export class ScenarioEditorComponent implements OnInit {
     console.log('selected storyID', this.selectedStory);
   }
 
+  someTest() {
+    // this.apiService
+    //   .getStepDefinitions()
+    //   .subscribe(resp => {
+    //     this.stepDefinitions = resp;
+    //     // this.obj = JSON.stringify(this.stepDefinitions);
+    //     // console.log("----------------JSON Output----------------------")
+    //     // console.log(this.obj[0]);
+
+    //     var users = [{ name: 'Corbin', age: 20, favoriteFoods: ['ice cream', 'pizza'] },
+    //     { name: 'John', age: 25, favoriteFoods: ['ice cream', 'skittle'] }];
+    //     // var t = JSON.stringify(users);
+
+    //     console.log("----------test-----------------")
+    //     console.log(users[1]);
+    //   });
+
+
+    // // getting all key by Object (Already JSON!)
+    // this.apiService
+    //   .getStepDefinitions()
+    //   .subscribe(resp => {
+    //     this.stepDefinitions = resp;
+    //     console.log("----------------TEST--------------------");
+    //     // console.log(Object.keys(this.stepDefinitions[1]));
+    //     console.log(this.stepDefinitions[0].stepType);
+    //   });
+    // var file = new File(["C:\Users\Weller\Projekte\Cucumber\Projekt-Gurke\backend\src\Testdata"], "document.txt");
+
+
+    // console.log("--------------------OutPut----------------")
+    // console.log(this.stepDefinitions[0].stepType);
+    // console.log();
+  };
+
 }
+

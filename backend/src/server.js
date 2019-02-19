@@ -7,6 +7,8 @@ const db = require('./database');
 const stories_db = require('./database').stories;
 const process = require('process');
 const emptyScenario = require('./models/emptyScenario');
+const fs = require('fs');
+const path = require('path');
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, function () {
@@ -18,6 +20,54 @@ const server = app.listen(process.env.PORT || 8080, function () {
 function handleError(res, reason, statusMessage, code) {
   console.log("ERROR: " + reason);
   res.status(code || 500).json({ "error": statusMessage });
+}
+
+function getFeatureContent(story) {
+  var data = "Feature: " + story.title + "\n\n";
+
+  // Get scenarios
+  data += getScenarioContent(story.scenarios);
+
+  return data;
+}
+
+function getScenarioContent(scenarios) {
+  var data = "";
+  for (var i = 0; i < scenarios.length; i++) {
+    data += "Scenario: " + scenarios[i].name + "\n";
+
+    // Get Stepdefinitions
+    data += getSteps(scenarios[i].stepDefinitions.given, Object.keys(scenarios[i].stepDefinitions)[0]) + "\n";
+
+    data += getSteps(scenarios[i].stepDefinitions.when, Object.keys(scenarios[i].stepDefinitions)[1]) + "\n";
+
+    data += getSteps(scenarios[i].stepDefinitions.then, Object.keys(scenarios[i].stepDefinitions)[2]) + "\n\n";
+
+  }
+  return data;
+}
+
+function getSteps(steps, stepType) {
+  var data = "";
+
+  for (var i = 0; i < steps.length; i++) {
+    data += jsUcfirst(stepType) + " ";
+    data += steps[i].pre + " " + getValues(steps[i].values) + steps[i].mid + "\n";
+  }
+  return data;
+}
+
+function getValues(values) {
+  data = "";
+
+  for (var i = 0; i < values.length; i++) {
+    data += values[i];
+  }
+  return data;
+}
+
+function jsUcfirst(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 /**
@@ -76,6 +126,14 @@ app
             story["scenarios"] = [emptyScenario()];
           }
           stories_db.insert(story); // update database
+
+
+          fs.writeFile(path.join(__dirname, 'Features', story.title.replace(/ /g, '_') + '.feature'), getFeatureContent(story), function (err) {
+            if (err) throw err;
+          });
+
+
+
           //TODO: delete stories priority 2
           stories.push(story);
         }
@@ -107,6 +165,7 @@ app
       console.log('Scenario', scenario.scenario_id, 'updated in Story', req.params.issueID);
     }
   })
+
   // delete scenario
   .delete("/api/story/:issueID/scenario/delete/:scenarioID", function (req, res) {
     console.log("Trying to delete Scenario in Issue: " + req.params.issueID + " with ID: " + req.params.scenarioID);
@@ -119,6 +178,15 @@ app
       res.status(200).json({});
       console.log("Scenario deleted.");
     }
-  });
+  })
+
+  .post("/api/test", function (req, res) {
+    fs.writeFile('C:\Users\Weller\Projekte\Cucumber\Projekt-Gurke\backend\src\Testdata.MyTest.txtmynewfile3.txt', 'Hello content!', function (err) {
+      if (err) throw err;
+      console.log('Saved!');
+    });
+  })
 
 module.exports = app;
+
+
