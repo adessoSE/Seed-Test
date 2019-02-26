@@ -1,6 +1,9 @@
+
+
 .uk-accordion-title, .uk-accordion-content, .uk-label {
   font-size: small;
 }
+
 
 .uk-accordion{
   width: 100%;
@@ -10,7 +13,37 @@
   float: right;
 }
 
+.uk-button-group{
+  border-radius:4px;
+  border:2px solid rgb(27, 86, 248);
+}
 
+.uk-button{
+  color:white;
+  background-color: rgb(27, 86, 248);
+  padding-right:15px;
+}
+
+.uk-button-icon{
+  padding-left:0;
+  padding-right:0;
+}
+
+.uk-button:hover{
+  color: rgb(27, 86, 248);
+  background: white;
+  transition-duration: 0.2s;
+}
+
+.error-message{
+  font-family: "Consolas", monospace;
+  color:red;
+  margin-bottom: 5px;
+}
+
+.report-chart{
+  margin-bottom: 20px;
+}
 
 .uk-background-red {
   background: red;
@@ -35,9 +68,13 @@
   /* line-height: 1.5; */
 }
 
-.uk-align-right {
+/* .uk-align-right {
   margin-top: 0;
   float: right;
   margin-bottom: 0;
+} */
+
+.uk-card-footer{
+  padding-bottom: 0;
 }
 

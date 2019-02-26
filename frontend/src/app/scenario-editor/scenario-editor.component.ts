@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
 import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
 import { TestBed } from '@angular/core/testing';
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-scenario-editor',
@@ -17,7 +18,11 @@ export class ScenarioEditorComponent implements OnInit {
   selectedStory;
   selectedScenario;
   showEditor = false;
+  showChart = false;
   editorLocked = true;
+  reportingChart;
+  err_msg = [];
+  
 
   constructor(
     private http: HttpClient,
@@ -86,7 +91,7 @@ export class ScenarioEditorComponent implements OnInit {
     var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
     console.log('step to add:', step);
     var new_step = {
-      id: new_id, //Used as the unique ID of a step (produces something like 1549025639350
+      id: new_id,
       label: step.label,
       mid: step.mid,
       pre: step.pre,
@@ -199,6 +204,8 @@ export class ScenarioEditorComponent implements OnInit {
 
   selectScenario(storyID, scenario) {
     this.selectedScenario = scenario;
+    this.showChart=false;
+    this.reportingChart = undefined;
     this.showEditor = true;
     this.editorLocked = true;
     console.log('selected scenario', this.selectedScenario);
@@ -206,10 +213,50 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   selectStory(story) {
+    this.reportingChart= undefined;
+    this.showChart=false;
     this.selectedStory = story;
     this.showEditor = false;
     this.editorLocked = true;
     console.log('selected storyID', this.selectedStory);
+  }
+
+  //Make the API Request to run the tests and display the results as a chart
+  runTests(scenario){
+    //This is unused until cucumber actually replies with real data
+    //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
+    var resp= this.apiService.runTests(scenario);
+    console.log(resp);
+    var data = {
+      datasets: [{
+          data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
+          backgroundColor: [
+            'rgba(239, 21, 14, 1)',
+            'rgba(31, 196, 53, 1)',
+            'rgba(239, 205, 14,1)',
+            'rgba(0,0,0,0.2)'
+        ],
+      }],
+  
+      // These labels appear in the legend and in the tooltips when hovering different arcs
+      labels: [
+          'Failed',
+          'Successfull',
+          'Not Implemented',
+          'Not executed'
+      ],
+      
+  };
+  this.reportingChart = new Chart('canvas', {
+      type: 'doughnut', 
+      data: data
+  });
+  this.err_msg = resp.err_msg;
+  this.showChart = true;
+  }
+
+  hideChart(){
+    this.showChart=!this.showChart;
   }
 
   someTest() {

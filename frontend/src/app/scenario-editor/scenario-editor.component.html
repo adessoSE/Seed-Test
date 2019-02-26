@@ -74,7 +74,27 @@
         </li>
         <br /><br />
       </div>
+      <div class="uk-card-footer">
+        <div class="uk-button-group uk-align-right">
+        <button class="uk-button" type="button" (click)="runTests(selectedScenario);" >Run Tests</button>
+        <button [disabled]="!showChart" class="uk-button uk-button-icon" uk-icon="icon:chevron-up" uk-tooltip="Hide Test Results" type="button" (click)="hideChart()"></button>
+      </div>
+      </div>
     </div>
+    </div>
+  <br />
+    <div  id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]="!showChart">
+        <div id="report-header" class="uk-card-header">
+            <h3 class="uk-card-title">Test Results</h3>
+          </div>
+          <div id="report-body" class="uk-card-body">
+            <div id="chartcontainer" class="chart-container">
+            <canvas class="report-chart" id="canvas">{{reportingChart}}</canvas>
+          </div>
+            <div *ngFor="let msg of err_msg"><pre class="error-message">{{msg}}</pre></div>  
+          </div> 
+    </div>
+    
 
     <div id="changeScenario" uk-modal>
       <div class="uk-modal-dialog uk-modal-body">
