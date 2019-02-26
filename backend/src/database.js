@@ -8,6 +8,7 @@ const stepDefinitions = db.addCollection('Step Definitions');
 stories.insert(testdata); // move to Testdata
 stepDefinitions.insert([
   {
+    id: '',
     stepType: 'given',
     label: null,
     type: 'Role',
@@ -17,6 +18,7 @@ stepDefinitions.insert([
     selection: ['Guest', 'User']
   },
   {
+    id: '',
     stepType: 'given',
     label: null,
     type: 'Website',
@@ -25,6 +27,7 @@ stepDefinitions.insert([
     values: [],
   },
   {
+    id: '',
     stepType: 'when',
     label: null,
     type: 'Website',
@@ -33,6 +36,7 @@ stepDefinitions.insert([
     values: []
   },
   {
+    id: '',
     stepType: 'when',
     label: null,
     type: 'Button',
@@ -41,6 +45,7 @@ stepDefinitions.insert([
     values: [],
   },
   {
+    id: '',
     stepType: 'when',
     label: '',
     type: 'Field',
@@ -49,6 +54,7 @@ stepDefinitions.insert([
     values: []
   },
   {
+    id: '',
     stepType: 'when',
     label: '',
     type: 'Radio',
@@ -57,6 +63,7 @@ stepDefinitions.insert([
     values: []
   },
   {
+    id: '',
     stepType: 'when',
     label: '',
     type: 'Checkbox',
@@ -65,6 +72,7 @@ stepDefinitions.insert([
     values: []
   },
   {
+    id: '',
     stepType: 'then',
     label: null,
     type: 'Website',
@@ -73,6 +81,7 @@ stepDefinitions.insert([
     values: []
   },
   {
+    id: '',
     stepType: 'then',
     label: '',
     type: 'Text',
@@ -116,6 +125,8 @@ function createScenario(git_id) {
 
 // POST SCENARIO
 function updateScenario(git_id, updated_scenario) {
+  console.log ("SCENARIO NEW");
+  console.log(updated_scenario);
   try {
     stories
       .chain()
@@ -134,6 +145,7 @@ function updateScenario(git_id, updated_scenario) {
         return "Something went wrong!";
       })
   } catch (error) {
+    console.log("Error:"+error)
     return error;
   }
   return updated_scenario;

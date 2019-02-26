@@ -9,6 +9,7 @@ const process = require('process');
 const emptyScenario = require('./models/emptyScenario');
 const fs = require('fs');
 const path = require('path');
+const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, function () {
@@ -115,7 +116,7 @@ app
   .get("/api/stories", function (req, res) {
     // get Issues from GitHub
     let request = new XMLHttpRequest();
-    request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story');
+    request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token='+access_token);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
