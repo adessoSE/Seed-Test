@@ -50,7 +50,7 @@ stepDefinitions.insert([
     label: '',
     type: 'Field',
     pre: 'I want to insert into the',
-    mid: 'field, the value/text',
+    mid: 'field, the value',
     values: []
   },
   {

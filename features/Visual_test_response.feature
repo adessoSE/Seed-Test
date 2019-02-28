@@ -1,7 +1,8 @@
 Feature: Visual test response
 
 Scenario: Visual Test Response
-Given As a User  Supermankryptonite 
+
+Given As a User
 
 When I want to visit this site: Website  www.cucumber.com 
 When I want to click the Button: Test it   

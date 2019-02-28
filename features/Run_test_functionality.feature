@@ -1,6 +1,7 @@
 Feature: Run test functionality
 
 Scenario: Run Test
+
 Given As a Guest   
 
 When I want to visit this site: Website  www.testing.com/myTestPage 

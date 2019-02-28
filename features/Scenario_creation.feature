@@ -1,6 +1,7 @@
 Feature: Scenario creation
 
 Scenario: successful Scenario creation
+
 Given As a Guest   
 
 When I want to visit this site: Website  www.cucumber.com 
@@ -10,6 +11,7 @@ Then So i can see in  the Success textbox, the text New Scenario created
 
 
 Scenario: failed Scenario creation
+
 Given As a Guest   
 
 When I want to visit this site: Website  www.cucumber.com 

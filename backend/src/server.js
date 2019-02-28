@@ -35,7 +35,7 @@ function getFeatureContent(story) {
 function getScenarioContent(scenarios) {
   var data = "";
   for (var i = 0; i < scenarios.length; i++) {
-    data += "Scenario: " + scenarios[i].name + "\n";
+    data += "Scenario: " + scenarios[i].name + "\n\n";
 
     // Get Stepdefinitions
     data += getSteps(scenarios[i].stepDefinitions.given, Object.keys(scenarios[i].stepDefinitions)[0]) + "\n";
@@ -53,8 +53,10 @@ function getSteps(steps, stepType) {
 
   for (var i = 0; i < steps.length; i++) {
     data += jsUcfirst(stepType) + " ";
-    if ((steps[i].label) != null) {
+    if ((steps[i].label) != null && (steps[i].label) != 'User') {
       data += steps[i].pre + " " + getLabel(steps[i].label) + " " + steps[i].mid + " " + getValues(steps[i].values) + " " + "\n";
+    }else if ((steps[i].label) == 'User') {
+      data += steps[i].pre + " " + getLabel(steps[i].label) + "\n";
     }else {
       data += steps[i].pre + " " + steps[i].mid + " " + getValues(steps[i].values) + " " + "\n";
     }
@@ -138,7 +140,7 @@ app
           stories_db.insert(story); // update database
 
 
-          fs.writeFile(path.join(__dirname, 'Features', story.title.replace(/ /g, '_') + '.feature'), getFeatureContent(story), function (err) {
+          fs.writeFile(path.join(__dirname, '../../features', story.title.replace(/ /g, '_') + '.feature'), getFeatureContent(story), function (err) {
             if (err) throw err;
           });
 

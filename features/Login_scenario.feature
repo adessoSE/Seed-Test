@@ -1,6 +1,7 @@
 Feature: Login scenario
 
 Scenario: successful Login
+
 Given As a Guest   
 
 When I want to visit this site: Website  www.addeso.de 
@@ -12,7 +13,8 @@ Then So i can see in  the Validation textbox, the text Successfully logged in
 
 
 Scenario: failed Login
-Given As a User  SomeUsernameSecret666 
+
+Given As a User
 
 When I want to visite this site: Website  www.gamestar.de 
 When I want to click the Button: Login   

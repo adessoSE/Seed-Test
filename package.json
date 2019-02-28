@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "start": "cd backend/src && node server.js",
-    "dev": "concurrently \"cd backend/src && nodemon server.js\" \"cd frontend/ && ng serve\""
+    "dev": "concurrently \"cd backend/src && nodemon server.js\" \"cd frontend/ && ng serve\"",
+    "test": "cucumber-js"
   },
   "private": true,
   "dependencies": {
@@ -38,6 +39,7 @@
     "mongodb": "^2.0.43",
     "nodemon": "^1.18.9",
     "rxjs": "^6.2.2",
+    "selenium-webdriver": "^4.0.0-alpha.1",
     "uikit": "^3.0.0-rc.24",
     "underscore": "^1.9.1",
     "xmlhttprequest": "^1.8.0",
@@ -48,6 +50,7 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^8.10.40",
     "codelyzer": "~4.3.0",
+    "cucumber": "^5.1.0",
     "eslint": "^5.10.0",
     "eslint-config-google": "^0.11.0",
     "jasmine-core": "~2.99.1",

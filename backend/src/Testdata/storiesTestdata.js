@@ -152,7 +152,7 @@ module.exports.testdata = [
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Superman']
             },
             {
@@ -160,7 +160,7 @@ module.exports.testdata = [
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['kryptonite']
             },
             {
@@ -231,7 +231,7 @@ module.exports.testdata = [
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Superman']
             },
             {
@@ -239,7 +239,7 @@ module.exports.testdata = [
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['kryptonite']
             },
             {
@@ -315,7 +315,7 @@ module.exports.testdata = [
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Spiderman']
             },
             {
@@ -323,7 +323,7 @@ module.exports.testdata = [
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['MaryJane']
             },
             {
@@ -386,7 +386,7 @@ module.exports.testdata = [
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Spiderman']
             },
             {
@@ -394,7 +394,7 @@ module.exports.testdata = [
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['MaryJane']
             },
             {
@@ -421,7 +421,7 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So i can see in  the',
               mid: 'textbox, the text',
-              values: ['You dont have ther permission to enter the forum!']
+              values: ['You dont have the permission to enter the forum!']
             }
           ]
         }
@@ -462,7 +462,7 @@ module.exports.testdata = [
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Punisher']
             },
             {
@@ -470,7 +470,7 @@ module.exports.testdata = [
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Bullseye']
             },
             {
@@ -525,7 +525,7 @@ module.exports.testdata = [
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Punisher']
             },
             {
@@ -533,7 +533,7 @@ module.exports.testdata = [
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Bullseye']
             },
             {
@@ -998,7 +998,7 @@ module.exports.testdata = [
               label: 'Scenario Name',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Renamed Scenario']
             },
             {
@@ -1061,7 +1061,7 @@ module.exports.testdata = [
               label: 'Scenario Name',
               type: 'Field',
               pre: 'I want to insert into the',
-              mid: 'field, the value/text',
+              mid: 'field, the value',
               values: ['Renamed Scenario']
             },
             {
