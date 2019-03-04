@@ -53,15 +53,14 @@ export class ApiService {
   //Using random numbers right now. When cucumber Integration is complete, this should request the API to run the tests and hand the results over to the component
   public runTests(scenario){
     //return this.http.get<any>(this.apiServer + '/stories').pipe(tap(resp=> console.log (resp)));
-    var fail = Math.floor(Math.random() * 20) + 0;
-    var succ= Math.floor(Math.random() * 20) + 0;
-    var not_imp = Math.floor(Math.random() * 20) + 0 ; 
-    var not_ex = Math.floor(Math.random() * 20) +0;
-    var err_msgs= [];
-    for (let index = 0; index < fail ; index++) {
-      err_msgs.push("failed for reason "+ (index+1));
-    }
-     return {failed:fail,successfull:succ,not_implemented:not_imp,not_executed:not_ex,err_msg:err_msgs};
+    return this.http
+    .get<any>(this.apiServer + '/runTest/',scenario)
+    .pipe(tap(resp =>
+      console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp),
+    ));
     
+    var err_msgs= [];
+    err_msgs.push("test");
+ //   return{failed:5,successfull:6,not_implemented:10,not_executed:2,err_msg:err_msgs}
   }
 }

@@ -225,35 +225,38 @@ export class ScenarioEditorComponent implements OnInit {
   runTests(scenario){
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
-    var resp= this.apiService.runTests(scenario);
-    console.log(resp);
-    var data = {
-      datasets: [{
-          data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
-          backgroundColor: [
-            'rgba(239, 21, 14, 1)',
-            'rgba(31, 196, 53, 1)',
-            'rgba(239, 205, 14,1)',
-            'rgba(0,0,0,0.2)'
-        ],
-      }],
-  
-      // These labels appear in the legend and in the tooltips when hovering different arcs
-      labels: [
-          'Failed',
-          'Successfull',
-          'Not Implemented',
-          'Not executed'
-      ],
-      
-  };
-  this.reportingChart = new Chart('canvas', {
-      type: 'doughnut', 
-      data: data
-  });
-  this.err_msg = resp.err_msg;
-  this.showChart = true;
-  }
+    this.apiService
+      .runTests(scenario)
+      .subscribe(resp => {
+          console.log(resp , resp.type);
+          var data = {
+            datasets: [{
+                data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
+                backgroundColor: [
+                  'rgba(239, 21, 14, 1)',
+                  'rgba(31, 196, 53, 1)',
+                  'rgba(239, 205, 14,1)',
+                  'rgba(0,0,0,0.2)'
+              ],
+            }],
+        
+            // These labels appear in the legend and in the tooltips when hovering different arcs
+            labels: [
+                'Failed',
+                'Successfull',
+                'Not Implemented',
+                'Not executed'
+            ],
+            
+        };
+        this.reportingChart = new Chart('canvas', {
+            type: 'doughnut', 
+            data: data
+        });
+        this.err_msg = resp.err_msg;
+        this.showChart = true;
+        })
+      }
 
   hideChart(){
     this.showChart=!this.showChart;

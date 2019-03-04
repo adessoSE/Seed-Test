@@ -198,7 +198,19 @@ app
       console.log('Saved!');
     });
   })
-
+  // run tests
+  .get("/api/runTest", function (req, res) {
+    var fail = Math.floor(Math.random() * 20) + 0;
+    var succ= Math.floor(Math.random() * 20) + 0;
+    var not_imp = Math.floor(Math.random() * 20) + 0 ; 
+    var not_ex = Math.floor(Math.random() * 20) +0;
+    var err_msgs= [];
+    for (let index = 0; index < fail ; index++) {
+      err_msgs.push("failed for reason "+ (index+1));
+    }
+    var resp = {"failed":fail,"successfull":succ,"not_implemented":not_imp,"not_executed":not_ex,"err_msg":err_msgs}
+    res.status(200).json(resp);
+  })
 module.exports = app;
 
 
