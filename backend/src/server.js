@@ -198,7 +198,9 @@ app
       console.log('Saved!');
     });
   })
-  // run tests
+
+  //run tests
+  //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
   .get("/api/runTest", function (req, res) {
     var fail = Math.floor(Math.random() * 20) + 0;
     var succ= Math.floor(Math.random() * 20) + 0;

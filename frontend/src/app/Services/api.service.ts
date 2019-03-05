@@ -5,6 +5,18 @@ import {HttpClient} from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
+
+
+// interface for the runTests method, needed to unpack the json
+interface RunTestJson{
+  failed: number;
+  successfull: number;
+  not_implemented: number;
+  not_executed: number;
+  err_msg: [object];
+}
+
+
 export class ApiService {
   private apiServer: string = "http://localhost:8080/api"; //"https://cucumberapp.herokuapp.com/api"
 
@@ -50,26 +62,14 @@ export class ApiService {
         ));
   }
 
-  //Using random numbers right now. When cucumber Integration is complete, this should request the API to run the tests and hand the results over to the component
+  // demands testing from the server
   public runTests(scenario){
-    //return this.http.get<any>(this.apiServer + '/stories').pipe(tap(resp=> console.log (resp)));
     return this.http
     .get<RunTestJson>(this.apiServer + '/runTest/')
     .pipe(tap(resp =>
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));
-    
-    //var err_msgs= [];
-    //err_msgs.push("test");
- //   return{failed:5,successfull:6,not_implemented:10,not_executed:2,err_msg:err_msgs}
   }
 }
 
 
-interface RunTestJson{
-  failed: number;
-  successfull: number;
-  not_implemented: number;
-  not_executed: number;
-  err_msg: [object];
-}
