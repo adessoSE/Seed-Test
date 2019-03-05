@@ -289,14 +289,14 @@ module.exports.testdata = [
               type: 'Role',
               pre: 'As a',
               mid: '',
-              values: ['Spiderman', 'MaryJane'],
+              values: [],
               selection: ['Guest', 'User']
             }
           ],
           when: [
             {
               id: 1,
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -338,9 +338,9 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.mjdiaries.com/forum']
             },
@@ -367,7 +367,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -409,7 +409,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'So I will be navigated to:',
               mid: '',

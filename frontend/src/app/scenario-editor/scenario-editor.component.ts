@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
 import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
 import { TestBed } from '@angular/core/testing';
-import {Chart} from 'chart.js';
+import { Chart } from 'chart.js';
 
 @Component({
   selector: 'app-scenario-editor',
@@ -22,7 +22,7 @@ export class ScenarioEditorComponent implements OnInit {
   editorLocked = true;
   reportingChart;
   err_msg = [];
-  
+
 
   constructor(
     private http: HttpClient,
@@ -50,7 +50,6 @@ export class ScenarioEditorComponent implements OnInit {
       .subscribe(resp => {
         this.stepDefinitions = resp;
         console.log('controller: stepDefinitions loaded', this.stepDefinitions);
-        this.someTest();
       });
   }
 
@@ -204,7 +203,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   selectScenario(storyID, scenario) {
     this.selectedScenario = scenario;
-    this.showChart=false;
+    this.showChart = false;
     this.reportingChart = undefined;
     this.showEditor = true;
     this.editorLocked = true;
@@ -213,8 +212,8 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   selectStory(story) {
-    this.reportingChart= undefined;
-    this.showChart=false;
+    this.reportingChart = undefined;
+    this.showChart = false;
     this.selectedStory = story;
     this.showEditor = false;
     this.editorLocked = true;
@@ -222,77 +221,42 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   //Make the API Request to run the tests and display the results as a chart
-  runTests(scenario){
+  runTests(scenario) {
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
-    var resp= this.apiService.runTests(scenario);
+    var resp = this.apiService.runTests(scenario);
     console.log(resp);
     var data = {
       datasets: [{
-          data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
-          backgroundColor: [
-            'rgba(239, 21, 14, 1)',
-            'rgba(31, 196, 53, 1)',
-            'rgba(239, 205, 14,1)',
-            'rgba(0,0,0,0.2)'
+        data: [resp.failed, resp.successfull, resp.not_implemented, resp.not_executed],
+        backgroundColor: [
+          'rgba(239, 21, 14, 1)',
+          'rgba(31, 196, 53, 1)',
+          'rgba(239, 205, 14,1)',
+          'rgba(0,0,0,0.2)'
         ],
       }],
-  
+
       // These labels appear in the legend and in the tooltips when hovering different arcs
       labels: [
-          'Failed',
-          'Successfull',
-          'Not Implemented',
-          'Not executed'
+        'Failed',
+        'Successfull',
+        'Not Implemented',
+        'Not executed'
       ],
-      
-  };
-  this.reportingChart = new Chart('canvas', {
-      type: 'doughnut', 
+
+    };
+    this.reportingChart = new Chart('canvas', {
+      type: 'doughnut',
       data: data
-  });
-  this.err_msg = resp.err_msg;
-  this.showChart = true;
+    });
+    this.err_msg = resp.err_msg;
+    this.showChart = true;
   }
 
-  hideChart(){
-    this.showChart=!this.showChart;
+  hideChart() {
+    this.showChart = !this.showChart;
   }
-
-  someTest() {
-    // this.apiService
-    //   .getStepDefinitions()
-    //   .subscribe(resp => {
-    //     this.stepDefinitions = resp;
-    //     // this.obj = JSON.stringify(this.stepDefinitions);
-    //     // console.log("----------------JSON Output----------------------")
-    //     // console.log(this.obj[0]);
-
-    //     var users = [{ name: 'Corbin', age: 20, favoriteFoods: ['ice cream', 'pizza'] },
-    //     { name: 'John', age: 25, favoriteFoods: ['ice cream', 'skittle'] }];
-    //     // var t = JSON.stringify(users);
-
-    //     console.log("----------test-----------------")
-    //     console.log(users[1]);
-    //   });
-
-
-    // // getting all key by Object (Already JSON!)
-    // this.apiService
-    //   .getStepDefinitions()
-    //   .subscribe(resp => {
-    //     this.stepDefinitions = resp;
-    //     console.log("----------------TEST--------------------");
-    //     // console.log(Object.keys(this.stepDefinitions[1]));
-    //     console.log(this.stepDefinitions[0].stepType);
-    //   });
-    // var file = new File(["C:\Users\Weller\Projekte\Cucumber\Projekt-Gurke\backend\src\Testdata"], "document.txt");
-
-
-    // console.log("--------------------OutPut----------------")
-    // console.log(this.stepDefinitions[0].stepType);
-    // console.log();
-  };
 
 }
 

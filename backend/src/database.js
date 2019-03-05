@@ -125,8 +125,6 @@ function createScenario(git_id) {
 
 // POST SCENARIO
 function updateScenario(git_id, updated_scenario) {
-  console.log ("SCENARIO NEW");
-  console.log(updated_scenario);
   try {
     stories
       .chain()
@@ -145,7 +143,7 @@ function updateScenario(git_id, updated_scenario) {
         return "Something went wrong!";
       })
   } catch (error) {
-    console.log("Error:"+error)
+    console.log("Error:" + error)
     return error;
   }
   return updated_scenario;

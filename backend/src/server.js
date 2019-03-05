@@ -11,27 +11,29 @@ const fs = require('fs');
 const path = require('path');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
 
+var stories = [];
+
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, function () {
   let port = server.address().port;
   console.log("App now running on port", port);
 });
 
-
+// Handling response errors
 function handleError(res, reason, statusMessage, code) {
   console.log("ERROR: " + reason);
   res.status(code || 500).json({ "error": statusMessage });
 }
 
+// Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
   var data = "Feature: " + story.title + "\n\n";
-
   // Get scenarios
   data += getScenarioContent(story.scenarios);
-
   return data;
 }
 
+// Building feature file scenario-name-content
 function getScenarioContent(scenarios) {
   var data = "";
   for (var i = 0; i < scenarios.length; i++) {
@@ -48,38 +50,63 @@ function getScenarioContent(scenarios) {
   return data;
 }
 
+// Building feature file step-content
 function getSteps(steps, stepType) {
   var data = "";
-
   for (var i = 0; i < steps.length; i++) {
     data += jsUcfirst(stepType) + " ";
     if ((steps[i].label) != null && (steps[i].label) != 'User') {
-      data += steps[i].pre + " " + getLabel(steps[i].label) + " " + steps[i].mid + " " + getValues(steps[i].values) + " " + "\n";
-    }else if ((steps[i].label) == 'User') {
+      data += steps[i].pre + " " + getLabel(steps[i].label) + " " + midNotEmpty(steps[i].mid) + getValues(steps[i].values) + " " + "\n";
+    } else if ((steps[i].label) == 'User') {
       data += steps[i].pre + " " + getLabel(steps[i].label) + "\n";
-    }else {
-      data += steps[i].pre + " " + steps[i].mid + " " + getValues(steps[i].values) + " " + "\n";
+    } else {
+      data += steps[i].pre + " " + midNotEmpty(steps[i].mid) + getValues(steps[i].values) + " " + "\n";
     }
   }
   return data;
 }
 
+// only displays mid text and additional space if length not null
+function midNotEmpty(values) {
+  if (values.length === 0) {
+    return "";
+  }
+  return values + " ";
+}
+
+// adds content of each values to output
 function getValues(values) {
   data = "";
-
   for (var i = 0; i < values.length; i++) {
-    data += values[i];
+    data += '\"' + values[i] + '\"';
   }
   return data;
 }
 
+// adds label content to output
 function getLabel(label) {
-  data = label;
-
+  data = "";
+  data += '\"' + label + '\"';
   return data;
 }
+
+// First letter in string to upper case
 function jsUcfirst(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Updates feature file based on story_id
+function updateFeatureFiles(reqparams) {
+  let selectedStory;
+  for (var i = 0; i < stories.length; i++) {
+    if (stories[i].story_id == reqparams.issueID) {
+      selectedStory = stories[i];
+      break;
+    }
+  }
+  fs.writeFile(path.join(__dirname, '../../features', selectedStory.title.replace(/ /g, '_') + '.feature'), getFeatureContent(selectedStory), function (err) {
+    if (err) throw err;
+  });
 }
 
 /**
@@ -118,13 +145,13 @@ app
   .get("/api/stories", function (req, res) {
     // get Issues from GitHub
     let request = new XMLHttpRequest();
-    request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token='+access_token);
+    request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token=' + access_token);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         let data = JSON.parse(request.responseText);
         // init result
-        let stories = [];
+        // let stories = [];
         for (let issue of data) {
           // only relevant issues with label: "story"
           let story = { story_id: issue["id"], title: issue["title"], body: issue["body"], state: issue['state'] };
@@ -138,14 +165,10 @@ app
             story["scenarios"] = [emptyScenario()];
           }
           stories_db.insert(story); // update database
-
-
+          // Create & Update Feature Files
           fs.writeFile(path.join(__dirname, '../../features', story.title.replace(/ /g, '_') + '.feature'), getFeatureContent(story), function (err) {
             if (err) throw err;
           });
-
-
-
           //TODO: delete stories priority 2
           stories.push(story);
         }
@@ -163,6 +186,7 @@ app
       res.status(200).json(scenario);
       console.log("Scenario created");
     }
+    updateFeatureFiles(req.params);
   })
   // update scenario
   .post("/api/scenario/update/:issueID", function (req, res) {
@@ -176,6 +200,7 @@ app
       res.status(200).json(updated_scenario);
       console.log('Scenario', scenario.scenario_id, 'updated in Story', req.params.issueID);
     }
+    updateFeatureFiles(req.params);
   })
 
   // delete scenario
@@ -190,13 +215,7 @@ app
       res.status(200).json({});
       console.log("Scenario deleted.");
     }
-  })
-
-  .post("/api/test", function (req, res) {
-    fs.writeFile('C:\Users\Weller\Projekte\Cucumber\Projekt-Gurke\backend\src\Testdata.MyTest.txtmynewfile3.txt', 'Hello content!', function (err) {
-      if (err) throw err;
-      console.log('Saved!');
-    });
+    updateFeatureFiles(req.params);
   })
 
 module.exports = app;
