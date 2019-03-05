@@ -6,17 +6,6 @@ import {HttpClient} from '@angular/common/http';
   providedIn: 'root'
 })
 
-
-// interface for the runTests method, needed to unpack the json
-interface RunTestJson{
-  failed: number;
-  successfull: number;
-  not_implemented: number;
-  not_executed: number;
-  err_msg: [object];
-}
-
-
 export class ApiService {
   private apiServer: string = "http://localhost:8080/api"; //"https://cucumberapp.herokuapp.com/api"
 
@@ -70,6 +59,15 @@ export class ApiService {
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));
   }
+}
+
+// interface for the runTests method, needed to unpack the json
+interface RunTestJson{
+  failed: number;
+  successfull: number;
+  not_implemented: number;
+  not_executed: number;
+  err_msg: [object];
 }
 
 
