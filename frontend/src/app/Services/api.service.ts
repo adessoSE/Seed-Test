@@ -54,13 +54,22 @@ export class ApiService {
   public runTests(scenario){
     //return this.http.get<any>(this.apiServer + '/stories').pipe(tap(resp=> console.log (resp)));
     return this.http
-    .get<any>(this.apiServer + '/runTest/',scenario)
+    .get<RunTestJson>(this.apiServer + '/runTest/')
     .pipe(tap(resp =>
-      console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp),
+      console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));
     
-    var err_msgs= [];
-    err_msgs.push("test");
+    //var err_msgs= [];
+    //err_msgs.push("test");
  //   return{failed:5,successfull:6,not_implemented:10,not_executed:2,err_msg:err_msgs}
   }
+}
+
+
+interface RunTestJson{
+  failed: number;
+  successfull: number;
+  not_implemented: number;
+  not_executed: number;
+  err_msg: [object];
 }

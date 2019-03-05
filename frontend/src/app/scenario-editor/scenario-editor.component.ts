@@ -228,7 +228,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .runTests(scenario)
       .subscribe(resp => {
-          console.log(resp , resp.type);
+          console.log(resp);
           var data = {
             datasets: [{
                 data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
