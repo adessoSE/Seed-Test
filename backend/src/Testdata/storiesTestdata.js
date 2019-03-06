@@ -177,7 +177,7 @@ module.exports.testdata = [
               id: 1,
               label: 'Website',
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.superheroes.com/newProfile']
             },
@@ -411,7 +411,7 @@ module.exports.testdata = [
               id: 1,
               label: null,
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.mjdiaries.com/nope']
             },

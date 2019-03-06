@@ -30,6 +30,7 @@
     "express": "^4.13.3",
     "express-jslint-reporter": "0.0.3",
     "express-limit": "0.0.2",
+    "geckodriver": "^1.16.0",
     "imagesloaded": "^4.1.4",
     "jquery": "^3.3.1",
     "js": "^0.1.0",
