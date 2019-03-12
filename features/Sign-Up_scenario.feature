@@ -10,7 +10,7 @@ When I want to insert into the "Username" field, the value "Superman"
 When I want to insert into the "Password" field, the value "kryptonite" 
 When I want to click the Button: "Finish"  
 
-Then So I will be navigated to: "Website" "www.superheroes.com/newProfile" 
+Then So I will be navigated to the site: "Website" "www.superheroes.com/newProfile" 
 Then So i can see in  the "Validation" textbox, the text "Successfully Signed Up" 
 
 

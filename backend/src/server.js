@@ -222,51 +222,63 @@ app
 
   //run tests
   //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
-  .get("/api/runTest", function (req, res) {
+  .get("/api/runTest/:issueID", function (req, res) {
+    console.log("Trying to execute Feature: " + req.params.issueID);
+    //npm test features/LoginTest.feature
+
+    var cmd = 'cucumber-js ../../features/LoginTest.feature --format json:test.json';
+
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.log(`stderr: ${stderr}`);
+    });
+
     var fail = Math.floor(Math.random() * 20) + 0;
-    var succ= Math.floor(Math.random() * 20) + 0;
-    var not_imp = Math.floor(Math.random() * 20) + 0 ; 
-    var not_ex = Math.floor(Math.random() * 20) +0;
-    var err_msgs= [];
-    for (let index = 0; index < fail ; index++) {
-      err_msgs.push("failed for reason "+ (index+1));
+    var succ = Math.floor(Math.random() * 20) + 0;
+    var not_imp = Math.floor(Math.random() * 20) + 0;
+    var not_ex = Math.floor(Math.random() * 20) + 0;
+    var err_msgs = [];
+    for (let index = 0; index < fail; index++) {
+      err_msgs.push("failed for reason " + (index + 1));
     }
-    var resp = {"failed":fail,"successfull":succ,"not_implemented":not_imp,"not_executed":not_ex,"err_msg":err_msgs}
+    var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
     //reporter.generate(options);
     res.status(200).json(resp);
   })
 module.exports = app;
 
-//outputs a report in Json and then transforms it in a pretty html page 
-function outputReport(){
-  execCucumber(function(){
-      reporter.generate(options);
+//outputs a report in Json and then transforms it in a pretty html page
+function outputReport() {
+  execCucumber(function () {
+    reporter.generate(options);
   })
 }
 
 //executes the cucumber test and creates a json report
-function execCucumber(callback){
-  child = exec('.\\node_modules\\.bin\\cucumber-js -f json:test.json',  
+function execCucumber(callback) {
+  child = exec('.\\node_modules\\.bin\\cucumber-js -f json:test.json',
     function (error, stdout, stderr) {
-        callback();
+      callback();
     });
 }
 
 //this is needed for the html report
-/*
 var options = {
   theme: 'bootstrap',
-  jsonFile: './report/cucumber_report.json',
+  jsonFile: '.\\node_modules\\.bin\\cucumber-js -f json:test.json',
   output: './report/cucumber_report.html',
   reportSuiteAsScenarios: true,
   launchReport: true,
   metadata: {
-      "App Version":"0.3.2",
-      "Test Environment": "STAGING",
-      "Browser": "Chrome  54.0.2840.98",
-      "Platform": "Windows 10",
-      "Parallel": "Scenarios",
-      "Executed": "Remote"
+    "App Version": "0.3.2",
+    "Test Environment": "STAGING",
+    "Browser": "Chrome  54.0.2840.98",
+    "Platform": "Windows 10",
+    "Parallel": "Scenarios",
+    "Executed": "Remote"
   }
 };
-*/

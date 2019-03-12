@@ -39,6 +39,7 @@
     "mocha": "^5.2.0",
     "mongodb": "^2.0.43",
     "nodemon": "^1.18.9",
+    "npm-run": "^5.0.1",
     "rxjs": "^6.2.2",
     "selenium-webdriver": "^4.0.0-alpha.1",
     "uikit": "^3.0.0-rc.24",

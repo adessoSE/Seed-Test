@@ -46,9 +46,11 @@
   <div class="uk-card uk-card-default uk-padding">
     <div class="uk-card-title">
       <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">{{i+1}}. {{ sd | titlecase }}
-        <div class="uk-align-right">
+        <div class="uk-float-right">
+          <!-- <div class="uk-align-right"> -->
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
             class="uk-text-primary" title="Add new step" uk-tooltip></button>
+          <!-- </div> -->
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of stepDefinitions;">
@@ -76,35 +78,38 @@
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-        <button class="uk-button" type="button" (click)="runTests(selectedScenario);" >Run Tests</button>
-        <button [disabled]="!showChart" class="uk-button uk-button-icon" uk-icon="icon:chevron-up" uk-tooltip="Hide Test Results" type="button" (click)="hideChart()"></button>
-      </div>
+          <button class="uk-button" type="button" (click)="runTests(selectedScenario);">Run Tests</button>
+          <button [disabled]="!showChart" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
+            uk-tooltip="Hide Test Results" type="button" (click)="hideChart()"></button>
+        </div>
       </div>
     </div>
-    </div>
+  </div>
   <br />
-    <div  id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]="!showChart">
-        <div id="report-header" class="uk-card-header">
-            <h3 class="uk-card-title">Test Results</h3>
-          </div>
-          <div id="report-body" class="uk-card-body">
-            <div id="chartcontainer" class="chart-container">
-            <canvas class="report-chart" id="canvas">{{reportingChart}}</canvas>
-          </div>
-            <div *ngFor="let msg of err_msg"><pre class="error-message">{{msg}}</pre></div>  
-          </div> 
+  <div id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]="!showChart">
+    <div id="report-header" class="uk-card-header">
+      <h3 class="uk-card-title">Test Results</h3>
     </div>
-    
-
-    <div id="changeScenario" uk-modal>
-      <div class="uk-modal-dialog uk-modal-body">
-        <h2>Change Scenario Title</h2>
-        <input type="text" [value]="selectedScenario.name" #ScenarioName />
-
-        <p class="uk-text-right">
-          <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-          <button class="uk-button uk-button-primary uk-modal-close"
-            (click)="renameScenario($event, ScenarioName.value)" type="button">Save</button>
-        </p>
+    <div id="report-body" class="uk-card-body">
+      <div id="chartcontainer" class="chart-container">
+        <canvas class="report-chart" id="canvas">{{reportingChart}}</canvas>
+      </div>
+      <div *ngFor="let msg of err_msg">
+        <pre class="error-message">{{msg}}</pre>
       </div>
     </div>
+  </div>
+
+
+  <div id="changeScenario" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+      <h2>Change Scenario Title</h2>
+      <input type="text" [value]="selectedScenario.name" #ScenarioName />
+
+      <p class="uk-text-right">
+        <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+        <button class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)"
+          type="button">Save</button>
+      </p>
+    </div>
+  </div>

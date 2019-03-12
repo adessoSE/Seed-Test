@@ -10,6 +10,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -21,6 +22,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -29,6 +31,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Logout',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -39,6 +42,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Website',
               type: 'Website',
               pre: 'So I will be navigated to:',
@@ -47,6 +51,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -70,6 +75,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'Guest',
               type: 'Role',
               pre: 'As a',
@@ -80,7 +86,9 @@ module.exports.testdata = [
           ],
           when: [
             {
-              id: 1, label: 'Website',
+              id: 1,
+              stepType: 'when',
+              label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -88,6 +96,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Run',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -98,6 +107,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -122,6 +132,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -133,6 +144,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -141,6 +153,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Sign Up',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -149,6 +162,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -157,6 +171,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -165,6 +180,7 @@ module.exports.testdata = [
             },
             {
               id: 5,
+              stepType: 'when',
               label: 'Finish',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -175,6 +191,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Website',
               type: 'Website',
               pre: 'So I will be navigated to the site:',
@@ -183,6 +200,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -201,6 +219,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -212,6 +231,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visite this site:',
@@ -220,6 +240,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Sign Up',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -228,6 +249,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -236,6 +258,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -244,6 +267,7 @@ module.exports.testdata = [
             },
             {
               id: 5,
+              stepType: 'when',
               label: 'Finish',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -254,6 +278,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Website',
               type: 'Website',
               pre: 'So I will be navigated to:',
@@ -262,6 +287,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -285,6 +311,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -296,14 +323,16 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.mjdiaries.com']
+              values: ['https://www.gamestar.de']
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Forum',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -312,6 +341,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -320,6 +350,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -328,6 +359,7 @@ module.exports.testdata = [
             },
             {
               id: 5,
+              stepType: 'when',
               label: 'Enter',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -338,6 +370,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: null,
               type: 'Website',
               pre: 'So I will be navigated to the site:',
@@ -356,6 +389,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -367,14 +401,16 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.mjdiaries.com']
+              values: ['https://www.gamestar.de']
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Forum',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -383,6 +419,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -391,6 +428,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -399,6 +437,7 @@ module.exports.testdata = [
             },
             {
               id: 5,
+              stepType: 'when',
               label: 'Enter',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -409,6 +448,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: null,
               type: 'Website',
               pre: 'So I will be navigated to the site:',
@@ -417,6 +457,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'then',
               label: 'User not allowed',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -440,6 +481,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -451,6 +493,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -459,6 +502,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -467,6 +511,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -475,6 +520,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Delete Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -485,6 +531,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Scenario Deleted',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -503,6 +550,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -514,6 +562,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -522,6 +571,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Username',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -530,6 +580,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Password',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -538,6 +589,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Delete Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -548,6 +600,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Scenario not found',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -571,6 +624,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'Guest',
               type: 'Role',
               pre: 'As a',
@@ -582,6 +636,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -590,6 +645,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Create Story',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -600,6 +656,7 @@ module.exports.testdata = [
           then: [
             {
               id: 2,
+              stepType: 'then',
               label: 'Success',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -618,6 +675,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'Guest',
               type: 'Role',
               pre: 'As a',
@@ -629,6 +687,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -637,6 +696,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Create Story',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -647,6 +707,7 @@ module.exports.testdata = [
           then: [
             {
               id: 2,
+              stepType: 'then',
               label: 'Error',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -670,6 +731,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'Guest',
               type: 'Role',
               pre: 'As a',
@@ -681,6 +743,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -689,6 +752,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Create Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -699,6 +763,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Success',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -717,6 +782,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'Guest',
               type: 'Role',
               pre: 'As a',
@@ -728,6 +794,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -736,6 +803,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Create Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -746,6 +814,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Error',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -769,6 +838,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -780,6 +850,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -788,6 +859,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Test it',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -798,6 +870,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Website',
               type: 'Website',
               pre: 'So I will be navigated to:',
@@ -806,6 +879,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'then',
               label: 'Result',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -814,6 +888,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'then',
               label: 'Result',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -837,6 +912,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'Guest',
               type: 'Role',
               pre: 'As a',
@@ -848,6 +924,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -856,6 +933,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Login',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -864,6 +942,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Pets',
               type: 'Checkbox',
               pre: 'I want to select from the',
@@ -874,6 +953,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Website',
               type: 'Website',
               pre: 'So I will be navigated to:',
@@ -882,6 +962,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -900,6 +981,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -911,6 +993,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visite this site:',
@@ -919,6 +1002,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Login',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -927,6 +1011,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Games',
               type: 'Radio',
               pre: 'I want to select from the',
@@ -937,6 +1022,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Website',
               type: 'Website',
               pre: 'So I will be navigated to:',
@@ -945,6 +1031,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -968,6 +1055,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'User',
               type: 'Role',
               pre: 'As a',
@@ -979,6 +1067,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -987,6 +1076,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Edit',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -995,6 +1085,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Scenario Name',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -1003,6 +1094,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Save',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -1013,6 +1105,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
@@ -1031,6 +1124,7 @@ module.exports.testdata = [
           given: [
             {
               id: 1,
+              stepType: 'given',
               label: 'Guest',
               type: 'Role',
               pre: 'As a',
@@ -1042,6 +1136,7 @@ module.exports.testdata = [
           when: [
             {
               id: 1,
+              stepType: 'when',
               label: 'Website',
               type: 'Website',
               pre: 'I want to visit this site:',
@@ -1050,6 +1145,7 @@ module.exports.testdata = [
             },
             {
               id: 2,
+              stepType: 'when',
               label: 'Edit',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -1058,6 +1154,7 @@ module.exports.testdata = [
             },
             {
               id: 3,
+              stepType: 'when',
               label: 'Scenario Name',
               type: 'Field',
               pre: 'I want to insert into the',
@@ -1066,6 +1163,7 @@ module.exports.testdata = [
             },
             {
               id: 4,
+              stepType: 'when',
               label: 'Save',
               type: 'Button',
               pre: 'I want to click the Button:',
@@ -1076,6 +1174,7 @@ module.exports.testdata = [
           then: [
             {
               id: 1,
+              stepType: 'then',
               label: 'Validation',
               type: 'Text',
               pre: 'So i can see in  the',
