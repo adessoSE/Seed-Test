@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
 const exec = require('child_process').exec;
-//var reporter = require('cucumber-html-reporter');
+var reporter = require('cucumber-html-reporter');
 
 var stories = [];
 
@@ -226,8 +226,8 @@ app
     console.log("Trying to execute Feature: " + req.params.issueID);
     //npm test features/LoginTest.feature
 
-    var cmd = 'cucumber-js ../../features/LoginTest.feature --format json:test.json';
-
+    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/LoginTest.feature --format json:../../features/test.json';
+    
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
@@ -269,8 +269,8 @@ function execCucumber(callback) {
 //this is needed for the html report
 var options = {
   theme: 'bootstrap',
-  jsonFile: '.\\node_modules\\.bin\\cucumber-js -f json:test.json',
-  output: './report/cucumber_report.html',
+  jsonFile: '../../features/test.json',
+  output: '../../features/cucumber_report.html',
   reportSuiteAsScenarios: true,
   launchReport: true,
   metadata: {
