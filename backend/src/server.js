@@ -10,6 +10,8 @@ const emptyScenario = require('./models/emptyScenario');
 const fs = require('fs');
 const path = require('path');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
+const exec = require('child_process').exec;
+//var reporter = require('cucumber-html-reporter');
 
 var stories = [];
 
@@ -230,8 +232,41 @@ app
       err_msgs.push("failed for reason "+ (index+1));
     }
     var resp = {"failed":fail,"successfull":succ,"not_implemented":not_imp,"not_executed":not_ex,"err_msg":err_msgs}
+    //reporter.generate(options);
     res.status(200).json(resp);
   })
 module.exports = app;
 
+//outputs a report in Json and then transforms it in a pretty html page 
+function outputReport(){
+  execCucumber(function(){
+      reporter.generate(options);
+  })
+}
 
+//executes the cucumber test and creates a json report
+function execCucumber(callback){
+  child = exec('.\\node_modules\\.bin\\cucumber-js -f json:test.json',  
+    function (error, stdout, stderr) {
+        callback();
+    });
+}
+
+//this is needed for the html report
+/*
+var options = {
+  theme: 'bootstrap',
+  jsonFile: './report/cucumber_report.json',
+  output: './report/cucumber_report.html',
+  reportSuiteAsScenarios: true,
+  launchReport: true,
+  metadata: {
+      "App Version":"0.3.2",
+      "Test Environment": "STAGING",
+      "Browser": "Chrome  54.0.2840.98",
+      "Platform": "Windows 10",
+      "Parallel": "Scenarios",
+      "Executed": "Remote"
+  }
+};
+*/
