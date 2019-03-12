@@ -5,6 +5,7 @@ import {HttpClient} from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
+
 export class ApiService {
   private apiServer: string = "http://localhost:8080/api"; //"https://cucumberapp.herokuapp.com/api"
 
@@ -50,18 +51,23 @@ export class ApiService {
         ));
   }
 
-  //Using random numbers right now. When cucumber Integration is complete, this should request the API to run the tests and hand the results over to the component
+  // demands testing from the server
   public runTests(scenario){
-    //return this.http.get<any>(this.apiServer + '/stories').pipe(tap(resp=> console.log (resp)));
-    var fail = Math.floor(Math.random() * 20) + 0;
-    var succ= Math.floor(Math.random() * 20) + 0;
-    var not_imp = Math.floor(Math.random() * 20) + 0 ; 
-    var not_ex = Math.floor(Math.random() * 20) +0;
-    var err_msgs= [];
-    for (let index = 0; index < fail ; index++) {
-      err_msgs.push("failed for reason "+ (index+1));
-    }
-     return {failed:fail,successfull:succ,not_implemented:not_imp,not_executed:not_ex,err_msg:err_msgs};
-    
+    return this.http
+    .get<RunTestJson>(this.apiServer + '/runTest/')
+    .pipe(tap(resp =>
+      console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
+    ));
   }
 }
+
+// interface for the runTests method, needed to unpack the json
+interface RunTestJson{
+  failed: number;
+  successfull: number;
+  not_implemented: number;
+  not_executed: number;
+  err_msg: [object];
+}
+
+
