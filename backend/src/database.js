@@ -8,9 +8,10 @@ const stepDefinitions = db.addCollection('Step Definitions');
 stories.insert(testdata); // move to Testdata
 stepDefinitions.insert([
   {
+    // ToDO: Frontend Implementation of selections! Use of labels & values?
     id: '',
     stepType: 'given',
-    label: null,
+    label: '',
     type: 'Role',
     pre: 'As a',
     mid: '',
@@ -38,7 +39,7 @@ stepDefinitions.insert([
   {
     id: '',
     stepType: 'when',
-    label: null,
+    label: '',
     type: 'Button',
     pre: 'I want to click the Button:',
     mid: '',
@@ -85,7 +86,7 @@ stepDefinitions.insert([
     stepType: 'then',
     label: '',
     type: 'Text',
-    pre: 'So i can see in  the',
+    pre: 'So I can see in the',
     mid: 'textbox, the text',
     values: []
   }

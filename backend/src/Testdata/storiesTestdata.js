@@ -23,7 +23,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -43,9 +43,9 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'then',
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.somehomepage.com']
             },
@@ -54,7 +54,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Successfully logged out']
             }
@@ -88,7 +88,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -110,7 +110,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Start running test cases.']
             }
@@ -145,7 +145,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -192,7 +192,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'then',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
@@ -203,7 +203,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Successfully Signed Up']
             }
@@ -232,9 +232,9 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'I want to visite this site:',
+              pre: 'I want to visit this site:',
               mid: '',
               values: ['www.superheroes.com']
             },
@@ -279,9 +279,9 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'then',
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.superheroes.com/newProfile']
             },
@@ -290,7 +290,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Error code 4711']
             }
@@ -460,7 +460,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'User not allowed',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['You dont have the permission to enter the forum!']
             }
@@ -494,7 +494,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -534,7 +534,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Scenario Deleted',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Scenario successfully deleted']
             }
@@ -563,7 +563,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -603,7 +603,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Scenario not found',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Scenario_Id does not exist']
             }
@@ -637,7 +637,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -659,7 +659,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Success',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['New Story created']
             }
@@ -688,7 +688,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -710,7 +710,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Error',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Could not create Story']
             }
@@ -744,7 +744,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -766,7 +766,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Success',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['New Scenario created']
             }
@@ -795,7 +795,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -817,7 +817,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Error',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Could not create Scenario']
             }
@@ -851,7 +851,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -871,9 +871,9 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'then',
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.cucumber.com/results']
             },
@@ -882,7 +882,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Result',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['ThenStep 1 Success']
             },
@@ -891,7 +891,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Result',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['ThenStep 2 Failed']
             }
@@ -925,11 +925,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.addeso.de']
+              values: ['https://www.adesso.de/de/']
             },
             {
               id: 2,
@@ -954,9 +954,9 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'then',
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.adesso.de/myProfile']
             },
@@ -965,7 +965,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Successfully logged in']
             }
@@ -994,9 +994,9 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'I want to visite this site:',
+              pre: 'I want to visit this site:',
               mid: '',
               values: ['www.gamestar.de']
             },
@@ -1023,9 +1023,9 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'then',
-              label: 'Website',
+              label: null,
               type: 'Website',
-              pre: 'So I will be navigated to:',
+              pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.gamestar.de/login']
             },
@@ -1034,7 +1034,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Password or User incorrect']
             }
@@ -1068,7 +1068,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -1108,7 +1108,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Updated scenario name.']
             }
@@ -1137,7 +1137,7 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'when',
-              label: 'Website',
+              label: null,
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
@@ -1177,7 +1177,7 @@ module.exports.testdata = [
               stepType: 'then',
               label: 'Validation',
               type: 'Text',
-              pre: 'So i can see in  the',
+              pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Could not update scenario name!']
             }

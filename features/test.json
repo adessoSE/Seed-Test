@@ -1,0 +1,210 @@
+[
+  {
+    "keyword": "Feature",
+    "name": "Access scenario",
+    "line": 1,
+    "id": "access-scenario",
+    "tags": [],
+    "uri": "..\\..\\features\\Access_scenario.feature",
+    "elements": [
+      {
+        "id": "access-scenario;successful-authentication",
+        "keyword": "Scenario",
+        "line": 3,
+        "name": "successful Authentication",
+        "tags": [],
+        "type": "scenario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 5,
+            "name": "As a \"User\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 7,
+            "name": "I want to visit this site: \"https://www.gamestar.de\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:39"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "I want to click the Button: \"Forum\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:43"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5016000000,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout._time.default.setTimeout [as _onTimeout] (C:\\Users\\Weller\\Projekte\\Cucumber\\Projekt-Gurke\\node_modules\\cucumber\\lib\\user_code_runner.js:81:20)\n    at ontimeout (timers.js:482:11)\n    at tryOnTimeout (timers.js:317:5)\n    at Timer.listOnTimeout (timers.js:277:5)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "I want to insert into the \"Username\" field, the value \"Spiderman\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I want to insert into the \"Password\" field, the value \"MaryJane\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I want to click the Button: \"Enter\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:43"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "So I will be navigated to the site: \"\" \"www.mjdiaries.com/forum\"",
+            "result": {
+              "status": "undefined"
+            }
+          }
+        ]
+      },
+      {
+        "id": "access-scenario;failed-authentication",
+        "keyword": "Scenario",
+        "line": 16,
+        "name": "failed Authentication",
+        "tags": [],
+        "type": "scenario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 18,
+            "name": "As a \"User\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 20,
+            "name": "I want to visit this site: \"https://www.gamestar.de\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:39"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 21,
+            "name": "I want to click the Button: \"Forum\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:43"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001000000,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout._time.default.setTimeout [as _onTimeout] (C:\\Users\\Weller\\Projekte\\Cucumber\\Projekt-Gurke\\node_modules\\cucumber\\lib\\user_code_runner.js:81:20)\n    at ontimeout (timers.js:482:11)\n    at tryOnTimeout (timers.js:317:5)\n    at Timer.listOnTimeout (timers.js:277:5)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 22,
+            "name": "I want to insert into the \"Username\" field, the value \"Spiderman\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 23,
+            "name": "I want to insert into the \"Password\" field, the value \"MaryJane\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 24,
+            "name": "I want to click the Button: \"Enter\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:43"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 26,
+            "name": "So I will be navigated to the site: \"www.mjdiaries.com/nope\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:71"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 27,
+            "name": "So I can see the \"User not allowed\" textbox, the text \"You dont have the permission to enter the forum!\"",
+            "result": {
+              "status": "undefined"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

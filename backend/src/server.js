@@ -111,6 +111,17 @@ function updateFeatureFiles(reqparams) {
   });
 }
 
+function getStoryByID(reqparams) {
+  let selectedStory;
+  for (var i = 0; i < stories.length; i++) {
+    if (stories[i].story_id == reqparams.issueID) {
+      selectedStory = stories[i];
+      break;
+    }
+  }
+  return selectedStory;
+}
+
 /**
  * API Description
  */
@@ -223,11 +234,11 @@ app
   //run tests
   //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
   .get("/api/runTest/:issueID", function (req, res) {
-    console.log("Trying to execute Feature: " + req.params.issueID);
     //npm test features/LoginTest.feature
+    let story = getStoryByID(req.params)
 
-    var cmd = 'cucumber-js ../../features/LoginTest.feature --format json:test.json';
-
+    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/test.json';
+    // var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/Access_scenario.feature'; //--format json:../../features/test.json';
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
