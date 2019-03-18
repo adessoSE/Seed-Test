@@ -50,7 +50,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1000000
+              "duration": 2000000
             }
           },
           {
@@ -62,8 +62,7 @@
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:52"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "passed"
             }
           },
           {
@@ -76,7 +75,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4389000000
+              "duration": 4610000000
             }
           },
           {
@@ -88,7 +87,8 @@
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:64"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           }
         ]

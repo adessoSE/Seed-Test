@@ -225,45 +225,45 @@ app
   .get("/api/runTest/:issueID", function (req, res) {
     console.log("Trying to execute Feature: " + req.params.issueID);
     //npm test features/LoginTest.feature
-
-    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/LoginTest.feature --format json:../../features/test.json';
-    
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-      console.log(`stderr: ${stderr}`);
-    });
-
-    var fail = Math.floor(Math.random() * 20) + 0;
-    var succ = Math.floor(Math.random() * 20) + 0;
-    var not_imp = Math.floor(Math.random() * 20) + 0;
-    var not_ex = Math.floor(Math.random() * 20) + 0;
-    var err_msgs = [];
-    for (let index = 0; index < fail; index++) {
-      err_msgs.push("failed for reason " + (index + 1));
-    }
-    var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
-    //reporter.generate(options);
-    res.status(200).json(resp);
-  })
+    outputReport(res)
+    })
 module.exports = app;
 
 //outputs a report in Json and then transforms it in a pretty html page
-function outputReport() {
-  execCucumber(function () {
+function outputReport(res) {
+  execCucumber(res,function () {
     reporter.generate(options);
   })
 }
 
 //executes the cucumber test and creates a json report
-function execCucumber(callback) {
-  child = exec('.\\node_modules\\.bin\\cucumber-js -f json:test.json',
-    function (error, stdout, stderr) {
-      callback();
-    });
+function execCucumber(res,callback) {
+  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/LoginTest.feature --format json:../../features/test.json';
+
+  exec(cmd, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+    callback();
+  });
+
+  var fail = Math.floor(Math.random() * 20) + 0;
+  var succ = Math.floor(Math.random() * 20) + 0;
+  var not_imp = Math.floor(Math.random() * 20) + 0;
+  var not_ex = Math.floor(Math.random() * 20) + 0;
+  var err_msgs = [];
+  for (let index = 0; index < fail; index++) {
+    err_msgs.push("failed for reason " + (index + 1));
+  }
+  var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
+
+  //that has to be in a callback function to make sure the json has already been created
+  //reporter.generate(options);
+  res.status(200).json(resp);
+  
 }
 
 //this is needed for the html report

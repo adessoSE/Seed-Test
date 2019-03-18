@@ -228,7 +228,7 @@ export class ScenarioEditorComponent implements OnInit {
       .runTests(scenario)
       .subscribe(resp => {
           console.log(resp);
-          var data = {
+          /*var data = {
             datasets: [{
                 data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
                 backgroundColor: [
@@ -252,7 +252,7 @@ export class ScenarioEditorComponent implements OnInit {
             type: 'doughnut', 
             data: data
         });
-        this.err_msg = resp.err_msg;
+        this.err_msg = resp.err_msg;*/
         this.showChart = true;
         })
       }
