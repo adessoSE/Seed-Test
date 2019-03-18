@@ -230,7 +230,7 @@ app
 module.exports = app;
 
 //outputs a report in Json and then transforms it in a pretty html page
-function outputReport(res) {
+function outputReport() {
   execCucumber(res,function () {
     reporter.generate(options);
   })
@@ -258,11 +258,11 @@ function execCucumber(res,callback) {
   for (let index = 0; index < fail; index++) {
     err_msgs.push("failed for reason " + (index + 1));
   }
-  var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
-
+  //var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
+  res.sendFile('/cucumber_report.html', { root: "../../features" });
   //that has to be in a callback function to make sure the json has already been created
   //reporter.generate(options);
-  res.status(200).json(resp);
+  //res.status(200).json(resp);
   
 }
 

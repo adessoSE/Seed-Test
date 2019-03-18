@@ -54,10 +54,10 @@ export class ApiService {
   // demands testing from the server
   public runTests(scenario){
     return this.http
-    .get<RunTestJson>(this.apiServer + '/runTest/1')
-    .pipe(tap(resp =>
+    .get<JSON>(this.apiServer + '/runTest/1');
+    /*.pipe(tap(resp =>
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
-    ));
+    ));*/
   }
 }
 

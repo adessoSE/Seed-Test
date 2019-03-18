@@ -37,7 +37,8 @@
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:37"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           },
           {
@@ -75,7 +76,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4610000000
+              "duration": 4669000000
             }
           },
           {
@@ -87,8 +88,7 @@
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:64"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "passed"
             }
           }
         ]
