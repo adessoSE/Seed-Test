@@ -230,7 +230,7 @@ app
 module.exports = app;
 
 //outputs a report in Json and then transforms it in a pretty html page
-function outputReport() {
+function outputReport(res) {
   execCucumber(res,function () {
     reporter.generate(options);
   })
