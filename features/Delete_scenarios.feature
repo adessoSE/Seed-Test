@@ -1,5 +1,6 @@
 Feature: Delete scenarios
 
+@386693823_1
 Scenario: successful Deletion
 
 Given As a "User"
@@ -12,6 +13,7 @@ When I want to click the Button: "Delete Scenario"
 Then So I can see in the "Scenario Deleted" textbox, the text "Scenario successfully deleted" 
 
 
+@386693823_2
 Scenario: No Scenario to delete
 
 Given As a "User"

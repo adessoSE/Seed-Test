@@ -1,5 +1,6 @@
 Feature: Login scenario
 
+@386694507_1
 Scenario: successful Login
 
 Given As a "Guest"  
@@ -12,6 +13,7 @@ Then So I will be navigated to the site: "www.adesso.de/myProfile"
 Then So I can see in the "Validation" textbox, the text "Successfully logged in" 
 
 
+@386694507_2
 Scenario: failed Login
 
 Given As a "User"
