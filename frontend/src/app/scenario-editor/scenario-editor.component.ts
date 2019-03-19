@@ -22,7 +22,7 @@ export class ScenarioEditorComponent implements OnInit {
   editorLocked = true;
   reportingChart;
   err_msg = [];
-
+  myHTML = "testiklas";
 
   constructor(
     private http: HttpClient,
@@ -227,8 +227,10 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .runTests(scenario)
       .subscribe(resp => {
-          console.log(resp);
-          var data = {
+        this.reportingChart = resp;
+        this.myHTML ='I am an <code>HTML</code>string with ' + '<a href="#">links!</a> and other <em>stuff</em>';
+          console.log("This is the response: " + resp);
+          /*var data = {
             datasets: [{
                 data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
                 backgroundColor: [
@@ -252,7 +254,7 @@ export class ScenarioEditorComponent implements OnInit {
             type: 'doughnut', 
             data: data
         });
-        this.err_msg = resp.err_msg;
+        this.err_msg = resp.err_msg;*/
         this.showChart = true;
         })
       }
