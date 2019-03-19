@@ -1,5 +1,6 @@
 Feature: Sign-Up scenario
 
+@386696256_1
 Scenario: successful Sign Up
 
 Given As a "User"
@@ -14,6 +15,7 @@ Then So I will be navigated to the site: "www.superheroes.com/newProfile"
 Then So I can see in the "Validation" textbox, the text "Successfully Signed Up" 
 
 
+@386696256_2
 Scenario: failed Sign Up
 
 Given As a "User"

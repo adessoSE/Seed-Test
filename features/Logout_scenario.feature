@@ -1,5 +1,6 @@
 Feature: Logout scenario
 
+@386695799_1
 Scenario: successful Logout
 
 Given As a "User"

@@ -1,0 +1,114 @@
+[
+  {
+    "keyword": "Feature",
+    "name": "Access scenario",
+    "line": 1,
+    "id": "access-scenario",
+    "tags": [],
+    "uri": "..\\..\\features\\Access_scenario.feature",
+    "elements": [
+      {
+        "id": "access-scenario;successful-authentication",
+        "keyword": "Scenario",
+        "line": 4,
+        "name": "successful Authentication",
+        "tags": [
+          {
+            "name": "@386696070_1",
+            "line": 3
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 6,
+            "name": "As a \"User\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:43"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "I want to visit this site: \"https://www.gamestar.de\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:52"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "I want to click the Button: \"Forum\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:56"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 7455000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I want to insert into the \"Username\" field, the value \"Spiderman\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:68"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I want to insert into the \"Password\" field, the value \"MaryJane\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:68"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I want to click the Button: \"Enter\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:56"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2897000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "So I will be navigated to the site: \"www.mjdiaries.com/forum\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:96"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1000000
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

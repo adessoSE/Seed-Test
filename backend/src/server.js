@@ -33,14 +33,15 @@ function handleError(res, reason, statusMessage, code) {
 function getFeatureContent(story) {
   var data = "Feature: " + story.title + "\n\n";
   // Get scenarios
-  data += getScenarioContent(story.scenarios);
+  data += getScenarioContent(story.scenarios, story.story_id);
   return data;
 }
 
 // Building feature file scenario-name-content
-function getScenarioContent(scenarios) {
+function getScenarioContent(scenarios, story_id) {
   var data = "";
   for (var i = 0; i < scenarios.length; i++) {
+    data += "@" + story_id + "_" + scenarios[i].scenario_id + "\n";
     data += "Scenario: " + scenarios[i].name + "\n\n";
 
     // Get Stepdefinitions
@@ -233,13 +234,12 @@ app
     updateFeatureFiles(req.params);
   })
 
-  //run tests
+  //run single Feature
   //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
-  .get("/api/runTest/:issueID", function (req, res) {
+  .get("/api/runFeature/:issueID", function (req, res) {
     //npm test features/LoginTest.feature
     let story = getStoryByID(req.params)
-    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/test.json';
-    // var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/Access_scenario.feature'; //--format json:../../features/test.json';
+    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
@@ -261,11 +261,41 @@ app
     //reporter.generate(options);
     res.status(200).json(resp);
   })
+
+  //run single Scenario of a Feature
+  .get("/api/runScenario/:issueID/:scenarioID", function (req, res) {
+    //npm test features/LoginTest.feature
+    let story = getStoryByID(req.params)
+    // Ausführen: Scenario Zeile
+    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + "_" + req.params.scenarioID + '" --format json:../../features/reporting.json';
+    console.log(cmd);
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.log(`stderr: ${stderr}`);
+    });
+
+    var fail = Math.floor(Math.random() * 20) + 0;
+    var succ = Math.floor(Math.random() * 20) + 0;
+    var not_imp = Math.floor(Math.random() * 20) + 0;
+    var not_ex = Math.floor(Math.random() * 20) + 0;
+    var err_msgs = [];
+    for (let index = 0; index < fail; index++) {
+      err_msgs.push("failed for reason " + (index + 1));
+    }
+    var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
+    //reporter.generate(options);
+    res.status(200).json(resp);
+  })
+
 module.exports = app;
 
 //outputs a report in Json and then transforms it in a pretty html page
 function outputReport(res) {
-  execCucumber(res,function () {
+  execCucumber(res, function () {
     reporter.generate(options);
   })
 }

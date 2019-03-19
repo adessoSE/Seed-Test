@@ -1,5 +1,6 @@
 Feature: Scenario creation
 
+@382626033_1
 Scenario: successful Scenario creation
 
 Given As a "Guest"  
@@ -10,6 +11,7 @@ When I want to click the Button: "Create Scenario"
 Then So I can see in the "Success" textbox, the text "New Scenario created" 
 
 
+@382626033_2
 Scenario: failed Scenario creation
 
 Given As a "Guest"  

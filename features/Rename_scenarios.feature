@@ -1,5 +1,6 @@
 Feature: Rename scenarios
 
+@386692174_1
 Scenario: Renamed Scenario
 
 Given As a "User"
@@ -12,6 +13,7 @@ When I want to click the Button: "Save"
 Then So I can see in the "Validation" textbox, the text "Updated scenario name." 
 
 
+@386692174_1
 Scenario: Faild Updating
 
 Given As a "Guest"  
