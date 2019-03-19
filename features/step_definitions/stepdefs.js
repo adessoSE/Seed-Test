@@ -5,7 +5,7 @@ const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
 var { AfterAll, BeforeAll } = require('cucumber')
 require('geckodriver');
-// require('chromedriver');
+
 
 var { setDefaultTimeout } = require('cucumber');
 setDefaultTimeout(20 * 1000);
@@ -27,41 +27,29 @@ Given('As a {string}', function (string) {
   this.role = string
 });
 
-
 When('I want to visit this site: {string}', function (website) {
   driver.get(website)
 });
 
-When('I want to click the Button: {string}', async function (button) {
+When('I want to click the Button: {string} identified by: {string}', async function (button, identifier) {
 
-
-  if (driver.findElement(By.xpath("//*[@href=" + button + "]")).isDisplayed()) {
-    driver.findElement(By.xpath("//*[@href=" + button + "]")).click().then();
+    driver.findElement(By.xpath("//*[@"+ identifier +"='"+ button +"']")).click().then();
 
     await driver.wait(function () {
       return driver.executeScript('return document.readyState').then(function (readyState) {
         return readyState === 'complete';
       });
     });
-  }
-
-  else if (driver.findElement(By.name(button)).isDisplayed()) {
-    driver.findElement(By.xpath("//*[@name=" + button + "]")).click().then();
-
-    await driver.wait(function () {
-      return driver.executeScript('return document.readyState').then(function (readyState) {
-        return readyState === 'complete';
-      });
-    });
-  }
 });
+
+
 
 When('I want to insert into the {string} field, the value {string}', function (id, name) {
   driver.findElement(By.id(id)).sendKeys(name);
 });
 
-When('I want to select from the {string} selection, the value {string}', function (string, string2) {
-  driver.findElement(By.xpath("//input[(@value='1')]")).click();
+When('I want to select from the {string} selection, the value {string}', function (identifier, cbname) {
+  driver.findElement(By.xpath("//*[@"+ identifier +"='"+ cbname +"']")).click().then();
 });
 
 When('I want to select from the {string} multiple selection, the values {string}{string}{string}', function (string, string2, string3, string4) {
