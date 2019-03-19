@@ -13,6 +13,8 @@ const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a per
 const exec = require('child_process').exec;
 var reporter = require('cucumber-html-reporter');
 
+//Test für den merge!!!!
+
 var stories = [];
 
 // Initialize the app.
@@ -236,7 +238,6 @@ app
   .get("/api/runTest/:issueID", function (req, res) {
     //npm test features/LoginTest.feature
     let story = getStoryByID(req.params)
-
     var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/test.json';
     // var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/Access_scenario.feature'; //--format json:../../features/test.json';
     exec(cmd, (error, stdout, stderr) => {
@@ -267,36 +268,6 @@ function outputReport(res) {
   execCucumber(res,function () {
     reporter.generate(options);
   })
-}
-
-//executes the cucumber test and creates a json report
-function execCucumber(res,callback) {
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/LoginTest.feature --format json:../../features/test.json';
-
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
-    callback();
-  });
-
-  var fail = Math.floor(Math.random() * 20) + 0;
-  var succ = Math.floor(Math.random() * 20) + 0;
-  var not_imp = Math.floor(Math.random() * 20) + 0;
-  var not_ex = Math.floor(Math.random() * 20) + 0;
-  var err_msgs = [];
-  for (let index = 0; index < fail; index++) {
-    err_msgs.push("failed for reason " + (index + 1));
-  }
-  //var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
-  res.sendFile('/cucumber_report.html', { root: "../../features" });
-  //that has to be in a callback function to make sure the json has already been created
-  //reporter.generate(options);
-  //res.status(200).json(resp);
-  
 }
 
 //this is needed for the html report
