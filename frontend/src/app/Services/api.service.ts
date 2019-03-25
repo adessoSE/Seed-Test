@@ -58,10 +58,10 @@ export class ApiService {
     console.log("issueID: " + storyID);
     if(scenario){
     return this.http
-    .get<RunTestJson>(this.apiServer + '/runScenario/' + storyID + '/' + scenario);
+    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenario, {responseType:'text'});
     }
     return this.http
-    .get<RunTestJson>(this.apiServer + '/runFeature/'+ storyID);
+    .get(this.apiServer + '/runFeature/'+ storyID, {responseType:'text'});
     /*.pipe(tap(resp =>
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));*/
