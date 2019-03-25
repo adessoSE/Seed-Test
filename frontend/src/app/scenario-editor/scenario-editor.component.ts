@@ -221,15 +221,15 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   //Make the API Request to run the tests and display the results as a chart
-  runTests(scenario) {
+  runTests() {
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
     this.apiService
-      .runTests(scenario)
+      .runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id)
       .subscribe(resp => {
         this.reportingChart = resp;
         this.myHTML ='I am an <code>HTML</code>string with ' + '<a href="#">links!</a> and other <em>stuff</em>';
-          console.log("This is the response: " + resp);
+          console.log("This is the response: " + resp.err_msg);
           /*var data = {
             datasets: [{
                 data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],

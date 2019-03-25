@@ -237,33 +237,17 @@ app
   //run single Feature
   //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
   .get("/api/runFeature/:issueID", function (req, res) {
-    //npm test features/LoginTest.feature
-    let story = getStoryByID(req.params)
-    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
-    exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return;
-      }
-      console.log(`stdout: ${stdout}`);
-      console.log(`stderr: ${stderr}`);
-    });
-
-    var fail = Math.floor(Math.random() * 20) + 0;
-    var succ = Math.floor(Math.random() * 20) + 0;
-    var not_imp = Math.floor(Math.random() * 20) + 0;
-    var not_ex = Math.floor(Math.random() * 20) + 0;
-    var err_msgs = [];
-    for (let index = 0; index < fail; index++) {
-      err_msgs.push("failed for reason " + (index + 1));
-    }
-    var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
-    //reporter.generate(options);
-    res.status(200).json(resp);
+    featureReport(req,res);
   })
 
   //run single Scenario of a Feature
   .get("/api/runScenario/:issueID/:scenarioID", function (req, res) {
+    scenarioReport(req,res);
+  });
+
+module.exports = app;
+
+function execScenario(req, res, callback){
     //npm test features/LoginTest.feature
     let story = getStoryByID(req.params)
     // Ausführen: Scenario Zeile
@@ -272,10 +256,12 @@ app
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
+        callback();
         return;
       }
       console.log(`stdout: ${stdout}`);
       console.log(`stderr: ${stderr}`);
+      callback();
     });
 
     var fail = Math.floor(Math.random() * 20) + 0;
@@ -288,23 +274,59 @@ app
     }
     var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
     //reporter.generate(options);
-    res.status(200).json(resp);
-  })
+    //res.status(200).json(resp);
+}
 
-module.exports = app;
+function execFeature(req, res, callback){
+    //npm test features/LoginTest.feature
+    let story = getStoryByID(req.params)
+    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        callback();
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.log(`stderr: ${stderr}`);
+      callback();
+    });
+
+    var fail = Math.floor(Math.random() * 20) + 0;
+    var succ = Math.floor(Math.random() * 20) + 0;
+    var not_imp = Math.floor(Math.random() * 20) + 0;
+    var not_ex = Math.floor(Math.random() * 20) + 0;
+    var err_msgs = [];
+    for (let index = 0; index < fail; index++) {
+      err_msgs.push("failed for reason " + (index + 1));
+    }
+    var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
+    //reporter.generate(options);
+    //res.status(200).json(resp);
+}
 
 //outputs a report in Json and then transforms it in a pretty html page
-function outputReport(res) {
-  execCucumber(res, function () {
+function scenarioReport(req,res) {
+  execScenario(req,res, function () {
+    console.log("tesing scenario report");
     reporter.generate(options);
+    res.sendFile('/reporting_html.html', { root: "../../features" });
+  })
+}
+
+function featureReport(req, res) {
+  execFeature(req, res, function () {
+    console.log("tesing feature report");
+    reporter.generate(options);
+    res.sendFile('/reporting_html.html', { root: "../../features" });
   })
 }
 
 //this is needed for the html report
 var options = {
   theme: 'bootstrap',
-  jsonFile: '../../features/test.json',
-  output: '../../features/cucumber_report.html',
+  jsonFile: '../../features/reporting.json',
+  output: '../../features/reporting_html.html',
   reportSuiteAsScenarios: true,
   launchReport: true,
   metadata: {

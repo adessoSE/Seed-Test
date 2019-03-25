@@ -1,20 +1,20 @@
 [
   {
     "keyword": "Feature",
-    "name": "Access scenario",
+    "name": "Run test functionality",
     "line": 1,
-    "id": "access-scenario",
+    "id": "run-test-functionality",
     "tags": [],
-    "uri": "..\\..\\features\\Access_scenario.feature",
+    "uri": "..\\..\\features\\Run_test_functionality.feature",
     "elements": [
       {
-        "id": "access-scenario;successful-authentication",
+        "id": "run-test-functionality;run-test-functionality",
         "keyword": "Scenario",
         "line": 4,
-        "name": "successful Authentication",
+        "name": "Run Test functionality",
         "tags": [
           {
-            "name": "@386696070_1",
+            "name": "@386697647_1",
             "line": 3
           }
         ],
@@ -24,87 +24,42 @@
             "arguments": [],
             "keyword": "Given ",
             "line": 6,
-            "name": "As a \"User\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:43"
-            },
+            "name": "As a \"Guest\" \"User\"",
             "result": {
-              "status": "passed"
+              "status": "undefined"
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 8,
-            "name": "I want to visit this site: \"https://www.gamestar.de\"",
+            "name": "I want to visit this site: \"https://www.testing.com/myTestPage\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:52"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
             },
             "result": {
-              "status": "passed"
+              "status": "skipped"
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 9,
-            "name": "I want to click the Button: \"Forum\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:56"
-            },
+            "name": "I want to click the Button: \"Test\" \"\"",
             "result": {
-              "status": "passed",
-              "duration": 7455000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 10,
-            "name": "I want to insert into the \"Username\" field, the value \"Spiderman\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:68"
-            },
-            "result": {
-              "status": "passed"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 11,
-            "name": "I want to insert into the \"Password\" field, the value \"MaryJane\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:68"
-            },
-            "result": {
-              "status": "passed"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 12,
-            "name": "I want to click the Button: \"Enter\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:56"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 2897000000
+              "status": "undefined"
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 14,
-            "name": "So I will be navigated to the site: \"www.mjdiaries.com/forum\"",
+            "line": 11,
+            "name": "So I can see in the \"\" textbox, the text \"Start running test cases.\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:96"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:59"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "skipped"
             }
           }
         ]

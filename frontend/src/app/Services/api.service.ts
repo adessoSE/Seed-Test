@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {tap} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
+import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 
 @Injectable({
   providedIn: 'root'
@@ -52,9 +53,15 @@ export class ApiService {
   }
 
   // demands testing from the server
-  public runTests(scenario){
+  public runTests(storyID, scenario){
+    console.log("scenario: " + scenario);
+    console.log("issueID: " + storyID);
+    if(scenario){
     return this.http
-    .get<JSON>(this.apiServer + '/runTest/1');
+    .get<RunTestJson>(this.apiServer + '/runScenario/' + storyID + '/' + scenario);
+    }
+    return this.http
+    .get<RunTestJson>(this.apiServer + '/runFeature/'+ storyID);
     /*.pipe(tap(resp =>
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));*/

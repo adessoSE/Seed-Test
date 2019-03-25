@@ -270,7 +270,7 @@ pre {
           <a class="navbar-brand">Cucumberjs Report</a>
           <div class="project-name visible-md visible-lg">cucumber-backend</div>
           <div class="label-container">
-            <span class="label label-success" title=scenarios>Passed: 1</span>
+            <span class="label label-success" title=scenarios>Passed: 0</span>
             <span class="label label-danger" title=scenarios>Failed: 0</span>
           </div>
         </div>
@@ -279,7 +279,7 @@ pre {
 
     <div class="container">
 
-      <div class="generated-on">Mon Mar 18 2019 13:56:15 GMT+0100 (GMT+01:00)</div>
+      <div class="generated-on">Mon Mar 25 2019 11:20:37 GMT+0100 (GMT+01:00)</div>
 
       <div class="row">
         <div class="chart col-lg-6 col-md-6" id="piechart_features"></div>
@@ -371,14 +371,14 @@ pre {
                     <a data-toggle="collapse" href="#collapseFeaturecucumber_backend0">
                         <i class="glyphicon glyphicon-chevron-right"></i>
                         <i class="glyphicon glyphicon-chevron-down"></i>
-                        <b>Feature:</b>LoginTest
+                        <b>Feature:</b>Run test functionality
                         <span class="label-container">
-              <span class="label label-success"
-                                                         title="1 Scenarios Passed">1</span>
               
               
               
               
+              <span class="label label-warning"
+                                                          title="1 Scenarios Skipped">1</span>
               
                         </span>
                     </a>
@@ -393,7 +393,8 @@ pre {
                             <h4 class="panel-title">
                                 
                                 
-                                <div class="tags">
+                                <div class="tags"> <span class="tag"> @386697647_1</span>
+                                    
                                 </div>
                                 
                                 <a data-toggle="collapse"
@@ -403,15 +404,15 @@ pre {
                                         <div style="padding-right: 30px">
                                             <i class="glyphicon glyphicon-chevron-right"></i>
                                             <i class="glyphicon glyphicon-chevron-down"></i>
-                                            <b>Scenario:</b>successful Login
+                                            <b>Scenario:</b>Run Test functionality
                                         </div>
                                         <div>
                             <span class="label-container">
-                              <span class="label label-success"
-                                                               title="6 Steps Passed">6</span>
                               
                               
                               
+                              <span class="label label-warning"
+                                                                title="2 Steps Skipped">2</span>
                               
                               
                             </span>
@@ -430,17 +431,17 @@ pre {
                                 <div class="row steps">
                                     
                                     
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
+                                    <span class="label label-info" title="Undefined"><i
+                                            class="glyphicon glyphicon-flash"></i></span>
                                     
                                     
                                     <span class="text">
                         <span class="keyword highlight">Given </span>
-                          <span> As a &quot;Guest&quot;</span>
+                          <span> As a &quot;Guest&quot; &quot;User&quot;</span>
                             
                           
                               <span class="step-duration">
-                               2ms
+                               0s
                               </span>
                             
                          
@@ -449,6 +450,13 @@ pre {
                       </span>
                                 
                                 
+                                <pre class=info>
+<br>Then(/^As a "([^"]*)" "([^"]*)"$/, function(arg1, arg2, callback) {
+  // Write code here that turns the phrase above into concrete actions
+  callback(null, 'pending');
+});
+                        </pre>
+                                    
 
                                     
 
@@ -466,85 +474,13 @@ pre {
                                 <div class="row steps">
                                     
                                     
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
+                                    <span class="label label-warning" title="Skipped"><i
+                                            class="glyphicon glyphicon-minus"></i></span>
                                     
                                     
                                     <span class="text">
                         <span class="keyword highlight">When </span>
-                          <span> I want to visit this site: &quot;Website&quot; &quot;https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               1ms
-                              </span>
-                            
-                         
-                            
-                          
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;login_field&quot; field, the value &#39;AdorableHamster&#39;</span>
-                            
-                          
-                              <span class="step-duration">
-                               2ms
-                              </span>
-                            
-                         
-                            
-                          
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;password&quot; field, the value &quot;cutehamsterlikesnuts2000&quot;</span>
+                          <span> I want to visit this site: &quot;https://www.testing.com/myTestPage&quot;</span>
                             
                           
                               <span class="step-duration">
@@ -574,17 +510,17 @@ pre {
                                 <div class="row steps">
                                     
                                     
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
+                                    <span class="label label-info" title="Undefined"><i
+                                            class="glyphicon glyphicon-flash"></i></span>
                                     
                                     
                                     <span class="text">
                         <span class="keyword highlight">When </span>
-                          <span> I want to click the Button: &quot;commit&quot;</span>
+                          <span> I want to click the Button: &quot;Test&quot; &quot;&quot;</span>
                             
                           
                               <span class="step-duration">
-                               4s 669ms
+                               0s
                               </span>
                             
                          
@@ -593,6 +529,13 @@ pre {
                       </span>
                                 
                                 
+                                <pre class=info>
+<br>Then(/^I want to click the Button: "([^"]*)" "([^"]*)"$/, function(arg1, arg2, callback) {
+  // Write code here that turns the phrase above into concrete actions
+  callback(null, 'pending');
+});
+                        </pre>
+                                    
 
                                     
 
@@ -610,13 +553,13 @@ pre {
                                 <div class="row steps">
                                     
                                     
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
+                                    <span class="label label-warning" title="Skipped"><i
+                                            class="glyphicon glyphicon-minus"></i></span>
                                     
                                     
                                     <span class="text">
                         <span class="keyword highlight">Then </span>
-                          <span> So I will be navigated to the site: &quot;https://github.com/account/unverified-email&quot;</span>
+                          <span> So I can see in the &quot;&quot; textbox, the text &quot;Start running test cases.&quot;</span>
                             
                           
                               <span class="step-duration">
@@ -678,20 +621,20 @@ pre {
         google.setOnLoadCallback(function() {drawChart({
                                                             "title" : "Features",
                                                             "failed" : 0,
-                                                            "passed" : 1,
+                                                            "passed" : 0,
                                                             "notdefined" : 0,
                                                             "pending" : 0,
-                                                            "skipped" : 0,
+                                                            "skipped" : 1,
                                                             "ambiguous" : 0
                                                         })
                                             });
         google.setOnLoadCallback(function() {drawChart({
                                                             "title" : "Scenarios",
                                                             "failed" : 0,
-                                                            "passed" : 1,
+                                                            "passed" : 0,
                                                             "notdefined" : 0,
                                                             "pending" : 0,
-                                                            "skipped" : 0,
+                                                            "skipped" : 1,
                                                             "ambiguous" : 0
                                                         })
                                             });
