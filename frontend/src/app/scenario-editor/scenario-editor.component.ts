@@ -23,9 +23,6 @@ export class ScenarioEditorComponent implements OnInit {
   editorLocked = true;
   reportingChart;
   err_msg = [];
-  myHTML = "testiklas";
-  doc;
-  div;
 
 
   
@@ -114,6 +111,9 @@ export class ScenarioEditorComponent implements OnInit {
       case 'then':
         this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
+      case 'example':
+        this.selectedScenario.stepDefinitions.example.push(new_step);
+      break;
       default:
         break;
     }
@@ -128,6 +128,8 @@ export class ScenarioEditorComponent implements OnInit {
         return this.buildID(stepDefs.when);
       case 'then':
         return this.buildID(stepDefs.then);
+      case 'example':
+        return this.buildID(stepDefs.example);
     }
   }
 
@@ -152,11 +154,15 @@ export class ScenarioEditorComponent implements OnInit {
       case 'then':
         this.selectedScenario.stepDefinitions.then.splice(index, 1);
         break;
+      case 'example':
+        this.selectedScenario.stepDefinitions.example.splice(index, 1);
+        break;
     }
   }
 
   keysList(stepDefs) {
     if (stepDefs != null) {
+      console.log('keys: ' + Object.keys(stepDefs));
       return Object.keys(stepDefs);
     } else {
       console.log("No Step Definitions found!");
@@ -169,8 +175,10 @@ export class ScenarioEditorComponent implements OnInit {
       return stepDefs.given;
     } else if (i == 1) {
       return stepDefs.when;
-    } else {
+    } else if (i == 2){
       return stepDefs.then;
+    }else{
+      return stepDefs.example;
     }
   }
 
@@ -184,6 +192,9 @@ export class ScenarioEditorComponent implements OnInit {
         break;
       case 'then':
         this.selectedScenario.stepDefinitions.then[index].values[0] = input;
+        break;
+      case 'example':
+        this.selectedScenario.stepDefinitions.example[index].values[0] = input;
         break;
     }
   }
@@ -233,9 +244,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id)
       .subscribe(resp => {
-        this.reportingChart = resp;
-        this.myHTML ='I am an <code>HTML</code>string with ' + '<a href="#">links!</a> and other <em>stuff</em>';
-        
+        this.reportingChart = resp;   
 
           console.log("This is the response: " + resp);
           /*var data = {

@@ -1,20 +1,20 @@
 [
   {
     "keyword": "Feature",
-    "name": "Story creation",
+    "name": "Run test functionality",
     "line": 1,
-    "id": "story-creation",
+    "id": "run-test-functionality",
     "tags": [],
-    "uri": "..\\..\\features\\Story_creation.feature",
+    "uri": "..\\..\\features\\Run_test_functionality.feature",
     "elements": [
       {
-        "id": "story-creation;successful-story-creation",
+        "id": "run-test-functionality;run-test",
         "keyword": "Scenario",
         "line": 4,
-        "name": "successful Story creation",
+        "name": "Run Test",
         "tags": [
           {
-            "name": "@386693457_1",
+            "name": "@386697647_1",
             "line": 3
           }
         ],
@@ -37,19 +37,20 @@
             "arguments": [],
             "keyword": "When ",
             "line": 8,
-            "name": "I want to visit this site: \"www.cucumber.com\"",
+            "name": "I want to visit this site: \"www.testing.com/myTestPage\"",
             "match": {
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 9,
-            "name": "I want to click the Button: \"Create Story\" identified by:",
+            "name": "I want to click the Button: \"Run\" identified by:",
             "result": {
               "status": "undefined"
             }
@@ -58,7 +59,7 @@
             "arguments": [],
             "keyword": "Then ",
             "line": 11,
-            "name": "So I can see in the \"Success\" textbox, the text \"New Story created\"",
+            "name": "So I can see in the \"Validation\" textbox, the text \"Start running test cases.\"",
             "match": {
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:59"
             },
