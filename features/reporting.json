@@ -1,20 +1,20 @@
 [
   {
     "keyword": "Feature",
-    "name": "Run test functionality",
+    "name": "Story creation",
     "line": 1,
-    "id": "run-test-functionality",
+    "id": "story-creation",
     "tags": [],
-    "uri": "..\\..\\features\\Run_test_functionality.feature",
+    "uri": "..\\..\\features\\Story_creation.feature",
     "elements": [
       {
-        "id": "run-test-functionality;run-test",
+        "id": "story-creation;successful-story-creation",
         "keyword": "Scenario",
         "line": 4,
-        "name": "Run Test",
+        "name": "successful Story creation",
         "tags": [
           {
-            "name": "@386697647_1",
+            "name": "@386693457_1",
             "line": 3
           }
         ],
@@ -37,7 +37,7 @@
             "arguments": [],
             "keyword": "When ",
             "line": 8,
-            "name": "I want to visit this site: \"www.testing.com/myTestPage\"",
+            "name": "I want to visit this site: \"www.cucumber.com\"",
             "match": {
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
             },
@@ -49,7 +49,7 @@
             "arguments": [],
             "keyword": "When ",
             "line": 9,
-            "name": "I want to click the Button: \"Run\" identified by:",
+            "name": "I want to click the Button: \"Create Story\" identified by:",
             "result": {
               "status": "undefined"
             }
@@ -58,7 +58,7 @@
             "arguments": [],
             "keyword": "Then ",
             "line": 11,
-            "name": "So I can see in the \"Validation\" textbox, the text \"Start running test cases.\"",
+            "name": "So I can see in the \"Success\" textbox, the text \"New Story created\"",
             "match": {
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:59"
             },
