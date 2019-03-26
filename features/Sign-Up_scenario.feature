@@ -5,7 +5,7 @@ Scenario: successful Sign Up
 
 Given As a "User"
 
-When I want to visit this site: "https://www.superheroes.com" 
+When I want to visit this site: "www.superheroes.com" 
 When I want to click the Button: "Sign Up" identified by:  
 When I want to insert into the "Username" field, the value "Superman" 
 When I want to insert into the "Password" field, the value "kryptonite" 

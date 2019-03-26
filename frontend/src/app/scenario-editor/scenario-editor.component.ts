@@ -5,10 +5,11 @@ import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
 import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 
+
 @Component({
   selector: 'app-scenario-editor',
   templateUrl: './scenario-editor.component.html',
-  styleUrls: ['./scenario-editor.component.css']
+  styleUrls: ['./scenario-editor.component.css'],
 })
 
 
@@ -23,14 +24,19 @@ export class ScenarioEditorComponent implements OnInit {
   reportingChart;
   err_msg = [];
   myHTML = "testiklas";
+  doc;
+  div;
 
+
+  
   constructor(
     private http: HttpClient,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {
     this.loadStories();
     this.loadStepDefinitions();
   }
+
 
   ngOnInit() {
   }
@@ -229,6 +235,8 @@ export class ScenarioEditorComponent implements OnInit {
       .subscribe(resp => {
         this.reportingChart = resp;
         this.myHTML ='I am an <code>HTML</code>string with ' + '<a href="#">links!</a> and other <em>stuff</em>';
+        
+
           console.log("This is the response: " + resp);
           /*var data = {
             datasets: [{
@@ -264,4 +272,5 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 }
+
 
