@@ -1,20 +1,20 @@
 [
   {
     "keyword": "Feature",
-    "name": "Sign-Up scenario",
+    "name": "Story creation",
     "line": 1,
-    "id": "sign-up-scenario",
+    "id": "story-creation",
     "tags": [],
-    "uri": "..\\..\\features\\Sign-Up_scenario.feature",
+    "uri": "..\\..\\features\\Story_creation.feature",
     "elements": [
       {
-        "id": "sign-up-scenario;successful-sign-up",
+        "id": "story-creation;successful-story-creation",
         "keyword": "Scenario",
         "line": 4,
-        "name": "successful Sign Up",
+        "name": "successful Story creation",
         "tags": [
           {
-            "name": "@386696256_1",
+            "name": "@386693457_1",
             "line": 3
           }
         ],
@@ -24,20 +24,20 @@
             "arguments": [],
             "keyword": "Given ",
             "line": 6,
-            "name": "As a \"User\"",
+            "name": "As a \"Guest\"",
             "match": {
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:26"
             },
             "result": {
               "status": "passed",
-              "duration": 2000000
+              "duration": 1000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 8,
-            "name": "I want to visit this site: \"https://www.superheroes.com\"",
+            "name": "I want to visit this site: \"www.cucumber.com\"",
             "match": {
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
             },
@@ -49,61 +49,16 @@
             "arguments": [],
             "keyword": "When ",
             "line": 9,
-            "name": "I want to click the Button: \"Sign Up\" identified by:",
+            "name": "I want to click the Button: \"Create Story\" identified by:",
             "result": {
               "status": "undefined"
             }
           },
           {
             "arguments": [],
-            "keyword": "When ",
-            "line": 10,
-            "name": "I want to insert into the \"Username\" field, the value \"Superman\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:47"
-            },
-            "result": {
-              "status": "skipped"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
+            "keyword": "Then ",
             "line": 11,
-            "name": "I want to insert into the \"Password\" field, the value \"kryptonite\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:47"
-            },
-            "result": {
-              "status": "skipped"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 12,
-            "name": "I want to click the Button: \"Finish\" identified by:",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 14,
-            "name": "So I will be navigated to the site: \"www.superheroes.com/newProfile\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:70"
-            },
-            "result": {
-              "status": "skipped"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 15,
-            "name": "So I can see in the \"Validation\" textbox, the text \"Successfully Signed Up\"",
+            "name": "So I can see in the \"Success\" textbox, the text \"New Story created\"",
             "match": {
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:59"
             },
