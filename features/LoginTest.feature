@@ -12,3 +12,4 @@ Feature: LoginTest
         When I want to click the Button: "/AdorableHamster/KevinDieSeeGurke/issues" identified by: "href"
         When I want to select from the "aria-label" selection, the value "Select all issues"
 
+        Then So I will be navigated to the site: "https://github.com/AdorableHamster/KevinDieSeeGurke/issues"
