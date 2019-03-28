@@ -23,19 +23,23 @@ BeforeAll(async function () {
 // Psw: cutehamsterlikesnuts2000
 
 
-// TODO: has no Meaning yet
+// TODO: has no meaning yet
 Given('As a {string}', async function (string) {
   this.role = string
 });
+
 // driver navigates to the Website 
 When('I want to visit this site: {string}', async function (website) {
   await driver.get(website)
+  await driver.getCurrentUrl().then(async function (currentUrl) {
+    expect(currentUrl).to.equal(website, 'Error');
+  })
 });
-//clicks a Button found in html code with xpath 
-When('I want to click the Button: {string} identified by: {string}', async function (button, identifier) {
 
-  await driver.findElement(By.xpath("//*[@" + identifier + "='" + button + "']"))
-    .click().then()
+//clicks a button if found in html code with xpath, timeouts if not found after 6 sek, waits for next page to be loaded
+When('I want to click the Button: {string} identified by: {string}', async function (button, identifier) {
+  var buttonclick = driver.wait(until.elementLocated(By.xpath("//*[@" + identifier + "='" + button + "']")), 6 * 1000)
+  await buttonclick.click()
 
   // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
   await driver.wait(async function () {
@@ -50,11 +54,11 @@ When('I want to click the Button: {string} identified by: {string}', async funct
 When('I want to insert into the {string} field, the value {string}', async function (id, name) {
   driver.findElement(By.id(id)).sendKeys(name);
 });
-//TODO
 
+//TODO
 When('I want to select from the {string} selection, the value {string}', async function (identifier, cbname) {
-  var wait = driver.wait(until.elementLocated(By.xpath("//*[@" + identifier + "='" + cbname + "']")), 6 * 1000)
-  await wait.click()
+  var radio = driver.wait(until.elementLocated(By.xpath("//*[@" + identifier + "='" + cbname + "']")), 6 * 1000)
+  await radio.click()
 });
 
 //TODO
@@ -65,7 +69,6 @@ When('I want to select from the {string} multiple selection, the values {string}
 //TODO:change By.tagName to xpath for flexibility
 //Search a Textfield in the html code and asert it with a Text
 Then('So I can see in the {string} textbox, the text {string}', async function (label, string) {
-
   driver.findElement(By.tagName(label)).then(function (link) {
     link.getText().then(function (text) {
       assert.equal(string, text);
@@ -74,19 +77,17 @@ Then('So I can see in the {string} textbox, the text {string}', async function (
     })
   });
 });
+
 //Checks if the current Website is the one it is suposed to be
-Then('So I will be navigated to the site: {string}', async function (string) {
-
+Then('So I will be navigated to the site: {string}', async function (url) {
   driver.getCurrentUrl().then(async function (currentUrl) {
-    console.log('URL --------------------------' + currentUrl)
-
-    expect(currentUrl).to.equal(string, 'Error');
+    expect(currentUrl).to.equal(url, 'Error');
   })
-
 });
+
 //Closes the webdriver (Browser)
 AfterAll(async function () {
   return driver.quit();
- });
+});
 
 
