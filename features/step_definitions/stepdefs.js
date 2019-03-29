@@ -37,10 +37,14 @@ When('I want to visit this site: {string}', async function (website) {
 });
 
 //clicks a button if found in html code with xpath, timeouts if not found after 6 sek, waits for next page to be loaded
-When('I want to click the Button: {string} identified by: {string}', async function (button, identifier) {
-  var buttonclick = driver.wait(until.elementLocated(By.xpath("//*[@" + identifier + "='" + button + "']")), 6 * 1000)
-  await buttonclick.click()
-
+When('I want to click the Button: {string}', async function (button) {
+  try {
+    await driver.findElement(By.xpath(
+      "//*[@*='" + button + "']"
+    )).click();
+  } catch (err) {
+    console.log(err);
+  }
   // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
   await driver.wait(async function () {
     return driver.executeScript('return document.readyState').then(async function (readyState) {
@@ -49,14 +53,27 @@ When('I want to click the Button: {string} identified by: {string}', async funct
   });
 });
 
-//TODO: change By.id to xpath to be more flexible (like button)
 //Search a field in the html code and fill in the value
-When('I want to insert into the {string} field, the value {string}', async function (id, name) {
-  driver.findElement(By.id(id)).sendKeys(name);
+When('I want to insert into the {string} field, the value {string}', async function (label, value) {
+  try {
+    await driver.findElement(By.css(
+      "input#" + label
+    )).sendKeys(value);
+  } catch (err) {
+    console.log(err);
+  }
 });
 
-//TODO
+//TODO Date/ Single checkbox
+
 When('I want to select from the {string} selection, the value {string}', async function (identifier, cbname) {
+  // try {
+  //   await driver.findElement(By.xpath(
+  //     "//*[@*='" + cbname + "']"
+  //   )).click();
+  // } catch (err) {
+  //   console.log(err);
+  // }
   var radio = driver.wait(until.elementLocated(By.xpath("//*[@" + identifier + "='" + cbname + "']")), 6 * 1000)
   await radio.click()
 });
