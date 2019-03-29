@@ -11,3 +11,10 @@ When I want to click the Button: "Run" identified by:
 Then So I can see in the "Validation" textbox, the text "Start running test cases." 
 
 
+@386697647_2
+Scenario: New Scenario
+
+
+
+
+

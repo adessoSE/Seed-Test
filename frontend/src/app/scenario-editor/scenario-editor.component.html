@@ -60,6 +60,7 @@
             </ul>
           </div>
         </div>
+        <div class="uk-steps" *ngIf= "sd == 'given' || sd == 'when' || sd == 'then'; else exampleCondition">
         <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
@@ -75,6 +76,22 @@
           {{currentStep.post}}
         </li>
         <br /><br />
+      </div>
+        <ng-template #exampleCondition>
+          <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
+            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
+              uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
+              (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
+            {{i+1}}.{{j+1}}
+            <!--<input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
+              value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />-->
+            <p style="display:inline" *ngIf="currentStep.values.length > 0">
+              <input #step_type_input *ngFor="let value of currentStep.values; let k=index" [disabled]="editorLocked == true"
+                type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,j, k)"/>        
+            </p>
+          </li>
+        </ng-template>
+      
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
@@ -93,10 +110,6 @@
     <div id="report-body" class="uk-card-body">
       <div id="chartcontainer" class="chart-container">
           <iframe src="http://localhost:8080/testResult" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
-         <!-- <div [innerHTML]="reportingChart | safe: 'html'"></div>-->
-        <!--<canvas class="report-chart" id="canvas">{{reportingChart}}</canvas>-->
-        <!--<iframe src="../../../../features/cucumber_report1.html" seamless width="90%" height="400" name="SELFHTML_in_a_box"></iframe>-->
-      
       <div *ngFor="let msg of err_msg">
         <pre class="error-message">{{msg}}</pre>
       </div>

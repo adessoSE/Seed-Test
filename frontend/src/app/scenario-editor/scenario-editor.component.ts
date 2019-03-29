@@ -38,6 +38,8 @@ export class ScenarioEditorComponent implements OnInit {
   ngOnInit() {
   }
 
+
+
   loadStories() {
     this.apiService
       .getStories()
@@ -112,7 +114,12 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
       case 'example':
-        this.selectedScenario.stepDefinitions.example.push(new_step);
+        var i: number = 0;
+          new_step.values = step.values;
+          this.selectedScenario.stepDefinitions.example.push(new_step);
+          this.selectedScenario.stepDefinitions.example.push(new_step);
+          this.selectedScenario.stepDefinitions.example.push(new_step);
+
       break;
       default:
         break;
@@ -172,6 +179,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   stepsList(stepDefs, i: number) {
     if (i == 0) {
+      
       return stepDefs.given;
     } else if (i == 1) {
       return stepDefs.when;
@@ -182,7 +190,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  addToValues(input: string, stepType, index) {
+  addToValues(input: string, stepType, index, valueIndex?) {
     switch (stepType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given[index].values[0] = input;
@@ -194,7 +202,9 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then[index].values[0] = input;
         break;
       case 'example':
-        this.selectedScenario.stepDefinitions.example[index].values[0] = input;
+        console.log('index: ' + index);
+        console.log('valueIndex: ' + valueIndex);
+        this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
         break;
     }
   }

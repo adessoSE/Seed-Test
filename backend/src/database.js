@@ -30,12 +30,20 @@ stepDefinitions.insert([
   {
     id: '',
     stepType: 'example',
-    label: '',
-    type: 'Role',
-    pre: 'I am at the Website:',
+    label: null,
+    type: 'Three Variables',
+    pre: '',
     mid: '',
-    values: ['tead','asdf','adf'],
-    selection: ['Guest', 'User','Test']
+    values: ['example1', 'example2', 'example3'],
+  },
+  {
+    id: '',
+    stepType: 'example',
+    label: null,
+    type: 'Four Variables',
+    pre: '',
+    mid: '',
+    values: ['example1', 'example2', 'example3', 'example4'],
   },
   {
     id: '',
