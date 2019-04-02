@@ -30,24 +30,25 @@ async function stepWebsite(url) {
     });
   });
  }
- async function website(url) {
-  await driver.get(url)
-  await driver.getCurrentUrl().then(async function (currentUrl) {
-    expect(currentUrl).to.equal(url, 'Error');
-  })
+
+ async function stepField(label, value) {
+  try {
+    await driver.findElement(By.css(
+      "input#" + label
+    )).sendKeys(value);
+  } catch (err) {
+    console.log(err);
+  }
  }
- async function website(url) {
-  await driver.get(url)
-  await driver.getCurrentUrl().then(async function (currentUrl) {
-    expect(currentUrl).to.equal(url, 'Error');
-  })
+
+ async function stepRadio(label, cbname) {
+  try {
+    await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 6 * 1000).click();
+  } catch (err) {
+    console.log(err);
+  }
  }
- async function website(url) {
-  await driver.get(url)
-  await driver.getCurrentUrl().then(async function (currentUrl) {
-    expect(currentUrl).to.equal(url, 'Error');
-  })
- }
+ 
 
 //Starts the driver/Webbrowser
 Before(async function () {
@@ -69,33 +70,40 @@ Given('As a {string}', async function (string) {
 
 // driver navigates to the Website 
 When('I want to visit this site: {string}', async function (url) {
- stepWebsite(url)
+  await driver.get(url)
+  await driver.getCurrentUrl().then(async function (currentUrl) {
+    expect(currentUrl).to.equal(url, 'Error');
+  })
 });
 
 //clicks a button if found in html code with xpath, timeouts if not found after 6 sek, waits for next page to be loaded
 When('I want to click the Button: {string}', async function (button) {
-  stepButton(button)
+    await driver.wait(until.elementLocated(By.xpath("//*[@*" + "='" + button + "']")), 3 * 1000).click();
+  
+  
+  // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
+  await driver.wait(async function () {
+    return driver.executeScript('return document.readyState').then(async function (readyState) {
+      return readyState === 'complete';
+    });
+  });
 });
 
 //Search a field in the html code and fill in the value
 When('I want to insert into the {string} field, the value {string}', async function (label, value) {
-  try {
+  
     await driver.findElement(By.css(
       "input#" + label
     )).sendKeys(value);
-  } catch (err) {
-    console.log(err);
-  }
+  
 });
 
 //TODO Date/ Single checkbox
 
 When('I want to select from the {string} selection, the value {string}', async function (label, cbname) {
-  try {
-    await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 6 * 1000).click();
-  } catch (err) {
-    console.log(err);
-  }
+ 
+    await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 3 * 1000).click();
+ 
 });
 
 //TODO
@@ -123,8 +131,8 @@ Then('So I will be navigated to the site: {string}', async function (url) {
 });
 
 //Closes the webdriver (Browser)
-// After(async function () {
-//   return driver.quit();
-// });
+After(async function () {
+  driver.quit();
+});
 
  
