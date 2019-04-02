@@ -35,7 +35,7 @@ module.exports.testdata = [
               label: 'Logout',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -111,7 +111,7 @@ module.exports.testdata = [
               label: 'Run',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             }
           ],
@@ -168,7 +168,7 @@ module.exports.testdata = [
               label: 'Sign Up',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -195,7 +195,7 @@ module.exports.testdata = [
               label: 'Finish',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -255,7 +255,7 @@ module.exports.testdata = [
               label: 'Sign Up',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -282,7 +282,7 @@ module.exports.testdata = [
               label: 'Finish',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -347,7 +347,7 @@ module.exports.testdata = [
               label: 'Forum',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -374,7 +374,7 @@ module.exports.testdata = [
               label: 'Enter',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -425,7 +425,7 @@ module.exports.testdata = [
               label: 'Forum',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -452,7 +452,7 @@ module.exports.testdata = [
               label: 'Enter',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -535,7 +535,7 @@ module.exports.testdata = [
               label: 'Delete Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -604,7 +604,7 @@ module.exports.testdata = [
               label: 'Delete Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -660,7 +660,7 @@ module.exports.testdata = [
               label: 'Create Story',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -711,7 +711,7 @@ module.exports.testdata = [
               label: 'Create Story',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -767,7 +767,7 @@ module.exports.testdata = [
               label: 'Create Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -818,7 +818,7 @@ module.exports.testdata = [
               label: 'Create Scenario',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -874,7 +874,7 @@ module.exports.testdata = [
               label: 'Test it',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -948,7 +948,7 @@ module.exports.testdata = [
               label: 'Login',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -1017,7 +1017,7 @@ module.exports.testdata = [
               label: 'Login',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -1091,7 +1091,7 @@ module.exports.testdata = [
               label: 'Edit',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -1109,7 +1109,7 @@ module.exports.testdata = [
               label: 'Save',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],
@@ -1160,7 +1160,7 @@ module.exports.testdata = [
               label: 'Edit',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
             {
@@ -1178,7 +1178,7 @@ module.exports.testdata = [
               label: 'Save',
               type: 'Button',
               pre: 'I want to click the Button:',
-              mid: 'identified by:',
+              mid: '',
               values: []
             },
           ],

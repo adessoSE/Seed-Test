@@ -12,7 +12,7 @@ const path = require('path');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
 const exec = require('child_process').exec;
 var reporter = require('cucumber-html-reporter');
-var respReport;
+
 //Test für den merge!!!!
 
 var stories = [];
@@ -233,10 +233,6 @@ app
     }
     updateFeatureFiles(req.params);
   })
-  .get("/testResult", function (req, res) {
-    this.respReport = res; 
-  })
-
 
   //run single Feature
   //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
@@ -252,7 +248,7 @@ app
 module.exports = app;
 
 function execScenario(req, res, callback){
-    //npm test features/LoginTest.feature
+    
     let story = getStoryByID(req.params)
     // Ausführen: Scenario Zeile
     var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + "_" + req.params.scenarioID + '" --format json:../../features/reporting.json';
@@ -314,7 +310,6 @@ function scenarioReport(req,res) {
   execScenario(req,res, function () {
     console.log("tesing scenario report");
     reporter.generate(options);
-    sendTestResult();
     res.sendFile('/reporting_html.html', { root: "../../features" });
   })
 }
@@ -323,13 +318,8 @@ function featureReport(req, res) {
   execFeature(req, res, function () {
     console.log("tesing feature report");
     reporter.generate(options);
-    sendTestResult();
     res.sendFile('/reporting_html.html', { root: "../../features" });
   })
-}
-
-function sendTestResult(){
-  this.respReport.sendFile('/reporting_html.html', { root: "../../features" });
 }
 
 //this is needed for the html report
