@@ -3,15 +3,54 @@ const { Given, When, Then } = require('cucumber');
 const webdriver = require('selenium-webdriver')
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
-var { AfterAll, BeforeAll } = require('cucumber')
+var { AfterAll, BeforeAll, Before, After } = require('cucumber')
 require('geckodriver');
 
 //Cucumber defaulttimer for timeout
 var { setDefaultTimeout } = require('cucumber');
 setDefaultTimeout(20 * 1000);
 
+async function stepWebsite(url) {
+  await driver.get(url)
+  await driver.getCurrentUrl().then(async function (currentUrl) {
+    expect(currentUrl).to.equal(url, 'Error');
+  })
+ }
+
+ async function stepButton(button) {
+  try {
+    await driver.wait(until.elementLocated(By.xpath("//*[@*" + "='" + button + "']")), 6 * 1000).click();
+  } catch (err) {
+    console.log(err);
+  }
+  // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
+  await driver.wait(async function () {
+    return driver.executeScript('return document.readyState').then(async function (readyState) {
+      return readyState === 'complete';
+    });
+  });
+ }
+ async function website(url) {
+  await driver.get(url)
+  await driver.getCurrentUrl().then(async function (currentUrl) {
+    expect(currentUrl).to.equal(url, 'Error');
+  })
+ }
+ async function website(url) {
+  await driver.get(url)
+  await driver.getCurrentUrl().then(async function (currentUrl) {
+    expect(currentUrl).to.equal(url, 'Error');
+  })
+ }
+ async function website(url) {
+  await driver.get(url)
+  await driver.getCurrentUrl().then(async function (currentUrl) {
+    expect(currentUrl).to.equal(url, 'Error');
+  })
+ }
+
 //Starts the driver/Webbrowser
-BeforeAll(async function () {
+Before(async function () {
   driver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.firefox()).build();
 });
 
@@ -29,28 +68,13 @@ Given('As a {string}', async function (string) {
 });
 
 // driver navigates to the Website 
-When('I want to visit this site: {string}', async function (website) {
-  await driver.get(website)
-  await driver.getCurrentUrl().then(async function (currentUrl) {
-    expect(currentUrl).to.equal(website, 'Error');
-  })
+When('I want to visit this site: {string}', async function (url) {
+ stepWebsite(url)
 });
 
 //clicks a button if found in html code with xpath, timeouts if not found after 6 sek, waits for next page to be loaded
 When('I want to click the Button: {string}', async function (button) {
-  try {
-    await driver.findElement(By.xpath(
-      "//*[@*='" + button + "']"
-    )).click();
-  } catch (err) {
-    console.log(err);
-  }
-  // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
-  await driver.wait(async function () {
-    return driver.executeScript('return document.readyState').then(async function (readyState) {
-      return readyState === 'complete';
-    });
-  });
+  stepButton(button)
 });
 
 //Search a field in the html code and fill in the value
@@ -66,16 +90,12 @@ When('I want to insert into the {string} field, the value {string}', async funct
 
 //TODO Date/ Single checkbox
 
-When('I want to select from the {string} selection, the value {string}', async function (identifier, cbname) {
-  // try {
-  //   await driver.findElement(By.xpath(
-  //     "//*[@*='" + cbname + "']"
-  //   )).click();
-  // } catch (err) {
-  //   console.log(err);
-  // }
-  var radio = driver.wait(until.elementLocated(By.xpath("//*[@" + identifier + "='" + cbname + "']")), 6 * 1000)
-  await radio.click()
+When('I want to select from the {string} selection, the value {string}', async function (label, cbname) {
+  try {
+    await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 6 * 1000).click();
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 //TODO
@@ -103,8 +123,8 @@ Then('So I will be navigated to the site: {string}', async function (url) {
 });
 
 //Closes the webdriver (Browser)
-AfterAll(async function () {
-  return driver.quit();
-});
+// After(async function () {
+//   return driver.quit();
+// });
 
-
+ 
