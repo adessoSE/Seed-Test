@@ -86,8 +86,8 @@
             <!--<input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
               value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />-->
             <p style="display:inline" *ngIf="currentStep.values.length > 0">
-              <input #step_type_input *ngFor="let value of currentStep.values; let k=index" [disabled]="editorLocked == true"
-                type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,j, k)"/>        
+              <input #step_type_input *ngFor="let label of currentStep.label; let k=index" [disabled]="editorLocked == true"
+                type="text" value= "{{currentStep.values[k]}}" on-change="addToValues(step_type_input.value,currentStep.stepType,j, k)"/>        
             </p>
           </li>
         </ng-template>

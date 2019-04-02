@@ -114,17 +114,33 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
       case 'example':
-        var i: number = 0;
-          new_step.values = step.values;
-          this.selectedScenario.stepDefinitions.example.push(new_step);
-          this.selectedScenario.stepDefinitions.example.push(new_step);
-          this.selectedScenario.stepDefinitions.example.push(new_step);
+        var i = 0;
+          while(i < 3){
+            this.addStep(step);
+            i++;
+          }
+          
 
       break;
       default:
         break;
     }
     console.log('added step', new_step);
+  }  
+
+  addStep(step){
+    var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
+    var new_step = {
+      id: new_id,
+      label: step.label,
+      mid: step.mid,
+      pre: step.pre,
+      stepType: step.stepType,
+      type: step.type,
+      values: [""]
+    }
+    this.selectedScenario.stepDefinitions.example.push(new_step);
+    
   }
 
   getLastIDinStep(stepDefs, stepType) {
@@ -202,11 +218,16 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then[index].values[0] = input;
         break;
       case 'example':
-        console.log('index: ' + index);
-        console.log('valueIndex: ' + valueIndex);
         this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
         break;
     }
+  }
+
+  getValues(values: string[]){
+    console.log(values.length)
+    if(values.length <= 1 ){
+      return['b','d','q']
+    }else return values;
   }
 
   getValue(i, values: string[]) {
@@ -291,5 +312,6 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 }
+
 
 

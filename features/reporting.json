@@ -42,8 +42,7 @@
               "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "passed"
             }
           },
           {
