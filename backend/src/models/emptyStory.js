@@ -9,7 +9,8 @@ function emptyStory() {
           {
             given: [],
             when: [],
-            then: []
+            then: [],
+            example: []
           }]
       }]
   }

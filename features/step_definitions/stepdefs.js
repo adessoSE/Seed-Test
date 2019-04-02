@@ -10,45 +10,6 @@ require('geckodriver');
 var { setDefaultTimeout } = require('cucumber');
 setDefaultTimeout(20 * 1000);
 
-async function stepWebsite(url) {
-  await driver.get(url)
-  await driver.getCurrentUrl().then(async function (currentUrl) {
-    expect(currentUrl).to.equal(url, 'Error');
-  })
- }
-
- async function stepButton(button) {
-  try {
-    await driver.wait(until.elementLocated(By.xpath("//*[@*" + "='" + button + "']")), 6 * 1000).click();
-  } catch (err) {
-    console.log(err);
-  }
-  // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
-  await driver.wait(async function () {
-    return driver.executeScript('return document.readyState').then(async function (readyState) {
-      return readyState === 'complete';
-    });
-  });
- }
-
- async function stepField(label, value) {
-  try {
-    await driver.findElement(By.css(
-      "input#" + label
-    )).sendKeys(value);
-  } catch (err) {
-    console.log(err);
-  }
- }
-
- async function stepRadio(label, cbname) {
-  try {
-    await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 6 * 1000).click();
-  } catch (err) {
-    console.log(err);
-  }
- }
- 
 
 //Starts the driver/Webbrowser
 Before(async function () {
@@ -91,19 +52,13 @@ When('I want to click the Button: {string}', async function (button) {
 
 //Search a field in the html code and fill in the value
 When('I want to insert into the {string} field, the value {string}', async function (label, value) {
-  
-    await driver.findElement(By.css(
-      "input#" + label
-    )).sendKeys(value);
-  
+    await driver.findElement(By.css("input#" + label)).sendKeys(value);
 });
 
 //TODO Date/ Single checkbox
 
 When('I want to select from the {string} selection, the value {string}', async function (label, cbname) {
- 
-    await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 3 * 1000).click();
- 
+ await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 3 * 1000).click();
 });
 
 //TODO
@@ -114,7 +69,7 @@ When('I want to select from the {string} multiple selection, the values {string}
 //TODO:change By.tagName to xpath for flexibility
 //Search a Textfield in the html code and asert it with a Text
 Then('So I can see in the {string} textbox, the text {string}', async function (label, string) {
-  driver.findElement(By.tagName(label)).then(function (link) {
+ await driver.findElement(By.tagName(label)).then(function (link) {
     link.getText().then(function (text) {
       assert.equal(string, text);
     }).catch(function (error) {
@@ -125,7 +80,7 @@ Then('So I can see in the {string} textbox, the text {string}', async function (
 
 //Checks if the current Website is the one it is suposed to be
 Then('So I will be navigated to the site: {string}', async function (url) {
-  driver.getCurrentUrl().then(async function (currentUrl) {
+ await driver.getCurrentUrl().then(async function (currentUrl) {
     expect(currentUrl).to.equal(url, 'Error');
   })
 });
