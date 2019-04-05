@@ -57,6 +57,26 @@ module.exports.testdata = [
               pre: 'So I can see in the',
               mid: 'textbox, the text',
               values: ['Successfully logged out']
+            },
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName' , 'Password']
+            },
+            {
+              id: 2,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['Superman' , 'Kyrptonit']
             }
           ],
           example: [
@@ -125,7 +145,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Start running test cases.']
             }
-          ]
+          ],
+          example: [
+            {
+            id: 1,
+            stepType: 'example',
+            label: '[0,1]',
+            type: 'Two Variables',
+            pre: '',
+            mid: '',
+            values: ['userName, Password']
+          },]
 
         }
 
@@ -218,6 +248,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Successfully Signed Up']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -305,6 +346,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Error code 4711']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -387,6 +439,17 @@ module.exports.testdata = [
               pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.mjdiaries.com/forum']
+            },
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
             },
           ]
         }
@@ -475,7 +538,18 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['You dont have the permission to enter the forum!']
             }
-          ]
+          ],
+          example: [
+          {
+            id: 1,
+            stepType: 'example',
+            label: '[0,1]',
+            type: 'Two Variables',
+            pre: '',
+            mid: '',
+            values: ['userName', 'Password']
+          },
+        ]
         }
 
       }
@@ -549,6 +623,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Scenario successfully deleted']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -618,6 +703,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Scenario_Id does not exist']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -674,6 +770,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['New Story created']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -725,6 +832,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Could not create Story']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -781,6 +899,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['New Scenario created']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -832,6 +961,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Could not create Scenario']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -906,6 +1046,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['ThenStep 2 Failed']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -980,6 +1131,17 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Successfully logged in']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
           ]
         }
 
@@ -1049,7 +1211,18 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Password or User incorrect']
             }
-          ]
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            },
+          ],
         }
 
       }
@@ -1123,7 +1296,8 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Updated scenario name.']
             }
-          ]
+          ],
+          example: []
         }
 
       },
@@ -1192,7 +1366,18 @@ module.exports.testdata = [
               mid: 'textbox, the text',
               values: ['Could not update scenario name!']
             }
-          ]
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: '[0,1]',
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: ['userName', 'Password']
+            }
+          ],
         }
 
       },

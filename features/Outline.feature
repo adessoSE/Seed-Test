@@ -8,6 +8,10 @@ Feature: LoginTest
         When I want to insert into the "login_field" field, the value "<userName>"
         When I want to insert into the "password" field, the value "<password>"
         When I want to click the Button: "commit"
+        When I want to click the Button: "/AdorableHamster/KevinDieSeeGurke"
+        When I want to click the Button: "/AdorableHamster/KevinDieSeeGurke/issues"
+        When I want to select from the "aria-label" selection, the value "Select all issues"
+        When I want to select from the "aria-labelledby" selection, the value "issue_2_link"
 
     Examples:
         | userName | password |
