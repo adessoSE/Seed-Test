@@ -23,8 +23,8 @@ export class ScenarioEditorComponent implements OnInit {
   editorLocked = true;
   reportingChart;
   err_msg = [];
-
-
+  inputVariable = false;
+  exampleList: string[] = [];
   
   constructor(
     private http: HttpClient,
@@ -206,7 +206,18 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  addToValues(input: string, stepType, index, valueIndex?) {
+  addToValues(input: string, stepType,step, index, valueIndex? ) {
+    if(input.startsWith("<") && input.endsWith('>')){
+      console.log("set it to true");
+      this.exampleList.push(input.substr(1,input.length-2));
+      this.inputVariable = true;
+      var i = 0;
+      while(i < 3){
+        this.addStep(step);
+        i++;
+      }
+    }
+    console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given[index].values[0] = input;
