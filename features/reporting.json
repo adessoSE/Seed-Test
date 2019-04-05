@@ -1,45 +1,43 @@
 [
   {
     "keyword": "Feature",
-    "name": "Story creation",
+    "name": "Access scenario",
     "line": 1,
-    "id": "story-creation",
+    "id": "access-scenario",
     "tags": [],
-    "uri": "..\\..\\features\\Story_creation.feature",
+    "uri": "..\\..\\features\\Access_scenario.feature",
     "elements": [
       {
-        "id": "story-creation;successful-story-creation",
+        "id": "access-scenario;successful-authentication",
         "keyword": "Scenario",
-        "line": 4,
-        "name": "successful Story creation",
+        "line": 17,
+        "name": "Successful Authentication",
         "tags": [
           {
-            "name": "@386693457_1",
+            "name": "@386696070_1",
             "line": 3
           }
         ],
         "type": "scenario",
         "steps": [
           {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:15"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16000000
+            }
+          },
+          {
             "arguments": [],
             "keyword": "Given ",
             "line": 6,
             "name": "As a \"Guest\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:26"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 1000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 8,
-            "name": "I want to visit this site: \"www.cucumber.com\"",
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:30"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:28"
             },
             "result": {
               "status": "passed"
@@ -48,22 +46,302 @@
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 9,
-            "name": "I want to click the Button: \"Create Story\" identified by:",
+            "line": 8,
+            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:33"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 5304000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "I want to insert into the \"login_field\" field, the value \"AdorableHamster\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 31000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I want to insert into the \"password\" field, the value \"<password>\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 31000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I want to click the Button: \"commit\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:41"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 663000000
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 11,
-            "name": "So I can see in the \"Success\" textbox, the text \"New Story created\"",
+            "line": 13,
+            "name": "So I will be navigated to the site: \"https://github.com/session\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:59"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:82"
             },
             "result": {
-              "status": "skipped"
+              "status": "passed",
+              "duration": 19000000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:89"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1000000
+            }
+          }
+        ]
+      },
+      {
+        "id": "access-scenario;successful-authentication",
+        "keyword": "Scenario",
+        "line": 18,
+        "name": "Successful Authentication",
+        "tags": [
+          {
+            "name": "@386696070_1",
+            "line": 3
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:15"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 22000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 6,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:28"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:33"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4356000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "I want to insert into the \"login_field\" field, the value \"NormalHamster\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 23000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I want to insert into the \"password\" field, the value \"<password>\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 47000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I want to click the Button: \"commit\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:41"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 675000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "So I will be navigated to the site: \"https://github.com/session\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:82"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16000000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:89"
+            },
+            "result": {
+              "status": "passed"
+            }
+          }
+        ]
+      },
+      {
+        "id": "access-scenario;successful-authentication",
+        "keyword": "Scenario",
+        "line": 19,
+        "name": "Successful Authentication",
+        "tags": [
+          {
+            "name": "@386696070_1",
+            "line": 3
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:15"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 25000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 6,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:28"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 8,
+            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:33"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 4344000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 9,
+            "name": "I want to insert into the \"login_field\" field, the value \"BabyHamster\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 34000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I want to insert into the \"password\" field, the value \"<password>\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 28000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I want to click the Button: \"commit\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:41"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 725000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "So I will be navigated to the site: \"https://github.com/session\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:82"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:89"
+            },
+            "result": {
+              "status": "passed"
             }
           }
         ]

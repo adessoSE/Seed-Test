@@ -63,11 +63,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName' , 'Password']
+              values: [[]]
             },
             {
               id: 2,
@@ -76,7 +76,7 @@ module.exports.testdata = [
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['Superman' , 'Kyrptonit']
+              values: ['Superman', 'Kyrptonit']
             }
           ]
         }
@@ -137,14 +137,14 @@ module.exports.testdata = [
           ],
           example: [
             {
-            id: 1,
-            stepType: 'example',
-            label: '[0,1]',
-            type: 'Two Variables',
-            pre: '',
-            mid: '',
-            values: ['userName, Password']
-          },]
+              id: 1,
+              stepType: 'example',
+              label: ['userName', 'Password'],
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: [[]]
+            },]
 
         }
 
@@ -242,11 +242,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -340,11 +340,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -357,14 +357,14 @@ module.exports.testdata = [
     story_id: 386696070, scenarios: [
       {
         scenario_id: 1,
-        name: 'successful Authentication',
+        name: 'Successful Authentication',
         stepDefinitions:
         {
           given: [
             {
               id: 1,
               stepType: 'given',
-              label: 'User',
+              label: 'Guest',
               type: 'Role',
               pre: 'As a',
               mid: '',
@@ -380,39 +380,30 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://www.gamestar.de']
+              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home']
             },
             {
               id: 2,
               stepType: 'when',
-              label: 'Forum',
-              type: 'Button',
-              pre: 'I want to click the Button:',
-              mid: '',
-              values: []
+              label: 'login_field',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['<userName>']
             },
             {
               id: 3,
               stepType: 'when',
-              label: 'Username',
+              label: 'password',
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Spiderman']
+              values: ['<password>']
             },
             {
               id: 4,
               stepType: 'when',
-              label: 'Password',
-              type: 'Field',
-              pre: 'I want to insert into the',
-              mid: 'field, the value',
-              values: ['MaryJane']
-            },
-            {
-              id: 5,
-              stepType: 'when',
-              label: 'Enter',
+              label: 'commit',
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
@@ -427,18 +418,22 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.mjdiaries.com/forum']
+              values: ['https://github.com/session']
             },
           ],
           example: [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [
+                ['AdorableHamster', 'cutehamsterlikesnuts2000'],
+                ['NormalHamster', 'normalHamster123'],
+                ['BabyHamster', 'babyHamster123']
+              ]
             },
           ]
         }
@@ -529,16 +524,16 @@ module.exports.testdata = [
             }
           ],
           example: [
-          {
-            id: 1,
-            stepType: 'example',
-            label: '[0,1]',
-            type: 'Two Variables',
-            pre: '',
-            mid: '',
-            values: ['userName', 'Password']
-          },
-        ]
+            {
+              id: 1,
+              stepType: 'example',
+              label: ['userName', 'Password'],
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: [[]]
+            },
+          ]
         }
 
       }
@@ -617,11 +612,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -697,11 +692,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -764,11 +759,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -826,11 +821,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -893,11 +888,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -955,11 +950,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -1040,11 +1035,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -1125,11 +1120,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ]
         }
@@ -1205,11 +1200,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             },
           ],
         }
@@ -1286,7 +1281,17 @@ module.exports.testdata = [
               values: ['Updated scenario name.']
             }
           ],
-          example: []
+          example: [
+            {
+              id: 1,
+              stepType: 'example',
+              label: ['userName', 'Password'],
+              type: 'Two Variables',
+              pre: '',
+              mid: '',
+              values: [[]]
+            }
+          ],
         }
 
       },
@@ -1360,11 +1365,11 @@ module.exports.testdata = [
             {
               id: 1,
               stepType: 'example',
-              label: '[0,1]',
+              label: ['userName', 'Password'],
               type: 'Two Variables',
               pre: '',
               mid: '',
-              values: ['userName', 'Password']
+              values: [[]]
             }
           ],
         }

@@ -1,7 +1,7 @@
 Feature: Rename scenarios
 
 @386692174_1
-Scenario: Renamed Scenario
+Scenario Outline: Renamed Scenario
 
 Given As a "User"
 
@@ -11,6 +11,12 @@ When I want to insert into the "Scenario Name" field, the value "Renamed Scenari
 When I want to click the Button: "Save"  
 
 Then So I can see in the "Validation" textbox, the text "Updated scenario name." 
+
+Examples:
+| userName | Password | 
+
+
+
 
 @386692174_1
 Scenario Outline: Faild Updating
@@ -25,6 +31,8 @@ When I want to click the Button: "Save"
 Then So I can see in the "Validation" textbox, the text "Could not update scenario name!" 
 
 Examples:
- | userName | Password | 
+| userName | Password | 
+
+
 
 
