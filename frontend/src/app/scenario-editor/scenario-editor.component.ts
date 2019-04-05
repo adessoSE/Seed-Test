@@ -22,8 +22,8 @@ export class ScenarioEditorComponent implements OnInit {
   showChart = false;
   editorLocked = true;
   reportingChart;
-  err_msg = [];
   inputVariable = false;
+  err_msg = [];
   exampleList: string[] = [];
   
   constructor(
@@ -208,34 +208,70 @@ export class ScenarioEditorComponent implements OnInit {
 
   addToValues(input: string, stepType,step, index, valueIndex? ) {
     if(input.startsWith("<") && input.endsWith('>')){
-      console.log("set it to true");
-      this.exampleList.push(input.substr(1,input.length-2));
-      
-      var i = 0;
-      if(!this.inputVariable){
-         while(i < 3){
-           this.addStep(step);
-           i++;
-         }
+      var cutInput = input.substr(1,input.length-2)
+      if(!this.exampleList.includes(cutInput)){
+        this.exampleList.push(cutInput);
+        this.handleExamples(cutInput, step);
       }
-      this.inputVariable = true;
     }
     console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
+        //this.handleChangedExamples(this.selectedScenario.stepDefinitions.given[index].values, input)
         this.selectedScenario.stepDefinitions.given[index].values[0] = input;
         break;
       case 'when':
         console.log(this.selectedScenario.stepDefinitions)
+        //this.handleChangedExamples(this.selectedScenario.stepDefinitions.when[index].values, input)
         this.selectedScenario.stepDefinitions.when[index].values[0] = input;
         break;
       case 'then':
+      console.log('index: ' + index)
+      console.log('valueindex: ' + valueIndex)
+
+      console.log('scenario: ' + this.selectedScenario.stepDefinitions.then[index])
+        //this.handleChangedExamples(this.selectedScenario.stepDefinitions.then[index].values, input)
         this.selectedScenario.stepDefinitions.then[index].values[0] = input;
         break;
       case 'example':
         this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
         break;
     }
+  }
+
+
+  /*handleChangedExamples(list, input){
+    if(input.startsWith("<") && input.endsWith('>') && list[0] != input && list[0] != undefined){
+      this.selectedScenario.stepDefinitions.example[0].values.array.forEach(element => {
+        if(element == list[0]){
+          element = input.substr(1,input.length-2)
+        }
+      });
+      this.exampleList.forEach(element => {
+        if(element == list[0]){
+          element = input.substr(1,input.length-2)
+        }
+      });
+    }
+    
+  }*/
+
+  handleExamples(cutInput,step){
+      var i = 0;
+      if(!this.inputVariable){
+        while(i < 3){
+          this.addStep(step);
+          i++;
+        }
+        this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
+     }else{
+        this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
+        
+        for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
+          this.selectedScenario.stepDefinitions.example[j].values.push("");
+        }
+     }
+     this.inputVariable = true;
   }
 
   getValues(values: string[]){

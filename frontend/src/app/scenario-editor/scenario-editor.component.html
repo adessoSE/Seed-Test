@@ -71,7 +71,7 @@
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
             {{currentStep.mid}}
             <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked == true"
-              type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,j)" />
+              type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,currentStep,j)" />
           </p>
           {{currentStep.post}}
         </li>
@@ -86,25 +86,11 @@
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
           {{i+1}}.{{j+1}}
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
-          <input  *ngIf="inputVariable" [disabled]="editorLocked == true"
-          type="text" value= "{{exampleList[0]}}" on-change="addToValues(step_type_input.value,currentStep.stepType, currentStep,j, k)"/> 
+          <input  *ngFor="let value of currentStep.values" [disabled]="editorLocked == true"
+          type="text" value= "{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType, currentStep,j, k)"/> 
         </p>
             </li>
-        </ng-template>
-        <ng-template #exampleCondition>
-          <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
-            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
-              uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
-              (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
-            {{i+1}}.{{j+1}}
-            <!--<input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
-              value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />-->
-            <p style="display:inline" *ngIf="currentStep.values.length > 0">
-              <input #step_type_input *ngFor="let label of currentStep.label; let k=index" [disabled]="editorLocked == true"
-                type="text" value= "{{currentStep.values[k]}}" on-change="addToValues(step_type_input.value,currentStep.stepType,j, k)"/>        
-            </p>
-          </li>
-        </ng-template>
+          </ng-template>
 
       </div>
       <div class="uk-card-footer">
