@@ -14,10 +14,3 @@ Examples:
  | userName, Password | 
 
 
-@386697647_2
-Scenario: New Scenario
-
-
-
-
-

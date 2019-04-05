@@ -210,12 +210,15 @@ export class ScenarioEditorComponent implements OnInit {
     if(input.startsWith("<") && input.endsWith('>')){
       console.log("set it to true");
       this.exampleList.push(input.substr(1,input.length-2));
-      this.inputVariable = true;
+      
       var i = 0;
-      while(i < 3){
-        this.addStep(step);
-        i++;
+      if(!this.inputVariable){
+         while(i < 3){
+           this.addStep(step);
+           i++;
+         }
       }
+      this.inputVariable = true;
     }
     console.log("add to values: " + input);
     switch (stepType) {
@@ -223,6 +226,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.given[index].values[0] = input;
         break;
       case 'when':
+        console.log(this.selectedScenario.stepDefinitions)
         this.selectedScenario.stepDefinitions.when[index].values[0] = input;
         break;
       case 'then':
