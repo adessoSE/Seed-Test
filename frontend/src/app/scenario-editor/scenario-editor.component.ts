@@ -24,7 +24,6 @@ export class ScenarioEditorComponent implements OnInit {
   reportingChart;
   inputVariable = false;
   err_msg = [];
-  exampleList: string[] = [];
   
   constructor(
     private http: HttpClient,
@@ -114,11 +113,6 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
       case 'example':
-        /*for(var j = this.selectedScenario.stepDefinitions.example.length ;j <this.selectedScenario.stepDefinitions.example.length + 3; j++ ){
-             this.selectedScenario.stepDefinitions.example.push(new_step);
-             this.selectedScenario.stepDefinitions.example[j].values.push("");
-        }*/
-
         for (var i = 0; i < 3; i++){
           this.addStep(step);
           var len = this.selectedScenario.stepDefinitions.example[0].values.length;
@@ -129,12 +123,6 @@ export class ScenarioEditorComponent implements OnInit {
             console.log("j: " + j);
           }
         }
-
-         /*for(var i = 0; i < 3; i++){
-           for(var j = 0; j < this.exampleList.length; j++){
-            this.addStep(step, i, j);
-           } 
-          }*/
       break;
       default:
         break;
@@ -149,12 +137,12 @@ export class ScenarioEditorComponent implements OnInit {
       label: step.label,
       mid: step.mid,
       pre: step.pre,
-      stepType: step.stepType,
+      stepType: 'example',
       type: step.type,
-      values: [""]
+      values: ['']
     }
     this.selectedScenario.stepDefinitions.example.push(new_step);
-
+    console.log('newID: ' + new_id);
   }
 
   getLastIDinStep(stepDefs, stepType) {
@@ -222,81 +210,52 @@ export class ScenarioEditorComponent implements OnInit {
 
   addToValues(input: string, stepType,step, index, valueIndex? ) {
     if(input.startsWith("<") && input.endsWith('>')){
-      var cutInput = input.substr(1,input.length-2)
-      if(!this.exampleList.includes(cutInput)){
-        this.exampleList.push(cutInput);
-        this.handleExamples(cutInput, step);
-        console.log("exampleList length: " + this.exampleList.length);
+      if(this.selectedScenario.stepDefinitions.example[0] == undefined || !this.selectedScenario.stepDefinitions.example[0].values.includes(input)){
+        this.handleExamples(input, step);
       }
     }
+    console.log("steptype: " + stepType)
     console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
-        //this.handleChangedExamples(this.selectedScenario.stepDefinitions.given[index].values, input)
         this.selectedScenario.stepDefinitions.given[index].values[0] = input;
         break;
       case 'when':
-        console.log(this.selectedScenario.stepDefinitions)
-        //this.handleChangedExamples(this.selectedScenario.stepDefinitions.when[index].values, input)
         this.selectedScenario.stepDefinitions.when[index].values[0] = input;
         break;
       case 'then':
-      console.log('index: ' + index)
-      console.log('valueindex: ' + valueIndex)
-
-      console.log('scenario: ' + this.selectedScenario.stepDefinitions.then[index])
-        //this.handleChangedExamples(this.selectedScenario.stepDefinitions.then[index].values, input)
         this.selectedScenario.stepDefinitions.then[index].values[0] = input;
         break;
       case 'example':
+        console.log('index: ' + index)
+        console.log('valueindex: ' + valueIndex)
+        console.log('values before: ' + this.selectedScenario.stepDefinitions.example[index].values);
         this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
+        console.log('values after: ' + this.selectedScenario.stepDefinitions.example[index].values);
         break;
     }
   }
 
-
-  /*handleChangedExamples(list, input){
-    if(input.startsWith("<") && input.endsWith('>') && list[0] != input && list[0] != undefined){
-      this.selectedScenario.stepDefinitions.example[0].values.array.forEach(element => {
-        if(element == list[0]){
-          element = input.substr(1,input.length-2)
-        }
-      });
-      this.exampleList.forEach(element => {
-        if(element == list[0]){
-          element = input.substr(1,input.length-2)
-        }
-      });
+ async handleExamples(input, step){
+    if(step.values[0] != input && step.values[0] != ''){
+      this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0])] = input;
+      console.log('returning')
+      return;
     }
-    
-  }*/
-
- async handleExamples(cutInput,step){
       var i = 0;
       if(!this.inputVariable){
         for(var i = 0; i < 3; i++){
           await this.addStep(step);
          }
-        this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
+        this.selectedScenario.stepDefinitions.example[0].values[0] = (input);
      }else{
-        this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
+        this.selectedScenario.stepDefinitions.example[0].values.push(input);
         
         for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
           this.selectedScenario.stepDefinitions.example[j].values.push("");
         }
      }
      this.inputVariable = true;
-  }
-
-  getValues(values: string[]){
-    console.log(values.length)
-    if(values.length <= 1 ){
-      return['b','d','q']
-    }else return values;
-  }
-
-  getValue(i, values: string[]) {
-    return values[i];
   }
 
   renameScenario(event, name) {

@@ -86,9 +86,9 @@
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
           {{i+1}}.{{j+1}}
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
-          <input  *ngFor="let value of currentStep.values" [disabled]="editorLocked == true"
+          <input #step_type_input *ngFor="let value of currentStep.values; let k = index;" [disabled]="editorLocked == true"
           type="text" value= "{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType, currentStep,j, k)"/> 
-        </p>
+             </p>
             </li>
           </ng-template>
 
