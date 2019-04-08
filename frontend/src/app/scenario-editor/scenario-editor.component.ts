@@ -22,7 +22,7 @@ export class ScenarioEditorComponent implements OnInit {
   showChart = false;
   editorLocked = true;
   reportingChart;
-  inputVariable = false;
+  examplesCreated = false;
   err_msg = [];
   
   constructor(
@@ -209,11 +209,9 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   addToValues(input: string, stepType,step, index, valueIndex? ) {
-    if(input.startsWith("<") && input.endsWith('>')){
-      if(this.selectedScenario.stepDefinitions.example[0] == undefined || !this.selectedScenario.stepDefinitions.example[0].values.includes(input)){
-        this.handleExamples(input, step);
-      }
-    }
+    
+    this.checkForExamples(input,step);
+
     console.log("steptype: " + stepType)
     console.log("add to values: " + input);
     switch (stepType) {
@@ -236,14 +234,34 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
+
+  checkForExamples(input, step){
+    if(step.values[0].startsWith("<") && step.values[0].endsWith('>') && !input.startsWith("<") && !input.endsWith('>')){
+      for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
+
+        this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0]), 1);
+
+        if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
+          this.selectedScenario.stepDefinitions.example.splice(0,this.selectedScenario.stepDefinitions.example.length);
+          this.examplesCreated = false;
+        }
+      }
+    }
+    if(input.startsWith("<") && input.endsWith('>')){
+      if(this.selectedScenario.stepDefinitions.example[0] == undefined || !this.selectedScenario.stepDefinitions.example[0].values.includes(input)){
+        this.handleExamples(input, step);
+      }
+    }
+  }
+
  async handleExamples(input, step){
-    if(step.values[0] != input && step.values[0] != ''){
+    if(step.values[0] != input && step.values[0] != '' && this.examplesCreated){
       this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0])] = input;
       console.log('returning')
       return;
     }
       var i = 0;
-      if(!this.inputVariable){
+      if(!this.examplesCreated){
         for(var i = 0; i < 3; i++){
           await this.addStep(step);
          }
@@ -255,7 +273,7 @@ export class ScenarioEditorComponent implements OnInit {
           this.selectedScenario.stepDefinitions.example[j].values.push("");
         }
      }
-     this.inputVariable = true;
+     this.examplesCreated = true;
   }
 
   renameScenario(event, name) {
