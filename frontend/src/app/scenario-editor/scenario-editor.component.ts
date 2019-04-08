@@ -181,6 +181,8 @@ export class ScenarioEditorComponent implements OnInit {
         break;
       case 'example':
         this.selectedScenario.stepDefinitions.example.splice(index, 1);
+        if(this.selectedScenario.stepDefinitions.example.length == 0) this.examplesCreated = false;
+        
         break;
     }
   }
@@ -209,7 +211,7 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   addToValues(input: string, stepType,step, index, valueIndex? ) {
-    
+
     this.checkForExamples(input,step);
 
     console.log("steptype: " + stepType)
