@@ -114,13 +114,27 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
       case 'example':
-        var i = 0;
-          while(i < 3){
-            this.addStep(step);
-            i++;
-          }
-          
+        /*for(var j = this.selectedScenario.stepDefinitions.example.length ;j <this.selectedScenario.stepDefinitions.example.length + 3; j++ ){
+             this.selectedScenario.stepDefinitions.example.push(new_step);
+             this.selectedScenario.stepDefinitions.example[j].values.push("");
+        }*/
 
+        for (var i = 0; i < 3; i++){
+          this.addStep(step);
+          var len = this.selectedScenario.stepDefinitions.example[0].values.length;
+          console.log('len: ' + len);
+          for(var j = 1 ; j < len; j++){
+            console.log('example length: ' + this.selectedScenario.stepDefinitions.example.length)
+            this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push("");
+            console.log("j: " + j);
+          }
+        }
+
+         /*for(var i = 0; i < 3; i++){
+           for(var j = 0; j < this.exampleList.length; j++){
+            this.addStep(step, i, j);
+           } 
+          }*/
       break;
       default:
         break;
@@ -140,7 +154,7 @@ export class ScenarioEditorComponent implements OnInit {
       values: [""]
     }
     this.selectedScenario.stepDefinitions.example.push(new_step);
-    
+
   }
 
   getLastIDinStep(stepDefs, stepType) {
@@ -212,6 +226,7 @@ export class ScenarioEditorComponent implements OnInit {
       if(!this.exampleList.includes(cutInput)){
         this.exampleList.push(cutInput);
         this.handleExamples(cutInput, step);
+        console.log("exampleList length: " + this.exampleList.length);
       }
     }
     console.log("add to values: " + input);
@@ -256,13 +271,12 @@ export class ScenarioEditorComponent implements OnInit {
     
   }*/
 
-  handleExamples(cutInput,step){
+ async handleExamples(cutInput,step){
       var i = 0;
       if(!this.inputVariable){
-        while(i < 3){
-          this.addStep(step);
-          i++;
-        }
+        for(var i = 0; i < 3; i++){
+          await this.addStep(step);
+         }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
      }else{
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);

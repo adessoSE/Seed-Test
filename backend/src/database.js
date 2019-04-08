@@ -30,26 +30,8 @@ stepDefinitions.insert([
   {
     id: '',
     stepType: 'example',
-    label: [0,1],
-    type: 'Two Variables',
-    pre: '',
-    mid: '',
-    values: [],
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [0,1,2],
-    type: 'Three Variables',
-    pre: '',
-    mid: '',
-    values: [],
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [0,1,2,3],
-    type: 'Four Variables',
+    label: null,
+    type: 'Add Variables',
     pre: '',
     mid: '',
     values: [],
@@ -116,34 +98,7 @@ stepDefinitions.insert([
     pre: 'So I can see in the',
     mid: 'textbox, the text',
     values: []
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [0,1],
-    type: 'Two Variables',
-    pre: '',
-    mid: '',
-    values: [],
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [0,1,2],
-    type: 'Three Variables',
-    pre: '',
-    mid: '',
-    values: [],
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [0,1,2,3],
-    type: 'Four Variables',
-    pre: '',
-    mid: '',
-    values: [],
-  },
+  }
 ]);
 
 // GET all stories TODO: unused right now  //TODO Prio 1: check if needed
