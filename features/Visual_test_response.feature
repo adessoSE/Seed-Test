@@ -13,6 +13,8 @@ Then So I can see in the "Result" textbox, the text "ThenStep 1 Success"
 Then So I can see in the "Result" textbox, the text "ThenStep 2 Failed" 
 
 Examples:
- | userName | Password | 
+| userName | Password | 
+
+
 
 

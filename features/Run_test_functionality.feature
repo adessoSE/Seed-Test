@@ -11,6 +11,8 @@ When I want to click the Button: "Run"
 Then So I can see in the "Validation" textbox, the text "Start running test cases." 
 
 Examples:
- | userName, Password | 
+| userName | Password | 
+
+
 
 

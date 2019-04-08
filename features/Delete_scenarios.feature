@@ -13,7 +13,9 @@ When I want to click the Button: "Delete Scenario"
 Then So I can see in the "Scenario Deleted" textbox, the text "Scenario successfully deleted" 
 
 Examples:
- | userName | Password | 
+| userName | Password | 
+
+
 
 
 @386693823_2
@@ -29,6 +31,8 @@ When I want to click the Button: "Delete Scenario"
 Then So I can see in the "Scenario not found" textbox, the text "Scenario_Id does not exist" 
 
 Examples:
- | userName | Password | 
+| userName | Password | 
+
+
 
 

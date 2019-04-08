@@ -42,9 +42,9 @@ function getScenarioContent(scenarios, story_id) {
   var data = "";
   for (var i = 0; i < scenarios.length; i++) {
     data += "@" + story_id + "_" + scenarios[i].scenario_id + "\n";
-    if ((scenarios[i].stepDefinitions.example.length) > 0){
-    data += "Scenario Outline: " + scenarios[i].name + "\n\n";
-    }else {
+    if ((scenarios[i].stepDefinitions.example.length) > 0) {
+      data += "Scenario Outline: " + scenarios[i].name + "\n\n";
+    } else {
       data += "Scenario: " + scenarios[i].name + "\n\n";
     }
     // Get Stepdefinitions
@@ -54,8 +54,8 @@ function getScenarioContent(scenarios, story_id) {
 
     data += getSteps(scenarios[i].stepDefinitions.then, Object.keys(scenarios[i].stepDefinitions)[2]) + "\n";
 
-    if ((scenarios[i].stepDefinitions.example.length) > 0){
-    data += getExamples(scenarios[i].stepDefinitions.example) + "\n\n";
+    if ((scenarios[i].stepDefinitions.example.length) > 0) {
+      data += getExamples(scenarios[i].stepDefinitions.example) + "\n\n";
     }
   }
   return data;
@@ -78,18 +78,53 @@ function getSteps(steps, stepType) {
   return data;
 }
 
-function getExamples(steps) {
-  var data = ""
-  
-  data += "Examples:"
-  for (var i = 0; i < steps.length; i++) {
-    data += "\n | "
-      for (var k = 0; k < steps[i].values.length; k++){
-        data += steps[i].values[k] + " | "
-      }
-    }
-  
+function getExamples(stepExamples) {
+  var data = "Examples:"
+  for (var i = 0; i < stepExamples.length; i++) {
+    data += "\n" + getExampleLabels(stepExamples[i])
+  }
   return data + "\n";
+}
+
+// Get Label of Example
+function getExampleLabels(stepExample) {
+  var data = "";
+  switch (stepExample.label.length) {
+    case 2:
+      data += "| " + stepExample.label[0] + " | " + stepExample.label[1]
+        + getExampleValues(stepExample);
+      return data;
+    case 3:
+      data += "| " + stepExample.label[0] + " | " + stepExample.label[1] + " | " + stepExample.label[2]
+        + getExampleValues(stepExample);
+      return data;
+    case 4:
+      data += "| " + stepExample.label[0] + " | " + stepExample.label[1] + " | " + stepExample.label[2] + " | " + stepExample.label[3]
+        + getExampleValues(stepExample);
+      return data;
+    default:
+      console.log("No valid label length of step: excample!");
+      return;
+  }
+}
+
+// Get Values of Example
+function getExampleValues(stepExample) {
+  var data = " | \n";
+  // Outer Array
+  for (var i = 0; i < stepExample.values.length; i++) {
+    // Inner Array
+    for (var j = 0; j < stepExample.values[i].length; j++) {
+      data += " | " + stepExample.values[i][j];
+    }
+    // Checking for a content in value array. Needed, so the additional '|' doesn't get added and breaks the cucumber test.
+    if (stepExample.values[i].length !== 0) {
+      data += " | \n";
+    } else {
+      data += "\n";
+    }
+  }
+  return data;
 }
 
 // only displays mid text and additional space if length not null
