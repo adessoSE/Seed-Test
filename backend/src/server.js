@@ -181,6 +181,7 @@ app
     res.status(200).json(db.showStepdefinitions());
   })
   .get("/api/stories", function (req, res) {
+    stories = [];
     // get Issues from GitHub
     let request = new XMLHttpRequest();
     request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token=' + access_token);
@@ -208,6 +209,7 @@ app
             if (err) throw err;
           });
           //TODO: delete stories priority 2
+          
           stories.push(story);
         }
         res.status(200).json(stories);
