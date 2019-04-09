@@ -78,6 +78,17 @@ module.exports.testdata = [
               mid: '',
               values: ['Superman', 'Kyrptonit']
             }
+          ],
+          example: [
+            {
+              id: 1,
+              stepType: 'then',
+              label: 'test',
+              type: 'Website',
+              pre: 'So I will be navigated to the site:',
+              mid: '',
+              values: ['www.somehomepage.com','testi']
+            },
           ]
         }
 

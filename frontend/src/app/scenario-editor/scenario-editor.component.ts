@@ -22,12 +22,8 @@ export class ScenarioEditorComponent implements OnInit {
   showChart = false;
   editorLocked = true;
   reportingChart;
+  examplesCreated = false;
   err_msg = [];
-  myHTML = "testiklas";
-  doc;
-  div;
-
-
   
   constructor(
     private http: HttpClient,
@@ -40,6 +36,8 @@ export class ScenarioEditorComponent implements OnInit {
 
   ngOnInit() {
   }
+
+
 
   loadStories() {
     this.apiService
@@ -114,10 +112,37 @@ export class ScenarioEditorComponent implements OnInit {
       case 'then':
         this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
+      case 'example':
+        for (var i = 0; i < 3; i++){
+          this.addStep(step);
+          var len = this.selectedScenario.stepDefinitions.example[0].values.length;
+          console.log('len: ' + len);
+          for(var j = 1 ; j < len; j++){
+            console.log('example length: ' + this.selectedScenario.stepDefinitions.example.length)
+            this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push("");
+            console.log("j: " + j);
+          }
+        }
+      break;
       default:
         break;
     }
     console.log('added step', new_step);
+  }  
+
+  addStep(step){
+    var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
+    var new_step = {
+      id: new_id,
+      label: step.label,
+      mid: step.mid,
+      pre: step.pre,
+      stepType: 'example',
+      type: step.type,
+      values: ['']
+    }
+    this.selectedScenario.stepDefinitions.example.push(new_step);
+    console.log('newID: ' + new_id);
   }
 
   getLastIDinStep(stepDefs, stepType) {
@@ -128,6 +153,8 @@ export class ScenarioEditorComponent implements OnInit {
         return this.buildID(stepDefs.when);
       case 'then':
         return this.buildID(stepDefs.then);
+      case 'example':
+        return this.buildID(stepDefs.example);
     }
   }
 
@@ -152,11 +179,17 @@ export class ScenarioEditorComponent implements OnInit {
       case 'then':
         this.selectedScenario.stepDefinitions.then.splice(index, 1);
         break;
+      case 'example':
+        this.selectedScenario.stepDefinitions.example.splice(index, 1);
+        if(this.selectedScenario.stepDefinitions.example.length == 0) this.examplesCreated = false;
+        
+        break;
     }
   }
 
   keysList(stepDefs) {
     if (stepDefs != null) {
+      console.log('keys: ' + Object.keys(stepDefs));
       return Object.keys(stepDefs);
     } else {
       console.log("No Step Definitions found!");
@@ -166,15 +199,23 @@ export class ScenarioEditorComponent implements OnInit {
 
   stepsList(stepDefs, i: number) {
     if (i == 0) {
+      
       return stepDefs.given;
     } else if (i == 1) {
       return stepDefs.when;
-    } else {
+    } else if (i == 2){
       return stepDefs.then;
+    }else{
+      return stepDefs.example;
     }
   }
 
-  addToValues(input: string, stepType, index) {
+  addToValues(input: string, stepType,step, index, valueIndex? ) {
+
+    this.checkForExamples(input,step);
+
+    console.log("steptype: " + stepType)
+    console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given[index].values[0] = input;
@@ -185,11 +226,56 @@ export class ScenarioEditorComponent implements OnInit {
       case 'then':
         this.selectedScenario.stepDefinitions.then[index].values[0] = input;
         break;
+      case 'example':
+        console.log('index: ' + index)
+        console.log('valueindex: ' + valueIndex)
+        console.log('values before: ' + this.selectedScenario.stepDefinitions.example[index].values);
+        this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
+        console.log('values after: ' + this.selectedScenario.stepDefinitions.example[index].values);
+        break;
     }
   }
 
-  getValue(i, values: string[]) {
-    return values[i];
+
+  checkForExamples(input, step){
+    if(step.values[0].startsWith("<") && step.values[0].endsWith('>') && !input.startsWith("<") && !input.endsWith('>')){
+      for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
+
+        this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0]), 1);
+
+        if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
+          this.selectedScenario.stepDefinitions.example.splice(0,this.selectedScenario.stepDefinitions.example.length);
+          this.examplesCreated = false;
+        }
+      }
+    }
+    if(input.startsWith("<") && input.endsWith('>')){
+      if(this.selectedScenario.stepDefinitions.example[0] == undefined || !this.selectedScenario.stepDefinitions.example[0].values.includes(input)){
+        this.handleExamples(input, step);
+      }
+    }
+  }
+
+ async handleExamples(input, step){
+    if(step.values[0] != input && step.values[0] != '' && this.examplesCreated){
+      this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0])] = input;
+      console.log('returning')
+      return;
+    }
+      var i = 0;
+      if(!this.examplesCreated){
+        for(var i = 0; i < 3; i++){
+          await this.addStep(step);
+         }
+        this.selectedScenario.stepDefinitions.example[0].values[0] = (input);
+     }else{
+        this.selectedScenario.stepDefinitions.example[0].values.push(input);
+        
+        for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
+          this.selectedScenario.stepDefinitions.example[j].values.push("");
+        }
+     }
+     this.examplesCreated = true;
   }
 
   renameScenario(event, name) {
@@ -233,9 +319,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id)
       .subscribe(resp => {
-        this.reportingChart = resp;
-        this.myHTML ='I am an <code>HTML</code>string with ' + '<a href="#">links!</a> and other <em>stuff</em>';
-        
+        this.reportingChart = resp;   
 
           console.log("This is the response: " + resp);
           /*var data = {
@@ -272,5 +356,6 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 }
+
 
 

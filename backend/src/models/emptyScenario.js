@@ -7,7 +7,7 @@ function emptyScenario() {
       given: [],
       when: [],
       then: [],
-      example: [],
+      example: []
     }
   }
 }
