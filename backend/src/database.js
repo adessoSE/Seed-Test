@@ -98,7 +98,16 @@ stepDefinitions.insert([
     pre: 'So I can see in the',
     mid: 'textbox, the text',
     values: []
-  }
+  },
+  {
+    id: '',
+    stepType: 'example',
+    label: [],
+    type: 'Example',
+    pre: '',
+    mid: '',
+    values: [],
+  },
 ]);
 
 // GET all stories TODO: unused right now  //TODO Prio 1: check if needed

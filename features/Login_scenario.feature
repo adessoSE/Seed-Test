@@ -13,9 +13,7 @@ Then So I will be navigated to the site: "www.adesso.de/myProfile"
 Then So I can see in the "Validation" textbox, the text "Successfully logged in" 
 
 Examples:
-| userName | Password | 
-
-
+ | 
 
 
 @386694507_2
@@ -31,8 +29,6 @@ Then So I will be navigated to the site: "www.gamestar.de/login"
 Then So I can see in the "Validation" textbox, the text "Password or User incorrect" 
 
 Examples:
-| userName | Password | 
-
-
+ | 
 
 

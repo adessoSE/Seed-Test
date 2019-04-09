@@ -15,13 +15,11 @@ Then So I will be navigated to the site: "www.superheroes.com/newProfile"
 Then So I can see in the "Validation" textbox, the text "Successfully Signed Up" 
 
 Examples:
-| userName | Password | 
-
-
+ | 
 
 
 @386696256_2
-Scenario Outline: failed Sign Up
+Scenario: failed Sign Up
 
 Given As a "User"
 
@@ -33,10 +31,4 @@ When I want to click the Button: "Finish"
 
 Then So I will be navigated to the site: "www.superheroes.com/newProfile" 
 Then So I can see in the "Validation" textbox, the text "Error code 4711" 
-
-Examples:
-| userName | Password | 
-
-
-
 
