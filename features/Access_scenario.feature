@@ -13,15 +13,14 @@ When I want to click the Button: "commit"
 Then So I will be navigated to the site: "https://github.com/session" 
 
 Examples:
-| userName | Password | 
+ | userName | password | 
  | AdorableHamster | cutehamsterlikesnuts2000 | 
  | NormalHamster | normalHamster123 | 
  | BabyHamster | babyHamster123 | 
 
 
-
 @386696070_2
-Scenario Outline: failed Authentication
+Scenario: failed Authentication
 
 Given As a "User"
 
@@ -33,10 +32,4 @@ When I want to click the Button: "Enter"
 
 Then So I will be navigated to the site: "www.mjdiaries.com/nope" 
 Then So I can see in the "User not allowed" textbox, the text "You dont have the permission to enter the forum!" 
-
-Examples:
-| userName | Password | 
-
-
-
 
