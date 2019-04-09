@@ -29,6 +29,15 @@ stepDefinitions.insert([
   },
   {
     id: '',
+    stepType: 'example',
+    label: null,
+    type: 'Add Variables',
+    pre: '',
+    mid: '',
+    values: [],
+  },
+  {
+    id: '',
     stepType: 'when',
     label: null,
     type: 'Website',
