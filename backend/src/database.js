@@ -93,29 +93,11 @@ stepDefinitions.insert([
   {
     id: '',
     stepType: 'example',
-    label: [0, 1],
-    type: 'Two Variables',
+    label: [],
+    type: 'Example',
     pre: '',
     mid: '',
-    values: [[]],
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [0, 1, 2],
-    type: 'Three Variables',
-    pre: '',
-    mid: '',
-    values: [[]],
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [0, 1, 2, 3],
-    type: 'Four Variables',
-    pre: '',
-    mid: '',
-    values: [[]],
+    values: [],
   },
 ]);
 

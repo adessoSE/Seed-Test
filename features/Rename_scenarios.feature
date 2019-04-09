@@ -13,9 +13,7 @@ When I want to click the Button: "Save"
 Then So I can see in the "Validation" textbox, the text "Updated scenario name." 
 
 Examples:
-| userName | Password | 
-
-
+ | 
 
 
 @386692174_1
@@ -31,8 +29,6 @@ When I want to click the Button: "Save"
 Then So I can see in the "Validation" textbox, the text "Could not update scenario name!" 
 
 Examples:
-| userName | Password | 
-
-
+ | 
 
 

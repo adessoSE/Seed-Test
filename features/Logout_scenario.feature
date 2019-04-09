@@ -12,9 +12,7 @@ Then So I will be navigated to the site: "www.somehomepage.com"
 Then So I can see in the "Validation" textbox, the text "Successfully logged out" 
 
 Examples:
-| userName | Password | 
-
-
-undefined
+ | Username | Password | 
+ | Superman | Kyrptonit | 
 
 
