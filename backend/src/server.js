@@ -13,8 +13,6 @@ const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a per
 const exec = require('child_process').exec;
 var reporter = require('cucumber-html-reporter');
 
-//Test für den merge!!!!
-
 var stories = [];
 
 // Initialize the app.
@@ -78,7 +76,7 @@ function getSteps(steps, stepType) {
   return data;
 }
 
-
+// adds content of each values to output
 function getExamples(steps) {
   var data = ""
   
@@ -181,6 +179,7 @@ app
     res.status(200).json(db.showStepdefinitions());
   })
   .get("/api/stories", function (req, res) {
+    stories = [];
     // get Issues from GitHub
     let request = new XMLHttpRequest();
     request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token=' + access_token);
@@ -273,7 +272,7 @@ function execScenario(req, res, callback) {
 
   let story = getStoryByID(req.params)
   // Ausführen: Scenario Zeile
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + "_" + req.params.scenarioID + '" --format json:../../features/reporting.json';
+  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:../../features/reporting.json';
   console.log(cmd);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
