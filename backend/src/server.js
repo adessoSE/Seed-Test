@@ -207,6 +207,7 @@ app
             if (err) throw err;
           });
           //TODO: delete stories priority 2
+          
           stories.push(story);
         }
         res.status(200).json(stories);
