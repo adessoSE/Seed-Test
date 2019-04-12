@@ -17,13 +17,6 @@ Before(async function () {
 });
 
 
-
-// Github test Acc:
-// Username: AdorableHamster 
-// EMail: adorable@hamster.com
-// Psw: cutehamsterlikesnuts2000
-
-
 // TODO: has no meaning yet
 Given('As a {string}', async function (string) {
   this.role = string
@@ -69,13 +62,12 @@ When('I want to select from the {string} multiple selection, the values {string}
 //TODO:change By.tagName to xpath for flexibility
 //Search a Textfield in the html code and asert it with a Text
 Then('So I can see in the {string} textbox, the text {string}', async function (label, string) {
- await driver.findElement(By.tagName(label)).then(function (link) {
-    link.getText().then(function (text) {
-      assert.equal(string, text);
-    }).catch(function (error) {
-      console.log(error)
+ await driver.wait(until.elementLocated(By.xpath("//*[@*"+ "='" + label+ "']")), 3 * 1000).then(async function (link) {
+    var resp = await link.getText().then(function (text) {
+        return text;
+      });
+      expect(string).to.equal(resp, 'Error')
     })
-  });
 });
 
 //Checks if the current Website is the one it is suposed to be

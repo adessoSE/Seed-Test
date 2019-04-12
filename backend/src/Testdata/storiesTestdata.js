@@ -147,18 +147,8 @@ module.exports.testdata = [
             }
           ],
           example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },]
-
+          ]
         }
-
       },
     ]
   },
@@ -249,17 +239,7 @@ module.exports.testdata = [
               values: ['Successfully Signed Up']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       },
@@ -355,11 +335,11 @@ module.exports.testdata = [
     ]
   },
   {
-    // Access scenario
-    story_id: 386696070, scenarios: [
+    // Login scenario
+    story_id: 386694507, scenarios: [
       {
         scenario_id: 1,
-        name: 'Successful Authentication',
+        name: 'Successful Login',
         stepDefinitions:
         {
           given: [
@@ -420,7 +400,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['https://github.com/session']
+              values: ['<website>']
             },
           ],
           example: [
@@ -428,12 +408,10 @@ module.exports.testdata = [
               id: 1,
               stepType: 'example',
               label: [],
-              type: '[]',
+              type: '',
               pre: '',
               mid: '',
-              values: [
-                'userName', 'password',
-              ]
+              values: ['userName', 'password', 'website']
             },
             {
               id: 2,
@@ -442,9 +420,7 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: [
-                'AdorableHamster', 'cutehamsterlikesnuts2000',
-              ]
+              values: ['AdorableHamster', 'cutehamsterlikesnuts2000', 'https://github.com/']
             },
             {
               id: 3,
@@ -453,9 +429,7 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: [
-                'NormalHamster', 'normalHamster123',
-              ]
+              values: ['NormalHamster', 'FatHamster123', 'https://github.com/account/unverified-email']
             },
             {
               id: 2,
@@ -464,9 +438,7 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: [
-                'BabyHamster', 'babyHamster123'
-              ]
+              values: ['OldHamster', 'UglyHamster123', 'https://github.com/account/unverified-email']
             },
           ]
         }
@@ -474,7 +446,7 @@ module.exports.testdata = [
       },
       {
         scenario_id: 2,
-        name: 'failed Authentication',
+        name: 'failed Login',
         stepDefinitions:
         {
           given: [
@@ -485,7 +457,7 @@ module.exports.testdata = [
               type: 'Role',
               pre: 'As a',
               mid: '',
-              values: ['Spiderman', 'MaryJane'],
+              values: [],
               selection: ['Guest', 'User']
             }
           ],
@@ -497,39 +469,30 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://www.gamestar.de']
+              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home']
             },
             {
               id: 2,
               stepType: 'when',
-              label: 'Forum',
-              type: 'Button',
-              pre: 'I want to click the Button:',
-              mid: '',
-              values: []
+              label: 'login_field',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['arbage']
             },
             {
               id: 3,
               stepType: 'when',
-              label: 'Username',
+              label: 'password',
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Spiderman']
+              values: ['number']
             },
             {
               id: 4,
               stepType: 'when',
-              label: 'Password',
-              type: 'Field',
-              pre: 'I want to insert into the',
-              mid: 'field, the value',
-              values: ['MaryJane']
-            },
-            {
-              id: 5,
-              stepType: 'when',
-              label: 'Enter',
+              label: 'commit',
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
@@ -544,16 +507,36 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.mjdiaries.com/nope']
+              values: ['https://github.com/session']
             },
             {
               id: 2,
               stepType: 'then',
-              label: 'User not allowed',
+              label: 'div',
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['You dont have the permission to enter the forum!']
+              values: ['Incorrect username or password']
+            }
+          ],
+          then: [
+            {
+              id: 1,
+              stepType: 'then',
+              label: null,
+              type: 'Website',
+              pre: 'So I will be navigated to the site:',
+              mid: '',
+              values: ['https://github.com/session']
+            },
+            {
+              id: 2,
+              stepType: 'then',
+              label: 'js-flash-container',
+              type: 'Text',
+              pre: 'So I can see in the',
+              mid: 'textbox, the text',
+              values: ['Incorrect username or password']
             }
           ],
           example: []
@@ -631,17 +614,7 @@ module.exports.testdata = [
               values: ['Scenario successfully deleted']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       },
@@ -711,17 +684,7 @@ module.exports.testdata = [
               values: ['Scenario_Id does not exist']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       }
@@ -778,17 +741,7 @@ module.exports.testdata = [
               values: ['New Story created']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       },
@@ -840,17 +793,7 @@ module.exports.testdata = [
               values: ['Could not create Story']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       }
@@ -907,17 +850,7 @@ module.exports.testdata = [
               values: ['New Scenario created']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       },
@@ -969,17 +902,7 @@ module.exports.testdata = [
               values: ['Could not create Scenario']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       }
@@ -1054,28 +977,18 @@ module.exports.testdata = [
               values: ['ThenStep 2 Failed']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       }
     ]
   },
   {
-    // Login scenario
-    story_id: 386694507, scenarios: [
+    // Access scnario
+    story_id: 386696070, scenarios: [
       {
         scenario_id: 1,
-        name: 'successful Login',
+        name: 'successful Authentification',
         stepDefinitions:
         {
           given: [
@@ -1139,23 +1052,13 @@ module.exports.testdata = [
               values: ['Successfully logged in']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ]
+          example: []
         }
 
       },
       {
         scenario_id: 2,
-        name: 'failed Login',
+        name: 'failed Authentification',
         stepDefinitions:
         {
           given: [
@@ -1219,17 +1122,7 @@ module.exports.testdata = [
               values: ['Password or User incorrect']
             }
           ],
-          example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '[]',
-              pre: '',
-              mid: '',
-              values: []
-            },
-          ],
+          example: [],
         }
 
       }
@@ -1309,7 +1202,7 @@ module.exports.testdata = [
               id: 1,
               stepType: 'example',
               label: [],
-              type: '[]',
+              type: '',
               pre: '',
               mid: '',
               values: []
@@ -1389,7 +1282,7 @@ module.exports.testdata = [
               id: 1,
               stepType: 'example',
               label: [],
-              type: '[]',
+              type: '',
               pre: '',
               mid: '',
               values: []
