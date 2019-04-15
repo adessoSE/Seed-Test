@@ -96,9 +96,9 @@
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
           <button class="uk-button" type="button" (click)="runTests();">Run Tests</button>
-          <button [disabled]="!showChart" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
+          <button [class.disabledButton] ="!showChart" [disabled]="!showChart" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
             uk-tooltip="Hide Test Results" type="button" (click)="hideChart()"></button>
-            <button [disabled]="!showChart" class="uk-button uk-button-icon" uk-icon="icon:download"
+            <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon" uk-icon="icon:download"
             uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
         </div>
       </div>
@@ -112,9 +112,6 @@
     <div id="report-body" class="uk-card-body">
       <div id="chartcontainer" class="chart-container">
           <iframe src="http://localhost:8080/testResult" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
-      <div *ngFor="let msg of err_msg">
-        <pre class="error-message">{{msg}}</pre>
-      </div>
     </div>
   </div>
 

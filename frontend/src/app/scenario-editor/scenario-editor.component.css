@@ -78,6 +78,6 @@
   padding-bottom: 0;
 }
 
-:disabled{
+.disabledButton{
   background:#dddddd
 }

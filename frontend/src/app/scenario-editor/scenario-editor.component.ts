@@ -22,6 +22,7 @@ export class ScenarioEditorComponent implements OnInit {
   editorLocked = true;
   reportingChart;
   examplesCreated = false;
+  testDone: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -324,6 +325,7 @@ export class ScenarioEditorComponent implements OnInit {
 
         console.log("This is the response: " + resp);
        
+        this.testDone = true;
         this.showChart = true;
         })
      }
