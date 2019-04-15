@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {tap} from 'rxjs/operators';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 
 @Injectable({
@@ -65,6 +65,11 @@ export class ApiService {
     /*.pipe(tap(resp =>
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));*/
+  }
+
+
+  public downloadTestResult(){
+    return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob', headers: new HttpHeaders().append('Content-Type', 'application/json')});
   }
 }
 

@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { ScenarioEditorComponent} from './scenario-editor/scenario-editor.component';
 import {HttpClientModule} from "@angular/common/http";
 import { SafePipe } from './safe.pipe';
+import { ApiService } from './Services/api.service';
 
 
 @NgModule({
@@ -17,7 +18,7 @@ import { SafePipe } from './safe.pipe';
     BrowserModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [ApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

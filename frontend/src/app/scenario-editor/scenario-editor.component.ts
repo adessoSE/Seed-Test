@@ -4,30 +4,8 @@ import { ApiService } from '../Services/api.service';
 import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
 import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
- 
+import {saveAs} from 'file-saver';
 
-
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-];
-
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
 
 @Component({
   selector: 'app-scenario-editor',
@@ -44,9 +22,6 @@ export class ScenarioEditorComponent implements OnInit {
   editorLocked = true;
   reportingChart;
   examplesCreated = false;
-  err_msg = [];
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = ELEMENT_DATA;
 
   constructor(
     private http: HttpClient,
@@ -337,44 +312,27 @@ export class ScenarioEditorComponent implements OnInit {
     console.log('selected storyID', this.selectedStory);
   }
 
-  //Make the API Request to run the tests and display the results as a chart
+ //Make the API Request to run the tests and display the results as a chart
   runTests() {
+    this
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
     this.apiService
       .runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id)
       .subscribe(resp => {
-        this.reportingChart = resp;   
+       this.reportingChart = resp;   
 
-          console.log("This is the response: " + resp);
-          /*var data = {
-            datasets: [{
-                data: [resp.failed, resp.successfull, resp.not_implemented,resp.not_executed],
-                backgroundColor: [
-                  'rgba(239, 21, 14, 1)',
-                  'rgba(31, 196, 53, 1)',
-                  'rgba(239, 205, 14,1)',
-                  'rgba(0,0,0,0.2)'
-              ],
-            }],
-        
-            // These labels appear in the legend and in the tooltips when hovering different arcs
-            labels: [
-                'Failed',
-                'Successfull',
-                'Not Implemented',
-                'Not executed'
-            ],
-            
-        };
-        this.reportingChart = new Chart('canvas', {
-            type: 'doughnut', 
-            data: data
-        });
-        this.err_msg = resp.err_msg;*/
+        console.log("This is the response: " + resp);
+       
         this.showChart = true;
         })
-      }
+     }
+
+  downloadFile(){
+    this.apiService.downloadTestResult().subscribe(resp =>{
+      saveAs(resp);
+   })
+  }
 
   hideChart() {
     this.showChart = !this.showChart;
