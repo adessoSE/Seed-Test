@@ -48,7 +48,7 @@ stepDefinitions.insert([
   {
     id: '',
     stepType: 'when',
-    label: '',
+    label: null,
     type: 'Button',
     pre: 'I want to click the Button:',
     mid: '',
