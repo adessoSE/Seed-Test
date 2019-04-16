@@ -78,10 +78,7 @@ module.exports.testdata = [
               pre: '',
               mid: '',
               values: ['Superman', 'Kyrptonit']
-            }
-          ],
-          example: [
-            {
+            },{
               id: 1,
               stepType: 'then',
               label: 'test',
@@ -89,10 +86,9 @@ module.exports.testdata = [
               pre: 'So I will be navigated to the site:',
               mid: '',
               values: ['www.somehomepage.com', 'testi']
-            },
+            }
           ]
         }
-
       },
     ]
   },
