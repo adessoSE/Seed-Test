@@ -21,8 +21,8 @@ export class ScenarioEditorComponent implements OnInit {
   showChart = false;
   editorLocked = true;
   reportingChart;
-  examplesCreated = false;
   testDone: boolean = false;
+  uncutInputs: string[] = [];
 
   constructor(
     private http: HttpClient,
@@ -112,16 +112,11 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then.push(new_step);
         break;
       case 'example':
-        for (var i = 0; i < 3; i++){
           this.addStep(step);
           var len = this.selectedScenario.stepDefinitions.example[0].values.length;
-          console.log('len: ' + len);
           for(var j = 1 ; j < len; j++){
-            console.log('example length: ' + this.selectedScenario.stepDefinitions.example.length)
             this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push("");
-            console.log("j: " + j);
           }
-        }
       break;
       default:
         break;
@@ -180,8 +175,6 @@ export class ScenarioEditorComponent implements OnInit {
         break;
       case 'example':
         this.selectedScenario.stepDefinitions.example.splice(index, 1);
-        if(this.selectedScenario.stepDefinitions.example.length == 0) this.examplesCreated = false;
-        
         break;
     }
   }
@@ -210,7 +203,7 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   addToValues(input: string, stepType,step, index, valueIndex? ) {
-
+    
     this.checkForExamples(input,step);
 
     console.log("steptype: " + stepType)
@@ -226,57 +219,52 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.then[index].values[0] = input;
         break;
       case 'example':
-        console.log('index: ' + index)
-        console.log('valueindex: ' + valueIndex)
-        console.log('values before: ' + this.selectedScenario.stepDefinitions.example[index].values);
         this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
-        console.log('values after: ' + this.selectedScenario.stepDefinitions.example[index].values);
         break;
     }
   }
 
 
   checkForExamples(input, step){
+    var cutInput = input.substr(1, input.length-2);
     if(step.values[0].startsWith("<") && step.values[0].endsWith('>') && !input.startsWith("<") && !input.endsWith('>')){
-      for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
+      
+      
+      for(var i = 0; i < this.uncutInputs.length; i++){
+        
+        this.selectedScenario.stepDefinitions.example[i].values.splice(this.uncutInputs.indexOf(step.values[0]), 1);
 
-        this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0]), 1);
+        this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[0], 1));
 
         if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
           this.selectedScenario.stepDefinitions.example.splice(0,this.selectedScenario.stepDefinitions.example.length);
-          this.examplesCreated = false;
+
         }
       }
     }
-    if(input.startsWith("<") && input.endsWith('>')){
-      if(this.selectedScenario.stepDefinitions.example[0] == undefined || !this.selectedScenario.stepDefinitions.example[0].values.includes(input)){
-        this.handleExamples(input, step);
-      }
+    if(input.startsWith("<") && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))){
+        this.uncutInputs.push(input);
+        this.handleExamples(input, cutInput, step);
     }
   }
 
- handleExamples(input, step){
+ handleExamples(input, cutInput, step){
     if(step.values[0] != input && step.values[0] != '' && this.selectedScenario.stepDefinitions.example[0] !== undefined ){
-      console.log('after if ')
-      this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0])] = input;
-      console.log('returning')
+      this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0].substr(1, step.values[0].length-2))] = cutInput;
       return;
     }
-      var i = 0;
       if(this.selectedScenario.stepDefinitions.example[0] === undefined){
         for(var i = 0; i < 3; i++){
           this.addStep(step);
          }
-         console.log('1')
-        this.selectedScenario.stepDefinitions.example[0].values[0] = (input);
+        this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
      }else{
-        this.selectedScenario.stepDefinitions.example[0].values.push(input);
+        this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
         
         for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
           this.selectedScenario.stepDefinitions.example[j].values.push("");
         }
      }
-     this.examplesCreated = true;
   }
 
   renameScenario(event, name) {

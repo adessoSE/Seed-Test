@@ -84,9 +84,8 @@
             <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
-          {{i+1}}.{{j+1}}
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
-          <input #step_type_input *ngFor="let value of currentStep.values; let k = index;" [disabled]="editorLocked == true"
+          <input #step_type_input *ngFor="let value of currentStep.values; let k = index;" [disabled] = "editorLocked == true || j == 0"
           type="text" value= "{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType, currentStep,j, k)"/> 
              </p>
             </li>
