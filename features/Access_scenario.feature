@@ -24,9 +24,3 @@ When I want to select from the "Games" selection, the value "Rpg"
 Then So I will be navigated to the site: "www.gamestar.de/login" 
 Then So I can see in the "Validation" textbox, the text "Password or User incorrect" 
 
-@386696070_3
-Scenario: New Scenario
-
-
-
-
