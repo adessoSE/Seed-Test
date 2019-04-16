@@ -1,7 +1,8 @@
 module.exports.testdata = [
   {
     // Logout scenario
-    story_id: 386695799,    
+    story_id: 386695799,
+    background: [],
     scenarios: [
       {
         scenario_id: 1,
@@ -78,7 +79,7 @@ module.exports.testdata = [
               pre: '',
               mid: '',
               values: ['Superman', 'Kyrptonit']
-            },{
+            }, {
               id: 1,
               stepType: 'then',
               label: 'test',
@@ -153,7 +154,9 @@ module.exports.testdata = [
   },
   {
     // Sign-Up scenario
-    story_id: 386696256, scenarios: [
+    story_id: 386696256,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'successful Sign Up',
@@ -378,7 +381,9 @@ module.exports.testdata = [
   },
   {
     // Login scenario
-    story_id: 386694507, scenarios: [
+    story_id: 386694507,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'Successful Login',
@@ -589,7 +594,9 @@ module.exports.testdata = [
   },
   {
     // Delete scenarios
-    story_id: 386693823, scenarios: [
+    story_id: 386693823,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'successful Deletion',
@@ -734,7 +741,9 @@ module.exports.testdata = [
   },
   {
     // Story creation
-    story_id: 386693457, scenarios: [
+    story_id: 386693457,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'successful Story creation',
@@ -843,7 +852,9 @@ module.exports.testdata = [
   },
   {
     // Scenario creation
-    story_id: 382626033, scenarios: [
+    story_id: 382626033,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'successful Scenario creation',
@@ -952,7 +963,9 @@ module.exports.testdata = [
   },
   {
     // Visual test response
-    story_id: 386692544, scenarios: [
+    story_id: 386692544,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'Visual Test Response',
@@ -1026,8 +1039,54 @@ module.exports.testdata = [
     ]
   },
   {
-    // Access scnario
-    story_id: 386696070, scenarios: [
+    // Access scenario
+    story_id: 386696070,
+    background: [
+      {
+        stepDefinitions: 
+        {
+          when: [
+            {
+              id: 1,
+              stepType: 'when',
+              label: null,
+              type: 'Website',
+              pre: 'I want to visit this site:',
+              mid: '',
+              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home']
+            },
+            {
+              id: 2,
+              stepType: 'when',
+              label: 'login_field',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['<userName>']
+            },
+            {
+              id: 3,
+              stepType: 'when',
+              label: 'password',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['<password>']
+            },
+            {
+              id: 4,
+              stepType: 'when',
+              label: null,
+              type: 'Button',
+              pre: 'I want to click the Button:',
+              mid: '',
+              values: ['commit']
+            },
+          ]
+        }
+      }
+    ],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'successful Authentification',
@@ -1053,7 +1112,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://www.adesso.de/de/']
+              values: ['https://www.adesso.de/']
             },
             {
               id: 2,
@@ -1172,7 +1231,9 @@ module.exports.testdata = [
   },
   {
     // Rename scenarios
-    story_id: 386692174, scenarios: [
+    story_id: 386692174,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'Renamed Scenario',

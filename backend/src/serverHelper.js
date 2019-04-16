@@ -23,8 +23,39 @@ var options = {
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
   var data = "Feature: " + story.title + "\n\n";
+  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!" + story.background[0].stepDefinitions)
+
+  //Get background
+  if (story.background != null){
+    data += getBackgroundContent(story.background);
+  }
   // Get scenarios
   data += getScenarioContent(story.scenarios, story.story_id);
+  return data;
+}
+
+//Building Background-Content
+function getBackgroundContent(background) {
+  var data = "Background: \n\n" ;
+  // get stepDefinitions
+  //data += getBackgroundSteps(background.stepDefinitions.when)
+  return data;
+}
+
+//Content in Background for FeaturFile
+function getBackgroundSteps(steps) {
+  for (var i = 0; i < steps.length; i++) {
+    if (i = 0) {
+      data += "When "
+    }else{
+      data += "And "
+    }
+    if ((steps[i].label) != null) {
+      data += steps[i].pre + " " + getLabel(steps[i].label) + " " + midNotEmpty(steps[i].mid) + getValues(steps[i].values) + " " + "\n";
+    } else {
+      data += steps[i].pre + " " + midNotEmpty(steps[i].mid) + getValues(steps[i].values) + " " + "\n";
+    }
+  }
   return data;
 }
 

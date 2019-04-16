@@ -229,26 +229,6 @@ function deleteScenario(git_id, s_id) {
   }
 }
 
-console.log('Die Story ******************************************* \n' , stories.find({"story_id" :386697647}))
-
-createBackground(386697647),
-
-console.log('Die Story nach dem Create ******************************************* \n' , stories.find({"story_id" :386697647}))
-
-updateBackground(386697647, {
-  stepDefinitions: [
-    {
-      given: [],
-      when: [],
-    }
-  ]
-})
-
-console.log('Das Background nach dem Update ******************************************* \n' , stories.find({"story_id" :386697647})[0].background[0].stepDefinitions)
-
-deleteBackground(386697647)
-
-console.log('Die Story nach dem Delete ******************************************* \n' , stories.find({"story_id" :386697647}))
 
 module.exports = {
   stories: stories, showStepdefinitions: showStepdefinitions, 
