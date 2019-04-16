@@ -2,6 +2,7 @@ const loki = require('lokijs');
 const db = new loki('db.json');
 const testdata = require('./Testdata/storiesTestdata').testdata;
 const emptyScenario = require('./models/emptyScenario');
+const emptyBackground = require('./models/emptyBackground');
 const stories = db.addCollection('Stories');
 const stepDefinitions = db.addCollection('Step Definitions');
 
@@ -112,6 +113,54 @@ function showStepdefinitions() {
   return stepDefinitions.find()
 }
 
+// Create Background
+function createBackground(git_id) {
+  try {
+    let story = stories.findOne({ story_id: git_id });
+    let tmpBackground = emptyBackground();
+    if (story != null) {
+      story.background.push(tmpBackground)
+      stories.update(story);
+      return tmpBackground;
+    }
+  } catch (error) {
+    return "Could not create Background." + error;
+  }
+}
+
+//Update Background
+function updateBackground(git_id, updated_background) {
+  try {
+    stories
+      .chain()
+      .find({ "story_id": git_id })
+      .where(function (obj) {
+        obj.background.splice(0, 1, updated_background);
+      })
+  } catch (error) {
+    console.log("Error:" + error)
+    return error;
+  }
+  return updated_background;
+}
+
+//Delete Background
+function deleteBackground(git_id){
+  try {
+    stories
+      .chain()
+      .find({ "story_id": git_id })
+      .where(function (obj) {
+        obj.background.splice(0, 1);
+      })
+  } catch (error) {
+    console.log("Error:" + error)
+    return error;
+  }
+  return true;
+}
+
+
 // Create SCENARIO //TODO Prio 1: divide into two seperate functions
 function createScenario(git_id) {
   try {
@@ -180,7 +229,29 @@ function deleteScenario(git_id, s_id) {
   }
 }
 
+console.log('Die Story ******************************************* \n' , stories.find({"story_id" :386697647}))
+
+createBackground(386697647),
+
+console.log('Die Story nach dem Create ******************************************* \n' , stories.find({"story_id" :386697647}))
+
+updateBackground(386697647, {
+  stepDefinitions: [
+    {
+      given: [],
+      when: [],
+    }
+  ]
+})
+
+console.log('Das Background nach dem Update ******************************************* \n' , stories.find({"story_id" :386697647})[0].background[0].stepDefinitions)
+
+deleteBackground(386697647)
+
+console.log('Die Story nach dem Delete ******************************************* \n' , stories.find({"story_id" :386697647}))
+
 module.exports = {
-  stories: stories, showStepdefinitions: showStepdefinitions,
+  stories: stories, showStepdefinitions: showStepdefinitions, 
+  createBackground: createBackground, deleteBackground: deleteBackground, updateBackground: updateBackground,
   createScenario: createScenario, deleteScenario: deleteScenario, updateScenario: updateScenario
 };

@@ -1,7 +1,8 @@
 module.exports.testdata = [
   {
     // Logout scenario
-    story_id: 386695799, scenarios: [
+    story_id: 386695799,    
+    scenarios: [
       {
         scenario_id: 1,
         name: 'successful Logout',
@@ -97,7 +98,9 @@ module.exports.testdata = [
   },
   {
     // Run test functionality
-    story_id: 386697647, scenarios: [
+    story_id: 386697647,
+    background: [],
+    scenarios: [
       {
         scenario_id: 1,
         name: 'Run Test',
