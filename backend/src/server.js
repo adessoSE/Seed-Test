@@ -7,11 +7,8 @@ const db = require('./database');
 const stories_db = require('./database').stories;
 const process = require('process');
 const emptyScenario = require('./models/emptyScenario');
-const fs = require('fs');
-const path = require('path');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
-const exec = require('child_process').exec;
-var reporter = require('cucumber-html-reporter');
+var helper = require('./serverHelper');
 
 var stories = [];
 
@@ -25,124 +22,6 @@ const server = app.listen(process.env.PORT || 8080, function () {
 function handleError(res, reason, statusMessage, code) {
   console.log("ERROR: " + reason);
   res.status(code || 500).json({ "error": statusMessage });
-}
-
-// Building feature file story-name-content (feature file title)
-function getFeatureContent(story) {
-  var data = "Feature: " + story.title + "\n\n";
-  // Get scenarios
-  data += getScenarioContent(story.scenarios, story.story_id);
-  return data;
-}
-
-// Building feature file scenario-name-content
-function getScenarioContent(scenarios, story_id) {
-  var data = "";
-  for (var i = 0; i < scenarios.length; i++) {
-    data += "@" + story_id + "_" + scenarios[i].scenario_id + "\n";
-    if ((scenarios[i].stepDefinitions.example.length) > 0) {
-      data += "Scenario Outline: " + scenarios[i].name + "\n\n";
-    } else {
-      data += "Scenario: " + scenarios[i].name + "\n\n";
-    }
-    // Get Stepdefinitions
-    data += getSteps(scenarios[i].stepDefinitions.given, Object.keys(scenarios[i].stepDefinitions)[0]) + "\n";
-
-    data += getSteps(scenarios[i].stepDefinitions.when, Object.keys(scenarios[i].stepDefinitions)[1]) + "\n";
-
-    data += getSteps(scenarios[i].stepDefinitions.then, Object.keys(scenarios[i].stepDefinitions)[2]) + "\n";
-
-    if ((scenarios[i].stepDefinitions.example.length) > 0) {
-      data += getExamples(scenarios[i].stepDefinitions.example) + "\n\n";
-    }
-  }
-  return data;
-}
-
-// Building feature file step-content
-function getSteps(steps, stepType) {
-  var data = "";
-  for (var i = 0; i < steps.length; i++) {
-    data += jsUcfirst(stepType) + " ";
-
-    if ((steps[i].label) != null && (steps[i].label) != 'User') {
-      data += steps[i].pre + " " + getLabel(steps[i].label) + " " + midNotEmpty(steps[i].mid) + getValues(steps[i].values) + " " + "\n";
-    } else if ((steps[i].label) == 'User') {
-      data += steps[i].pre + " " + getLabel(steps[i].label) + "\n";
-    } else {
-      data += steps[i].pre + " " + midNotEmpty(steps[i].mid) + getValues(steps[i].values) + " " + "\n";
-    }
-  }
-  return data;
-}
-
-// adds content of each values to output
-function getExamples(steps) {
-  var data = ""
-  
-  data += "Examples:"
-  for (var i = 0; i < steps.length; i++) {
-    data += "\n | "
-      for (var k = 0; k < steps[i].values.length; k++){
-        data += steps[i].values[k] + " | "
-      }
-    }
-  
-  return data + "\n";
-}
-
-// only displays mid text and additional space if length not null
-function midNotEmpty(values) {
-  if (values.length === 0) {
-    return "";
-  }
-  return values + " ";
-}
-
-// adds content of each values to output
-function getValues(values) {
-  data = "";
-  for (var i = 0; i < values.length; i++) {
-    data += '\"' + values[i] + '\"';
-  }
-  return data;
-}
-
-// adds label content to output
-function getLabel(label) {
-  data = "";
-  data += '\"' + label + '\"';
-  return data;
-}
-
-// First letter in string to upper case
-function jsUcfirst(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-// Updates feature file based on story_id
-function updateFeatureFiles(reqparams) {
-  let selectedStory;
-  for (var i = 0; i < stories.length; i++) {
-    if (stories[i].story_id == reqparams.issueID) {
-      selectedStory = stories[i];
-      break;
-    }
-  }
-  fs.writeFile(path.join(__dirname, '../../features', selectedStory.title.replace(/ /g, '_') + '.feature'), getFeatureContent(selectedStory), function (err) {
-    if (err) throw err;
-  });
-}
-
-function getStoryByID(reqparams) {
-  let selectedStory;
-  for (var i = 0; i < stories.length; i++) {
-    if (stories[i].story_id == reqparams.issueID) {
-      selectedStory = stories[i];
-      break;
-    }
-  }
-  return selectedStory;
 }
 
 /**
@@ -203,23 +82,15 @@ app
           }
           stories_db.insert(story); // update database
           // Create & Update Feature Files
-          fs.writeFile(path.join(__dirname, '../../features', story.title.replace(/ /g, '_') + '.feature'), getFeatureContent(story), function (err) {
-            if (err) throw err;
-          });
+          helper.writeFile(__dirname, story);
           //TODO: delete stories priority 2
-          
+
           stories.push(story);
         }
         res.status(200).json(stories);
         console.log("Returning stories.")
       }
     };
-  })
-  .get("/testResult", function (req, res) {
-    this.respReport = res; 
-  })
-  .get("/api/downloadTest", function(req, res){
-    sendDownloadResult(res);
   })
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
@@ -230,7 +101,7 @@ app
       res.status(200).json(scenario);
       console.log("Scenario created");
     }
-    updateFeatureFiles(req.params);
+    helper.updateFeatureFiles(req.params, stories);
   })
   // update scenario
   .post("/api/scenario/update/:issueID", function (req, res) {
@@ -244,7 +115,7 @@ app
       res.status(200).json(updated_scenario);
       console.log('Scenario', scenario.scenario_id, 'updated in Story', req.params.issueID);
     }
-    updateFeatureFiles(req.params);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
   // delete scenario
@@ -259,120 +130,18 @@ app
       res.status(200).json({});
       console.log("Scenario deleted.");
     }
-    updateFeatureFiles(req.params);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
   //run single Feature
   //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
   .get("/api/runFeature/:issueID", function (req, res) {
-    featureReport(req, res);
+    helper.featureReport(req, res, stories);
   })
 
   //run single Scenario of a Feature
   .get("/api/runScenario/:issueID/:scenarioID", function (req, res) {
-    scenarioReport(req, res);
+    helper.scenarioReport(req, res, stories);
   });
 
 module.exports = app;
-
-function execScenario(req, res, callback) {
-
-  let story = getStoryByID(req.params)
-  // Ausführen: Scenario Zeile
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:../../features/reporting.json';
-  console.log(cmd);
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`);
-      callback();
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
-    callback();
-  });
-
-  var fail = Math.floor(Math.random() * 20) + 0;
-  var succ = Math.floor(Math.random() * 20) + 0;
-  var not_imp = Math.floor(Math.random() * 20) + 0;
-  var not_ex = Math.floor(Math.random() * 20) + 0;
-  var err_msgs = [];
-  for (let index = 0; index < fail; index++) {
-    err_msgs.push("failed for reason " + (index + 1));
-  }
-  var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
-  //reporter.generate(options);
-  //res.status(200).json(resp);
-}
-
-function execFeature(req, res, callback) {
-  //npm test features/LoginTest.feature
-  let story = getStoryByID(req.params)
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`);
-      callback();
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
-    callback();
-  });
-
-  var fail = Math.floor(Math.random() * 20) + 0;
-  var succ = Math.floor(Math.random() * 20) + 0;
-  var not_imp = Math.floor(Math.random() * 20) + 0;
-  var not_ex = Math.floor(Math.random() * 20) + 0;
-  var err_msgs = [];
-  for (let index = 0; index < fail; index++) {
-    err_msgs.push("failed for reason " + (index + 1));
-  }
-  var resp = { "failed": fail, "successfull": succ, "not_implemented": not_imp, "not_executed": not_ex, "err_msg": err_msgs }
-  //reporter.generate(options);
-  //res.status(200).json(resp);
-}
-
-//outputs a report in Json and then transforms it in a pretty html page
-function scenarioReport(req, res) {
-  execScenario(req, res, function () {
-    console.log("tesing scenario report");
-    reporter.generate(options);
-    sendTestResult();
-    res.sendFile('/reporting_html.html', { root: "../../features" });
-  })
-}
-
-function featureReport(req, res) {
-  execFeature(req, res, function () {
-    console.log("tesing feature report");
-    reporter.generate(options);
-    sendTestResult();
-    sendDownloadResult(res);
-  })
-}
-
-function sendTestResult(){
-  this.respReport.sendFile('/reporting_html.html', { root: "../../features" });
-}
-
-function sendDownloadResult(resp){
-  resp.sendFile('/reporting_html.html', { root: "../../features" });
-}
-
-//this is needed for the html report
-var options = {
-  theme: 'bootstrap',
-  jsonFile: '../../features/reporting.json',
-  output: '../../features/reporting_html.html',
-  reportSuiteAsScenarios: true,
-  launchReport: true,
-  metadata: {
-    "App Version": "0.3.2",
-    "Test Environment": "STAGING",
-    "Browser": "Chrome  54.0.2840.98",
-    "Platform": "Windows 10",
-    "Parallel": "Scenarios",
-    "Executed": "Remote"
-  }
-};
