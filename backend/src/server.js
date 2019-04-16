@@ -92,6 +92,46 @@ app
       }
     };
   })
+
+  // create Background
+  .get("/api/background/add/:issueID", function (req, res) {
+    let background = db.createBackground(parseInt(req.params.issueID));
+    if (typeof (background) === "string") {
+      handleError(res, background, background, 500);
+    } else {
+      res.status(200).json(background);
+      console.log("Background created");
+    }
+    helper.updateFeatureFiles(req.params, stories);
+  })
+
+   // update background
+   .post("/api/background/update/:issueID", function (req, res) {
+    let background = req.body;
+    let updated_background = db.updateBackground(parseInt(req.params.issueID), background);
+    if (typeof (updated_background) === "string") {
+      handleError(res, updated_background, updated_background, 500);
+    } else {
+      res.status(200).json(updated_background);
+    }
+    helper.updateFeatureFiles(req.params, stories);
+  })
+
+   // delete background
+   .delete("/api/story/:issueID/background/delete/", function (req, res) {
+    let result = db.deleteBackground(parseInt(req.params.issueID));
+    if (typeof (result) === "string") {
+      handleError(res, result, result, 500);
+      console.log("Could not delete Background.");
+    }
+    if (result === true) {
+      res.status(200).json({});
+      console.log("Background deleted.");
+    }
+    helper.updateFeatureFiles(req.params, stories);
+  })
+
+
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
     let scenario = db.createScenario(parseInt(req.params.issueID));
@@ -103,6 +143,7 @@ app
     }
     helper.updateFeatureFiles(req.params, stories);
   })
+
   // update scenario
   .post("/api/scenario/update/:issueID", function (req, res) {
     // TODO use model to check for scenario (priority 2)
