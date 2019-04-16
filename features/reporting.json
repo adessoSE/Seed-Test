@@ -1,21 +1,21 @@
 [
   {
     "keyword": "Feature",
-    "name": "Access scenario",
+    "name": "Sign-Up scenario",
     "line": 1,
-    "id": "access-scenario",
+    "id": "sign-up-scenario",
     "tags": [],
-    "uri": "..\\..\\features\\Access_scenario.feature",
+    "uri": "..\\..\\features\\Sign-Up_scenario.feature",
     "elements": [
       {
-        "id": "access-scenario;failed-authentication",
+        "id": "sign-up-scenario;successful-sign-up",
         "keyword": "Scenario",
-        "line": 23,
-        "name": "failed Authentication",
+        "line": 4,
+        "name": "successful Sign Up",
         "tags": [
           {
-            "name": "@386696070_2",
-            "line": 22
+            "name": "@386696256_1",
+            "line": 3
           }
         ],
         "type": "scenario",
@@ -28,16 +28,16 @@
             },
             "result": {
               "status": "passed",
-              "duration": 39000000
+              "duration": 16000000
             }
           },
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 25,
+            "line": 6,
             "name": "As a \"User\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:28"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:21"
             },
             "result": {
               "status": "passed",
@@ -47,90 +47,131 @@
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 27,
-            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "line": 8,
+            "name": "I want to visit this site: \"https://forum.golem.de/register.php?121624\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:33"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:26"
             },
             "result": {
               "status": "passed",
-              "duration": 5111000000
+              "duration": 6264000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 28,
-            "name": "I want to insert into the \"login_field\" field, the value \"arbage\"",
+            "line": 9,
+            "name": "I want to click the Button: \"golemAcceptCookies();\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:34"
             },
             "result": {
               "status": "passed",
-              "duration": 50000000
+              "duration": 290000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 29,
-            "name": "I want to insert into the \"password\" field, the value \"number\"",
+            "line": 10,
+            "name": "I want to insert into the \"reg-username\" field, the value \"abcdefguh1234567890\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:54"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:47"
             },
             "result": {
               "status": "passed",
-              "duration": 36000000
+              "duration": 35000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 30,
-            "name": "I want to click the Button: \"commit\"",
+            "line": 11,
+            "name": "I want to insert into the \"reg-email\" field, the value \"telefonnuummer@gmail.com\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:41"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:47"
             },
             "result": {
               "status": "passed",
-              "duration": 633000000
+              "duration": 35000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I want to insert into the \"reg-password\" field, the value \"cucumber2000\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 27000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I want to insert into the \"reg-password2\" field, the value \"cucumber2000\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 27000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I want to select from the \"name\" selection, the value \"tos_accept\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:53"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 224000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 15,
+            "name": "I want to click the Button: \"Abschicken\"",
+            "match": {
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:34"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 570000000
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 32,
-            "name": "So I will be navigated to the site: \"https://github.com/session\"",
+            "line": 17,
+            "name": "So I will be navigated to the site: \"https://forum.golem.de/register.php\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:81"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:74"
             },
             "result": {
               "status": "passed",
-              "duration": 7000000
+              "duration": 13000000
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 33,
-            "name": "So I can see in the \"js-flash-container\" textbox, the text \"Incorrect username or password\"",
+            "line": 18,
+            "name": "So I can see in the \"attention\" textbox, the text \"Dieser Name wird bereits von einem Benutzer verwendet. Wenn Sie derjenige sind, loggen Sie sich bitte ein. Ansonsten nutzen Sie bitte einen anderen Namen.\"",
             "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:71"
+              "location": "..\\..\\features\\step_definitions\\stepdefs.js:64"
             },
             "result": {
               "status": "passed",
-              "duration": 12000000
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "match": {
-              "location": "..\\..\\features\\step_definitions\\stepdefs.js:88"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 2000000
+              "duration": 54000000
             }
           }
         ]

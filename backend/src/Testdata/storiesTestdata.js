@@ -87,7 +87,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.somehomepage.com','testi']
+              values: ['www.somehomepage.com', 'testi']
             },
           ]
         }
@@ -168,7 +168,7 @@ module.exports.testdata = [
               type: 'Role',
               pre: 'As a',
               mid: '',
-              values: ['Superman', 'kryptonite'],
+              values: [],
               selection: ['Guest', 'User']
             }
           ],
@@ -180,12 +180,12 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.superheroes.com']
+              values: ['https://forum.golem.de/register.php?121624']
             },
             {
               id: 2,
               stepType: 'when',
-              label: 'Sign Up',
+              label: 'golemAcceptCookies();',
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
@@ -194,25 +194,52 @@ module.exports.testdata = [
             {
               id: 3,
               stepType: 'when',
-              label: 'Username',
+              label: 'reg-username',
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Superman']
+              values: ['abcdefguuh1234567890']
             },
             {
               id: 4,
               stepType: 'when',
-              label: 'Password',
+              label: 'reg-email',
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['kryptonite']
+              values: ['telefonnuuummer@gmail.com']
             },
             {
               id: 5,
               stepType: 'when',
-              label: 'Finish',
+              label: 'reg-password',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['cucumber2000']
+            },
+            {
+              id: 6,
+              stepType: 'when',
+              label: 'reg-password2',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['cucumber2000']
+            },
+            {
+              id: 7,
+              stepType: 'when',
+              label: 'name',
+              type: 'Checkbox',
+              pre: 'I want to select from the',
+              mid: 'selection, the value',
+              values: ['tos_accept']
+            },
+            {
+              id: 8,
+              stepType: 'when',
+              label: 'Abschicken',
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
@@ -227,17 +254,8 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.superheroes.com/newProfile']
+              values: ['https://forum.golem.de/register.php']
             },
-            {
-              id: 2,
-              stepType: 'then',
-              label: 'Validation',
-              type: 'Text',
-              pre: 'So I can see in the',
-              mid: 'textbox, the text',
-              values: ['Successfully Signed Up']
-            }
           ],
           example: []
         }
@@ -256,7 +274,7 @@ module.exports.testdata = [
               type: 'Role',
               pre: 'As a',
               mid: '',
-              values: ['Superman', 'kryptonite'],
+              values: [],
               selection: ['Guest', 'User']
             }
           ],
@@ -268,12 +286,12 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.superheroes.com']
+              values: ['https://forum.golem.de/register.php?121624']
             },
             {
               id: 2,
               stepType: 'when',
-              label: 'Sign Up',
+              label: 'golemAcceptCookies();',
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
@@ -282,25 +300,52 @@ module.exports.testdata = [
             {
               id: 3,
               stepType: 'when',
-              label: 'Username',
+              label: 'reg-username',
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Superman']
+              values: ['abcdefguuh1234567890']
             },
             {
               id: 4,
               stepType: 'when',
-              label: 'Password',
+              label: 'reg-email',
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['kryptonite']
+              values: ['telefonnuuummer@gmail.com']
             },
             {
               id: 5,
               stepType: 'when',
-              label: 'Finish',
+              label: 'reg-password',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['cucumber2000']
+            },
+            {
+              id: 6,
+              stepType: 'when',
+              label: 'reg-password2',
+              type: 'Field',
+              pre: 'I want to insert into the',
+              mid: 'field, the value',
+              values: ['cucumber2000']
+            },
+            {
+              id: 7,
+              stepType: 'when',
+              label: 'name',
+              type: 'Checkbox',
+              pre: 'I want to select from the',
+              mid: 'selection, the value',
+              values: ['tos_accept']
+            },
+            {
+              id: 8,
+              stepType: 'when',
+              label: 'Abschicken',
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
@@ -315,22 +360,20 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.superheroes.com/newProfile']
+              values: ['https://forum.golem.de/register.php']
             },
             {
               id: 2,
               stepType: 'then',
-              label: 'Validation',
+              label: 'attention',
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Error code 4711']
+              values: ['Dieser Name wird bereits von einem Benutzer verwendet. Wenn Sie derjenige sind, loggen Sie sich bitte ein. Ansonsten nutzen Sie bitte einen anderen Namen.']
             }
           ],
-          example: [
-          ]
+          example: []
         }
-
       }
     ]
   },
@@ -1198,15 +1241,6 @@ module.exports.testdata = [
             }
           ],
           example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '',
-              pre: '',
-              mid: '',
-              values: []
-            }
           ],
         }
 
@@ -1278,15 +1312,6 @@ module.exports.testdata = [
             }
           ],
           example: [
-            {
-              id: 1,
-              stepType: 'example',
-              label: [],
-              type: '',
-              pre: '',
-              mid: '',
-              values: []
-            }
           ],
         }
 
