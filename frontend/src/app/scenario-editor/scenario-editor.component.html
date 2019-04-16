@@ -25,6 +25,10 @@
 
 <div *ngIf="(showEditor === true)" class="uk-width-2-3">
   <div class="uk-card uk-card-default">
+      <button uk-icon="icon: arrow-left" data-uk-tooltip
+      title="Change Left" (click)="scenarioShiftLeft();"></button>
+      <button  uk-icon="icon: arrow-right" data-uk-tooltip
+      title="Change Right" (click)="scenarioShiftRight();"></button>
     <div class="uk-card-title uk-padding">
       {{selectedScenario.name}}
       <button [disabled]="editorLocked == true" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip

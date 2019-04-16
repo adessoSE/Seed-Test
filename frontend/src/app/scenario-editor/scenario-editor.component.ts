@@ -313,6 +313,39 @@ export class ScenarioEditorComponent implements OnInit {
     console.log('selected storyID', this.selectedStory);
   }
 
+  scenarioShiftLeft(){
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    console.log("storyIndex: " + storyIndex);
+    var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
+
+    console.log("scenarioIndex: " + scenarioIndex);
+
+    if(this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex - 1]) != undefined)
+       this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex - 1])
+    else{
+      if(this.stories[storyIndex - 1] != undefined){
+        this.selectScenario(null, this.stories[storyIndex - 1 ].scenarios[0])
+      }
+      
+    }
+  }
+
+  scenarioShiftRight(){
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    console.log("storyIndex: " + storyIndex);
+    var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
+    
+    console.log("scenarioIndex: " + scenarioIndex);
+    if(this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1]) != undefined)
+       this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1])
+    else{
+      if(this.stories[storyIndex + 1] != undefined){
+        this.selectScenario(null, this.stories[storyIndex + 1 ].scenarios[0])
+      }
+      
+    }
+  }
+
  //Make the API Request to run the tests and display the results as a chart
   runTests() {
     this
