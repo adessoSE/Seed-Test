@@ -18,7 +18,7 @@ export class ScenarioEditorComponent implements OnInit {
   selectedStory;
   selectedScenario;
   showEditor = false;
-  showChart = false;
+  showResults = false;
   editorLocked = true;
   reportingChart;
   testDone: boolean = false;
@@ -90,38 +90,40 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   addStepToScenario(storyID, step) {
-    var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
-    console.log('step to add:', step);
-    var new_step = {
-      id: new_id,
-      label: step.label,
-      mid: step.mid,
-      pre: step.pre,
-      stepType: step.stepType,
-      type: step.type,
-      values: [""]
+    if(!this.editorLocked){
+      var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
+      console.log('step to add:', step);
+      var new_step = {
+        id: new_id,
+        label: step.label,
+        mid: step.mid,
+       pre: step.pre,
+       stepType: step.stepType,
+       type: step.type,
+       values: [""]
+     }
+     switch (new_step.stepType) {
+       case 'given':
+         this.selectedScenario.stepDefinitions.given.push(new_step);
+         break;
+       case 'when':
+         this.selectedScenario.stepDefinitions.when.push(new_step);
+         break;
+       case 'then':
+         this.selectedScenario.stepDefinitions.then.push(new_step);
+         break;
+       case 'example':
+           this.addStep(step);
+           var len = this.selectedScenario.stepDefinitions.example[0].values.length;
+           for(var j = 1 ; j < len; j++){
+             this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push("");
+           }
+       break;
+       default:
+         break;
+      }
+     console.log('added step', new_step);
     }
-    switch (new_step.stepType) {
-      case 'given':
-        this.selectedScenario.stepDefinitions.given.push(new_step);
-        break;
-      case 'when':
-        this.selectedScenario.stepDefinitions.when.push(new_step);
-        break;
-      case 'then':
-        this.selectedScenario.stepDefinitions.then.push(new_step);
-        break;
-      case 'example':
-          this.addStep(step);
-          var len = this.selectedScenario.stepDefinitions.example[0].values.length;
-          for(var j = 1 ; j < len; j++){
-            this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push("");
-          }
-      break;
-      default:
-        break;
-    }
-    console.log('added step', new_step);
   }  
 
   addStep(step){
@@ -202,9 +204,9 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  addToValues(input: string, stepType,step, index, valueIndex? ) {
+  async addToValues(input: string, stepType,step, index, valueIndex? ) {
     
-    this.checkForExamples(input,step);
+    await this.checkForExamples(input,step);
 
     console.log("steptype: " + stepType)
     console.log("add to values: " + input);
@@ -226,39 +228,48 @@ export class ScenarioEditorComponent implements OnInit {
 
 
   checkForExamples(input, step){
-    var cutInput = input.substr(1, input.length-2);
+    //removes example if new input is not in example syntax < >
     if(step.values[0].startsWith("<") && step.values[0].endsWith('>') && !input.startsWith("<") && !input.endsWith('>')){
-      
-      
-      for(var i = 0; i < this.uncutInputs.length; i++){
+      var cutOld = step.values[0].substr(1, step.values[0].length-2);
+      this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[0]),1);
+      for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
+        console.log("checkForExamples for i: " + i);
+        console.log("step.values[0]: " + step.values[0])
         
-        this.selectedScenario.stepDefinitions.example[i].values.splice(this.uncutInputs.indexOf(step.values[0]), 1);
+        
+        this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
 
-        this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[0], 1));
+        
 
         if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
+
           this.selectedScenario.stepDefinitions.example.splice(0,this.selectedScenario.stepDefinitions.example.length);
 
         }
       }
     }
+    //if input has < > and it is a new unique input
     if(input.startsWith("<") && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))){
         this.uncutInputs.push(input);
+        var cutInput = input.substr(1, input.length-2);
         this.handleExamples(input, cutInput, step);
     }
   }
 
  handleExamples(input, cutInput, step){
-    if(step.values[0] != input && step.values[0] != '' && this.selectedScenario.stepDefinitions.example[0] !== undefined ){
+   //changes example header name if the name is just changed in step
+    if(step.values[0] != input && step.values[0] != '' && step.values[0].startsWith("<") && step.values[0].endsWith('>') && this.selectedScenario.stepDefinitions.example[0] !== undefined ){
       this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0].substr(1, step.values[0].length-2))] = cutInput;
       return;
     }
-      if(this.selectedScenario.stepDefinitions.example[0] === undefined){
+    //for first example creates 3 steps
+    if(this.selectedScenario.stepDefinitions.example[0] === undefined){
         for(var i = 0; i < 3; i++){
           this.addStep(step);
          }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
-     }else{
+    }else{
+      //else just adds as many values to the examples to fill up the table
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
         
         for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
@@ -284,17 +295,18 @@ export class ScenarioEditorComponent implements OnInit {
 
   selectScenario(storyID, scenario) {
     this.selectedScenario = scenario;
-    this.showChart = false;
+    this.showResults = false;
     this.reportingChart = undefined;
     this.showEditor = true;
     this.editorLocked = true;
+    this.testDone = false;
     console.log('selected scenario', this.selectedScenario);
     console.log('selected storyID', this.selectedStory);
   }
 
   selectStory(story) {
     this.reportingChart = undefined;
-    this.showChart = false;
+    this.showResults = false;
     this.selectedStory = story;
     this.showEditor = false;
     this.editorLocked = true;
@@ -314,7 +326,7 @@ export class ScenarioEditorComponent implements OnInit {
         console.log("This is the response: " + resp);
        
         this.testDone = true;
-        this.showChart = true;
+        this.showResults = true;
         })
      }
 
@@ -324,8 +336,8 @@ export class ScenarioEditorComponent implements OnInit {
    })
   }
 
-  hideChart() {
-    this.showChart = !this.showChart;
+  hideResults() {
+    this.showResults = !this.showResults;
   }
 
 }

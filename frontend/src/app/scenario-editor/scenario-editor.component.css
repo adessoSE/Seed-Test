@@ -55,7 +55,7 @@
 
 .disabled {
   color: gray !important;
-  background: white !important;;
+  background: white !important;
 }
 
 .text-inline{
@@ -80,4 +80,9 @@
 
 .disabledButton{
   background:#dddddd
+}
+
+.exampleHeader{
+  color: rgb(27, 86, 248);
+  text-align: center
 }

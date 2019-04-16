@@ -31,7 +31,7 @@ stepDefinitions.insert([
     id: '',
     stepType: 'example',
     label: null,
-    type: 'Add Variables',
+    type: 'Add Variable',
     pre: '',
     mid: '',
     values: [],

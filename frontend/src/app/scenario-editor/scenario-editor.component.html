@@ -53,10 +53,11 @@
           <!-- </div> -->
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of stepDefinitions;">
-                <a *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
-                  href="#">{{step.type}}</a>
+              <li *ngFor="let step of stepDefinitions;" >
+                  <a *ngIf="step.stepType===sd"  (click)="addStepToScenario(selectedStory.story_id,step);"
+                   href="#">{{step.type}}</a>
               </li>
+            
             </ul>
           </div>
         </div>
@@ -81,11 +82,11 @@
 
         <ng-template #exampleCondition2>
             <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
-            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
+            <button [class.disabled]="editorLocked == true || j == 0" [disabled]="editorLocked == true || j == 0" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
-          <input #step_type_input *ngFor="let value of currentStep.values; let k = index;" [disabled] = "editorLocked == true || j == 0"
+          <input #step_type_input *ngFor="let value of currentStep.values; let k = index;" [class.exampleHeader] = "j == 0"  [disabled] = "editorLocked == true || j == 0"
           type="text" value= "{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType, currentStep,j, k)"/> 
              </p>
             </li>
@@ -95,8 +96,8 @@
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
           <button class="uk-button" type="button" (click)="runTests();">Run Tests</button>
-          <button [class.disabledButton] ="!showChart" [disabled]="!showChart" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
-            uk-tooltip="Hide Test Results" type="button" (click)="hideChart()"></button>
+          <button [class.disabledButton] ="!showResults" [disabled]="!showResults" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
+            uk-tooltip="Hide Test Results" type="button" (click)="hideResults()"></button>
             <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon" uk-icon="icon:download"
             uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
         </div>
