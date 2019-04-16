@@ -32,11 +32,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Logout',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Logout']
             },
           ],
           then: [
@@ -128,11 +128,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Run',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Run']
             }
           ],
           then: [
@@ -185,11 +185,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'golemAcceptCookies();',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['golemAcceptCookies();']
             },
             {
               id: 3,
@@ -239,11 +239,11 @@ module.exports.testdata = [
             {
               id: 8,
               stepType: 'when',
-              label: 'Abschicken',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Abschicken']
             },
           ],
           then: [
@@ -291,11 +291,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'golemAcceptCookies();',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['golemAcceptCookies();']
             },
             {
               id: 3,
@@ -345,11 +345,11 @@ module.exports.testdata = [
             {
               id: 8,
               stepType: 'when',
-              label: 'Abschicken',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Abschicken']
             },
           ],
           then: [
@@ -428,11 +428,11 @@ module.exports.testdata = [
             {
               id: 4,
               stepType: 'when',
-              label: 'commit',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['commit']
             },
           ],
           then: [
@@ -535,11 +535,11 @@ module.exports.testdata = [
             {
               id: 4,
               stepType: 'when',
-              label: 'commit',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['commit']
             },
           ],
           then: [
@@ -639,11 +639,11 @@ module.exports.testdata = [
             {
               id: 4,
               stepType: 'when',
-              label: 'Delete Scenario',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Delete Scenario']
             },
           ],
           then: [
@@ -709,11 +709,11 @@ module.exports.testdata = [
             {
               id: 4,
               stepType: 'when',
-              label: 'Delete Scenario',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Delete Scenario']
             },
           ],
           then: [
@@ -766,11 +766,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Create Story',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Create Story']
             },
           ],
           then: [
@@ -818,11 +818,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Create Story',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Create Story']
             },
           ],
           then: [
@@ -875,11 +875,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Create Scenario',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Create Scenario']
             },
           ],
           then: [
@@ -927,11 +927,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Create Scenario',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Create Scenario']
             },
           ],
           then: [
@@ -984,11 +984,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Test it',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Test it']
             },
           ],
           then: [
@@ -1059,11 +1059,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Login',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Login']
             },
             {
               id: 3,
@@ -1129,11 +1129,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Login',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Login']
             },
             {
               id: 3,
@@ -1204,11 +1204,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Edit',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Edit']
             },
             {
               id: 3,
@@ -1222,11 +1222,11 @@ module.exports.testdata = [
             {
               id: 4,
               stepType: 'when',
-              label: 'Save',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Save']
             },
           ],
           then: [
@@ -1275,11 +1275,11 @@ module.exports.testdata = [
             {
               id: 2,
               stepType: 'when',
-              label: 'Edit',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Edit']
             },
             {
               id: 3,
@@ -1293,11 +1293,11 @@ module.exports.testdata = [
             {
               id: 4,
               stepType: 'when',
-              label: 'Save',
+              label: null,
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: []
+              values: ['Save']
             },
           ],
           then: [
