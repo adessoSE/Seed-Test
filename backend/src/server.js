@@ -215,6 +215,12 @@ app
       }
     };
   })
+  .get("/testResult", function (req, res) {
+    this.respReport = res; 
+  })
+  .get("/api/downloadTest", function(req, res){
+    sendDownloadResult(res);
+  })
   // create scenario
   .get("/api/scenario/add/:issueID", function (req, res) {
     let scenario = db.createScenario(parseInt(req.params.issueID));
@@ -332,6 +338,7 @@ function scenarioReport(req, res) {
   execScenario(req, res, function () {
     console.log("tesing scenario report");
     reporter.generate(options);
+    sendTestResult();
     res.sendFile('/reporting_html.html', { root: "../../features" });
   })
 }
@@ -340,8 +347,17 @@ function featureReport(req, res) {
   execFeature(req, res, function () {
     console.log("tesing feature report");
     reporter.generate(options);
-    res.sendFile('/reporting_html.html', { root: "../../features" });
+    sendTestResult();
+    sendDownloadResult(res);
   })
+}
+
+function sendTestResult(){
+  this.respReport.sendFile('/reporting_html.html', { root: "../../features" });
+}
+
+function sendDownloadResult(resp){
+  resp.sendFile('/reporting_html.html', { root: "../../features" });
 }
 
 //this is needed for the html report

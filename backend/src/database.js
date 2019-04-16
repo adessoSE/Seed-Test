@@ -11,7 +11,7 @@ stepDefinitions.insert([
     // ToDO: Frontend Implementation of selections! Use of labels & values?
     id: '',
     stepType: 'given',
-    label: '',
+    label: null,
     type: 'Role',
     pre: 'As a',
     mid: '',
@@ -48,7 +48,7 @@ stepDefinitions.insert([
   {
     id: '',
     stepType: 'when',
-    label: '',
+    label: null,
     type: 'Button',
     pre: 'I want to click the Button:',
     mid: '',
@@ -98,15 +98,6 @@ stepDefinitions.insert([
     pre: 'So I can see in the',
     mid: 'textbox, the text',
     values: []
-  },
-  {
-    id: '',
-    stepType: 'example',
-    label: [],
-    type: 'Example',
-    pre: '',
-    mid: '',
-    values: [],
   },
 ]);
 
