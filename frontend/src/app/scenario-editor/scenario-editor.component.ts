@@ -357,9 +357,10 @@ export class ScenarioEditorComponent implements OnInit {
        this.reportingChart = resp;   
 
         console.log("This is the response: " + resp);
-       
+        
         this.testDone = true;
         this.showResults = true;
+        console.log("showResults: " + this.showResults);
         })
      }
 

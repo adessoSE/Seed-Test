@@ -2,6 +2,7 @@ const exec = require('child_process').exec;
 const fs = require('fs');
 const path = require('path');
 var reporter = require('cucumber-html-reporter');
+var respReport;
 
 //this is needed for the html report
 var options = {
@@ -22,8 +23,9 @@ var options = {
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
+  this.respReport = null;
   var data = "Feature: " + story.title + "\n\n";
-  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!" + story.background[0].stepDefinitions)
+  //console.log("!!!!!!!!!!!!!!!!!!!!!!!!!" + story.background[0].stepDefinitions)
 
   //Get background
   if (story.background != null){
@@ -209,21 +211,35 @@ function execFeature(req, res, stories, callback) {
 //outputs a report in Json and then transforms it in a pretty html page
 function scenarioReport(req, res, stories) {
   execScenario(req, res, stories, function () {
-    console.log("tesing scenario report");
+    console.log("testing scenario report");
     reporter.generate(options);
+    sendTestResult();
     res.sendFile('/reporting_html.html', { root: "../../features" });
   })
 }
 
 function featureReport(req, res, stories) {
   execFeature(req, res, stories, function () {
-    console.log("tesing feature report");
+    console.log("testing feature report");
     reporter.generate(options);
+    sendTestResult();
     res.sendFile('/reporting_html.html', { root: "../../features" });
   })
 }
 
+function sendTestResult(){
+    respReport.sendFile('/reporting_html.html', {root: "../../features"});
+}
+
+function sendDownloadResult(resp){
+  resp.sendFile('/reporting_html.html', {root: "../../features"});
+}
+
+//necessary for sendTestResult function
+function setRespReport (resp){
+  respReport = resp;
+}
 
 module.exports = {
-  updateFeatureFiles: updateFeatureFiles, scenarioReport: scenarioReport, featureReport: featureReport, writeFile: writeFile
+  updateFeatureFiles: updateFeatureFiles, scenarioReport: scenarioReport, featureReport: featureReport, writeFile: writeFile, setRespReport: setRespReport, sendDownloadResult: sendDownloadResult
 }

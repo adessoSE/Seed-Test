@@ -100,7 +100,7 @@
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
           <button class="uk-button" type="button" (click)="runTests();">Run Tests</button>
-          <button [class.disabledButton] ="!showResults" [disabled]="!showResults" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
+          <button [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
             uk-tooltip="Hide Test Results" type="button" (click)="hideResults()"></button>
             <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon" uk-icon="icon:download"
             uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
@@ -109,7 +109,7 @@
     </div>
   </div>
   <br />
-  <div id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]=!showChart>
+  <div id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]=!showResults>
     <div id="report-header" class="uk-card-header">
       <h3 class="uk-card-title">Test Results</h3>
     </div>

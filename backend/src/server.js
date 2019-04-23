@@ -9,7 +9,6 @@ const process = require('process');
 const emptyScenario = require('./models/emptyScenario');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
 var helper = require('./serverHelper');
-
 var stories = [];
 
 // Initialize the app.
@@ -93,6 +92,14 @@ app
       }
     };
   })
+  .get("/testResult", function(req,res){
+    helper.setRespReport(res);
+  })
+  .get("/api/downloadTest", function(req,res){
+    helper.sendDownloadResult(res);
+  })
+
+
 
   // create Background
   .get("/api/background/add/:issueID", function (req, res) {
@@ -185,5 +192,6 @@ app
   .get("/api/runScenario/:issueID/:scenarioID", function (req, res) {
     helper.scenarioReport(req, res, stories);
   });
+
 
 module.exports = app;
