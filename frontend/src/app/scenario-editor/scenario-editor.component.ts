@@ -126,6 +126,31 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }  
 
+  addStepToBackground(storyID, step){
+    console.log("step type: " + step.stepType);
+    if(!this.editorLocked){
+      var new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, step.stepType) + 1;
+      console.log('step to add:', step);
+      var new_step = {
+        id: new_id,
+        label: step.label,
+        mid: step.mid,
+       pre: step.pre,
+       stepType: step.stepType,
+       type: step.type,
+       values: [""]
+     }
+     switch (new_step.stepType) {
+       case 'when':
+         this.selectedStory.background.stepDefinitions.when.push(new_step);
+         break;
+       default:
+         break;
+      }
+     console.log('added step', new_step);
+    }
+  }
+
   addStep(step){
     var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
     var new_step = {
@@ -181,6 +206,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
+
   keysList(stepDefs) {
     if (stepDefs != null) {
       console.log('keys: ' + Object.keys(stepDefs));
@@ -202,6 +228,10 @@ export class ScenarioEditorComponent implements OnInit {
     }else{
       return stepDefs.example;
     }
+  }
+
+  backgroundList(stepDefinitions){
+    return stepDefinitions.when;
   }
 
   async addToValues(input: string, stepType,step, index, valueIndex? ) {

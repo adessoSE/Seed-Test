@@ -47,6 +47,49 @@
   </div>
   <br />
 
+
+
+
+  <div class="uk-card uk-card-default uk-padding">
+      <div class="uk-card-title">
+          <div>{{ 'background' | titlecase }}</div>
+          <div class="uk-float-right">
+            <!-- <div class="uk-align-right"> -->
+            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
+              class="uk-text-primary" title="Add new step" uk-tooltip></button>
+            <!-- </div> -->
+            <div uk-dropdown>
+              <ul class="uk-nav uk-dropdown-nav">
+                <li *ngFor="let step of stepDefinitions;" >
+                    <a *ngIf="step.stepType=== 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
+                     href="#">{{step.type}}</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="uk-steps">
+          <li class="text-inline" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
+            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
+              uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
+              (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
+            {{j+1}}. {{currentStep.pre}}
+            <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
+              value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
+            <p style="display:inline" *ngIf="currentStep.values.length > 0">
+              {{currentStep.mid}}
+              <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked == true"
+                type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,currentStep,j)" />
+            </p>
+            {{currentStep.post}}
+          </li>
+          <br /><br />
+        </div>
+
+      </div>
+    </div>
+
+
+
   
 
   <div class="uk-card uk-card-default uk-padding">
