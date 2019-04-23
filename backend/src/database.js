@@ -134,9 +134,7 @@ function updateBackground(git_id, updated_background) {
     stories
       .chain()
       .find({ "story_id": git_id })
-      .where(function (obj) {
-        obj.background.splice(0, 1, updated_background);
-      })
+      .update(function(obj){obj.background = updated_background})
   } catch (error) {
     console.log("Error:" + error)
     return error;
