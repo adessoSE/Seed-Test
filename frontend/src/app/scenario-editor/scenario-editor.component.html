@@ -47,9 +47,12 @@
   </div>
   <br />
 
+  
+
   <div class="uk-card uk-card-default uk-padding">
     <div class="uk-card-title">
-      <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">{{i+1}}. {{ sd | titlecase }}
+      <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
+        <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
           <!-- <div class="uk-align-right"> -->
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
@@ -65,7 +68,7 @@
             </ul>
           </div>
         </div>
-        <div class="uk-steps" *ngIf= "sd == 'given' || sd == 'when' || sd == 'then'; else exampleCondition2">
+        <div class="uk-steps" *ngIf= "sd != 'example'; else exampleCondition">
         <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
@@ -83,8 +86,11 @@
         <br /><br />
       </div>
 
+      <ng-template #exampleTitle>
+          {{ sd | titlecase }}
+      </ng-template>
 
-        <ng-template #exampleCondition2>
+        <ng-template #exampleCondition>
             <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
             <button [class.disabled]="editorLocked == true || j == 0" [disabled]="editorLocked == true || j == 0" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
