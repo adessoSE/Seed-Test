@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import {tap} from 'rxjs/operators';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
+import {Constants} from 'Constants';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ApiService {
-  private apiServer: string = "http://localhost:8080/api"; //"https://cucumberapp.herokuapp.com/api"
+  private apiServer: string = Constants.apiConst;
 
   constructor(private http: HttpClient) { }
 

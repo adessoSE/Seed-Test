@@ -9,8 +9,9 @@ const process = require('process');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
-var helper = require('./serverHelper');
-var stories = [];
+const helper = require('./serverHelper');
+
+let stories = [];
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, function () {
