@@ -367,13 +367,8 @@ export class ScenarioEditorComponent implements OnInit {
 
     console.log("scenarioIndex: " + scenarioIndex);
 
-    if(this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex - 1]) != undefined)
+    if(this.stories[storyIndex].scenarios[scenarioIndex - 1] !== undefined){
        this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex - 1])
-    else{
-      if(this.stories[storyIndex - 1] != undefined){
-        this.selectScenario(null, this.stories[storyIndex - 1 ].scenarios[0])
-      }
-      
     }
   }
 
@@ -383,13 +378,8 @@ export class ScenarioEditorComponent implements OnInit {
     var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
     
     console.log("scenarioIndex: " + scenarioIndex);
-    if(this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1]) != undefined)
+    if(this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined){
        this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1])
-    else{
-      if(this.stories[storyIndex + 1] != undefined){
-        this.selectScenario(null, this.stories[storyIndex + 1 ].scenarios[0])
-      }
-      
     }
   }
 
