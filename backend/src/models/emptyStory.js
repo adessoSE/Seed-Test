@@ -2,11 +2,9 @@ function emptyStory() {
   return {
     story_id: '',
     background: {
-        stepDefinitions: [
-          {
+        stepDefinitions: {
             when: []
           }
-        ]
       },
     scenarios: [
       {

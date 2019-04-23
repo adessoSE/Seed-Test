@@ -3,11 +3,9 @@ module.exports.testdata = [
     // Logout scenario
     story_id: 386695799,
     background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {
@@ -103,11 +101,9 @@ module.exports.testdata = [
     // Run test functionality
     story_id: 386697647,
         background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {
@@ -168,11 +164,9 @@ module.exports.testdata = [
     // Sign-Up scenario
     story_id: 386696256,
         background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {
@@ -401,11 +395,9 @@ module.exports.testdata = [
     // Login scenario
     story_id: 386694507,
         background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {
@@ -620,11 +612,9 @@ module.exports.testdata = [
     // Delete scenarios
     story_id: 386693823,
         background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {
@@ -773,11 +763,9 @@ module.exports.testdata = [
     // Story creation
     story_id: 386693457,
         background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {
@@ -890,11 +878,9 @@ module.exports.testdata = [
     // Scenario creation
     story_id: 382626033,
         background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {
@@ -1007,11 +993,9 @@ module.exports.testdata = [
     // Visual test response
     story_id: 386692544,
     background: {
-      stepDefinitions: [
-        {
-          when: []
-        }
-      ]
+        stepDefinitions:{
+            when: []
+          }
     },
     scenarios: [
       {
@@ -1091,7 +1075,6 @@ module.exports.testdata = [
     story_id: 386696070,
     background: {
         stepDefinitions:
-        [
         {
           when: [
             {
@@ -1132,8 +1115,6 @@ module.exports.testdata = [
             },
           ]
         }
-        ]
-
       },
     scenarios: [
       {
@@ -1282,11 +1263,9 @@ module.exports.testdata = [
     // Rename scenarios
     story_id: 386692174,
         background: {
-        stepDefinitions: [
-          {
+        stepDefinitions:{
             when: []
           }
-        ]
       },
     scenarios: [
       {

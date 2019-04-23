@@ -1,10 +1,9 @@
 function emptyBackground() {
   return {
-    stepDefinitions: [
+    stepDefinitions:
       {
         when: []
       }
-    ]
   }
 }
 

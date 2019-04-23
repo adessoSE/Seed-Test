@@ -25,7 +25,7 @@ var options = {
 function getFeatureContent(story) {
   this.respReport = null;
   var data = "Feature: " + story.title + "\n\n";
-  //console.log(story.story_id+ " Background: " + story.background.stepDefinitions[0].when[0]);
+  //console.log(story.story_id+ " Background: " + story.background.stepDefinitions.when[0]);
 
   //Get background
   if (story.background != null) {
@@ -40,7 +40,7 @@ function getFeatureContent(story) {
 function getBackgroundContent(background) {
   var data = "Background: \n\n";
   // get stepDefinitions
-  data += getBackgroundSteps(background.stepDefinitions[0].when);
+  data += getBackgroundSteps(background.stepDefinitions.when);
   return data;
 }
 
