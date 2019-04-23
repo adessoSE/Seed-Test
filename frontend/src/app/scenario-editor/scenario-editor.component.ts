@@ -57,6 +57,14 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   updateScenario(storyID) {
+
+    this.apiService
+      .updateBackground(storyID, this.selectedStory.background)
+      .subscribe(resp =>{
+        console.log('controller: story:', resp);
+      });
+
+
     this.apiService
       .updateScenario(storyID, this.selectedScenario)
       .subscribe(resp => {

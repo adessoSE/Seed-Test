@@ -36,6 +36,14 @@ export class ApiService {
       ));
   }
 
+  public updateBackground(storyID, background){
+    return this.http
+        .post<any>(this.apiServer + '/background/update/' + storyID, background)
+        .pipe(tap(resp =>
+          console.log('Update background for story ' + storyID )
+        ));
+  }
+
   public updateScenario(storyID, scenario) {
     return this.http
         .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
