@@ -2,7 +2,13 @@ module.exports.testdata = [
   {
     // Logout scenario
     story_id: 386695799,
-    background: [],
+    background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -96,7 +102,13 @@ module.exports.testdata = [
   {
     // Run test functionality
     story_id: 386697647,
-    background: [],
+        background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -155,7 +167,13 @@ module.exports.testdata = [
   {
     // Sign-Up scenario
     story_id: 386696256,
-    background: [],
+        background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -382,7 +400,13 @@ module.exports.testdata = [
   {
     // Login scenario
     story_id: 386694507,
-    background: [],
+        background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -595,7 +619,13 @@ module.exports.testdata = [
   {
     // Delete scenarios
     story_id: 386693823,
-    background: [],
+        background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -742,7 +772,13 @@ module.exports.testdata = [
   {
     // Story creation
     story_id: 386693457,
-    background: [],
+        background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -853,7 +889,13 @@ module.exports.testdata = [
   {
     // Scenario creation
     story_id: 382626033,
-    background: [],
+        background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -964,7 +1006,13 @@ module.exports.testdata = [
   {
     // Visual test response
     story_id: 386692544,
-    background: [],
+    background: {
+      stepDefinitions: [
+        {
+          when: []
+        }
+      ]
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -1041,9 +1089,9 @@ module.exports.testdata = [
   {
     // Access scenario
     story_id: 386696070,
-    background: [
-      {
-        stepDefinitions: 
+    background: {
+        stepDefinitions:
+        [
         {
           when: [
             {
@@ -1084,8 +1132,9 @@ module.exports.testdata = [
             },
           ]
         }
-      }
-    ],
+        ]
+
+      },
     scenarios: [
       {
         scenario_id: 1,
@@ -1232,7 +1281,13 @@ module.exports.testdata = [
   {
     // Rename scenarios
     story_id: 386692174,
-    background: [],
+        background: {
+        stepDefinitions: [
+          {
+            when: []
+          }
+        ]
+      },
     scenarios: [
       {
         scenario_id: 1,

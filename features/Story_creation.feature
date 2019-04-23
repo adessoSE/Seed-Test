@@ -1,5 +1,8 @@
 Feature: Story creation
 
+Background: 
+
+
 @386693457_1
 Scenario: successful Story creation
 

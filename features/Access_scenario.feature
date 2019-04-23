@@ -1,5 +1,12 @@
 Feature: Access scenario
 
+Background: 
+
+When I want to visit this site: "https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home" 
+And I want to insert into the "login_field" field, the value "<userName>" 
+And I want to insert into the "password" field, the value "<password>" 
+And I want to click the Button: "commit" 
+
 @386696070_1
 Scenario: successful Authentification
 

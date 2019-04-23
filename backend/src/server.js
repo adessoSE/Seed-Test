@@ -7,6 +7,7 @@ const db = require('./database');
 const stories_db = require('./database').stories;
 const process = require('process');
 const emptyScenario = require('./models/emptyScenario');
+const emptyBackground = require('./models/emptyBackground');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
 var helper = require('./serverHelper');
 var stories = [];
@@ -56,7 +57,7 @@ app
   .get("/api/stepDefinitions", function (req, res) {
     res.status(200).json(db.showStepdefinitions());
   })
-  
+
   .get("/api/stories", function (req, res) {
     stories = [];
     // get Issues from GitHub
@@ -77,8 +78,10 @@ app
           }
           if (stories_db.findOne({ story_id: issue["id"] }) !== null) { // skip if there is no data for the issue yet
             story["scenarios"] = stories_db.findOne({ story_id: issue["id"] }).scenarios;
+            story["background"] = stories_db.findOne({ story_id: issue["id"] }).background;
           } else {
             story["scenarios"] = [emptyScenario()];
+            story["background"] = emptyBackground();
           }
           stories_db.insert(story); // update database
           // Create & Update Feature Files

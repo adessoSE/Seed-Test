@@ -25,10 +25,10 @@ var options = {
 function getFeatureContent(story) {
   this.respReport = null;
   var data = "Feature: " + story.title + "\n\n";
-  //console.log("!!!!!!!!!!!!!!!!!!!!!!!!!" + story.background[0].stepDefinitions)
+  //console.log(story.story_id+ " Background: " + story.background.stepDefinitions[0].when[0]);
 
   //Get background
-  if (story.background != null){
+  if (story.background != null) {
     data += getBackgroundContent(story.background);
   }
   // Get scenarios
@@ -38,18 +38,19 @@ function getFeatureContent(story) {
 
 //Building Background-Content
 function getBackgroundContent(background) {
-  var data = "Background: \n\n" ;
+  var data = "Background: \n\n";
   // get stepDefinitions
-  //data += getBackgroundSteps(background.stepDefinitions.when)
+  data += getBackgroundSteps(background.stepDefinitions[0].when);
   return data;
 }
 
-//Content in Background for FeaturFile
+//Content in Background for FeatureFile
 function getBackgroundSteps(steps) {
+  var data = "";
   for (var i = 0; i < steps.length; i++) {
-    if (i = 0) {
+    if (i === 0) {
       data += "When "
-    }else{
+    } else {
       data += "And "
     }
     if ((steps[i].label) != null) {
@@ -57,7 +58,9 @@ function getBackgroundSteps(steps) {
     } else {
       data += steps[i].pre + " " + midNotEmpty(steps[i].mid) + getValues(steps[i].values) + " " + "\n";
     }
+
   }
+  data += "\n";
   return data;
 }
 
@@ -214,7 +217,7 @@ function scenarioReport(req, res, stories) {
     console.log("testing scenario report");
     reporter.generate(options);
     sendTestResult();
-    res.sendFile('/reporting_html.html', { root: "../../features" });
+    res.sendFile('/reporting_html.html', {root: "../../features"});
   })
 }
 
@@ -223,23 +226,28 @@ function featureReport(req, res, stories) {
     console.log("testing feature report");
     reporter.generate(options);
     sendTestResult();
-    res.sendFile('/reporting_html.html', { root: "../../features" });
+    res.sendFile('/reporting_html.html', {root: "../../features"});
   })
 }
 
-function sendTestResult(){
-    respReport.sendFile('/reporting_html.html', {root: "../../features"});
+function sendTestResult() {
+  respReport.sendFile('/reporting_html.html', {root: "../../features"});
 }
 
-function sendDownloadResult(resp){
+function sendDownloadResult(resp) {
   resp.sendFile('/reporting_html.html', {root: "../../features"});
 }
 
 //necessary for sendTestResult function
-function setRespReport (resp){
+function setRespReport(resp) {
   respReport = resp;
 }
 
 module.exports = {
-  updateFeatureFiles: updateFeatureFiles, scenarioReport: scenarioReport, featureReport: featureReport, writeFile: writeFile, setRespReport: setRespReport, sendDownloadResult: sendDownloadResult
+  updateFeatureFiles: updateFeatureFiles,
+  scenarioReport: scenarioReport,
+  featureReport: featureReport,
+  writeFile: writeFile,
+  setRespReport: setRespReport,
+  sendDownloadResult: sendDownloadResult
 }
