@@ -130,17 +130,17 @@ function midNotEmpty(values) {
 
 // adds content of each values to output
 function getValues(values) {
-  data = "";
+  let data = "";
   for (var i = 0; i < values.length; i++) {
-    data += '\"' + values[i] + '\"';
+    data += '"' + values[i] + '"';
   }
   return data;
 }
 
 // adds label content to output
 function getLabel(label) {
-  data = "";
-  data += '\"' + label + '\"';
+  let data = "";
+  data += '"' + label + '"';
   return data;
 }
 
@@ -158,7 +158,7 @@ function updateFeatureFiles(reqparams, stories) {
       break;
     }
   }
-  writeFile(__dirname, selectedStory);
+  writeFile("", selectedStory);
 }
 
 // Creates feature file
