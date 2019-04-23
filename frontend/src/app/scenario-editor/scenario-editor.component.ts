@@ -187,6 +187,11 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
+  removeStepToBackground(event, index){
+    console.log("remove index: " + index);
+    this.selectedStory.background.stepDefinitions.when.splice(index, 1);
+  }
+
   removeStepToScenario(event, stepDefType, index) {
     console.log('remove step in ' + stepDefType + ' on index ' + index);
     console.log(stepDefType);
@@ -232,6 +237,10 @@ export class ScenarioEditorComponent implements OnInit {
 
   backgroundList(stepDefinitions){
     return stepDefinitions.when;
+  }
+
+  addToValuesBackground(input: string, index){
+    this.selectedStory.background.stepDefinitions.when[index].values[0] = input;
   }
 
   async addToValues(input: string, stepType,step, index, valueIndex? ) {

@@ -49,7 +49,7 @@
 
 
 
-
+<!--Background-->
   <div class="uk-card uk-card-default uk-padding">
       <div class="uk-card-title">
           <div>{{ 'background' | titlecase }}</div>
@@ -71,14 +71,14 @@
           <li class="text-inline" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
             <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
               uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
-              (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
+              (click)="removeStepToBackground($event, j);"></button>
             {{j+1}}. {{currentStep.pre}}
             <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
               value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
             <p style="display:inline" *ngIf="currentStep.values.length > 0">
               {{currentStep.mid}}
               <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked == true"
-                type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,currentStep,j)" />
+                type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j)" />
             </p>
             {{currentStep.post}}
           </li>
