@@ -57,6 +57,14 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   updateScenario(storyID) {
+
+    this.apiService
+      .updateBackground(storyID, this.selectedStory.background)
+      .subscribe(resp =>{
+        console.log('controller: story:', resp);
+      });
+
+
     this.apiService
       .updateScenario(storyID, this.selectedScenario)
       .subscribe(resp => {
@@ -126,6 +134,31 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }  
 
+  addStepToBackground(storyID, step){
+    console.log("step type: " + step.stepType);
+    if(!this.editorLocked){
+      var new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, step.stepType) + 1;
+      console.log('step to add:', step);
+      var new_step = {
+        id: new_id,
+        label: step.label,
+        mid: step.mid,
+       pre: step.pre,
+       stepType: step.stepType,
+       type: step.type,
+       values: [""]
+     }
+     switch (new_step.stepType) {
+       case 'when':
+         this.selectedStory.background.stepDefinitions.when.push(new_step);
+         break;
+       default:
+         break;
+      }
+     console.log('added step', new_step);
+    }
+  }
+
   addStep(step){
     var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
     var new_step = {
@@ -162,6 +195,11 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
+  removeStepToBackground(event, index){
+    console.log("remove index: " + index);
+    this.selectedStory.background.stepDefinitions.when.splice(index, 1);
+  }
+
   removeStepToScenario(event, stepDefType, index) {
     console.log('remove step in ' + stepDefType + ' on index ' + index);
     console.log(stepDefType);
@@ -180,6 +218,7 @@ export class ScenarioEditorComponent implements OnInit {
         break;
     }
   }
+
 
   keysList(stepDefs) {
     if (stepDefs != null) {
@@ -202,6 +241,14 @@ export class ScenarioEditorComponent implements OnInit {
     }else{
       return stepDefs.example;
     }
+  }
+
+  backgroundList(stepDefinitions){
+    return stepDefinitions.when;
+  }
+
+  addToValuesBackground(input: string, index){
+    this.selectedStory.background.stepDefinitions.when[index].values[0] = input;
   }
 
   async addToValues(input: string, stepType,step, index, valueIndex? ) {
