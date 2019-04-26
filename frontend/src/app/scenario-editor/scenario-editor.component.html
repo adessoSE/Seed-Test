@@ -45,10 +45,11 @@
       <!--Background-->
       <div class="uk-card-title ">
           <div class="description">{{ 'background (Optional)' | titlecase }}</div>
-          <div class="uk-float-right">
+          <div class="uk-float-right backgroundItems">
             <!-- <div class="uk-align-right"> -->
             <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
               class="uk-text-primary" title="Add new step" uk-tooltip></button>
+            </div>
             <!-- </div> -->
             <div uk-dropdown>
               <ul class="uk-nav uk-dropdown-nav">
@@ -58,9 +59,9 @@
                 </li>
               </ul>
             </div>
-          </div>
+          
           <div class="uk-steps">
-          <li class="text-inline" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
+          <li class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
             <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
               uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
               (click)="removeStepToBackground($event, j);"></button>
