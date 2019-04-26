@@ -34,17 +34,23 @@
         </div>
 
         <!--Description-->
-        <div class="uk-card-title description">
-          Description
+        <div  class="uk-card-title" [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
+            <button uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
+            <button uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
         </div>
-        <div class="uk-text-secondary descriptionText">
-          {{selectedStory.body}}
 
-      </div>
+        <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
+          {{selectedStory.body}}
+        </div>
 
       <!--Background-->
       <div class="uk-card-title ">
-          <div class="description">{{ 'background (Optional)' | titlecase }}</div>
+          <div [class.backgroundTitle]="!showBackground" [class.description]="showBackground" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
+              <button uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
+              <button uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
+          </div>
+
+          <div *ngIf="showBackground">
           <div class="uk-float-right backgroundItems">
             <!-- <div class="uk-align-right"> -->
             <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
@@ -77,7 +83,7 @@
           </li>
           <br /><br />
         </div>
-  
+      </div>
       </div>
   </div>
   <br/>

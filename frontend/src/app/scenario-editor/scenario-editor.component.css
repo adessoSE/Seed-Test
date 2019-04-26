@@ -110,3 +110,11 @@
   text-align: center;
   font-size: 40px;
 }
+
+.backgroundTitle{
+  padding-left:40px;
+  padding-bottom:20px;
+}
+.showButton{
+  padding-right: 40px;
+}

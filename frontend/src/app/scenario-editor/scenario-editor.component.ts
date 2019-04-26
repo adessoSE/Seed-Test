@@ -20,6 +20,8 @@ export class ScenarioEditorComponent implements OnInit {
   showEditor = false;
   showResults = false;
   editorLocked = true;
+  showDescription = false;
+  showBackground = false;
   reportingChart;
   testDone: boolean = false;
   testRunning: boolean = false;
@@ -96,6 +98,14 @@ export class ScenarioEditorComponent implements OnInit {
           this.stories[indexStory].scenarios.splice(indexScenario, 1);
         }
       });
+  }
+
+  openDescription(){
+    this.showDescription = !this.showDescription;
+  }
+
+  openBackground(){
+    this.showBackground = !this.showBackground;
   }
 
   addStepToScenario(storyID, step) {
