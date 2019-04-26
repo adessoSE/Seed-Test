@@ -23,36 +23,28 @@
   </ul>
 </div>
 
-<div *ngIf="(showEditor === true)" class="uk-width-2-3">
-  <div class="uk-card uk-card-default">
-      <button uk-icon="icon: arrow-left" data-uk-tooltip
-      title="Change Left" (click)="scenarioShiftLeft();"></button>
-      <button  uk-icon="icon: arrow-right" data-uk-tooltip
-      title="Change Right" (click)="scenarioShiftRight();"></button>
-    <div class="uk-card-title uk-padding">
-      {{selectedScenario.name}}
-      <button [disabled]="editorLocked == true" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
-        title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
-      <div class="uk-align-right">
-        <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true"
-          class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
-          (click)="deleteScenario($event);"></button>
-        <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="editorLocked === false;" data-uk-tooltip
-          title="Lock and Save Scenario" uk-icon="unlock"
-          (click)="updateScenario(selectedStory.story_id, selectedScenario);lockEditor();"></a>
-        <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked === true;" data-uk-tooltip
-          title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>
+
+
+<div *ngIf="(showEditor === true)" class="uk-width-3-4">
+
+<!--Story-->
+  <div class="uk-card uk-card-default ">
+        <div class="uk-card-title storyTitle ">
+          {{selectedStory.title}}
+        </div>
+
+        <!--Description-->
+        <div class="uk-card-title description">
+          Description
+        </div>
+        <div class="uk-text-secondary descriptionText">
+          {{selectedStory.body}}
+
       </div>
-    </div>
-  </div>
-  <br />
 
-
-
-<!--Background-->
-  <div class="uk-card uk-card-default uk-padding">
-      <div class="uk-card-title">
-          <div>{{ 'background' | titlecase }}</div>
+      <!--Background-->
+      <div class="uk-card-title ">
+          <div class="description">{{ 'background (Optional)' | titlecase }}</div>
           <div class="uk-float-right">
             <!-- <div class="uk-align-right"> -->
             <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
@@ -84,14 +76,47 @@
           </li>
           <br /><br />
         </div>
+  
+      </div>
+  </div>
+  <br/>
 
+
+
+
+
+<!--Scenario Header-->
+  <div class="uk-card uk-card-default">
+      
+    <div class="uk-card-title uk-padding">
+        <button uk-icon="icon: arrow-left" data-uk-tooltip
+        title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
+      {{selectedScenario.name}}
+      <button [disabled]="editorLocked == true" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
+        title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
+      <div class="uk-align-right">
+        <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true"
+          class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
+          (click)="deleteScenario($event);"></button>
+        <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="editorLocked === false;" data-uk-tooltip
+          title="Lock and Save Scenario" uk-icon="unlock"
+          (click)="updateScenario(selectedStory.story_id, selectedScenario);lockEditor();"></a>
+        <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked === true;" data-uk-tooltip
+          title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>
+          <button  uk-icon="icon: arrow-right" data-uk-tooltip
+          title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>
+  </div>
+  <br />
+
+
+
 
 
 
   
-
+<!--Scenario Editor-->
   <div class="uk-card uk-card-default uk-padding">
     <div class="uk-card-title">
       <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
@@ -111,8 +136,8 @@
             </ul>
           </div>
         </div>
-        <div class="uk-steps" *ngIf= "sd != 'example'; else exampleCondition">
-        <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
+        <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
+        <li class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
@@ -148,7 +173,7 @@
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-          <button class="uk-button" type="button" (click)="runTests();">Run Tests</button>
+          <button class="uk-button" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests();">Run Tests</button>
           <button [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
             uk-tooltip="Hide Test Results" type="button" (click)="hideResults()"></button>
             <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon" uk-icon="icon:download"
@@ -157,7 +182,18 @@
       </div>
     </div>
   </div>
-  <br />
+
+  <!--Helps to see Loading text-->
+  <div *ngIf="!testRunning && !testDone">
+    <br />
+    <br />
+    <br />
+  </div>
+
+  <div class="uk-card-default loading" *ngIf="testRunning">
+    Loading . . .
+  </div>
+
   <div id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]=!showResults>
     <div id="report-header" class="uk-card-header">
       <h3 class="uk-card-title">Test Results</h3>

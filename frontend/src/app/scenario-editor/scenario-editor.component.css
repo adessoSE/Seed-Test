@@ -86,3 +86,27 @@
   color: rgb(27, 86, 248);
   text-align: center
 }
+
+.description{
+  padding-left:40px;
+}
+.descriptionText{
+  padding-left:40px;
+  padding-bottom: 20px;
+}
+
+.backgroundItems{
+  padding-left:40px;
+  padding-right:40px;
+}
+.storyTitle{
+  padding-left:40px;
+  padding-top:40px;
+  padding-bottom:40px;
+  text-align: center;
+}
+
+.loading{
+  text-align: center;
+  font-size: 40px;
+}

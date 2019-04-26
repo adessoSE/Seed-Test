@@ -22,6 +22,7 @@ export class ScenarioEditorComponent implements OnInit {
   editorLocked = true;
   reportingChart;
   testDone: boolean = false;
+  testRunning: boolean = false;
   uncutInputs: string[] = [];
 
   constructor(
@@ -385,7 +386,7 @@ export class ScenarioEditorComponent implements OnInit {
 
  //Make the API Request to run the tests and display the results as a chart
   runTests() {
-    this
+    this.testRunning = true;
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
     this.apiService
@@ -395,6 +396,7 @@ export class ScenarioEditorComponent implements OnInit {
         console.log("This is the response: " + resp);
         this.testDone = true;
         this.showResults = true;
+        this.testRunning = false;
         })
      }
 
