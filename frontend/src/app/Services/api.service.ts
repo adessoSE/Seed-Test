@@ -62,13 +62,16 @@ export class ApiService {
   }
 
   // demands testing from the server
-  public runTests(storyID, scenario){
-    console.log("scenario: " + scenario);
+  public runTests(storyID, scenarioID){
+    console.log("scenario: " + scenarioID);
     console.log("issueID: " + storyID);
-    if(scenario){
+    if(scenarioID){
+      console.log("run test scenario");
     return this.http
-    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenario, {responseType:'text'});
+    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType:'text'});
     }
+    console.log("run test feature");
+
     return this.http
     .get(this.apiServer + '/runFeature/'+ storyID, {responseType:'text'});
     /*.pipe(tap(resp =>

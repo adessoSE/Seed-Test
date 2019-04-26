@@ -29,9 +29,14 @@
 
 <!--Story-->
   <div class="uk-card uk-card-default ">
-        <div class="uk-card-title storyTitle ">
-          {{selectedStory.title}}
+        <div class="uk-card-title storyTitleBlock ">
+              {{selectedStory.title}}
+          <div class="uk-button-group uk-align-right">
+              <button class="uk-button-small uk-button-primary" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)" >New Scenario</button>
+              <button class="uk-button-small uk-button-primary" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
+          </div>
         </div>
+        <br/>
 
         <!--Description-->
         <div  class="uk-card-title" [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
@@ -180,10 +185,11 @@
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-          <button class="uk-button" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests();">Run Tests</button>
-          <button [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
+          <button class="uk-button" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
+            Run Tests</button>
+          <button [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
             uk-tooltip="Hide Test Results" type="button" (click)="hideResults()"></button>
-            <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon" uk-icon="icon:download"
+          <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
             uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
         </div>
       </div>

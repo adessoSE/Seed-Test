@@ -75,6 +75,18 @@ export class ScenarioEditorComponent implements OnInit {
       });
   }
 
+  addScenarioFromStory(storyID){
+    this.apiService
+      .addScenario(storyID)
+      .subscribe(resp => {
+        console.log('controller: stepDefinitions loaded', storyID);
+        console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
+        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
+        this.selectScenario(resp.story_id,resp);
+      });
+    
+  }
+
   addScenario(storyID) {
     this.apiService
       .addScenario(storyID)
@@ -106,6 +118,10 @@ export class ScenarioEditorComponent implements OnInit {
 
   openBackground(){
     this.showBackground = !this.showBackground;
+  }
+
+  runStory(){
+
   }
 
   addStepToScenario(storyID, step) {
@@ -395,12 +411,12 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
  //Make the API Request to run the tests and display the results as a chart
-  runTests() {
+  runTests(story_id, scenario_id) {
     this.testRunning = true;
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
     this.apiService
-      .runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id)
+      .runTests(story_id, scenario_id)
       .subscribe(resp => {
        this.reportingChart = resp;   
         console.log("This is the response: " + resp);
