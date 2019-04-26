@@ -148,9 +148,7 @@ function deleteBackground(git_id){
     stories
       .chain()
       .find({ "story_id": git_id })
-      .where(function (obj) {
-        obj.background.splice(0, 1);
-      })
+      .update(function(obj){obj.background = {stepDefinitions:{when: []}}});
   } catch (error) {
     console.log("Error:" + error)
     return error;

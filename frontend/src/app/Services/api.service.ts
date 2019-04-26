@@ -53,6 +53,14 @@ export class ApiService {
         ));
   }
 
+  public deleteBackground(storyID){
+    return this.http
+        .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
+        .pipe(tap(resp =>
+          console.log('Delete background for story ' + storyID )
+        ));
+  }
+
   public deleteScenario(storyID, scenario) {
    return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/scenario/delete/' + scenario.scenario_id)

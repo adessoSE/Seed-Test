@@ -5,13 +5,14 @@ import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
 import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
-
+const emptyBackground = {stepDefinitions:{when: []}};
 
 @Component({
   selector: 'app-scenario-editor',
   templateUrl: './scenario-editor.component.html',
   styleUrls: ['./scenario-editor.component.css'],
 })
+
 export class ScenarioEditorComponent implements OnInit {
   stories;
   stepDefinitions;
@@ -20,6 +21,7 @@ export class ScenarioEditorComponent implements OnInit {
   showEditor = false;
   showResults = false;
   editorLocked = true;
+  backgroundLocked = true;
   showDescription = false;
   showBackground = false;
   reportingChart;
@@ -59,15 +61,19 @@ export class ScenarioEditorComponent implements OnInit {
       });
   }
 
-  updateScenario(storyID) {
 
+
+  updateBackground(storyID){
+  
     this.apiService
-      .updateBackground(storyID, this.selectedStory.background)
-      .subscribe(resp =>{
-        console.log('controller: story:', resp);
-      });
+    .updateBackground(storyID, this.selectedStory.background)
+    .subscribe(resp =>{
+      console.log('controller: story:', resp);
+    });
 
+  }
 
+  updateScenario(storyID) {
     this.apiService
       .updateScenario(storyID, this.selectedScenario)
       .subscribe(resp => {
@@ -97,6 +103,19 @@ export class ScenarioEditorComponent implements OnInit {
       });
   }
 
+
+  deleteBackground(){
+    this.apiService
+      .deleteBackground(this.selectedStory.story_id)
+      .subscribe(resp => {
+        console.log('controller: delete background', resp);
+        this.showBackground = false;
+
+        const indexStory: number = this.stories.indexOf(this.selectedStory);
+        this.stories[indexStory].background = emptyBackground;
+      });
+  }
+
   deleteScenario(event) {
     this.apiService
       .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
@@ -120,9 +139,6 @@ export class ScenarioEditorComponent implements OnInit {
     this.showBackground = !this.showBackground;
   }
 
-  runStory(){
-
-  }
 
   addStepToScenario(storyID, step) {
     if(!this.editorLocked){
@@ -163,7 +179,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   addStepToBackground(storyID, step){
     console.log("step type: " + step.stepType);
-    if(!this.editorLocked){
+    if(!this.backgroundLocked){
       var new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, step.stepType) + 1;
       console.log('step to add:', step);
       var new_step = {
@@ -359,12 +375,12 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
+  lockBackground(){
+    this.backgroundLocked = !this.backgroundLocked;
+  }
+
   lockEditor() {
-    if (this.editorLocked === false) {
-      this.editorLocked = true;
-    } else {
-      this.editorLocked = false;
-    }
+    this.editorLocked = !this.editorLocked;
   }
 
   selectScenario(storyID, scenario) {
