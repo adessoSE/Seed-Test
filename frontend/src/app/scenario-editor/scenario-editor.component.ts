@@ -398,6 +398,19 @@ export class ScenarioEditorComponent implements OnInit {
     console.log('selected storyID', this.selectedStory);
   }
 
+  selectStoryScenario(story){
+    this.reportingChart = undefined;
+    this.showResults = false;
+    this.selectedStory = story;
+    this.showEditor = false;
+    this.editorLocked = true;
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    if(this.selectedScenario = this.stories[storyIndex].scenarios[0] !== undefined ){
+      this.selectScenario(this.selectedStory.storyID,this.stories[storyIndex].scenarios[0])
+    }
+    console.log('selected storyID', this.selectedStory);
+  }
+
   checkArrowLeft(){
     var storyIndex = this.stories.indexOf(this.selectedStory);
     var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
@@ -418,6 +431,10 @@ export class ScenarioEditorComponent implements OnInit {
     this.editorLocked = true;
     console.log('selected storyID', this.selectedStory);
   }
+
+
+
+
 
   scenarioShiftLeft(){
     var storyIndex = this.stories.indexOf(this.selectedStory);
@@ -445,6 +462,9 @@ export class ScenarioEditorComponent implements OnInit {
  //Make the API Request to run the tests and display the results as a chart
   runTests(story_id, scenario_id) {
     this.testRunning = true;
+    var iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
+    iframe.src = "http://localhost:8080/testResult";
+    //window.frames["testFrame"].location.reload();
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
     this.apiService
@@ -466,6 +486,16 @@ export class ScenarioEditorComponent implements OnInit {
 
   hideResults() {
     this.showResults = !this.showResults;
+  }
+
+  compareFunction(a: number, b:number){
+    return a-b;
+  }
+
+  sortedStories(){
+    if(this.stories){
+      return this.stories.sort(function(a,b){ return a.issue_number - b.issue_number;});
+    }
   }
 
 }
