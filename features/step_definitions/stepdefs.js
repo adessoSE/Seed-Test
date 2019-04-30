@@ -22,7 +22,14 @@ Given('As a {string}', async function (string) {
   this.role = string
 });
 
-// driver navigates to the Website
+Given('I am at the Website: {string}', async function (url){
+  await driver.get(url)
+  await driver.getCurrentUrl().then(async function (currentUrl) {
+    expect(currentUrl).to.equal(url, 'Error');
+  })
+})
+
+// driver navigates to the Website 
 When('I want to visit this site: {string}', async function (url) {
   await driver.get(url)
   await driver.getCurrentUrl().then(async function (currentUrl) {
@@ -54,6 +61,12 @@ When('I want to select from the {string} selection, the value {string}', async f
  await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 3 * 1000).click();
 });
 
+
+
+When ('I want to select from the dropdownmenue {string}, the option {string}', async function (dropd, value) {
+  await driver.wait(until.elementLocated(By.xpath("//*[@id='" + dropd + "']/option[text()='" + value + "']")), 3 * 1000).click();
+});
+
 //TODO
 When('I want to select from the {string} multiple selection, the values {string}{string}{string}', async function (string, string2, string3, string4) {
   let quatsch = string
@@ -62,11 +75,11 @@ When('I want to select from the {string} multiple selection, the values {string}
 //TODO:change By.tagName to xpath for flexibility
 //Search a Textfield in the html code and asert it with a Text
 Then('So I can see in the {string} textbox, the text {string}', async function (label, string) {
- await driver.wait(until.elementLocated(By.xpath("//*[@*"+ "='" + string + "']")), 3 * 1000).then(async function (link) {
+ await driver.wait(until.elementLocated(By.xpath("//*[@*"+ "='" + label + "']")), 3 * 1000).then(async function (link) {
     var resp = await link.getText().then(function (text) {
         return text;
       });
-      expect(string).to.equal(resp, 'Error')
+      expect(resp).to.contain(string, 'Error')
     })
 });
 
@@ -78,7 +91,7 @@ Then('So I will be navigated to the site: {string}', async function (url) {
 });
 
 //Closes the webdriver (Browser)
-After(async function () {
-  driver.quit();
-});
+// After(async function () {
+//   driver.quit();
+// });
 
