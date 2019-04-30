@@ -72,7 +72,7 @@ app
         // let stories = [];
         for (let issue of data) {
           // only relevant issues with label: "story"
-          let story = { story_id: issue["id"], title: issue["title"], body: issue["body"], state: issue['state'] };
+          let story = { story_id: issue["id"], title: issue["title"], body: issue["body"], state: issue['state'], issue_number: issue["number"]};
           if (issue["assignee"] !== null) { // skip in case of "unassigned"
             story["assignee"] = issue["assignee"]["login"];
             story["assignee_avatar_url"] = issue["assignee"]["avatar_url"];

@@ -22,7 +22,7 @@ Given('As a {string}', async function (string) {
   this.role = string
 });
 
-// driver navigates to the Website 
+// driver navigates to the Website
 When('I want to visit this site: {string}', async function (url) {
   await driver.get(url)
   await driver.getCurrentUrl().then(async function (currentUrl) {
@@ -32,9 +32,9 @@ When('I want to visit this site: {string}', async function (url) {
 
 //clicks a button if found in html code with xpath, timeouts if not found after 6 sek, waits for next page to be loaded
 When('I want to click the Button: {string}', async function (button) {
-    await driver.wait(until.elementLocated(By.xpath("//*[@*" + "='" + button + "']")), 3 * 1000).click();
-  
-  
+    await driver.wait(until.elementLocated(By.xpath("//*[@*" + "='" + button + "']")), 6 * 1000).click();
+
+
   // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
   await driver.wait(async function () {
     return driver.executeScript('return document.readyState').then(async function (readyState) {
@@ -82,4 +82,3 @@ After(async function () {
   driver.quit();
 });
 
- 
