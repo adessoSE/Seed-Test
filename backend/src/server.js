@@ -14,7 +14,7 @@ const helper = require('./serverHelper');
 let stories = [];
 
 // Initialize the app.
-const server = app.listen(process.env.PORT || 8080, function () {
+const server = app.listen(process.env.PORT || 5000, function () {
   let port = server.address().port;
   console.log("App now running on port", port);
 });
