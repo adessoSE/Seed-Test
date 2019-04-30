@@ -1,11 +1,11 @@
 const exec = require('child_process').exec;
 const fs = require('fs');
 const path = require('path');
-var reporter = require('cucumber-html-reporter');
-var respReport;
+const reporter = require('cucumber-html-reporter');
+let respReport;
 
 //this is needed for the html report
-var options = {
+let options = {
   theme: 'bootstrap',
   jsonFile: '../../features/reporting.json',
   output: '../../features/reporting_html.html',
