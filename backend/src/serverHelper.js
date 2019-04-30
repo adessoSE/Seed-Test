@@ -2,7 +2,7 @@ const exec = require('child_process').exec;
 const fs = require('fs');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
-let respReport;
+var respReport;
 
 //this is needed for the html report
 let options = {
