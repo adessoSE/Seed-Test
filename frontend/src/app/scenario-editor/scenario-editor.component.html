@@ -6,7 +6,7 @@
       <li *ngFor="let s of stories; let i = index ">
         <div (click)="selectStory(s)" class="uk-accordion-title uk-background-muted">
           <a maxlength="10">
-            #{{i+1}} {{s.title | slice:0:25 }}
+            #{{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
           </a>
           <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
               height="20px">{{s.assignee}}</span>
@@ -16,7 +16,7 @@
           <a uk-icon="icon: plus-circle" class="uk-text-primary" data-uk-tooltip title="Add new scenario"
             (click)="addScenario(s.story_id)"></a>
       <li *ngFor="let scen of s.scenarios; let c = index">
-        <a href="#" (click)="selectScenario(s.story_id, scen);">#{{i+1}}.{{c+1}} {{scen.name}}</a>
+        <a href="#" (click)="selectScenario(s.story_id, scen);">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
       </li>
   </div>
   </li>
@@ -30,7 +30,7 @@
 <!--Story-->
   <div class="uk-card uk-card-default ">
         <div class="uk-card-title storyTitleBlock ">
-          <span class= "storyTitle">{{ selectedStory.title  | titlecase}}</span>
+          <span class= "storyTitle">{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
           <div class="uk-button-group uk-align-right">
               <button class="uk-button-small uk-button-primary" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)" >New Scenario</button>
               <button class="uk-button-small uk-button-primary" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
@@ -117,9 +117,9 @@
   <div class="uk-card uk-card-default">
       
     <div class="uk-card-title uk-padding">
-        <button uk-icon="icon: arrow-left" data-uk-tooltip
+        <button *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
-      {{selectedScenario.name}}
+      {{selectedScenario.name | titlecase}}
       <button [disabled]="editorLocked == true" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div class="uk-align-right">
@@ -131,7 +131,7 @@
           (click)="updateScenario(selectedStory.story_id);lockEditor();"></a>
         <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked === true;" data-uk-tooltip
           title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>
-          <button  uk-icon="icon: arrow-right" data-uk-tooltip
+          <button *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>

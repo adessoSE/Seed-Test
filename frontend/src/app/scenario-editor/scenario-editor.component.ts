@@ -25,6 +25,8 @@ export class ScenarioEditorComponent implements OnInit {
   backgroundLocked = true;
   showDescription = false;
   showBackground = false;
+  arrowLeft: boolean = true;
+  arrowRight: boolean = true;
   reportingChart;
   testDone: boolean = false;
   testRunning: boolean = false;
@@ -49,6 +51,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.stories = resp;
         console.log('controller: stories loaded', this.stories);
       });
+
   }
 
   loadStepDefinitions() {
@@ -389,8 +392,22 @@ export class ScenarioEditorComponent implements OnInit {
     this.showEditor = true;
     this.editorLocked = true;
     this.testDone = false;
+    this.arrowLeft = this.checkArrowLeft();
+    this.arrowRight = this.checkArrowRight();
     console.log('selected scenario', this.selectedScenario);
     console.log('selected storyID', this.selectedStory);
+  }
+
+  checkArrowLeft(){
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
+    return this.stories[storyIndex].scenarios[scenarioIndex - 1] === undefined;
+  }
+
+  checkArrowRight(){
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
+    return this.stories[storyIndex].scenarios[scenarioIndex + 1] === undefined
   }
 
   selectStory(story) {
