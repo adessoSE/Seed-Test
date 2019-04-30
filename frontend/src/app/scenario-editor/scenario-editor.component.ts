@@ -5,6 +5,7 @@ import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
 import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
+import {DragDropModule, CdkDrag, CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'
 const emptyBackground = {stepDefinitions:{when: []}};
 
 @Component({
@@ -40,8 +41,6 @@ export class ScenarioEditorComponent implements OnInit {
 
   ngOnInit() {
   }
-
-
 
   loadStories() {
     this.apiService

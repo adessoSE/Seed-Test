@@ -52,6 +52,7 @@
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
+    "@angular/cdk": "^7.3.7",
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^8.10.40",

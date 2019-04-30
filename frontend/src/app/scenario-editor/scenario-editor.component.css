@@ -120,6 +120,19 @@
   text-align: center;
 }
 
+.storyTitle{
+  padding-left:5px;
+  padding-top:5px;
+  padding-bottom:5px;
+  padding-right:5px;
+  font-size: large;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+  border-right: 2px solid;
+  border-top: 2px solid;
+  box-shadow: 1px 1px 3px grey;
+}
+
 .testButtons{
   padding-left:10px;
   padding-right:10px;

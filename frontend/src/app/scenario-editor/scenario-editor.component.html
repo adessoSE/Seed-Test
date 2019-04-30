@@ -30,7 +30,7 @@
 <!--Story-->
   <div class="uk-card uk-card-default ">
         <div class="uk-card-title storyTitleBlock ">
-              {{selectedStory.title}}
+          <span class= "storyTitle">{{ selectedStory.title  | titlecase}}</span>
           <div class="uk-button-group uk-align-right">
               <button class="uk-button-small uk-button-primary" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)" >New Scenario</button>
               <button class="uk-button-small uk-button-primary" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
