@@ -181,7 +181,7 @@ function getStoryByID(reqparams, stories) {
 
 function execScenario(req, res, stories, callback) {
   let story = getStoryByID(req.params, stories)
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:../../features/reporting.json';
+  var cmd = '../../node_modules/.bin/cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:../../features/reporting.json';
   console.log(cmd);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
@@ -198,7 +198,7 @@ function execScenario(req, res, stories, callback) {
 function execFeature(req, res, stories, callback) {
   //npm test features/LoginTest.feature
   let story = getStoryByID(req.params, stories)
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
+  var cmd = '../../node_modules/.bin/cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
