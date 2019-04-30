@@ -7,8 +7,8 @@ var respReport;
 //this is needed for the html report
 var options = {
   theme: 'bootstrap',
-  jsonFile: '../../features/reporting.json',
-  output: '../../features/reporting_html.html',
+  jsonFile: 'features/reporting.json',
+  output: 'features/reporting_html.html',
   reportSuiteAsScenarios: true,
   launchReport: true,
   metadata: {
@@ -163,7 +163,7 @@ function updateFeatureFiles(reqparams, stories) {
 
 // Creates feature file
 function writeFile(__dirname, selectedStory) {
-  fs.writeFile(path.join(__dirname, '../../features', selectedStory.title.replace(/ /g, '_') + '.feature'), getFeatureContent(selectedStory), function (err) {
+  fs.writeFile(path.join(__dirname, 'features', selectedStory.title.replace(/ /g, '_') + '.feature'), getFeatureContent(selectedStory), function (err) {
     if (err) throw err;
   });
 }
@@ -181,7 +181,7 @@ function getStoryByID(reqparams, stories) {
 
 function execScenario(req, res, stories, callback) {
   let story = getStoryByID(req.params, stories)
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:../../features/reporting.json';
+  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:features/reporting.json';
   console.log(cmd);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
@@ -198,7 +198,7 @@ function execScenario(req, res, stories, callback) {
 function execFeature(req, res, stories, callback) {
   //npm test features/LoginTest.feature
   let story = getStoryByID(req.params, stories)
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
+  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js features/' + story.title.replace(/ /g, '_') + '.feature --format json:features/reporting.json';
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
@@ -217,7 +217,7 @@ function scenarioReport(req, res, stories) {
     console.log("testing scenario report");
     reporter.generate(options);
     sendTestResult();
-    res.sendFile('/reporting_html.html', {root: "../../features"});
+    res.sendFile('/reporting_html.html', {root: "features"});
   })
 }
 
@@ -226,16 +226,16 @@ function featureReport(req, res, stories) {
     console.log("testing feature report");
     reporter.generate(options);
     sendTestResult();
-    res.sendFile('/reporting_html.html', {root: "../../features"});
+    res.sendFile('/reporting_html.html', {root: "features"});
   })
 }
 
 function sendTestResult() {
-  respReport.sendFile('/reporting_html.html', {root: "../../features"});
+  respReport.sendFile('/reporting_html.html', {root: "features"});
 }
 
 function sendDownloadResult(resp) {
-  resp.sendFile('/reporting_html.html', {root: "../../features"});
+  resp.sendFile('/reporting_html.html', {root: "features"});
 }
 
 //necessary for sendTestResult function
