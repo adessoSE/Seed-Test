@@ -39,7 +39,13 @@ When('I want to visit this site: {string}', async function (url) {
 
 //clicks a button if found in html code with xpath, timeouts if not found after 6 sek, waits for next page to be loaded
 When('I want to click the Button: {string}', async function (button) {
-    await driver.wait(until.elementLocated(By.xpath("//*[@*" + "='" + button + "']")), 6 * 1000).click();
+
+  await driver.findElement(By.xpath("//*[@*" + "='" + button + "']")).then(function (webElement) {
+    console.log("Element exists");
+    driver.findElement(By.xpath("//*[@*" + "='" + button + "']")).click();
+  }, async function (onErr) {
+    await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + button + "')]")), 3 * 1000).click()
+  })
 
 
   // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
@@ -52,13 +58,15 @@ When('I want to click the Button: {string}', async function (button) {
 
 //Search a field in the html code and fill in the value
 When('I want to insert into the {string} field, the value {string}', async function (label, value) {
-    await driver.findElement(By.css("input#" + label)).sendKeys(value);
+  await driver.findElement(By.css("input#" + label)).sendKeys(value);
 });
 
 //TODO Date/ Single checkbox
 
 When('I want to select from the {string} selection, the value {string}', async function (label, cbname) {
- await driver.wait(until.elementLocated(By.xpath("//*[@" + label + "='" + cbname + "']")), 3 * 1000).click();
+  let test = await driver.findElement(By.xpath("//*[@'_ngcontent-c1']"))
+  console.log(test.getText())
+  test.click()
 });
 
 
@@ -85,7 +93,7 @@ Then('So I can see in the {string} textbox, the text {string}', async function (
 
 //Checks if the current Website is the one it is suposed to be
 Then('So I will be navigated to the site: {string}', async function (url) {
- await driver.getCurrentUrl().then(async function (currentUrl) {
+  await driver.getCurrentUrl().then(async function (currentUrl) {
     expect(currentUrl).to.equal(url, 'Error');
   })
 });
