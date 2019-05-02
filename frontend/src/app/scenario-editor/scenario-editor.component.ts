@@ -106,6 +106,146 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 
+  moveStepUpBackground(event, stepType, index){
+    console.log("index: " + index)
+    if(index === 0) return;
+
+    switch (stepType) {
+      case 'given':
+      var move = this.selectedStory.background.stepDefinitions.given[index];
+    
+      var top = this.selectedStory.background.stepDefinitions.given[index - 1];
+      this.selectedStory.background.stepDefinitions.given[index] = top;
+      this.selectedStory.background.stepDefinitions.given[index - 1] = move;
+        break;
+      case 'when':
+      var move = this.selectedStory.background.stepDefinitions.when[index];
+    
+      var top = this.selectedStory.background.stepDefinitions.when[index - 1];
+      this.selectedStory.background.stepDefinitions.when[index] = top;
+      this.selectedStory.background.stepDefinitions.when[index - 1] = move;
+        break;
+      case 'then':
+      var move = this.selectedStory.background.stepDefinitions.then[index];
+    
+      var top = this.selectedStory.background.stepDefinitions.then[index - 1];
+      this.selectedStory.background.stepDefinitions.then[index] = top;
+      this.selectedStory.background.stepDefinitions.then[index - 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+  moveStepDownBackground(event, stepType, index){
+    console.log("index: " + index)
+    
+    switch (stepType) {
+      case 'given':
+      if(index === this.selectedStory.background.stepDefinitions.given.length - 1) return;
+      var move = this.selectedStory.background.stepDefinitions.given[index];
+    
+      var down = this.selectedStory.background.stepDefinitions.given[index + 1];
+      this.selectedStory.background.stepDefinitions.given[index] = down;
+      this.selectedStory.background.stepDefinitions.given[index + 1] = move;
+        break;
+      case 'when':
+      if(index === this.selectedStory.background.stepDefinitions.when.length - 1) return;
+      
+      var move = this.selectedStory.background.stepDefinitions.when[index];
+      var down = this.selectedStory.background.stepDefinitions.when[index + 1];
+      this.selectedStory.background.stepDefinitions.when[index] = down;
+      this.selectedStory.background.stepDefinitions.when[index + 1] = move;
+        break;
+      case 'then':
+      if(index === this.selectedStory.background.stepDefinitions.then.length - 1) return;
+      var move = this.selectedStory.background.stepDefinitions.then[index];
+    
+      var down = this.selectedStory.background.stepDefinitions.then[index + 1];
+      this.selectedStory.background.stepDefinitions.then[index] = down;
+      this.selectedStory.background.stepDefinitions.then[index + 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+
+
+
+
+  moveStepUp(event, stepType, index){
+    console.log("index: " + index)
+    if(index === 0) return;
+
+
+    switch (stepType) {
+      case 'given':
+      var move = this.selectedScenario.stepDefinitions.given[index];
+    
+      var top = this.selectedScenario.stepDefinitions.given[index - 1];
+      this.selectedScenario.stepDefinitions.given[index] = top;
+      this.selectedScenario.stepDefinitions.given[index - 1] = move;
+        break;
+      case 'when':
+      var move = this.selectedScenario.stepDefinitions.when[index];
+    
+      var top = this.selectedScenario.stepDefinitions.when[index - 1];
+      this.selectedScenario.stepDefinitions.when[index] = top;
+      this.selectedScenario.stepDefinitions.when[index - 1] = move;
+        break;
+      case 'then':
+      var move = this.selectedScenario.stepDefinitions.then[index];
+    
+      var top = this.selectedScenario.stepDefinitions.then[index - 1];
+      this.selectedScenario.stepDefinitions.then[index] = top;
+      this.selectedScenario.stepDefinitions.then[index - 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+  moveStepDown(event, stepType, index){
+    console.log("index: " + index)
+    
+    switch (stepType) {
+      case 'given':
+      if(index === this.selectedScenario.stepDefinitions.given.length - 1) return;
+      var move = this.selectedScenario.stepDefinitions.given[index];
+    
+      var down = this.selectedScenario.stepDefinitions.given[index + 1];
+      this.selectedScenario.stepDefinitions.given[index] = down;
+      this.selectedScenario.stepDefinitions.given[index + 1] = move;
+        break;
+      case 'when':
+
+      if(index === this.selectedScenario.stepDefinitions.when.length - 1) return;
+      var move = this.selectedScenario.stepDefinitions.when[index];
+      var down = this.selectedScenario.stepDefinitions.when[index + 1];
+      this.selectedScenario.stepDefinitions.when[index] = down;
+      this.selectedScenario.stepDefinitions.when[index + 1] = move;
+        break;
+      case 'then':
+      if(index === this.selectedScenario.stepDefinitions.then.length - 1) return;
+      var move = this.selectedScenario.stepDefinitions.then[index];
+    
+      var down = this.selectedScenario.stepDefinitions.then[index + 1];
+      this.selectedScenario.stepDefinitions.then[index] = down;
+      this.selectedScenario.stepDefinitions.then[index + 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+
+
+
   deleteBackground(){
     this.apiService
       .deleteBackground(this.selectedStory.story_id)

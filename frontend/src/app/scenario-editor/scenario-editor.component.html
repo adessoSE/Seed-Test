@@ -94,6 +94,12 @@
             <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
               uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
               (click)="removeStepToBackground($event, j);"></button>
+              <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
+              uk-icon="icon: chevron-up"  class="uk-text-primary" uk-tooltip title="Move step up"
+              (click)="moveStepUpBackground($event, currentStep.stepType, j);"></button>
+            <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
+              uk-icon="icon: chevron-down" class="uk-text-primary" uk-tooltip title="Move step down"
+              (click)="moveStepDownBackground($event, currentStep.stepType, j);"></button>
             {{j+1}}. {{currentStep.pre}}
             <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="backgroundLocked" type="text"
               value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
@@ -171,6 +177,12 @@
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
+            <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
+              uk-icon="icon: chevron-up"  class="uk-text-primary" uk-tooltip title="Move step up"
+              (click)="moveStepUp($event, currentStep.stepType, j);"></button>
+            <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
+              uk-icon="icon: chevron-down" class="uk-text-primary" uk-tooltip title="Move step down"
+              (click)="moveStepDown($event, currentStep.stepType, j);"></button>
           {{i+1}}.{{j+1}} {{currentStep.pre}}
           <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
             value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
