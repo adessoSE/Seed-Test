@@ -1,7 +1,7 @@
 <div uk-grid>
 
-  <div class="uk-width-1-5">
-    <div class="uk-text-emphasis uk-text-uppercase uk-text-bold">STORIES</div>
+  <div class="uk-width-1-5 selectStories uk-card uk-card-default">
+    <div class="uk-text-emphasis uk-text-uppercase uk-text-bold ">STORIES</div>
     <ul uk-accordion>
       <li *ngFor="let s of sortedStories(); let i = index ">
         <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted">
@@ -10,11 +10,13 @@
           </a>
           <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
               height="20px">{{s.assignee}}</span>
-          <a uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
+              <a uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
         </div>
+
         <div class="uk-accordion-content">
-          <a uk-icon="icon: plus-circle" class="uk-text-primary" data-uk-tooltip title="Add new scenario"
+          <a uk-icon="icon: plus-circle" class="uk-text-primary" data-uk-tooltip title="Add New Scenario"
             (click)="addScenario(s.story_id)"></a>
+            
       <li *ngFor="let scen of s.scenarios; let c = index">
         <a href="#" (click)="selectScenario(s.story_id, scen);">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
       </li>
@@ -75,7 +77,7 @@
           <div class="uk-float-right backgroundItems">
             <!-- <div class="uk-align-right"> -->
             <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" uk-icon="icon: plus-circle"
-              class="uk-text-primary" title="Add new step" uk-tooltip></button>
+              class="uk-text-primary" title="Add New Step" uk-tooltip></button>
             </div>
             <!-- </div> -->
             <div uk-dropdown>
@@ -167,7 +169,7 @@
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
         <li class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
           <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
-            uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
+            uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
           {{i+1}}.{{j+1}} {{currentStep.pre}}
           <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
