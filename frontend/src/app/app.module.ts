@@ -22,7 +22,7 @@ import { ParentComponent } from './parent/parent.component';
     BrowserModule,
     HttpClientModule
   ],
-  providers: [ApiService, StoriesBarComponent],
+  providers: [ApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

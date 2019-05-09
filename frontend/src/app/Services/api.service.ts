@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import {tap} from 'rxjs/operators';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 import { EventEmitter } from '@angular/core';
+import { Story } from '../model/Story';
+import { StepDefinition } from '../model/StepDefinition';
 // import {Constants} from 'Constants';
 
 @Injectable({
@@ -21,7 +22,7 @@ export class ApiService {
 
   public getStories() {
     return this.http
-      .get<any>(this.apiServer + '/stories')
+      .get<Story[]>(this.apiServer + '/stories')
       .pipe(tap(resp =>{
         this.getStoriesEvent.emit(resp);
         console.log('GET stories', resp);
@@ -31,7 +32,7 @@ export class ApiService {
 
   public getStepDefinitions() {
     return this.http
-      .get<any>(this.apiServer + '/stepDefinitions')
+      .get<StepDefinition>(this.apiServer + '/stepDefinitions')
       .pipe(tap(resp =>
         console.log('GET step definitions', resp)
       ));

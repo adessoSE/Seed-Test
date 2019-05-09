@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
+import { Story } from '../model/Story';
+import { Scenario } from '../model/Scenario';
 
 @Component({
   selector: 'app-parent',
@@ -8,9 +10,9 @@ import { ApiService } from '../Services/api.service';
 })
 export class ParentComponent implements OnInit {
 
-  stories;
-  selectedStory;
-  selectedScenario;
+  stories: Story[];
+  selectedStory: Story;
+  selectedScenario: Scenario;
 
   constructor(private apiService: ApiService) {
     

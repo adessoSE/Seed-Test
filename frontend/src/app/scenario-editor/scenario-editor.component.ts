@@ -6,7 +6,9 @@ import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
 import {DragDropModule, CdkDrag, CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'
-import { StoriesBarComponent} from '../stories-bar/stories-bar.component'
+import { StepDefinition } from '../model/StepDefinition';
+import { Story } from '../model/Story';
+import { Scenario } from '../model/Scenario';
 const emptyBackground = {stepDefinitions:{when: []}};
 
 @Component({
@@ -16,10 +18,10 @@ const emptyBackground = {stepDefinitions:{when: []}};
 })
 
 export class ScenarioEditorComponent implements OnInit {
-  stories;
-  stepDefinitions;
-  selectedStory;
-  selectedScenario;
+  stories: Story[];
+  stepDefinitions: StepDefinition;
+  selectedStory: Story;
+  selectedScenario: Scenario;
   showEditor = false;
   showResults = false;
   editorLocked = true;
@@ -36,7 +38,6 @@ export class ScenarioEditorComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private apiService: ApiService,
-    private storiesBar: StoriesBarComponent
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
@@ -128,26 +129,12 @@ export class ScenarioEditorComponent implements OnInit {
     if(index === 0) return;
 
     switch (stepType) {
-      case 'given':
-      var move = this.selectedStory.background.stepDefinitions.given[index];
-    
-      var top = this.selectedStory.background.stepDefinitions.given[index - 1];
-      this.selectedStory.background.stepDefinitions.given[index] = top;
-      this.selectedStory.background.stepDefinitions.given[index - 1] = move;
-        break;
       case 'when':
       var move = this.selectedStory.background.stepDefinitions.when[index];
     
       var top = this.selectedStory.background.stepDefinitions.when[index - 1];
       this.selectedStory.background.stepDefinitions.when[index] = top;
       this.selectedStory.background.stepDefinitions.when[index - 1] = move;
-        break;
-      case 'then':
-      var move = this.selectedStory.background.stepDefinitions.then[index];
-    
-      var top = this.selectedStory.background.stepDefinitions.then[index - 1];
-      this.selectedStory.background.stepDefinitions.then[index] = top;
-      this.selectedStory.background.stepDefinitions.then[index - 1] = move;
         break;
       default:
         break;
@@ -159,14 +146,6 @@ export class ScenarioEditorComponent implements OnInit {
     console.log("index: " + index)
     
     switch (stepType) {
-      case 'given':
-      if(index === this.selectedStory.background.stepDefinitions.given.length - 1) return;
-      var move = this.selectedStory.background.stepDefinitions.given[index];
-    
-      var down = this.selectedStory.background.stepDefinitions.given[index + 1];
-      this.selectedStory.background.stepDefinitions.given[index] = down;
-      this.selectedStory.background.stepDefinitions.given[index + 1] = move;
-        break;
       case 'when':
       if(index === this.selectedStory.background.stepDefinitions.when.length - 1) return;
       
@@ -174,14 +153,6 @@ export class ScenarioEditorComponent implements OnInit {
       var down = this.selectedStory.background.stepDefinitions.when[index + 1];
       this.selectedStory.background.stepDefinitions.when[index] = down;
       this.selectedStory.background.stepDefinitions.when[index + 1] = move;
-        break;
-      case 'then':
-      if(index === this.selectedStory.background.stepDefinitions.then.length - 1) return;
-      var move = this.selectedStory.background.stepDefinitions.then[index];
-    
-      var down = this.selectedStory.background.stepDefinitions.then[index + 1];
-      this.selectedStory.background.stepDefinitions.then[index] = down;
-      this.selectedStory.background.stepDefinitions.then[index + 1] = move;
         break;
       default:
         break;
@@ -565,8 +536,8 @@ export class ScenarioEditorComponent implements OnInit {
     this.showEditor = true;
     this.editorLocked = true;
     var storyIndex = this.stories.indexOf(this.selectedStory);
-    if(this.selectedScenario = this.stories[storyIndex].scenarios[0] !== undefined ){
-      this.selectScenario(this.selectedStory.storyID,this.stories[storyIndex].scenarios[0])
+    if(this.stories[storyIndex].scenarios[0] !== undefined ){
+      this.selectScenario(this.selectedStory.story_id,this.stories[storyIndex].scenarios[0])
     }
     console.log('selected storyID', this.selectedStory);
   }

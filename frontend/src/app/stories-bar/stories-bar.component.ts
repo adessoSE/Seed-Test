@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import {ApiService} from '../Services/api.service'
+import { Story } from '../model/Story';
+import { Scenario } from '../model/Scenario';
 
 @Component({
   selector: 'app-stories-bar',
@@ -8,9 +10,9 @@ import {ApiService} from '../Services/api.service'
 })
 export class StoriesBarComponent implements OnInit {
 
-  stories;
-  selectedStory;
-  selectedScenario;
+  stories: Story[];
+  selectedStory: Story;
+  selectedScenario: Scenario;
 
   @Output()
   storyChosen: EventEmitter<any> = new EventEmitter();
@@ -58,8 +60,8 @@ export class StoriesBarComponent implements OnInit {
     this.selectedStory = story;
     this.storyChosen.emit(story);
     var storyIndex = this.stories.indexOf(this.selectedStory);
-    if(this.selectedScenario = this.stories[storyIndex].scenarios[0] !== undefined ){
-      this.selectScenario(this.selectedStory.storyID,this.stories[storyIndex].scenarios[0])
+    if(this.stories[storyIndex].scenarios[0] !== undefined ){
+      this.selectScenario(this.selectedStory.story_id,this.stories[storyIndex].scenarios[0])
     }
     console.log('selected storyID', this.selectedStory);
   }
