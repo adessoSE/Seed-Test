@@ -1,39 +1,13 @@
-<div uk-grid>
 
-  <div class="uk-width-1-5 selectStories uk-card uk-card-default">
-    <div class="uk-text-emphasis uk-text-uppercase uk-text-bold ">STORIES</div>
-    <ul uk-accordion>
-      <li *ngFor="let s of sortedStories(); let i = index ">
-        <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted">
-          <a maxlength="10">
-            #{{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
-          </a>
-          <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
-              height="20px">{{s.assignee}}</span>
-              <a uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
-        </div>
+<div  *ngIf="stories">
 
-        <div class="uk-accordion-content">
-          <a uk-icon="icon: plus-circle" class="uk-text-primary" data-uk-tooltip title="Add New Scenario"
-            (click)="addScenario(s.story_id)"></a>
-            
-      <li *ngFor="let scen of s.scenarios; let c = index">
-        <a href="#" (click)="selectScenario(s.story_id, scen);">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
-      </li>
-  </div>
-  </li>
-  </ul>
-</div>
-
-
-
-<div *ngIf="(showEditor === true)" class="uk-width-3-4">
+<div class="padRight" *ngIf="(showEditor === true)" >
 
 <!--Story-->
-  <div class="uk-card uk-card-default ">
-        <div class="uk-card-title storyTitleBlock ">
+<div class=" uk-card uk-card-default ">
+        <div class="uk-card-title storyTitleBlock padRight">
           <span class= "storyTitle">{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
-          <div class="uk-button-group uk-align-right">
+          <div class="uk-button-group uk-align-right ">
               <button class="uk-button-small uk-button-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)" >New Scenario</button>
               <button class="uk-button-small uk-button-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
           </div>
@@ -41,7 +15,7 @@
         <br/>
 
         <!--Description-->
-        <div  class="uk-card-title" [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
+        <div  class="uk-card-title " [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
             <button uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
             <button uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
         </div>
@@ -251,7 +225,7 @@
     </div>
   </div>
 
-
+</div>
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
       <h2>Change Scenario Title</h2>

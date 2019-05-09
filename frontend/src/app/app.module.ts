@@ -6,19 +6,23 @@ import { ScenarioEditorComponent} from './scenario-editor/scenario-editor.compon
 import {HttpClientModule} from "@angular/common/http";
 import { SafePipe } from './safe.pipe';
 import { ApiService } from './Services/api.service';
+import { StoriesBarComponent } from './stories-bar/stories-bar.component';
+import { ParentComponent } from './parent/parent.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     ScenarioEditorComponent,
-    SafePipe
+    SafePipe,
+    StoriesBarComponent,
+    ParentComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule
   ],
-  providers: [ApiService],
+  providers: [ApiService, StoriesBarComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

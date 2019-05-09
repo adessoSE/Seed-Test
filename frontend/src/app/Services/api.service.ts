@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {tap} from 'rxjs/operators';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
+import { EventEmitter } from '@angular/core';
 // import {Constants} from 'Constants';
 
 @Injectable({
@@ -11,13 +12,20 @@ import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.comp
 export class ApiService {
   private apiServer: string = 'http://localhost:8080/api';
 
+  public getStoriesEvent = new EventEmitter();
+
+
+
   constructor(private http: HttpClient) { }
+
 
   public getStories() {
     return this.http
       .get<any>(this.apiServer + '/stories')
-      .pipe(tap(resp =>
-        console.log('GET stories', resp)
+      .pipe(tap(resp =>{
+        this.getStoriesEvent.emit(resp);
+        console.log('GET stories', resp);
+      }
       ));
   }
 

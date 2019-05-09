@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
 import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
@@ -6,6 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
 import {DragDropModule, CdkDrag, CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'
+import { StoriesBarComponent} from '../stories-bar/stories-bar.component'
 const emptyBackground = {stepDefinitions:{when: []}};
 
 @Component({
@@ -35,8 +36,13 @@ export class ScenarioEditorComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private apiService: ApiService,
+    private storiesBar: StoriesBarComponent
   ) {
-    this.loadStories();
+    this.apiService.getStoriesEvent.subscribe(stories => {
+      this.setStories(stories);
+      console.log("stories for scenario set");
+    });
+
     this.loadStepDefinitions();
   }
 
@@ -44,14 +50,25 @@ export class ScenarioEditorComponent implements OnInit {
   ngOnInit() {
   }
 
-  loadStories() {
-    this.apiService
-      .getStories()
-      .subscribe(resp => {
-        this.stories = resp;
-        console.log('controller: stories loaded', this.stories);
-      });
+  setStories(stories){
+    this.stories = stories;
+  }
 
+  @Input()
+  set newSelectedStory(story){
+    this.selectedStory = story;    
+  }
+
+  @Input()
+  set newSelectedScenario(scenario){
+    this.selectedScenario = scenario;
+    if(this.stories && this.selectedStory){
+      console.log("story: " + this.selectedStory.name);
+      var storyIndex = this.stories.indexOf(this.selectedStory);
+      console.log("storyIndex: " + storyIndex);
+      this.selectScenario(null,scenario);
+    }
+    
   }
 
   loadStepDefinitions() {
@@ -538,11 +555,14 @@ export class ScenarioEditorComponent implements OnInit {
     console.log('selected storyID', this.selectedStory);
   }
 
+
+
   selectStoryScenario(story){
+    console.log("selectStoryScenario")
     this.reportingChart = undefined;
     this.showResults = false;
     this.selectedStory = story;
-    this.showEditor = false;
+    this.showEditor = true;
     this.editorLocked = true;
     var storyIndex = this.stories.indexOf(this.selectedStory);
     if(this.selectedScenario = this.stories[storyIndex].scenarios[0] !== undefined ){
@@ -562,19 +582,6 @@ export class ScenarioEditorComponent implements OnInit {
     var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
     return this.stories[storyIndex].scenarios[scenarioIndex + 1] === undefined
   }
-
-  selectStory(story) {
-    this.reportingChart = undefined;
-    this.showResults = false;
-    this.selectedStory = story;
-    this.showEditor = false;
-    this.editorLocked = true;
-    console.log('selected storyID', this.selectedStory);
-  }
-
-
-
-
 
   scenarioShiftLeft(){
     var storyIndex = this.stories.indexOf(this.selectedStory);
@@ -604,9 +611,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.testRunning = true;
     var iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
     iframe.src = "http://localhost:8080/testResult";
-    //window.frames["testFrame"].location.reload();
-    //This is unused until cucumber actually replies with real data
-    //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
+    
     this.apiService
       .runTests(story_id, scenario_id)
       .subscribe(resp => {
@@ -632,11 +637,7 @@ export class ScenarioEditorComponent implements OnInit {
     return a-b;
   }
 
-  sortedStories(){
-    if(this.stories){
-      return this.stories.sort(function(a,b){ return a.issue_number - b.issue_number;});
-    }
-  }
+
 
 }
 
