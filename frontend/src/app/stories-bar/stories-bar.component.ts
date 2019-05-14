@@ -36,7 +36,7 @@ export class StoriesBarComponent implements OnInit {
     }
   }
 
-  selectScenario(storyID, scenario) {
+  selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     console.log("storyChosen emit");
     this.scenarioChosen.emit(scenario);
@@ -56,7 +56,7 @@ export class StoriesBarComponent implements OnInit {
   }
 
 
-  selectStoryScenario(story){
+  selectStoryScenario(story: Story){
     this.selectedStory = story;
     this.storyChosen.emit(story);
     var storyIndex = this.stories.indexOf(this.selectedStory);

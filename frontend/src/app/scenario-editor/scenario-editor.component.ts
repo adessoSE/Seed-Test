@@ -9,6 +9,7 @@ import {DragDropModule, CdkDrag, CdkDragDrop, moveItemInArray} from '@angular/cd
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
+import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 const emptyBackground = {stepDefinitions:{when: []}};
 
 @Component({
@@ -51,17 +52,17 @@ export class ScenarioEditorComponent implements OnInit {
   ngOnInit() {
   }
 
-  setStories(stories){
+  setStories(stories: Story[]){
     this.stories = stories;
   }
 
   @Input()
-  set newSelectedStory(story){
+  set newSelectedStory(story: Story){
     this.selectedStory = story;    
   }
 
   @Input()
-  set newSelectedScenario(scenario){
+  set newSelectedScenario(scenario: Scenario){
     this.selectedScenario = scenario;
     if(this.stories && this.selectedStory){
       console.log("story: " + this.selectedStory.name);
@@ -416,7 +417,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  backgroundList(stepDefinitions){
+  backgroundList(stepDefinitions: StepDefinitionBackground){
     return stepDefinitions.when;
   }
 
@@ -513,7 +514,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.editorLocked = !this.editorLocked;
   }
 
-  selectScenario(storyID, scenario) {
+  selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
     this.reportingChart = undefined;
@@ -528,7 +529,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
 
-  selectStoryScenario(story){
+  selectStoryScenario(story: Story){
     console.log("selectStoryScenario")
     this.reportingChart = undefined;
     this.showResults = false;
