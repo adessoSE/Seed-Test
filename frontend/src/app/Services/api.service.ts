@@ -14,15 +14,21 @@ export class ApiService {
   private apiServer: string = 'http://localhost:8080/api';
 
   public getStoriesEvent = new EventEmitter();
-
-
+  private token = 123;
 
   constructor(private http: HttpClient) { }
 
+  public getRepositories(){
+    return this.http.get<any>(this.apiServer + '/repositories/' + this.token)
+    .pipe(tap(resp =>{
+      console.log("GET Repositories: " + resp);
+    }))
+  }
 
-  public getStories() {
+
+  public getStories(repository?) {
     return this.http
-      .get<Story[]>(this.apiServer + '/stories')
+      .get<Story[]>(this.apiServer + '/stories/' + repository)
       .pipe(tap(resp =>{
         this.getStoriesEvent.emit(resp);
         console.log('GET stories', resp);
