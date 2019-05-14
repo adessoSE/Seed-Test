@@ -77,6 +77,24 @@ stepDefinitions.insert([
     id: '',
     stepType: 'when',
     label: '',
+    type: 'Dropdown',
+    pre: 'I want to select from the dropdownmenue',
+    mid: 'the option',
+    values: []
+  },
+  {
+    id: '',
+    stepType: 'when',
+    label: '',
+    type: 'HoverOverAndSelect',
+    pre: 'I want to hover over the Element',
+    mid: 'and Select the Option',
+    values: []
+  },
+  {
+    id: '',
+    stepType: 'when',
+    label: '',
     type: 'Checkbox',
     pre: 'I want to select from the',
     mid: 'multiple selection, the values',

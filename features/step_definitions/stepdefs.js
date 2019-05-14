@@ -1,10 +1,11 @@
 const assert = require('assert');
 const { Given, When, Then } = require('cucumber');
 const webdriver = require('selenium-webdriver')
-const { By, until } = require('selenium-webdriver');
+const { By, until, } = require('selenium-webdriver');
 const { expect } = require('chai');
 var { AfterAll, BeforeAll, Before, After } = require('cucumber')
 require('geckodriver');
+
 
 //Cucumber defaulttimer for timeout
 var { setDefaultTimeout } = require('cucumber');
@@ -61,18 +62,29 @@ When('I want to insert into the {string} field, the value {string}', async funct
   await driver.findElement(By.css("input#" + label)).sendKeys(value);
 });
 
-//TODO Date/ Single checkbox
+//TODO Date
 
+// Single checkbox
 When('I want to select from the {string} selection, the value {string}', async function (label, cbname) {
-  let test = await driver.findElement(By.xpath("//*[@'_ngcontent-c1']"))
-  console.log(test.getText())
-  test.click()
+  let radio = await driver.findElement(By.xpath("//*[@'" + cbname + "']"))
+  radio.click()
 });
 
 
-
+//Select an Option from an Dropdownmenue
 When ('I want to select from the dropdownmenue {string}, the option {string}', async function (dropd, value) {
   await driver.wait(until.elementLocated(By.xpath("//*[@id='" + dropd + "']/option[text()='" + value + "']")), 3 * 1000).click();
+});
+
+//Hover over element and Select an Option
+When ('I want to hover over the Element {string}, and Select the Option {string}', async function(element, option) {
+  const action = driver.actions({bridge: true});
+  const link = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + element + "')]")), 3 * 1000)
+  await action.move({x: 0, y: 0, origin: link}).perform();
+ 
+  const action2 = driver.actions({bridge: true});
+  const selection = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + option + "')]")), 3 * 1000)
+  await action2.move({x: 0, y: 0, origin: selection}).click().perform();
 });
 
 //TODO
@@ -80,7 +92,6 @@ When('I want to select from the {string} multiple selection, the values {string}
   let quatsch = string
 });
 
-//TODO:change By.tagName to xpath for flexibility
 //Search a Textfield in the html code and asert it with a Text
 Then('So I can see in the {string} textbox, the text {string}', async function (label, string) {
  await driver.wait(until.elementLocated(By.xpath("//*[@*"+ "='" + label + "']")), 3 * 1000).then(async function (link) {
