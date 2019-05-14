@@ -20,7 +20,7 @@ export class AppComponent {
   title = 'cucumber-frontend';
 
   getRepositories(){
-    this.apiService.getRepositories().subscribe(resp =>{
+    this.apiService.getRepositories('123').subscribe(resp =>{
       console.log("Response: " + JSON.stringify(resp));
     
       this.repositories = resp; 

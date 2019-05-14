@@ -18,8 +18,8 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  public getRepositories(){
-    return this.http.get<any>(this.apiServer + '/repositories/' + this.token)
+  public getRepositories(token?){
+    return this.http.get<any>(this.apiServer + '/repositories/' + token)
     .pipe(tap(resp =>{
       console.log("GET Repositories: " + resp);
     }))

@@ -8,6 +8,7 @@ import { SafePipe } from './safe.pipe';
 import { ApiService } from './Services/api.service';
 import { StoriesBarComponent } from './stories-bar/stories-bar.component';
 import { ParentComponent } from './parent/parent.component';
+import { LoginComponent } from './login/login.component';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { ParentComponent } from './parent/parent.component';
     ScenarioEditorComponent,
     SafePipe,
     StoriesBarComponent,
-    ParentComponent
+    ParentComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
