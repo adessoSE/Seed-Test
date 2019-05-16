@@ -1,20 +1,59 @@
-<div class="uk-card uk-card-default uk-padding">
+<!--<div class="uk-card uk-card-default uk-padding">
     <br>
   <div class= "uk-position-center">
     <h4>Login via Github Token</h4>
     <input #token type='text'>
-    <button class="uk-button-primary" (click)="login(token.value);">Login</button>
+    <button class="uk-button-primary uk " (click)="login(token.value);">Login</button>
   </div>
   <br>
 </div>
 <br>
 <div class="uk-card uk-card-default uk-padding" *ngIf="repositories">
+  <br>
+  <br>
     <div class= "uk-position-center">
+      <h5>Select Your Repository</h5>
       <ul class="uk-list">
         <li *ngFor="let repository of repositories;" >
-            <a  (click)="addStepToBackground(selectedStory.story_id,step);"
+            <a  (click)="selectRepository(repository);"
              href="#">{{repository}}</a>
         </li>
       </ul>
+    </div>
+  </div>-->
+
+  <div class="uk-card uk-card-default uk-padding">
+    <div >
+      <div>
+        <div>
+          <div class="uk-heading-small">Login</div>
+          <div class="uk-card-body">
+            <form #loginForm="ngForm" novalidate (ngSubmit)="login(loginForm)">
+              <label for="githubName" class="uk-form-label">Github Name</label>
+              <br>
+              <input id="githubName" type="text" name="githubName" #githubName ngModel class="uk-form-controls" required>
+              <br>
+              <label for="token" class="uk-form-label">Token</label>
+              <br>
+              <input id="token" type="text" name="token" #token ngModel class="uk-form-controls" required>
+              <br>
+              <button type="submit" class="uk-button-primary" >Login</button>
+            </form>
+          </div>
+          <div class="uk-card uk-card-default uk-padding" *ngIf="repositories">
+              <br>
+              <br>
+                <div >
+                  <h5>Select Your Repository</h5>
+                  <ul class="uk-list">
+                    <li *ngFor="let repository of repositories;" >
+                        <a  (click)="selectRepository(repository);"
+                         href="#">{{repository}}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+        </div>
+      </div>
     </div>
   </div>

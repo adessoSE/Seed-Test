@@ -15,10 +15,16 @@ export class ApiService {
 
   public getStoriesEvent = new EventEmitter();
   private token = 123;
+  private headers: Headers;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { 
+    this.headers = new Headers({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+  }
 
   public getRepositories(token?){
+    //let options = new RequestOptions({headers: this.headers});
     return this.http.get<any>(this.apiServer + '/repositories/' + token)
     .pipe(tap(resp =>{
       console.log("GET Repositories: " + resp);
@@ -27,6 +33,8 @@ export class ApiService {
 
 
   public getStories(repository?) {
+    //let options = new RequestOptions({headers: this.headers});
+
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository)
       .pipe(tap(resp =>{
@@ -90,13 +98,16 @@ export class ApiService {
     console.log("issueID: " + storyID);
     if(scenarioID){
       console.log("run test scenario");
+    
+   // let options = new RequestOptions({responseType: ResponseContentType.Text});
+
     return this.http
-    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType:'text'});
+    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType: 'text'});
     }
     console.log("run test feature");
 
     return this.http
-    .get(this.apiServer + '/runFeature/'+ storyID, {responseType:'text'});
+    .get(this.apiServer + '/runFeature/'+ storyID, {responseType: 'text'});
     /*.pipe(tap(resp =>
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));*/
@@ -104,7 +115,14 @@ export class ApiService {
 
 
   public downloadTestResult(){
-    return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob', headers: new HttpHeaders().append('Content-Type', 'application/json')});
+    //let header = new Headers();
+    //header.append('Content-Type', 'application/json');
+
+    return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob' , headers: new HttpHeaders().append('Content-Type', 'application/json')});
+  }
+
+  getToken(): string {
+    return localStorage.getItem('token');
   }
 }
 

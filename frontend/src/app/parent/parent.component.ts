@@ -23,9 +23,10 @@ export class ParentComponent implements OnInit {
   }
 
   loadStories() {
+    let repository = localStorage.getItem('repository');
     this.apiService
-      .getStories()
-      .subscribe(resp => {
+      .getStories(repository)
+      .subscribe((resp: any) => {
         this.stories = resp;
         console.log('controller: stories loaded', this.stories);
       });

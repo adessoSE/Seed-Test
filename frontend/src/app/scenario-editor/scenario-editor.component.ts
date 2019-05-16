@@ -76,7 +76,7 @@ export class ScenarioEditorComponent implements OnInit {
   loadStepDefinitions() {
     this.apiService
       .getStepDefinitions()
-      .subscribe(resp => {
+      .subscribe((resp: any)  => {
         this.stepDefinitions = resp;
         console.log('controller: stepDefinitions loaded', this.stepDefinitions);
       });
@@ -105,7 +105,7 @@ export class ScenarioEditorComponent implements OnInit {
   addScenarioFromStory(storyID){
     this.apiService
       .addScenario(storyID)
-      .subscribe(resp => {
+      .subscribe((resp: any) => {
         console.log('controller: stepDefinitions loaded', storyID);
         console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
@@ -117,7 +117,7 @@ export class ScenarioEditorComponent implements OnInit {
   addScenario(storyID) {
     this.apiService
       .addScenario(storyID)
-      .subscribe(resp => {
+      .subscribe((resp: any)  => {
         console.log('controller: stepDefinitions loaded', storyID);
         console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);

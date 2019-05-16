@@ -60,18 +60,20 @@ app
     res.status(200).json(db.showStepdefinitions());
   })
 
-  .get("/api/stories/:repository?", function (req, res) {
-    if(req.params.repository){
-      repository = req.params.repository
+  .get("/api/stories/:githubName/:repository?", function (req, res) {
+    if(req.params.repository && req.params.githubName ){
+      repository = req.params.repository;
+      githubName = req.params.githubName;
     }else{
       repository = 'Cucumber'
+      githubName = 'fr4gstar'
     }
 
     stories = [];
     // get Issues from GitHub
     let request = new XMLHttpRequest();
-    request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token=' + access_token);
-    //request.open('GET', 'https://api.github.com/repos/adessoCucumber/'+ repository + '/issues?labels=story&access_token=' + access_token_new);
+    //request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token=' + access_token);
+    request.open('GET', 'https://api.github.com/repos/' + githubName + '/'+ repository + '/issues?labels=story&access_token=' + access_token);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {

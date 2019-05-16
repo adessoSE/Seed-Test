@@ -48,7 +48,7 @@ export class StoriesBarComponent implements OnInit {
   addScenario(storyID) {
     this.apiService
       .addScenario(storyID)
-      .subscribe(resp => {
+      .subscribe((resp: any)  => {
         console.log('controller: stepDefinitions loaded', storyID);
         console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
