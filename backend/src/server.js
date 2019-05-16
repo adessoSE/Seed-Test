@@ -106,13 +106,17 @@ app
       }
     };
   })
-  .get("/api/repositories/:token", function (req, res) {
+  .get("/api/repositories/:token?", function (req, res) {
+    let bearer = req.headers.authorization
+    let splited = bearer.split(" ")
+    token = splited[1]
+    console.log(splited[1]);
     let usertoken = req.params.token;
     let request = new XMLHttpRequest();
     if(usertoken != 123){
-      request.open('GET', 'https://api.github.com/user/repos',true, 'account_name' , usertoken);
+      request.open('GET', 'https://api.github.com/user/repos',true, 'account_name' , token);
     }else{
-      request.open('GET', 'https://api.github.com/user/repos',true, 'account_name' , access_token_new);
+      request.open('GET', 'https://api.github.com/user/repos',true, 'account_name' , token);
     }
     console.log("token: " + usertoken)
     stories = [];

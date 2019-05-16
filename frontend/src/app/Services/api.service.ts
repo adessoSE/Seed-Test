@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {tap} from 'rxjs/operators';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
@@ -15,20 +15,27 @@ export class ApiService {
 
   public getStoriesEvent = new EventEmitter();
   private token = 123;
-  private headers: Headers;
+  private headers: HttpHeaders;
 
   constructor(private http: HttpClient) { 
-    this.headers = new Headers({
+    this.headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`
     });
   }
 
   public getRepositories(token?){
-    //let options = new RequestOptions({headers: this.headers});
-    return this.http.get<any>(this.apiServer + '/repositories/' + token)
+    this.setHeader();
+    let options = {headers: this.headers}
+    return this.http.get<any>(this.apiServer + '/repositories/', options)
     .pipe(tap(resp =>{
       console.log("GET Repositories: " + resp);
     }))
+  }
+
+  setHeader(){
+    this.headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
   }
 
 
