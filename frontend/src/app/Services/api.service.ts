@@ -7,7 +7,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 })
 
 export class ApiService {
-  private apiServer: string = 'https://cucumberapp.herokuapp.com/api';
+  private apiServer: string = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) { }
 
