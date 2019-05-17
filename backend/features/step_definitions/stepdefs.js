@@ -11,7 +11,7 @@ setDefaultTimeout(20 * 1000);
 
 //Starts the driver/Webbrowser
 Before(async function () {
-  driver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.firefox()).build(); #TODO
+  let driver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.firefox()).build();
 });
 
 
