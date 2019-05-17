@@ -1,17 +1,17 @@
 [
   {
     "keyword": "Feature",
-    "name": "Test",
+    "name": "LoginTest",
     "line": 1,
-    "id": "test",
+    "id": "logintest",
     "tags": [],
-    "uri": "features\\Test.feature",
+    "uri": "features\\LoginTest.feature",
     "elements": [
       {
-        "id": "test;popup-&-dropdown",
+        "id": "logintest;successful-login",
         "keyword": "Scenario",
         "line": 3,
-        "name": "PopUp & DropDown",
+        "name": "successful Login",
         "tags": [],
         "type": "scenario",
         "steps": [
@@ -23,7 +23,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 13000000
+              "duration": 14000000
             }
           },
           {
@@ -42,52 +42,66 @@
             "arguments": [],
             "keyword": "When ",
             "line": 7,
-            "name": "I want to visit this site: \"https://www.lotto-bayern.de/lotto6aus49/normalschein?etcc_cmp=%28Search%29%20Allgemein%20-%20Lotto%20bayern&etcc_grp=Schein&etcc_med=SEA&etcc_par=Google&etcc_bky=lotto%20bayern%20schein&etcc_mty=b&etcc_plc=&etcc_ctv=188826613672&etcc_bde=c&etcc_var=Cj0KCQjw-tXlBRDWARIsAGYQAmeL1PGrKBd_kFxQODvTQ-AGzEePT4d9zIE8mLIYLlucJN8DOdrZYNQaAo8LEALw_wcB&gclid=Cj0KCQjw-tXlBRDWARIsAGYQAmeL1PGrKBd_kFxQODvTQ-AGzEePT4d9zIE8mLIYLlucJN8DOdrZYNQaAo8LEALw_wcB\"",
+            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
             "match": {
               "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
               "status": "passed",
-              "duration": 4427000000
+              "duration": 3637000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 8,
-            "name": "I want to click the Button: \"horoscope-btn\"",
+            "name": "I want to insert into the \"login_field\" field, the value \"\"",
             "match": {
               "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
               "status": "passed",
-              "duration": 249000000
+              "duration": 17000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 9,
-            "name": "I want to click the Button: \"fieldcount\"",
+            "name": "I want to insert into the \"password\" field, the value \"\"",
             "match": {
               "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "failed",
-              "duration": 19000000,
-              "error_message": "ElementNotInteractableError: Element <label class=\"sr-only\"> could not be scrolled into view\n    at Object.throwDecodedError (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\error.js:550:15)\n    at parseHttpResponse (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\http.js:542:13)\n    at Executor.execute (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\http.js:468:26)\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+              "status": "passed",
+              "duration": 34000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I want to click the Button: \"commit\"",
+            "match": {
+              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 395000000
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 16,
-            "name": "So I can see in the \"layer-horoskoptipp\" textbox, the text \"Horoskop-Tipp\"",
+            "line": 12,
+            "name": "So I can see in the \"container\" textbox, the text \"Incorrect username or password.\"",
             "match": {
               "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "skipped"
+              "status": "failed",
+              "duration": 3001000000,
+              "error_message": "TimeoutError: Waiting for element to be located By(xpath, //*[@*='Incorrect username or password.'])\nWait timed out after 3000ms\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\webdriver.js:834:17\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
             }
           },
           {

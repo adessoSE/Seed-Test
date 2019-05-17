@@ -4,6 +4,7 @@ const webdriver = require('selenium-webdriver')
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
+var firefox = require('selenium-webdriver/firefox');
 
 //Cucumber defaulttimer for timeout
 setDefaultTimeout(20 * 1000);
@@ -11,7 +12,10 @@ setDefaultTimeout(20 * 1000);
 
 //Starts the driver/Webbrowser
 Before(async function () {
-  driver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.firefox()).build(); #TODO
+    var options = new firefox.Options();
+    options.addArguments("-headless");
+
+    driver = new webdriver.Builder().forBrowser('firefox').setFirefoxOptions(options).build();
 });
 
 
