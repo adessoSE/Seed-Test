@@ -238,6 +238,7 @@ function sendDownloadResult(resp) {
   resp.sendFile('/reporting_html.html', {root: "features"});
 }
 
+
 //necessary for sendTestResult function
 function setRespReport(resp) {
   respReport = resp;
