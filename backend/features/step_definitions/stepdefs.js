@@ -4,14 +4,19 @@ const webdriver = require('selenium-webdriver')
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
+const firefox = require('selenium-webdriver/firefox');
+
 
 //Cucumber defaulttimer for timeout
 setDefaultTimeout(20 * 1000);
 
+var binary = new firefox.Binary(firefox.Channel.NIGHTLY);
+binary.addArguments("-headless");
 
 //Starts the driver/Webbrowser
 Before(async function () {
-  let driver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.firefox()).build();
+  let driver = new webdriver.Builder().forBrowser('firefox')
+    .setFirefoxOptions(new firefox.Options().setBinary(binary)).build();
 });
 
 
