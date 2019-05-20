@@ -1,90 +1,104 @@
 [
   {
     "keyword": "Feature",
-    "name": "Test",
+    "name": "Login scenario",
     "line": 1,
-    "id": "test",
+    "id": "login-scenario",
     "tags": [],
-    "uri": "features\\Test.feature",
+    "uri": "features\\Login_scenario.feature",
     "elements": [
       {
-        "id": "test;popup-&-dropdown",
+        "id": "login-scenario;successful-login",
         "keyword": "Scenario",
-        "line": 3,
-        "name": "PopUp & DropDown",
-        "tags": [],
+        "line": 20,
+        "name": "Successful Login",
+        "tags": [
+          {
+            "name": "@386694507_1",
+            "line": 6
+          }
+        ],
         "type": "scenario",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed",
-              "duration": 13000000
+              "status": "failed",
+              "duration": 19000000,
+              "error_message": "TypeError: Cannot read property 'installConsoleHandler' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:19:31)"
             }
           },
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 5,
+            "line": 9,
             "name": "As a \"Guest\"",
             "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "skipped"
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 7,
-            "name": "I want to visit this site: \"https://www.lotto-bayern.de/lotto6aus49/normalschein?etcc_cmp=%28Search%29%20Allgemein%20-%20Lotto%20bayern&etcc_grp=Schein&etcc_med=SEA&etcc_par=Google&etcc_bky=lotto%20bayern%20schein&etcc_mty=b&etcc_plc=&etcc_ctv=188826613672&etcc_bde=c&etcc_var=Cj0KCQjw-tXlBRDWARIsAGYQAmeL1PGrKBd_kFxQODvTQ-AGzEePT4d9zIE8mLIYLlucJN8DOdrZYNQaAo8LEALw_wcB&gclid=Cj0KCQjw-tXlBRDWARIsAGYQAmeL1PGrKBd_kFxQODvTQ-AGzEePT4d9zIE8mLIYLlucJN8DOdrZYNQaAo8LEALw_wcB\"",
+            "line": 11,
+            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
             "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed",
-              "duration": 4427000000
+              "status": "skipped"
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 8,
-            "name": "I want to click the Button: \"horoscope-btn\"",
+            "line": 12,
+            "name": "I want to insert into the \"login_field\" field, the value \"AdorableHamster\"",
             "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed",
-              "duration": 249000000
+              "status": "skipped"
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 9,
-            "name": "I want to click the Button: \"fieldcount\"",
+            "line": 13,
+            "name": "I want to insert into the \"password\" field, the value \"cutehamsterlikesnuts2000\"",
             "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "failed",
-              "duration": 19000000,
-              "error_message": "ElementNotInteractableError: Element <label class=\"sr-only\"> could not be scrolled into view\n    at Object.throwDecodedError (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\error.js:550:15)\n    at parseHttpResponse (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\http.js:542:13)\n    at Executor.execute (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\http.js:468:26)\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I want to click the Button: \"commit\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
             "line": 16,
-            "name": "So I can see in the \"layer-horoskoptipp\" textbox, the text \"Horoskop-Tipp\"",
+            "name": "So I will be navigated to the site: \"https://github.com/\"",
             "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
               "status": "skipped"
@@ -94,11 +108,229 @@
             "keyword": "After",
             "hidden": true,
             "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
               "status": "passed",
               "duration": 1000000
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-scenario;successful-login",
+        "keyword": "Scenario",
+        "line": 21,
+        "name": "Successful Login",
+        "tags": [
+          {
+            "name": "@386694507_1",
+            "line": 6
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 4000000,
+              "error_message": "TypeError: Cannot read property 'installConsoleHandler' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:19:31)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I want to insert into the \"login_field\" field, the value \"NormalHamster\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I want to insert into the \"password\" field, the value \"FatHamster123\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I want to click the Button: \"commit\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "So I will be navigated to the site: \"https://github.com/account/unverified-email\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed"
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-scenario;successful-login",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "Successful Login",
+        "tags": [
+          {
+            "name": "@386694507_1",
+            "line": 6
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 3000000,
+              "error_message": "TypeError: Cannot read property 'installConsoleHandler' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:19:31)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I want to insert into the \"login_field\" field, the value \"OldHamster\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I want to insert into the \"password\" field, the value \"UglyHamster123\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I want to click the Button: \"commit\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "So I will be navigated to the site: \"https://github.com/account/unverified-email\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed"
             }
           }
         ]

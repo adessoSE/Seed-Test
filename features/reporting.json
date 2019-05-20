@@ -23,7 +23,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 14000000
+              "duration": 17000000
             }
           },
           {
@@ -35,7 +35,8 @@
               "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           },
           {
@@ -48,7 +49,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 3637000000
+              "duration": 5215000000
             }
           },
           {
@@ -61,7 +62,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 17000000
+              "duration": 18000000
             }
           },
           {
@@ -74,7 +75,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 34000000
+              "duration": 18000000
             }
           },
           {
@@ -87,7 +88,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 395000000
+              "duration": 446000000
             }
           },
           {
@@ -100,7 +101,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 3001000000,
+              "duration": 3002000000,
               "error_message": "TimeoutError: Waiting for element to be located By(xpath, //*[@*='Incorrect username or password.'])\nWait timed out after 3000ms\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\webdriver.js:834:17\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
             }
           },

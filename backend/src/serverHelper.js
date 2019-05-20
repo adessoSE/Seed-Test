@@ -4,6 +4,7 @@ const path = require('path');
 const reporter = require('cucumber-html-reporter');
 let respReport;
 
+
 //this is needed for the html report
 let options = {
   theme: 'bootstrap',
@@ -180,9 +181,13 @@ function getStoryByID(reqparams, stories) {
 }
 
 function execScenario(req, res, stories, callback) {
-  let story = getStoryByID(req.params, stories)
-  var cmd = 'node_modules/.bin/cucumber-js features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:features/reporting.json';
-  console.log(cmd);
+  let story = getStoryByID(req.params, stories);
+  let path1 = 'node_modules/.bin/cucumber-js';
+  let path2 = 'features/' + story.title.replace(/ /g, '_') + '.feature';
+  let path3 = 'features/reporting.json';
+  //var cmd = 'node_modules/.bin/cucumber-js features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:features/reporting.json';
+  let cmd = path.normalize(path1) + ' ' + path.normalize(path2) + ' --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:' + path.normalize(path3);
+  console.log("Executing: " +cmd);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
@@ -197,8 +202,13 @@ function execScenario(req, res, stories, callback) {
 
 function execFeature(req, res, stories, callback) {
   //npm test features/LoginTest.feature
-  let story = getStoryByID(req.params, stories)
-  var cmd = 'node_modules/.bin/cucumber-js features/' + story.title.replace(/ /g, '_') + '.feature --format json:features/reporting.json';
+  let story = getStoryByID(req.params, stories);
+  let path1 = 'node_modules/.bin/cucumber-js';
+  let path2 = 'features/' + story.title.replace(/ /g, '_') + '.feature';
+  let path3 = 'features/reporting.json';
+  let cmd = path.normalize(path1) + ' ' + path.normalize(path2) + '--format json:' + path.normalize(path3);
+  //let cmd = 'node_modules/.bin/cucumber-js features/' + story.title.replace(/ /g, '_') + '.feature --format json:features/reporting.json';
+  console.log("Executing: " +cmd);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
