@@ -119,7 +119,7 @@ function createBackground(git_id) {
     let story = stories.findOne({ story_id: git_id });
     let tmpBackground = emptyBackground();
     if (story != null) {
-      story.background.push(tmpBackground)
+      story.background.push(tmpBackground);
       stories.update(story);
       return tmpBackground;
     }
@@ -138,7 +138,7 @@ function updateBackground(git_id, updated_background) {
         obj.background.splice(0, 1, updated_background);
       })
   } catch (error) {
-    console.log("Error:" + error)
+    console.log("Error:" + error);
     return error;
   }
   return updated_background;
@@ -154,7 +154,7 @@ function deleteBackground(git_id){
         obj.background.splice(0, 1);
       })
   } catch (error) {
-    console.log("Error:" + error)
+    console.log("Error:" + error);
     return error;
   }
   return true;
@@ -202,7 +202,7 @@ function updateScenario(git_id, updated_scenario) {
         return "Something went wrong!";
       })
   } catch (error) {
-    console.log("Error:" + error)
+    console.log("Error:" + error);
     return error;
   }
   return updated_scenario;
@@ -231,7 +231,7 @@ function deleteScenario(git_id, s_id) {
 
 
 module.exports = {
-  stories: stories, showStepdefinitions: showStepdefinitions, 
+  stories: stories, showStepdefinitions: showStepdefinitions,
   createBackground: createBackground, deleteBackground: deleteBackground, updateBackground: updateBackground,
   createScenario: createScenario, deleteScenario: deleteScenario, updateScenario: updateScenario
 };

@@ -109,7 +109,7 @@ export class ScenarioEditorComponent implements OnInit {
        stepType: step.stepType,
        type: step.type,
        values: [""]
-     }
+     };
      switch (new_step.stepType) {
        case 'given':
          this.selectedScenario.stepDefinitions.given.push(new_step);
@@ -132,7 +132,7 @@ export class ScenarioEditorComponent implements OnInit {
       }
      console.log('added step', new_step);
     }
-  }  
+  }
 
   addStepToBackground(storyID, step){
     console.log("step type: " + step.stepType);
@@ -147,7 +147,7 @@ export class ScenarioEditorComponent implements OnInit {
        stepType: step.stepType,
        type: step.type,
        values: [""]
-     }
+     };
      switch (new_step.stepType) {
        case 'when':
          this.selectedStory.background.stepDefinitions.when.push(new_step);
@@ -169,7 +169,7 @@ export class ScenarioEditorComponent implements OnInit {
       stepType: 'example',
       type: step.type,
       values: ['']
-    }
+    };
     this.selectedScenario.stepDefinitions.example.push(new_step);
     console.log('newID: ' + new_id);
   }
@@ -232,7 +232,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   stepsList(stepDefs, i: number) {
     if (i == 0) {
-      
+
       return stepDefs.given;
     } else if (i == 1) {
       return stepDefs.when;
@@ -252,10 +252,10 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   async addToValues(input: string, stepType,step, index, valueIndex? ) {
-    
+
     await this.checkForExamples(input,step);
 
-    console.log("steptype: " + stepType)
+    console.log("steptype: " + stepType);
     console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
@@ -281,12 +281,12 @@ export class ScenarioEditorComponent implements OnInit {
       this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[0]),1);
       for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
         console.log("checkForExamples for i: " + i);
-        console.log("step.values[0]: " + step.values[0])
-        
-        
+        console.log("step.values[0]: " + step.values[0]);
+
+
         this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
 
-        
+
 
         if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
 
@@ -318,7 +318,7 @@ export class ScenarioEditorComponent implements OnInit {
     }else{
       //else just adds as many values to the examples to fill up the table
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
-        
+
         for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
           this.selectedScenario.stepDefinitions.example[j].values.push("");
         }
@@ -376,7 +376,7 @@ export class ScenarioEditorComponent implements OnInit {
     var storyIndex = this.stories.indexOf(this.selectedStory);
     console.log("storyIndex: " + storyIndex);
     var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-    
+
     console.log("scenarioIndex: " + scenarioIndex);
     if(this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined){
        this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1])
@@ -385,13 +385,13 @@ export class ScenarioEditorComponent implements OnInit {
 
  //Make the API Request to run the tests and display the results as a chart
   runTests() {
-    this
+    this;
     //This is unused until cucumber actually replies with real data
     //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
     this.apiService
       .runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id)
       .subscribe(resp => {
-       this.reportingChart = resp;   
+       this.reportingChart = resp;
         console.log("This is the response: " + resp);
         this.testDone = true;
         this.showResults = true;

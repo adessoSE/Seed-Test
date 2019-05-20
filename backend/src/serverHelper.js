@@ -108,11 +108,11 @@ function getSteps(steps, stepType) {
 
 // adds content of each values to output
 function getExamples(steps) {
-  var data = ""
+  var data = "";
 
-  data += "Examples:"
+  data += "Examples:";
   for (var i = 0; i < steps.length; i++) {
-    data += "\n | "
+    data += "\n | ";
     for (var k = 0; k < steps[i].values.length; k++) {
       data += steps[i].values[k] + " | "
     }
@@ -261,4 +261,4 @@ module.exports = {
   writeFile: writeFile,
   setRespReport: setRespReport,
   sendDownloadResult: sendDownloadResult
-}
+};

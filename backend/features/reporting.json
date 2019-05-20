@@ -28,8 +28,8 @@
             },
             "result": {
               "status": "failed",
-              "duration": 19000000,
-              "error_message": "TypeError: Cannot read property 'installConsoleHandler' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:19:31)"
+              "duration": 21000000,
+              "error_message": "TypeError: Cannot read property 'DEBUG' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:21:45)"
             }
           },
           {
@@ -138,8 +138,8 @@
             },
             "result": {
               "status": "failed",
-              "duration": 4000000,
-              "error_message": "TypeError: Cannot read property 'installConsoleHandler' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:19:31)"
+              "duration": 3000000,
+              "error_message": "TypeError: Cannot read property 'DEBUG' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:21:45)"
             }
           },
           {
@@ -248,7 +248,7 @@
             "result": {
               "status": "failed",
               "duration": 3000000,
-              "error_message": "TypeError: Cannot read property 'installConsoleHandler' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:19:31)"
+              "error_message": "TypeError: Cannot read property 'DEBUG' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:21:45)"
             }
           },
           {

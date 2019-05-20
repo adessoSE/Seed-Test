@@ -1,6 +1,6 @@
 const assert = require('assert');
 const {Given, When, Then, Before, After, setDefaultTimeout} = require('cucumber');
-const webdriver = require('selenium-webdriver')
+const webdriver = require('selenium-webdriver');
 const {By, until} = require('selenium-webdriver');
 const {expect} = require('chai');
 require('geckodriver');
@@ -16,8 +16,11 @@ Before(async function () {
   options.addArguments("-headless");
 
   driver = new webdriver.Builder().forBrowser('firefox').setFirefoxOptions(options).build();
-  webdriver.WebDriver.logging.installConsoleHandler();
-  webdriver.WebDriver.getLogger().setLevel(webdriver.WebDriver.Level.DEBUG);
+
+  let logger = webdriver.logging.getLogger();
+  logger.setLevel(webdriver.WebDriver.Level.DEBUG);
+  webdriver.logging.installConsoleHandler();
+
 });
 
 
@@ -28,7 +31,7 @@ Given('As a {string}', async function (string) {
 
 // driver navigates to the Website
 When('I want to visit this site: {string}', async function (url) {
-  await driver.get(url)
+  await driver.get(url);
   await driver.getCurrentUrl().then(async function (currentUrl) {
     expect(currentUrl).to.equal(url, 'Error');
   })
