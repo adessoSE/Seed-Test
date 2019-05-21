@@ -84,7 +84,7 @@ Then('So I will be navigated to the site: {string}', async function (url) {
 });
 
 //Closes the webdriver (Browser)
-After(async function () {
-    driver.quit();
-});
+// After(async function () {
+//     driver.quit();
+// });
 
