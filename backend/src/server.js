@@ -128,7 +128,6 @@ app
     let starredRepositories; 
     getStarredRepositories(githubName, token, function(stars){
       starredRepositories = stars;
-      console.log("starredRepos: " + JSON.stringify(starredRepositories))
       if(bool1){
         let concat = ownRepositories.concat(starredRepositories);
         res.status(200).json(concat);

@@ -9,13 +9,15 @@ import {ApiService} from './Services/api.service'
 export class AppComponent {
   token;
   githubName;
-  loggedIn: boolean = false;
+
   repositories = [];
+  repository;
   constructor(private apiService: ApiService){
 
   }
 
   ngOnInit(){
+
     this.refreshLoginData();
   }
 
@@ -25,7 +27,7 @@ export class AppComponent {
 
     if(this.token && this.githubName){
       this.getRepositories();
-      this.loggedIn = true;
+  
     }
     
   }
@@ -33,10 +35,9 @@ export class AppComponent {
   ngDoCheck(){
     let newToken = localStorage.getItem('token')
     let newGithubName = localStorage.getItem('githubName')
+    
     if(newToken != this.token || newGithubName != this.githubName){
       this.refreshLoginData()
-    }else{
-      this.loggedIn = false;
     }
   }
 
@@ -47,16 +48,19 @@ export class AppComponent {
     this.githubName = localStorage.getItem('githubName')
 
     this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) =>{
-      console.log("Response: " + JSON.stringify(resp));
-    
       this.repositories = resp; 
     })
   }
 
 
   selectRepository(repository: string){
+    
+    var ref: HTMLLinkElement = document.getElementById("githubHref") as HTMLLinkElement;
+    ref.href = "https://github.com/"+repository
+
     localStorage.removeItem('repository');
     localStorage.setItem('repository', repository)
+    this.repository = repository;
     this.apiService.getStories(repository).subscribe(resp =>{
       //console.log("Response: " + JSON.stringify(resp));
     })

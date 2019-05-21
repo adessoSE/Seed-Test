@@ -8,7 +8,7 @@
       <h4 class="uk-heading-primary uk-text-large">Cucumber-App</h4>
   </div>
   <div class="uk-navbar-right">
-    <span *ngIf="loggedIn">
+    <span *ngIf="this.token">
       <button class="uk-button" title="Select Repository" uk-tooltip>Repositories</button>
       <div uk-dropdown>
           <ul class="uk-nav uk-dropdown-nav">
@@ -18,8 +18,8 @@
             </li>
           </ul>
         </div>
-     </span>
-    <a href="https://github.com/fr4gstar/Cucumber" uk-icon="github"></a>
+    <a id="githubHref" href="https://github.com/fr4gstar/Cucumber" uk-icon="github"></a>
+  </span>
   </div>
 </nav >
 

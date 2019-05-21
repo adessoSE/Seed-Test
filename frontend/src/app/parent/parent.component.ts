@@ -18,12 +18,10 @@ export class ParentComponent implements OnInit {
 
   constructor(private apiService: ApiService,
               private router: Router) {
-    console.log("parent component constructor");
 
    }
 
   ngOnInit() {
-    console.log("parent component started");
 
     // let users only use site if they are logged in
     /*let token = localStorage.getItem('token');
@@ -36,23 +34,19 @@ export class ParentComponent implements OnInit {
   loadStories() {
 
     let repository = localStorage.getItem('repository');
-    console.log("selected Repository: " + repository);
     this.apiService
       .getStories(repository)
       .subscribe((resp: any) => {
         this.stories = resp;
-        console.log('controller: stories loaded', this.stories);
       });
 
   }
 
   setSelectedStory(story){
-    console.log("setSelectedStory");
     this.selectedStory = story;
   }
 
   setSelectedScenario(scenario){
-    console.log("setSelectedScenario");
     this.selectedScenario = scenario;
   }
 
