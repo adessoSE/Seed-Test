@@ -23,10 +23,11 @@ export class ApiService {
     });
   }
 
-  public getRepositories(token?){
+  public getRepositories(token, githubName){
+
     this.setHeader();
     let options = {headers: this.headers}
-    return this.http.get<any>(this.apiServer + '/repositories/', options)
+    return this.http.get<any>(this.apiServer + '/repositories/' + token + '/' + githubName, options)
     .pipe(tap(resp =>{
       console.log("GET Repositories: " + resp);
     }))
@@ -41,7 +42,7 @@ export class ApiService {
 
   public getStories(repository?) {
     //let options = new RequestOptions({headers: this.headers});
-
+    console.log("getStories")
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository)
       .pipe(tap(resp =>{

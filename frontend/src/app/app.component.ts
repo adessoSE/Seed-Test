@@ -7,20 +7,46 @@ import {ApiService} from './Services/api.service'
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-
+  token;
+  githubName;
+  loggedIn: boolean = false;
   repositories = [];
   constructor(private apiService: ApiService){
 
   }
 
   ngOnInit(){
-    this.getRepositories();
+    this.refreshLoginData();
+  }
+
+  refreshLoginData(){
+    this.token = localStorage.getItem('token')
+    this.githubName = localStorage.getItem('githubName')
+
+    if(this.token && this.githubName){
+      this.getRepositories();
+      this.loggedIn = true;
+    }
+    
+  }
+
+  ngDoCheck(){
+    let newToken = localStorage.getItem('token')
+    let newGithubName = localStorage.getItem('githubName')
+    if(newToken != this.token || newGithubName != this.githubName){
+      this.refreshLoginData()
+    }else{
+      this.loggedIn = false;
+    }
   }
 
   title = 'cucumber-frontend';
 
   getRepositories(){
-    this.apiService.getRepositories('123').subscribe((resp: any) =>{
+    this.token = localStorage.getItem('token')
+    this.githubName = localStorage.getItem('githubName')
+
+    this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) =>{
       console.log("Response: " + JSON.stringify(resp));
     
       this.repositories = resp; 

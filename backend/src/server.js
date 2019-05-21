@@ -60,10 +60,10 @@ app
     res.status(200).json(db.showStepdefinitions());
   })
 
-  .get("/api/stories/:githubName/:repository?", function (req, res) {
-    if(req.params.repository && req.params.githubName ){
+  .get("/api/stories/:user?/:repository?", function (req, res) {
+    if(req.params.repository){
+      githubName = req.params.user
       repository = req.params.repository;
-      githubName = req.params.githubName;
     }else{
       repository = 'Cucumber'
       githubName = 'fr4gstar'
@@ -73,7 +73,7 @@ app
     // get Issues from GitHub
     let request = new XMLHttpRequest();
     //request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token=' + access_token);
-    request.open('GET', 'https://api.github.com/repos/' + githubName + '/'+ repository + '/issues?labels=story&access_token=' + access_token);
+    request.open('GET', 'https://api.github.com/repos/' + githubName + '/' + repository + '/issues?labels=story&access_token=' + access_token);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
@@ -106,41 +106,40 @@ app
       }
     };
   })
-  .get("/api/repositories/:token?", function (req, res) {
+  .get("/api/repositories/:token?/:githubName?", function (req, res) {
     let bearer = req.headers.authorization
     let splited = bearer.split(" ")
-    token = splited[1]
+    let token = splited[1]
     console.log(splited[1]);
-    let usertoken = req.params.token;
-    let request = new XMLHttpRequest();
-    if(usertoken != 123){
-      request.open('GET', 'https://api.github.com/user/repos',true, 'account_name' , token);
-    }else{
-      request.open('GET', 'https://api.github.com/user/repos',true, 'account_name' , token);
-    }
-    console.log("token: " + usertoken)
-    stories = [];
-    // get Issues from GitHub
-    
-    
-    //request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
-    request.send();
-    request.onreadystatechange = function () {
-      //console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
-      if (this.readyState === 4 && this.status === 200) {
-        let data = JSON.parse(request.responseText);
-        var names = []
-        let index = 0;
-        for(let repo of data){
-          let repoName = repo.name;
-          names[index] = repoName;
-          index++;
-        }
-        //console.log(JSON.parse(names));
-        res.status(200).json(names);
+    //let usertoken = req.params.token;
+    let githubName = req.params.githubName;
+    let ownRepositories;
+    let bool1, bool2 = false;
+    getOwnRepositories(token, function(repos){
+      ownRepositories = repos;
+      
+      if(bool2){
+        let concat = ownRepositories.concat(starredRepositories);
+        res.status(200).json(concat);
+      }else{
+        bool1 = true;
       }
-    };
+    });
+    let starredRepositories; 
+    getStarredRepositories(githubName, token, function(stars){
+      starredRepositories = stars;
+      console.log("starredRepos: " + JSON.stringify(starredRepositories))
+      if(bool1){
+        let concat = ownRepositories.concat(starredRepositories);
+        res.status(200).json(concat);
+      }else{
+        bool2 = true;
+      }
+    });
+    
   })
+
+
 
 
 
@@ -246,5 +245,68 @@ app
     helper.scenarioReport(req, res, stories);
   });
 
+function getOwnRepositories(token, callback){
+  let request = new XMLHttpRequest();
+
+  request.open('GET', 'https://api.github.com/user/repos',true, 'account_name' , token);
+
+
+  // get Issues from GitHub
+  
+  let repos;
+  //request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
+  request.send();
+  request.onreadystatechange = function () {
+    //console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+    if (this.readyState === 4 && this.status === 200) {
+      let data = JSON.parse(request.responseText);
+      var names = []
+      let index = 0;
+      for(let repo of data){
+        let repoName = repo.full_name;
+        names[index] = repoName;
+        index++;
+      }
+      callback(names);
+      //console.log("getRepo: " + names)
+      
+    }
+  };
+
+}
+
+function getStarredRepositories(githubName, token, callback){
+  let request = new XMLHttpRequest();
+  console.log("githubname: " + githubName)
+  request.open('GET', 'https://api.github.com/users/' + githubName +'/starred',true , githubName, token);
+
+
+  // get Issues from GitHub
+  
+  //request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
+  request.send();
+  request.onreadystatechange = function () {
+    //console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+    if (this.readyState === 4 && this.status === 200) {
+      let data = JSON.parse(request.responseText);
+      var names = []
+      let index = 0;
+      for(let repo of data){
+        let repoName = repo.full_name;
+        names[index] = repoName;
+        index++;
+      }
+      //console.log("getStarred: " + names);
+      callback(names)
+    }else{
+      if(this.readyState === 4){
+        console.log("error for starred " + this.status)
+      }
+      
+    }
+  };
+}
 
 module.exports = app;
+
+
