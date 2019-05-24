@@ -212,6 +212,7 @@ function execFeature(req, res, stories, callback) {
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
+
       callback();
       return;
     }

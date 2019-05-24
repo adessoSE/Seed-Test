@@ -1,18 +1,23 @@
 [
   {
     "keyword": "Feature",
-    "name": "LoginTest",
+    "name": "Run test functionality",
     "line": 1,
-    "id": "logintest",
+    "id": "run-test-functionality",
     "tags": [],
-    "uri": "features\\LoginTest.feature",
+    "uri": "..\\..\\features\\Run_test_functionality.feature",
     "elements": [
       {
-        "id": "logintest;successful-login",
+        "id": "run-test-functionality;new-scenario",
         "keyword": "Scenario",
-        "line": 3,
-        "name": "successful Login",
-        "tags": [],
+        "line": 18,
+        "name": "New Scenario",
+        "tags": [
+          {
+            "name": "@386697647_2",
+            "line": 17
+          }
+        ],
         "type": "scenario",
         "steps": [
           {
@@ -23,86 +28,29 @@
             },
             "result": {
               "status": "passed",
-              "duration": 17000000
+              "duration": 47000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 5,
+            "name": "I want to visit this site: \"http://localhost:4200/#\"",
+            "match": {
+              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 5720000000
             }
           },
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 5,
-            "name": "As a \"Guest\"",
-            "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
+            "line": 20,
+            "name": "I am at the Website: \"http://localhost:4200/#\"",
             "result": {
-              "status": "passed",
-              "duration": 1000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 7,
-            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
-            "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 5215000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 8,
-            "name": "I want to insert into the \"login_field\" field, the value \"\"",
-            "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 18000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 9,
-            "name": "I want to insert into the \"password\" field, the value \"\"",
-            "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 18000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 10,
-            "name": "I want to click the Button: \"commit\"",
-            "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 446000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 12,
-            "name": "So I can see in the \"container\" textbox, the text \"Incorrect username or password.\"",
-            "match": {
-              "location": "Gurke\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "failed",
-              "duration": 3002000000,
-              "error_message": "TimeoutError: Waiting for element to be located By(xpath, //*[@*='Incorrect username or password.'])\nWait timed out after 3000ms\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\node_modules\\selenium-webdriver\\lib\\webdriver.js:834:17\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+              "status": "undefined"
             }
           },
           {
@@ -113,7 +61,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1000000
+              "duration": 2000000
             }
           }
         ]

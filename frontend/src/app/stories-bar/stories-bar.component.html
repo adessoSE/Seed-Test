@@ -1,0 +1,24 @@
+<div class="selectStories uk-card uk-card-default">
+      <div class="uk-text-emphasis uk-text-uppercase uk-text-bold ">STORIES</div>
+      <ul uk-accordion>
+        <li *ngFor="let s of sortedStories(); let i = index ">
+          <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted">
+            <a maxlength="10">
+              #{{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
+            </a>
+            <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
+                height="20px">{{s.assignee}}</span>
+                <a uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
+          </div>
+  
+          <div class="uk-accordion-content">
+            <a uk-icon="icon: plus-circle" class="uk-text-primary" data-uk-tooltip title="Add New Scenario"
+              (click)="addScenario(s.story_id)"></a>
+              
+        <li *ngFor="let scen of s.scenarios; let c = index">
+          <a href="#" (click)="selectScenario(s.story_id, scen);">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
+        </li>
+    </div>
+    </li>
+    </ul>
+  </div>

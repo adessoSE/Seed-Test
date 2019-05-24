@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import {tap} from 'rxjs/operators';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import { EventEmitter } from '@angular/core';
+import { Story } from '../model/Story';
+import { StepDefinition } from '../model/StepDefinition';
+// import {Constants} from 'Constants';
 
 @Injectable({
   providedIn: 'root'
@@ -9,19 +13,48 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 export class ApiService {
   private apiServer: string = 'http://localhost:8080/api';
 
-  constructor(private http: HttpClient) { }
+  public getStoriesEvent = new EventEmitter();
+  private token = 123;
+  private headers: HttpHeaders;
 
-  public getStories() {
+  constructor(private http: HttpClient) { 
+    this.headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+  }
+
+  public getRepositories(token, githubName){
+
+    this.setHeader();
+    let options = {headers: this.headers}
+    return this.http.get<any>(this.apiServer + '/repositories/' + token + '/' + githubName, options)
+    .pipe(tap(resp =>{
+      console.log("GET Repositories: " + resp);
+    }))
+  }
+
+  setHeader(){
+    this.headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+  }
+
+
+  public getStories(repository?) {
+    //let options = new RequestOptions({headers: this.headers});
+    console.log("getStories")
     return this.http
-      .get<any>(this.apiServer + '/stories')
-      .pipe(tap(resp =>
-        console.log('GET stories', resp)
+      .get<Story[]>(this.apiServer + '/stories/' + repository)
+      .pipe(tap(resp =>{
+        this.getStoriesEvent.emit(resp);
+        console.log('GET stories', resp);
+      }
       ));
   }
 
   public getStepDefinitions() {
     return this.http
-      .get<any>(this.apiServer + '/stepDefinitions')
+      .get<StepDefinition>(this.apiServer + '/stepDefinitions')
       .pipe(tap(resp =>
         console.log('GET step definitions', resp)
       ));
@@ -51,6 +84,14 @@ export class ApiService {
         ));
   }
 
+  public deleteBackground(storyID){
+    return this.http
+        .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
+        .pipe(tap(resp =>
+          console.log('Delete background for story ' + storyID )
+        ));
+  }
+
   public deleteScenario(storyID, scenario) {
    return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/scenario/delete/' + scenario.scenario_id)
@@ -60,15 +101,21 @@ export class ApiService {
   }
 
   // demands testing from the server
-  public runTests(storyID, scenario){
-    console.log("scenario: " + scenario);
+  public runTests(storyID, scenarioID){
+    console.log("scenario: " + scenarioID);
     console.log("issueID: " + storyID);
-    if(scenario){
+    if(scenarioID){
+      console.log("run test scenario");
+    
+   // let options = new RequestOptions({responseType: ResponseContentType.Text});
+
     return this.http
-    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenario, {responseType:'text'});
+    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType: 'text'});
     }
+    console.log("run test feature");
+
     return this.http
-    .get(this.apiServer + '/runFeature/'+ storyID, {responseType:'text'});
+    .get(this.apiServer + '/runFeature/'+ storyID, {responseType: 'text'});
     /*.pipe(tap(resp =>
       console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
     ));*/
@@ -76,7 +123,14 @@ export class ApiService {
 
 
   public downloadTestResult(){
-    return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob', headers: new HttpHeaders().append('Content-Type', 'application/json')});
+    //let header = new Headers();
+    //header.append('Content-Type', 'application/json');
+
+    return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob' , headers: new HttpHeaders().append('Content-Type', 'application/json')});
+  }
+
+  getToken(): string {
+    return localStorage.getItem('token');
   }
 }
 

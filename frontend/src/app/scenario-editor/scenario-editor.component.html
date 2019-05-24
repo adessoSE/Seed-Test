@@ -1,62 +1,58 @@
-<div uk-grid>
 
-  <div class="uk-width-1-5">
-    <div class="uk-text-emphasis uk-text-uppercase uk-text-bold">STORIES</div>
-    <ul uk-accordion>
-      <li *ngFor="let s of stories; let i = index ">
-        <div (click)="selectStory(s)" class="uk-accordion-title uk-background-muted">
-          <a maxlength="10">
-            #{{i+1}} {{s.title | slice:0:25 }}
-          </a>
-          <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
-              height="20px">{{s.assignee}}</span>
-          <a uk-icon="icon: info" data-uk-tooltip title="{{s.body}}"></a>
+<div  *ngIf="stories">
+
+<div class="padRight" *ngIf="(showEditor === true)" >
+
+<!--Story-->
+<div class=" uk-card uk-card-default ">
+        <div class="uk-card-title storyTitleBlock padRight">
+          <span class= "storyTitle">{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
+          <div class="uk-button-group uk-align-right ">
+              <button class="uk-button-small uk-button-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)" >New Scenario</button>
+              <button class="uk-button-small uk-button-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
+          </div>
         </div>
-        <div class="uk-accordion-content">
-          <a uk-icon="icon: plus-circle" class="uk-text-primary" data-uk-tooltip title="Add new scenario"
-            (click)="addScenario(s.story_id)"></a>
-      <li *ngFor="let scen of s.scenarios; let c = index">
-        <a href="#" (click)="selectScenario(s.story_id, scen);">#{{i+1}}.{{c+1}} {{scen.name}}</a>
-      </li>
-  </div>
-  </li>
-  </ul>
-</div>
+        <br/>
 
-<div *ngIf="(showEditor === true)" class="uk-width-2-3">
-  <div class="uk-card uk-card-default">
-      <button uk-icon="icon: arrow-left" data-uk-tooltip
-      title="Change Left" (click)="scenarioShiftLeft();"></button>
-      <button  uk-icon="icon: arrow-right" data-uk-tooltip
-      title="Change Right" (click)="scenarioShiftRight();"></button>
-    <div class="uk-card-title uk-padding">
-      {{selectedScenario.name}}
-      <button [disabled]="editorLocked == true" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
-        title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
-      <div class="uk-align-right">
-        <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true"
-          class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
-          (click)="deleteScenario($event);"></button>
-        <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="editorLocked === false;" data-uk-tooltip
-          title="Lock and Save Scenario" uk-icon="unlock"
-          (click)="updateScenario(selectedStory.story_id, selectedScenario);lockEditor();"></a>
-        <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked === true;" data-uk-tooltip
-          title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>
-      </div>
-    </div>
-  </div>
-  <br />
+        <!--Description-->
+        <div  class="uk-card-title " [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
+            <button uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
+            <button uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
+        </div>
 
+        <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
+          {{selectedStory.body}}
+        </div>
 
+      <!--Background-->
+      <div class="uk-card-title ">
+          <div [class.backgroundTitle]="!showBackground" [class.description]="showBackground" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
+              <button uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
+              <button uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
+              
+           
+          </div>
 
-<!--Background-->
-  <div class="uk-card uk-card-default uk-padding">
-      <div class="uk-card-title">
-          <div>{{ 'background' | titlecase }}</div>
-          <div class="uk-float-right">
+          
+          <div *ngIf="showBackground">
+            <!--Delete and Lock buttons-->
+            <div class="uk-float-right backgroundItems">
+                <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked"
+                class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Background" uk-icon="trash"
+                (click)="deleteBackground($event);"></button>
+              <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="!backgroundLocked" data-uk-tooltip
+                title="Lock and Save Background" uk-icon="unlock"
+                (click)="updateBackground(selectedStory.story_id);lockBackground();"></a>
+              <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="backgroundLocked" data-uk-tooltip
+                title="Unlock Background" uk-icon="lock" (click)="lockBackground();"></a>
+            </div>
+            <br/>
+            <br/>
+          <div class="uk-float-right backgroundItems">
             <!-- <div class="uk-align-right"> -->
-            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
-              class="uk-text-primary" title="Add new step" uk-tooltip></button>
+            <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" uk-icon="icon: plus-circle"
+              class="uk-text-primary" title="Add New Step" uk-tooltip></button>
+            </div>
             <!-- </div> -->
             <div uk-dropdown>
               <ul class="uk-nav uk-dropdown-nav">
@@ -66,39 +62,78 @@
                 </li>
               </ul>
             </div>
-          </div>
+          
           <div class="uk-steps">
-          <li class="text-inline" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
-            <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
+          <li class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
+            <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
               uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
               (click)="removeStepToBackground($event, j);"></button>
+              <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
+              uk-icon="icon: chevron-up"  class="uk-text-primary" uk-tooltip title="Move step up"
+              (click)="moveStepUpBackground($event, currentStep.stepType, j);"></button>
+            <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
+              uk-icon="icon: chevron-down" class="uk-text-primary" uk-tooltip title="Move step down"
+              (click)="moveStepDownBackground($event, currentStep.stepType, j);"></button>
             {{j+1}}. {{currentStep.pre}}
-            <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
+            <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="backgroundLocked" type="text"
               value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
             <p style="display:inline" *ngIf="currentStep.values.length > 0">
               {{currentStep.mid}}
-              <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked == true"
+              <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="backgroundLocked"
                 type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j)" />
             </p>
             {{currentStep.post}}
           </li>
           <br /><br />
         </div>
+      </div>
+      </div>
+  </div>
+  <br/>
 
+
+
+
+
+<!--Scenario Header-->
+  <div class="uk-card uk-card-default">
+      
+    <div class="uk-card-title uk-padding">
+        <button *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
+        title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
+      {{selectedScenario.name | titlecase}}
+      <button [disabled]="editorLocked" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
+        title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
+      <div class="uk-align-right">
+        <button [class.disabled]="editorLocked" [disabled]="editorLocked"
+          class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
+          (click)="deleteScenario($event);"></button>
+        <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="editorLocked === false;" data-uk-tooltip
+          title="Lock and Save Scenario" uk-icon="unlock"
+          (click)="updateScenario(selectedStory.story_id);lockEditor();"></a>
+        <a class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked" data-uk-tooltip
+          title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>
+          <button *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
+          title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>
+  </div>
+  <br />
+
+
+
 
 
 
   
-
+<!--Scenario Editor-->
   <div class="uk-card uk-card-default uk-padding">
     <div class="uk-card-title">
       <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
         <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
           <!-- <div class="uk-align-right"> -->
-          <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" uk-icon="icon: plus-circle"
+          <button [class.disabled]="editorLocked" [disabled]="editorLocked" uk-icon="icon: plus-circle"
             class="uk-text-primary" title="Add new step" uk-tooltip></button>
           <!-- </div> -->
           <div uk-dropdown>
@@ -111,17 +146,23 @@
             </ul>
           </div>
         </div>
-        <div class="uk-steps" *ngIf= "sd != 'example'; else exampleCondition">
-        <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
-          <button [class.disabled]="editorLocked == true" [disabled]="editorLocked == true" a
-            uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
+        <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
+        <li class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
+          <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
+            uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
+            <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
+              uk-icon="icon: chevron-up"  class="uk-text-primary" uk-tooltip title="Move step up"
+              (click)="moveStepUp($event, currentStep.stepType, j);"></button>
+            <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
+              uk-icon="icon: chevron-down" class="uk-text-primary" uk-tooltip title="Move step down"
+              (click)="moveStepDown($event, currentStep.stepType, j);"></button>
           {{i+1}}.{{j+1}} {{currentStep.pre}}
-          <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked == true" type="text"
+          <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked" type="text"
             value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
             {{currentStep.mid}}
-            <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked == true"
+            <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked"
               type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,currentStep,j)" />
           </p>
           {{currentStep.post}}
@@ -135,9 +176,11 @@
 
         <ng-template #exampleCondition>
             <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
-            <button [class.disabled]="editorLocked == true || j == 0" [disabled]="editorLocked == true || j == 0" a
+              <!--Hidden Delete Button for header of examples-->
+            <button *ngIf="j == 0" style="visibility:hidden"></button>
+            <button *ngIf="j != 0" [class.disabled]="editorLocked" [disabled]="editorLocked" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
-            (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
+            (click)="removeStepToScenario($event, currentStep.stepType, j);" ></button>
           <p style="display:inline" *ngIf="currentStep.values.length > 0">
           <input #step_type_input *ngFor="let value of currentStep.values; let k = index;" [class.exampleHeader] = "j == 0"  [disabled] = "editorLocked == true || j == 0"
           type="text" value= "{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType, currentStep,j, k)"/> 
@@ -148,27 +191,41 @@
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-          <button class="uk-button" type="button" (click)="runTests();">Run Tests</button>
-          <button [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon" uk-icon="icon:chevron-up"
-            uk-tooltip="Hide Test Results" type="button" (click)="hideResults()"></button>
-            <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon" uk-icon="icon:download"
+          <button class="uk-button" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
+            Run Tests</button>
+          <button [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
+            uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
+          <button [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
+            uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
+          <button [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
             uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
         </div>
       </div>
     </div>
   </div>
-  <br />
+
+  <!--Helps to see Loading text-->
+  <div *ngIf="!testRunning && !testDone">
+    <br />
+    <br />
+    <br />
+  </div>
+
+  <div class="uk-card-default loading" *ngIf="testRunning">
+    Loading . . .
+  </div>
+
   <div id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]=!showResults>
     <div id="report-header" class="uk-card-header">
       <h3 class="uk-card-title">Test Results</h3>
     </div>
     <div id="report-body" class="uk-card-body">
-      <div id="chartcontainer" class="chart-container">
-          <iframe src="http://localhost:8080/testResult" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
+      <div id="chartcontainer" class="chart-container" >
+          <iframe id="testFrame" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
     </div>
   </div>
 
-
+</div>
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
       <h2>Change Scenario Title</h2>

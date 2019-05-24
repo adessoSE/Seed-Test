@@ -8,8 +8,21 @@
       <h4 class="uk-heading-primary uk-text-large">Cucumber-App</h4>
   </div>
   <div class="uk-navbar-right">
-    <a href="https://github.com/fr4gstar/Cucumber" uk-icon="github"></a>
+    <span *ngIf="this.token">
+      <button class="uk-button" title="Select Repository" uk-tooltip>Repositories</button>
+      <div uk-dropdown>
+          <ul class="uk-nav uk-dropdown-nav">
+            <li *ngFor="let repository of repositories;" >
+                <a  (click)="selectRepository(repository);"
+                 href="#">{{repository}}</a>
+            </li>
+          </ul>
+        </div>
+    <a id="githubHref" href="https://github.com/fr4gstar/Cucumber" uk-icon="github"></a>
+  </span>
   </div>
 </nav >
 
-<app-scenario-editor></app-scenario-editor>
+<router-outlet></router-outlet>
+<!--<app-parent></app-parent>-->
+<!--<app-login></app-login>-->

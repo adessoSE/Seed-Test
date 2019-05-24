@@ -86,3 +86,63 @@
   color: rgb(27, 86, 248);
   text-align: center
 }
+
+.description{
+  padding-left:40px;
+}
+.descriptionText{
+  padding-left:40px;
+  padding-bottom: 20px;
+}
+
+.backgroundItems{
+  padding-left:40px;
+  padding-right:40px;
+}
+
+.loading{
+  text-align: center;
+  font-size: 40px;
+}
+
+.backgroundTitle{
+  padding-left:40px;
+  padding-bottom:20px;
+}
+.showButton{
+  padding-right: 40px;
+}
+
+.storyTitleBlock{
+  padding-left:40px;
+  padding-top:40px;
+  padding-bottom:40px;
+  text-align: center;
+}
+
+.storyTitle{
+  padding-left:5px;
+  padding-top:5px;
+  padding-bottom:5px;
+  padding-right:5px;
+  font-size: large;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+  border-right: 2px solid;
+  border-top: 2px solid;
+  box-shadow: 1px 1px 3px grey;
+}
+
+.testButtons{
+  padding-left:10px;
+  padding-right:10px;
+}
+
+.selectStories{
+  padding-left:60px;
+  padding-right: 10px;
+}
+
+.padRight{
+  padding-right: 10px;
+}

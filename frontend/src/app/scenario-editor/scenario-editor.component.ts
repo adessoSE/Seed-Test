@@ -1,34 +1,50 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
 import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
 import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
-
+import {DragDropModule, CdkDrag, CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'
+import { StepDefinition } from '../model/StepDefinition';
+import { Story } from '../model/Story';
+import { Scenario } from '../model/Scenario';
+import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
+const emptyBackground = {stepDefinitions:{when: []}};
 
 @Component({
   selector: 'app-scenario-editor',
   templateUrl: './scenario-editor.component.html',
   styleUrls: ['./scenario-editor.component.css'],
 })
+
 export class ScenarioEditorComponent implements OnInit {
-  stories;
-  stepDefinitions;
-  selectedStory;
-  selectedScenario;
+  stories: Story[];
+  stepDefinitions: StepDefinition;
+  selectedStory: Story;
+  selectedScenario: Scenario;
   showEditor = false;
   showResults = false;
   editorLocked = true;
+  backgroundLocked = true;
+  showDescription = false;
+  showBackground = false;
+  arrowLeft: boolean = true;
+  arrowRight: boolean = true;
   reportingChart;
   testDone: boolean = false;
+  testRunning: boolean = false;
   uncutInputs: string[] = [];
 
   constructor(
     private http: HttpClient,
     private apiService: ApiService,
   ) {
-    this.loadStories();
+    this.apiService.getStoriesEvent.subscribe(stories => {
+      this.setStories(stories);
+      console.log("stories for scenario set");
+    });
+
     this.loadStepDefinitions();
   }
 
@@ -36,35 +52,49 @@ export class ScenarioEditorComponent implements OnInit {
   ngOnInit() {
   }
 
+  setStories(stories: Story[]){
+    this.stories = stories;
+  }
 
+  @Input()
+  set newSelectedStory(story: Story){
+    this.selectedStory = story;    
+  }
 
-  loadStories() {
-    this.apiService
-      .getStories()
-      .subscribe(resp => {
-        this.stories = resp;
-        console.log('controller: stories loaded', this.stories);
-      });
+  @Input()
+  set newSelectedScenario(scenario: Scenario){
+    this.selectedScenario = scenario;
+    if(this.stories && this.selectedStory){
+      console.log("story: " + this.selectedStory.name);
+      var storyIndex = this.stories.indexOf(this.selectedStory);
+      console.log("storyIndex: " + storyIndex);
+      this.selectScenario(null,scenario);
+    }
+    
   }
 
   loadStepDefinitions() {
     this.apiService
       .getStepDefinitions()
-      .subscribe(resp => {
+      .subscribe((resp: any)  => {
         this.stepDefinitions = resp;
         console.log('controller: stepDefinitions loaded', this.stepDefinitions);
       });
   }
 
-  updateScenario(storyID) {
 
+
+  updateBackground(storyID){
+  
     this.apiService
-      .updateBackground(storyID, this.selectedStory.background)
-      .subscribe(resp =>{
-        console.log('controller: story:', resp);
-      });
+    .updateBackground(storyID, this.selectedStory.background)
+    .subscribe(resp =>{
+      console.log('controller: story:', resp);
+    });
 
+  }
 
+  updateScenario(storyID) {
     this.apiService
       .updateScenario(storyID, this.selectedScenario)
       .subscribe(resp => {
@@ -72,13 +102,148 @@ export class ScenarioEditorComponent implements OnInit {
       });
   }
 
-  addScenario(storyID) {
+  addScenarioFromStory(storyID){
     this.apiService
       .addScenario(storyID)
-      .subscribe(resp => {
+      .subscribe((resp: any) => {
         console.log('controller: stepDefinitions loaded', storyID);
         console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
+        this.selectScenario(resp.story_id,resp);
+      });
+    
+  }
+
+  addScenario(storyID) {
+    this.apiService
+      .addScenario(storyID)
+      .subscribe((resp: any)  => {
+        console.log('controller: stepDefinitions loaded', storyID);
+        console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
+        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
+      });
+  }
+
+
+  moveStepUpBackground(event, stepType, index){
+    console.log("index: " + index)
+    if(index === 0) return;
+
+    switch (stepType) {
+      case 'when':
+      var move = this.selectedStory.background.stepDefinitions.when[index];
+    
+      var top = this.selectedStory.background.stepDefinitions.when[index - 1];
+      this.selectedStory.background.stepDefinitions.when[index] = top;
+      this.selectedStory.background.stepDefinitions.when[index - 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+  moveStepDownBackground(event, stepType, index){
+    console.log("index: " + index)
+    
+    switch (stepType) {
+      case 'when':
+      if(index === this.selectedStory.background.stepDefinitions.when.length - 1) return;
+      
+      var move = this.selectedStory.background.stepDefinitions.when[index];
+      var down = this.selectedStory.background.stepDefinitions.when[index + 1];
+      this.selectedStory.background.stepDefinitions.when[index] = down;
+      this.selectedStory.background.stepDefinitions.when[index + 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+
+
+
+
+  moveStepUp(event, stepType, index){
+    console.log("index: " + index)
+    if(index === 0) return;
+
+
+    switch (stepType) {
+      case 'given':
+      var move = this.selectedScenario.stepDefinitions.given[index];
+    
+      var top = this.selectedScenario.stepDefinitions.given[index - 1];
+      this.selectedScenario.stepDefinitions.given[index] = top;
+      this.selectedScenario.stepDefinitions.given[index - 1] = move;
+        break;
+      case 'when':
+      var move = this.selectedScenario.stepDefinitions.when[index];
+    
+      var top = this.selectedScenario.stepDefinitions.when[index - 1];
+      this.selectedScenario.stepDefinitions.when[index] = top;
+      this.selectedScenario.stepDefinitions.when[index - 1] = move;
+        break;
+      case 'then':
+      var move = this.selectedScenario.stepDefinitions.then[index];
+    
+      var top = this.selectedScenario.stepDefinitions.then[index - 1];
+      this.selectedScenario.stepDefinitions.then[index] = top;
+      this.selectedScenario.stepDefinitions.then[index - 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+  moveStepDown(event, stepType, index){
+    console.log("index: " + index)
+    
+    switch (stepType) {
+      case 'given':
+      if(index === this.selectedScenario.stepDefinitions.given.length - 1) return;
+      var move = this.selectedScenario.stepDefinitions.given[index];
+    
+      var down = this.selectedScenario.stepDefinitions.given[index + 1];
+      this.selectedScenario.stepDefinitions.given[index] = down;
+      this.selectedScenario.stepDefinitions.given[index + 1] = move;
+        break;
+      case 'when':
+
+      if(index === this.selectedScenario.stepDefinitions.when.length - 1) return;
+      var move = this.selectedScenario.stepDefinitions.when[index];
+      var down = this.selectedScenario.stepDefinitions.when[index + 1];
+      this.selectedScenario.stepDefinitions.when[index] = down;
+      this.selectedScenario.stepDefinitions.when[index + 1] = move;
+        break;
+      case 'then':
+      if(index === this.selectedScenario.stepDefinitions.then.length - 1) return;
+      var move = this.selectedScenario.stepDefinitions.then[index];
+    
+      var down = this.selectedScenario.stepDefinitions.then[index + 1];
+      this.selectedScenario.stepDefinitions.then[index] = down;
+      this.selectedScenario.stepDefinitions.then[index + 1] = move;
+        break;
+      default:
+        break;
+     }
+    
+  }
+
+
+
+
+  deleteBackground(){
+    this.apiService
+      .deleteBackground(this.selectedStory.story_id)
+      .subscribe(resp => {
+        console.log('controller: delete background', resp);
+        this.showBackground = false;
+
+        const indexStory: number = this.stories.indexOf(this.selectedStory);
+        this.stories[indexStory].background = emptyBackground;
       });
   }
 
@@ -96,6 +261,15 @@ export class ScenarioEditorComponent implements OnInit {
         }
       });
   }
+
+  openDescription(){
+    this.showDescription = !this.showDescription;
+  }
+
+  openBackground(){
+    this.showBackground = !this.showBackground;
+  }
+
 
   addStepToScenario(storyID, step) {
     if(!this.editorLocked){
@@ -136,7 +310,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   addStepToBackground(storyID, step){
     console.log("step type: " + step.stepType);
-    if(!this.editorLocked){
+    if(!this.backgroundLocked){
       var new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, step.stepType) + 1;
       console.log('step to add:', step);
       var new_step = {
@@ -243,7 +417,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  backgroundList(stepDefinitions){
+  backgroundList(stepDefinitions: StepDefinitionBackground){
     return stepDefinitions.when;
   }
 
@@ -332,32 +506,53 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  lockEditor() {
-    if (this.editorLocked === false) {
-      this.editorLocked = true;
-    } else {
-      this.editorLocked = false;
-    }
+  lockBackground(){
+    this.backgroundLocked = !this.backgroundLocked;
   }
 
-  selectScenario(storyID, scenario) {
+  lockEditor() {
+    this.editorLocked = !this.editorLocked;
+  }
+
+  selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
     this.reportingChart = undefined;
     this.showEditor = true;
     this.editorLocked = true;
     this.testDone = false;
+    this.arrowLeft = this.checkArrowLeft();
+    this.arrowRight = this.checkArrowRight();
     console.log('selected scenario', this.selectedScenario);
     console.log('selected storyID', this.selectedStory);
   }
 
-  selectStory(story) {
+
+
+  selectStoryScenario(story: Story){
+    console.log("selectStoryScenario")
     this.reportingChart = undefined;
     this.showResults = false;
     this.selectedStory = story;
-    this.showEditor = false;
+    this.showEditor = true;
     this.editorLocked = true;
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    if(this.stories[storyIndex].scenarios[0] !== undefined ){
+      this.selectScenario(this.selectedStory.story_id,this.stories[storyIndex].scenarios[0])
+    }
     console.log('selected storyID', this.selectedStory);
+  }
+
+  checkArrowLeft(){
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
+    return this.stories[storyIndex].scenarios[scenarioIndex - 1] === undefined;
+  }
+
+  checkArrowRight(){
+    var storyIndex = this.stories.indexOf(this.selectedStory);
+    var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
+    return this.stories[storyIndex].scenarios[scenarioIndex + 1] === undefined
   }
 
   scenarioShiftLeft(){
@@ -384,17 +579,19 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
  //Make the API Request to run the tests and display the results as a chart
-  runTests() {
-    this;
-    //This is unused until cucumber actually replies with real data
-    //this.apiService.runTests(scenario).subscribe(resp =>console.log(resp));
+  runTests(story_id, scenario_id) {
+    this.testRunning = true;
+    var iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
+    iframe.src = "http://localhost:8080/testResult";
+    
     this.apiService
-      .runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id)
+      .runTests(story_id, scenario_id)
       .subscribe(resp => {
        this.reportingChart = resp;
         console.log("This is the response: " + resp);
         this.testDone = true;
         this.showResults = true;
+        this.testRunning = false;
         })
      }
 
@@ -407,6 +604,12 @@ export class ScenarioEditorComponent implements OnInit {
   hideResults() {
     this.showResults = !this.showResults;
   }
+
+  compareFunction(a: number, b:number){
+    return a-b;
+  }
+
+
 
 }
 
