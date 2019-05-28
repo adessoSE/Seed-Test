@@ -28,7 +28,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 21000000,
+              "duration": 49000000,
               "error_message": "TypeError: Cannot read property 'DEBUG' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:21:45)"
             }
           },
@@ -112,7 +112,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1000000
+              "duration": 2000000
             }
           }
         ]
@@ -138,7 +138,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 3000000,
+              "duration": 7000000,
               "error_message": "TypeError: Cannot read property 'DEBUG' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:21:45)"
             }
           },
@@ -247,7 +247,7 @@
             },
             "result": {
               "status": "failed",
-              "duration": 3000000,
+              "duration": 5000000,
               "error_message": "TypeError: Cannot read property 'DEBUG' of undefined\n    at World.<anonymous> (C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:21:45)"
             }
           },
@@ -330,7 +330,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           }
         ]

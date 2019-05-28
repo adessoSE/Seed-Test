@@ -96,7 +96,7 @@ app
           }
           stories_db.insert(story); // update database
           // Create & Update Feature Files
-          helper.writeFile("", story);
+          helper.writeFile("../", story);
           //TODO: delete stories priority 2
 
           stories.push(story);
@@ -117,7 +117,7 @@ app
     let bool1, bool2 = false;
     getOwnRepositories(token, function(repos){
       ownRepositories = repos;
-      
+
       if(bool2){
         let concat = ownRepositories.concat(starredRepositories);
         res.status(200).json(concat);
@@ -125,7 +125,7 @@ app
         bool1 = true;
       }
     });
-    let starredRepositories; 
+    let starredRepositories;
     getStarredRepositories(githubName, token, function(stars){
       starredRepositories = stars;
       if(bool1){
@@ -135,7 +135,7 @@ app
         bool2 = true;
       }
     });
-    
+
   })
 
 
@@ -251,7 +251,7 @@ function getOwnRepositories(token, callback){
 
 
   // get Issues from GitHub
-  
+
   let repos;
   //request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
   request.send();
@@ -268,7 +268,7 @@ function getOwnRepositories(token, callback){
       }
       callback(names);
       //console.log("getRepo: " + names)
-      
+
     }
   };
 
@@ -281,7 +281,7 @@ function getStarredRepositories(githubName, token, callback){
 
 
   // get Issues from GitHub
-  
+
   //request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
   request.send();
   request.onreadystatechange = function () {
@@ -301,7 +301,7 @@ function getStarredRepositories(githubName, token, callback){
       if(this.readyState === 4){
         console.log("error for starred " + this.status)
       }
-      
+
     }
   };
 }

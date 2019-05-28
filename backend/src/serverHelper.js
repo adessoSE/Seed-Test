@@ -164,6 +164,7 @@ function updateFeatureFiles(reqparams, stories) {
 
 // Creates feature file
 function writeFile(__dirname, selectedStory) {
+  // console.log(path.join(__dirname, 'features', selectedStory.title.replace(/ /g, '_') + '.feature'));
   fs.writeFile(path.join(__dirname, 'features', selectedStory.title.replace(/ /g, '_') + '.feature'), getFeatureContent(selectedStory), function (err) {
     if (err) throw err;
   });

@@ -1,11 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
-import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
-import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
-import {DragDropModule, CdkDrag, CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -58,7 +55,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   @Input()
   set newSelectedStory(story: Story){
-    this.selectedStory = story;    
+    this.selectedStory = story;
   }
 
   @Input()
@@ -70,7 +67,7 @@ export class ScenarioEditorComponent implements OnInit {
       console.log("storyIndex: " + storyIndex);
       this.selectScenario(null,scenario);
     }
-    
+
   }
 
   loadStepDefinitions() {
@@ -85,7 +82,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
   updateBackground(storyID){
-  
+
     this.apiService
     .updateBackground(storyID, this.selectedStory.background)
     .subscribe(resp =>{
@@ -111,7 +108,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
         this.selectScenario(resp.story_id,resp);
       });
-    
+
   }
 
   addScenario(storyID) {
@@ -132,7 +129,7 @@ export class ScenarioEditorComponent implements OnInit {
     switch (stepType) {
       case 'when':
       var move = this.selectedStory.background.stepDefinitions.when[index];
-    
+
       var top = this.selectedStory.background.stepDefinitions.when[index - 1];
       this.selectedStory.background.stepDefinitions.when[index] = top;
       this.selectedStory.background.stepDefinitions.when[index - 1] = move;
@@ -140,16 +137,16 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
   moveStepDownBackground(event, stepType, index){
     console.log("index: " + index)
-    
+
     switch (stepType) {
       case 'when':
       if(index === this.selectedStory.background.stepDefinitions.when.length - 1) return;
-      
+
       var move = this.selectedStory.background.stepDefinitions.when[index];
       var down = this.selectedStory.background.stepDefinitions.when[index + 1];
       this.selectedStory.background.stepDefinitions.when[index] = down;
@@ -158,7 +155,7 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
 
@@ -173,21 +170,21 @@ export class ScenarioEditorComponent implements OnInit {
     switch (stepType) {
       case 'given':
       var move = this.selectedScenario.stepDefinitions.given[index];
-    
+
       var top = this.selectedScenario.stepDefinitions.given[index - 1];
       this.selectedScenario.stepDefinitions.given[index] = top;
       this.selectedScenario.stepDefinitions.given[index - 1] = move;
         break;
       case 'when':
       var move = this.selectedScenario.stepDefinitions.when[index];
-    
+
       var top = this.selectedScenario.stepDefinitions.when[index - 1];
       this.selectedScenario.stepDefinitions.when[index] = top;
       this.selectedScenario.stepDefinitions.when[index - 1] = move;
         break;
       case 'then':
       var move = this.selectedScenario.stepDefinitions.then[index];
-    
+
       var top = this.selectedScenario.stepDefinitions.then[index - 1];
       this.selectedScenario.stepDefinitions.then[index] = top;
       this.selectedScenario.stepDefinitions.then[index - 1] = move;
@@ -195,17 +192,17 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
   moveStepDown(event, stepType, index){
     console.log("index: " + index)
-    
+
     switch (stepType) {
       case 'given':
       if(index === this.selectedScenario.stepDefinitions.given.length - 1) return;
       var move = this.selectedScenario.stepDefinitions.given[index];
-    
+
       var down = this.selectedScenario.stepDefinitions.given[index + 1];
       this.selectedScenario.stepDefinitions.given[index] = down;
       this.selectedScenario.stepDefinitions.given[index + 1] = move;
@@ -221,7 +218,7 @@ export class ScenarioEditorComponent implements OnInit {
       case 'then':
       if(index === this.selectedScenario.stepDefinitions.then.length - 1) return;
       var move = this.selectedScenario.stepDefinitions.then[index];
-    
+
       var down = this.selectedScenario.stepDefinitions.then[index + 1];
       this.selectedScenario.stepDefinitions.then[index] = down;
       this.selectedScenario.stepDefinitions.then[index + 1] = move;
@@ -229,7 +226,7 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
 
@@ -583,7 +580,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.testRunning = true;
     var iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
     iframe.src = "http://localhost:8080/testResult";
-    
+
     this.apiService
       .runTests(story_id, scenario_id)
       .subscribe(resp => {
