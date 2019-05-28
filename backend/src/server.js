@@ -66,13 +66,12 @@ app
       repository = req.params.repository;
     }else{
       repository = 'Cucumber'
-      githubName = 'fr4gstar'
+      githubName = 'adessoCucumber'
     }
 
     stories = [];
     // get Issues from GitHub
     let request = new XMLHttpRequest();
-    //request.open('GET', 'https://api.github.com/repos/fr4gstar/Cucumber/issues?labels=story&access_token=' + access_token);
     request.open('GET', 'https://api.github.com/repos/' + githubName + '/' + repository + '/issues?labels=story&access_token=' + access_token);
     request.send();
     request.onreadystatechange = function () {
@@ -106,42 +105,6 @@ app
       }
     };
   })
-  .get("/api/repositories/:token?/:githubName?", function (req, res) {
-    let bearer = req.headers.authorization
-    let splited = bearer.split(" ")
-    let token = splited[1]
-    console.log(splited[1]);
-    //let usertoken = req.params.token;
-    let githubName = req.params.githubName;
-    let ownRepositories;
-    let bool1, bool2 = false;
-    getOwnRepositories(token, function(repos){
-      ownRepositories = repos;
-      
-      if(bool2){
-        let concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
-      }else{
-        bool1 = true;
-      }
-    });
-    let starredRepositories; 
-    getStarredRepositories(githubName, token, function(stars){
-      starredRepositories = stars;
-      if(bool1){
-        let concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
-      }else{
-        bool2 = true;
-      }
-    });
-    
-  })
-
-
-
-
-
 
   .get("/testResult", function(req,res){
     helper.setRespReport(res);
@@ -242,6 +205,49 @@ app
   //run single Scenario of a Feature
   .get("/api/runScenario/:issueID/:scenarioID", function (req, res) {
     helper.scenarioReport(req, res, stories);
+  })
+  .get("/api/repositories/:token?/:githubName?", function (req, res) {
+    let bearer = req.headers.authorization
+    let splited = bearer.split(" ")
+    let token = splited[1]
+    console.log(splited[1]);
+    //let usertoken = req.params.token;
+    let githubName = req.params.githubName;
+    let ownRepositories;
+    let bool1, bool2 = false;
+    getOwnRepositories(token, function(repos){
+      if(repos != null && !res.headersSent ){
+        ownRepositories = repos;
+        if(bool2){
+          let concat = ownRepositories.concat(starredRepositories);
+          res.status(200).json(concat);
+        }else{
+          bool1 = true;
+        }
+      }else if (bool2){
+        res.status(401).json('Wrong Token')
+       }else{
+         bool1 = true;
+       }
+    });
+    let starredRepositories; 
+    getStarredRepositories(githubName, token, function(stars){
+      if(stars != null && !res.headersSent ){
+
+        starredRepositories = stars;
+        if(bool1){
+          let concat = ownRepositories.concat(starredRepositories);
+          res.status(200).json(concat);
+        }else{
+          bool2 = true;
+        }
+     }else if (bool1){
+      res.status(401).json('Wrong Github Name')
+     }else{
+       bool2 = true;
+     }
+    });
+    
   });
 
 function getOwnRepositories(token, callback){
@@ -269,6 +275,11 @@ function getOwnRepositories(token, callback){
       callback(names);
       //console.log("getRepo: " + names)
       
+    }else{
+      if(this.readyState === 4){
+        callback(null)
+      }
+      
     }
   };
 
@@ -276,7 +287,7 @@ function getOwnRepositories(token, callback){
 
 function getStarredRepositories(githubName, token, callback){
   let request = new XMLHttpRequest();
-  console.log("githubname: " + githubName)
+  console.log("githubname: " + githubName + " token: " + token)
   request.open('GET', 'https://api.github.com/users/' + githubName +'/starred',true , githubName, token);
 
 
@@ -299,7 +310,7 @@ function getStarredRepositories(githubName, token, callback){
       callback(names)
     }else{
       if(this.readyState === 4){
-        console.log("error for starred " + this.status)
+        callback(null)
       }
       
     }

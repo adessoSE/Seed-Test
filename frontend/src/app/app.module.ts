@@ -11,6 +11,7 @@ import { StoriesBarComponent } from './stories-bar/stories-bar.component';
 import { ParentComponent } from './parent/parent.component';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms'
+import { AuthGuard } from './guards/auth.guard';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,7 @@ import { FormsModule } from '@angular/forms'
     RouterModule.forRoot(ROUTES),
     FormsModule
   ],
-  providers: [ApiService],
+  providers: [ApiService, AuthGuard],
   bootstrap: [AppComponent],
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })

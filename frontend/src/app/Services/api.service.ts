@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import {tap} from 'rxjs/operators';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {tap, catchError} from 'rxjs/operators';
+import {HttpClient, HttpHeaders, HttpParams, HttpErrorResponse} from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
+import { Observable, throwError } from 'rxjs';
 // import {Constants} from 'Constants';
 
 @Injectable({
@@ -23,14 +24,23 @@ export class ApiService {
     });
   }
 
-  public getRepositories(token, githubName){
+  public getHeader(token){
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
 
+  public getRepositories(token, githubName): Observable<any>{
     this.setHeader();
-    let options = {headers: this.headers}
+    let options = {headers: this.getHeader(token)}
     return this.http.get<any>(this.apiServer + '/repositories/' + token + '/' + githubName, options)
-    .pipe(tap(resp =>{
-      console.log("GET Repositories: " + resp);
-    }))
+    .pipe(tap(resp=>{}),
+      catchError(this.handleError));
+  }
+
+  handleError(error: HttpErrorResponse){
+    console.log(error);
+    return throwError(error);
   }
 
   setHeader(){
@@ -48,6 +58,7 @@ export class ApiService {
       .pipe(tap(resp =>{
         this.getStoriesEvent.emit(resp);
         console.log('GET stories', resp);
+        
       }
       ));
   }
@@ -80,7 +91,7 @@ export class ApiService {
     return this.http
         .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
         .pipe(tap(resp =>
-          console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+          console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)          
         ));
   }
 
@@ -127,6 +138,14 @@ export class ApiService {
     //header.append('Content-Type', 'application/json');
 
     return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob' , headers: new HttpHeaders().append('Content-Type', 'application/json')});
+  }
+
+  isLoggedIn(): boolean{
+    let token = localStorage.getItem('token');
+
+    if(token) return true;
+
+    return false;
   }
 
   getToken(): string {
