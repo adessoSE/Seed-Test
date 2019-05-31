@@ -29,6 +29,7 @@
     "express": "^4.16.4",
     "file-saver": "^2.0.1",
     "jquery": "^3.4.1",
+    "ngx-take-until-destroy": "^5.4.0",
     "node-sass": "^4.11.0",
     "rxjs": "^6.2.2",
     "uikit": "^3.0.0-rc.24",

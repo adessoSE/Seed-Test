@@ -10,9 +10,13 @@ import { ApiService } from './Services/api.service';
 import { StoriesBarComponent } from './stories-bar/stories-bar.component';
 import { ParentComponent } from './parent/parent.component';
 import { LoginComponent } from './login/login.component';
-import { FormsModule } from '@angular/forms'
+import { FormsModule,ReactiveFormsModule } from '@angular/forms'
 import { AuthGuard } from './guards/auth.guard';
-import {MatTableModule} from '@angular/material'
+import {MatTableModule} from '@angular/material';
+import { ExampleTableComponent } from './example-table/example-table.component';
+import { EditableComponent } from './editable/editable.component'
+import { ViewModeDirective } from './editable/view-mode.directive';
+import { EditModeDirective } from './editable/edit-mode.directive';
 
 @NgModule({
   declarations: [
@@ -21,10 +25,16 @@ import {MatTableModule} from '@angular/material'
     SafePipe,
     StoriesBarComponent,
     ParentComponent,
-    LoginComponent
+    LoginComponent,
+    ExampleTableComponent,
+    ViewModeDirective,
+    EditModeDirective,
+    EditableComponent
   ],
   imports: [
     BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     MatTableModule,
     RouterModule.forRoot(ROUTES),
