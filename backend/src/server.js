@@ -9,9 +9,11 @@ const process = require('process');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const access_token = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; //This is a personal access token, not sure how to handle correctly for multi-user
-const access_token_new = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';
+// const access_token_new = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';
 const helper = require('./serverHelper');
-var repository = 'Cucumber';
+
+let githubName;
+let repository = 'Cucumber';
 let stories = [];
 
 // Initialize the app.
@@ -62,11 +64,11 @@ app
 
   .get("/api/stories/:user?/:repository?", function (req, res) {
     if(req.params.repository){
-      githubName = req.params.user
+      githubName = req.params.user;
       repository = req.params.repository;
     }else{
       repository = 'Cucumber'
-      githubName = 'fr4gstar'
+      githubName = 'fr4gstar';
     }
 
     stories = [];
@@ -252,7 +254,6 @@ function getOwnRepositories(token, callback){
 
   // get Issues from GitHub
 
-  let repos;
   //request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
   request.send();
   request.onreadystatechange = function () {
