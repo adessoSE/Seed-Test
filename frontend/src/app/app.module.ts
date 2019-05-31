@@ -12,6 +12,7 @@ import { ParentComponent } from './parent/parent.component';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms'
 import { AuthGuard } from './guards/auth.guard';
+import {MatTableModule} from '@angular/material'
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { AuthGuard } from './guards/auth.guard';
   imports: [
     BrowserModule,
     HttpClientModule,
+    MatTableModule,
     RouterModule.forRoot(ROUTES),
     FormsModule
   ],
