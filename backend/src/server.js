@@ -98,7 +98,7 @@ app
           }
           stories_db.insert(story); // update database
           // Create & Update Feature Files
-          helper.writeFile("../", story);
+          helper.writeFile("", story);
           //TODO: delete stories priority 2
 
           stories.push(story);

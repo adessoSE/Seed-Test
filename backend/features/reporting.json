@@ -28,7 +28,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 17000000
+              "duration": 20000000
             }
           },
           {
@@ -53,7 +53,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 7923000000
+              "duration": 4260000000
             }
           },
           {
@@ -66,7 +66,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 71000000
+              "duration": 68000000
             }
           },
           {
@@ -79,7 +79,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 83000000
+              "duration": 79000000
             }
           },
           {
@@ -92,7 +92,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2347000000
+              "duration": 1674000000
             }
           },
           {
@@ -105,7 +105,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 13000000
+              "duration": 6000000
             }
           },
           {
@@ -116,7 +116,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2000000
+              "duration": 1000000
             }
           }
         ]
@@ -142,7 +142,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1000000
+              "duration": 2000000
             }
           },
           {
@@ -154,7 +154,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           },
           {
@@ -167,7 +168,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2486000000
+              "duration": 2511000000
             }
           },
           {
@@ -180,7 +181,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 64000000
+              "duration": 90000000
             }
           },
           {
@@ -193,7 +194,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 62000000
+              "duration": 78000000
             }
           },
           {
@@ -206,7 +207,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 3043000000
+              "duration": 1461000000
             }
           },
           {
@@ -218,9 +219,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "failed",
-              "duration": 6000000,
-              "error_message": "AssertionError: Error: expected 'https://github.com/' to equal 'https://github.com/account/unverified-email'\n    + expected - actual\n\n    -https://github.com/\n    +https://github.com/account/unverified-email\n\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\features\\step_definitions\\stepdefs.js:88:27\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+              "status": "passed",
+              "duration": 4000000
             }
           },
           {
@@ -230,8 +230,7 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "passed"
             }
           }
         ]
@@ -269,7 +268,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           },
           {
@@ -282,7 +282,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2745000000
+              "duration": 2486000000
             }
           },
           {
@@ -295,7 +295,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 65000000
+              "duration": 68000000
             }
           },
           {
@@ -308,7 +308,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 65000000
+              "duration": 69000000
             }
           },
           {
@@ -321,7 +321,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2176000000
+              "duration": 1574000000
             }
           },
           {
@@ -344,7 +344,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           }
         ]

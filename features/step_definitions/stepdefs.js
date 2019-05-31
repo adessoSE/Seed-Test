@@ -21,6 +21,8 @@ Before(async function () {
 
     let chromeOptions = new chrome.Options();
     chromeOptions.addArguments("-headless");
+    console.log("chrome_shim:" + process.env.GOOGLE_CHROME_SHIM);
+    chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
     //driver = new webdriver.Builder().forBrowser('firefox').setFirefoxOptions(options).build();
     driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
