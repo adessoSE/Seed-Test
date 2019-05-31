@@ -6,6 +6,8 @@ const { expect } = require('chai');
 var { AfterAll, BeforeAll, Before, After } = require('cucumber')
 require('geckodriver');
 var firefox = require('selenium-webdriver/firefox');
+const chrome = require('selenium-webdriver/chrome');
+require('chromedriver')
 
 
 //Cucumber defaulttimer for timeout
@@ -17,11 +19,15 @@ Before(async function () {
     let options = new firefox.Options();
     options.addArguments("-headless");
 
-    driver = new webdriver.Builder().forBrowser('firefox').setFirefoxOptions(options).build();
+    let chromeOptions = new chrome.Options();
+    chromeOptions.addArguments("-headless");
 
-    let logger = webdriver.logging.getLogger();
-    logger.setLevel(webdriver.WebDriver.Level.DEBUG);
-    webdriver.logging.installConsoleHandler();
+    //driver = new webdriver.Builder().forBrowser('firefox').setFirefoxOptions(options).build();
+    driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+
+    // let logger = webdriver.logging.getLogger();
+    // logger.setLevel(webdriver.WebDriver.Level.DEBUG);
+    // webdriver.logging.installConsoleHandler();
 });
 
 
@@ -37,7 +43,7 @@ Given('I am at the Website: {string}', async function (url){
   })
 })
 
-// driver navigates to the Website 
+// driver navigates to the Website
 When('I want to visit this site: {string}', async function (url) {
     await driver.get(url);
     await driver.getCurrentUrl().then(async function (currentUrl) {
@@ -87,7 +93,7 @@ When ('I want to hover over the Element {string}, and Select the Option {string}
   const action = driver.actions({bridge: true});
   const link = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + element + "')]")), 3 * 1000)
   await action.move({x: 0, y: 0, origin: link}).perform();
- 
+
   const action2 = driver.actions({bridge: true});
   const selection = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + option + "')]")), 3 * 1000)
   await action2.move({x: 0, y: 0, origin: selection}).click().perform();

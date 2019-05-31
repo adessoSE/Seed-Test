@@ -5,6 +5,7 @@ const {By, until} = require('selenium-webdriver');
 const {expect} = require('chai');
 require('geckodriver');
 var firefox = require('selenium-webdriver/firefox');
+const chrome = require('selenium-webdriver/chrome');
 
 //Cucumber defaulttimer for timeout
 setDefaultTimeout(20 * 1000);
@@ -15,11 +16,15 @@ Before(async function () {
   let options = new firefox.Options();
   options.addArguments("-headless");
 
-  driver = new webdriver.Builder().forBrowser('firefox').setFirefoxOptions(options).build();
+  let chromeOptions = new chrome.Options();
+  chromeOptions.addArguments("-headless");
 
-  let logger = webdriver.logging.getLogger();
-  logger.setLevel(webdriver.WebDriver.Level.DEBUG);
-  webdriver.logging.installConsoleHandler();
+  //driver = new webdriver.Builder().forBrowser('firefox').setFirefoxOptions(options).build();
+  driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+
+  // let logger = webdriver.logging.getLogger();
+  // logger.setLevel(webdriver.WebDriver.Level.DEBUG);
+  // webdriver.logging.installConsoleHandler();
 
 });
 
