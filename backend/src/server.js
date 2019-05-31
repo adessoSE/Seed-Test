@@ -140,11 +140,6 @@ app
 
   })
 
-
-
-
-
-
   .get("/testResult", function(req,res){
     helper.setRespReport(res);
   })

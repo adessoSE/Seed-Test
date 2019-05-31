@@ -28,7 +28,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 28000000
+              "duration": 21000000
             }
           },
           {
@@ -54,7 +54,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 3650000000
+              "duration": 4098000000
             }
           },
           {
@@ -67,7 +67,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 88000000
+              "duration": 72000000
             }
           },
           {
@@ -80,7 +80,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 84000000
+              "duration": 85000000
             }
           },
           {
@@ -93,7 +93,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1821000000
+              "duration": 1517000000
             }
           },
           {
@@ -106,7 +106,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 6000000
+              "duration": 7000000
             }
           },
           {
@@ -155,8 +155,7 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "passed"
             }
           },
           {
@@ -169,7 +168,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2452000000
+              "duration": 2363000000
             }
           },
           {
@@ -182,7 +181,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 83000000
+              "duration": 70000000
             }
           },
           {
@@ -195,7 +194,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 66000000
+              "duration": 71000000
             }
           },
           {
@@ -208,7 +207,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1423000000
+              "duration": 2015000000
             }
           },
           {
@@ -221,7 +220,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4000000
+              "duration": 5000000
             }
           },
           {
@@ -231,7 +230,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           }
         ]
@@ -256,7 +256,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 2000000
             }
           },
           {
@@ -281,7 +282,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2465000000
+              "duration": 2368000000
             }
           },
           {
@@ -294,7 +295,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 66000000
+              "duration": 68000000
             }
           },
           {
@@ -307,7 +308,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 67000000
+              "duration": 71000000
             }
           },
           {
@@ -320,7 +321,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1560000000
+              "duration": 1635000000
             }
           },
           {
