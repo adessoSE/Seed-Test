@@ -28,7 +28,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 20000000
+              "duration": 19000000
             }
           },
           {
@@ -40,7 +40,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           },
           {
@@ -53,7 +54,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4260000000
+              "duration": 4428000000
             }
           },
           {
@@ -66,7 +67,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 68000000
+              "duration": 71000000
             }
           },
           {
@@ -79,7 +80,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 79000000
+              "duration": 87000000
             }
           },
           {
@@ -92,7 +93,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1674000000
+              "duration": 1663000000
             }
           },
           {
@@ -105,7 +106,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 6000000
+              "duration": 5000000
             }
           },
           {
@@ -142,7 +143,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2000000
+              "duration": 1000000
             }
           },
           {
@@ -154,8 +155,7 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "passed"
             }
           },
           {
@@ -168,7 +168,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2511000000
+              "duration": 2376000000
             }
           },
           {
@@ -181,7 +181,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 90000000
+              "duration": 83000000
             }
           },
           {
@@ -194,7 +194,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 78000000
+              "duration": 81000000
             }
           },
           {
@@ -207,7 +207,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1461000000
+              "duration": 1625000000
             }
           },
           {
@@ -268,8 +268,7 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed",
-              "duration": 1000000
+              "status": "passed"
             }
           },
           {
@@ -282,7 +281,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2486000000
+              "duration": 2594000000
             }
           },
           {
@@ -295,7 +294,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 68000000
+              "duration": 61000000
             }
           },
           {
@@ -308,7 +307,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 69000000
+              "duration": 75000000
             }
           },
           {
@@ -321,7 +320,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1574000000
+              "duration": 1321000000
             }
           },
           {
