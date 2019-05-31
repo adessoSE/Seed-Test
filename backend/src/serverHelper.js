@@ -2,7 +2,6 @@ const exec = require('child_process').exec;
 const fs = require('fs');
 const path = require('path');
 var reporter = require('cucumber-html-reporter');
-var respReport;
 
 //this is needed for the html report
 var options = {
@@ -179,13 +178,28 @@ function getStoryByID(reqparams, stories) {
   return selectedStory;
 }
 
-function execScenario(req, res, stories, callback) {
+
+function runReport(req,res,stories, mode){
+  execReport(req,res,stories,mode, function(){
+    console.log("testing " + mode  + " report");
+    reporter.generate(options);
+    res.sendFile('/reporting_html.html', {root: "../../features"});
+  })
+}
+
+function execReport(req,res,stories, mode, callback){
   let story = getStoryByID(req.params, stories)
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:../../features/reporting.json';
-  console.log(cmd);
+
+  if(mode == "feature"){
+    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
+  }else{
+    var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:../../features/reporting.json';
+  }
+  
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
+
       callback();
       return;
     }
@@ -193,62 +207,16 @@ function execScenario(req, res, stories, callback) {
     console.log(`stderr: ${stderr}`);
     callback();
   });
-}
 
-function execFeature(req, res, stories, callback) {
-  //npm test features/LoginTest.feature
-  let story = getStoryByID(req.params, stories)
-  var cmd = '..\\..\\node_modules\\.bin\\cucumber-js ../../features/' + story.title.replace(/ /g, '_') + '.feature --format json:../../features/reporting.json';
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`);
-
-      callback();
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.log(`stderr: ${stderr}`);
-    callback();
-  });
-}
-
-//outputs a report in Json and then transforms it in a pretty html page
-function scenarioReport(req, res, stories) {
-  execScenario(req, res, stories, function () {
-    console.log("testing scenario report");
-    reporter.generate(options);
-    sendTestResult();
-    res.sendFile('/reporting_html.html', {root: "../../features"});
-  })
-}
-
-function featureReport(req, res, stories) {
-  execFeature(req, res, stories, function () {
-    console.log("testing feature report");
-    reporter.generate(options);
-    sendTestResult();
-    res.sendFile('/reporting_html.html', {root: "../../features"});
-  })
-}
-
-function sendTestResult() {
-  respReport.sendFile('/reporting_html.html', {root: "../../features"});
 }
 
 function sendDownloadResult(resp) {
   resp.sendFile('/reporting_html.html', {root: "../../features"});
 }
 
-//necessary for sendTestResult function
-function setRespReport(resp) {
-  respReport = resp;
-}
-
 module.exports = {
   updateFeatureFiles: updateFeatureFiles,
-  scenarioReport: scenarioReport,
-  featureReport: featureReport,
   writeFile: writeFile,
-  setRespReport: setRespReport,
+  runReport: runReport,
   sendDownloadResult: sendDownloadResult
 }
