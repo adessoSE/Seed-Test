@@ -25,7 +25,7 @@ let options = {
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
   this.respReport = null;
-  var data = "Feature: " + story.title + "\n\n";
+  let data = "Feature: " + story.title + "\n\n";
   //console.log(story.story_id+ " Background: " + story.background.stepDefinitions.when[0]);
 
   //Get background
