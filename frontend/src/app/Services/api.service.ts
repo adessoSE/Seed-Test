@@ -11,13 +11,13 @@ import { StepDefinition } from '../model/StepDefinition';
 })
 
 export class ApiService {
-  private apiServer: string = 'http://localhost:8080/api';
+  private apiServer: string = 'https://cucumberapp.herokuapp.com/api';
 
   public getStoriesEvent = new EventEmitter();
   private token = 123;
   private headers: HttpHeaders;
 
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient) {
     this.headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`
     });
@@ -106,7 +106,7 @@ export class ApiService {
     console.log("issueID: " + storyID);
     if(scenarioID){
       console.log("run test scenario");
-    
+
    // let options = new RequestOptions({responseType: ResponseContentType.Text});
 
     return this.http
