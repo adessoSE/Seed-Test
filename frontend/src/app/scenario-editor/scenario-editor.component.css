@@ -146,3 +146,7 @@
 .padRight{
   padding-right: 10px;
 }
+
+table {
+  width: 100%;
+}

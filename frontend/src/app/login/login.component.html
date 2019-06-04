@@ -28,7 +28,11 @@
         <div>
           <div class="uk-heading-small">Login</div>
           <div class="uk-card-body">
-            <form #loginForm="ngForm" novalidate (ngSubmit)="login(loginForm)">
+            <ul class="uk-list">
+              <li class="uk-card uk-card-default uk-text-secondary uk-text-center wrongLogin" *ngIf="error">{{error}}</li>
+            </ul>
+
+            <form #form="ngForm" novalidate (ngSubmit)="login(form)">
               <label for="githubName" class="uk-form-label">Github Name</label>
               <br>
               <input id="githubName" type="text" name="githubName" #githubName ngModel class="uk-form-controls" required>
@@ -37,7 +41,7 @@
               <br>
               <input id="token" type="text" name="token" #token ngModel class="uk-form-controls" required>
               <br>
-              <button type="submit" class="uk-button-primary" >Login</button>
+              <button type="submit" class="uk-button-primary" [disabled]="form.invalid" >Login</button>
             </form>
           </div>
           <div class="uk-card uk-card-default uk-padding" *ngIf="repositories">

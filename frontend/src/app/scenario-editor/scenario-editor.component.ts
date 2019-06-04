@@ -28,7 +28,6 @@ export class ScenarioEditorComponent implements OnInit {
   showBackground = false;
   arrowLeft: boolean = true;
   arrowRight: boolean = true;
-  reportingChart;
   testDone: boolean = false;
   testRunning: boolean = false;
   uncutInputs: string[] = [];
@@ -514,7 +513,6 @@ export class ScenarioEditorComponent implements OnInit {
   selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
-    this.reportingChart = undefined;
     this.showEditor = true;
     this.editorLocked = true;
     this.testDone = false;
@@ -528,7 +526,6 @@ export class ScenarioEditorComponent implements OnInit {
 
   selectStoryScenario(story: Story){
     console.log("selectStoryScenario")
-    this.reportingChart = undefined;
     this.showResults = false;
     this.selectedStory = story;
     this.showEditor = true;
@@ -579,12 +576,12 @@ export class ScenarioEditorComponent implements OnInit {
   runTests(story_id, scenario_id) {
     this.testRunning = true;
     var iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
-    iframe.src = "http://localhost:8080/testResult";
-
+    //iframe.src = "http://localhost:8080/testResult";
+    
     this.apiService
       .runTests(story_id, scenario_id)
       .subscribe(resp => {
-       this.reportingChart = resp;
+        iframe.srcdoc = resp;
         console.log("This is the response: " + resp);
         this.testDone = true;
         this.showResults = true;

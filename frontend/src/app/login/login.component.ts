@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service'
 import { Router } from "@angular/router";
 import { NgForm} from "@angular/forms"
 import { EventEmitter } from 'protractor';
+import { JsonPipe } from '@angular/common';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -11,7 +12,7 @@ import { EventEmitter } from 'protractor';
 export class LoginComponent implements OnInit {
 
   repositories;
-
+  error;
 
   constructor(private apiService: ApiService,
               private router: Router) { }
@@ -22,11 +23,13 @@ export class LoginComponent implements OnInit {
   }
 
   login(form: NgForm){
-    localStorage.setItem('token', form.value.token);
-    localStorage.setItem('githubName', form.value.githubName);
-    this.apiService.getRepositories(form.value.token, form.value.githubName).subscribe(resp =>{
-
+    this.error = undefined;
+    this.apiService.getRepositories(form.value.token, form.value.githubName).subscribe((resp)=>{
       this.repositories = resp;
+      localStorage.setItem('token', form.value.token);
+      localStorage.setItem('githubName', form.value.githubName);
+    }, (err) => {
+      this.error = err.error;
     })
   }
 
