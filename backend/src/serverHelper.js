@@ -4,7 +4,7 @@ const path = require('path');
 const reporter = require('cucumber-html-reporter');
 
 //this is needed for the html report
-var options = {
+const options = {
   theme: 'bootstrap',
   jsonFile: 'features/reporting.json',
   output: 'features/reporting_html.html',
@@ -20,11 +20,11 @@ var options = {
   }
 };
 
+const root_path = path.normalize("features");
+
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
-  this.respReport = null;
   let data = "Feature: " + story.title + "\n\n";
-  //console.log(story.story_id+ " Background: " + story.background.stepDefinitions.when[0]);
 
   //Get background
   if (story.background != null) {
@@ -37,7 +37,7 @@ function getFeatureContent(story) {
 
 //Building Background-Content
 function getBackgroundContent(background) {
-  var data = "Background: \n\n";
+  let data = "Background: \n\n";
   // get stepDefinitions
   data += getBackgroundSteps(background.stepDefinitions.when);
   return data;
@@ -45,8 +45,8 @@ function getBackgroundContent(background) {
 
 //Content in Background for FeatureFile
 function getBackgroundSteps(steps) {
-  var data = "";
-  for (var i = 0; i < steps.length; i++) {
+  let data = '';
+  for (let i = 0; i < steps.length; i++) {
     if (i === 0) {
       data += "When "
     } else {
@@ -65,8 +65,8 @@ function getBackgroundSteps(steps) {
 
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, story_id) {
-  var data = "";
-  for (var i = 0; i < scenarios.length; i++) {
+  let data = '';
+  for (let i = 0; i < scenarios.length; i++) {
     data += "@" + story_id + "_" + scenarios[i].scenario_id + "\n";
     if ((scenarios[i].stepDefinitions.example.length) > 0) {
       data += "Scenario Outline: " + scenarios[i].name + "\n\n";
@@ -89,8 +89,8 @@ function getScenarioContent(scenarios, story_id) {
 
 // Building feature file step-content
 function getSteps(steps, stepType) {
-  var data = "";
-  for (var i = 0; i < steps.length; i++) {
+  let data = '';
+  for (let i = 0; i < steps.length; i++) {
     data += jsUcfirst(stepType) + " ";
     // ToDo: If Given contains Background (Background>0): Add Background (method)
     if ((steps[i].label) != null && (steps[i].label) != 'User') {
@@ -106,12 +106,10 @@ function getSteps(steps, stepType) {
 
 // adds content of each values to output
 function getExamples(steps) {
-  var data = "";
-
-  data += "Examples:";
-  for (var i = 0; i < steps.length; i++) {
+  let data = "Examples:";
+  for (let i = 0; i < steps.length; i++) {
     data += "\n | ";
-    for (var k = 0; k < steps[i].values.length; k++) {
+    for (let k = 0; k < steps[i].values.length; k++) {
       data += steps[i].values[k] + " | "
     }
   }
@@ -129,8 +127,8 @@ function midNotEmpty(values) {
 
 // adds content of each values to output
 function getValues(values) {
-  let data = "";
-  for (var i = 0; i < values.length; i++) {
+  let data = '';
+  for (let i = 0; i < values.length; i++) {
     data += '"' + values[i] + '"';
   }
   return data;
@@ -138,8 +136,7 @@ function getValues(values) {
 
 // adds label content to output
 function getLabel(label) {
-  let data = "";
-  data += '"' + label + '"';
+  let data = '"' + label + '"';
   return data;
 }
 
@@ -151,7 +148,7 @@ function jsUcfirst(string) {
 // Updates feature file based on story_id
 function updateFeatureFiles(reqparams, stories) {
   let selectedStory;
-  for (var i = 0; i < stories.length; i++) {
+  for (let i = 0; i < stories.length; i++) {
     if (stories[i].story_id == reqparams.issueID) {
       selectedStory = stories[i];
       break;
@@ -170,7 +167,7 @@ function writeFile(__dirname, selectedStory) {
 
 function getStoryByID(reqparams, stories) {
   let selectedStory;
-  for (var i = 0; i < stories.length; i++) {
+  for (let i = 0; i < stories.length; i++) {
     if (stories[i].story_id == reqparams.issueID) {
       selectedStory = stories[i];
       break;
@@ -183,7 +180,7 @@ function runReport(req,res,stories, mode){
   execReport(req,res,stories,mode, function(){
     console.log("testing " + mode  + " report");
     reporter.generate(options);
-    res.sendFile('/reporting_html.html', {root: "../../features"});
+    res.sendFile('/reporting_html.html', {root: root_path});
   })
 }
 
@@ -192,13 +189,13 @@ function execReport(req,res,stories, mode, callback){
   let path1 = 'node_modules/.bin/cucumber-js';
   let path2 = 'features/' + story.title.replace(/ /g, '_') + '.feature';
   let path3 = 'features/reporting.json';
-  console.log("Executing: " +cmd);
-
-  if(mode == "feature"){
-    let cmd = path.normalize(path1) + ' ' + path.normalize(path2) + '--format json:' + path.normalize(path3);
+  let cmd;
+  if(mode === "feature"){
+    cmd = path.normalize(path1) + ' ' + path.normalize(path2) + '--format json:' + path.normalize(path3);
   }else{
-    let cmd = path.normalize(path1) + ' ' + path.normalize(path2) + ' --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:' + path.normalize(path3);
+    cmd = path.normalize(path1) + ' ' + path.normalize(path2) + ' --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:' + path.normalize(path3);
   }
+  console.log("Executing: " + cmd);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
@@ -214,7 +211,7 @@ function execReport(req,res,stories, mode, callback){
 }
 
 function sendDownloadResult(resp) {
-  resp.sendFile('/reporting_html.html', {root: "features"});
+  resp.sendFile('/reporting_html.html', {root: root_path});
 }
 
 module.exports = {
