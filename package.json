@@ -75,5 +75,5 @@
     "rxjs": "^6.2.2",
     "typescript-eslint-parser": "^21.0.2",
     "webpack": "^4.30.0"
-    }
+  }
 }
