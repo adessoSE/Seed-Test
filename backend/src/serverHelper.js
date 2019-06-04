@@ -191,7 +191,7 @@ function execReport(req,res,stories, mode, callback){
   let path3 = 'features/reporting.json';
   let cmd;
   if(mode === "feature"){
-    cmd = path.normalize(path1) + ' ' + path.normalize(path2) + '--format json:' + path.normalize(path3);
+    cmd = path.normalize(path1) + ' ' + path.normalize(path2) + ' --format json:' + path.normalize(path3);
   }else{
     cmd = path.normalize(path1) + ' ' + path.normalize(path2) + ' --tags "@' + req.params.issueID + '_' + req.params.scenarioID + '"' + ' --format json:' + path.normalize(path3);
   }
