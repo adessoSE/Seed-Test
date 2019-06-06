@@ -3,64 +3,27 @@
 	<!--- Note that these columns can be defined in any order.
         The actual rendered columns are set as a property on the row definition" -->
 
-	<!-- Position Column -->
-	<ng-container matColumnDef="userName">
-		<th mat-header-cell *matHeaderCellDef> No. </th>
-		<td mat-cell *matCellDef="let element"> {{element.userName}} </td>
-	</ng-container>
 
-	<!-- Name Column -->
-	<ng-container matColumnDef="password">
-		<th mat-header-cell *matHeaderCellDef> Name </th>
+
+
+	<ng-container *ngFor="let column of displayedColumns" matColumnDef={{column}}>
+		<th mat-header-cell *matHeaderCellDef> {{column}}</th>
 		<td mat-cell *matCellDef="let element;let index = index">
-			<editable (update)="updateField(index, 'name')">
-				<ng-template viewMode>
-					{{element.password}}
-				</ng-template>
-				<ng-template editMode>
-					<mat-form-field class="example-full-width">
-						<input matInput [formControl]="getControl(index, 'name')">
-    <mat-error *ngIf="getControl(index, 'name').hasError('required')">
-       Field is <strong>required</strong>
-    </mat-error>
-  </mat-form-field>
-					<!-- <input  [formControl]="getControl(index, 'name')" focusable editableOnEnter> -->
-        </ng-template>
-      </editable> 
-    </td>
+				<editable (update)="updateField(index, 'symbol')">
+						<ng-template viewMode>
+						{{element[column]}}
+						</ng-template>
+						<ng-template editMode>
+							<input  [formControl]="getControl(index, column)" focusable editableOnEnter>
+						</ng-template>
+					</editable> 
+		</td>
+
+
+
+
+	</ng-container>			
 	
-    
-  </ng-container>
-
-  <!-- Weight Column -->
-  <ng-container matColumnDef="website">
-    <th mat-header-cell *matHeaderCellDef> Weight </th>
-    <td mat-cell *matCellDef="let element;let index = index">
-      	<editable (update)="updateField(index, 'weight')">
-				<ng-template viewMode>
-					{{element.website}}
-				</ng-template>
-				<ng-template editMode>
-					<input  [formControl]="getControl(index, 'weight')" focusable editableOnEnter>
-        </ng-template>
-      </editable> 
-    </td>
-  </ng-container>
-
-  <!-- Symbol Column -->
-  <ng-container matColumnDef="symbol">
-    <th mat-header-cell *matHeaderCellDef> Symbol </th>
-    <td mat-cell *matCellDef="let element;let index = index"> 
-      	<editable (update)="updateField(index, 'symbol')">
-				<ng-template viewMode>
-				{{element.password}}
-				</ng-template>
-				<ng-template editMode>
-					<input  [formControl]="getControl(index, 'symbol')" focusable editableOnEnter>
-        </ng-template>
-      </editable> 
-       </td>
-  </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
