@@ -19,7 +19,7 @@ export interface PeriodicElement {
 })
 export class ExampleTableComponent implements OnInit {
 
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  displayedColumns: string[] = [];
   dataSource = this.core.list$;
   data = [];
   controls: FormArray;
@@ -28,9 +28,9 @@ export class ExampleTableComponent implements OnInit {
 
   ngOnInit() {
     if(this.selectedScenario.stepDefinitions.example.length > 0){
-      for(var i = 1 ; i <= this.selectedScenario.stepDefinitions.example[0].values.length; i++){
+      for(var i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++){
         var js= {};
-        for(var j = 0; j <= this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
+        for(var j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
           js[this.selectedScenario.stepDefinitions.example[0].values[j]] = this.selectedScenario.stepDefinitions.example[i].values[j];
         }
         console.log("js: " + JSON.stringify(js));
@@ -39,34 +39,20 @@ export class ExampleTableComponent implements OnInit {
       //data2: BehaviorSubject<>= new BehaviorSubject(data);
       console.log("data: " + JSON.stringify(this.data));
     
-      /*const toGroups = this.core.list$.value.map(entity => {
-        return new FormGroup({
-          position:  new FormControl(entity.position, Validators.required),
-          name: new FormControl(entity.name, Validators.required), 
-          weight: new FormControl(entity.weight, Validators.required),
-          symbol: new FormControl(entity.symbol, Validators.required)
-        },{updateOn: "blur"});
-      });*/
       this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
 
-      console.log("example: " + this.selectedScenario.stepDefinitions.example[1].values);
-      var cont1 = new FormControl(this.selectedScenario.stepDefinitions.example[1].values[0])
-      var cont2 = new FormControl(this.selectedScenario.stepDefinitions.example[1].values[1])
-      var cont3 = new FormControl(this.selectedScenario.stepDefinitions.example[1].values[2])
+      var formArray: FormGroup[] = [];
+      for(var i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++){
+        var toGroups = new FormGroup({},{updateOn: "blur"});
+        for(var j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
+          var cont1 = new FormControl(this.selectedScenario.stepDefinitions.example[i].values[j])
+          toGroups.addControl(this.selectedScenario.stepDefinitions.example[0].values[j], cont1);
 
-      const toGroups = new FormGroup({name: cont1,position: cont2,website: cont3});
-      /* const toGroups = this.selectedScenario.stepDefinitions.example.value.map(entity =>{
-        console.log("entity: " + entity);
-        return new FormGroup({
-          position: new FormControl(entity.values[0]),
-          name: new FormControl(entity.values[1]),
-          weight: new FormControl(entity.values[2]),
-          symbol: new FormControl(entity.values[0])
+        }
+        formArray.push(toGroups)
+      }
 
-        })
-      })*/
-      console.log(toGroups);
-      this.controls = new FormArray([toGroups]);
+      this.controls = new FormArray(formArray);
     }
   }
 
@@ -84,8 +70,12 @@ export class ExampleTableComponent implements OnInit {
 
    }
 
-  getControl(index, fieldName) {
-    const a  = this.controls.at(index).get(fieldName) as FormControl;
+  getControl(index, fieldName): FormControl {
+    console.log("column name: " + fieldName + " index: " + index);
+    //const a  = this.controls.at(index).get(fieldName) as FormControl;
+    //console.log("controls: " + JSON.stringify(this.controls));
+    
+    //console.log("found control: " + JSON.stringify( this.controls.at(index).get(fieldName) as FormControl));
     return this.controls.at(index).get(fieldName) as FormControl;
   }
 
