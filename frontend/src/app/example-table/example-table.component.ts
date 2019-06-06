@@ -28,16 +28,9 @@ export class ExampleTableComponent implements OnInit {
 
   ngOnInit() {
     if(this.selectedScenario.stepDefinitions.example.length > 0){
-      for(var i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++){
-        var js= {};
-        for(var j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
-          js[this.selectedScenario.stepDefinitions.example[0].values[j]] = this.selectedScenario.stepDefinitions.example[i].values[j];
-        }
-        console.log("js: " + JSON.stringify(js));
-        this.data.push(js);
-      }
+      this.initializeTable();
       //data2: BehaviorSubject<>= new BehaviorSubject(data);
-      console.log("data: " + JSON.stringify(this.data));
+      //console.log("data: " + JSON.stringify(this.data));
     
       this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
 
@@ -62,21 +55,54 @@ export class ExampleTableComponent implements OnInit {
     console.log("example table scenario is set");
   }
 
-  updateField(index, field) {
-    const control = this.getControl(index, field);
-    if (control.valid) {
-      this.core.update(index,field,control.value);
+  initializeTable(){
+    this.data = [];
+    for(var i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++){
+      var js= {};
+      for(var j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
+        js[this.selectedScenario.stepDefinitions.example[0].values[j]] = this.selectedScenario.stepDefinitions.example[i].values[j];
+      }
+      //console.log("js: " + JSON.stringify(js));
+      this.data.push(js);
     }
+  }
+
+  updateField(columnIndex, rowIndex, field) {
+    const control = this.getControl(rowIndex, field);
+    //console.log("control: " + JSON.stringify(control));
+    if (control.valid) {
+      console.log("columnIndex: " + columnIndex + " rowIndex: " + rowIndex);
+      console.log("control value: " + control.value);
+      this.selectedScenario.stepDefinitions.example[rowIndex+1].values[columnIndex] = control.value;
+      this.initializeTable();
+      //this.core.update(index,field,control.value);
+    }else{
+      console.log("CONTROL NOT VALID")
+    }
+
+
 
    }
 
-  getControl(index, fieldName): FormControl {
-    console.log("column name: " + fieldName + " index: " + index);
+  getControl(rowIndex, fieldName): FormControl {
+    console.log("column name: " + fieldName + " index: " + rowIndex);
     //const a  = this.controls.at(index).get(fieldName) as FormControl;
     //console.log("controls: " + JSON.stringify(this.controls));
     
     //console.log("found control: " + JSON.stringify( this.controls.at(index).get(fieldName) as FormControl));
-    return this.controls.at(index).get(fieldName) as FormControl;
+    return this.controls.at(rowIndex).get(fieldName) as FormControl;
+  }
+
+  async addToValues(input: string, stepType,step, index, valueIndex? ) {
+
+    //await this.checkForExamples(input,step);
+
+    console.log("steptype: " + stepType)
+    console.log("add to values: " + input);
+
+    this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
+
+    
   }
 
 }
