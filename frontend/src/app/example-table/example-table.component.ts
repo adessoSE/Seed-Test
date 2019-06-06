@@ -24,35 +24,43 @@ export class ExampleTableComponent implements OnInit {
   data = [];
   controls: FormArray;
   selectedScenario : Scenario;
+  exampleThere: boolean = false;
+
+
   constructor(private core: CoreService){}
 
   ngOnInit() {
-    if(this.selectedScenario.stepDefinitions.example.length > 0){
-      this.initializeTable();
-      //data2: BehaviorSubject<>= new BehaviorSubject(data);
-      //console.log("data: " + JSON.stringify(this.data));
-    
-      this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
 
-      var formArray: FormGroup[] = [];
-      for(var i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++){
-        var toGroups = new FormGroup({},{updateOn: "blur"});
-        for(var j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
-          var cont1 = new FormControl(this.selectedScenario.stepDefinitions.example[i].values[j])
-          toGroups.addControl(this.selectedScenario.stepDefinitions.example[0].values[j], cont1);
-
-        }
-        formArray.push(toGroups)
-      }
-
-      this.controls = new FormArray(formArray);
-    }
   }
 
   @Input()
   set newSelectedScenario(scenario: Scenario){
-    this.selectedScenario = scenario;    
+    this.selectedScenario = scenario;
+    if(this.selectedScenario.stepDefinitions.example.length > 0){
+      this.initializeTable();
+      this.initializeTableControls();
+      this.exampleThere = true;
+    }else{
+      this.exampleThere = false;
+    }
     console.log("example table scenario is set");
+  }
+
+  initializeTableControls(){
+    this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
+
+    var formArray: FormGroup[] = [];
+    for(var i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++){
+      var toGroups = new FormGroup({},{updateOn: "blur"});
+      for(var j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
+        var cont1 = new FormControl(this.selectedScenario.stepDefinitions.example[i].values[j])
+        toGroups.addControl(this.selectedScenario.stepDefinitions.example[0].values[j], cont1);
+
+      }
+      formArray.push(toGroups)
+    }
+
+    this.controls = new FormArray(formArray);
   }
 
   initializeTable(){
