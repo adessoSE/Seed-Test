@@ -166,8 +166,8 @@ function updateFeatureFiles(reqParams, stories) {
 
 function getStoryByID(params, stories) {
   let selectedStory;
-  for (let story of stories) {
-    if (story.story_id == parseInt(params.issueID, 100)) {
+  for (story of stories) {
+    if (story.story_id === parseInt(params.issueID)) {
       selectedStory = story;
       console.log(story.story_id);
       break;
