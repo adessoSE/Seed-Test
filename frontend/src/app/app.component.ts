@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {ApiService} from './Services/api.service'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,12 +8,12 @@ import {ApiService} from './Services/api.service'
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  token;
-  githubName;
+  token: string;
+  githubName: string;
 
-  repositories = [];
-  repository;
-  constructor(private apiService: ApiService){
+  repositories: string[] = [];
+  repository: string;
+  constructor(private apiService: ApiService, private router: Router){
 
   }
 
@@ -57,12 +58,18 @@ export class AppComponent {
     
     var ref: HTMLLinkElement = document.getElementById("githubHref") as HTMLLinkElement;
     ref.href = "https://github.com/"+repository
-
-    localStorage.removeItem('repository');
+    this.repository = repository;
     localStorage.setItem('repository', repository)
     this.repository = repository;
     this.apiService.getStories(repository).subscribe(resp =>{
       //console.log("Response: " + JSON.stringify(resp));
     })
+  }
+
+  logout(){
+    localStorage.removeItem('repository');
+    localStorage.removeItem('token');
+    localStorage.removeItem('githubName');
+    this.router.navigate(['/login']);
   }
 }
