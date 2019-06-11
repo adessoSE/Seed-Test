@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 export class AppComponent {
   token: string;
   githubName: string;
-
+  title = 'cucumber-frontend';
   repositories: string[] = [];
   repository: string;
   constructor(private apiService: ApiService, private router: Router){
@@ -23,9 +23,10 @@ export class AppComponent {
   }
 
   refreshLoginData(){
-    this.token = localStorage.getItem('token')
-    this.githubName = localStorage.getItem('githubName')
-
+    this.token = localStorage.getItem('token');
+    this.githubName = localStorage.getItem('githubName');
+    this.repository = localStorage.getItem('repository');
+    console.log("refreshlogindata "+ this.token + " repo: " + this.repository);
     if(this.token && this.githubName){
       this.getRepositories();
   
@@ -36,13 +37,11 @@ export class AppComponent {
   ngDoCheck(){
     let newToken = localStorage.getItem('token')
     let newGithubName = localStorage.getItem('githubName')
-    
-    if(newToken != this.token || newGithubName != this.githubName){
+    let newRepository = localStorage.getItem('repository');
+    if(newToken != this.token || newGithubName != this.githubName || newRepository != this.repository){
       this.refreshLoginData()
     }
   }
-
-  title = 'cucumber-frontend';
 
   getRepositories(){
     this.token = localStorage.getItem('token')
