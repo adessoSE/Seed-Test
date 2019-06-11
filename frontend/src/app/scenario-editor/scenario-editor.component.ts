@@ -34,6 +34,7 @@ export class ScenarioEditorComponent implements OnInit {
   testDone: boolean = false;
   testRunning: boolean = false;
   uncutInputs: string[] = [];
+  htmlReport;
 
   constructor(
     private http: HttpClient,
@@ -584,8 +585,10 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .runTests(story_id, scenario_id)
       .subscribe(resp => {
+  
         iframe.srcdoc = resp;
         console.log("This is the response: " + resp);
+        this.htmlReport = resp;
         this.testDone = true;
         this.showResults = true;
         this.testRunning = false;
@@ -593,9 +596,8 @@ export class ScenarioEditorComponent implements OnInit {
      }
 
   downloadFile(){
-    this.apiService.downloadTestResult().subscribe(resp =>{
-      saveAs(resp);
-   })
+    var blob = new Blob([ this.htmlReport ], { type : 'text/html' });
+    saveAs(blob);
   }
 
   hideResults() {
