@@ -4,10 +4,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "build": "npm run lint",
     "clean": "rimraf ./dist",
-    "lint": "eslint src/*.js",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "lint": "./node_modules/.bin/eslint src/"
   },
   "private": true,
   "dependencies": {
@@ -45,7 +44,9 @@
     "@types/node": "^8.10.48",
     "child_process": "^1.0.2",
     "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-google": "^0.11.0",
+    "eslint-plugin-import": "^2.17.3",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~3.0.0",

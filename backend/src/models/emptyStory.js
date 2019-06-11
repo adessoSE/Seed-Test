@@ -2,10 +2,10 @@ function emptyStory() {
   return {
     story_id: '',
     background: {
-        stepDefinitions: {
-            when: []
-          }
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -15,11 +15,11 @@ function emptyStory() {
             given: [],
             when: [],
             then: [],
-            example: []
-          }
-        ]
-      }
-    ]
-  }
+            example: [],
+          },
+        ],
+      },
+    ],
+  };
 }
 module.exports = emptyStory;

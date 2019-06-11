@@ -1,12 +1,12 @@
-module.exports.testdata = [
+module.exports.testData = [
   {
     // Logout scenario
     story_id: 386695799,
     background: {
-        stepDefinitions:{
-            when: []
-          }
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -22,8 +22,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -33,7 +33,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.somehomepage.com/myhome']
+              values: ['www.somehomepage.com/myhome'],
             },
             {
               id: 2,
@@ -42,7 +42,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Logout']
+              values: ['Logout'],
             },
           ],
           then: [
@@ -53,7 +53,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.somehomepage.com']
+              values: ['www.somehomepage.com'],
             },
             {
               id: 2,
@@ -62,7 +62,7 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Successfully logged out']
+              values: ['Successfully logged out'],
             },
           ],
           example: [
@@ -73,7 +73,7 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: ['Username', 'Password']
+              values: ['Username', 'Password'],
             },
             {
               id: 2,
@@ -82,7 +82,7 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: ['Superman', 'Kyrptonit']
+              values: ['Superman', 'Kyrptonit'],
             }, {
               id: 1,
               stepType: 'then',
@@ -90,21 +90,21 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.somehomepage.com', 'testi']
-            }
-          ]
-        }
+              values: ['www.somehomepage.com', 'testi'],
+            },
+          ],
+        },
       },
-    ]
+    ],
   },
   {
     // Run test functionality
     story_id: 386697647,
-        background: {
-        stepDefinitions:{
-            when: []
-          }
+    background: {
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -120,8 +120,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -131,7 +131,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.testing.com/myTestPage']
+              values: ['www.testing.com/myTestPage'],
             },
             {
               id: 2,
@@ -140,8 +140,8 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Run']
-            }
+              values: ['Run'],
+            },
           ],
           then: [
             {
@@ -151,23 +151,23 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Start running test cases.']
-            }
+              values: ['Start running test cases.'],
+            },
           ],
           example: [
-          ]
-        }
+          ],
+        },
       },
-    ]
+    ],
   },
   {
     // Sign-Up scenario
     story_id: 386696256,
-        background: {
-        stepDefinitions:{
-            when: []
-          }
+    background: {
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -183,8 +183,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -194,7 +194,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://forum.golem.de/register.php?121624']
+              values: ['https://forum.golem.de/register.php?121624'],
             },
             {
               id: 2,
@@ -203,7 +203,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['golemAcceptCookies();']
+              values: ['golemAcceptCookies();'],
             },
             {
               id: 3,
@@ -212,7 +212,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['abcdefguuh1234567890']
+              values: ['abcdefguuh1234567890'],
             },
             {
               id: 4,
@@ -221,7 +221,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['telefonnuuummer@gmail.com']
+              values: ['telefonnuuummer@gmail.com'],
             },
             {
               id: 5,
@@ -230,7 +230,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['cucumber2000']
+              values: ['cucumber2000'],
             },
             {
               id: 6,
@@ -239,7 +239,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['cucumber2000']
+              values: ['cucumber2000'],
             },
             {
               id: 7,
@@ -248,7 +248,7 @@ module.exports.testdata = [
               type: 'Checkbox',
               pre: 'I want to select from the',
               mid: 'selection, the value',
-              values: ['tos_accept']
+              values: ['tos_accept'],
             },
             {
               id: 8,
@@ -257,7 +257,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Abschicken']
+              values: ['Abschicken'],
             },
           ],
           then: [
@@ -268,11 +268,11 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['https://forum.golem.de/register.php']
+              values: ['https://forum.golem.de/register.php'],
             },
           ],
-          example: []
-        }
+          example: [],
+        },
 
       },
       {
@@ -289,8 +289,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -300,7 +300,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://forum.golem.de/register.php?121624']
+              values: ['https://forum.golem.de/register.php?121624'],
             },
             {
               id: 2,
@@ -309,7 +309,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['golemAcceptCookies();']
+              values: ['golemAcceptCookies();'],
             },
             {
               id: 3,
@@ -318,7 +318,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['abcdefguuh1234567890']
+              values: ['abcdefguuh1234567890'],
             },
             {
               id: 4,
@@ -327,7 +327,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['telefonnuuummer@gmail.com']
+              values: ['telefonnuuummer@gmail.com'],
             },
             {
               id: 5,
@@ -336,7 +336,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['cucumber2000']
+              values: ['cucumber2000'],
             },
             {
               id: 6,
@@ -345,7 +345,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['cucumber2000']
+              values: ['cucumber2000'],
             },
             {
               id: 7,
@@ -354,7 +354,7 @@ module.exports.testdata = [
               type: 'Checkbox',
               pre: 'I want to select from the',
               mid: 'selection, the value',
-              values: ['tos_accept']
+              values: ['tos_accept'],
             },
             {
               id: 8,
@@ -363,7 +363,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Abschicken']
+              values: ['Abschicken'],
             },
           ],
           then: [
@@ -374,7 +374,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['https://forum.golem.de/register.php']
+              values: ['https://forum.golem.de/register.php'],
             },
             {
               id: 2,
@@ -383,22 +383,22 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Dieser Name wird bereits von einem Benutzer verwendet. Wenn Sie derjenige sind, loggen Sie sich bitte ein. Ansonsten nutzen Sie bitte einen anderen Namen.']
-            }
+              values: ['Dieser Name wird bereits von einem Benutzer verwendet. Wenn Sie derjenige sind, loggen Sie sich bitte ein. Ansonsten nutzen Sie bitte einen anderen Namen.'],
+            },
           ],
-          example: []
-        }
-      }
-    ]
+          example: [],
+        },
+      },
+    ],
   },
   {
     // Login scenario
     story_id: 386694507,
-        background: {
-        stepDefinitions:{
-            when: []
-          }
+    background: {
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -414,8 +414,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -425,7 +425,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home']
+              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home'],
             },
             {
               id: 2,
@@ -434,7 +434,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['<userName>']
+              values: ['<userName>'],
             },
             {
               id: 3,
@@ -443,7 +443,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['<password>']
+              values: ['<password>'],
             },
             {
               id: 4,
@@ -452,7 +452,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['commit']
+              values: ['commit'],
             },
           ],
           then: [
@@ -463,7 +463,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['<website>']
+              values: ['<website>'],
             },
           ],
           example: [
@@ -474,7 +474,7 @@ module.exports.testdata = [
               type: '',
               pre: '',
               mid: '',
-              values: ['userName', 'password', 'website']
+              values: ['userName', 'password', 'website'],
             },
             {
               id: 2,
@@ -483,7 +483,7 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: ['AdorableHamster', 'cutehamsterlikesnuts2000', 'https://github.com/']
+              values: ['AdorableHamster', 'cutehamsterlikesnuts2000', 'https://github.com/'],
             },
             {
               id: 3,
@@ -492,7 +492,7 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: ['NormalHamster', 'FatHamster123', 'https://github.com/account/unverified-email']
+              values: ['NormalHamster', 'FatHamster123', 'https://github.com/account/unverified-email'],
             },
             {
               id: 2,
@@ -501,10 +501,10 @@ module.exports.testdata = [
               type: 'Example',
               pre: '',
               mid: '',
-              values: ['OldHamster', 'UglyHamster123', 'https://github.com/account/unverified-email']
+              values: ['OldHamster', 'UglyHamster123', 'https://github.com/account/unverified-email'],
             },
-          ]
-        }
+          ],
+        },
 
       },
       {
@@ -521,8 +521,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -532,7 +532,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home']
+              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home'],
             },
             {
               id: 2,
@@ -541,7 +541,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['arbage']
+              values: ['arbage'],
             },
             {
               id: 3,
@@ -550,7 +550,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['number']
+              values: ['number'],
             },
             {
               id: 4,
@@ -559,7 +559,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['commit']
+              values: ['commit'],
             },
           ],
           then: [
@@ -570,7 +570,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['https://github.com/session']
+              values: ['https://github.com/session'],
             },
             {
               id: 2,
@@ -579,43 +579,23 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Incorrect username or password']
-            }
-          ],
-          then: [
-            {
-              id: 1,
-              stepType: 'then',
-              label: null,
-              type: 'Website',
-              pre: 'So I will be navigated to the site:',
-              mid: '',
-              values: ['https://github.com/session']
+              values: ['Incorrect username or password'],
             },
-            {
-              id: 2,
-              stepType: 'then',
-              label: 'js-flash-container',
-              type: 'Text',
-              pre: 'So I can see in the',
-              mid: 'textbox, the text',
-              values: ['Incorrect username or password']
-            }
           ],
-          example: []
-        }
+          example: [],
+        },
 
-      }
-    ]
+      },
+    ],
   },
   {
     // Delete scenarios
     story_id: 386693823,
-        background: {
-        stepDefinitions:{
-            when: []
-          }
+    background: {
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -631,8 +611,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: ['Punisher', 'Bullseye'],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -642,7 +622,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.cucumber.com']
+              values: ['www.cucumber.com'],
             },
             {
               id: 2,
@@ -651,7 +631,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Punisher']
+              values: ['Punisher'],
             },
             {
               id: 3,
@@ -660,7 +640,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Bullseye']
+              values: ['Bullseye'],
             },
             {
               id: 4,
@@ -669,7 +649,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Delete Scenario']
+              values: ['Delete Scenario'],
             },
           ],
           then: [
@@ -680,11 +660,11 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Scenario successfully deleted']
-            }
+              values: ['Scenario successfully deleted'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
       },
       {
@@ -701,8 +681,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: ['Punisher', 'Bullseye'],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -712,7 +692,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.cucumber.com']
+              values: ['www.cucumber.com'],
             },
             {
               id: 2,
@@ -721,7 +701,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Punisher']
+              values: ['Punisher'],
             },
             {
               id: 3,
@@ -730,7 +710,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Bullseye']
+              values: ['Bullseye'],
             },
             {
               id: 4,
@@ -739,7 +719,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Delete Scenario']
+              values: ['Delete Scenario'],
             },
           ],
           then: [
@@ -750,23 +730,23 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Scenario_Id does not exist']
-            }
+              values: ['Scenario_Id does not exist'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
-      }
-    ]
+      },
+    ],
   },
   {
     // Story creation
     story_id: 386693457,
-        background: {
-        stepDefinitions:{
-            when: []
-          }
+    background: {
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -782,8 +762,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -793,7 +773,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.cucumber.com']
+              values: ['www.cucumber.com'],
             },
             {
               id: 2,
@@ -802,7 +782,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Create Story']
+              values: ['Create Story'],
             },
           ],
           then: [
@@ -813,11 +793,11 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['New Story created']
-            }
+              values: ['New Story created'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
       },
       {
@@ -834,8 +814,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -845,7 +825,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.cucumber.com']
+              values: ['www.cucumber.com'],
             },
             {
               id: 2,
@@ -854,7 +834,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Create Story']
+              values: ['Create Story'],
             },
           ],
           then: [
@@ -865,23 +845,23 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Could not create Story']
-            }
+              values: ['Could not create Story'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
-      }
-    ]
+      },
+    ],
   },
   {
     // Scenario creation
     story_id: 382626033,
-        background: {
-        stepDefinitions:{
-            when: []
-          }
+    background: {
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -897,8 +877,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -908,7 +888,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.cucumber.com']
+              values: ['www.cucumber.com'],
             },
             {
               id: 2,
@@ -917,7 +897,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Create Scenario']
+              values: ['Create Scenario'],
             },
           ],
           then: [
@@ -928,11 +908,11 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['New Scenario created']
-            }
+              values: ['New Scenario created'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
       },
       {
@@ -949,8 +929,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -960,7 +940,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.cucumber.com']
+              values: ['www.cucumber.com'],
             },
             {
               id: 2,
@@ -969,7 +949,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Create Scenario']
+              values: ['Create Scenario'],
             },
           ],
           then: [
@@ -980,22 +960,22 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Could not create Scenario']
-            }
+              values: ['Could not create Scenario'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
-      }
-    ]
+      },
+    ],
   },
   {
     // Visual test response
     story_id: 386692544,
     background: {
-        stepDefinitions:{
-            when: []
-          }
+      stepDefinitions: {
+        when: [],
+      },
     },
     scenarios: [
       {
@@ -1012,8 +992,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: ['Superman', 'kryptonite'],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -1023,7 +1003,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.cucumber.com']
+              values: ['www.cucumber.com'],
             },
             {
               id: 2,
@@ -1032,7 +1012,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Test it']
+              values: ['Test it'],
             },
           ],
           then: [
@@ -1043,7 +1023,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.cucumber.com/results']
+              values: ['www.cucumber.com/results'],
             },
             {
               id: 2,
@@ -1052,7 +1032,7 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['ThenStep 1 Success']
+              values: ['ThenStep 1 Success'],
             },
             {
               id: 3,
@@ -1061,20 +1041,20 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['ThenStep 2 Failed']
-            }
+              values: ['ThenStep 2 Failed'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
-      }
-    ]
+      },
+    ],
   },
   {
     // Access scenario
     story_id: 386696070,
     background: {
-        stepDefinitions:
+      stepDefinitions:
         {
           when: [
             {
@@ -1084,7 +1064,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home']
+              values: ['https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home'],
             },
             {
               id: 2,
@@ -1093,7 +1073,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['<userName>']
+              values: ['<userName>'],
             },
             {
               id: 3,
@@ -1102,7 +1082,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['<password>']
+              values: ['<password>'],
             },
             {
               id: 4,
@@ -1111,11 +1091,11 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['commit']
+              values: ['commit'],
             },
-          ]
-        }
-      },
+          ],
+        },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -1131,8 +1111,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -1142,7 +1122,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['https://www.adesso.de/']
+              values: ['https://www.adesso.de/'],
             },
             {
               id: 2,
@@ -1151,7 +1131,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Login']
+              values: ['Login'],
             },
             {
               id: 3,
@@ -1160,8 +1140,8 @@ module.exports.testdata = [
               type: 'Checkbox',
               pre: 'I want to select from the',
               mid: 'multiple selection, the values',
-              values: ['Cat', 'Dog', 'Spider']
-            }
+              values: ['Cat', 'Dog', 'Spider'],
+            },
           ],
           then: [
             {
@@ -1171,7 +1151,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.adesso.de/myProfile']
+              values: ['www.adesso.de/myProfile'],
             },
             {
               id: 2,
@@ -1180,11 +1160,11 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Successfully logged in']
-            }
+              values: ['Successfully logged in'],
+            },
           ],
-          example: []
-        }
+          example: [],
+        },
 
       },
       {
@@ -1201,8 +1181,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: ['SomeUsername', 'Secret666'],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -1212,7 +1192,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.gamestar.de']
+              values: ['www.gamestar.de'],
             },
             {
               id: 2,
@@ -1221,7 +1201,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Login']
+              values: ['Login'],
             },
             {
               id: 3,
@@ -1230,8 +1210,8 @@ module.exports.testdata = [
               type: 'Radio',
               pre: 'I want to select from the',
               mid: 'selection, the value',
-              values: ['Rpg']
-            }
+              values: ['Rpg'],
+            },
           ],
           then: [
             {
@@ -1241,7 +1221,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'So I will be navigated to the site:',
               mid: '',
-              values: ['www.gamestar.de/login']
+              values: ['www.gamestar.de/login'],
             },
             {
               id: 2,
@@ -1250,23 +1230,23 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Password or User incorrect']
-            }
+              values: ['Password or User incorrect'],
+            },
           ],
           example: [],
-        }
+        },
 
-      }
-    ]
+      },
+    ],
   },
   {
     // Rename scenarios
     story_id: 386692174,
-        background: {
-        stepDefinitions:{
-            when: []
-          }
+    background: {
+      stepDefinitions: {
+        when: [],
       },
+    },
     scenarios: [
       {
         scenario_id: 1,
@@ -1282,8 +1262,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -1293,7 +1273,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.mywebsite.com']
+              values: ['www.mywebsite.com'],
             },
             {
               id: 2,
@@ -1302,7 +1282,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Edit']
+              values: ['Edit'],
             },
             {
               id: 3,
@@ -1311,7 +1291,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Renamed Scenario']
+              values: ['Renamed Scenario'],
             },
             {
               id: 4,
@@ -1320,7 +1300,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Save']
+              values: ['Save'],
             },
           ],
           then: [
@@ -1331,12 +1311,12 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Updated scenario name.']
-            }
+              values: ['Updated scenario name.'],
+            },
           ],
           example: [
           ],
-        }
+        },
 
       },
       {
@@ -1353,8 +1333,8 @@ module.exports.testdata = [
               pre: 'As a',
               mid: '',
               values: [],
-              selection: ['Guest', 'User']
-            }
+              selection: ['Guest', 'User'],
+            },
           ],
           when: [
             {
@@ -1364,7 +1344,7 @@ module.exports.testdata = [
               type: 'Website',
               pre: 'I want to visit this site:',
               mid: '',
-              values: ['www.mywebsite.com']
+              values: ['www.mywebsite.com'],
             },
             {
               id: 2,
@@ -1373,7 +1353,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Edit']
+              values: ['Edit'],
             },
             {
               id: 3,
@@ -1382,7 +1362,7 @@ module.exports.testdata = [
               type: 'Field',
               pre: 'I want to insert into the',
               mid: 'field, the value',
-              values: ['Renamed Scenario']
+              values: ['Renamed Scenario'],
             },
             {
               id: 4,
@@ -1391,7 +1371,7 @@ module.exports.testdata = [
               type: 'Button',
               pre: 'I want to click the Button:',
               mid: '',
-              values: ['Save']
+              values: ['Save'],
             },
           ],
           then: [
@@ -1402,14 +1382,14 @@ module.exports.testdata = [
               type: 'Text',
               pre: 'So I can see in the',
               mid: 'textbox, the text',
-              values: ['Could not update scenario name!']
-            }
+              values: ['Could not update scenario name!'],
+            },
           ],
           example: [
           ],
-        }
+        },
 
       },
-    ]
+    ],
   },
 ];
