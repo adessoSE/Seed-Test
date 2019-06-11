@@ -1,6 +1,6 @@
-import { LoginComponent } from "../login/login.component";
-import { ParentComponent } from "../parent/parent.component";
-// import { AuthGuard } from "../guards/auth.guard";
+import { LoginComponent } from '../login/login.component';
+import { ParentComponent } from '../parent/parent.component';
+import { AuthGuard } from '../guards/auth.guard';
 
 export const ROUTES = [
     {
@@ -10,6 +10,6 @@ export const ROUTES = [
     {
         path: '',
         component: ParentComponent,
-        // canActivate: [AuthGuard]
+        canActivate: [AuthGuard]
     }
 ]
