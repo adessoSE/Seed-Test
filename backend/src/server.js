@@ -203,11 +203,7 @@ app
     helper.runReport(req,res,stories,"scenario");
   })
   .get("/api/repositories/:token?/:githubName?", function (req, res) {
-    let bearer = req.headers.authorization
-    let splited = bearer.split(" ")
-    let token = splited[1]
-    console.log(splited[1]);
-    //let usertoken = req.params.token;
+    let token = req.params.token;
     let githubName = req.params.githubName;
     let ownRepositories;
     let bool1, bool2 = false;
