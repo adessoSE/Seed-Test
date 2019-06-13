@@ -298,7 +298,7 @@ export class ScenarioEditorComponent implements OnInit {
            this.addStep(step);
            var len = this.selectedScenario.stepDefinitions.example[0].values.length;
            for(var j = 1 ; j < len; j++){
-             this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push("");
+             this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
            }
        break;
        default:
@@ -342,7 +342,7 @@ export class ScenarioEditorComponent implements OnInit {
       pre: step.pre,
       stepType: 'example',
       type: step.type,
-      values: ['']
+      values: ['value']
     }
     this.selectedScenario.stepDefinitions.example.push(new_step);
     console.log('newID: ' + new_id);
@@ -494,7 +494,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
         
         for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
-          this.selectedScenario.stepDefinitions.example[j].values.push("");
+          this.selectedScenario.stepDefinitions.example[j].values.push("value");
         }
      }
   }

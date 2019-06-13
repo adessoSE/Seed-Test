@@ -33,6 +33,13 @@ export class ExampleTableComponent implements OnInit {
 
   }
 
+  ngDoCheck(){
+    /*if(this.selectedScenario.stepDefinitions.example[0]){
+      this.initializeTable()
+      this.initializeTableControls();
+    }*/
+  }
+
   @Input()
   set newSelectedScenario(scenario: Scenario){
     this.selectedScenario = scenario;

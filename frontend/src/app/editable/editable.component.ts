@@ -33,7 +33,7 @@ export class EditableComponent {
   }
 
   toViewMode() {
-    this.update.next();
+    this.update.emit();
     this.mode = 'view';
   }
 
