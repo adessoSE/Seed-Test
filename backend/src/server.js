@@ -105,10 +105,6 @@ app
       }
     };
   })
-
-  .get("/testResult", function(req,res){
-    helper.setRespReport(res);
-  })
   .get("/api/downloadTest", function(req,res){
     helper.sendDownloadResult(res);
   })
@@ -199,19 +195,15 @@ app
   //run single Feature
   //Using random numbers right now. When cucumber Integration is complete this should handle the actual calculations
   .get("/api/runFeature/:issueID", function (req, res) {
-    helper.featureReport(req, res, stories);
+    helper.runReport(req,res,stories,"feature");
   })
 
   //run single Scenario of a Feature
   .get("/api/runScenario/:issueID/:scenarioID", function (req, res) {
-    helper.scenarioReport(req, res, stories);
+    helper.runReport(req,res,stories,"scenario");
   })
   .get("/api/repositories/:token?/:githubName?", function (req, res) {
-    let bearer = req.headers.authorization
-    let splited = bearer.split(" ")
-    let token = splited[1]
-    console.log(splited[1]);
-    //let usertoken = req.params.token;
+    let token = req.params.token;
     let githubName = req.params.githubName;
     let ownRepositories;
     let bool1, bool2 = false;

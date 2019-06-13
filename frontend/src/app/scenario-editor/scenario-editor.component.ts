@@ -31,10 +31,10 @@ export class ScenarioEditorComponent implements OnInit {
   showBackground = false;
   arrowLeft: boolean = true;
   arrowRight: boolean = true;
-  reportingChart;
   testDone: boolean = false;
   testRunning: boolean = false;
   uncutInputs: string[] = [];
+  htmlReport;
 
   constructor(
     private http: HttpClient,
@@ -517,7 +517,6 @@ export class ScenarioEditorComponent implements OnInit {
   selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
-    this.reportingChart = undefined;
     this.showEditor = true;
     this.editorLocked = true;
     this.testDone = false;
@@ -531,7 +530,6 @@ export class ScenarioEditorComponent implements OnInit {
 
   selectStoryScenario(story: Story){
     console.log("selectStoryScenario")
-    this.reportingChart = undefined;
     this.showResults = false;
     this.selectedStory = story;
     this.showEditor = true;
@@ -579,26 +577,33 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
  //Make the API Request to run the tests and display the results as a chart
-  runTests(story_id, scenario_id) {
+  runTests(story_id, scenario_id, callback) {
     this.testRunning = true;
     var iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
-    iframe.src = "http://localhost:8080/testResult";
+    var loadingScreen: HTMLElement = document.getElementById("loading") as HTMLElement;
+    loadingScreen.scrollIntoView();
+
+    //iframe.src = "http://localhost:8080/testResult";
     
     this.apiService
       .runTests(story_id, scenario_id)
       .subscribe(resp => {
-       this.reportingChart = resp;   
-        console.log("This is the response: " + resp);
+  
+        iframe.srcdoc = resp;
+        //console.log("This is the response: " + resp);
+        this.htmlReport = resp;
         this.testDone = true;
         this.showResults = true;
         this.testRunning = false;
+        setTimeout(function() {
+          iframe.scrollIntoView();
+        }, 10);
         })
      }
 
   downloadFile(){
-    this.apiService.downloadTestResult().subscribe(resp =>{
-      saveAs(resp);
-   })
+    var blob = new Blob([ this.htmlReport ], { type : 'text/html' });
+    saveAs(blob);
   }
 
   hideResults() {

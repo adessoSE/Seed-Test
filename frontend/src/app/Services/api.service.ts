@@ -19,20 +19,18 @@ export class ApiService {
   private headers: HttpHeaders;
 
   constructor(private http: HttpClient) { 
-    this.headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.getToken()}`
-    });
+    this.headers = this.getHeader();
   }
 
-  public getHeader(token){
+  public getHeader(){
     return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': 'true'
     });
   }
 
   public getRepositories(token, githubName): Observable<any>{
-    this.setHeader();
-    let options = {headers: this.getHeader(token)}
+    let options = {headers: this.getHeader()}
     return this.http.get<any>(this.apiServer + '/repositories/' + token + '/' + githubName, options)
     .pipe(tap(resp=>{}),
       catchError(this.handleError));
@@ -43,11 +41,6 @@ export class ApiService {
     return throwError(error);
   }
 
-  setHeader(){
-    this.headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.getToken()}`
-    });
-  }
 
 
   public getStories(repository?) {
@@ -153,13 +146,5 @@ export class ApiService {
   }
 }
 
-// interface for the runTests method, needed to unpack the json
-interface RunTestJson{
-  failed: number;
-  successfull: number;
-  not_implemented: number;
-  not_executed: number;
-  err_msg: [object];
-}
 
 
