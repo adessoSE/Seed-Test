@@ -244,12 +244,9 @@ app
   .get('/api/runScenario/:issueID/:scenarioID', (req, res) => {
     helper.runReport(req, res, stories, 'scenario');
   })
-  .get('/api/repositories/:token?/:githubName?', (req, res) => {
-    const bearer = req.headers.authorization;
-    const splitUp = bearer.split(' ');
-    const token = splitUp[1];
-    console.log(splitUp[1]);
-    // let usertoken = req.params.token;
+  .get("/api/repositories/:token?/:githubName?", function (req, res) {
+    let token = req.params.token;
+    let githubName = req.params.githubName;
     let ownRepositories;
     let bool1; let
       bool2 = false;

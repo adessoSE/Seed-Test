@@ -31,6 +31,7 @@ export class ScenarioEditorComponent implements OnInit {
   testDone: boolean = false;
   testRunning: boolean = false;
   uncutInputs: string[] = [];
+  htmlReport;
 
   constructor(
     private http: HttpClient,
@@ -573,26 +574,33 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
  //Make the API Request to run the tests and display the results as a chart
-  runTests(story_id, scenario_id) {
+  runTests(story_id, scenario_id, callback) {
     this.testRunning = true;
     var iframe: HTMLIFrameElement = document.getElementById("testFrame") as HTMLIFrameElement;
+    var loadingScreen: HTMLElement = document.getElementById("loading") as HTMLElement;
+    loadingScreen.scrollIntoView();
+
     //iframe.src = "http://localhost:8080/testResult";
     
     this.apiService
       .runTests(story_id, scenario_id)
       .subscribe(resp => {
+  
         iframe.srcdoc = resp;
-        console.log("This is the response: " + resp);
+        //console.log("This is the response: " + resp);
+        this.htmlReport = resp;
         this.testDone = true;
         this.showResults = true;
         this.testRunning = false;
+        setTimeout(function() {
+          iframe.scrollIntoView();
+        }, 10);
         })
      }
 
   downloadFile(){
-    this.apiService.downloadTestResult().subscribe(resp =>{
-      saveAs(resp);
-   })
+    var blob = new Blob([ this.htmlReport ], { type : 'text/html' });
+    saveAs(blob);
   }
 
   hideResults() {

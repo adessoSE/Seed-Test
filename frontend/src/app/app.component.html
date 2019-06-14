@@ -4,11 +4,19 @@
       <img src="assets/adesso-logo.jpg" alt="adesso AG">
     </a>
   </div>
+
+  <div class="uk-navbar-left help">
+    <a href="https://github.com/adessoCucumber/Cucumber" target="_blank">Help
+    </a>
+  </div>
   <div class="uk-navbar-center">
       <h4 class="uk-heading-primary uk-text-large">Cucumber-App</h4>
   </div>
   <div class="uk-navbar-right">
-    <span *ngIf="this.token">
+    <span *ngIf="this.token && this.repository">
+      <span class="logoutButton"> 
+          <button class="uk-button uk-button-danger" title="Logout" uk-tooltip (click)="logout();">Logout</button>
+      </span>
       <button class="uk-button" title="Select Repository" uk-tooltip>Repositories</button>
       <div uk-dropdown>
           <ul class="uk-nav uk-dropdown-nav">

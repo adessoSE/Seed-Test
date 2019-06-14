@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {ApiService} from './Services/api.service'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,12 +8,12 @@ import {ApiService} from './Services/api.service'
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  token;
-  githubName;
-
-  repositories = [];
-  repository;
-  constructor(private apiService: ApiService){
+  token: string;
+  githubName: string;
+  title = 'cucumber-frontend';
+  repositories: string[] = [];
+  repository: string;
+  constructor(private apiService: ApiService, private router: Router){
 
   }
 
@@ -22,9 +23,10 @@ export class AppComponent {
   }
 
   refreshLoginData(){
-    this.token = localStorage.getItem('token')
-    this.githubName = localStorage.getItem('githubName')
-
+    this.token = localStorage.getItem('token');
+    this.githubName = localStorage.getItem('githubName');
+    this.repository = localStorage.getItem('repository');
+    console.log("refreshlogindata "+ this.token + " repo: " + this.repository);
     if(this.token && this.githubName){
       this.getRepositories();
   
@@ -35,13 +37,11 @@ export class AppComponent {
   ngDoCheck(){
     let newToken = localStorage.getItem('token')
     let newGithubName = localStorage.getItem('githubName')
-    
-    if(newToken != this.token || newGithubName != this.githubName){
+    let newRepository = localStorage.getItem('repository');
+    if(newToken != this.token || newGithubName != this.githubName || newRepository != this.repository){
       this.refreshLoginData()
     }
   }
-
-  title = 'cucumber-frontend';
 
   getRepositories(){
     this.token = localStorage.getItem('token')
@@ -57,12 +57,18 @@ export class AppComponent {
     
     var ref: HTMLLinkElement = document.getElementById("githubHref") as HTMLLinkElement;
     ref.href = "https://github.com/"+repository
-
-    localStorage.removeItem('repository');
+    this.repository = repository;
     localStorage.setItem('repository', repository)
     this.repository = repository;
     this.apiService.getStories(repository).subscribe(resp =>{
       //console.log("Response: " + JSON.stringify(resp));
     })
+  }
+
+  logout(){
+    localStorage.removeItem('repository');
+    localStorage.removeItem('token');
+    localStorage.removeItem('githubName');
+    this.router.navigate(['/login']);
   }
 }
