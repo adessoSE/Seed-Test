@@ -53,7 +53,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 3748000000
+              "duration": 3279000000
             }
           },
           {
@@ -66,7 +66,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 73000000
+              "duration": 70000000
             }
           },
           {
@@ -79,7 +79,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 84000000
+              "duration": 91000000
             }
           },
           {
@@ -92,7 +92,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1893000000
+              "duration": 1328000000
             }
           },
           {
@@ -105,7 +105,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4000000
+              "duration": 6000000
             }
           },
           {
@@ -115,7 +115,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           }
         ]
@@ -166,7 +167,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2228000000
+              "duration": 2255000000
             }
           },
           {
@@ -179,7 +180,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 76000000
+              "duration": 78000000
             }
           },
           {
@@ -192,7 +193,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 73000000
+              "duration": 58000000
             }
           },
           {
@@ -205,7 +206,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1735000000
+              "duration": 1337000000
             }
           },
           {
@@ -218,7 +219,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4000000
+              "duration": 6000000
             }
           },
           {
@@ -228,7 +229,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           }
         ]
@@ -279,7 +281,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 2237000000
+              "duration": 2320000000
             }
           },
           {
@@ -292,7 +294,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 74000000
+              "duration": 64000000
             }
           },
           {
@@ -305,7 +307,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 67000000
+              "duration": 69000000
             }
           },
           {
@@ -318,7 +320,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1394000000
+              "duration": 1334000000
             }
           },
           {
@@ -331,7 +333,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 6000000
+              "duration": 4000000
             }
           },
           {
@@ -341,7 +343,8 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 1000000
             }
           }
         ]
