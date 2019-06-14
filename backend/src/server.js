@@ -3,8 +3,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
-const db = require('./database');
-const storiesDB = require('./database').stories;
+const db = require('./database/database');
+const storiesDB = require('./database/database').stories;
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 

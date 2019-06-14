@@ -32,14 +32,15 @@ function midNotEmpty(values) {
 
 // adds content of each values to output
 function getValues(values) {
+  //TODO: TESTING HERE: excluding the first value
   let data = '';
-  for (let i = 0; i < values.length; i++) {
+  for (let i = 1; i < values.length; i++) {
     data += `"${values[i]}"`;
   }
   return data;
 }
 
-// adds label content to output
+// adds label content to output TODO: might want to reuse this...
 function getLabel(label) {
   return `"${label}"`;
 }
@@ -53,8 +54,8 @@ function getBackgroundSteps(steps) {
     } else {
       data += 'And ';
     }
-    if ((steps[i].label) != null) {
-      data += `${steps[i].pre} ${getLabel(steps[i].label)} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+    if (steps[i].values[0] != null) {
+      data += `${steps[i].pre} "${steps[i].values[0]}" ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
     } else {
       data += `${steps[i].pre} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
     }
@@ -82,13 +83,21 @@ function getSteps(steps, stepType) {
   for (let i = 0; i < steps.length; i++) {
     data += `${jsUcfirst(stepType)} `;
     // TODO: If Given contains Background (Background>0): Add Background (method)
-    if ((steps[i].label) != null && (steps[i].label) !== 'User') {
-      data += `${steps[i].pre} ${getLabel(steps[i].label)} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
-    } else if ((steps[i].label) === 'User') {
-      data += `${steps[i].pre} ${getLabel(steps[i].label)}\n`;
+    if ((steps[i].values[0]) != null && (steps[i].values[0]) !== 'User') {
+      data += `${steps[i].pre} "${steps[i].values[0]}" ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+    } else if ((steps[i].values[0]) === 'User') {
+      data += `${steps[i].pre} "${steps[i].values[0]}"\n`;
     } else {
       data += `${steps[i].pre} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
     }
+
+    // if ((steps[i].label) != null && (steps[i].label) !== 'User') {
+    //   data += `${steps[i].pre} ${getLabel(steps[i].label)} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+    // } else if ((steps[i].label) === 'User') {
+    //   data += `${steps[i].pre} ${getLabel(steps[i].label)}\n`;
+    // } else {
+    //   data += `${steps[i].pre} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+    // }
   }
   return data;
 }
@@ -152,21 +161,9 @@ function writeFile(__dirname, selectedStory) {
   });
 }
 
-// Updates feature file based on story_id
-function updateFeatureFiles(reqParams, stories) {
-  let selectedStory;
-  for (let i = 0; i < stories.length; i++) {
-    if (stories[i].story_id === reqParams.issueID) {
-      selectedStory = stories[i];
-      break;
-    }
-  }
-  writeFile('', selectedStory);
-}
-
 function getStoryByID(params, stories) {
   let selectedStory;
-  for (story of stories) {
+  for (let story of stories) {
     if (story.story_id === parseInt(params.issueID)) {
       selectedStory = story;
       console.log(story.story_id);
@@ -175,6 +172,12 @@ function getStoryByID(params, stories) {
   }
   return selectedStory;
 }
+
+// Updates feature file based on story_id
+function updateFeatureFiles(reqParams, stories) {
+  writeFile('', getStoryByID(reqParams, stories));
+}
+
 
 function execReport(req, res, stories, mode, callback) {
   const story = getStoryByID(req.params, stories);
