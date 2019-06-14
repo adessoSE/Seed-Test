@@ -114,15 +114,10 @@ app
       }
     };
   })
-  .get('/api/repositories/:token?/:githubName?', (req, res) => {
-    const bearer = req.headers.authorization;
-    const splitUp = bearer.split(' ');
-    const token = splitUp[1];
-    console.log(splitUp[1]);
-    // let usertoken = req.params.token;
+  .get("/api/repositories/:token?/:githubName?", function (req, res) {
+    let token = req.params.token;
     let ownRepositories;
-    let bool1; let
-      bool2 = false;
+    let bool1; let bool2 = false;
     getOwnRepositories(token, (repos) => {
       ownRepositories = repos;
 
