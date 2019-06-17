@@ -1340,7 +1340,7 @@ module.exports.testdata = [
 
       },
       {
-        scenario_id: 1,
+        scenario_id: 2,
         name: 'Faild Updating',
         stepDefinitions:
         {

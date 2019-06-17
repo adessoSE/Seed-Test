@@ -231,7 +231,6 @@ function deleteScenario(git_id, s_id) {
       .where(function (story) {
         for (let i = 0; i < story.scenarios.length; i++) {
           if (story.scenarios[i].scenario_id === s_id) {
-            console.log(story.scenarios[i]);
             story.scenarios.splice(i, 1);
             return true;
           }
