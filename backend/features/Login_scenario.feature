@@ -33,5 +33,5 @@ When I want to insert into the "password" field, the value "number"
 When I want to click the Button: "commit" 
 
 Then So I will be navigated to the site: "https://github.com/session" 
-Then So I can see in the "js-flash-container" textbox, the text "Incorrect username or password" 
+Then So I can see in the "div" textbox, the text "Incorrect username or password" 
 

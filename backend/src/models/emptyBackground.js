@@ -2,9 +2,9 @@ function emptyBackground() {
   return {
     stepDefinitions:
       {
-        when: []
-      }
-  }
+        when: [],
+      },
+  };
 }
 
-  module.exports = emptyBackground;
+module.exports = emptyBackground;

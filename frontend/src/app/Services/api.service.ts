@@ -12,13 +12,13 @@ import { Observable, throwError } from 'rxjs';
 })
 
 export class ApiService {
-  private apiServer: string = 'http://localhost:8080/api';
+  private apiServer: string = ' http://localhost:8080/api'; // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
 
   public getStoriesEvent = new EventEmitter();
   private token = 123;
   private headers: HttpHeaders;
 
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient) {
     this.headers = this.getHeader();
   }
 
@@ -51,7 +51,7 @@ export class ApiService {
       .pipe(tap(resp =>{
         this.getStoriesEvent.emit(resp);
         console.log('GET stories', resp);
-        
+
       }
       ));
   }
@@ -84,7 +84,7 @@ export class ApiService {
     return this.http
         .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
         .pipe(tap(resp =>
-          console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)          
+          console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
         ));
   }
 
@@ -110,7 +110,7 @@ export class ApiService {
     console.log("issueID: " + storyID);
     if(scenarioID){
       console.log("run test scenario");
-    
+
    // let options = new RequestOptions({responseType: ResponseContentType.Text});
 
     return this.http
