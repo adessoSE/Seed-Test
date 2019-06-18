@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import {tap} from 'rxjs/operators';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {tap, catchError} from 'rxjs/operators';
+import {HttpClient, HttpHeaders, HttpParams, HttpErrorResponse} from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
+import { Observable, throwError } from 'rxjs';
 // import {Constants} from 'Constants';
 
 @Injectable({
@@ -11,42 +12,46 @@ import { StepDefinition } from '../model/StepDefinition';
 })
 
 export class ApiService {
-  private apiServer: string = 'http://localhost:8080/api';
+  private apiServer: string = ' http://localhost:8080/api'; // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
 
   public getStoriesEvent = new EventEmitter();
   private token = 123;
   private headers: HttpHeaders;
 
-  constructor(private http: HttpClient) { 
-    this.headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.getToken()}`
+  constructor(private http: HttpClient) {
+    this.headers = this.getHeader();
+  }
+
+  public getHeader(){
+    return new HttpHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': 'true'
     });
   }
 
-  public getRepositories(token?){
-    this.setHeader();
-    let options = {headers: this.headers}
-    return this.http.get<any>(this.apiServer + '/repositories/', options)
-    .pipe(tap(resp =>{
-      console.log("GET Repositories: " + resp);
-    }))
+  public getRepositories(token, githubName): Observable<any>{
+    let options = {headers: this.getHeader()}
+    return this.http.get<any>(this.apiServer + '/repositories/' + token + '/' + githubName, options)
+    .pipe(tap(resp=>{}),
+      catchError(this.handleError));
   }
 
-  setHeader(){
-    this.headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.getToken()}`
-    });
+  handleError(error: HttpErrorResponse){
+    console.log(error);
+    return throwError(error);
   }
+
 
 
   public getStories(repository?) {
     //let options = new RequestOptions({headers: this.headers});
-
+    console.log("getStories")
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository)
       .pipe(tap(resp =>{
         this.getStoriesEvent.emit(resp);
         console.log('GET stories', resp);
+
       }
       ));
   }
@@ -105,7 +110,7 @@ export class ApiService {
     console.log("issueID: " + storyID);
     if(scenarioID){
       console.log("run test scenario");
-    
+
    // let options = new RequestOptions({responseType: ResponseContentType.Text});
 
     return this.http
@@ -128,18 +133,18 @@ export class ApiService {
     return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob' , headers: new HttpHeaders().append('Content-Type', 'application/json')});
   }
 
+  isLoggedIn(): boolean{
+    let token = localStorage.getItem('token');
+
+    if(token) return true;
+
+    return false;
+  }
+
   getToken(): string {
     return localStorage.getItem('token');
   }
 }
 
-// interface for the runTests method, needed to unpack the json
-interface RunTestJson{
-  failed: number;
-  successfull: number;
-  not_implemented: number;
-  not_executed: number;
-  err_msg: [object];
-}
 
 

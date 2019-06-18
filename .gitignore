@@ -1,7 +1,7 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 #deploy on heroku
-/frontend/constants.ts
+heroku_push.bat
 
 # compiled output
 /dist

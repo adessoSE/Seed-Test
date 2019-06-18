@@ -1,12 +1,13 @@
-const loki = require('lokijs');
-const db = new loki('db.json');
-const testdata = require('./Testdata/storiesTestdata').testdata;
+const Loki = require('lokijs');
+const { testData } = require('./testdata/storiesTestdata');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
+
+const db = new Loki('db.json');
 const stories = db.addCollection('Stories');
 const stepDefinitions = db.addCollection('Step Definitions');
 
-stories.insert(testdata); // move to Testdata
+stories.insert(testData); // move to testData
 stepDefinitions.insert([
   {
     // ToDO: Frontend Implementation of selections! Use of labels & values?
@@ -17,7 +18,7 @@ stepDefinitions.insert([
     pre: 'As a',
     mid: '',
     values: [],
-    selection: ['Guest', 'User']
+    selection: ['Guest', 'User'],
   },
   {
     id: '',
@@ -44,7 +45,7 @@ stepDefinitions.insert([
     type: 'Website',
     pre: 'I want to visit this site:',
     mid: '',
-    values: []
+    values: [],
   },
   {
     id: '',
@@ -62,7 +63,7 @@ stepDefinitions.insert([
     type: 'Field',
     pre: 'I want to insert into the',
     mid: 'field, the value',
-    values: []
+    values: [],
   },
   {
     id: '',
@@ -71,7 +72,7 @@ stepDefinitions.insert([
     type: 'Radio',
     pre: 'I want to select from the',
     mid: 'selection, the value',
-    values: []
+    values: [],
   },
   {
     id: '',
@@ -80,7 +81,7 @@ stepDefinitions.insert([
     type: 'Dropdown',
     pre: 'I want to select from the dropdownmenue',
     mid: 'the option',
-    values: []
+    values: [],
   },
   {
     id: '',
@@ -89,7 +90,7 @@ stepDefinitions.insert([
     type: 'HoverOverAndSelect',
     pre: 'I want to hover over the Element',
     mid: 'and Select the Option',
-    values: []
+    values: [],
   },
   {
     id: '',
@@ -98,7 +99,7 @@ stepDefinitions.insert([
     type: 'Checkbox',
     pre: 'I want to select from the',
     mid: 'multiple selection, the values',
-    values: []
+    values: [],
   },
   {
     id: '',
@@ -107,7 +108,7 @@ stepDefinitions.insert([
     type: 'Website',
     pre: 'So I will be navigated to the site:',
     mid: '',
-    values: []
+    values: [],
   },
   {
     id: '',
@@ -116,59 +117,54 @@ stepDefinitions.insert([
     type: 'Text',
     pre: 'So I can see in the',
     mid: 'textbox, the text',
-    values: []
+    values: [],
   },
 ]);
 
-// GET all stories TODO: unused right now  //TODO Prio 1: check if needed
-// function showStories() {
-//   stories.find()
-// }
-
-
 // GET all StepDefinitions
 function showStepdefinitions() {
-  return stepDefinitions.find()
+  return stepDefinitions.find();
 }
 
 // Create Background
-function createBackground(git_id) {
+function createBackground(issueID) {
+  let tmpBackground;
   try {
-    let story = stories.findOne({ story_id: git_id });
-    let tmpBackground = emptyBackground();
+    const story = stories.findOne({ story_id: issueID });
+    tmpBackground = emptyBackground();
     if (story != null) {
-      story.background.push(tmpBackground)
+      story.background.push(tmpBackground);
       stories.update(story);
-      return tmpBackground;
     }
   } catch (error) {
-    return "Could not create Background." + error;
+    return `Could not create Background.${error}`;
   }
+  return tmpBackground;
 }
 
-//Update Background
-function updateBackground(git_id, updated_background) {
+// Update Background
+function updateBackground(issueID, updatedBackground) {
   try {
     stories
       .chain()
-      .find({ "story_id": git_id })
-      .update(function(obj){obj.background = updated_background})
+      .find({ story_id: issueID })
+      .update((obj) => { obj.background = updatedBackground; });
   } catch (error) {
-    console.log("Error:" + error)
+    console.log(`Error:${error}`);
     return error;
   }
-  return updated_background;
+  return updatedBackground;
 }
 
-//Delete Background
-function deleteBackground(git_id){
+// Delete Background
+function deleteBackground(issueID) {
   try {
     stories
       .chain()
-      .find({ "story_id": git_id })
-      .update(function(obj){obj.background = {stepDefinitions:{when: []}}});
+      .find({ story_id: issueID })
+      .update((obj) => { obj.background = { stepDefinitions: { when: [] } }; });
   } catch (error) {
-    console.log("Error:" + error)
+    console.log(`Error:${error}`);
     return error;
   }
   return true;
@@ -176,59 +172,60 @@ function deleteBackground(git_id){
 
 
 // Create SCENARIO //TODO Prio 1: divide into two seperate functions
-function createScenario(git_id) {
+function createScenario(issueID) {
+  let tmpScenario
   try {
-    let story = stories.findOne({ story_id: git_id });
-    let lastScenarioIndex = story.scenarios.length;
-    let tmpScenario = emptyScenario();
+    const story = stories.findOne({ story_id: issueID });
+    const lastScenarioIndex = story.scenarios.length;
+    tmpScenario = emptyScenario();
     if (story != null) {
       if (story.scenarios.length === 0) {
-        story.scenarios.push(tmpScenario)
+        story.scenarios.push(tmpScenario);
       } else {
         tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-        story.scenarios.push(tmpScenario)
+        story.scenarios.push(tmpScenario);
       }
       stories.update(story);
-      return tmpScenario;
     }
   } catch (error) {
-    return "Could not create Scenario." + error;
+    return `Could not create Scenario.${error}`;
   }
+  return tmpScenario;
 }
 
 // POST SCENARIO
-function updateScenario(git_id, updated_scenario) {
+function updateScenario(issueID, updatedScenario) {
   try {
     stories
       .chain()
-      .find({ "story_id": git_id })
-      .where(function (obj) {
-        for (let scenario of obj.scenarios) {
+      .find({ story_id: issueID })
+      .where((obj) => {
+        for (const scenario of obj.scenarios) {
           if (obj.scenarios.indexOf(scenario) === obj.scenarios.length) {
             obj.scenarios.push(scenario);
             break;
           }
-          if (scenario.scenario_id === updated_scenario.scenario_id) {
-            obj.scenarios.splice(obj.scenarios.indexOf(scenario), 1, updated_scenario);
+          if (scenario.scenario_id === updatedScenario.scenario_id) {
+            obj.scenarios.splice(obj.scenarios.indexOf(scenario), 1, updatedScenario);
             break;
           }
         }
-        return "Something went wrong!";
-      })
+        return 'Something went wrong!';
+      });
   } catch (error) {
-    console.log("Error:" + error)
+    console.log(`Error:${error}`);
     return error;
   }
-  return updated_scenario;
+  return updatedScenario;
 }
 
 // DELETE Scenario
-function deleteScenario(git_id, s_id) {
+function deleteScenario(issueID, storyID) {
   try {
     stories
       .chain()
-      .find({ "story_id": git_id })
-      .where(function (story) {
+      .find({ story_id: issueID })
+      .where((story) => {
         for (let i = 0; i < story.scenarios.length; i++) {
           if (story.scenarios[i].scenario_id === s_id) {
             story.scenarios.splice(i, 1);
@@ -238,13 +235,18 @@ function deleteScenario(git_id, s_id) {
       });
     return true;
   } catch (error) {
-    return "Could not delete scenario " + error;
+    return `Could not delete scenario ${error}`;
   }
 }
 
 
 module.exports = {
-  stories: stories, showStepdefinitions: showStepdefinitions, 
-  createBackground: createBackground, deleteBackground: deleteBackground, updateBackground: updateBackground,
-  createScenario: createScenario, deleteScenario: deleteScenario, updateScenario: updateScenario
+  stories,
+  showStepdefinitions,
+  createBackground,
+  deleteBackground,
+  updateBackground,
+  createScenario,
+  deleteScenario,
+  updateScenario,
 };

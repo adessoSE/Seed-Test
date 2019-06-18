@@ -9,3 +9,17 @@
 img {
   height: 50px;
 }
+
+.repoButton{
+  padding-left: 10px;
+  padding-right: 10px;
+
+}
+
+.help{
+  margin-left: 20px;
+}
+
+.logoutButton{
+  margin-right: 10px;
+}
