@@ -1,11 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
-import { getComponentViewDefinitionFactory } from '@angular/core/src/view';
-import { TestBed } from '@angular/core/testing';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
-import {DragDropModule, CdkDrag, CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop'
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -58,7 +55,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   @Input()
   set newSelectedStory(story: Story){
-    this.selectedStory = story;    
+    this.selectedStory = story;
   }
 
   @Input()
@@ -70,7 +67,7 @@ export class ScenarioEditorComponent implements OnInit {
       console.log("storyIndex: " + storyIndex);
       this.selectScenario(null,scenario);
     }
-    
+
   }
 
   loadStepDefinitions() {
@@ -85,7 +82,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
   updateBackground(storyID){
-  
+
     this.apiService
     .updateBackground(storyID, this.selectedStory.background)
     .subscribe(resp =>{
@@ -111,7 +108,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
         this.selectScenario(resp.story_id,resp);
       });
-    
+
   }
 
   addScenario(storyID) {
@@ -132,7 +129,7 @@ export class ScenarioEditorComponent implements OnInit {
     switch (stepType) {
       case 'when':
       var move = this.selectedStory.background.stepDefinitions.when[index];
-    
+
       var top = this.selectedStory.background.stepDefinitions.when[index - 1];
       this.selectedStory.background.stepDefinitions.when[index] = top;
       this.selectedStory.background.stepDefinitions.when[index - 1] = move;
@@ -140,16 +137,16 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
   moveStepDownBackground(event, stepType, index){
     console.log("index: " + index)
-    
+
     switch (stepType) {
       case 'when':
       if(index === this.selectedStory.background.stepDefinitions.when.length - 1) return;
-      
+
       var move = this.selectedStory.background.stepDefinitions.when[index];
       var down = this.selectedStory.background.stepDefinitions.when[index + 1];
       this.selectedStory.background.stepDefinitions.when[index] = down;
@@ -158,7 +155,7 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
 
@@ -173,21 +170,21 @@ export class ScenarioEditorComponent implements OnInit {
     switch (stepType) {
       case 'given':
       var move = this.selectedScenario.stepDefinitions.given[index];
-    
+
       var top = this.selectedScenario.stepDefinitions.given[index - 1];
       this.selectedScenario.stepDefinitions.given[index] = top;
       this.selectedScenario.stepDefinitions.given[index - 1] = move;
         break;
       case 'when':
       var move = this.selectedScenario.stepDefinitions.when[index];
-    
+
       var top = this.selectedScenario.stepDefinitions.when[index - 1];
       this.selectedScenario.stepDefinitions.when[index] = top;
       this.selectedScenario.stepDefinitions.when[index - 1] = move;
         break;
       case 'then':
       var move = this.selectedScenario.stepDefinitions.then[index];
-    
+
       var top = this.selectedScenario.stepDefinitions.then[index - 1];
       this.selectedScenario.stepDefinitions.then[index] = top;
       this.selectedScenario.stepDefinitions.then[index - 1] = move;
@@ -195,17 +192,17 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
   moveStepDown(event, stepType, index){
     console.log("index: " + index)
-    
+
     switch (stepType) {
       case 'given':
       if(index === this.selectedScenario.stepDefinitions.given.length - 1) return;
       var move = this.selectedScenario.stepDefinitions.given[index];
-    
+
       var down = this.selectedScenario.stepDefinitions.given[index + 1];
       this.selectedScenario.stepDefinitions.given[index] = down;
       this.selectedScenario.stepDefinitions.given[index + 1] = move;
@@ -221,7 +218,7 @@ export class ScenarioEditorComponent implements OnInit {
       case 'then':
       if(index === this.selectedScenario.stepDefinitions.then.length - 1) return;
       var move = this.selectedScenario.stepDefinitions.then[index];
-    
+
       var down = this.selectedScenario.stepDefinitions.then[index + 1];
       this.selectedScenario.stepDefinitions.then[index] = down;
       this.selectedScenario.stepDefinitions.then[index + 1] = move;
@@ -229,7 +226,7 @@ export class ScenarioEditorComponent implements OnInit {
       default:
         break;
      }
-    
+
   }
 
 
@@ -283,7 +280,7 @@ export class ScenarioEditorComponent implements OnInit {
        stepType: step.stepType,
        type: step.type,
        values: [""]
-     }
+     };
      switch (new_step.stepType) {
        case 'given':
          this.selectedScenario.stepDefinitions.given.push(new_step);
@@ -306,7 +303,7 @@ export class ScenarioEditorComponent implements OnInit {
       }
      console.log('added step', new_step);
     }
-  }  
+  }
 
   addStepToBackground(storyID, step){
     console.log("step type: " + step.stepType);
@@ -321,7 +318,7 @@ export class ScenarioEditorComponent implements OnInit {
        stepType: step.stepType,
        type: step.type,
        values: [""]
-     }
+     };
      switch (new_step.stepType) {
        case 'when':
          this.selectedStory.background.stepDefinitions.when.push(new_step);
@@ -406,7 +403,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   stepsList(stepDefs, i: number) {
     if (i == 0) {
-      
+
       return stepDefs.given;
     } else if (i == 1) {
       return stepDefs.when;
@@ -426,10 +423,10 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   async addToValues(input: string, stepType,step, index, valueIndex? ) {
-    
+
     await this.checkForExamples(input,step);
 
-    console.log("steptype: " + stepType)
+    console.log("steptype: " + stepType);
     console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
@@ -455,12 +452,12 @@ export class ScenarioEditorComponent implements OnInit {
       this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[0]),1);
       for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
         console.log("checkForExamples for i: " + i);
-        console.log("step.values[0]: " + step.values[0])
-        
-        
+        console.log("step.values[0]: " + step.values[0]);
+
+
         this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
 
-        
+
 
         if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
 
@@ -492,7 +489,7 @@ export class ScenarioEditorComponent implements OnInit {
     }else{
       //else just adds as many values to the examples to fill up the table
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
-        
+
         for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
           this.selectedScenario.stepDefinitions.example[j].values.push("value");
         }
@@ -569,7 +566,7 @@ export class ScenarioEditorComponent implements OnInit {
     var storyIndex = this.stories.indexOf(this.selectedStory);
     console.log("storyIndex: " + storyIndex);
     var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-    
+
     console.log("scenarioIndex: " + scenarioIndex);
     if(this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined){
        this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1])

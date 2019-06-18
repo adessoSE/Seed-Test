@@ -7,9 +7,9 @@ function emptyScenario() {
       given: [],
       when: [],
       then: [],
-      example: []
-    }
-  }
+      example: [],
+    },
+  };
 }
 
 module.exports = emptyScenario;
