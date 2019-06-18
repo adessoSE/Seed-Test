@@ -1,5 +1,6 @@
 function emptyBackground() {
   return {
+    name: 'New Background',
     stepDefinitions:
       {
         when: [],

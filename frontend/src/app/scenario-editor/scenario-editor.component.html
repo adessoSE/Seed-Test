@@ -36,7 +36,12 @@
           
           <div *ngIf="showBackground">
             <!--Delete and Lock buttons-->
+            <div class="marginLeft">
+              <input #backgroundName type="text" [disabled]="backgroundLocked" value="{{selectedStory.background.name}}" on-change="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
+            </div>
+
             <div class="uk-float-right backgroundItems">
+
                 <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked"
                 class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Background" uk-icon="trash"
                 (click)="deleteBackground($event);"></button>
