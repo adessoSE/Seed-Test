@@ -79,6 +79,7 @@ function jsUcfirst(string) {
 
 // Building feature file step-content
 function getSteps(steps, stepType) {
+  console.log(`Hi, ${stepType}`);
   let data = '';
   for (let i = 0; i < steps.length; i++) {
     data += `${jsUcfirst(stepType)} `;
@@ -118,22 +119,23 @@ function getExamples(steps) {
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
   let data = '';
-  for (let i = 0; i < scenarios.length; i++) {
-    data += `@${storyID}_${scenarios[i].scenario_id}\n`;
-    if ((scenarios[i].stepDefinitions.example.length) > 0) {
-      data += `Scenario Outline: ${scenarios[i].name}\n\n`;
+  for (const scenario of scenarios) {
+    console.log(`Scenario ID: ${scenario.scenario_id}`);
+    data += `@${storyID}_${scenario.scenario_id}\n`;
+    if ((scenario.stepDefinitions.example.length) > 0) {
+      data += `Scenario Outline: ${scenario.name}\n\n`;
     } else {
-      data += `Scenario: ${scenarios[i].name}\n\n`;
+      data += `Scenario: ${scenario.name}\n\n`;
     }
     // Get Stepdefinitions
-    data += `${getSteps(scenarios[i].stepDefinitions.given, Object.keys(scenarios[i].stepDefinitions)[0])}\n`;
+    data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
 
-    data += `${getSteps(scenarios[i].stepDefinitions.when, Object.keys(scenarios[i].stepDefinitions)[1])}\n`;
+    data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
 
-    data += `${getSteps(scenarios[i].stepDefinitions.then, Object.keys(scenarios[i].stepDefinitions)[2])}\n`;
+    data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
 
-    if ((scenarios[i].stepDefinitions.example.length) > 0) {
-      data += `${getExamples(scenarios[i].stepDefinitions.example)}\n\n`;
+    if ((scenario.stepDefinitions.example.length) > 0) {
+      data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
     }
   }
   return data;
@@ -155,6 +157,7 @@ function getFeatureContent(story) {
 
 // Creates feature file
 function writeFile(__dirname, selectedStory) {
+  console.log(`Hi, ${selectedStory.story_id}`);
   fs.writeFile(path.join(__dirname, 'features',
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
     if (err) throw err;

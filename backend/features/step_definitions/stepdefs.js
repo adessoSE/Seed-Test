@@ -5,30 +5,22 @@ const webdriver = require('selenium-webdriver');
 const { By, until } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
-const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
 
 // Cucumber default timer for timeout
 setDefaultTimeout(20 * 1000);
 
-// Starts the driver / webbrowser
+// Starts the driver / Browser
 Before(async () => {
-  // const options = new firefox.Options();
-  //   // options.addArguments('-headless');
-
   const chromeOptions = new chrome.Options();
   chromeOptions.addArguments('-headless');
   console.log(`chrome_shim:${process.env.GOOGLE_CHROME_SHIM}`);
   chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
   driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
-
-  // let logger = webdriver.logging.getLogger();
-  // logger.setLevel(webdriver.WebDriver.Level.DEBUG);
-  // webdriver.logging.installConsoleHandler();
 });
 
 // #################### GIVEN ########################################
-// TODO: implement functionality (Login or no Login required)
+// TODO: implement functionality (Login or no Login required), maybe irrelevant with background
 Given('As a {string}', async function (string) {
   this.role = string;
 });
@@ -84,7 +76,7 @@ When('I hover over the element {string} and select the option {string}', async f
   await action2.move({x: 0, y: 0, origin: selection}).click().perform();
 });
 
-// TODO:
+// TODO: this
 When('I select from the {string} multiple selection, the values {string}{string}{string}', async (string, string2, string3, string4) => {
   const quatsch = string;
 });

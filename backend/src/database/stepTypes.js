@@ -1,10 +1,9 @@
 function stepDefs() {
   return [
+    // #################### GIVEN ########################################
     {
-      // ToDO: Frontend Implementation of selections! Use of labels & values?
       id: '',
       stepType: 'given',
-      label: null,
       type: 'Role',
       pre: 'As a',
       mid: '',
@@ -14,7 +13,6 @@ function stepDefs() {
     {
       id: '',
       stepType: 'given',
-      label: null,
       type: 'Website',
       pre: 'I am on the website:',
       mid: '',
@@ -23,16 +21,15 @@ function stepDefs() {
     {
       id: '',
       stepType: 'example',
-      label: null,
       type: 'Add Variable',
       pre: '',
       mid: '',
       values: [],
     },
+    // ################### WHEN ##########################################
     {
       id: '',
       stepType: 'when',
-      label: null,
       type: 'Website',
       pre: 'I go to the website:',
       mid: '',
@@ -41,7 +38,6 @@ function stepDefs() {
     {
       id: '',
       stepType: 'when',
-      label: null,
       type: 'Button',
       pre: 'I click the button:',
       mid: '',
@@ -50,7 +46,6 @@ function stepDefs() {
     {
       id: '',
       stepType: 'when',
-      label: '',
       type: 'Field',
       pre: 'I insert',
       mid: 'into the field',
@@ -59,7 +54,6 @@ function stepDefs() {
     {
       id: '',
       stepType: 'when',
-      label: '',
       type: 'Radio',
       pre: 'I select ',
       mid: 'from the selection',
@@ -68,7 +62,6 @@ function stepDefs() {
     {
       id: '',
       stepType: 'when',
-      label: '',
       type: 'Dropdown',
       pre: 'I select the option',
       mid: 'from the drop-down-menue',
@@ -77,7 +70,6 @@ function stepDefs() {
     {
       id: '',
       stepType: 'when',
-      label: '',
       type: 'HoverOverAndSelect',
       pre: 'I hover over the element',
       mid: 'and select the option',
@@ -86,16 +78,15 @@ function stepDefs() {
     {
       id: '',
       stepType: 'when',
-      label: '',
       type: 'Checkbox',
       pre: 'I select from the',
       mid: 'multiple selection, the values',
       values: [],
     },
+    // ################### THEN ##########################################
     {
       id: '',
       stepType: 'then',
-      label: null,
       type: 'Website',
       pre: 'So I will be navigated to the website:',
       mid: '',
@@ -104,7 +95,6 @@ function stepDefs() {
     {
       id: '',
       stepType: 'then',
-      label: '',
       type: 'Text',
       pre: 'So I can see the text',
       mid: 'in the textbox:',
