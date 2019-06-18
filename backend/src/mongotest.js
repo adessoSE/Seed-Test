@@ -285,6 +285,12 @@ function showStory(git_id) {
   })
 }
 
+module.exports = {
+  stories: stories, showStepdefinitions: showStepdefinitions, 
+  createBackground: createBackground, deleteBackground: deleteBackground, updateBackground: updateBackground,
+  createScenario: createScenario, deleteScenario: deleteScenario, updateScenario: updateScenario
+};
+
 
 //updateBackground(386692174,{stepDefinitions:{when: [{test: 1}]}} )
 //createScenario(386692174)
