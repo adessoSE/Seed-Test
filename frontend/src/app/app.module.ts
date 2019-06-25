@@ -17,6 +17,8 @@ import { ExampleTableComponent } from './example-table/example-table.component';
 import { EditableComponent } from './editable/editable.component'
 import { ViewModeDirective } from './editable/view-mode.directive';
 import { EditModeDirective } from './editable/edit-mode.directive';
+import { EditableOnEnterDirective } from './editable/edit-on-enter.directive';
+import {FocusableDirective} from './example-table/focusable.directive'
 
 @NgModule({
   declarations: [
@@ -29,7 +31,9 @@ import { EditModeDirective } from './editable/edit-mode.directive';
     ExampleTableComponent,
     ViewModeDirective,
     EditModeDirective,
-    EditableComponent
+    EditableComponent,
+    FocusableDirective,
+    EditableOnEnterDirective
   ],
   imports: [
     BrowserModule,
