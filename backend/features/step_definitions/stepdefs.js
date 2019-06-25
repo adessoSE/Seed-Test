@@ -75,7 +75,7 @@ When('I want to select from the {string} multiple selection, the values {string}
   
 });
 
-//TODO:change By.tagName to xpath for flexibility
+
 //Search a Textfield in the html code and asert it with a Text
 Then('So I can see in the {string} textbox, the text {string}', async function (label, string) {
   await driver.wait(until.elementLocated(By.xpath("//*[@*" + "='" + string + "']")), 3 * 1000).then(async function (link) {
