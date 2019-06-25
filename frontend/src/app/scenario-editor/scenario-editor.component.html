@@ -125,7 +125,7 @@
   </div>
   <br />
 
-  <app-example-table [newSelectedScenario]="selectedScenario"></app-example-table>
+  <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" ></app-example-table>
 
 
 <!--Scenario Editor-->
@@ -135,13 +135,13 @@
         <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
           <!-- <div class="uk-align-right"> -->
-          <button [class.disabled]="editorLocked" [disabled]="editorLocked" uk-icon="icon: plus-circle"
+          <button [class.disabled]="editorLocked  || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="editorLocked || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
             class="uk-text-primary" title="Add new step" uk-tooltip></button>
           <!-- </div> -->
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of stepDefinitions;" >
-                  <a *ngIf="step.stepType===sd"  (click)="addStepToScenario(selectedStory.story_id,step);"
+                  <a *ngIf="step.stepType===sd "  (click)="addStepToScenario(selectedStory.story_id,step);"
                    href="#">{{step.type}}</a>
               </li>
             

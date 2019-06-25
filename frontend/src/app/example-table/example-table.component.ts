@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { CoreService } from '../Services/core.service';
 import { Scenario } from '../model/Scenario';
@@ -90,6 +90,7 @@ export class ExampleTableComponent implements OnInit {
       console.log("control value: " + control.value);
       this.selectedScenario.stepDefinitions.example[rowIndex+1].values[columnIndex] = control.value;
       this.initializeTable();
+
       //this.core.update(index,field,control.value);
     }else{
       console.log("CONTROL NOT VALID")
@@ -118,6 +119,14 @@ export class ExampleTableComponent implements OnInit {
     this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
 
     
+  }
+  updateTable(){
+    console.log("updateTable");
+    if(this.selectedScenario.stepDefinitions.example[0]){
+      this.exampleThere = true;
+      this.initializeTable()
+      this.initializeTableControls();
+    }
   }
 
 }

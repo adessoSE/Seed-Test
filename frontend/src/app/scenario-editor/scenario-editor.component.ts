@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../Services/api.service';
 import { Chart } from 'chart.js';
@@ -33,9 +33,13 @@ export class ScenarioEditorComponent implements OnInit {
   uncutInputs: string[] = [];
   htmlReport;
 
+  @ViewChild('exampleChildView') exampleChild;
+
   constructor(
     private http: HttpClient,
     private apiService: ApiService,
+
+
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
@@ -52,7 +56,7 @@ export class ScenarioEditorComponent implements OnInit {
   setStories(stories: Story[]){
     this.stories = stories;
   }
-
+  
   @Input()
   set newSelectedStory(story: Story){
     this.selectedStory = story;
@@ -294,11 +298,14 @@ export class ScenarioEditorComponent implements OnInit {
          this.selectedScenario.stepDefinitions.then.push(new_step);
          break;
        case 'example':
-           this.addStep(step);
-           var len = this.selectedScenario.stepDefinitions.example[0].values.length;
-           for(var j = 1 ; j < len; j++){
-             this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
-           }
+          if(this.selectedScenario.stepDefinitions.example.length > 0){
+            this.addStep(step);
+            var len = this.selectedScenario.stepDefinitions.example[0].values.length;
+            for(var j = 1 ; j < len; j++){
+              this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+            }
+            this.exampleChild.updateTable();
+          }
        break;
        default:
          break;
@@ -482,10 +489,11 @@ export class ScenarioEditorComponent implements OnInit {
       this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0].substr(1, step.values[0].length-2))] = cutInput;
       return;
     }
-    //for first example creates 3 steps
+    //for first example creates 2 steps
     if(this.selectedScenario.stepDefinitions.example[0] === undefined){
-        for(var i = 0; i < 3; i++){
+        for(var i = 0; i <= 2; i++){
           this.addStep(step);
+          this.exampleChild.updateTable();
          }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
     }else{
@@ -496,6 +504,7 @@ export class ScenarioEditorComponent implements OnInit {
           this.selectedScenario.stepDefinitions.example[j].values.push("value");
         }
      }
+     this.exampleChild.updateTable();
   }
 
   renameScenario(event, name) {
