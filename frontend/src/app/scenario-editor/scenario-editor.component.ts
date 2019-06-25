@@ -7,7 +7,7 @@ import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
-const emptyBackground = {stepDefinitions:{when: []}};
+const emptyBackground = {name,stepDefinitions:{when: []}};
 
 @Component({
   selector: 'app-scenario-editor',
@@ -80,9 +80,11 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 
+  backgroundNameChange(name: string){
+    this.selectedStory.background.name = name;
+  }
 
   updateBackground(storyID){
-
     this.apiService
     .updateBackground(storyID, this.selectedStory.background)
     .subscribe(resp =>{

@@ -118,12 +118,17 @@ app
     let token = req.params.token;
     let ownRepositories;
     let bool1; let bool2 = false;
-    getOwnRepositories(token, (repos) => {
+    getOwnRepositories(req.params.githubName, token, (repos) => {
       ownRepositories = repos;
 
       if (bool2) {
+        if(starredRepositories != null){
         const concat = ownRepositories.concat(starredRepositories);
         res.status(200).json(concat);
+        }else{
+          res.status(200).json(ownRepositories);
+
+        }
       } else {
         bool1 = true;
       }
@@ -132,8 +137,12 @@ app
     getStarredRepositories(req.params.githubName, token, (stars) => {
       starredRepositories = stars;
       if (bool1) {
-        const concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
+        if(starredRepositories != null){
+          const concat = ownRepositories.concat(starredRepositories);
+          res.status(200).json(concat);
+          }else{
+            res.status(200).json(ownRepositories);
+          }
       } else {
         bool2 = true;
       }
@@ -245,7 +254,7 @@ app
     let ownRepositories;
     let bool1; let
       bool2 = false;
-    getOwnRepositories(token, (repos) => {
+    getOwnRepositories(githubName,token, (repos) => {
       if (repos != null && !res.headersSent) {
         ownRepositories = repos;
         if (bool2) {
@@ -261,7 +270,7 @@ app
       }
     });
     let starredRepositories;
-    getStarredRepositories(req.params.githubName, token, (stars) => {
+    getStarredRepositories(githubName, token, (stars) => {
       if (stars != null && !res.headersSent) {
         starredRepositories = stars;
         if (bool1) {
@@ -278,10 +287,10 @@ app
     });
   });
 
-function getOwnRepositories(token, callback) {
+function getOwnRepositories(githubName,token, callback) {
   const request = new XMLHttpRequest();
 
-  request.open('GET', 'https://api.github.com/user/repos', true, 'account_name', token);
+  request.open('GET', `https://api.github.com/users/${githubName}/repos`, true, githubName, token);
   // get Issues from GitHub
 
   // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
@@ -306,10 +315,10 @@ function getOwnRepositories(token, callback) {
   };
 }
 
-function getStarredRepositories(ghName, token, callback) {
+function getStarredRepositories(githubName, token, callback) {
   const request = new XMLHttpRequest();
-  console.log(`githubname: ${ghName} token: ${token}`);
-  request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
+  console.log(`githubname: ${githubName} token: ${token}`);
+  request.open('GET', `https://api.github.com/users/${githubName}/starred`, true, githubName, token);
   // get Issues from GitHub
 
   // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
