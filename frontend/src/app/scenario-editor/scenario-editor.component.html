@@ -125,7 +125,7 @@
   </div>
   <br />
 
-  <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" ></app-example-table>
+  <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" [setEditorLocked]="editorLocked" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
 
 
 <!--Scenario Editor-->
@@ -135,7 +135,7 @@
         <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
           <!-- <div class="uk-align-right"> -->
-          <button [class.disabled]="editorLocked  || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="editorLocked || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
+          <button [class.disabled]="editorLocked || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="editorLocked || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
             class="uk-text-primary" title="Add new step" uk-tooltip></button>
           <!-- </div> -->
           <div uk-dropdown>

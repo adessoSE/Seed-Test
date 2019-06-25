@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, Output ,EventEmitter } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { CoreService } from '../Services/core.service';
 import { Scenario } from '../model/Scenario';
@@ -25,7 +25,10 @@ export class ExampleTableComponent implements OnInit {
   controls: FormArray;
   selectedScenario : Scenario;
   exampleThere: boolean = false;
+  editorLocked = true;
 
+  @Output()
+  removeRowIndex: EventEmitter<number> = new EventEmitter();
 
   constructor(private core: CoreService){}
 
@@ -53,6 +56,11 @@ export class ExampleTableComponent implements OnInit {
     console.log("example table scenario is set");
   }
 
+  @Input()
+  set setEditorLocked(editorLocked: boolean){
+    this.editorLocked = editorLocked;
+  }
+
   initializeTableControls(){
     this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
 
@@ -72,6 +80,7 @@ export class ExampleTableComponent implements OnInit {
 
   initializeTable(){
     this.data = [];
+    //console.log("table: " + JSON.stringify(this.selectedScenario.stepDefinitions.example));
     for(var i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++){
       var js= {};
       for(var j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ){
@@ -122,11 +131,21 @@ export class ExampleTableComponent implements OnInit {
   }
   updateTable(){
     console.log("updateTable");
-    if(this.selectedScenario.stepDefinitions.example[0]){
+    if(this.selectedScenario.stepDefinitions.example[1]){
       this.exampleThere = true;
       this.initializeTable()
       this.initializeTableControls();
+    }else{
+      this.exampleThere =false;
     }
+  }
+
+  removeRow(rowIndex: number){
+    console.log("remove row: " + rowIndex);
+    this.removeRowIndex.emit(rowIndex +1 );
+    // this.selectedScenario.stepDefinitions.example.splice(rowIndex, 1);
+    // this.initializeTable()
+    // this.initializeTableControls();
   }
 
 }

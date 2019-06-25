@@ -56,6 +56,12 @@ export class ScenarioEditorComponent implements OnInit {
   setStories(stories: Story[]){
     this.stories = stories;
   }
+
+  @Input()
+  removeRowIndex(event){
+    console.log("remove in scenario " + event);
+    this.removeStepToScenario(event, 'example', event)
+  }
   
   @Input()
   set newSelectedStory(story: Story){
@@ -395,6 +401,7 @@ export class ScenarioEditorComponent implements OnInit {
         break;
       case 'example':
         this.selectedScenario.stepDefinitions.example.splice(index, 1);
+        this.exampleChild.updateTable();
         break;
     }
   }
@@ -503,6 +510,14 @@ export class ScenarioEditorComponent implements OnInit {
         for(var j = 1;j <this.selectedScenario.stepDefinitions.example.length; j++ ){
           this.selectedScenario.stepDefinitions.example[j].values.push("value");
         }
+        //if the table has no rows add a row
+        if(this.selectedScenario.stepDefinitions.example[1] === undefined){
+          this.addStep(step);
+          var len = this.selectedScenario.stepDefinitions.example[0].values.length;
+          for(var j = 1 ; j < len; j++){
+            this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+          }
+        }
      }
      this.exampleChild.updateTable();
   }
@@ -510,7 +525,6 @@ export class ScenarioEditorComponent implements OnInit {
   renameScenario(event, name) {
     if (name) {
       this.selectedScenario.name = name;
-      console.log('controller: changed name of scenario to: ', this.selectedScenario.name);
     }
   }
 
