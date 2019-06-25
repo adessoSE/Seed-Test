@@ -6,3 +6,14 @@ table {
   color: gray !important;
   background: white !important;
 }
+
+.headerRow{
+  font-weight: bold;
+  font-size: 1.1em;
+  color: rgb(27, 86, 248);
+}
+
+.valueRow{
+  font-weight: normal;
+
+}

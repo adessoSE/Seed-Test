@@ -125,7 +125,6 @@
   </div>
   <br />
 
-  <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" [setEditorLocked]="editorLocked" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
 
 
 <!--Scenario Editor-->
@@ -179,7 +178,7 @@
         <ng-template #exampleCondition>
             <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
               <!--Hidden Delete Button for header of examples-->
-            <button *ngIf="j == 0" style="visibility:hidden"></button>
+           <button *ngIf="j == 0" style="visibility:hidden"></button>
             <button *ngIf="j != 0" [class.disabled]="editorLocked" [disabled]="editorLocked" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);" ></button>
@@ -190,6 +189,9 @@
             </li>
           </ng-template>
 
+        <!--<ng-template #exampleCondition>
+            <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" [setEditorLocked]="editorLocked" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
+        </ng-template>-->
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
