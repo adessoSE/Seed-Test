@@ -69,7 +69,22 @@
             </div>
           
           <div class="uk-steps">
-          <li class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
+          <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)"> 
+              <div class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
+                  <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
+                    uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
+                    (click)="removeStepToBackground($event, j);"></button>
+                  {{j+1}}. {{currentStep.pre}}
+                  <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="backgroundLocked" type="text"
+                    value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
+                  <p style="display:inline" *ngIf="currentStep.values.length > 0">
+                    {{currentStep.mid}}
+                    <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="backgroundLocked"
+                      type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j)" />
+                  </p>
+                  {{currentStep.post}}
+              </div>
+          <!--<li class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;">
             <button [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
               uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
               (click)="removeStepToBackground($event, j);"></button>
@@ -88,7 +103,7 @@
                 type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j)" />
             </p>
             {{currentStep.post}}
-          </li>
+          </li>-->
           <br /><br />
         </div>
       </div>
@@ -147,28 +162,24 @@
             </ul>
           </div>
         </div>
-        <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
-        <li class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
-          <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
-            uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
-            (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
-            <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
-              uk-icon="icon: chevron-up"  class="uk-text-primary" uk-tooltip title="Move step up"
-              (click)="moveStepUp($event, currentStep.stepType, j);"></button>
-            <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
-              uk-icon="icon: chevron-down" class="uk-text-primary" uk-tooltip title="Move step down"
-              (click)="moveStepDown($event, currentStep.stepType, j);"></button>
-          {{i+1}}.{{j+1}} {{currentStep.pre}}
-          <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked" type="text"
-            value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
-          <p style="display:inline" *ngIf="currentStep.values.length > 0">
-            {{currentStep.mid}}
-            <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked"
-              type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,currentStep,j)" />
-          </p>
-          {{currentStep.post}}
-        </li>
-        <br /><br />
+      <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
+          <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)"> 
+            <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
+                    <button [class.disabled]="editorLocked" [disabled]="editorLocked" a
+                    uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
+                    (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
+                  {{i+1}}.{{j+1}} {{currentStep.pre}}
+                  <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked" type="text"
+                    value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
+                  <p style="display:inline" *ngIf="currentStep.values.length > 0">
+                    {{currentStep.mid}}
+                    <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked"
+                      type="text" value="{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType,currentStep,j)" />
+                  </p>
+                  {{currentStep.post}}
+            </div>
+          </div>
+          <br /><br />
       </div>
 
       <ng-template #exampleTitle>

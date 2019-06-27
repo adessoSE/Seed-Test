@@ -7,6 +7,7 @@ import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
+import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop'
 const emptyBackground = {name,stepDefinitions:{when: []}};
 
 @Component({
@@ -80,6 +81,34 @@ export class ScenarioEditorComponent implements OnInit {
 
   }
 
+  onDropScenario(event: CdkDragDrop<any>,stepDefs:StepDefinition, stepIndex: number){
+    if(!this.editorLocked){
+      moveItemInArray(this.stepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
+    }
+  }
+
+  onDropBackground(event: CdkDragDrop<any>,stepDefs:StepDefinition){
+    if(!this.backgroundLocked){
+      moveItemInArray(this.backgroundList(stepDefs), event.previousIndex, event.currentIndex);
+    }
+  }
+
+  backgroundList(stepDefinitions: StepDefinitionBackground){
+    return stepDefinitions.when;
+  }
+
+  stepsList(stepDefs: StepDefinition, i: number) {
+    if (i == 0) {
+      return stepDefs.given;
+    } else if (i == 1) {
+      return stepDefs.when;
+    } else if (i == 2){
+      return stepDefs.then;
+    }else{
+      return stepDefs.example;
+    }
+  }
+
   loadStepDefinitions() {
     this.apiService
       .getStepDefinitions()
@@ -132,117 +161,6 @@ export class ScenarioEditorComponent implements OnInit {
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
       });
   }
-
-
-  moveStepUpBackground(event, stepType, index){
-    console.log("index: " + index)
-    if(index === 0) return;
-
-    switch (stepType) {
-      case 'when':
-      var move = this.selectedStory.background.stepDefinitions.when[index];
-
-      var top = this.selectedStory.background.stepDefinitions.when[index - 1];
-      this.selectedStory.background.stepDefinitions.when[index] = top;
-      this.selectedStory.background.stepDefinitions.when[index - 1] = move;
-        break;
-      default:
-        break;
-     }
-
-  }
-
-  moveStepDownBackground(event, stepType, index){
-    console.log("index: " + index)
-
-    switch (stepType) {
-      case 'when':
-      if(index === this.selectedStory.background.stepDefinitions.when.length - 1) return;
-
-      var move = this.selectedStory.background.stepDefinitions.when[index];
-      var down = this.selectedStory.background.stepDefinitions.when[index + 1];
-      this.selectedStory.background.stepDefinitions.when[index] = down;
-      this.selectedStory.background.stepDefinitions.when[index + 1] = move;
-        break;
-      default:
-        break;
-     }
-
-  }
-
-
-
-
-
-  moveStepUp(event, stepType, index){
-    console.log("index: " + index)
-    if(index === 0) return;
-
-
-    switch (stepType) {
-      case 'given':
-      var move = this.selectedScenario.stepDefinitions.given[index];
-
-      var top = this.selectedScenario.stepDefinitions.given[index - 1];
-      this.selectedScenario.stepDefinitions.given[index] = top;
-      this.selectedScenario.stepDefinitions.given[index - 1] = move;
-        break;
-      case 'when':
-      var move = this.selectedScenario.stepDefinitions.when[index];
-
-      var top = this.selectedScenario.stepDefinitions.when[index - 1];
-      this.selectedScenario.stepDefinitions.when[index] = top;
-      this.selectedScenario.stepDefinitions.when[index - 1] = move;
-        break;
-      case 'then':
-      var move = this.selectedScenario.stepDefinitions.then[index];
-
-      var top = this.selectedScenario.stepDefinitions.then[index - 1];
-      this.selectedScenario.stepDefinitions.then[index] = top;
-      this.selectedScenario.stepDefinitions.then[index - 1] = move;
-        break;
-      default:
-        break;
-     }
-
-  }
-
-  moveStepDown(event, stepType, index){
-    console.log("index: " + index)
-
-    switch (stepType) {
-      case 'given':
-      if(index === this.selectedScenario.stepDefinitions.given.length - 1) return;
-      var move = this.selectedScenario.stepDefinitions.given[index];
-
-      var down = this.selectedScenario.stepDefinitions.given[index + 1];
-      this.selectedScenario.stepDefinitions.given[index] = down;
-      this.selectedScenario.stepDefinitions.given[index + 1] = move;
-        break;
-      case 'when':
-
-      if(index === this.selectedScenario.stepDefinitions.when.length - 1) return;
-      var move = this.selectedScenario.stepDefinitions.when[index];
-      var down = this.selectedScenario.stepDefinitions.when[index + 1];
-      this.selectedScenario.stepDefinitions.when[index] = down;
-      this.selectedScenario.stepDefinitions.when[index + 1] = move;
-        break;
-      case 'then':
-      if(index === this.selectedScenario.stepDefinitions.then.length - 1) return;
-      var move = this.selectedScenario.stepDefinitions.then[index];
-
-      var down = this.selectedScenario.stepDefinitions.then[index + 1];
-      this.selectedScenario.stepDefinitions.then[index] = down;
-      this.selectedScenario.stepDefinitions.then[index + 1] = move;
-        break;
-      default:
-        break;
-     }
-
-  }
-
-
-
 
   deleteBackground(){
     this.apiService
@@ -417,22 +335,9 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  stepsList(stepDefs, i: number) {
-    if (i == 0) {
 
-      return stepDefs.given;
-    } else if (i == 1) {
-      return stepDefs.when;
-    } else if (i == 2){
-      return stepDefs.then;
-    }else{
-      return stepDefs.example;
-    }
-  }
 
-  backgroundList(stepDefinitions: StepDefinitionBackground){
-    return stepDefinitions.when;
-  }
+
 
   addToValuesBackground(input: string, index){
     this.selectedStory.background.stepDefinitions.when[index].values[0] = input;

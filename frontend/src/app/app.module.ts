@@ -19,6 +19,7 @@ import { ViewModeDirective } from './editable/view-mode.directive';
 import { EditModeDirective } from './editable/edit-mode.directive';
 import { EditableOnEnterDirective } from './editable/edit-on-enter.directive';
 import {FocusableDirective} from './example-table/focusable.directive'
+import {DragDropModule} from '@angular/cdk/drag-drop'
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import {FocusableDirective} from './example-table/focusable.directive'
     EditModeDirective,
     EditableComponent,
     FocusableDirective,
-    EditableOnEnterDirective
+    EditableOnEnterDirective,
+    
   ],
   imports: [
     BrowserModule,
@@ -42,7 +44,8 @@ import {FocusableDirective} from './example-table/focusable.directive'
     HttpClientModule,
     MatTableModule,
     RouterModule.forRoot(ROUTES),
-    FormsModule
+    FormsModule,
+    DragDropModule
   ],
   providers: [ApiService, AuthGuard],
   bootstrap: [AppComponent],
