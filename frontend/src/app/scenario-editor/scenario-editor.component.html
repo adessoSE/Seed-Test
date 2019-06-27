@@ -175,10 +175,10 @@
           {{ sd | titlecase }}
       </ng-template>
 
-        <ng-template #exampleCondition>
-            <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
+        <!--<ng-template #exampleCondition>
+            <li class="text-inline" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">-->
               <!--Hidden Delete Button for header of examples-->
-           <button *ngIf="j == 0" style="visibility:hidden"></button>
+          <!-- <button *ngIf="j == 0" style="visibility:hidden"></button>
             <button *ngIf="j != 0" [class.disabled]="editorLocked" [disabled]="editorLocked" a
             uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
             (click)="removeStepToScenario($event, currentStep.stepType, j);" ></button>
@@ -187,11 +187,11 @@
           type="text" value= "{{value}}" on-change="addToValues(step_type_input.value,currentStep.stepType, currentStep,j, k)"/> 
              </p>
             </li>
-          </ng-template>
+          </ng-template>-->
 
-        <!--<ng-template #exampleCondition>
+        <ng-template #exampleCondition>
             <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" [setEditorLocked]="editorLocked" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
-        </ng-template>-->
+        </ng-template>
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
