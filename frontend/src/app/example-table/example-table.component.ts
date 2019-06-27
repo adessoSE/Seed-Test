@@ -1,16 +1,8 @@
 import { Component, OnInit, Input, ViewChild, Output ,EventEmitter } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
-import { CoreService } from '../Services/core.service';
 import { Scenario } from '../model/Scenario';
 import { Story } from '../model/Story';
 import { BehaviorSubject } from 'rxjs';
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
 
 @Component({
   selector: 'app-example-table',
@@ -20,7 +12,6 @@ export interface PeriodicElement {
 export class ExampleTableComponent implements OnInit {
 
   displayedColumns: string[] = [];
-  dataSource = this.core.list$;
   data = [];
   controls: FormArray;
   selectedScenario : Scenario;
@@ -30,17 +21,10 @@ export class ExampleTableComponent implements OnInit {
   @Output()
   removeRowIndex: EventEmitter<number> = new EventEmitter();
 
-  constructor(private core: CoreService){}
+  constructor(){}
 
   ngOnInit() {
 
-  }
-
-  ngDoCheck(){
-    /*if(this.selectedScenario.stepDefinitions.example[0]){
-      this.initializeTable()
-      this.initializeTableControls();
-    }*/
   }
 
   @Input()
@@ -111,23 +95,11 @@ export class ExampleTableComponent implements OnInit {
 
   getControl(rowIndex, fieldName): FormControl {
     console.log("column name: " + fieldName + " index: " + rowIndex);
-    //const a  = this.controls.at(index).get(fieldName) as FormControl;
-    //console.log("controls: " + JSON.stringify(this.controls));
-    
-    //console.log("found control: " + JSON.stringify( this.controls.at(index).get(fieldName) as FormControl));
     return this.controls.at(rowIndex).get(fieldName) as FormControl;
   }
 
-  async addToValues(input: string, stepType,step, index, valueIndex? ) {
-
-    //await this.checkForExamples(input,step);
-
-    console.log("steptype: " + stepType)
-    console.log("add to values: " + input);
-
+  addToValues(input: string, stepType,step, index, valueIndex? ) {
     this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
-
-    
   }
   updateTable(){
     console.log("updateTable");
