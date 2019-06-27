@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { CanActivate, Router } from "@angular/router";
-import { ApiService } from "../Services/api.service";
+import { ApiService } from "../services/api.service";
 
 
 @Injectable()

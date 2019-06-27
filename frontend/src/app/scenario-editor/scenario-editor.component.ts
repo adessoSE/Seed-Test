@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ApiService } from '../Services/api.service';
+import { ApiService } from '../services/api.service';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';

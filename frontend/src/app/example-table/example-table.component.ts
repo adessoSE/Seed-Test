@@ -115,9 +115,6 @@ export class ExampleTableComponent implements OnInit {
   removeRow(rowIndex: number){
     console.log("remove row: " + rowIndex);
     this.removeRowIndex.emit(rowIndex +1 );
-    // this.selectedScenario.stepDefinitions.example.splice(rowIndex, 1);
-    // this.initializeTable()
-    // this.initializeTableControls();
   }
 
 }
