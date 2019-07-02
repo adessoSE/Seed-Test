@@ -2,7 +2,7 @@ Feature: Logout scenario
 
 Background: 
 
-When I am on the website: "https://cucumber-app.herokuapp.com/login"  
+When I go to the website: "https://cucumber-app.herokuapp.com/login"  
 And I insert "adessoCucumber" into the field "githubName" 
 And I insert "119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868" into the field "token" 
 And I click the button: "submit"  
@@ -12,7 +12,7 @@ And I click the button: "#"
 Scenario: successful Logout
 
 Given As a "User"
-Given I go to the website: "https://cucumber-app.herokuapp.com/"  
+Given I am on the website: "https://cucumber-app.herokuapp.com/"  
 
 When I click the button: "logoutButton"  
 

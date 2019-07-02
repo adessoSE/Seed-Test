@@ -1,20 +1,20 @@
 [
   {
     "keyword": "Feature",
-    "name": "Sign-Up scenario",
+    "name": "Login scenario",
     "line": 1,
-    "id": "sign-up-scenario",
+    "id": "login-scenario",
     "tags": [],
-    "uri": "features\\Sign-Up_scenario.feature",
+    "uri": "features\\Login_scenario.feature",
     "elements": [
       {
-        "id": "sign-up-scenario;successful-sign-up",
+        "id": "login-scenario;successful-login",
         "keyword": "Scenario",
-        "line": 7,
-        "name": "successful Sign Up",
+        "line": 20,
+        "name": "Successful Login",
         "tags": [
           {
-            "name": "@386696256_1",
+            "name": "@386694507_1",
             "line": 6
           }
         ],
@@ -35,88 +35,72 @@
             "arguments": [],
             "keyword": "Given ",
             "line": 9,
-            "name": "As a",
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 1000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 11,
-            "name": "I want to visit this site: \"https://forum.golem.de/register.php?121624\"",
+            "name": "I am on the website: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 3697000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 12,
-            "name": "I want to click the Button: \"golemAcceptCookies();\"",
+            "name": "I insert \"AdorableHamster\" into the field \"login_field\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 73000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 13,
-            "name": "I want to insert into the \"abcdefguuh1234567890\" field, the value",
+            "name": "I insert \"cutehamsterlikesnuts2000\" into the field \"password\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 94000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 14,
-            "name": "I want to insert into the \"telefonnuuummer@gmail.com\" field, the value",
+            "name": "I click the button: \"commit\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 15,
-            "name": "I want to insert into the \"cucumber2000\" field, the value",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 16,
-            "name": "I want to insert into the \"cucumber2000\" field, the value",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 17,
-            "name": "I want to select from the \"tos_accept\" selection, the value",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 18,
-            "name": "I want to click the Button: \"Abschicken\"",
-            "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 1778000000
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 20,
-            "name": "So I will be navigated to the site: \"https://forum.golem.de/register.php\"",
+            "line": 16,
+            "name": "So I will be navigated to the site: \"https://github.com/\"",
             "result": {
               "status": "undefined"
             }
@@ -130,6 +114,225 @@
             "result": {
               "status": "passed",
               "duration": 1000000
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-scenario;successful-login",
+        "keyword": "Scenario",
+        "line": 21,
+        "name": "Successful Login",
+        "tags": [
+          {
+            "name": "@386694507_1",
+            "line": 6
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I am on the website: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2420000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I insert \"NormalHamster\" into the field \"login_field\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 80000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I insert \"FatHamster123\" into the field \"password\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 79000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click the button: \"commit\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1425000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "So I will be navigated to the site: \"https://github.com/account/unverified-email\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1000000
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-scenario;successful-login",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "Successful Login",
+        "tags": [
+          {
+            "name": "@386694507_1",
+            "line": 6
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I am on the website: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2420000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I insert \"OldHamster\" into the field \"login_field\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 62000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I insert \"UglyHamster123\" into the field \"password\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 77000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click the button: \"commit\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1427000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "So I will be navigated to the site: \"https://github.com/account/unverified-email\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "passed"
             }
           }
         ]

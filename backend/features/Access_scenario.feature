@@ -2,32 +2,32 @@ Feature: Access scenario
 
 Background: 
 
-When I want to visit this site: "https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home"  
-And I want to insert into the "<userName>" field, the value  
-And I want to insert into the "<password>" field, the value  
-And I want to click the Button: "commit"  
+When I am on the website: "https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home"  
+And I insert "<userName>" into the field "login_field" 
+And I insert "<password>" into the field "password" 
+And I click the button: "commit"  
 
 @386696070_1
 Scenario: successful Authentification
 
-Given As a  
+Given As a "Guest"  
 
-When I want to visit this site: "https://www.adesso.de/"  
-When I want to click the Button: "Login"  
-When I want to select from the "Cat" multiple selection, the values "Dog""Spider" 
+When I am on the website: "https://www.adesso.de/"  
+When I click the button: "Login"  
+When I select from the "Pets" multiple selection, the values "Cat""Dog""Spider" 
 
 Then So I will be navigated to the site: "www.adesso.de/myProfile"  
-Then So I can see in the "Successfully logged in" textbox, the text  
+Then So I can see the text "Successfully logged in" in the textbox: "Validation" 
 
 @386696070_2
 Scenario: failed Authentification
 
 Given As a "SomeUsername" "Secret666" 
 
-When I want to visit this site: "www.gamestar.de"  
-When I want to click the Button: "Login"  
-When I want to select from the "Rpg" selection, the value  
+When I am on the website: "www.gamestar.de"  
+When I click the button: "Login"  
+When I select from the "Games" from the selection "Rpg" 
 
 Then So I will be navigated to the site: "www.gamestar.de/login"  
-Then So I can see in the "Password or User incorrect" textbox, the text  
+Then So I can see the text "Password or User incorrect" in the textbox: "Validation" 
 

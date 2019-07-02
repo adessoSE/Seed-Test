@@ -6,24 +6,24 @@ Background:
 @386692174_1
 Scenario: Renamed Scenario
 
-Given As a  
+Given As a "User"
 
-When I want to visit this site: "www.mywebsite.com"  
-When I want to click the Button: "Edit"  
-When I want to insert into the "Renamed Scenario" field, the value  
-When I want to click the Button: "Save"  
+When I am on the website: "www.mywebsite.com"  
+When I click the button: "Edit"  
+When I insert "Renamed Scenario" into the field "Scenario Name" 
+When I click the button: "Save"  
 
-Then So I can see in the "Updated scenario name." textbox, the text  
+Then So I can see the text "Updated scenario name." in the textbox: "Validation" 
 
 @386692174_1
 Scenario: Faild Updating
 
-Given As a  
+Given As a "Guest"  
 
-When I want to visit this site: "www.mywebsite.com"  
-When I want to click the Button: "Edit"  
-When I want to insert into the "Renamed Scenario" field, the value  
-When I want to click the Button: "Save"  
+When I am on the website: "www.mywebsite.com"  
+When I click the button: "Edit"  
+When I insert "Renamed Scenario" into the field "Scenario Name" 
+When I click the button: "Save"  
 
-Then So I can see in the "Could not update scenario name!" textbox, the text  
+Then So I can see the text "Could not update scenario name!" in the textbox: "Validation" 
 

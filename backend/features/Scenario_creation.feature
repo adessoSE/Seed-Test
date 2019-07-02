@@ -6,20 +6,20 @@ Background:
 @382626033_1
 Scenario: successful Scenario creation
 
-Given As a  
+Given As a "Guest"  
 
-When I want to visit this site: "www.cucumber.com"  
-When I want to click the Button: "Create Scenario"  
+When I am on the website: "www.cucumber.com"  
+When I click the button: "Create Scenario"  
 
-Then So I can see in the "New Scenario created" textbox, the text  
+Then So I can see the text "New Scenario created" in the textbox: "Sucess" 
 
 @382626033_2
 Scenario: failed Scenario creation
 
-Given As a  
+Given As a "Guest"  
 
-When I want to visit this site: "www.cucumber.com"  
-When I want to click the Button: "Create Scenario"  
+When I am on the website: "www.cucumber.com"  
+When I click the button: "Create Scenario"  
 
-Then So I can see in the "Could not create Scenario" textbox, the text  
+Then So I can see the text "Could not create Scenario" in the textbox: "Error" 
 

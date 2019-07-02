@@ -6,20 +6,20 @@ Background:
 @386693457_1
 Scenario: successful Story creation
 
-Given As a  
+Given As a "Guest"  
 
-When I want to visit this site: "www.cucumber.com"  
-When I want to click the Button: "Create Story"  
+When I am on the website: "www.cucumber.com"  
+When I click the button: "Create Story"  
 
-Then So I can see in the "New Story created" textbox, the text  
+Then So I can see the text "New Story created" in the textbox: "Success" 
 
 @386693457_2
 Scenario: failed Story creation
 
-Given As a  
+Given As a "Guest"  
 
-When I want to visit this site: "www.cucumber.com"  
-When I want to click the Button: "Create Story"  
+When I am on the website: "www.cucumber.com"  
+When I click the button: "Create Story"  
 
-Then So I can see in the "Could not create Story" textbox, the text  
+Then So I can see the text "Could not create Story" in the textbox: "Error" 
 
