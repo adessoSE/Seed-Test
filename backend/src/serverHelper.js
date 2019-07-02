@@ -133,6 +133,7 @@ function getScenarioContent(scenarios, storyID) {
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
+  console.log(story)
   let data = `Feature: ${story.title}\n\n`;
 
   // Get background

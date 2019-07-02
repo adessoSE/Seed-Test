@@ -104,23 +104,33 @@ app
             story.assignee_avatar_url = issue.assignee.avatar_url;
           }
           // skip if there is no data for the issue yet
-          if (mongo.getOne(issue.id, function (err, result) {
-            result !== null
-          })) {
-            mongo.getOne(issue.id, function (err, result) {
+          // if (mongo.getOne(issue.id, function (result) {
+          //   result !== null
+          // })) {
+          //   mongo.getOne(issue.id, function (result) {
+          //     story.scenarios = result.scenarios
+          //   })
+          //   mongo.getOne(issue.id, function (result) {
+          //     story.background = result.background
+          //   })
+          //   // story.scenarios = storiesDB.findOne({ story_id: issue.id }).scenarios;
+          //   // story.background = storiesDB.findOne({ story_id: issue.id }).background;
+          // } else {
+          //   story.scenarios = [emptyScenario()];
+          //   story.background = emptyBackground();
+          // }
+
+          mongo.getOneStory(issue.id, function (result) {
+            if (result !== null) {
               story.scenarios = result.scenarios
-            })
-            mongo.getOne(issue.id, function (err, result) {
               story.background = result.background
-            })
-            // story.scenarios = storiesDB.findOne({ story_id: issue.id }).scenarios;
-            // story.background = storiesDB.findOne({ story_id: issue.id }).background;
           } else {
             story.scenarios = [emptyScenario()];
             story.background = emptyBackground();
           }
+        })
           // storiesDB.insert(story); // update database
-          mongo.insertOne("stories", story)
+          mongo.upsertEntry("stories",story.story_id, story)  // TODO: creates duplicates?
           // Create & Update Feature Files
           helper.writeFile('', story);
           // TODO: delete stories and save some storage

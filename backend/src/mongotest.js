@@ -4,6 +4,8 @@ let MongoClient = require('mongodb').MongoClient;
 let url = "mongodb://localhost:27017";
 
 
+//TODO: let _id be the same as issue_id
+
 
 // MongoClient.connect(url, function(err, client) {
 //   if (err) throw err;
@@ -43,16 +45,22 @@ let url = "mongodb://localhost:27017";
 ////////////////////////////////////////////////////////////////// API Methods ////////////////////////////////////////////////////////////////
 
 // get One Story
-function getOne(id, callback) {
+function getOneStory(id, callback) {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     let dbo = db.db("mydb");
-    dbo.collection("stories").find({ story_id: id }).toArray(function (err, result) {
+    dbo.collection("stories").findOne({ story_id: id }, function (err, result) {
       if (err) throw err;
       callback(result)
     });
+    db.close();
   });
 }
+
+// getOne(386692174, function (result) {
+//   result !== null
+//   console.log (result)
+// })
 
 //GET all  Stepdefinitions
 function showStepdefinitions(callback) {
@@ -235,6 +243,23 @@ function updateScenario(git_id, updated_scenario,callback) {
   })
 }
 
+function upsertEntry(collection, story_id, content) {
+  MongoClient.connect(url, function (err, db) {
+    if (err) throw err;
+    let dbo = db.db("mydb");
+    let myobj = { story_id: story_id }
+    let update = content
+    dbo.collection(collection).findOneAndUpdate(myobj, update, {
+      returnOriginal: false,
+      upsert: true
+  }, function (err) {
+    if (err) throw err;
+  })
+  db.close();
+  })
+}
+
+
 // updateScenario(386692174, {
 //   scenario_id: 3,
 //   name: 'TestScenario',
@@ -307,7 +332,9 @@ function showCollection(name) {
   })
 }
 
-// insert Many documents ("collectionname", {documents},{...} )
+
+
+// insert Many documents ("collectionname", [{documents},{...}] )
 function insertMore(name, content) {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
@@ -320,6 +347,8 @@ function insertMore(name, content) {
     })
   })
 }
+
+
 
 // update (git_id, {document})
 function update(git_id, updatedStuff) {
@@ -338,7 +367,7 @@ function erase() {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     let dbo = db.db("mydb");
-    dbo.collection("stories").deleteOne({ _id: "5d0361f4c65068037c656191" }, function (err, obj) {
+    dbo.collection("stories").deleteOne({  }, function (err, obj) {
       if (err) throw err;
       db.close()
     })
@@ -358,6 +387,19 @@ function showStory(git_id) {
     })
   })
 }
+function dropCollection(){
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db("mydb");
+  dbo.collection("stories").drop(function(err, delOK) {
+    if (err) throw err;
+    if (delOK) console.log("Collection deleted");
+    db.close();
+  });
+}); 
+}
+
+// showCollection("stories")
 
 // console.log(getOne({ story_id: 386692174 }))
 // console.log(showStepdefinitions().then(function(result){
@@ -369,7 +411,7 @@ function showStory(git_id) {
 module.exports = {
   showStepdefinitions: showStepdefinitions,
   createBackground: createBackground, deleteBackground: deleteBackground, updateBackground: updateBackground,
-  createScenario: createScenario, deleteScenario: deleteScenario, updateScenario: updateScenario, getOne, insertOne,
+  createScenario: createScenario, deleteScenario: deleteScenario, updateScenario: updateScenario, getOneStory, upsertEntry,
 };
 
 
