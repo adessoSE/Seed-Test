@@ -53,14 +53,14 @@ When('I insert {string} into the field {string}', async (value, label) => {
   await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
 });
 
-// TODO: Date/ Single checkbox
+// TODO: Date
 
 // "Radio"
-When('I select {string} from the selection {string}', async (cbname, label) => {
-  await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${cbname}']`)), 3 * 1000).click();
+When('I select {string} from the selection {string}', async (radioname, label) => {
+  await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${radioname}']`)), 3 * 1000).click();
 });
 
-// Select an Option from an Dropdownmenue
+// Select an Option from an dropdown-menue
 When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
   await driver.wait(until.elementLocated(By.xpath("//*[@id='" + dropd + "']/option[text()='" + value + "']")), 3 * 1000).click();
 });
@@ -68,22 +68,21 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 // Hover over element and Select an Option
 When('I hover over the element {string} and select the option {string}', async function(element, option) {
   const action = driver.actions({bridge: true});
-  const link = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + element + "')]")), 3 * 1000)
+  const link = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + element + "')]")), 3 * 1000);
   await action.move({x: 0, y: 0, origin: link}).perform();
 
   const action2 = driver.actions({bridge: true});
-  const selection = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + option + "')]")), 3 * 1000)
+  const selection = await driver.wait(until.elementLocated(By.xpath("//*[contains(text(),'" + option + "')]")), 3 * 1000);
   await action2.move({x: 0, y: 0, origin: selection}).click().perform();
 });
 
-// TODO: this
+// TODO: this OR: copy the radio/button multiple times
 When('I select from the {string} multiple selection, the values {string}{string}{string}', async (string, string2, string3, string4) => {
   const quatsch = string;
 });
 
 // ################### THEN ##########################################
-// TODO:change By.tagName to xpath for flexibility
-// Search a Textfield in the html code and asert it with a Text
+// Search a textfield in the html code and asert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async (string, label) => {
   await driver.wait(until.elementLocated(By.xpath(`${'//*[@*' + "='"}${label}']`)), 3 * 1000).then(async (link) => {
     const resp = await link.getText().then(text => text);
@@ -100,5 +99,6 @@ Then('So I will be navigated to the website: {string}', async (url) => {
 
 // Closes the webdriver (Browser)
 After(async () => {
+  // TODO: check for heroku and Chrome
   driver.quit();
 });

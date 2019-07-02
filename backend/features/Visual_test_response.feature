@@ -6,12 +6,12 @@ Background:
 @386692544_1
 Scenario: Visual Test Response
 
-Given As a "Superman" "kryptonite" 
+Given As a "User"
 
-When I am on the website: "www.cucumber.com"  
-When I click the button: "Test it"  
+When I want to visit this site: "www.cucumber.com" 
+When I want to click the Button: "Test it" 
 
-Then So I will be navigated to the site: "www.cucumber.com/results"  
-Then So I can see the text "ThenStep 1 Success" in the textbox: "Result" 
-Then So I can see the text "ThenStep 2 Failed" in the textbox: "Result" 
+Then So I will be navigated to the site: "www.cucumber.com/results" 
+Then So I can see in the "Result" textbox, the text "ThenStep 1 Success" 
+Then So I can see in the "Result" textbox, the text "ThenStep 2 Failed" 
 

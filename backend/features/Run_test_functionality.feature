@@ -8,8 +8,8 @@ Scenario: Run Test
 
 Given As a "Guest"  
 
-When I go to the website: "www.testing.com/myTestPage"  
-When I click the button: "Run"  
+When I want to visit this site: "www.testing.com/myTestPage" 
+When I want to click the Button: "Run" 
 
-Then So I can see the text "Start running test cases." in the textbox:  
+Then So I can see in the "Validation" textbox, the text "Start running test cases." 
 
