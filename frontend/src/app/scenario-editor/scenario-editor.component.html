@@ -169,8 +169,6 @@
                     uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
                     (click)="removeStepToScenario($event, currentStep.stepType, j);"></button>
                   {{i+1}}.{{j+1}} {{currentStep.pre}}
-                  <input #step_type_input *ngIf="currentStep.label !== null" [disabled]="editorLocked" type="text"
-                    value="{{currentStep.label}}" on-change="currentStep.label = step_type_input.value" />
                   <p style="display:inline" *ngIf="currentStep.values.length > 0">
                     {{currentStep.mid}}
                     <input #step_type_input *ngFor="let value of currentStep.values;" [disabled]="editorLocked"
