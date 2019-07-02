@@ -80,7 +80,6 @@ function jsUcfirst(string) {
 
 // Building feature file step-content
 function getSteps(steps, stepType) {
-  console.log(`Hi, ${stepType} \n ${steps}`);
   let data = '';
   for (let step of steps) {
     data += `${jsUcfirst(stepType)} `;
@@ -155,7 +154,6 @@ function getFeatureContent(story) {
 
 // Creates feature file
 function writeFile(__dirname, selectedStory) {
-  console.log(`Hi, ${selectedStory.story_id}`);
   fs.writeFile(path.join(__dirname, 'features',
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
     if (err) throw err;
