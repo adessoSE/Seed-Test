@@ -1,5 +1,6 @@
 const { exec } = require('child_process');
 const fs = require('fs');
+const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
 
@@ -216,9 +217,66 @@ function sendDownloadResult(resp) {
   resp.sendFile('/reporting_html.html', { root: rootPath });
 }
 
+function getOwnRepositories(token, callback) {
+  const request = new XMLHttpRequest();
+
+  request.open('GET', 'https://api.github.com/user/repos', true, 'account_name', token);
+  // get Issues from GitHub
+
+  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
+  request.send();
+  request.onreadystatechange = function () {
+    // console.log(
+    // "readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+      const names = [];
+      let index = 0;
+      for (const repo of data) {
+        const repoName = repo.full_name;
+        names[index] = repoName;
+        index++;
+      }
+      callback(names);
+      // console.log("getRepo: " + names)
+    } else if (this.readyState === 4) {
+      callback(null);
+    }
+  };
+}
+
+function getStarredRepositories(ghName, token, callback) {
+  const request = new XMLHttpRequest();
+  console.log(`githubname: ${ghName} token: ${token}`);
+  request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
+  // get Issues from GitHub
+
+  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
+  request.send();
+  request.onreadystatechange = function () {
+    // console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+      const names = [];
+      let index = 0;
+      for (const repo of data) {
+        const repoName = repo.full_name;
+        names[index] = repoName;
+        index++;
+      }
+      // console.log("getStarred: " + names);
+      callback(names);
+    } else if (this.readyState === 4) {
+      callback(null);
+    }
+  };
+}
+
 module.exports = {
   updateFeatureFiles,
   writeFile,
   runReport,
   sendDownloadResult,
+  getStarredRepositories,
+  getOwnRepositories
 };

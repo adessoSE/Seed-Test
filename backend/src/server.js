@@ -114,32 +114,7 @@ app
       }
     };
   })
-  .get("/api/repositories/:token?/:githubName?", function (req, res) {
-    let token = req.params.token;
-    let ownRepositories;
-    let bool1; let bool2 = false;
-    getOwnRepositories(token, (repos) => {
-      ownRepositories = repos;
-
-      if (bool2) {
-        const concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
-      } else {
-        bool1 = true;
-      }
-    });
-    let starredRepositories;
-    getStarredRepositories(req.params.githubName, token, (stars) => {
-      starredRepositories = stars;
-      if (bool1) {
-        const concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
-      } else {
-        bool2 = true;
-      }
-    });
-  })
-
+  
   // .get('/testResult', (req, res) => {
   //   helper.setRespReport(res);
   // })
@@ -239,98 +214,35 @@ app
   .get('/api/runScenario/:issueID/:scenarioID', (req, res) => {
     helper.runReport(req, res, stories, 'scenario');
   })
+
   .get("/api/repositories/:token?/:githubName?", function (req, res) {
     let token = req.params.token;
-    let githubName = req.params.githubName;
     let ownRepositories;
-    let bool1; let
-      bool2 = false;
-    getOwnRepositories(token, (repos) => {
-      if (repos != null && !res.headersSent) {
-        ownRepositories = repos;
-        if (bool2) {
-          const concat = ownRepositories.concat(starredRepositories);
-          res.status(200).json(concat);
-        } else {
-          bool1 = true;
-        }
-      } else if (bool2) {
-        res.status(401).json('Wrong Token');
+    let bool1; let bool2 = false;
+    helper.getOwnRepositories(token, (repos) => {
+      ownRepositories = repos;
+
+      if (bool2) {
+        const concat = ownRepositories.concat(starredRepositories);
+        res.status(200).json(concat);
       } else {
         bool1 = true;
       }
     });
     let starredRepositories;
-    getStarredRepositories(req.params.githubName, token, (stars) => {
-      if (stars != null && !res.headersSent) {
-        starredRepositories = stars;
-        if (bool1) {
-          const concat = ownRepositories.concat(starredRepositories);
-          res.status(200).json(concat);
-        } else {
-          bool2 = true;
-        }
-      } else if (bool1) {
-        res.status(401).json('Wrong Github Name');
+    helper.getStarredRepositories(req.params.githubName, token, (stars) => {
+      starredRepositories = stars;
+      if (bool1) {
+        const concat = ownRepositories.concat(starredRepositories);
+        res.status(200).json(concat);
       } else {
         bool2 = true;
       }
     });
   });
 
-function getOwnRepositories(token, callback) {
-  const request = new XMLHttpRequest();
 
-  request.open('GET', 'https://api.github.com/user/repos', true, 'account_name', token);
-  // get Issues from GitHub
 
-  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
-  request.send();
-  request.onreadystatechange = function () {
-    // console.log(
-    // "readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
-    if (this.readyState === 4 && this.status === 200) {
-      const data = JSON.parse(request.responseText);
-      const names = [];
-      let index = 0;
-      for (const repo of data) {
-        const repoName = repo.full_name;
-        names[index] = repoName;
-        index++;
-      }
-      callback(names);
-      // console.log("getRepo: " + names)
-    } else if (this.readyState === 4) {
-      callback(null);
-    }
-  };
-}
 
-function getStarredRepositories(ghName, token, callback) {
-  const request = new XMLHttpRequest();
-  console.log(`githubname: ${ghName} token: ${token}`);
-  request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
-  // get Issues from GitHub
-
-  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
-  request.send();
-  request.onreadystatechange = function () {
-    // console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
-    if (this.readyState === 4 && this.status === 200) {
-      const data = JSON.parse(request.responseText);
-      const names = [];
-      let index = 0;
-      for (const repo of data) {
-        const repoName = repo.full_name;
-        names[index] = repoName;
-        index++;
-      }
-      // console.log("getStarred: " + names);
-      callback(names);
-    } else if (this.readyState === 4) {
-      callback(null);
-    }
-  };
-}
 
 module.exports = app;
