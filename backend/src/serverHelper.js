@@ -1,5 +1,6 @@
 const { exec } = require('child_process');
 const fs = require('fs');
+const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
 
@@ -32,14 +33,15 @@ function midNotEmpty(values) {
 
 // adds content of each values to output
 function getValues(values) {
+  //TODO: TESTING HERE: excluding the first value
   let data = '';
-  for (let i = 0; i < values.length; i++) {
+  for (let i = 1; i < values.length; i++) {
     data += `"${values[i]}"`;
   }
   return data;
 }
 
-// adds label content to output
+// adds label content to output TODO: might want to reuse this...
 function getLabel(label) {
   return `"${label}"`;
 }
@@ -53,8 +55,8 @@ function getBackgroundSteps(steps) {
     } else {
       data += 'And ';
     }
-    if ((steps[i].label) != null) {
-      data += `${steps[i].pre} ${getLabel(steps[i].label)} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+    if (steps[i].values[0] != null) {
+      data += `${steps[i].pre} "${steps[i].values[0]}" ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
     } else {
       data += `${steps[i].pre} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
     }
@@ -78,16 +80,17 @@ function jsUcfirst(string) {
 
 // Building feature file step-content
 function getSteps(steps, stepType) {
+  console.log(`Hi, ${stepType} \n ${steps}`);
   let data = '';
-  for (let i = 0; i < steps.length; i++) {
+  for (let step of steps) {
     data += `${jsUcfirst(stepType)} `;
     // TODO: If Given contains Background (Background>0): Add Background (method)
-    if ((steps[i].label) != null && (steps[i].label) !== 'User') {
-      data += `${steps[i].pre} ${getLabel(steps[i].label)} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
-    } else if ((steps[i].label) === 'User') {
-      data += `${steps[i].pre} ${getLabel(steps[i].label)}\n`;
+    if ((step.values[0]) != null && (step.values[0]) !== 'User') {
+      data += `${step.pre} "${step.values[0]}" ${midNotEmpty(step.mid)}${getValues(step.values)} \n`;
+    } else if ((step.values[0]) === 'User') {
+      data += `${step.pre} "${step.values[0]}"\n`;
     } else {
-      data += `${steps[i].pre} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+      data += `${step.pre} ${midNotEmpty(step.mid)}${getValues(step.values)} \n`;
     }
   }
   return data;
@@ -109,22 +112,28 @@ function getExamples(steps) {
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
   let data = '';
-  for (let i = 0; i < scenarios.length; i++) {
-    data += `@${storyID}_${scenarios[i].scenario_id}\n`;
-    if ((scenarios[i].stepDefinitions.example.length) > 0) {
-      data += `Scenario Outline: ${scenarios[i].name}\n\n`;
+  for (let scenario of scenarios) {
+    console.log(`Scenario ID: ${scenario.scenario_id}`);
+    data += `@${storyID}_${scenario.scenario_id}\n`;
+    // if there are examples
+    if ((scenario.stepDefinitions.example.length) > 0) {
+      data += `Scenario Outline: ${scenario.name}\n\n`;
     } else {
-      data += `Scenario: ${scenarios[i].name}\n\n`;
+      data += `Scenario: ${scenario.name}\n\n`;
     }
     // Get Stepdefinitions
-    data += `${getSteps(scenarios[i].stepDefinitions.given, Object.keys(scenarios[i].stepDefinitions)[0])}\n`;
+    if (scenario.stepDefinitions.given != undefined) {
+      data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
+    }
+    if (scenario.stepDefinitions.when != undefined) {
+      data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
+    }
+    if (scenario.stepDefinitions.then != undefined) {
+      data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
+    }
 
-    data += `${getSteps(scenarios[i].stepDefinitions.when, Object.keys(scenarios[i].stepDefinitions)[1])}\n`;
-
-    data += `${getSteps(scenarios[i].stepDefinitions.then, Object.keys(scenarios[i].stepDefinitions)[2])}\n`;
-
-    if ((scenarios[i].stepDefinitions.example.length) > 0) {
-      data += `${getExamples(scenarios[i].stepDefinitions.example)}\n\n`;
+    if ((scenario.stepDefinitions.example.length) > 0) {
+      data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
     }
   }
   return data;
@@ -147,27 +156,16 @@ function getFeatureContent(story) {
 
 // Creates feature file
 function writeFile(__dirname, selectedStory) {
+  console.log(`Hi, ${selectedStory.story_id}`);
   fs.writeFile(path.join(__dirname, 'features',
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
     if (err) throw err;
   });
 }
 
-// Updates feature file based on story_id
-function updateFeatureFiles(reqParams, stories) {
-  let selectedStory;
-  for (let i = 0; i < stories.length; i++) {
-    if (stories[i].story_id === reqParams.issueID) {
-      selectedStory = stories[i];
-      break;
-    }
-  }
-  writeFile('', selectedStory);
-}
-
 function getStoryByID(params, stories) {
   let selectedStory;
-  for (story of stories) {
+  for (let story of stories) {
     if (story.story_id === parseInt(params.issueID)) {
       selectedStory = story;
       console.log(story.story_id);
@@ -175,6 +173,21 @@ function getStoryByID(params, stories) {
     }
   }
   return selectedStory;
+}
+
+// Updates feature file based on story_id
+function updateFeatureFiles(reqParams, stories) {
+  let selectedStory;
+  for (let i = 0; i < stories.length; i++) {
+    if (stories[i].story_id == reqParams.issueID) {
+      selectedStory = stories[i];
+      break;
+    }
+  }
+  if(selectedStory){
+    writeFile('', selectedStory);
+
+  }
 }
 
 function execReport(req, res, stories, mode, callback) {
@@ -214,9 +227,66 @@ function sendDownloadResult(resp) {
   resp.sendFile('/reporting_html.html', { root: rootPath });
 }
 
+function getOwnRepositories(token, callback) {
+  const request = new XMLHttpRequest();
+
+  request.open('GET', 'https://api.github.com/user/repos', true, 'account_name', token);
+  // get Issues from GitHub
+
+  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
+  request.send();
+  request.onreadystatechange = function () {
+    // console.log(
+    // "readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+      const names = [];
+      let index = 0;
+      for (const repo of data) {
+        const repoName = repo.full_name;
+        names[index] = repoName;
+        index++;
+      }
+      callback(names);
+      // console.log("getRepo: " + names)
+    } else if (this.readyState === 4) {
+      callback(null);
+    }
+  };
+}
+
+function getStarredRepositories(ghName, token, callback) {
+  const request = new XMLHttpRequest();
+  console.log(`githubname: ${ghName} token: ${token}`);
+  request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
+  // get Issues from GitHub
+
+  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
+  request.send();
+  request.onreadystatechange = function () {
+    // console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+      const names = [];
+      let index = 0;
+      for (const repo of data) {
+        const repoName = repo.full_name;
+        names[index] = repoName;
+        index++;
+      }
+      // console.log("getStarred: " + names);
+      callback(names);
+    } else if (this.readyState === 4) {
+      callback(null);
+    }
+  };
+}
+
 module.exports = {
   updateFeatureFiles,
   writeFile,
   runReport,
   sendDownloadResult,
+  getStarredRepositories,
+  getOwnRepositories
 };

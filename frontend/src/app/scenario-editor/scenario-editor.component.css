@@ -98,6 +98,7 @@
 .backgroundItems{
   padding-left:40px;
   padding-right:40px;
+
 }
 
 .loading{
@@ -149,4 +150,9 @@
 
 table {
   width: 100%;
+}
+
+.marginLeft{
+  margin-left: 40px;
+  display:inline-block;
 }
