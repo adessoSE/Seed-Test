@@ -339,28 +339,27 @@ export class ScenarioEditorComponent implements OnInit {
 
 
 
-  addToValuesBackground(input: string, index){
-    this.selectedStory.background.stepDefinitions.when[index].values[0] = input;
+  addToValuesBackground(input: string, stepIndex, valueIndex){
+    this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
   }
 
-  async addToValues(input: string, stepType,step, index, valueIndex? ) {
-
+  async addToValues(input: string, stepType,step, stepIndex, valueIndex ) {
     await this.checkForExamples(input,step);
 
     console.log("steptype: " + stepType);
     console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
-        this.selectedScenario.stepDefinitions.given[index].values[0] = input;
+        this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
         break;
       case 'when':
-        this.selectedScenario.stepDefinitions.when[index].values[0] = input;
+        this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
         break;
       case 'then':
-        this.selectedScenario.stepDefinitions.then[index].values[0] = input;
+        this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
         break;
       case 'example':
-        this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
+        this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
         break;
     }
   }
