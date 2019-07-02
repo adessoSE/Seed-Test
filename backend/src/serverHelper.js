@@ -176,9 +176,18 @@ function getStoryByID(params, stories) {
 
 // Updates feature file based on story_id
 function updateFeatureFiles(reqParams, stories) {
-  writeFile('', getStoryByID(reqParams, stories));
-}
+  let selectedStory;
+  for (let i = 0; i < stories.length; i++) {
+    if (stories[i].story_id == reqParams.issueID) {
+      selectedStory = stories[i];
+      break;
+    }
+  }
+  if(selectedStory){
+    writeFile('', selectedStory);
 
+  }
+}
 
 function execReport(req, res, stories, mode, callback) {
   const story = getStoryByID(req.params, stories);

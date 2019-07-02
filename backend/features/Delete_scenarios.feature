@@ -6,24 +6,22 @@ Background:
 @386693823_1
 Scenario: successful Deletion
 
-Given As a "User"
+Given As a "Punisher" "Bullseye" 
 
-When I want to visit this site: "www.cucumber.com" 
-When I want to insert into the "Username" field, the value "Punisher" 
-When I want to insert into the "Password" field, the value "Bullseye" 
-When I want to click the Button: "Delete Scenario" 
+When I am on the website: "www.cucumber.com"  
+When I insert "Punisher" into the field "Username" 
+When I insert "Bullseye" into the field "Password" 
+When I click the button: "Delete Scenario"  
 
-Then So I can see in the "Scenario Deleted" textbox, the text "Scenario successfully deleted" 
+Then So I can see the text "Scenario successfully deleted" in the textbox: "Scenario Deleted" 
 
 @386693823_2
 Scenario: No Scenario to delete
 
-Given As a "User"
+Then I go to the website: "www.cucumber.com"  
+Then I insert "Punisher" into the field "Username" 
+Then I insert "Bullseye" into the field "Password" 
+Then I click the button: "Delete Scenario"  
 
-When I want to visit this site: "www.cucumber.com" 
-When I want to insert into the "Username" field, the value "Punisher" 
-When I want to insert into the "Password" field, the value "Bullseye" 
-When I want to click the Button: "Delete Scenario" 
-
-Then So I can see in the "Scenario not found" textbox, the text "Scenario_Id does not exist" 
+Example So I can see the text "Scenario_Id does not exist" in the textbox: "Scenario not found" 
 

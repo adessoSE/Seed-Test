@@ -13,7 +13,7 @@
       <h4 class="uk-heading-primary uk-text-large">Cucumber-App</h4>
   </div>
   <div class="uk-navbar-right">
-    <span *ngIf="this.token && this.repository">
+    <span *ngIf="this.token || this.repository">
       <span class="logoutButton"> 
           <button class="uk-button uk-button-danger" title="Logout" uk-tooltip (click)="logout();">Logout</button>
       </span>

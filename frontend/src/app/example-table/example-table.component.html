@@ -1,0 +1,27 @@
+<table *ngIf="exampleThere" mat-table [dataSource]="data" class="mat-elevation-z8">
+
+	<!--- Note that these columns can be defined in any order.
+        The actual rendered columns are set as a property on the row definition" -->
+
+
+	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" matColumnDef={{column}}> 
+			<th class="headerRow" mat-header-cell *matHeaderCellDef> {{column}}</th>
+			<td class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
+					<button *ngIf="first" [class.disabled]="editorLocked" [disabled]="editorLocked" a uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Row"
+					(click)="removeRow(rowIndex);" ></button>
+					<editable  (update)="updateField(columnIndex, rowIndex, column)">
+							<ng-template viewMode>
+							{{element[column]}}
+							</ng-template>
+							<ng-template  editMode >
+								<input  [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
+							</ng-template>
+					</editable> 
+			</td>
+	</ng-container>			
+	
+	<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+	<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+</table>
+

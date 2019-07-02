@@ -1,21 +1,21 @@
 [
   {
     "keyword": "Feature",
-    "name": "Login scenario",
+    "name": "Logout scenario",
     "line": 1,
-    "id": "login-scenario",
+    "id": "logout-scenario",
     "tags": [],
-    "uri": "features\\Login_scenario.feature",
+    "uri": "features\\Logout_scenario.feature",
     "elements": [
       {
-        "id": "login-scenario;successful-login",
+        "id": "logout-scenario;successful-logout",
         "keyword": "Scenario",
-        "line": 20,
-        "name": "Successful Login",
+        "line": 12,
+        "name": "successful Logout",
         "tags": [
           {
-            "name": "@386694507_1",
-            "line": 6
+            "name": "@386695799_1",
+            "line": 11
           }
         ],
         "type": "scenario",
@@ -33,59 +33,128 @@
           },
           {
             "arguments": [],
-            "keyword": "Given ",
-            "line": 9,
-            "name": "As a \"Guest\"",
+            "keyword": "When ",
+            "line": 5,
+            "name": "I go to the website: \"https://cucumber-app.herokuapp.com/login\"",
             "match": {
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
-              "status": "passed"
+              "status": "passed",
+              "duration": 4851000000
             }
           },
           {
             "arguments": [],
-            "keyword": "When ",
-            "line": 11,
-            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "keyword": "And ",
+            "line": 6,
+            "name": "I insert \"adessoCucumber\" into the field \"githubName\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 86000000
             }
           },
           {
             "arguments": [],
-            "keyword": "When ",
-            "line": 12,
-            "name": "I want to insert into the \"login_field\" field, the value \"AdorableHamster\"",
+            "keyword": "And ",
+            "line": 7,
+            "name": "I insert \"119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868\" into the field \"token\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 140000000
             }
           },
           {
             "arguments": [],
-            "keyword": "When ",
-            "line": 13,
-            "name": "I want to insert into the \"password\" field, the value \"cutehamsterlikesnuts2000\"",
+            "keyword": "And ",
+            "line": 8,
+            "name": "I click the button: \"submit\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "passed",
+              "duration": 73000000
             }
           },
           {
             "arguments": [],
-            "keyword": "When ",
+            "keyword": "And ",
+            "line": 9,
+            "name": "I click the button: \"#\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 3003000000,
+              "error_message": "TimeoutError: Waiting for element to be located By(xpath, //*[@*='#'])\nWait timed out after 3002ms\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\webdriver.js:834:17\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
             "line": 14,
-            "name": "I want to click the Button: \"commit\"",
+            "name": "As a \"User\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 15,
+            "name": "I am on the website: \"https://cucumber-app.herokuapp.com/\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 17,
+            "name": "I click the button: \"logoutButton\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 16,
-            "name": "So I will be navigated to the site: \"https://github.com/\"",
+            "line": 19,
+            "name": "So I will be navigated to the website: \"https://cucumber-app.herokuapp.com/login\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
             "result": {
-              "status": "undefined"
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "So I can see the text \"Github Name\" in the textbox: \"githubName\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
             }
           },
           {
@@ -97,284 +166,6 @@
             "result": {
               "status": "passed",
               "duration": 1000000
-            }
-          }
-        ]
-      },
-      {
-        "id": "login-scenario;successful-login",
-        "keyword": "Scenario",
-        "line": 21,
-        "name": "Successful Login",
-        "tags": [
-          {
-            "name": "@386694507_1",
-            "line": 6
-          }
-        ],
-        "type": "scenario",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 1000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 9,
-            "name": "As a \"Guest\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 11,
-            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 12,
-            "name": "I want to insert into the \"login_field\" field, the value \"NormalHamster\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 13,
-            "name": "I want to insert into the \"password\" field, the value \"FatHamster123\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 14,
-            "name": "I want to click the Button: \"commit\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 16,
-            "name": "So I will be navigated to the site: \"https://github.com/account/unverified-email\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed"
-            }
-          }
-        ]
-      },
-      {
-        "id": "login-scenario;successful-login",
-        "keyword": "Scenario",
-        "line": 22,
-        "name": "Successful Login",
-        "tags": [
-          {
-            "name": "@386694507_1",
-            "line": 6
-          }
-        ],
-        "type": "scenario",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 1000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 9,
-            "name": "As a \"Guest\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 11,
-            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 12,
-            "name": "I want to insert into the \"login_field\" field, the value \"OldHamster\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 13,
-            "name": "I want to insert into the \"password\" field, the value \"UglyHamster123\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 14,
-            "name": "I want to click the Button: \"commit\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 16,
-            "name": "So I will be navigated to the site: \"https://github.com/account/unverified-email\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed"
-            }
-          }
-        ]
-      },
-      {
-        "id": "login-scenario;successful-login",
-        "keyword": "Scenario",
-        "line": 23,
-        "name": "Successful Login",
-        "tags": [
-          {
-            "name": "@386694507_1",
-            "line": 6
-          }
-        ],
-        "type": "scenario",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 9,
-            "name": "As a \"Guest\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 11,
-            "name": "I want to visit this site: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 12,
-            "name": "I want to insert into the \"login_field\" field, the value \"value\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 13,
-            "name": "I want to insert into the \"password\" field, the value \"value\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 14,
-            "name": "I want to click the Button: \"commit\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 16,
-            "name": "So I will be navigated to the site: \"value\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed"
             }
           }
         ]
