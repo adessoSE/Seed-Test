@@ -271,7 +271,7 @@ pre {
           <a class="navbar-brand">Cucumberjs Report</a>
           <div class="project-name visible-md visible-lg">cucumber-backend</div>
           <div class="label-container">
-            <span class="label label-success" title=scenarios>Passed: 3</span>
+            <span class="label label-success" title=scenarios>Passed: 0</span>
             <span class="label label-danger" title=scenarios>Failed: 0</span>
           </div>
         </div>
@@ -280,7 +280,7 @@ pre {
 
     <div class="container">
 
-      <div class="generated-on">Fri Jun 14 2019 09:51:27 GMT+0200 (GMT+02:00)</div>
+      <div class="generated-on">Tue Jun 25 2019 15:59:19 GMT+0200 (GMT+02:00)</div>
 
       <div class="row">
         <div class="chart col-lg-6 col-md-6" id="piechart_features"></div>
@@ -372,10 +372,9 @@ pre {
                     <a data-toggle="collapse" href="#collapseFeaturecucumber_backend0">
                         <i class="glyphicon glyphicon-chevron-right"></i>
                         <i class="glyphicon glyphicon-chevron-down"></i>
-                        <b>Feature:</b>Login scenario
+                        <b>Feature:</b>Scenario creation
                         <span class="label-container">
-              <span class="label label-success"
-                                                         title="3 Scenarios Passed">3</span>
+              
               
               
               
@@ -394,7 +393,7 @@ pre {
                             <h4 class="panel-title">
                                 
                                 
-                                <div class="tags"> <span class="tag"> @386694507_1</span>
+                                <div class="tags"> <span class="tag"> @382626033_1</span>
                                     
                                 </div>
                                 
@@ -402,15 +401,14 @@ pre {
                                    href="#collapseScenariocucumber_backend0_0">
                                     <div>
 
-                                        <div style="padding-right: 30px">
+                                        <div style="padding-right: 10px">
                                             <i class="glyphicon glyphicon-chevron-right"></i>
                                             <i class="glyphicon glyphicon-chevron-down"></i>
-                                            <b>Scenario:</b>Successful Login
+                                            <b>Scenario:</b>New Scenario
                                         </div>
                                         <div>
                             <span class="label-container">
-                              <span class="label label-success"
-                                                               title="6 Steps Passed">6</span>
+                              
                               
                               
                               
@@ -428,28 +426,24 @@ pre {
                                 
                                 
                                 
-                                
-                                
                                 <p class="scenario-container">
                                 <div class="row steps">
                                     
                                     
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
+                                    <span class="label label-danger" title="Failed"><i
+                                            class="glyphicon glyphicon-remove"></i></span>
                                     
                                     
                                     <span class="text">
-                        <span class="keyword highlight">Given </span>
-                          <span> As a &quot;Guest&quot;</span>
+                        <span class="keyword highlight">Before</span>
+                          <span> </span>
                             
                           
                               <span class="step-duration">
-                               0s
+                               12ms
                               </span>
                             
                          
-                            
-                          
                           <!-- Adding data table data-->
                                
                       </span>
@@ -457,278 +451,56 @@ pre {
                                 
 
                                     
+                                    <a href="#error0_00"
+                                       data-toggle="collapse" class="toggle">Show Error +</a>
+                                    <div id="error0_00"
+                                         class="collapse">
+                                        <pre class="info show-modal"
+                                             data-toggle="modal"
+                                             style="cursor: pointer"
+                                             data-target="#error-modal-0_00">
+                                            <br> Error: The ChromeDriver could not be found on the current PATH. Please download the latest version of the ChromeDriver from http://chromedriver.storage.googleapis.com/index.html and ensure it can be found on your PATH.
+    at new ServiceBuilder (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\chrome.js:232:13)
+    at getDefaultService (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\chrome.js:321:22)
+    at Function.createSession (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\chrome.js:696:44)
+    at createDriver (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\index.js:155:33)
+    at Builder.build (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\index.js:647:16)
+    at World.(anonymous) (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\features\step_definitions\stepdefs.js:26:89)</pre>
+                                    </div>
 
-                                    
+                                <div class="modal fade" id="error-modal-0_00" tabindex="-1" role="dialog"
+                                     aria-labelledby="stacktraceModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <h4 class="modal-title" id="error-modal-title">
+                                                    Error
+                                                </h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h5>
+                                                    <pre><br>Error: The ChromeDriver could not be found on the current PATH. Please download the latest version of the ChromeDriver from http://chromedriver.storage.googleapis.com/index.html and ensure it can be found on your PATH.
+    at new ServiceBuilder (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\chrome.js:232:13)
+    at getDefaultService (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\chrome.js:321:22)
+    at Function.createSession (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\chrome.js:696:44)
+    at createDriver (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\index.js:155:33)
+    at Builder.build (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\node_modules\selenium-webdriver\index.js:647:16)
+    at World.(anonymous) (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\features\step_definitions\stepdefs.js:26:89)</pre>
+                                                </h5>
+                                            </div>
 
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to visit this site: &quot;https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               3s 279ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;login_field&quot; field, the value &quot;AdorableHamster&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               70ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;password&quot; field, the value &quot;cutehamsterlikesnuts2000&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               91ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to click the Button: &quot;commit&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               1s 328ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">Then </span>
-                          <span> So I will be navigated to the site: &quot;https://github.com/&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               6ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                
-                                
-                                <div class="tags"> <span class="tag"> @386694507_1</span>
-                                    
-                                </div>
-                                
-                                <a data-toggle="collapse"
-                                   href="#collapseScenariocucumber_backend0_1">
-                                    <div>
-
-                                        <div style="padding-right: 30px">
-                                            <i class="glyphicon glyphicon-chevron-right"></i>
-                                            <i class="glyphicon glyphicon-chevron-down"></i>
-                                            <b>Scenario:</b>Successful Login
-                                        </div>
-                                        <div>
-                            <span class="label-container">
-                              <span class="label label-success"
-                                                               title="6 Steps Passed">6</span>
-                              
-                              
-                              
-                              
-                              
-                            </span>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseScenariocucumber_backend0_1"
-                             class="panel-collapse collapse">
-                            <div class="panel-body">
-                                
-                                
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">Given </span>
-                          <span> As a &quot;Guest&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               0s
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
+                                </div>
+
 
                                     
 
@@ -746,22 +518,20 @@ pre {
                                 <div class="row steps">
                                     
                                     
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
+                                    <span class="label label-danger" title="Failed"><i
+                                            class="glyphicon glyphicon-remove"></i></span>
                                     
                                     
                                     <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to visit this site: &quot;https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home&quot;</span>
+                        <span class="keyword highlight">Before</span>
+                          <span> </span>
                             
                           
                               <span class="step-duration">
-                               2s 255ms
+                               1ms
                               </span>
                             
                          
-                            
-                          
                           <!-- Adding data table data-->
                                
                       </span>
@@ -769,240 +539,46 @@ pre {
                                 
 
                                     
+                                    <a href="#error0_01"
+                                       data-toggle="collapse" class="toggle">Show Error +</a>
+                                    <div id="error0_01"
+                                         class="collapse">
+                                        <pre class="info show-modal"
+                                             data-toggle="modal"
+                                             style="cursor: pointer"
+                                             data-target="#error-modal-0_01">
+                                            <br> ReferenceError: driver is not defined
+    at World.(anonymous) (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\features\step_definitions\stepdefs.js:98:3)</pre>
+                                    </div>
 
-                                    
+                                <div class="modal fade" id="error-modal-0_01" tabindex="-1" role="dialog"
+                                     aria-labelledby="stacktraceModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <h4 class="modal-title" id="error-modal-title">
+                                                    Error
+                                                </h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h5>
+                                                    <pre><br>ReferenceError: driver is not defined
+    at World.(anonymous) (C:\Users\Niebergall\Git\Projekt-Gurke\Projekt-Gurke\backend\features\step_definitions\stepdefs.js:98:3)</pre>
+                                                </h5>
+                                            </div>
 
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;login_field&quot; field, the value &quot;NormalHamster&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               78ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;password&quot; field, the value &quot;FatHamster123&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               58ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to click the Button: &quot;commit&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               1s 337ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">Then </span>
-                          <span> So I will be navigated to the site: &quot;https://github.com/account/unverified-email&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               6ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                
-                                
-                                <div class="tags"> <span class="tag"> @386694507_1</span>
-                                    
-                                </div>
-                                
-                                <a data-toggle="collapse"
-                                   href="#collapseScenariocucumber_backend0_2">
-                                    <div>
-
-                                        <div style="padding-right: 30px">
-                                            <i class="glyphicon glyphicon-chevron-right"></i>
-                                            <i class="glyphicon glyphicon-chevron-down"></i>
-                                            <b>Scenario:</b>Successful Login
-                                        </div>
-                                        <div>
-                            <span class="label-container">
-                              <span class="label label-success"
-                                                               title="6 Steps Passed">6</span>
-                              
-                              
-                              
-                              
-                              
-                            </span>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="collapseScenariocucumber_backend0_2"
-                             class="panel-collapse collapse">
-                            <div class="panel-body">
-                                
-                                
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">Given </span>
-                          <span> As a &quot;Guest&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               0s
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
+                                </div>
+
 
                                     
 
@@ -1013,198 +589,6 @@ pre {
                                     
                                 </div>
                                 </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to visit this site: &quot;https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               2s 320ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;login_field&quot; field, the value &quot;OldHamster&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               64ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to insert into the &quot;password&quot; field, the value &quot;UglyHamster123&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               69ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">When </span>
-                          <span> I want to click the Button: &quot;commit&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               1s 334ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
-                                
-                                <p class="scenario-container">
-                                <div class="row steps">
-                                    
-                                    
-                                    <span class="label label-success" title="Success"><i
-                                            class="glyphicon glyphicon-ok"></i></span>
-                                    
-                                    
-                                    <span class="text">
-                        <span class="keyword highlight">Then </span>
-                          <span> So I will be navigated to the site: &quot;https://github.com/account/unverified-email&quot;</span>
-                            
-                          
-                              <span class="step-duration">
-                               4ms
-                              </span>
-                            
-                         
-                            
-                          
-                          <!-- Adding data table data-->
-                               
-                      </span>
-                                
-                                
-
-                                    
-
-                                    
-
-                                    
-
-                                    
-                                </div>
-                                </p>
-                                
-                                
                                 
                                 
                             </div>
@@ -1254,7 +638,7 @@ pre {
         google.setOnLoadCallback(function() {drawChart({
                                                             "title" : "Scenarios",
                                                             "failed" : 0,
-                                                            "passed" : 3,
+                                                            "passed" : 0,
                                                             "notdefined" : 0,
                                                             "pending" : 0,
                                                             "skipped" : 0,
