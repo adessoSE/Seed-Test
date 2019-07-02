@@ -125,7 +125,7 @@ app
 
   // create Background
   .get('/api/background/add/:issueID', (req, res) => {
-    const background = db.createBackground(parseInt(req.params.issueID, 100));
+    const background = db.createBackground(parseInt(req.params.issueID, 10));
     if (typeof (background) === 'string') {
       handleError(res, background, background, 500);
     } else {
@@ -138,7 +138,7 @@ app
 // update background
   .post('/api/background/update/:issueID', (req, res) => {
     const background = req.body;
-    const updatedBackground = db.updateBackground(parseInt(req.params.issueID, 100), background);
+    const updatedBackground = db.updateBackground(parseInt(req.params.issueID, 10), background);
     if (typeof (updatedBackground) === 'string') {
       handleError(res, updatedBackground, updatedBackground, 500);
     } else {
@@ -149,7 +149,7 @@ app
 
 // delete background
   .delete('/api/story/:issueID/background/delete/', (req, res) => {
-    const result = db.deleteBackground(parseInt(req.params.issueID, 100));
+    const result = db.deleteBackground(parseInt(req.params.issueID, 10));
     if (typeof (result) === 'string') {
       handleError(res, result, result, 500);
       console.log('Could not delete Background.');
@@ -164,7 +164,7 @@ app
 
   // create scenario
   .get('/api/scenario/add/:issueID', (req, res) => {
-    const scenario = db.createScenario(parseInt(req.params.issueID, 100));
+    const scenario = db.createScenario(parseInt(req.params.issueID, 10));
     if (typeof (scenario) === 'string') {
       handleError(res, scenario, scenario, 500);
     } else {
@@ -179,7 +179,7 @@ app
     // TODO: use model to check for scenario (priority 2)
     const scenario = req.body;
     console.log(`Trying to update scenario in issue: ${req.params.issueID} with ID: ${scenario.scenario_id}`);
-    const updatedScenario = db.updateScenario(parseInt(req.params.issueID, 100), scenario);
+    const updatedScenario = db.updateScenario(parseInt(req.params.issueID, 10), scenario);
     if (typeof (updatedScenario) === 'string') {
       handleError(res, updatedScenario, updatedScenario, 500);
     } else {
@@ -192,7 +192,7 @@ app
   // delete scenario
   .delete('/api/story/:issueID/scenario/delete/:scenarioID', (req, res) => {
     console.log(`Trying to delete Scenario in Issue: ${req.params.issueID} with ID: ${req.params.scenarioID}`);
-    const result = db.deleteScenario(parseInt(req.params.issueID, 100),
+    const result = db.deleteScenario(parseInt(req.params.issueID, 10),
       parseInt(req.params.scenarioID, 100));
     if (typeof (result) === 'string') {
       handleError(res, result, result, 500);
