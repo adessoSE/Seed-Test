@@ -4,12 +4,8 @@ Background:
 
 
 @386696256_1
-Scenario: New Scenario
+Scenario: successful Sign Up
 
-<<<<<<< HEAD
-
-
-=======
 Given As a  
 
 When I am on the website: "https://forum.golem.de/register.php?121624"  
@@ -37,5 +33,4 @@ Then I click the button: "Abschicken"
 
 Example So I will be navigated to the site: "https://forum.golem.de/register.php"  
 Example So I can see the text "Dieser Name wird bereits von einem Benutzer verwendet. Wenn Sie derjenige sind, loggen Sie sich bitte ein. Ansonsten nutzen Sie bitte einen anderen Namen." in the textbox: "attention" 
->>>>>>> production
 

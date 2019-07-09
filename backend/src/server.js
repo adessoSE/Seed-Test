@@ -71,7 +71,7 @@ app
     });
   })
 
-  .get('/api/stories/:user?/:repository?', (req, res) => {
+  .get('/api/stories/:user?/:repository?',async (req, res) => {
     if (req.params.repository) {
       githubName = req.params.user;
       githubRepo = req.params.repository;
@@ -85,7 +85,7 @@ app
     const request = new XMLHttpRequest();
     request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${accessToken}`);
     request.send();
-    request.onreadystatechange = function () {
+    request.onreadystatechange = async function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
         // init result
@@ -103,45 +103,30 @@ app
             story.assignee = issue.assignee.login;
             story.assignee_avatar_url = issue.assignee.avatar_url;
           }
-          // skip if there is no data for the issue yet
-          // if (mongo.getOne(issue.id, function (result) {
-          //   result !== null
-          // })) {
-          //   mongo.getOne(issue.id, function (result) {
-          //     story.scenarios = result.scenarios
-          //   })
-          //   mongo.getOne(issue.id, function (result) {
-          //     story.background = result.background
-          //   })
-          //   // story.scenarios = storiesDB.findOne({ story_id: issue.id }).scenarios;
-          //   // story.background = storiesDB.findOne({ story_id: issue.id }).background;
-          // } else {
-          //   story.scenarios = [emptyScenario()];
-          //   story.background = emptyBackground();
-          // }
-
-          mongo.getOneStory(issue.id, function (result) {
+          mongo.getOneStory(issue.id, async function (result) {
             if (result !== null) {
+              console.log("Test")
               story.scenarios = result.scenarios
               story.background = result.background
-          } else {
-            story.scenarios = [emptyScenario()];
-            story.background = emptyBackground();
-          }
-        })
-          // storiesDB.insert(story); // update database
-          mongo.upsertEntry("stories",story.story_id, story)  // TODO: creates duplicates?
-          // Create & Update Feature Files
-          helper.writeFile('', story);
-          // TODO: delete stories and save some storage
-          stories.push(story);
+            } else {
+              story.scenarios = [emptyScenario()];
+              story.background = emptyBackground();
+            }
+
+            await mongo.upsertEntry("stories", story.story_id, story)
+            await stories.push(story);
+            await helper.writeFile('', story);  // Create & Update Feature Files
+            // TODO: delete stories and save some storage
+          })
+          // await helper.writeFile('', story);
         }
-        res.status(200).json(stories);
-        console.log('Returning stories.');
+        await console.log(stories)
+        await res.status(200).json(stories);
+        await console.log('Returning stories.');
       }
     };
   })
-  
+
   // .get('/testResult', (req, res) => {
   //   helper.setRespReport(res);
   // })
@@ -179,7 +164,7 @@ app
     // } else {
     //   res.status(200).json(updatedBackground);
     // }
-    mongo.updateBackground(parseInt(req.params.issueID, 100), background, function (result) {
+    mongo.updateBackground(parseInt(req.params.issueID, 10), background, function (result) {
       if (typeof (result) === 'string') {
         handleError(res, result, result, 500);
       } else {

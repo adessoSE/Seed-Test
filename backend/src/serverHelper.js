@@ -80,7 +80,7 @@ function jsUcfirst(string) {
 
 // Building feature file step-content
 function getSteps(steps, stepType) {
-  console.log(`Hi, ${stepType} \n ${steps}`);
+ // console.log(`Hi, ${stepType} \n ${steps}`);
   let data = '';
   for (let step of steps) {
     data += `${jsUcfirst(stepType)} `;
@@ -113,7 +113,7 @@ function getExamples(steps) {
 function getScenarioContent(scenarios, storyID) {
   let data = '';
   for (let scenario of scenarios) {
-    console.log(`Scenario ID: ${scenario.scenario_id}`);
+   // console.log(`Scenario ID: ${scenario.scenario_id}`);
     data += `@${storyID}_${scenario.scenario_id}\n`;
     // if there are examples
     if ((scenario.stepDefinitions.example.length) > 0) {
@@ -142,7 +142,6 @@ function getScenarioContent(scenarios, storyID) {
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
-  console.log(story)
   let data = `Feature: ${story.title}\n\n`;
 
   // Get background
@@ -156,7 +155,7 @@ function getFeatureContent(story) {
 
 // Creates feature file
 function writeFile(__dirname, selectedStory) {
-  console.log(`Hi, ${selectedStory.story_id}`);
+ // console.log(`Hi, ${selectedStory.story_id}`);
   fs.writeFile(path.join(__dirname, 'features',
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
     if (err) throw err;
@@ -168,7 +167,7 @@ function getStoryByID(params, stories) {
   for (let story of stories) {
     if (story.story_id === parseInt(params.issueID)) {
       selectedStory = story;
-      console.log(story.story_id);
+   //   console.log(story.story_id);
       break;
     }
   }

@@ -9,18 +9,12 @@ And I click the button: "submit"
 And I click the button: "#"  
 
 @386695799_1
-<<<<<<< HEAD
-Scenario: New Scenario
-
-
-=======
 Scenario: successful Logout
 
 Given As a "User"
 Given I am on the website: "https://cucumber-app.herokuapp.com/"  
 
 When I click the button: "logoutButton"  
->>>>>>> production
 
 Then So I will be navigated to the website: "https://cucumber-app.herokuapp.com/login"  
 Then So I can see the text "Github Name" in the textbox: "githubName" 

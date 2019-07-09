@@ -4,12 +4,10 @@ Background:
 
 
 @382626033_1
-Scenario: New Scenario
+Scenario: successful Scenario creation
 
+Given As a "Guest"  
 
-<<<<<<< HEAD
-
-=======
 When I am on the website: "www.cucumber.com"  
 When I click the button: "Create Scenario"  
 
@@ -24,5 +22,4 @@ When I am on the website: "www.cucumber.com"
 When I click the button: "Create Scenario"  
 
 Then So I can see the text "Could not create Scenario" in the textbox: "Error" 
->>>>>>> production
 

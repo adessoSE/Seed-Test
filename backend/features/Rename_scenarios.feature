@@ -4,12 +4,10 @@ Background:
 
 
 @386692174_1
-Scenario: New Scenario
+Scenario: Renamed Scenario
 
+Given As a "User"
 
-<<<<<<< HEAD
-
-=======
 When I am on the website: "www.mywebsite.com"  
 When I click the button: "Edit"  
 When I insert "Renamed Scenario" into the field "Scenario Name" 
@@ -17,7 +15,7 @@ When I click the button: "Save"
 
 Then So I can see the text "Updated scenario name." in the textbox: "Validation" 
 
-@386692174_1
+@386692174_2
 Scenario: Faild Updating
 
 Given As a "Guest"  
@@ -28,5 +26,4 @@ When I insert "Renamed Scenario" into the field "Scenario Name"
 When I click the button: "Save"  
 
 Then So I can see the text "Could not update scenario name!" in the textbox: "Validation" 
->>>>>>> production
 

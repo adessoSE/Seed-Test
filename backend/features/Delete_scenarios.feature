@@ -4,12 +4,8 @@ Background:
 
 
 @386693823_1
-Scenario: New Scenario
+Scenario: successful Deletion
 
-<<<<<<< HEAD
-
-
-=======
 Given As a "Punisher" "Bullseye" 
 
 When I am on the website: "www.cucumber.com"  
@@ -28,5 +24,4 @@ Then I insert "Bullseye" into the field "Password"
 Then I click the button: "Delete Scenario"  
 
 Example So I can see the text "Scenario_Id does not exist" in the textbox: "Scenario not found" 
->>>>>>> production
 
