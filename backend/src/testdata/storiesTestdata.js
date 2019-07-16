@@ -773,7 +773,46 @@ module.exports.testData = [
     story_id: 382626033,
     background: {
       stepDefinitions: {
-        when: [],
+        when: [{
+          id: 1,
+          stepType: 'when',
+          type: 'Website',
+          pre: 'I am on the website:',
+          mid: '',
+          values: ['https://cucumber-app.herokuapp.com/login'],
+        },
+      {
+        id: 2,
+        stepType: 'when',
+        type: 'Field',
+        pre: 'I insert',
+        mid: 'into the field',
+        values: ['adessoCucumber','githubName'],
+      },
+      {
+        id: 3,
+        stepType: 'when',
+        type: 'Field',
+        pre: 'I insert',
+        mid: 'into the field',
+        values: ['56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1','token'],
+      },
+      {
+        id: 4,
+        stepType: 'when',
+        type: 'Button',
+        pre: 'I click the button:',
+        mid: '',
+        values: ['submit'],
+      },
+      {
+        id: 5,
+        stepType: 'when',
+        type: 'Button',
+        pre: 'I click the button:',
+        mid: '',
+        values: ['adessoCucumber/Cucumber'],
+      },],
       },
     },
     scenarios: [
@@ -879,7 +918,7 @@ module.exports.testData = [
     background: {
       stepDefinitions: {
         when: [],
-      },
+      }
     },
     scenarios: [
       {
