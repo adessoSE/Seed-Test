@@ -215,9 +215,16 @@ function execReport(req, res, stories, mode, callback) {
 function runReport(req, res, stories, mode) {
   execReport(req, res, stories, mode, () => {
     console.log(`testing ${mode} report`);
+
+    setOptions()
     reporter.generate(options);
     res.sendFile('/reporting_html.html', { root: rootPath });
   });
+}
+
+function setOptions(){
+  var OSName= process.platform;
+  options.metadata.Platform = OSName;
 }
 
 function sendDownloadResult(resp) {

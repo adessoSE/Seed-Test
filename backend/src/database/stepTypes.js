@@ -7,7 +7,7 @@ function stepDefs() {
       type: 'Role',
       pre: 'As a',
       mid: '',
-      values: [],
+      values: [''],
       selection: ['Guest', 'User'],
     },
     {
@@ -16,7 +16,7 @@ function stepDefs() {
       type: 'Website',
       pre: 'I am on the website:',
       mid: '',
-      values: [],
+      values: [''],
     },
     {
       id: '',
@@ -24,7 +24,7 @@ function stepDefs() {
       type: 'Add Variable',
       pre: '',
       mid: '',
-      values: [],
+      values: [''],
     },
     // ################### WHEN ##########################################
     {
@@ -33,7 +33,7 @@ function stepDefs() {
       type: 'Website',
       pre: 'I go to the website:',
       mid: '',
-      values: [],
+      values: [''],
     },
     {
       id: '',
@@ -41,7 +41,7 @@ function stepDefs() {
       type: 'Button',
       pre: 'I click the button:',
       mid: '',
-      values: [],
+      values: [''],
     },
     {
       id: '',
@@ -90,7 +90,7 @@ function stepDefs() {
       type: 'Website',
       pre: 'So I will be navigated to the website:',
       mid: '',
-      values: [],
+      values: [''],
     },
     {
       id: '',
@@ -98,7 +98,7 @@ function stepDefs() {
       type: 'Text',
       pre: 'So I can see the text',
       mid: 'in the textbox:',
-      values: [],
+      values: [''],
     },
   ];
 }

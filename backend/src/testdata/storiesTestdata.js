@@ -799,7 +799,7 @@ module.exports.testData = [
               type: 'Website',
               pre: 'I am on the website:',
               mid: '',
-              values: ['www.cucumber.com'],
+              values: ['https://cucumber-app.herokuapp.com/'],
             },
             {
               id: 2,
