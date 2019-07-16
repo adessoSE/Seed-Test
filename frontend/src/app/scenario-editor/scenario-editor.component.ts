@@ -18,7 +18,7 @@ const emptyBackground = {name,stepDefinitions:{when: []}};
 
 export class ScenarioEditorComponent implements OnInit {
   stories: Story[];
-  stepDefinitions: StepDefinition;
+  originalStepDefinitions: StepDefinition;
   selectedStory: Story;
   selectedScenario: Scenario;
   showEditor = false;
@@ -113,8 +113,8 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .getStepDefinitions()
       .subscribe((resp: any)  => {
-        this.stepDefinitions = resp;
-        console.log('controller: stepDefinitions loaded', this.stepDefinitions);
+        this.originalStepDefinitions = resp;
+        console.log('controller: stepDefinitions loaded', this.originalStepDefinitions);
       });
   }
 
@@ -199,17 +199,17 @@ export class ScenarioEditorComponent implements OnInit {
 
 
   addStepToScenario(storyID, step) {
+    let obj = this.clone( step );
     if(!this.editorLocked){
-      var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
-      console.log('step to add:', step);
+      var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
+      console.log('step to add:', obj);
       var new_step = {
         id: new_id,
-        label: step.label,
-        mid: step.mid,
-       pre: step.pre,
-       stepType: step.stepType,
-       type: step.type,
-       values: [""]
+        mid: obj.mid,
+        pre: obj.pre,
+        stepType: obj.stepType,
+        type: obj.type,
+        values: obj.values
      };
      switch (new_step.stepType) {
        case 'given':
@@ -239,18 +239,20 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   addStepToBackground(storyID, step){
+    let obj = this.clone( step );
+
     console.log("step type: " + step.stepType);
     if(!this.backgroundLocked){
-      var new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, step.stepType) + 1;
-      console.log('step to add:', step);
+      var new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, obj.stepType) + 1;
+      console.log('step to add:', obj);
       var new_step = {
         id: new_id,
-        label: step.label,
-        mid: step.mid,
-       pre: step.pre,
-       stepType: step.stepType,
-       type: step.type,
-       values: [""]
+        label: obj.label,
+        mid: obj.mid,
+       pre: obj.pre,
+       stepType: obj.stepType,
+       type: obj.type,
+       values: obj.values
      };
      switch (new_step.stepType) {
        case 'when':
@@ -343,9 +345,8 @@ export class ScenarioEditorComponent implements OnInit {
     this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
   }
 
-  async addToValues(input: string, stepType,step, stepIndex, valueIndex ) {
-    await this.checkForExamples(input,step);
-
+  addToValues(input: string, stepType,step, stepIndex, valueIndex ) {
+    this.checkForExamples(input,step);
     console.log("steptype: " + stepType);
     console.log("add to values: " + input);
     switch (stepType) {
@@ -540,6 +541,19 @@ export class ScenarioEditorComponent implements OnInit {
     return a-b;
   }
 
+
+  //To bypass call by reference of object properties
+  //therefore new objects are created and not the existing object changed
+  clone(obj){
+    if(obj == null || typeof(obj) != 'object')
+        return obj;
+
+    var temp = new obj.constructor(); 
+    for(var key in obj)
+        temp[key] = this.clone(obj[key]);
+
+    return temp;
+}
 
 
 }

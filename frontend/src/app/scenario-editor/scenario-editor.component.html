@@ -61,7 +61,7 @@
             <!-- </div> -->
             <div uk-dropdown>
               <ul class="uk-nav uk-dropdown-nav">
-                <li *ngFor="let step of stepDefinitions;" >
+                <li *ngFor="let step of originalStepDefinitions;" >
                     <a *ngIf="step.stepType=== 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
                      href="#">{{step.type}}</a>
                 </li>
@@ -79,7 +79,7 @@
                     <input #step_type_input [disabled]="backgroundLocked"
                     type="text" value="{{currentStep.values[0]}}" on-change="addToValuesBackground(step_type_input.value,j,0)" />
                     {{currentStep.mid}}
-                    <input #step_type_input *ngIf="currentStep.values[1]" [disabled]="backgroundLocked"
+                    <input #step_type_input *ngIf="currentStep.values[1] != null" [disabled]="backgroundLocked"
                       type="text" value="{{currentStep.values[1]}}" on-change="addToValuesBackground(step_type_input.value,j,1)" />
                   </p>
                   {{currentStep.post}}
@@ -136,7 +136,7 @@
           <!-- </div> -->
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of stepDefinitions;" >
+              <li *ngFor="let step of originalStepDefinitions;" >
                   <a *ngIf="step.stepType===sd "  (click)="addStepToScenario(selectedStory.story_id,step);"
                    href="#">{{step.type}}</a>
               </li>
@@ -155,7 +155,7 @@
                     <input #step_type_input1 [disabled]="editorLocked"
                     type="text" value="{{currentStep.values[0]}}" on-change="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" />
                     {{currentStep.mid}}
-                    <input #step_type_input2 *ngIf="currentStep.values[1]" [disabled]="editorLocked"
+                    <input #step_type_input2 *ngIf="currentStep.values[1] != null" [disabled]="editorLocked"
                     type="text" value="{{currentStep.values[1]}}" on-change="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" />
                   </p>
                   {{currentStep.post}}

@@ -49,7 +49,7 @@ function stepDefs() {
       type: 'Field',
       pre: 'I insert',
       mid: 'into the field',
-      values: [],
+      values: ['',''],
     },
     {
       id: '',
@@ -57,7 +57,7 @@ function stepDefs() {
       type: 'Radio',
       pre: 'I select ',
       mid: 'from the selection',
-      values: [],
+      values: ['',''],
     },
     {
       id: '',
@@ -65,7 +65,7 @@ function stepDefs() {
       type: 'Dropdown',
       pre: 'I select the option',
       mid: 'from the drop-down-menue',
-      values: [],
+      values: ['',''],
     },
     {
       id: '',
@@ -73,7 +73,7 @@ function stepDefs() {
       type: 'HoverOverAndSelect',
       pre: 'I hover over the element',
       mid: 'and select the option',
-      values: [],
+      values: ['',''],
     },
     {
       id: '',
@@ -81,7 +81,7 @@ function stepDefs() {
       type: 'Checkbox',
       pre: 'I select from the',
       mid: 'multiple selection, the values',
-      values: [],
+      values: ['',''],
     },
     // ################### THEN ##########################################
     {
