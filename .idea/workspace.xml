@@ -5,21 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b7dfdad5-6f94-499b-8b0f-a6fdfc927e4a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/constants.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/editable/edit-mode.directive.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/editable/edit-on-enter.directive.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/editable/editable.component.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/editable/editable.component.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/editable/editable.component.spec.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/editable/editable.component.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/editable/view-mode.directive.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/example-table/example-table.component.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/example-table/example-table.component.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/example-table/example-table.component.spec.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/example-table/example-table.component.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/example-table/focusable.directive.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/example-table/garbage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/features/Access_scenario.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Access_scenario.feature" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/features/Delete_scenarios.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Delete_scenarios.feature" afterDir="false" />
@@ -33,26 +18,7 @@
       <change beforePath="$PROJECT_DIR$/backend/features/Visual_test_response.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Visual_test_response.feature" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/features/reporting.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/reporting.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/features/reporting_html.html" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/reporting_html.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/models/emptyBackground.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/models/emptyBackground.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/serverHelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/serverHelper.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/Services/api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/Services/api.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/app.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/app.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/guards/auth.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/guards/auth.guard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/login.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/login.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/login/login.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/login/login.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/model/Background.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/model/Background.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/model/StepDefinition.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/model/StepDefinition.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/parent/parent.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/parent/parent.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/scenario-editor/scenario-editor.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/stories-bar/stories-bar.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/stories-bar/stories-bar.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/testdata/storiesTestdata.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/testdata/storiesTestdata.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/node_modules/" />
     <ignored path="$PROJECT_DIR$/backend/node_modules/" />
@@ -71,8 +37,28 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/backend/src/testdata/storiesTestdata.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="129" column="14" lean-forward="true" selection-start-line="129" selection-start-column="14" selection-end-line="129" selection-end-column="14" />
+            <state relative-caret-position="466">
+              <caret line="589" column="58" lean-forward="true" selection-start-line="589" selection-start-column="58" selection-end-line="589" selection-end-column="58" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/backend/features/Delete_scenarios.feature">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="9" column="63" lean-forward="true" selection-start-line="9" selection-start-column="63" selection-end-line="9" selection-end-column="63" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/frontend/src/app/Services/api.service.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -80,8 +66,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/backend/features/Logout_scenario.feature">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="19" column="70" lean-forward="true" selection-start-line="19" selection-start-column="70" selection-end-line="19" selection-end-column="70" />
+            <state relative-caret-position="340">
+              <caret line="20" lean-forward="true" selection-start-line="19" selection-start-column="70" selection-end-line="20" />
             </state>
           </provider>
         </entry>
@@ -89,26 +75,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/backend/src/database/stepTypes.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="73" column="38" lean-forward="true" selection-start-line="73" selection-start-column="38" selection-end-line="73" selection-end-column="38" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/backend/src/server.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1989">
-              <caret line="117" selection-start-line="117" selection-end-line="117" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/backend/src/serverHelper.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="124" column="54" lean-forward="true" selection-start-line="124" selection-start-column="54" selection-end-line="124" selection-end-column="54" />
+            <state relative-caret-position="663">
+              <caret line="39" selection-start-line="39" selection-end-line="42" selection-end-column="14" />
             </state>
           </provider>
         </entry>
@@ -117,13 +85,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>background</find>
       <find>run</find>
       <find>selectedStory</find>
       <find>logout</find>
       <find>value</find>
       <find>value[</find>
-      <find>Website</find>
       <find>steps[i].values[0]</find>
       <find>getsteps</find>
       <find>USer</find>
@@ -142,6 +108,11 @@
       <find>field</find>
       <find>386696256</find>
       <find>Sceanrio</find>
+      <find>delete</find>
+      <find>As a</find>
+      <find>Website</find>
+      <find>background</find>
+      <find>delete</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -160,25 +131,26 @@
         <option value="$PROJECT_DIR$/backend/features/Logout_scenario.feature" />
         <option value="$PROJECT_DIR$/backend/src/database/stepDefinitions.js" />
         <option value="$PROJECT_DIR$/backend/src/database/stepTypes.js" />
-        <option value="$PROJECT_DIR$/backend/src/testdata/storiesTestdata.js" />
         <option value="$PROJECT_DIR$/backend/package.json" />
         <option value="$PROJECT_DIR$/backend/features/Access_scenario.feature" />
         <option value="$PROJECT_DIR$/backend/src/serverHelper.js" />
         <option value="$PROJECT_DIR$/backend/features/step_definitions/stepdefs.js" />
+        <option value="$PROJECT_DIR$/backend/src/testdata/storiesTestdata.js" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="2409" />
-    <option name="y" value="50" />
-    <option name="width" value="1241" />
-    <option name="height" value="671" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="65" />
+    <option name="y" value="42" />
+    <option name="width" value="1534" />
+    <option name="height" value="822" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -197,29 +169,10 @@
               <item name="backend" type="462c0819:PsiDirectoryNode" />
               <item name="features" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="Projekt Gurke" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Projekt Gurke" type="462c0819:PsiDirectoryNode" />
-              <item name="backend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Projekt Gurke" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Projekt Gurke" type="462c0819:PsiDirectoryNode" />
-              <item name="backend" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="database" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Projekt Gurke" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Projekt Gurke" type="462c0819:PsiDirectoryNode" />
-              <item name="frontend" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -234,7 +187,7 @@
     <property name="node.js.selected.package.standard" value="C:\Users\Sorna\Desktop\Arbeit\Cucumber\cucumber-repository\Projekt Gurke\backend\node_modules\eslint" />
     <property name="node.js.selected.package.tslint" value="C:\Users\Sorna\Desktop\Arbeit\Cucumber\cucumber-repository\Projekt Gurke\node_modules\tslint" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
+    <property name="settings.editor.selected.configurable" value="reference.idesettings.quicklists" />
     <property name="ts.external.directory.path" value="C:\Users\Sorna\Desktop\Arbeit\Cucumber\cucumber-repository\Projekt Gurke\node_modules\typescript\lib" />
   </component>
   <component name="RunDashboard">
@@ -262,20 +215,22 @@
       <workItem from="1560502494192" duration="17622000" />
       <workItem from="1561444732900" duration="6833000" />
       <workItem from="1562069527693" duration="364000" />
+      <workItem from="1563515647024" duration="6196000" />
+      <workItem from="1564756247061" duration="926000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="25454000" />
+    <option name="totallyTimeSpent" value="32576000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1912" y="-8" width="1936" height="1096" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.19915701" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.15858799" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="0" />
-      <window_info anchor="bottom" id="Terminal" order="1" visible="true" weight="0.28141224" />
+      <window_info anchor="bottom" id="Terminal" order="1" visible="true" weight="0.22643554" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="3" />
       <window_info anchor="bottom" id="Message" order="4" />
@@ -316,13 +271,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/backend/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="44" selection-start-line="8" selection-start-column="44" selection-end-line="8" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/backend/features/Alpha_Testing.feature">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -343,15 +291,6 @@
     <entry file="file://$PROJECT_DIR$/backend/features/Run_test_functionality.feature">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/frontend/src/app/Services/api.service.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/backend/features/Login_scenario.feature">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -369,13 +308,6 @@
     <entry file="file://$PROJECT_DIR$/frontend/package.json">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/backend/src/server.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1989">
-          <caret line="117" selection-start-line="117" selection-end-line="117" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/backend/features/step_definitions/stepdefs.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="905">
@@ -383,31 +315,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/backend/src/database/stepTypes.js">
+    <entry file="file://$PROJECT_DIR$/backend/package.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="73" column="38" lean-forward="true" selection-start-line="73" selection-start-column="38" selection-end-line="73" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/backend/features/Logout_scenario.feature">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="19" column="70" lean-forward="true" selection-start-line="19" selection-start-column="70" selection-end-line="19" selection-end-column="70" />
+        <state relative-caret-position="136">
+          <caret line="8" column="57" selection-start-line="8" selection-start-column="57" selection-end-line="8" selection-end-column="57" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/src/serverHelper.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
-          <caret line="124" column="54" lean-forward="true" selection-start-line="124" selection-start-column="54" selection-end-line="124" selection-end-column="54" />
+          <caret line="123" column="54" selection-start-line="123" selection-start-column="54" selection-end-line="123" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backend/src/server.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="426">
+          <caret line="117" selection-start-line="117" selection-end-line="117" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backend/src/database/stepTypes.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="39" selection-start-line="39" selection-end-line="42" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backend/features/Delete_scenarios.feature">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="63" lean-forward="true" selection-start-line="9" selection-start-column="63" selection-end-line="9" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/backend/features/Logout_scenario.feature">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" lean-forward="true" selection-start-line="19" selection-start-column="70" selection-end-line="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/frontend/src/app/Services/api.service.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/src/testdata/storiesTestdata.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="129" column="14" lean-forward="true" selection-start-line="129" selection-start-column="14" selection-end-line="129" selection-end-column="14" />
+        <state relative-caret-position="466">
+          <caret line="589" column="58" lean-forward="true" selection-start-line="589" selection-start-column="58" selection-end-line="589" selection-end-column="58" />
         </state>
       </provider>
     </entry>

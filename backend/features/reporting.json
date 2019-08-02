@@ -1,21 +1,21 @@
 [
   {
     "keyword": "Feature",
-    "name": "Logout scenario",
+    "name": "Delete scenarios",
     "line": 1,
-    "id": "logout-scenario",
+    "id": "delete-scenarios",
     "tags": [],
-    "uri": "features\\Logout_scenario.feature",
+    "uri": "features\\Delete_scenarios.feature",
     "elements": [
       {
-        "id": "logout-scenario;successful-logout",
+        "id": "delete-scenarios;successful-deletion",
         "keyword": "Scenario",
-        "line": 12,
-        "name": "successful Logout",
+        "line": 13,
+        "name": "successful Deletion",
         "tags": [
           {
-            "name": "@386695799_1",
-            "line": 11
+            "name": "@386693823_1",
+            "line": 12
           }
         ],
         "type": "scenario",
@@ -28,7 +28,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 17000000
+              "duration": 18000000
             }
           },
           {
@@ -41,7 +41,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 4851000000
+              "duration": 4910000000
             }
           },
           {
@@ -54,7 +54,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 86000000
+              "duration": 72000000
             }
           },
           {
@@ -67,7 +67,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 140000000
+              "duration": 118000000
             }
           },
           {
@@ -80,7 +80,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 73000000
+              "duration": 68000000
             }
           },
           {
@@ -92,16 +92,29 @@
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
             "result": {
+              "status": "passed",
+              "duration": 636000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 10,
+            "name": "I click the button: \"TODO: Create Scenario as Background\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
               "status": "failed",
-              "duration": 3003000000,
-              "error_message": "TimeoutError: Waiting for element to be located By(xpath, //*[@*='#'])\nWait timed out after 3002ms\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\webdriver.js:834:17\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+              "duration": 3005000000,
+              "error_message": "TimeoutError: Waiting for element to be located By(xpath, //*[@*='TODO: Create Scenario as Background'])\nWait timed out after 3002ms\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\webdriver.js:834:17\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
             }
           },
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 14,
-            "name": "As a \"User\"",
+            "line": 15,
+            "name": "As a \"Guest\"",
             "match": {
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
@@ -112,8 +125,8 @@
           {
             "arguments": [],
             "keyword": "Given ",
-            "line": 15,
-            "name": "I am on the website: \"https://cucumber-app.herokuapp.com/\"",
+            "line": 16,
+            "name": "I am on the website: \"https://cucumber-app.herokuapp.com/#\"",
             "match": {
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
@@ -124,8 +137,8 @@
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 17,
-            "name": "I click the button: \"logoutButton\"",
+            "line": 18,
+            "name": "I click the button: \" #42. Alpha Testing \"",
             "match": {
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
@@ -135,9 +148,30 @@
           },
           {
             "arguments": [],
-            "keyword": "Then ",
+            "keyword": "When ",
             "line": 19,
-            "name": "So I will be navigated to the website: \"https://cucumber-app.herokuapp.com/login\"",
+            "name": "I click the button: \"#42.1 New Scenario\"",
+            "match": {
+              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 20,
+            "name": "I click the button: \"TODO: ID of \"Unlock-Button\"\"",
+            "result": {
+              "status": "undefined"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 21,
+            "name": "I click the button: \"...\"",
             "match": {
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
@@ -148,8 +182,8 @@
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 20,
-            "name": "So I can see the text \"Github Name\" in the textbox: \"githubName\"",
+            "line": 23,
+            "name": "So I can see the text \"Scenario successfully deleted\" in the textbox: \"Scenario Deleted\"",
             "match": {
               "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
             },
