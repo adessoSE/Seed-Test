@@ -2,7 +2,7 @@ Feature: Delete scenarios
 
 Background: 
 
-When I am on the website: "https://cucumber-app.herokuapp.com/login"  
+When I go to the website: "https://cucumber-app.herokuapp.com/login"  
 And I insert "adessoCucumber" into the field "githubName" 
 And I insert "56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1" into the field "token" 
 And I click the button: "submit"  
