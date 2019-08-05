@@ -2,9 +2,9 @@ Feature: Delete scenarios
 
 Background: 
 
-When I go to the website: "https://cucumber-app.herokuapp.com/login"  
+When I am on the website: "https://cucumber-app.herokuapp.com/login"  
 And I insert "adessoCucumber" into the field "githubName" 
-And I insert "119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868" into the field "token" 
+And I insert "56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1" into the field "token" 
 And I click the button: "submit"  
 And I click the button: "#"  
 And I click the button: "TODO: Create Scenario as Background"  

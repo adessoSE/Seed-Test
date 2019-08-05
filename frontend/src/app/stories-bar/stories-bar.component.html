@@ -1,9 +1,9 @@
 <div class="selectStories uk-card uk-card-default">
       <div class="uk-text-emphasis uk-text-uppercase uk-text-bold ">STORIES</div>
       <ul uk-accordion>
-        <li *ngFor="let s of sortedStories(); let i = index ">
+        <li *ngFor="let s of sortedStories(); let i = index " #StoryName>
           <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted">
-            <a maxlength="10">
+            <a maxlength="10" >
               #{{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
             </a>
             <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
