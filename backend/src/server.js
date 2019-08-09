@@ -71,7 +71,7 @@ app
     });
   })
 
-  .get('/api/stories/:user?/:repository?',async (req, res) => {
+  .get('/api/stories/:user?/:repository?', async (req, res) => {
     if (req.params.repository) {
       githubName = req.params.user;
       githubRepo = req.params.repository;
@@ -85,7 +85,7 @@ app
     const request = new XMLHttpRequest();
     request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${accessToken}`);
     request.send();
-    request.onreadystatechange = async function () {
+    request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
         // init result
@@ -103,26 +103,15 @@ app
             story.assignee = issue.assignee.login;
             story.assignee_avatar_url = issue.assignee.avatar_url;
           }
-          mongo.getOneStory(issue.id, async function (result) {
-            if (result !== null) {
-              console.log("Test")
-              story.scenarios = result.scenarios
-              story.background = result.background
-            } else {
-              story.scenarios = [emptyScenario()];
-              story.background = emptyBackground();
-            }
-
-            await mongo.upsertEntry("stories", story.story_id, story)
-            await stories.push(story);
-            await helper.writeFile('', story);  // Create & Update Feature Files
-            // TODO: delete stories and save some storage
-          })
-          // await helper.writeFile('', story);
+          stories.push(helper.myDbShit(story, issue.id))
         }
-        await console.log(stories)
-        await res.status(200).json(stories);
-        await console.log('Returning stories.');
+
+        Promise.all(stories).then((results) => {
+          res.status(200).json(results)
+          // console.log("Hier sollte ein Array stehen:", results)
+        }).catch((e) => {
+          console.log("Mist !!!!!!! " + e)
+        });
       }
     };
   })
@@ -208,7 +197,9 @@ app
     //   res.status(200).json(scenario);
     //   console.log('Scenario created');
     // }
-    mongo.createScenario(parseInt(req.params.issueID, 100), function (scenario) {
+
+    mongo.createScenario(parseInt(req.params.issueID, 10), function (scenario) {
+      console.log("Was steht im Scenraio", scenario)
       if (typeof (scenario) === 'string') {
         handleError(res, scenario, scenario, 500);
       } else {
@@ -232,7 +223,7 @@ app
     //   console.log('Scenario', scenario.scenario_id, 'updated in Story', req.params.issueID);
     // }
 
-    mongo.updateScenario(parseInt(req.params.issueID, 100), scenario, function (updatedScenario) {
+    mongo.updateScenario(parseInt(req.params.issueID, 10), scenario, function (updatedScenario) {
       if (typeof (updatedScenario) === 'string') {
         handleError(res, updatedScenario, updatedScenario, 500);
       } else {
@@ -256,16 +247,11 @@ app
     //   res.status(200).json({});
     //   console.log('Scenario deleted.');
     // }
-    mongo.deleteScenario(parseInt(req.params.issueID, 100),
-      parseInt(req.params.scenarioID, 100), function (result) {
-        if (typeof (result) === 'string') {
-          handleError(res, result, result, 500);
-          console.log('Could not delete Scenario.');
-        }
-        if (result === true) {
+    mongo.deleteScenario(parseInt(req.params.issueID, 10), parseInt(req.params.scenarioID, 10), function (result) {
+
           res.status(200).json({});
           console.log('Scenario deleted.');
-        }
+        
       });
     helper.updateFeatureFiles(req.params, stories);
   })

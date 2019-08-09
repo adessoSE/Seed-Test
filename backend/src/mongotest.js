@@ -114,7 +114,7 @@ function deleteBackground(git_id, callback) {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     let dbo = db.db("mydb");
-    let myobj = { story_id: git_id }
+    let myobj = {story_id: git_id}
     dbo.collection("stories").findOne(myobj, function (err, result) {
       if (err) throw err;
       let story = result;
@@ -139,7 +139,7 @@ function createScenario(git_id, callback) {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     let dbo = db.db("mydb");
-    let myobj = { story_id: git_id }
+    let myobj = {story_id: git_id}
     dbo.collection("stories").findOne(myobj, function (err, result) {
       if (err) throw err;
       let story = result;
@@ -156,7 +156,7 @@ function createScenario(git_id, callback) {
           returnOriginal: false
         }, function (err, result) {
           if (err) throw err;
-          callback(result.value)
+          callback(tmpScenario)
         })
       }
       db.close();
@@ -174,6 +174,7 @@ function deleteScenario(git_id, s_id, callback) {
     if (err) throw err;
     let dbo = db.db("mydb");
     let myobj = { story_id: git_id }
+    console.log("Schauen wir mal woran es liegt? GitId: ", git_id, "s-id: ", s_id )
     dbo.collection("stories").findOne(myobj, function (err, result) {
       if (err) throw err;
       let story = result;
@@ -193,18 +194,19 @@ function deleteScenario(git_id, s_id, callback) {
   })
 }
 
-// deleteScenario(386692174, 3, function(result) {
+// deleteScenario(386692174, 7, function(result) {
 //   console.log(result.scenarios)
 // })
 
 // POST Scenario
-function updateScenario(git_id, updated_scenario,callback) {
+function updateScenario(git_id, updated_scenario, callback) {
   MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     let dbo = db.db("mydb");
     let myobj = { story_id: git_id }
     dbo.collection("stories").findOne(myobj, function (err, result) {
       if (err) throw err;
+      console.log("Zeig mal das result!!!!! ", result)
       let story = result;
       for (let scenario of story.scenarios) {
         if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
