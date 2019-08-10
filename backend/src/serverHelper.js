@@ -282,7 +282,7 @@ function getStarredRepositories(ghName, token, callback) {
   };
 }
 
-function myDbShit(story, issueId) {
+function fuseGitWithDb(story, issueId) {
   return new Promise((resolve) => {
     mongo.getOneStory(issueId, function (result) {
       if (result !== null) {
@@ -307,5 +307,5 @@ module.exports = {
   sendDownloadResult,
   getStarredRepositories,
   getOwnRepositories,
-  myDbShit
+  fuseGitWithDb
 };

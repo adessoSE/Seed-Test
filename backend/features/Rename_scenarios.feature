@@ -28,14 +28,10 @@ When I click the button: "Save"
 Then So I can see the text "Could not update scenario name!" in the textbox: "Validation" 
 
 @386692174_3
-Scenario: New Scenario
+Scenario: DBTest
 
 
+When I want to visit this site: "www.gamestar.de"  
 
-
-@386692174_4
-Scenario: New Scenario
-
-
-
+Then So I will be navigated to the site: "www.gamestar.de"  
 
