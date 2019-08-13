@@ -6,7 +6,7 @@
   </div>
 
   <div class="uk-navbar-left help">
-    <a href="https://github.com/adessoCucumber/Cucumber" target="_blank">Help
+    <a id="help" href="https://github.com/adessoCucumber/Cucumber" target="_blank">Help
     </a>
   </div>
   <div class="uk-navbar-center">
@@ -15,13 +15,13 @@
   <div class="uk-navbar-right">
     <span *ngIf="this.token || this.repository">
       <span class="logoutButton"> 
-          <button class="uk-button uk-button-danger" title="Logout" uk-tooltip (click)="logout();">Logout</button>
+          <button id="logout" class="uk-button uk-button-danger" title="Logout" uk-tooltip (click)="logout();">Logout</button>
       </span>
-      <button class="uk-button" title="Select Repository" uk-tooltip>Repositories</button>
+      <button id="repositories" class="uk-button" title="Select Repository" uk-tooltip>Repositories</button>
       <div uk-dropdown>
           <ul class="uk-nav uk-dropdown-nav">
-            <li *ngFor="let repository of repositories;" >
-                <a  (click)="selectRepository(repository);"
+            <li *ngFor="let repository of repositories; let i = index" >
+                <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
                  href="#">{{repository}}</a>
             </li>
           </ul>

@@ -54,8 +54,8 @@
                 <div >
                   <h5>Select Your Repository</h5>
                   <ul class="uk-list">
-                    <li *ngFor="let repository of repositories;" >
-                        <a  (click)="selectRepository(repository);"
+                    <li *ngFor="let repository of repositories; let i = index" >
+                        <a id="{{'repository_'+i}}" (click)="selectRepository(repository);"
                          href="#">{{repository}}</a>
                     </li>
                   </ul>
