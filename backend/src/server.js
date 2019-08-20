@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
-const mongo = require('./mongotest')
+const mongo = require('./mongodatabase')
 const db = require('./database');
 const storiesDB = require('./database').stories;
 const emptyScenario = require('./models/emptyScenario');
@@ -106,7 +106,7 @@ app
         Promise.all(stories).then((results) => {
           res.status(200).json(results)
         }).catch((e) => {
-          // TODO handle Error
+          // TODO: handle Error
         });
       }
     };

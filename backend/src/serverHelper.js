@@ -3,7 +3,7 @@ const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
-const mongo = require('./mongotest')
+const mongo = require('./mongodatabase')
 
 // this is needed for the html report
 const options = {
