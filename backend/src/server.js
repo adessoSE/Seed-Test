@@ -9,8 +9,8 @@ const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
 const app = express();
-const accessToken = '119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868'; // This is a personal access token, not sure how to handle correctly for multi-user
-// const access_token_new = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';
+const accessToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1'; // This is a personal access token, not sure how to handle correctly for multi-user
+// const access_token_new = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868
 const helper = require('./serverHelper');
 
 let githubName;
