@@ -10,7 +10,7 @@ const uri = "mongodb+srv://Seed-Admin:KkPuqMeGUfgpyTVp@seed-tsqv2.mongodb.net/te
 
 // get One Story
 function getOneStory(id, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, function (err, db) {
+  MongoClient.connect(uri, function (err, db) {
     if (err) throw err;
     let dbo = db.db("Seed");
     dbo.collection("Stories").findOne({ story_id: id }, function (err, result) {
@@ -275,7 +275,6 @@ function insertMore(name, content) {
     })
   })
 }
-
 
 
 // update (git_id, {document})

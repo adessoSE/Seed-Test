@@ -4,8 +4,22 @@ Background:
 
 
 @382626033_1
-Scenario: New Scenario
+Scenario: successful Scenario creation
 
+Given As a "Guest"  
 
+When I am on the website: "www.cucumber.com"  
+When I click the button: "Create Scenario"  
 
+Then So I can see the text "New Scenario created" in the textbox: "Sucess" 
+
+@382626033_2
+Scenario: failed Scenario creation
+
+Given As a "Guest"  
+
+When I am on the website: "www.cucumber.com"  
+When I click the button: "Create Scenario"  
+
+Then So I can see the text "Could not create Scenario" in the textbox: "Error" 
 
