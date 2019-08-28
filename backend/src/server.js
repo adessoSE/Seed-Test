@@ -4,8 +4,6 @@ const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
 const mongo = require('./mongodatabase')
-const db = require('./database');
-const storiesDB = require('./database').stories;
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 

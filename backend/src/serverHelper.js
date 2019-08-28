@@ -4,6 +4,8 @@ const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
 const mongo = require('./mongodatabase')
+const emptyScenario = require('./models/emptyScenario');
+const emptyBackground = require('./models/emptyBackground');
 
 // this is needed for the html report
 const options = {
@@ -292,7 +294,7 @@ function fuseGitWithDb(story, issueId) {
         story.scenarios = [emptyScenario()];
         story.background = emptyBackground();
       }
-      mongo.upsertEntry("stories", story.story_id, story);
+      mongo.upsertEntry("Stories", story.story_id, story);
       writeFile('', story);  // Create & Update Feature Files
       resolve(story);
       // TODO: delete stories and save some storage
