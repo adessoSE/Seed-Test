@@ -3,10 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
-const db = require('./database/database');
-const storiesDB = require('./database/database').stories;
-const emptyScenario = require('./models/emptyScenario');
-const emptyBackground = require('./models/emptyBackground');
+const mongo = require('./mongodatabase')
 
 const app = express();
 const accessToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1'; // This is a personal access token, not sure how to handle correctly for multi-user
@@ -59,11 +56,18 @@ app
   /**
    * Scenarios API
    */
+  //Old Database
+  // .get('/api/stepDefinitions', (req, res) => {
+  //   res.status(200).json(db.showStepdefinitions());
+  // })
+
   .get('/api/stepDefinitions', (req, res) => {
-    res.status(200).json(db.showStepdefinitions());
+    mongo.showStepdefinitions(function (result) {
+      res.status(200).json(result)
+    });
   })
 
-  .get('/api/stories/:user?/:repository?', (req, res) => {
+  .get('/api/stories/:user?/:repository?', async (req, res) => {
     if (req.params.repository) {
       githubName = req.params.user;
       githubRepo = req.params.repository;
@@ -80,8 +84,6 @@ app
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
-        // init result
-        // let stories = [];
         for (const issue of data) {
           // only relevant issues with label: "story"
           const story = {
@@ -95,26 +97,16 @@ app
             story.assignee = issue.assignee.login;
             story.assignee_avatar_url = issue.assignee.avatar_url;
           }
-          // skip if there is no data for the issue yet
-          if (storiesDB.findOne({ story_id: issue.id }) !== null) {
-            story.scenarios = storiesDB.findOne({ story_id: issue.id }).scenarios;
-            story.background = storiesDB.findOne({ story_id: issue.id }).background;
-          } else {
-            story.scenarios = [emptyScenario()];
-            story.background = emptyBackground();
-          }
-          storiesDB.insert(story); // update database
-          // Create & Update Feature Files
-          helper.writeFile('', story);
-          // TODO: delete stories and save some storage
-          stories.push(story);
+          stories.push(helper.fuseGitWithDb(story, issue.id))
         }
-        res.status(200).json(stories);
-        console.log('Returning stories.');
+        Promise.all(stories).then((results) => {
+          res.status(200).json(results)
+        }).catch((e) => {
+          // TODO: handle Error
+        });
       }
     };
   })
-  
   // .get('/testResult', (req, res) => {
   //   helper.setRespReport(res);
   // })
@@ -125,6 +117,7 @@ app
 
   // create Background
   .get('/api/background/add/:issueID', (req, res) => {
+<<<<<<< HEAD
     const background = db.createBackground(parseInt(req.params.issueID, 10));
     if (typeof (background) === 'string') {
       handleError(res, background, background, 500);
@@ -132,45 +125,61 @@ app
       res.status(200).json(background);
       console.log('Background created');
     }
+=======
+    mongo.createBackground(parseInt(req.params.issueID, 100), function (result) {
+      if (typeof (result) === 'string') {
+        handleError(res, background, background, 500);
+      } else {
+        res.status(200).json(result);
+      }
+    });
+>>>>>>> Database
     helper.updateFeatureFiles(req.params, stories);
   })
 
-// update background
+  // update background
   .post('/api/background/update/:issueID', (req, res) => {
     const background = req.body;
+<<<<<<< HEAD
     const updatedBackground = db.updateBackground(parseInt(req.params.issueID, 10), background);
     if (typeof (updatedBackground) === 'string') {
       handleError(res, updatedBackground, updatedBackground, 500);
     } else {
       res.status(200).json(updatedBackground);
     }
+=======
+    mongo.updateBackground(parseInt(req.params.issueID, 10), background, function (result) {
+      if (typeof (result) === 'string') {
+        handleError(res, result, result, 500);
+      } else {
+        res.status(200).json(result);
+      }
+    });
+>>>>>>> Database
     helper.updateFeatureFiles(req.params, stories);
   })
 
-// delete background
+  // delete background
   .delete('/api/story/:issueID/background/delete/', (req, res) => {
-    const result = db.deleteBackground(parseInt(req.params.issueID, 10));
-    if (typeof (result) === 'string') {
-      handleError(res, result, result, 500);
-      console.log('Could not delete Background.');
-    }
-    if (result === true) {
-      res.status(200).json({});
-      console.log('Background deleted.');
-    }
+    mongo.deleteBackground(parseInt(req.params.issueID, 10), function (result) {
+      if (typeof (result) === 'string') {
+        handleError(res, result, result, 500);
+      } else {
+        res.status(200).json({});
+      }
+    })
     helper.updateFeatureFiles(req.params, stories);
   })
-
 
   // create scenario
   .get('/api/scenario/add/:issueID', (req, res) => {
-    const scenario = db.createScenario(parseInt(req.params.issueID, 10));
-    if (typeof (scenario) === 'string') {
-      handleError(res, scenario, scenario, 500);
-    } else {
-      res.status(200).json(scenario);
-      console.log('Scenario created');
-    }
+    mongo.createScenario(parseInt(req.params.issueID, 10), function (scenario) {
+      if (typeof (scenario) === 'string') {
+        handleError(res, scenario, scenario, 500);
+      } else {
+        res.status(200).json(scenario);
+      }
+    });
     helper.updateFeatureFiles(req.params, stories);
   })
 
@@ -178,30 +187,25 @@ app
   .post('/api/scenario/update/:issueID', (req, res) => {
     // TODO: use model to check for scenario (priority 2)
     const scenario = req.body;
-    console.log(`Trying to update scenario in issue: ${req.params.issueID} with ID: ${scenario.scenario_id}`);
-    const updatedScenario = db.updateScenario(parseInt(req.params.issueID, 10), scenario);
-    if (typeof (updatedScenario) === 'string') {
-      handleError(res, updatedScenario, updatedScenario, 500);
-    } else {
-      res.status(200).json(updatedScenario);
-      console.log('Scenario', scenario.scenario_id, 'updated in Story', req.params.issueID);
-    }
+    mongo.updateScenario(parseInt(req.params.issueID, 10), scenario, function (updatedScenario) {
+      if (typeof (updatedScenario) === 'string') {
+        handleError(res, updatedScenario, updatedScenario, 500);
+      } else {
+        res.status(200).json(updatedScenario);
+      }
+    })
     helper.updateFeatureFiles(req.params, stories);
   })
 
   // delete scenario
   .delete('/api/story/:issueID/scenario/delete/:scenarioID', (req, res) => {
-    console.log(`Trying to delete Scenario in Issue: ${req.params.issueID} with ID: ${req.params.scenarioID}`);
-    const result = db.deleteScenario(parseInt(req.params.issueID, 10),
-      parseInt(req.params.scenarioID, 100));
-    if (typeof (result) === 'string') {
-      handleError(res, result, result, 500);
-      console.log('Could not delete Scenario.');
-    }
-    if (result === true) {
-      res.status(200).json({});
-      console.log('Scenario deleted.');
-    }
+    mongo.deleteScenario(parseInt(req.params.issueID, 10), parseInt(req.params.scenarioID, 10), function (result) {
+      if (typeof (result) === 'string') {
+        handleError(res, result, result, 500);
+      } else {
+        res.status(200).json({});
+      }
+    });
     helper.updateFeatureFiles(req.params, stories);
   })
 

@@ -22,7 +22,7 @@ When I click the button: "Lock and Save Scenario"
 
 Then So I can see the text "Scenario Creation2" in the textbox: "storyTitle" 
 
-@386692174_1
+@386692174_2
 Scenario: Faild Updating
 
 Given As a "Guest"  

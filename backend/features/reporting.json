@@ -24,11 +24,12 @@
             "keyword": "Before",
             "hidden": true,
             "match": {
-              "location": "features\\step_definitions\\stepdefs.js:14"
+              "location": "features\\step_definitions\\stepdefs.js:15"
             },
             "result": {
-              "status": "passed",
-              "duration": 32000000
+              "status": "failed",
+              "duration": 12000000,
+              "error_message": "Error: The ChromeDriver could not be found on the current PATH. Please download the latest version of the ChromeDriver from http://chromedriver.storage.googleapis.com/index.html and ensure it can be found on your PATH.\n    at new ServiceBuilder (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\chrome.js:232:13)\n    at getDefaultService (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\chrome.js:321:22)\n    at Function.createSession (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\chrome.js:696:44)\n    at createDriver (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\index.js:155:33)\n    at Builder.build (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\index.js:647:16)\n    at World.<anonymous> (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\features\\step_definitions\\stepdefs.js:26:89)"
             }
           },
           {

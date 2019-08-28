@@ -41,7 +41,7 @@ When('I go to the website: {string}', async (url) => {
   });
 });
 
-// clicks a button if found in html code with xpath, timeouts if not found after 6 sek, waits for next page to be loaded
+// clicks a button if found in html code with xpath, timeouts if not found after 3 sek, waits for next page to be loaded
 When('I click the button: {string}', async (button) => {
   await driver.wait(until.elementLocated(By.xpath(`${'//*[@*' + "='"}${button}']`)), 3 * 1000).click();
   // if you get navigeted to another Website and want to check wether you reach the correct Site we may need this to wait for the new page
@@ -76,7 +76,7 @@ When('I hover over the element {string} and select the option {string}', async f
   await action2.move({x: 0, y: 0, origin: selection}).click().perform();
 });
 
-// TODO: this OR: copy the radio/button multiple times
+// TODO: Multiple Selection OR: copy the radio/button multiple times
 When('I select from the {string} multiple selection, the values {string}{string}{string}', async (string, string2, string3, string4) => {
   const quatsch = string;
 });
@@ -94,6 +94,13 @@ Then('So I can see the text {string} in the textbox: {string}', async (string, l
 Then('So I will be navigated to the website: {string}', async (url) => {
   await driver.getCurrentUrl().then(async (currentUrl) => {
     expect(currentUrl).to.equal(url, 'Error');
+  });
+});
+
+Then('So I can´t see text in the textbox: {string} anymore' , async (label) => {
+  await driver.wait(until.elementLocated(By.xpath(`${'//*[@*' + "='"}${label}']`)), 3 * 1000).then(async (link) => {
+    const resp = await link.getText().then(text => text);
+    expect('').to.equal(resp, 'Error');
   });
 });
 
