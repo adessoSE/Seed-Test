@@ -1,21 +1,21 @@
 [
   {
     "keyword": "Feature",
-    "name": "Delete scenarios",
+    "name": "Login scenario",
     "line": 1,
-    "id": "delete-scenarios",
+    "id": "login-scenario",
     "tags": [],
-    "uri": "features\\Delete_scenarios.feature",
+    "uri": "features\\Login_scenario.feature",
     "elements": [
       {
-        "id": "delete-scenarios;successful-deletion",
+        "id": "login-scenario;successful-login",
         "keyword": "Scenario",
-        "line": 13,
-        "name": "successful Deletion",
+        "line": 20,
+        "name": "Successful Login",
         "tags": [
           {
-            "name": "@386693823_1",
-            "line": 12
+            "name": "@386694507_1",
+            "line": 6
           }
         ],
         "type": "scenario",
@@ -24,111 +24,47 @@
             "keyword": "Before",
             "hidden": true,
             "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "features\\step_definitions\\stepdefs.js:14"
             },
             "result": {
               "status": "passed",
-              "duration": 18000000
+              "duration": 32000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:24"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2000000
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 5,
-            "name": "I go to the website: \"https://cucumber-app.herokuapp.com/login\"",
+            "line": 11,
+            "name": "I am on the website: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
             "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 4910000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 6,
-            "name": "I insert \"adessoCucumber\" into the field \"githubName\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 72000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 7,
-            "name": "I insert \"119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868\" into the field \"token\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 118000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 8,
-            "name": "I click the button: \"submit\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 68000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 9,
-            "name": "I click the button: \"#\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 636000000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 10,
-            "name": "I click the button: \"TODO: Create Scenario as Background\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "features\\step_definitions\\stepdefs.js:28"
             },
             "result": {
               "status": "failed",
-              "duration": 3005000000,
-              "error_message": "TimeoutError: Waiting for element to be located By(xpath, //*[@*='TODO: Create Scenario as Background'])\nWait timed out after 3002ms\n    at C:\\Users\\Sorna\\Desktop\\Arbeit\\Cucumber\\cucumber-repository\\Projekt Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\webdriver.js:834:17\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+              "duration": 1994000000,
+              "error_message": "SessionNotCreatedError: session not created: This version of ChromeDriver only supports Chrome version 74\n  (Driver info: chromedriver=74.0.3729.6 (255758eccf3d244491b8a1317aa76e1ce10d57e9-refs/branch-heads/3729@{#29}),platform=Windows NT 10.0.16299 x86_64)\n    at Object.checkLegacyResponse (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\error.js:585:15)\n    at parseHttpResponse (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\http.js:551:13)\n    at Executor.execute (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\http.js:486:26)\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
             }
           },
           {
             "arguments": [],
-            "keyword": "Given ",
-            "line": 15,
-            "name": "As a \"Guest\"",
+            "keyword": "When ",
+            "line": 12,
+            "name": "I insert \"AdorableHamster\" into the field \"login_field\"",
             "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "skipped"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 16,
-            "name": "I am on the website: \"https://cucumber-app.herokuapp.com/#\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "features\\step_definitions\\stepdefs.js:52"
             },
             "result": {
               "status": "skipped"
@@ -137,10 +73,10 @@
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 18,
-            "name": "I click the button: \" #42. Alpha Testing \"",
+            "line": 13,
+            "name": "I insert \"cutehamsterlikesnuts2000\" into the field \"password\"",
             "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "features\\step_definitions\\stepdefs.js:52"
             },
             "result": {
               "status": "skipped"
@@ -149,31 +85,10 @@
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 19,
-            "name": "I click the button: \"#42.1 New Scenario\"",
+            "line": 14,
+            "name": "I click the button: \"commit\"",
             "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
-            },
-            "result": {
-              "status": "skipped"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 20,
-            "name": "I click the button: \"TODO: ID of \"Unlock-Button\"\"",
-            "result": {
-              "status": "undefined"
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 21,
-            "name": "I click the button: \"...\"",
-            "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "features\\step_definitions\\stepdefs.js:45"
             },
             "result": {
               "status": "skipped"
@@ -182,10 +97,10 @@
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 23,
-            "name": "So I can see the text \"Scenario successfully deleted\" in the textbox: \"Scenario Deleted\"",
+            "line": 16,
+            "name": "So I will be navigated to the website: \"https://github.com/sessions/verified-device\"",
             "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "features\\step_definitions\\stepdefs.js:94"
             },
             "result": {
               "status": "skipped"
@@ -195,7 +110,229 @@
             "keyword": "After",
             "hidden": true,
             "match": {
-              "location": "Gurke\\backend\\node_modules\\cucumber\\lib\\support_code_library_builder\\build_helpers.js:173"
+              "location": "features\\step_definitions\\stepdefs.js:101"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3000000
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-scenario;successful-login",
+        "keyword": "Scenario",
+        "line": 21,
+        "name": "Successful Login",
+        "tags": [
+          {
+            "name": "@386694507_1",
+            "line": 6
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:14"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:24"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I am on the website: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:28"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 579000000,
+              "error_message": "SessionNotCreatedError: session not created: This version of ChromeDriver only supports Chrome version 74\n  (Driver info: chromedriver=74.0.3729.6 (255758eccf3d244491b8a1317aa76e1ce10d57e9-refs/branch-heads/3729@{#29}),platform=Windows NT 10.0.16299 x86_64)\n    at Object.checkLegacyResponse (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\error.js:585:15)\n    at parseHttpResponse (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\http.js:551:13)\n    at Executor.execute (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\http.js:486:26)\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I insert \"NormalHamster\" into the field \"login_field\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:52"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I insert \"FatHamster123\" into the field \"password\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:52"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click the button: \"commit\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:45"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "So I will be navigated to the website: \"https://github.com/sessions/verified-device\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:94"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:101"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1000000
+            }
+          }
+        ]
+      },
+      {
+        "id": "login-scenario;successful-login",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "Successful Login",
+        "tags": [
+          {
+            "name": "@386694507_1",
+            "line": 6
+          }
+        ],
+        "type": "scenario",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:14"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1000000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 9,
+            "name": "As a \"Guest\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:24"
+            },
+            "result": {
+              "status": "passed"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I am on the website: \"https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:28"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 606000000,
+              "error_message": "SessionNotCreatedError: session not created: This version of ChromeDriver only supports Chrome version 74\n  (Driver info: chromedriver=74.0.3729.6 (255758eccf3d244491b8a1317aa76e1ce10d57e9-refs/branch-heads/3729@{#29}),platform=Windows NT 10.0.16299 x86_64)\n    at Object.checkLegacyResponse (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\error.js:585:15)\n    at parseHttpResponse (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\http.js:551:13)\n    at Executor.execute (C:\\Users\\Niebergall\\Git\\Projekt-Gurke\\Projekt-Gurke\\backend\\node_modules\\selenium-webdriver\\lib\\http.js:486:26)\n    at process._tickCallback (internal/process/next_tick.js:68:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I insert \"OldHamster\" into the field \"login_field\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:52"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I insert \"UglyHamster123\" into the field \"password\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:52"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click the button: \"commit\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:45"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 16,
+            "name": "So I will be navigated to the website: \"https://github.com/sessions/verified-device\"",
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:94"
+            },
+            "result": {
+              "status": "skipped"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "match": {
+              "location": "features\\step_definitions\\stepdefs.js:101"
             },
             "result": {
               "status": "passed",
