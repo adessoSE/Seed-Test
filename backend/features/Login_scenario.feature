@@ -13,13 +13,13 @@ When I insert "<userName>" into the field "login_field"
 When I insert "<password>" into the field "password" 
 When I click the button: "commit"  
 
-Then So I will be navigated to the website: "<website>"  
+Then So I will be navigated to the site: "<website>"  
 
 Examples:
  | userName | password | website | 
- | AdorableHamster | cutehamsterlikesnuts2000 | https://github.com/sessions/verified-device | 
- | NormalHamster | FatHamster123 | https://github.com/sessions/verified-device | 
- | OldHamster | UglyHamster123 | https://github.com/sessions/verified-device | 
+ | AdorableHamster | cutehamsterlikesnuts2000 | https://github.com/ | 
+ | NormalHamster | FatHamster123 | https://github.com/account/unverified-email | 
+ | OldHamster | UglyHamster123 | https://github.com/account/unverified-email | 
 
 
 @386694507_2
@@ -32,6 +32,6 @@ When I insert "arbage" into the field "login_field"
 When I insert "number" into the field "password" 
 When I click the button: "commit"  
 
-Then So I will be navigated to the website: "https://github.com/session"  
+Then So I will be navigated to the site: "https://github.com/session"  
 Then So I can see the text "Incorrect username or password" in the textbox: "div" 
 

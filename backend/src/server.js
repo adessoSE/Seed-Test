@@ -117,15 +117,6 @@ app
 
   // create Background
   .get('/api/background/add/:issueID', (req, res) => {
-<<<<<<< HEAD
-    const background = db.createBackground(parseInt(req.params.issueID, 10));
-    if (typeof (background) === 'string') {
-      handleError(res, background, background, 500);
-    } else {
-      res.status(200).json(background);
-      console.log('Background created');
-    }
-=======
     mongo.createBackground(parseInt(req.params.issueID, 100), function (result) {
       if (typeof (result) === 'string') {
         handleError(res, background, background, 500);
@@ -133,21 +124,12 @@ app
         res.status(200).json(result);
       }
     });
->>>>>>> Database
     helper.updateFeatureFiles(req.params, stories);
   })
 
   // update background
   .post('/api/background/update/:issueID', (req, res) => {
     const background = req.body;
-<<<<<<< HEAD
-    const updatedBackground = db.updateBackground(parseInt(req.params.issueID, 10), background);
-    if (typeof (updatedBackground) === 'string') {
-      handleError(res, updatedBackground, updatedBackground, 500);
-    } else {
-      res.status(200).json(updatedBackground);
-    }
-=======
     mongo.updateBackground(parseInt(req.params.issueID, 10), background, function (result) {
       if (typeof (result) === 'string') {
         handleError(res, result, result, 500);
@@ -155,7 +137,6 @@ app
         res.status(200).json(result);
       }
     });
->>>>>>> Database
     helper.updateFeatureFiles(req.params, stories);
   })
 

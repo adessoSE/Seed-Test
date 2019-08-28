@@ -165,8 +165,8 @@ function writeFile(__dirname, selectedStory) {
 
 function getStoryByID(params, stories) {
   let selectedStory;
-  for (let story of stories) {
-    if (story.story_id === parseInt(params.issueID)) {
+  for (const story of stories) {
+    if (story.story_id === parseInt(params.issueID, 10)) {
       selectedStory = story;
       //   console.log(story.story_id);
       break;
