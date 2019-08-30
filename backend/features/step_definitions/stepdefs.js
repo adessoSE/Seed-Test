@@ -11,10 +11,9 @@ const chrome = require('selenium-webdriver/chrome');
 setDefaultTimeout(20 * 1000);
 
 // Starts the driver / Browser
-Before(async () => {
+Before(function () {
   const chromeOptions = new chrome.Options();
   chromeOptions.addArguments('-headless');
-  console.log(`chrome_shim:${process.env.GOOGLE_CHROME_SHIM}`);
   chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
   driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
 });

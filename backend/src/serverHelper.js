@@ -3,7 +3,7 @@ const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
-const mongo = require('./mongodatabase')
+const mongo = require('./mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
@@ -19,6 +19,7 @@ const options = {
     'Test Environment': 'STAGING',
     // Browser: 'Chrome  54.0.2840.98',
     // Platform: 'Windows 10',
+    GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
     Parallel: 'Scenarios',
     Executed: 'Remote',
   },
