@@ -163,14 +163,15 @@ function writeFile(__dirname, selectedStory) {
     });
 }
 
-function getStoryByID(params, stories) {
-  let selectedStory;
+function getStoryByID(issueID, stories) {
+  let selectedStory = null;
   for (const story of stories) {
-    if (story.story_id === parseInt(params.issueID, 10)) {
+    if (story.story_id === issueID){
       selectedStory = story;
-      //   console.log(story.story_id);
-      break;
     }
+  }
+  if (selectedStory == null){
+    console.log('NO STORY FOUND IN getStoryByID');
   }
   return selectedStory;
 }
@@ -191,7 +192,7 @@ function updateFeatureFiles(reqParams, stories) {
 }
 
 function execReport(req, res, stories, mode, callback) {
-  const story = getStoryByID(req.params, stories);
+  const story = getStoryByID(parseInt(req.params.issueID), stories);
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
   const path3 = 'features/reporting.json';
@@ -219,7 +220,7 @@ function runReport(req, res, stories, mode) {
   execReport(req, res, stories, mode, () => {
     console.log(`testing ${mode} report`);
 
-    setOptions()
+    setOptions();
     reporter.generate(options);
     res.sendFile('/reporting_html.html', { root: rootPath });
   });

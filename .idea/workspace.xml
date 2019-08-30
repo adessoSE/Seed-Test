@@ -6,18 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="b7dfdad5-6f94-499b-8b0f-a6fdfc927e4a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Access_scenario.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Access_scenario.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Delete_scenarios.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Delete_scenarios.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Login_scenario.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Login_scenario.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Logout_scenario.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Logout_scenario.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Rename_scenarios.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Rename_scenarios.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Run_test_functionality.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Run_test_functionality.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Scenario_creation.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Scenario_creation.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Sign-Up_scenario.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Sign-Up_scenario.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/features/Visual_test_response.feature" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/Visual_test_response.feature" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/features/reporting.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/reporting.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/features/reporting_html.html" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/reporting_html.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/server.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/serverHelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/serverHelper.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/Services/api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/Services/api.service.ts" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/node_modules/" />
     <ignored path="$PROJECT_DIR$/backend/node_modules/" />
@@ -54,8 +46,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/frontend/src/app/Services/api.service.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="99">
-              <caret line="25" column="28" lean-forward="true" selection-start-line="25" selection-start-column="28" selection-end-line="25" selection-end-column="28" />
+            <state relative-caret-position="-1224">
+              <caret line="48" column="20" lean-forward="true" selection-start-line="48" selection-start-column="20" selection-end-line="48" selection-end-column="20" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
               </folding>
@@ -66,8 +58,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/backend/src/server.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1135">
-              <caret line="138" column="7" selection-start-line="138" selection-start-column="7" selection-end-line="138" selection-end-column="7" />
+            <state relative-caret-position="474">
+              <caret line="98" column="118" lean-forward="true" selection-start-line="98" selection-start-column="118" selection-end-line="98" selection-end-column="118" />
             </state>
           </provider>
         </entry>
@@ -75,8 +67,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/backend/src/serverHelper.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="130">
-              <caret line="168" column="58" selection-start-line="168" selection-start-column="58" selection-end-line="168" selection-end-column="58" />
+            <state relative-caret-position="489">
+              <caret line="173" column="50" lean-forward="true" selection-start-line="173" selection-start-column="50" selection-end-line="173" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -131,6 +123,7 @@
       <find>background</find>
       <find>for</find>
       <find>for (let</find>
+      <find>stories</find>
       <find>10</find>
     </findStrings>
     <replaceStrings>
@@ -163,10 +156,10 @@
     <dismissed value="$PROJECT_DIR$/package.json" />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="65" />
-    <option name="y" value="41" />
-    <option name="width" value="1535" />
-    <option name="height" value="823" />
+    <option name="x" value="388" />
+    <option name="y" value="105" />
+    <option name="width" value="638" />
+    <option name="height" value="440" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -240,27 +233,27 @@
       <workItem from="1562069527693" duration="364000" />
       <workItem from="1563515647024" duration="6196000" />
       <workItem from="1564756247061" duration="926000" />
-      <workItem from="1567007033932" duration="589000" />
+      <workItem from="1567007033932" duration="4580000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="33165000" />
+    <option name="totallyTimeSpent" value="37156000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.1579643" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.12592202" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="0" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="1" visible="true" weight="0.33569404" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="1" visible="true" weight="0.25568798" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="3" />
+      <window_info anchor="bottom" id="Version Control" order="3" weight="0.32936078" />
       <window_info anchor="bottom" id="Message" order="4" />
       <window_info anchor="bottom" id="TypeScript" order="5" />
-      <window_info active="true" anchor="bottom" id="Find" order="6" visible="true" weight="0.0913811" />
+      <window_info anchor="bottom" id="Find" order="6" weight="0.35211268" />
       <window_info anchor="bottom" id="Run" order="7" weight="0.3286119" />
       <window_info anchor="bottom" id="Debug" order="8" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="9" weight="0.25" />
@@ -355,13 +348,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/backend/features/Logout_scenario.feature">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" selection-start-line="11" selection-end-line="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/backend/src/database/stepTypes.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="663">
@@ -371,25 +357,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/frontend/src/app/Services/api.service.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="99">
-          <caret line="25" column="28" lean-forward="true" selection-start-line="25" selection-start-column="28" selection-end-line="25" selection-end-column="28" />
+        <state relative-caret-position="-1224">
+          <caret line="48" column="20" lean-forward="true" selection-start-line="48" selection-start-column="20" selection-end-line="48" selection-end-column="20" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/backend/features/Logout_scenario.feature">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/backend/src/server.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1135">
-          <caret line="138" column="7" selection-start-line="138" selection-start-column="7" selection-end-line="138" selection-end-column="7" />
+        <state relative-caret-position="474">
+          <caret line="98" column="118" lean-forward="true" selection-start-line="98" selection-start-column="118" selection-end-line="98" selection-end-column="118" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/src/serverHelper.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="168" column="58" selection-start-line="168" selection-start-column="58" selection-end-line="168" selection-end-column="58" />
+        <state relative-caret-position="489">
+          <caret line="173" column="50" lean-forward="true" selection-start-line="173" selection-start-column="50" selection-end-line="173" selection-end-column="50" />
         </state>
       </provider>
     </entry>

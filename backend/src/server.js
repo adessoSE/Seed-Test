@@ -56,14 +56,9 @@ app
   /**
    * Scenarios API
    */
-  //Old Database
-  // .get('/api/stepDefinitions', (req, res) => {
-  //   res.status(200).json(db.showStepdefinitions());
-  // })
-
   .get('/api/stepDefinitions', (req, res) => {
-    mongo.showStepdefinitions(function (result) {
-      res.status(200).json(result)
+    mongo.showStepdefinitions((result) => {
+      res.status(200).json(result);
     });
   })
 
@@ -71,13 +66,13 @@ app
     if (req.params.repository) {
       githubName = req.params.user;
       githubRepo = req.params.repository;
-    } else {
+    } else { // TODO: wird das noch benötigt?
       githubName = 'adessoCucumber';
       githubRepo = 'Cucumber';
     }
 
-    stories = [];
-    // get Issues from GitHub
+    const tmpStories = [];
+    // get Issues from GitHub .
     const request = new XMLHttpRequest();
     request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${accessToken}`);
     request.send();
@@ -97,11 +92,13 @@ app
             story.assignee = issue.assignee.login;
             story.assignee_avatar_url = issue.assignee.avatar_url;
           }
-          stories.push(helper.fuseGitWithDb(story, issue.id))
+          tmpStories.push(helper.fuseGitWithDb(story, issue.id));
         }
-        Promise.all(stories).then((results) => {
-          res.status(200).json(results)
+        Promise.all(tmpStories).then((results) => {
+          res.status(200).json(results);
+          stories = results; // need this to clear promises from the Story List TODO: better fix it in "fuseGitWithDB"
         }).catch((e) => {
+          console.log(e);
           // TODO: handle Error
         });
       }
