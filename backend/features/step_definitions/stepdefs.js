@@ -20,6 +20,7 @@ Before(function () {
   // chromeOptions.addArguments('-headless');
   // chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
   // driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+  // delete this
 });
 
 // #################### GIVEN ########################################
