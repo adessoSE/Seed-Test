@@ -4,7 +4,11 @@
     <bookmark url="file://$PROJECT_DIR$/backend/src/server.js" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b7dfdad5-6f94-499b-8b0f-a6fdfc927e4a" name="Default Changelist" comment="" />
+    <list default="true" id="b7dfdad5-6f94-499b-8b0f-a6fdfc927e4a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/features/reporting.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/reporting.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/features/reporting_html.html" beforeDir="false" afterPath="$PROJECT_DIR$/backend/features/reporting_html.html" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/node_modules/" />
     <ignored path="$PROJECT_DIR$/backend/node_modules/" />
     <ignored path="$PROJECT_DIR$/frontend/node_modules/" />
@@ -203,12 +207,12 @@
       <workItem from="1562069527693" duration="364000" />
       <workItem from="1563515647024" duration="6196000" />
       <workItem from="1564756247061" duration="926000" />
-      <workItem from="1567007033932" duration="13878000" />
+      <workItem from="1567007033932" duration="15927000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46454000" />
+    <option name="totallyTimeSpent" value="48503000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
