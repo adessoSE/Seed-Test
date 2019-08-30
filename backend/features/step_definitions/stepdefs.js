@@ -21,6 +21,10 @@ Before(function () {
 // #################### GIVEN ########################################
 // TODO: implement functionality (Login or no Login required), maybe irrelevant with background
 Given('As a {string}', async function (string) {
+  const chromeOptions = new chrome.Options();
+  chromeOptions.addArguments('-headless');
+  chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
+  driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
   this.role = string;
 });
 
