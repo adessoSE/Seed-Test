@@ -9,22 +9,22 @@ const chrome = require('selenium-webdriver/chrome');
 
 // Cucumber default timer for timeout
 setDefaultTimeout(20 * 1000);
+const chromeOptions = new chrome.Options();
+chromeOptions.addArguments('-headless');
+chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
+driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
 
 // Starts the driver / Browser
 Before(function () {
-  const chromeOptions = new chrome.Options();
-  chromeOptions.addArguments('-headless');
-  chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
-  driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+  // const chromeOptions = new chrome.Options();
+  // chromeOptions.addArguments('-headless');
+  // chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
+  // driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
 });
 
 // #################### GIVEN ########################################
 // TODO: implement functionality (Login or no Login required), maybe irrelevant with background
 Given('As a {string}', async function (string) {
-  const chromeOptions = new chrome.Options();
-  chromeOptions.addArguments('-headless');
-  chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
-  driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
   this.role = string;
 });
 
