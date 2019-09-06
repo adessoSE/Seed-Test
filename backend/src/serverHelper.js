@@ -3,7 +3,7 @@ const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
-const mongo = require('./mongodatabase');
+const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
@@ -37,7 +37,7 @@ function midNotEmpty(values) {
 
 // adds content of each values to output
 function getValues(values) {
-  //TODO: TESTING HERE: excluding the first value
+  // TODO: TESTING HERE: excluding the first value
   let data = '';
   for (let i = 1; i < values.length; i++) {
     data += `"${values[i]}"`;
@@ -125,13 +125,13 @@ function getScenarioContent(scenarios, storyID) {
       data += `Scenario: ${scenario.name}\n\n`;
     }
     // Get Stepdefinitions
-    if (scenario.stepDefinitions.given != undefined) {
+    if (scenario.stepDefinitions.given !== undefined) {
       data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
     }
-    if (scenario.stepDefinitions.when != undefined) {
+    if (scenario.stepDefinitions.when !== undefined) {
       data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
     }
-    if (scenario.stepDefinitions.then != undefined) {
+    if (scenario.stepDefinitions.then !== undefined) {
       data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
     }
 
@@ -160,18 +160,18 @@ function getFeatureContent(story) {
 function writeFile(__dirname, selectedStory) {
   fs.writeFile(path.join(__dirname, 'features',
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
-      if (err) throw err;
-    });
+    if (err) throw err;
+  });
 }
 
 function getStoryByID(issueID, stories) {
   let selectedStory = null;
   for (const story of stories) {
-    if (story.story_id === issueID){
+    if (story.story_id === issueID) {
       selectedStory = story;
     }
   }
-  if (selectedStory == null){
+  if (selectedStory == null) {
     console.log('NO STORY FOUND IN getStoryByID');
   }
   return selectedStory;
@@ -181,7 +181,7 @@ function getStoryByID(issueID, stories) {
 function updateFeatureFiles(reqParams, stories) {
   let selectedStory;
   for (let i = 0; i < stories.length; i++) {
-    if (stories[i].story_id == reqParams.issueID) {
+    if (stories[i].story_id === reqParams.issueID) {
       selectedStory = stories[i];
       break;
     }
@@ -193,7 +193,7 @@ function updateFeatureFiles(reqParams, stories) {
 }
 
 function execReport(req, res, stories, mode, callback) {
-  const story = getStoryByID(parseInt(req.params.issueID), stories);
+  const story = getStoryByID(parseInt(req.params.issueID, 10), stories);
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
   const path3 = 'features/reporting.json';
@@ -217,6 +217,11 @@ function execReport(req, res, stories, mode, callback) {
   });
 }
 
+function setOptions() {
+  const OSName = process.platform;
+  options.metadata.Platform = OSName;
+}
+
 function runReport(req, res, stories, mode) {
   execReport(req, res, stories, mode, () => {
     console.log(`testing ${mode} report`);
@@ -225,11 +230,6 @@ function runReport(req, res, stories, mode) {
     reporter.generate(options);
     res.sendFile('/reporting_html.html', { root: rootPath });
   });
-}
-
-function setOptions(){
-  var OSName= process.platform;
-  options.metadata.Platform = OSName;
 }
 
 function sendDownloadResult(resp) {
@@ -293,7 +293,7 @@ function getStarredRepositories(ghName, token, callback) {
 
 function fuseGitWithDb(story, issueId) {
   return new Promise((resolve) => {
-    mongo.getOneStory(issueId, function (result) {
+    mongo.getOneStory(issueId, (result) => {
       if (result !== null) {
         story.scenarios = result.scenarios;
         story.background = result.background;
@@ -302,11 +302,11 @@ function fuseGitWithDb(story, issueId) {
         story.background = emptyBackground();
       }
       mongo.upsertEntry("Stories", story.story_id, story);
-      writeFile('', story);  // Create & Update Feature Files
+      writeFile('', story); // Create & Update Feature Files
       resolve(story);
       // TODO: delete stories and save some storage
-    })
-  })
+    });
+  });
 }
 
 module.exports = {
@@ -316,5 +316,5 @@ module.exports = {
   sendDownloadResult,
   getStarredRepositories,
   getOwnRepositories,
-  fuseGitWithDb
+  fuseGitWithDb,
 };

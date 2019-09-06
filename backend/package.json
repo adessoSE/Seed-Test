@@ -6,7 +6,7 @@
     "dev": "nodemon src/server.js",
     "clean": "rimraf ./dist",
     "tsc": "tsc",
-    "lint": "./node_modules/.bin/eslint src/testdata/storiesTestdata.js --fix"
+    "lint": "./node_modules/.bin/eslint src/database/mongodatabase.js --fix"
   },
   "private": true,
   "dependencies": {
