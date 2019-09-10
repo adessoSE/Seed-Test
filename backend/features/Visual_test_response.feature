@@ -6,7 +6,7 @@ Background:
 @386692544_1
 Scenario: Visual Test Response
 
-Given As a "Superman" "kryptonite" 
+Given As a "Superman" "Kryptonite" 
 
 When I am on the website: "www.cucumber.com"  
 When I click the button: "Test it"  

@@ -12,7 +12,7 @@ Scenario: successful Authentification
 
 Given As a "Guest"  
 
-When I am on the website: "https://www.adesso.de/"  
+When I am on the website: "https://www.adesso.de/de/"  
 When I click the button: "Login"  
 When I select from the "Pets" multiple selection, the values "Cat""Dog""Spider" 
 

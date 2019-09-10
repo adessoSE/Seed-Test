@@ -11,6 +11,7 @@ const accessToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1'; // This is a per
 // '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868';
 const helper = require('./serverHelper');
 
+//This variable is for the github name
 let githubName;
 let githubRepo;
 let stories = [];
