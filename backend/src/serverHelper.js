@@ -178,19 +178,19 @@ function getStoryByID(issueID, stories) {
 }
 
 // Updates feature file based on story_id
-function updateFeatureFiles(reqParams, stories) {
-  let selectedStory;
-  for (let i = 0; i < stories.length; i++) {
-    if (stories[i].story_id === reqParams.issueID) {
-      selectedStory = stories[i];
-      break;
-    }
-  }
-  if (selectedStory) {
-    writeFile('', selectedStory);
+//function updateFeatureFiles(issueID, stories) {
+//  let selectedStory;
+//  for (let i = 0; i < stories.length; i++) {
+//    if (stories[i].story_id == issueID) {
+//      selectedStory = stories[i];
+//      break;
+//    }
+//  }
+//  if (selectedStory) {
+//    writeFile('', selectedStory);
+//  }
+//}
 
-  }
-}
 
 function execReport(req, res, stories, mode, callback) {
   const story = getStoryByID(parseInt(req.params.issueID, 10), stories);
@@ -310,11 +310,12 @@ function fuseGitWithDb(story, issueId) {
 }
 
 module.exports = {
-  updateFeatureFiles,
+  //updateFeatureFiles,
   writeFile,
   runReport,
   sendDownloadResult,
   getStarredRepositories,
   getOwnRepositories,
   fuseGitWithDb,
+
 };

@@ -154,22 +154,24 @@ app
         res.status(200).json(scenario);
       }
     });
-    helper.updateFeatureFiles(req.params, stories);
+    //helper.updateFeatureFiles(req.params, stories);
   })
 
   // update scenario
   .post('/api/scenario/update/:issueID', (req, res) => {
     // TODO: use model to check for scenario (priority 2)
     const scenario = req.body;
-    mongo.updateScenario(parseInt(req.params.issueID, 10), scenario, (updatedScenario) => {
-      if (typeof (updatedScenario) === 'string') {
-        handleError(res, updatedScenario, updatedScenario, 500);
+    mongo.updateScenario(parseInt(req.params.issueID, 10), scenario, (updatedStory) => {
+      if (typeof (updatedStory) === 'string') {
+        handleError(res, updatedStory, updatedStory, 500);
       } else {
-        res.status(200).json(updatedScenario);
+        helper.writeFile('', updatedStory);
+        res.status(200).json(updatedStory);
       }
     })
-    helper.updateFeatureFiles(req.params, stories);
+    //helper.updateFeatureFiles(req.params, stories);
   })
+
 
   // delete scenario
   .delete('/api/story/:issueID/scenario/delete/:scenarioID', (req, res) => {
@@ -181,7 +183,7 @@ app
           res.status(200).json({});
         }
       });
-    helper.updateFeatureFiles(req.params, stories);
+    //helper.updateFeatureFiles(req.params, stories);
   })
 
   // run single Feature
