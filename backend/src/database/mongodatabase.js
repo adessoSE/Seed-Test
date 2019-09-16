@@ -9,7 +9,7 @@ const uri = 'mongodb+srv://Seed-Admin:KkPuqMeGUfgpyTVp@seed-tsqv2.mongodb.net/te
 
 // get One Story
 function getOneStory(id, callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection('Stories').findOne({ story_id: id }, (error, result) => {
@@ -22,7 +22,7 @@ function getOneStory(id, callback) {
 
 // GET all  Stepdefinitions
 function showStepdefinitions(callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection('stepDefinitions').find({}).toArray((error, result) => {
@@ -36,7 +36,7 @@ function showStepdefinitions(callback) {
 
 // Create Background
 function createBackground(gitId, callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: gitId };
@@ -56,7 +56,7 @@ function createBackground(gitId, callback) {
 
 // UPDATE Background
 function updateBackground(gitId, updatedBackground, callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myObj = { story_id: gitId };
@@ -75,7 +75,7 @@ function updateBackground(gitId, updatedBackground, callback) {
 
 // DELETE Background
 function deleteBackground(gitID, callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myObj = { story_id: gitID };
@@ -96,7 +96,7 @@ function deleteBackground(gitID, callback) {
 
 // CREATE Scenario
 function createScenario(git_id, callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
@@ -126,7 +126,7 @@ function createScenario(git_id, callback) {
 
 // DELETE Scenario
 function deleteScenario(git_id, s_id, callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
@@ -151,7 +151,7 @@ function deleteScenario(git_id, s_id, callback) {
 
 // POST Scenario
 function updateScenario(git_id, updated_scenario, callback) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
@@ -180,7 +180,7 @@ function updateScenario(git_id, updated_scenario, callback) {
 }
 
 function upsertEntry(collection, story_id, content) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id };
@@ -203,7 +203,7 @@ function upsertEntry(collection, story_id, content) {
 
 // show all Collections
 function showMeCollections() {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.listCollections().toArray((err, result) => {
@@ -216,7 +216,7 @@ function showMeCollections() {
 
 // create Collection
 function makeCollection(name) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.createCollection(name, (err, res) => {
@@ -230,7 +230,7 @@ function makeCollection(name) {
 
 // insert One document (collectionname, {document})
 function insertOne(collection, content) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = content;
@@ -244,7 +244,7 @@ function insertOne(collection, content) {
 
 // show content of a specific collection
 function showCollection(name) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection(name).find({}).toArray((err, result) => {
@@ -258,7 +258,7 @@ function showCollection(name) {
 
 // insert Many documents ("collectionname", [{documents},{...}] )
 function insertMore(name, content) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = content;
@@ -273,7 +273,7 @@ function insertMore(name, content) {
 
 // update (git_id, {document})
 function update(git_id, updatedStuff) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection('Stories').updateOne({ story_id: git_id }, { $set: updatedStuff }, (err, res) => {
@@ -285,7 +285,7 @@ function update(git_id, updatedStuff) {
 
 // doesnt work yet
 function erase() {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection('Stories').deleteOne({ }, (err, obj) => {
@@ -297,7 +297,7 @@ function erase() {
 
 // shows single story
 function showStory(git_id) {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
@@ -311,7 +311,7 @@ function showStory(git_id) {
 
 // delete collection
 function dropCollection() {
-  MongoClient.connect(uri, (err, db) => {
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection('Stories').drop((err, delOK) => {
