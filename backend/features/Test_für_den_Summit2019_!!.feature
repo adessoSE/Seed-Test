@@ -11,5 +11,5 @@ Given I am on the website: "www.amazon.com/warenkorb"
 
 When I click the button: "Delivery Options"  
 
-Then So I can see the text "Free Delivery" in the textbox:  
+Then So I can see the text "Free Delivery" in the textbox:  ""
 

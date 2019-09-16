@@ -32,6 +32,6 @@ When I insert "arbage" into the field "login_field"
 When I insert "number" into the field "password" 
 When I click the button: "commit"  
 
-Then So I will be navigated to the site: "https://github.com/session"  
+Then So I will be navigated to the website: "https://github.com/session"  
 Then So I can see the text "Incorrect username or password" in the textbox: "div" 
 

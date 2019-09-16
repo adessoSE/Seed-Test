@@ -13,4 +13,4 @@ Feature: SignUpTest scenario
         When I want to select from the "name" selection, the value "tos_accept"
         When I want to click the Button: "submit"
 
-        Then So I will be navigated to the site: "https://forum.golem.de/register.php?121624"
+        Then So I will be navigated to the website: "https://forum.golem.de/register.php?121624"

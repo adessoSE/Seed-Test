@@ -98,7 +98,7 @@ function stepDefs() {
       type: 'Text',
       pre: 'So I can see the text',
       mid: 'in the textbox:',
-      values: [''],
+      values: ['',''],
     },
   ];
 }
