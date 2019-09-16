@@ -110,5 +110,6 @@ Then('So I can´t see text in the textbox: {string} anymore' , async (label) => 
 // Closes the webdriver (Browser)
 After(async () => {
   // TODO: check for heroku and Chrome
-  driver.quit();
+  // Without Timeout driver quit is happening too quickly. Need a better solution
+  setTimeout(function () {driver.quit()}, 10000)
 });

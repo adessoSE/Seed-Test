@@ -17,7 +17,7 @@ When I insert "cucumber2000" into the field "reg-password2"
 When I select from the "name" multiple selection, the values "tos_accept" 
 When I click the button: "Abschicken"  
 
-Then So I will be navigated to the site: "https://forum.golem.de/register.php"  
+Then So I will be navigated to the website: "https://forum.golem.de/register.php"  
 
 @386696256_2
 Scenario: failed Sign Up
