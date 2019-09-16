@@ -346,7 +346,7 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   addToValues(input: string, stepType,step, stepIndex, valueIndex ) {
-    this.checkForExamples(input,step);
+    this.checkForExamples(input,step, valueIndex);
     console.log("steptype: " + stepType);
     console.log("add to values: " + input);
     switch (stepType) {
@@ -366,22 +366,20 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 
-  checkForExamples(input, step){
+  checkForExamples(input, step, valueIndex){
     //removes example if new input is not in example syntax < >
-    if(step.values[0].startsWith("<") && step.values[0].endsWith('>') && !input.startsWith("<") && !input.endsWith('>')){
-      var cutOld = step.values[0].substr(1, step.values[0].length-2);
-      this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[0]),1);
-      for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
-        console.log("checkForExamples for i: " + i);
-        console.log("step.values[0]: " + step.values[0]);
+    if(step.values[valueIndex].startsWith("<") && step.values[valueIndex].endsWith('>') && !input.startsWith("<") && !input.endsWith('>')){
+      var cutOld = step.values[valueIndex].substr(1, step.values[valueIndex].length-2);
+      this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]),1);
 
+      for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
+        //console.log("checkForExamples for i: " + i);
+        //console.log("step.values[0]: " + step.values[valueIndex]);
 
         this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
 
 
-
         if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
-
           this.selectedScenario.stepDefinitions.example.splice(0,this.selectedScenario.stepDefinitions.example.length);
 
         }
@@ -391,14 +389,14 @@ export class ScenarioEditorComponent implements OnInit {
     if(input.startsWith("<") && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))){
         this.uncutInputs.push(input);
         var cutInput = input.substr(1, input.length-2);
-        this.handleExamples(input, cutInput, step);
+        this.handleExamples(input, cutInput, step, valueIndex);
     }
   }
 
- handleExamples(input, cutInput, step){
+ handleExamples(input, cutInput, step, valueIndex){
    //changes example header name if the name is just changed in step
-    if(step.values[0] != input && step.values[0] != '' && step.values[0].startsWith("<") && step.values[0].endsWith('>') && this.selectedScenario.stepDefinitions.example[0] !== undefined ){
-      this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[0].substr(1, step.values[0].length-2))] = cutInput;
+    if(step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith("<") && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined ){
+      this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length-2))] = cutInput;
       return;
     }
     //for first example creates 2 steps
