@@ -19,7 +19,8 @@ import { ViewModeDirective } from './editable/view-mode.directive';
 import { EditModeDirective } from './editable/edit-mode.directive';
 import { EditableOnEnterDirective } from './editable/edit-on-enter.directive';
 import {FocusableDirective} from './example-table/focusable.directive'
-import {DragDropModule} from '@angular/cdk/drag-drop'
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import { FeedbackComponent } from './feedback/feedback.component'
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop'
     EditableComponent,
     FocusableDirective,
     EditableOnEnterDirective,
+    FeedbackComponent,
     
   ],
   imports: [
