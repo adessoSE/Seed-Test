@@ -41,3 +41,14 @@ Examples:
  | Gherkin | https://de.wikipedia.org/wiki/Gherkin | 
 
 
+@493165861_4
+Scenario: adesso Website
+
+Given As a "Guest"  
+Given I am on the website: "https://www.adesso.de/de/"  
+
+When I insert "Bewerbung" into the field "adesso-search" 
+When I click the button: "submit"  
+
+Then So I will be navigated to the website: "https://www.adesso.de/de/technisches/suchergebnisse.jsp?s=Bewerbung"  
+
