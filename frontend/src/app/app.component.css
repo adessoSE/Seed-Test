@@ -3,8 +3,24 @@
   margin: 0px;
 }
 
+#cucumberApp{
+  color: white;
+  background-color: grey;
+  padding: 10px;
+  font-size: 15pt;
+  font-weight: bold;
+}
+
 img {
   height: 50px;
+}
+
+#help{
+  color: #0099CC;
+}
+
+#feedback{
+  color: #0099CC;
 }
 
 .topnav{
@@ -106,6 +122,7 @@ img {
 .dropdown:hover .dropdown-list{
   display: block;
 }
+
 
 
 @media screen and (max-width: 600px) {
