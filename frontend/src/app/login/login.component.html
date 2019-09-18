@@ -25,25 +25,27 @@
   <div class="uk-card uk-card-default uk-padding ">
     <div >
       <div>
-        <div>
-          <div class="uk-heading-small">Login</div>
+        <div id="body" >
+          <div id="loginFont" class="uk-heading-small"  >Login</div>
+          <hr>
           <div class="uk-card-body">
             <ul class="uk-list">
               <li class="uk-card uk-card-default uk-text-secondary uk-text-center wrongLogin" *ngIf="error">{{error}}</li>
             </ul>
 
             <form #form="ngForm" novalidate (ngSubmit)="login(form)">
-              <label for="githubName" class="uk-form-label">Github Name</label>
+              <label style="color: grey;" for="githubName" class="uk-form-label">Github Name</label>
               <br>
               <input id="githubName" type="text" name="githubName" #githubName ngModel class="uk-form-controls" required>
               <br>
-              <label for="token" class="uk-form-label">Token</label>
+              <label style="color: grey;" for="token" class="uk-form-label">Token</label>
               <br>
               <input id="token" type="text" name="token" #token ngModel class="uk-form-controls" required>
               <br>
               <button type="submit" class="uk-button-primary" [disabled]="form.invalid" >Login</button>
             </form>
           </div>
+          <hr>
           <div>
             <button name="loginTest" id="loginTest" type="button" class="uk-button-primary" (click)="loginTestAccount();">Login Test Account</button>
 

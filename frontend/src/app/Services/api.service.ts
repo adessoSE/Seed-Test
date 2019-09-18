@@ -12,7 +12,7 @@ import { Observable, throwError } from 'rxjs';
 })
 
 export class ApiService {
-  private apiServer: string =  'https://cucumberapp.herokuapp.com/api'; //'http://localhost:8080/api'; // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
+  private apiServer: string = 'http://localhost:8080/api'; //'https://cucumberapp.herokuapp.com/api'; //'http://localhost:8080/api'; // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
 
   public getStoriesEvent = new EventEmitter();
   private token = 123;

@@ -13,11 +13,23 @@ img {
 .repoButton{
   padding-left: 10px;
   padding-right: 10px;
-
 }
 
 .help{
   margin-left: 20px;
+}
+
+
+#help{
+  color: #0099CC;
+}
+
+#cucumberApp{
+  color: white;
+  background-color: grey;
+  padding: 10px;
+  font-size: 15pt;
+  font-weight: bold;
 }
 
 .logoutButton{
