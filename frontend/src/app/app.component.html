@@ -1,43 +1,42 @@
-<nav  class="uk-navbar-container uk-margin" uk-navbar>
-  <div class="uk-navbar-left">
-    <a href="https://www.adesso.de/en/">
+
+<div class="topnav">
+  <div class="topnav-center">
+    <a href="https://cucumber-app.herokuapp.com/" class="title">
+      <h4>Seed-Test</h4>
+    </a>
+  </div>
+  <div class="topnav-left">
+    <a id="img" href="https://www.adesso.de/en/">
       <img src="assets/adesso-logo.jpg" alt="adesso AG">
     </a>
+    <div class="topnav-left-links">
+      <a id="help" href="https://github.com/adessoCucumber/Cucumber" target="_blank">Help
+      </a>
+      <a id="feedback" href="https://docs.google.com/forms/d/e/1FAIpQLSfYPspTNPqULoODz9p9wbM4TDWQTNoW6o6qy2ISzwVEr20bUw/viewform?usp=sf_link" target="_blank">Feedback
+      </a>
+    </div>
   </div>
-
-  <div class="uk-navbar-left help">
-    <a id="help" href="https://github.com/adessoCucumber/Cucumber" target="_blank">Help
-    </a>
-  </div>
-
-  <div class="uk-navbar-left help">
-    <a id="help" href="https://docs.google.com/forms/d/e/1FAIpQLSfYPspTNPqULoODz9p9wbM4TDWQTNoW6o6qy2ISzwVEr20bUw/viewform?usp=sf_link" target="_blank">Feedback
-    </a>
-  </div>
-  <div class="uk-navbar-center">
-    <a href="https://cucumber-app.herokuapp.com/">
-      <h4 class="uk-heading-primary uk-text-large">Seed-Test</h4>
-    </a>
-  </div>
-  <div class="uk-navbar-right">
-    <span *ngIf="this.token || this.repository">
-      <span class="logoutButton"> 
-          <button id="logout" class="uk-button uk-button-danger" title="Logout" uk-tooltip (click)="logout();">Logout</button>
-      </span>
-      <button id="repositories" class="uk-button" title="Select Repository" uk-tooltip>Repositories</button>
-      <div uk-dropdown>
-          <ul class="uk-nav uk-dropdown-nav">
+  <div class="topnav-right">
+    <span *ngIf="this.token || this.repository"> 
+      <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
+      <div class="dropdown">
+          <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
+          <ul class="dropdown-list">
             <li *ngFor="let repository of repositories; let i = index" >
                 <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
                  href="#">{{repository}}</a>
             </li>
           </ul>
         </div>
-    <a class="repoButton" id="githubHref" href="https://github.com/fr4gstar/Cucumber" uk-icon="github"></a>
+        <a class="repoButton" id="githubHref" href="https://github.com/fr4gstar/Cucumber" uk-icon="github"></a>
   </span>
+  
   </div>
-</nav >
+
+</div>
+
 
 <router-outlet></router-outlet>
+
 <!--<app-parent></app-parent>-->
 <!--<app-login></app-login>-->
