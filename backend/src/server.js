@@ -13,7 +13,7 @@ const helper = require('./serverHelper');
 
 //This variable is for the github name
 let githubName;
-let githubRepo;
+var githubRepo;
 let stories = [];
 
 // Initialize the app.
@@ -62,6 +62,8 @@ app
     if (req.params.repository) {
       githubName = req.params.user;
       githubRepo = req.params.repository;
+
+      console.log("githubRepo: " + githubRepo);
     } else { // TODO: wird das noch benötigt?
       githubName = 'adessoCucumber';
       githubRepo = 'Cucumber';
@@ -224,4 +226,4 @@ app
     });
   });
 
-module.exports = app;
+module.exports = {app, githubRepo};

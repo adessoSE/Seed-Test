@@ -6,9 +6,10 @@ const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-
+const server = require('./server');
 // this is needed for the html report
 const options = {
+  name: 'Seed-Test',
   theme: 'bootstrap',
   jsonFile: 'features/reporting.json',
   output: 'features/reporting_html.html',
