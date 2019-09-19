@@ -3,28 +3,38 @@
   margin: 0px;
 }
 
+#topnav{
+  background-color: #999;
+}
+
+a:hover{
+  color:#0099CC;
+}
+
 #cucumberApp{
   color: white;
-  background-color: grey;
   padding: 10px;
-  font-size: 15pt;
+  font-size: 25pt;
   font-weight: bold;
+  font-variant: small-caps;
 }
 
 img {
   height: 50px;
 }
 
-#help{
+#help, #feedback{
+  color: white;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+#help:hover, #feedback:hover{
   color: #0099CC;
 }
 
-#feedback{
-  color: #0099CC;
-}
 
 .topnav{
-
   position: relative;
   background-color: #f8f8f8;
   overflow: hidden;

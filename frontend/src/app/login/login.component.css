@@ -8,11 +8,40 @@
     font-weight: bold;
 }
 
+#selectRepositoryFont{
+    font-weight: bold; 
+    color: grey;
+    font-size: 20px;
+}
+
 #body{
     text-align: center;
 }
 
-#loginTest{
+#loginTestButton{
     background-color: #0099CC;
     color:#ffffff;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 3px #999;
+}
+
+#loginButton{
+    background-color: #0099CC;
+    color:#ffffff;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 3px #999;
+}
+
+#githubName{
+    border-radius: 5px;
+}
+
+#token{
+    border-radius: 5px;
 }
