@@ -207,8 +207,9 @@ app
     helper.getOwnRepositories(token, (repos) => {
       ownRepositories = repos;
       if (bool2) {
-        const concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
+        const concatSet = new Set(ownRepositories.concat(starredRepositories));
+        const concat2 = Array.from(concatSet);
+        res.status(200).json(concat2);
       } else {
         bool1 = true;
       }
@@ -216,8 +217,9 @@ app
     helper.getStarredRepositories(req.params.githubName, token, (stars) => {
       starredRepositories = stars;
       if (bool1) {
-        const concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
+        const concatSet = new Set(ownRepositories.concat(starredRepositories));
+        const concat2 = Array.from(concatSet);
+        res.status(200).json(concat2);
       } else {
         bool2 = true;
       }
