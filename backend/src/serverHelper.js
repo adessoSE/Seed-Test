@@ -25,7 +25,11 @@ var options = {
   },
 };
 
+//Time after which the report is deleted in minutes
+const reportDeletionTime = 5;
+
 const rootPath = path.normalize('features');
+const featuresPath = path.normalize('features/')
 
 // only displays mid text and additional space if length not null
 function midNotEmpty(values) {
@@ -193,10 +197,12 @@ function getStoryByID(issueID, stories) {
 
 
 function execReport(req, res, stories, mode, callback) {
+  var reportTime = Date.now();
   const story = getStoryByID(parseInt(req.params.issueID, 10), stories);
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
-  const path3 = 'features/reporting.json';
+  const path3 = `features/reporting_${reportTime}.json`;
+  
   let cmd;
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
@@ -208,33 +214,31 @@ function execReport(req, res, stories, mode, callback) {
     if (error) {
       console.error(`exec error: ${error}`);
 
-      callback();
+      callback(reportTime);
       return;
     }
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
-    callback();
+    callback(reportTime);
   });
 }
 
-function setOptions() {
+function setOptions(reportTime) {
   const OSName = process.platform;
   options.metadata.Platform = OSName;
   options.name = server.githubRepo;
+  options.jsonFile = `features/reporting_${reportTime}.json`;
+  options.output = `features/reporting_html_${reportTime}.html`;
 }
 
 function runReport(req, res, stories, mode) {
-  execReport(req, res, stories, mode, () => {
-    console.log(`testing ${mode} report`);
-
-    setOptions();
+  execReport(req, res, stories, mode, (reportTime) => {
+    setTimeout(deleteJsonReport, reportDeletionTime * 60000,`reporting_${reportTime}.json`);
+    setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
+    setOptions(reportTime);
     reporter.generate(options);
-    res.sendFile('/reporting_html.html', { root: rootPath });
+    res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
   });
-}
-
-function sendDownloadResult(resp) {
-  resp.sendFile('/reporting_html.html', { root: rootPath });
 }
 
 function getOwnRepositories(token, callback) {
@@ -310,6 +314,26 @@ function fuseGitWithDb(story, issueId) {
   });
 }
 
+function deleteJsonReport(jsonReport){
+  let report = path.normalize(`${featuresPath}${jsonReport}`)     
+  fs.unlink(report, function(err){
+    if (err) console.log(err);
+    else {
+      console.log(report + ' deleted.');
+    }
+  });
+}
+
+function deleteHtmlReport(htmlReport){
+  let report = path.normalize(`${featuresPath}${htmlReport}`)     
+  fs.unlink(report, function(err){
+    if (err) console.log(err);
+    else {
+      console.log(report + ' deleted.');
+    }
+  });
+}
+
 module.exports = {
   //updateFeatureFiles,
   writeFile,
@@ -317,6 +341,5 @@ module.exports = {
   sendDownloadResult,
   getStarredRepositories,
   getOwnRepositories,
-  fuseGitWithDb,
-
+  fuseGitWithDb
 };

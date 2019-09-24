@@ -20,6 +20,7 @@ let stories = [];
 const server = app.listen(process.env.PORT || 8080, () => {
   const { port } = server.address();
   console.log('App now running on port', port);
+  
 });
 
 // Handling response errors
@@ -102,12 +103,6 @@ app
         });
       }
     };
-  })
-  // .get('/testResult', (req, res) => {
-  //   helper.setRespReport(res);
-  // })
-  .get('/api/downloadTest', (req, res) => {
-    helper.sendDownloadResult(res);
   })
 
 
