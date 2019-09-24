@@ -61,18 +61,16 @@ app
   .get('/api/stories/:user?/:repository?', async (req, res) => {
     if (req.params.repository) {
       githubName = req.params.user;
-      githubRepo = req.params.repository;
-
-      console.log("githubRepo: " + githubRepo);
+      this.githubRepo = req.params.repository;
     } else { // TODO: wird das noch benötigt?
       githubName = 'adessoCucumber';
-      githubRepo = 'Cucumber';
+      this.githubRepo = 'Cucumber';
     }
 
     const tmpStories = [];
     // get Issues from GitHub .
     const request = new XMLHttpRequest();
-    request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${accessToken}`);
+    request.open('GET', `https://api.github.com/repos/${githubName}/${this.githubRepo}/issues?labels=story&access_token=${accessToken}`);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {

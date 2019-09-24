@@ -8,8 +8,7 @@ const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const server = require('./server');
 // this is needed for the html report
-const options = {
-  name: 'Seed-Test',
+var options = {
   theme: 'bootstrap',
   jsonFile: 'features/reporting.json',
   output: 'features/reporting_html.html',
@@ -221,6 +220,7 @@ function execReport(req, res, stories, mode, callback) {
 function setOptions() {
   const OSName = process.platform;
   options.metadata.Platform = OSName;
+  options.name = server.githubRepo;
 }
 
 function runReport(req, res, stories, mode) {
