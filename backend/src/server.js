@@ -6,9 +6,6 @@ const process = require('process');
 const mongo = require('./database/mongodatabase');
 
 const app = express();
-const accessToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1'; // This is a personal access token, not sure how to handle correctly for multi-user
-// const access_token_new =
-// '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868';
 const helper = require('./serverHelper');
 
 //This variable is for the github name
@@ -59,19 +56,15 @@ app
     });
   })
 
-  .get('/api/stories/:user?/:repository?', async (req, res) => {
-    if (req.params.repository) {
-      githubName = req.params.user;
-      this.githubRepo = req.params.repository;
-    } else { // TODO: wird das noch benötigt?
-      githubName = 'adessoCucumber';
-      this.githubRepo = 'Cucumber';
-    }
+  .get('/api/stories/:user/:repository/:token', async (req, res) => {
+    githubName = req.params.user;
+    githubRepo = req.params.repository;
+    let token = req.params.token;
 
     const tmpStories = [];
     // get Issues from GitHub .
     const request = new XMLHttpRequest();
-    request.open('GET', `https://api.github.com/repos/${githubName}/${this.githubRepo}/issues?labels=story&access_token=${accessToken}`);
+    request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${token}`);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
@@ -152,7 +145,7 @@ app
         res.status(200).json(scenario);
       }
     });
-    //helper.updateFeatureFiles(req.params, stories);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
   // update scenario
@@ -167,7 +160,7 @@ app
         res.status(200).json(updatedStory);
       }
     })
-    //helper.updateFeatureFiles(req.params, stories);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
 
@@ -181,7 +174,7 @@ app
           res.status(200).json({});
         }
       });
-    //helper.updateFeatureFiles(req.params, stories);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
   // run single Feature
@@ -195,7 +188,7 @@ app
   })
 
   .get('/api/repositories/:token?/:githubName?', (req, res) => {
-    const token = req.params.token;
+    var token = req.params.token;
     let ownRepositories;
     let bool1; let bool2 = false;
     let starredRepositories;

@@ -22,7 +22,6 @@ export class StoriesBarComponent implements OnInit {
   constructor(private apiService: ApiService) { 
     this.apiService.getStoriesEvent.subscribe(stories =>{
       this.stories = stories;
-      console.log("stories-bar stories set");
     } );
   }
 
@@ -38,19 +37,13 @@ export class StoriesBarComponent implements OnInit {
 
   selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
-    console.log("storyChosen emit");
     this.scenarioChosen.emit(scenario);
-  
-    console.log('selected scenario', this.selectedScenario);
-    console.log('selected storyID', this.selectedStory)
   }
 
   addScenario(storyID) {
     this.apiService
       .addScenario(storyID)
       .subscribe((resp: any)  => {
-        console.log('controller: stepDefinitions loaded', storyID);
-        console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
       });
   }
@@ -63,7 +56,5 @@ export class StoriesBarComponent implements OnInit {
     if(this.stories[storyIndex].scenarios[0] !== undefined ){
       this.selectScenario(this.selectedStory.story_id,this.stories[storyIndex].scenarios[0])
     }
-    console.log('selected storyID', this.selectedStory);
   }
-
 }

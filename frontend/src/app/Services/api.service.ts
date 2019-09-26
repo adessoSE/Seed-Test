@@ -12,7 +12,7 @@ import { Observable, throwError } from 'rxjs';
 })
 
 export class ApiService {
-  private apiServer: string =  'https://cucumberapp.herokuapp.com/api'; //'http://localhost:8080/api'; // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
+  private apiServer: string =  'http://localhost:8080/api'; //'https://cucumberapp.herokuapp.com/api'; // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
 
   public getStoriesEvent = new EventEmitter();
   private token = 123;
@@ -43,17 +43,12 @@ export class ApiService {
 
 
 
-  public getStories(repository?) {
-    //let options = new RequestOptions({headers: this.headers});
-    console.log("getStories")
+  public getStories(repository, token) {
     return this.http
-      .get<Story[]>(this.apiServer + '/stories/' + repository)
+      .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + token)
       .pipe(tap(resp =>{
         this.getStoriesEvent.emit(resp);
-        console.log('GET stories', resp);
-
-      }
-      ));
+      }));
   }
 
   public getStepDefinitions() {
@@ -106,38 +101,17 @@ export class ApiService {
 
   // demands testing from the server
   public runTests(storyID, scenarioID){
-    console.log("scenario: " + scenarioID);
-    console.log("issueID: " + storyID);
     if(scenarioID){
-      console.log("run test scenario");
-
-   // let options = new RequestOptions({responseType: ResponseContentType.Text});
-
-    return this.http
-    .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType: 'text'});
+      return this.http
+      .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType: 'text'});
     }
-    console.log("run test feature");
-
     return this.http
     .get(this.apiServer + '/runFeature/'+ storyID, {responseType: 'text'});
-    /*.pipe(tap(resp =>
-      console.log('GET run tests' +  scenario.scenario_id + ' in story ', resp)
-    ));*/
-  }
-
-
-  public downloadTestResult(){
-    //let header = new Headers();
-    //header.append('Content-Type', 'application/json');
-
-    return this.http.get(this.apiServer + "/downloadTest", {responseType:'blob' , headers: new HttpHeaders().append('Content-Type', 'application/json')});
   }
 
   isLoggedIn(): boolean{
-    let token = localStorage.getItem('token');
-
+    let token = this.getToken();
     if(token) return true;
-
     return false;
   }
 

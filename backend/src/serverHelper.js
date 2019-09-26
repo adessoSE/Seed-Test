@@ -17,8 +17,6 @@ var options = {
   metadata: {
     'App Version': '0.3.2',
     'Test Environment': 'STAGING',
-    // Browser: 'Chrome  54.0.2840.98',
-    // Platform: 'Windows 10',
     GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
     Parallel: 'Scenarios',
     Executed: 'Remote',
@@ -182,18 +180,19 @@ function getStoryByID(issueID, stories) {
 }
 
 // Updates feature file based on story_id
-//function updateFeatureFiles(issueID, stories) {
-//  let selectedStory;
-//  for (let i = 0; i < stories.length; i++) {
-//    if (stories[i].story_id == issueID) {
-//      selectedStory = stories[i];
-//      break;
-//    }
-//  }
-//  if (selectedStory) {
-//    writeFile('', selectedStory);
-//  }
-//}
+//Still necessary?? Now with the Database?
+function updateFeatureFiles(issueID, stories) {
+  let selectedStory;
+  for (let i = 0; i < stories.length; i++) {
+    if (stories[i].story_id == issueID) {
+      selectedStory = stories[i];
+      break;
+    }
+  }
+  if (selectedStory) {
+    writeFile('', selectedStory);
+  }
+}
 
 
 function execReport(req, res, stories, mode, callback) {
@@ -271,7 +270,7 @@ function getOwnRepositories(token, callback) {
 
 function getStarredRepositories(ghName, token, callback) {
   const request = new XMLHttpRequest();
-  console.log(`githubname: ${ghName} token: ${token}`);
+  //console.log(`githubname: ${ghName} token: ${token}`);
   request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
   // get Issues from GitHub
 
@@ -335,10 +334,9 @@ function deleteHtmlReport(htmlReport){
 }
 
 module.exports = {
-  //updateFeatureFiles,
+  updateFeatureFiles,
   writeFile,
   runReport,
-  sendDownloadResult,
   getStarredRepositories,
   getOwnRepositories,
   fuseGitWithDb

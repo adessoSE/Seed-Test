@@ -60,8 +60,7 @@ export class AppComponent {
     this.repository = repository;
     localStorage.setItem('repository', repository)
     this.repository = repository;
-    this.apiService.getStories(repository).subscribe(resp =>{
-      //console.log("Response: " + JSON.stringify(resp));
+    this.apiService.getStories(repository, this.token).subscribe(resp =>{
     })
   }
 

@@ -37,7 +37,6 @@ export class ExampleTableComponent implements OnInit {
     }else{
       this.exampleThere = false;
     }
-    console.log("example table scenario is set");
   }
 
   @Input()
@@ -79,8 +78,6 @@ export class ExampleTableComponent implements OnInit {
     const control = this.getControl(rowIndex, field);
     //console.log("control: " + JSON.stringify(control));
     if (control.valid) {
-      console.log("columnIndex: " + columnIndex + " rowIndex: " + rowIndex);
-      console.log("control value: " + control.value);
       this.selectedScenario.stepDefinitions.example[rowIndex+1].values[columnIndex] = control.value;
       this.initializeTable();
 
@@ -94,7 +91,6 @@ export class ExampleTableComponent implements OnInit {
    }
 
   getControl(rowIndex, fieldName): FormControl {
-    console.log("column name: " + fieldName + " index: " + rowIndex);
     return this.controls.at(rowIndex).get(fieldName) as FormControl;
   }
 
@@ -102,7 +98,6 @@ export class ExampleTableComponent implements OnInit {
     this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
   }
   updateTable(){
-    console.log("updateTable");
     if(this.selectedScenario.stepDefinitions.example[1]){
       this.exampleThere = true;
       this.initializeTable()
@@ -113,7 +108,6 @@ export class ExampleTableComponent implements OnInit {
   }
 
   removeRow(rowIndex: number){
-    console.log("remove row: " + rowIndex);
     this.removeRowIndex.emit(rowIndex +1 );
   }
 

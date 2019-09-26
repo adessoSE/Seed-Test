@@ -37,9 +37,7 @@ export class ScenarioEditorComponent implements OnInit {
   @ViewChild('exampleChildView') exampleChild;
 
   constructor(
-    private http: HttpClient,
     private apiService: ApiService,
-
 
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
@@ -60,7 +58,6 @@ export class ScenarioEditorComponent implements OnInit {
 
   @Input()
   removeRowIndex(event){
-    console.log("remove in scenario " + event);
     this.removeStepToScenario(event, 'example', event)
   }
   
@@ -73,9 +70,7 @@ export class ScenarioEditorComponent implements OnInit {
   set newSelectedScenario(scenario: Scenario){
     this.selectedScenario = scenario;
     if(this.stories && this.selectedStory){
-      console.log("story: " + this.selectedStory.name);
       var storyIndex = this.stories.indexOf(this.selectedStory);
-      console.log("storyIndex: " + storyIndex);
       this.selectScenario(null,scenario);
     }
 
@@ -114,7 +109,6 @@ export class ScenarioEditorComponent implements OnInit {
       .getStepDefinitions()
       .subscribe((resp: any)  => {
         this.originalStepDefinitions = resp;
-        console.log('controller: stepDefinitions loaded', this.originalStepDefinitions);
       });
   }
 
@@ -127,7 +121,6 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
     .updateBackground(storyID, this.selectedStory.background)
     .subscribe(resp =>{
-      console.log('controller: story:', resp);
     });
 
   }
@@ -136,7 +129,6 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .updateScenario(storyID, this.selectedScenario)
       .subscribe(resp => {
-        console.log('controller:  scenario:', resp);
       });
   }
 
@@ -144,8 +136,6 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .addScenario(storyID)
       .subscribe((resp: any) => {
-        console.log('controller: stepDefinitions loaded', storyID);
-        console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
         this.selectScenario(resp.story_id,resp);
       });
@@ -156,8 +146,6 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .addScenario(storyID)
       .subscribe((resp: any)  => {
-        console.log('controller: stepDefinitions loaded', storyID);
-        console.log('storyIDs same?', (storyID === this.selectedStory.story_id));
         this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
       });
   }
@@ -166,7 +154,6 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .deleteBackground(this.selectedStory.story_id)
       .subscribe(resp => {
-        console.log('controller: delete background', resp);
         this.showBackground = false;
 
         const indexStory: number = this.stories.indexOf(this.selectedStory);
@@ -178,7 +165,6 @@ export class ScenarioEditorComponent implements OnInit {
     this.apiService
       .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
       .subscribe(resp => {
-        console.log('controller: delete scenario', resp);
         this.showEditor = false;
 
         const indexStory: number = this.stories.indexOf(this.selectedStory);
@@ -202,7 +188,6 @@ export class ScenarioEditorComponent implements OnInit {
     let obj = this.clone( step );
     if(!this.editorLocked){
       var new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
-      console.log('step to add:', obj);
       var new_step = {
         id: new_id,
         mid: obj.mid,
@@ -234,17 +219,14 @@ export class ScenarioEditorComponent implements OnInit {
        default:
          break;
       }
-     console.log('added step', new_step);
     }
   }
 
   addStepToBackground(storyID, step){
     let obj = this.clone( step );
 
-    console.log("step type: " + step.stepType);
     if(!this.backgroundLocked){
       var new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, obj.stepType) + 1;
-      console.log('step to add:', obj);
       var new_step = {
         id: new_id,
         label: obj.label,
@@ -261,7 +243,6 @@ export class ScenarioEditorComponent implements OnInit {
        default:
          break;
       }
-     console.log('added step', new_step);
     }
   }
 
@@ -277,7 +258,6 @@ export class ScenarioEditorComponent implements OnInit {
       values: ['value']
     }
     this.selectedScenario.stepDefinitions.example.push(new_step);
-    console.log('newID: ' + new_id);
   }
 
   getLastIDinStep(stepDefs, stepType) {
@@ -302,13 +282,10 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   removeStepToBackground(event, index){
-    console.log("remove index: " + index);
     this.selectedStory.background.stepDefinitions.when.splice(index, 1);
   }
 
   removeStepToScenario(event, stepDefType, index) {
-    console.log('remove step in ' + stepDefType + ' on index ' + index);
-    console.log(stepDefType);
     switch (stepDefType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given.splice(index, 1);
@@ -329,10 +306,8 @@ export class ScenarioEditorComponent implements OnInit {
 
   keysList(stepDefs) {
     if (stepDefs != null) {
-      console.log('keys: ' + Object.keys(stepDefs));
       return Object.keys(stepDefs);
     } else {
-      console.log("No Step Definitions found!");
       return "";
     }
   }
@@ -347,8 +322,6 @@ export class ScenarioEditorComponent implements OnInit {
 
   addToValues(input: string, stepType,step, stepIndex, valueIndex ) {
     this.checkForExamples(input,step, valueIndex);
-    console.log("steptype: " + stepType);
-    console.log("add to values: " + input);
     switch (stepType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
@@ -373,12 +346,7 @@ export class ScenarioEditorComponent implements OnInit {
       this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]),1);
 
       for(var i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++){
-        //console.log("checkForExamples for i: " + i);
-        //console.log("step.values[0]: " + step.values[valueIndex]);
-
         this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
-
-
         if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
           this.selectedScenario.stepDefinitions.example.splice(0,this.selectedScenario.stepDefinitions.example.length);
 
@@ -447,14 +415,11 @@ export class ScenarioEditorComponent implements OnInit {
     this.testDone = false;
     this.arrowLeft = this.checkArrowLeft();
     this.arrowRight = this.checkArrowRight();
-    console.log('selected scenario', this.selectedScenario);
-    console.log('selected storyID', this.selectedStory);
   }
 
 
 
   selectStoryScenario(story: Story){
-    console.log("selectStoryScenario")
     this.showResults = false;
     this.selectedStory = story;
     this.showEditor = true;
@@ -463,7 +428,6 @@ export class ScenarioEditorComponent implements OnInit {
     if(this.stories[storyIndex].scenarios[0] !== undefined ){
       this.selectScenario(this.selectedStory.story_id,this.stories[storyIndex].scenarios[0])
     }
-    console.log('selected storyID', this.selectedStory);
   }
 
   checkArrowLeft(){
@@ -480,11 +444,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   scenarioShiftLeft(){
     var storyIndex = this.stories.indexOf(this.selectedStory);
-    console.log("storyIndex: " + storyIndex);
     var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-
-    console.log("scenarioIndex: " + scenarioIndex);
-
     if(this.stories[storyIndex].scenarios[scenarioIndex - 1] !== undefined){
        this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex - 1])
     }
@@ -492,10 +452,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   scenarioShiftRight(){
     var storyIndex = this.stories.indexOf(this.selectedStory);
-    console.log("storyIndex: " + storyIndex);
     var scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-
-    console.log("scenarioIndex: " + scenarioIndex);
     if(this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined){
        this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1])
     }
