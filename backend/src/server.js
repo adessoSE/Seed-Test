@@ -6,9 +6,6 @@ const process = require('process');
 const mongo = require('./database/mongodatabase');
 
 const app = express();
-const accessToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1'; // This is a personal access token, not sure how to handle correctly for multi-user
-// const access_token_new =
-// '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';119234a2e8eedcbe2f6f3a6bbf2ed2f56946e868';
 const helper = require('./serverHelper');
 
 //This variable is for the github name
@@ -19,7 +16,7 @@ let stories = [];
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
   const { port } = server.address();
-  console.log('App now running on port', port);
+  console.log('App now running on port', port);  
 });
 
 // Handling response errors
@@ -58,19 +55,15 @@ app
     });
   })
 
-  .get('/api/stories/:user?/:repository?', async (req, res) => {
-    if (req.params.repository) {
-      githubName = req.params.user;
-      githubRepo = req.params.repository;
-    } else { // TODO: wird das noch benötigt?
-      githubName = 'adessoCucumber';
-      githubRepo = 'Cucumber';
-    }
+  .get('/api/stories/:user/:repository/:token', async (req, res) => {
+    githubName = req.params.user;
+    githubRepo = req.params.repository;
+    let token = req.params.token;
 
     const tmpStories = [];
     // get Issues from GitHub .
     const request = new XMLHttpRequest();
-    request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${accessToken}`);
+    request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${token}`);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
@@ -87,6 +80,9 @@ app
           if (issue.assignee !== null) { // skip in case of "unassigned"
             story.assignee = issue.assignee.login;
             story.assignee_avatar_url = issue.assignee.avatar_url;
+          }else{
+            story.assignee = 'unassigned';
+            story.assignee_avatar_url = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png';
           }
           tmpStories.push(helper.fuseGitWithDb(story, issue.id));
         }
@@ -99,12 +95,6 @@ app
         });
       }
     };
-  })
-  // .get('/testResult', (req, res) => {
-  //   helper.setRespReport(res);
-  // })
-  .get('/api/downloadTest', (req, res) => {
-    helper.sendDownloadResult(res);
   })
 
 
@@ -154,7 +144,7 @@ app
         res.status(200).json(scenario);
       }
     });
-    //helper.updateFeatureFiles(req.params, stories);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
   // update scenario
@@ -169,7 +159,7 @@ app
         res.status(200).json(updatedStory);
       }
     })
-    //helper.updateFeatureFiles(req.params, stories);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
 
@@ -183,7 +173,7 @@ app
           res.status(200).json({});
         }
       });
-    //helper.updateFeatureFiles(req.params, stories);
+    helper.updateFeatureFiles(req.params, stories);
   })
 
   // run single Feature
@@ -197,15 +187,16 @@ app
   })
 
   .get('/api/repositories/:token?/:githubName?', (req, res) => {
-    const token = req.params.token;
+    var token = req.params.token;
     let ownRepositories;
     let bool1; let bool2 = false;
     let starredRepositories;
     helper.getOwnRepositories(token, (repos) => {
       ownRepositories = repos;
       if (bool2) {
-        const concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
+        const concatSet = new Set(ownRepositories.concat(starredRepositories));
+        const concat2 = Array.from(concatSet);
+        res.status(200).json(concat2);
       } else {
         bool1 = true;
       }
@@ -213,12 +204,13 @@ app
     helper.getStarredRepositories(req.params.githubName, token, (stars) => {
       starredRepositories = stars;
       if (bool1) {
-        const concat = ownRepositories.concat(starredRepositories);
-        res.status(200).json(concat);
+        const concatSet = new Set(ownRepositories.concat(starredRepositories));
+        const concat2 = Array.from(concatSet);
+        res.status(200).json(concat2);
       } else {
         bool2 = true;
       }
     });
   });
 
-module.exports = app;
+module.exports = {app, githubRepo};

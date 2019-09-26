@@ -21,47 +21,47 @@
       </ul>
     </div>
   </div>-->
-
-  <div class="uk-card uk-card-default uk-padding ">
-      <div >
-        <div>
-          <div>
-            <div class="uk-heading-small">Login</div>
-            <div class="uk-card-body">
-              <ul class="uk-list">
-                <li class="uk-card uk-card-default uk-text-secondary uk-text-center wrongLogin" *ngIf="error">{{error}}</li>
-              </ul>
   
-              <form #form="ngForm" novalidate (ngSubmit)="login(form)">
-                <label for="githubName" class="uk-form-label">Github Name</label>
-                <br>
-                <input id="githubName" type="text" name="githubName" #githubName ngModel class="uk-form-controls" required>
-                <br>
-                <label for="token" class="uk-form-label">Token</label>
-                <br>
-                <input id="token" type="text" name="token" #token ngModel class="uk-form-controls" required>
-                <br>
-                <button type="submit" class="uk-button-primary" [disabled]="form.invalid" >Login</button>
-              </form>
-            </div>
-            <div>
-              <button name="loginTest" id="loginTest" type="button" class="uk-button-primary" (click)="loginTestAccount();">Login Test Account</button>
-  
-            </div>
-            <div class="uk-card uk-card-default uk-padding uk-align-center" *ngIf="repositories">
-                <br>
-                <br>
-                  <div >
-                    <h5>Select Your Repository</h5>
-                    <ul class="uk-list">
-                      <li *ngFor="let repository of repositories; let i = index" >
-                          <a id="{{'repository_'+i}}" (click)="selectRepository(repository);"
-                           href="#">{{repository}}</a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-          </div>
-        </div>
+<div class="uk-card uk-card-default uk-padding ">
+  <div id="body" >
+    <!-- Heading Login -->
+    <div id="loginFont" class="uk-heading-small">Login</div>
+    <hr>
+    <div class="uk-card-body">
+      <ul class="uk-list">
+        <li class="uk-card uk-card-default uk-text-secondary uk-text-center wrongLogin" *ngIf="error">{{error}}</li>
+      </ul>
+      <!-- Formular -->
+      <form #form="ngForm" novalidate (ngSubmit)="login(form)">
+        <!-- Label Github Name -->
+        <label for="githubName" class="uk-form-label" style="color: grey;"></label>
+        <input id="githubName" type="text" name="githubName" placeholder="Github Name" #githubName ngModel class="uk-form-controls" required>
+        <br>
+        <!-- Label Token -->
+        <label for="token" class="uk-form-label" style="color: grey;"></label>
+        <br>
+        <input id="token" type="text" name="token" placeholder="Token" #token ngModel class="uk-form-controls" required>
+        <br>
+        <br>
+        <!-- Button Login -->
+        <button id="loginButton" type="submit" class="uk-button-primary" [disabled]="form.invalid">Submit</button>
+      </form>
+    </div>
+    <hr>
+    <div>
+      <!-- Button Login-TestAccount -->
+      <button name="loginTest" id="loginTestButton" type="button" class="uk-button-primary" (click)="loginTestAccount();">Test Account</button>
+    </div>
+    <!-- Repositories -->
+    <div class="uk-card uk-card-default uk-padding uk-align-center" *ngIf="repositories">
+      <div>
+        <label id="selectRepositoryFont">Select Your Repository:</label>
+        <ul class="uk-list">
+          <li *ngFor="let repository of repositories; let i = index" >
+            <a id="{{'repository_'+i}}" (click)="selectRepository(repository);" href="#" style="color: grey">{{repository}}</a>
+          </li>
+        </ul>
       </div>
     </div>
+  </div>
+</div>

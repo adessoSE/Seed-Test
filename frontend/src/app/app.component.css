@@ -1,24 +1,154 @@
+*{
+  padding: 0px;
+  margin: 0px;
+}
 
-.footer {
-  flex-shrink: 0; /* Prevent Chrome, Opera, and Safari from letting these items shrink to smaller than their content's default minimum size. */
-  padding: 20px;
-  background-color: white;
-  text-align: right;
+#topnav{
+  background-color: #999;
+}
+
+a:hover{
+  color:#0099CC;
+}
+
+#cucumberApp{
+  color: white;
+  padding: 10px;
+  font-size: 25pt;
+  font-weight: bold;
+  font-variant: small-caps;
 }
 
 img {
   height: 50px;
 }
 
-.repoButton{
-  padding-left: 10px;
-  padding-right: 10px;
+#help, #feedback{
+  color: white;
+  font-size: 15px;
+  transition: 0.3s;
 }
 
-.help{
-  margin-left: 20px;
+#help:hover, #feedback:hover{
+  color: #0099CC;
 }
 
-.logoutButton{
-  margin-right: 10px;
+
+.topnav{
+  position: relative;
+  background-color: #f8f8f8;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.topnav a {
+  float: left;
+  text-align: center;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav-center a {
+  float: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%)
+}
+.topnav-left a{
+  transform: translate(0%, 0%);
+}
+
+.topnav-right{
+  float: right;
+}
+
+.topnav-right a{
+  float: right;
+  padding: 12px;
+  margin-top: 4px;
+
+}
+
+.topnav-left-links a{
+  padding: 12px;
+}
+
+.right-button{
+  border: 1px solid transparent;
+  padding: 7px 12px;
+  margin: 5px;
+  cursor: pointer;
+  font: inherit;
+  vertical-align: middle;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.right-button#logout{
+  background-color: #f0506e;
+  color:#fff;
+}
+
+.right-button#repositories{
+  color: #56595e;
+}
+
+.dropdown{
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-list{
+  display: none;
+  position: fixed;
+  background-color:  #f8f8f8;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  list-style-type: none;
+  right: 0;
+}
+
+.dropdown-list a{
+  overflow: auto;
+  color: #56595e;
+  padding: 12px 16px;
+  display: block;
+  list-style-type: none;
+  text-decoration: none;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 14px;
+}
+.dropdown-list li{
+  text-align: center;
+}
+
+.dropdown-list a:hover{
+  color: #0099CC;;
+}
+
+
+.dropdown:hover .dropdown-list{
+  display: block;
+}
+
+
+
+@media screen and (max-width: 600px) {
+  .topnav a, .topnav-right {
+    float: none;
+    display: block;
+  }
+
+  .topnav-center a {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+  }
+
+  .topnav-right{
+    text-align: center;
+  }
 }

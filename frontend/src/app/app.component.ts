@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import {ApiService} from './Services/api.service'
+import { Component, OnInit, DoCheck } from '@angular/core';
+import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -7,65 +7,61 @@ import { Router } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit, DoCheck {
   token: string;
   githubName: string;
   title = 'cucumber-frontend';
   repositories: string[] = [];
   repository: string;
-  constructor(private apiService: ApiService, private router: Router){
+  constructor(private apiService: ApiService, private router: Router) {
 
   }
 
-  ngOnInit(){
+  ngOnInit() {
 
     this.refreshLoginData();
   }
 
-  refreshLoginData(){
+  refreshLoginData() {
     this.token = localStorage.getItem('token');
     this.githubName = localStorage.getItem('githubName');
     this.repository = localStorage.getItem('repository');
-    console.log("refreshlogindata "+ this.token + " repo: " + this.repository);
-    if(this.token && this.githubName){
+
+    if (this.token && this.githubName) {
       this.getRepositories();
-  
-    }
-    
-  }
-
-  ngDoCheck(){
-    let newToken = localStorage.getItem('token')
-    let newGithubName = localStorage.getItem('githubName')
-    let newRepository = localStorage.getItem('repository');
-    if(newToken != this.token || newGithubName != this.githubName || newRepository != this.repository){
-      this.refreshLoginData()
     }
   }
 
-  getRepositories(){
-    this.token = localStorage.getItem('token')
-    this.githubName = localStorage.getItem('githubName')
+  ngDoCheck() {
+    const newToken = localStorage.getItem('token');
+    const newGithubName = localStorage.getItem('githubName');
+    const newRepository = localStorage.getItem('repository');
+    if (newToken != this.token || newGithubName != this.githubName || newRepository != this.repository) {
+      this.refreshLoginData();
+    }
+  }
 
-    this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) =>{
-      this.repositories = resp; 
-    })
+  getRepositories() {
+    this.token = localStorage.getItem('token');
+    this.githubName = localStorage.getItem('githubName');
+
+    this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) => {
+      this.repositories = resp;
+    });
   }
 
 
-  selectRepository(repository: string){
-    
-    var ref: HTMLLinkElement = document.getElementById("githubHref") as HTMLLinkElement;
-    ref.href = "https://github.com/"+repository
+  selectRepository(repository: string) {
+    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+    ref.href = 'https://github.com/' + repository;
     this.repository = repository;
-    localStorage.setItem('repository', repository)
+    localStorage.setItem('repository', repository);
     this.repository = repository;
-    this.apiService.getStories(repository).subscribe(resp =>{
-      //console.log("Response: " + JSON.stringify(resp));
-    })
+    this.apiService.getStories(repository, this.token).subscribe(resp => {
+    });
   }
 
-  logout(){
+  logout() {
     localStorage.removeItem('repository');
     localStorage.removeItem('token');
     localStorage.removeItem('githubName');

@@ -3,6 +3,8 @@
 @import "../node_modules/uikit/src/scss/mixins-theme.scss";
 @import "../node_modules/uikit/src/scss/uikit-theme.scss";
 @import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto&display=swap');
 body{
     overflow-y:scroll;
+    font-family: 'Open Sans', sans-serif;
 }
