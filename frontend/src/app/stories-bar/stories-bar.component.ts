@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import {ApiService} from '../Services/api.service'
+import {ApiService} from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 
@@ -19,8 +19,8 @@ export class StoriesBarComponent implements OnInit {
   @Output()
   scenarioChosen: EventEmitter<any> = new EventEmitter();
 
-  constructor(private apiService: ApiService) { 
-    this.apiService.getStoriesEvent.subscribe(stories =>{
+  constructor(private apiService: ApiService) {
+    this.apiService.getStoriesEvent.subscribe(stories => {
       this.stories = stories;
     } );
   }
@@ -29,9 +29,9 @@ export class StoriesBarComponent implements OnInit {
   }
 
 
-  sortedStories(){
-    if(this.stories){
-      return this.stories.sort(function(a,b){ return a.issue_number - b.issue_number;});
+  sortedStories() {
+    if (this.stories) {
+      return this.stories.sort(function(a, b) { return a.issue_number - b.issue_number; });
     }
   }
 
@@ -49,12 +49,12 @@ export class StoriesBarComponent implements OnInit {
   }
 
 
-  selectStoryScenario(story: Story){
+  selectStoryScenario(story: Story) {
     this.selectedStory = story;
     this.storyChosen.emit(story);
-    var storyIndex = this.stories.indexOf(this.selectedStory);
-    if(this.stories[storyIndex].scenarios[0] !== undefined ){
-      this.selectScenario(this.selectedStory.story_id,this.stories[storyIndex].scenarios[0])
+    const storyIndex = this.stories.indexOf(this.selectedStory);
+    if (this.stories[storyIndex].scenarios[0] !== undefined ) {
+      this.selectScenario(this.selectedStory.story_id, this.stories[storyIndex].scenarios[0]);
     }
   }
 }

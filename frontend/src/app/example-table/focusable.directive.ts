@@ -1,9 +1,9 @@
-import { Directive, ElementRef } from '@angular/core';
+import { Directive, ElementRef, AfterViewInit } from '@angular/core';
 
 @Directive({
   selector: '[focusable]'
 })
-export class FocusableDirective {
+export class FocusableDirective implements AfterViewInit {
 
   constructor(private host: ElementRef) { }
 
