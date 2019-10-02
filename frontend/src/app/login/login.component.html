@@ -24,23 +24,23 @@
   
 <div class="uk-card uk-card-default uk-padding ">
   <div id="body" >
-    <!-- Heading Login -->
-    <div id="loginFont" class="uk-heading-small">Login</div>
-    <hr>
     <div class="uk-card-body">
       <ul class="uk-list">
         <li class="uk-card uk-card-default uk-text-secondary uk-text-center wrongLogin" *ngIf="error">{{error}}</li>
       </ul>
       <!-- Formular -->
       <form #form="ngForm" novalidate (ngSubmit)="login(form)">
+        <!-- Label Login -->
+        <label id="loginFont" class="uk-heading-small">Login</label>
+        <hr>
         <!-- Label Github Name -->
         <label for="githubName" class="uk-form-label" style="color: grey;"></label>
-        <input id="githubName" type="text" name="githubName" placeholder="Github Name" #githubName ngModel class="uk-form-controls" required>
+        <input id="githubName" type="text" name="githubName" placeholder=" Github Name" #githubName ngModel class="uk-form-controls" required>
         <br>
         <!-- Label Token -->
         <label for="token" class="uk-form-label" style="color: grey;"></label>
         <br>
-        <input id="token" type="text" name="token" placeholder="Token" #token ngModel class="uk-form-controls" required>
+        <input id="token" type="text" name="token" placeholder=" Token" #token ngModel class="uk-form-controls" required>
         <br>
         <br>
         <!-- Button Login -->
@@ -50,7 +50,7 @@
     <hr>
     <div>
       <!-- Button Login-TestAccount -->
-      <button name="loginTest" id="loginTestButton" type="button" class="uk-button-primary" (click)="loginTestAccount();">Test Account</button>
+      <button name="loginTest" id="testAccountButton" type="button" class="uk-button-primary" (click)="loginTestAccount();">Test Account</button>
     </div>
     <!-- Repositories -->
     <div class="uk-card uk-card-default uk-padding uk-align-center" *ngIf="repositories">
