@@ -3,10 +3,6 @@
   margin: 0px;
 }
 
-#topnav{
-  background-color: #999;
-}
-
 a:hover{
   color:#0099CC;
 }
@@ -35,10 +31,9 @@ img {
 
 
 .topnav{
+  background-color: #999;
   position: relative;
-  background-color: #f8f8f8;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .topnav a {
@@ -67,7 +62,6 @@ img {
   float: right;
   padding: 12px;
   margin-top: 4px;
-
 }
 
 .topnav-left-links a{
@@ -106,7 +100,6 @@ img {
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
   list-style-type: none;
-  right: 0;
 }
 
 .dropdown-list a{

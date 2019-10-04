@@ -1,4 +1,4 @@
-<div id="topnav" class="topnav">
+<div class="topnav">
   <div class="topnav-center">
     <a href="https://cucumber-app.herokuapp.com/" class="title">
       <h4 id="cucumberApp">Seed-Test</h4>
@@ -9,24 +9,22 @@
       <img src="assets/adesso-logo.jpg" alt="adesso AG">
     </a>
     <div class="topnav-left-links">
-      <a id="help" href="https://github.com/adessoCucumber/Cucumber" target="_blank">Help
-      </a>
-      <a id="feedback" href="https://cucumber-app.herokuapp.com/feedback" target="_blank">Feedback
-      </a>
+      <a id="help" href="https://github.com/adessoCucumber/Cucumber" target="_blank">Help</a>
+      <a id="feedback" href="https://cucumber-app.herokuapp.com/feedback" target="_blank">Feedback</a>
     </div>
   </div>
   <div class="topnav-right">
     <span *ngIf="this.token || this.repository"> 
-      <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
       <div class="dropdown">
-          <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
-          <ul class="dropdown-list">
+        <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
+        <ul class="dropdown-list">
             <li *ngFor="let repository of repositories; let i = index" >
-                <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-                 href="#">{{repository}}</a>
-            </li>
-          </ul>
+            <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
+             href="#">{{repository}}</a>
+          </li>
+        </ul>
       </div>
+      <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
       <a class="repoButton" id="githubHref" href="https://github.com/adessoCucumber/Cucumber" uk-icon="github"></a>
     </span>
   </div>

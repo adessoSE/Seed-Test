@@ -45,3 +45,7 @@
     border-radius: 3px;
     padding: 5px 5px 5px 5px;
 }
+
+.repoLink:hover {
+    color: #0099CC;
+}
