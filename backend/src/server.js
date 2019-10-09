@@ -187,30 +187,18 @@ app
   })
 
   .get('/api/repositories/:token?/:githubName?', (req, res) => {
-    var token = req.params.token;
-    let ownRepositories;
-    let bool1; let bool2 = false;
-    let starredRepositories;
-    helper.getOwnRepositories(token, (repos) => {
-      ownRepositories = repos;
-      if (bool2) {
-        const concatSet = new Set(ownRepositories.concat(starredRepositories));
-        const concat2 = Array.from(concatSet);
-        res.status(200).json(concat2);
-      } else {
-        bool1 = true;
-      }
-    });
-    helper.getStarredRepositories(req.params.githubName, token, (stars) => {
-      starredRepositories = stars;
-      if (bool1) {
-        const concatSet = new Set(ownRepositories.concat(starredRepositories));
-        const concat2 = Array.from(concatSet);
-        res.status(200).json(concat2);
-      } else {
-        bool2 = true;
-      }
-    });
+    let token = req.params.token;
+    let githubName = req.params.githubName
+    Promise.all([
+      helper.starredRepositories(githubName, token),
+      helper.ownRepositories(token)
+    ]).then((repos) =>{
+      let merged = [].concat.apply([], repos);
+      //console.log(merged);
+      res.status(200).json(merged);
+    }).catch((reason) =>{
+      console.log(reason);
+    })
   });
 
 module.exports = {app, githubRepo};

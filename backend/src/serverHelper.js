@@ -240,60 +240,62 @@ function runReport(req, res, stories, mode) {
   });
 }
 
-function getOwnRepositories(token, callback) {
-  const request = new XMLHttpRequest();
-
-  request.open('GET', 'https://api.github.com/user/repos', true, 'account_name', token);
-  // get Issues from GitHub
-
-  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
-  request.send();
-  request.onreadystatechange = function () {
-    // console.log(
-    // "readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
-    if (this.readyState === 4 && this.status === 200) {
-      const data = JSON.parse(request.responseText);
-      const names = [];
-      let index = 0;
-      for (const repo of data) {
-        const repoName = repo.full_name;
-        names[index] = repoName;
-        index++;
+function ownRepositories(token){
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    // get Issues from GitHub
+    request.open('GET', 'https://api.github.com/user/repos', true, 'account_name', token);
+    request.send();
+    request.onreadystatechange = function () {
+      // console.log(
+      // "readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+      if (this.readyState === 4 && this.status === 200) {
+        const data = JSON.parse(request.responseText);
+        const names = [];
+        let index = 0;
+        for (const repo of data) {
+          const repoName = repo.full_name;
+          names[index] = repoName;
+          index++;
+        }
+        resolve(names);
+        // console.log("getRepo: " + names)
+      } else if (this.readyState === 4) {
+        reject(this.status);
       }
-      callback(names);
-      // console.log("getRepo: " + names)
-    } else if (this.readyState === 4) {
-      callback(null);
-    }
-  };
+    };
+  })
 }
 
-function getStarredRepositories(ghName, token, callback) {
-  const request = new XMLHttpRequest();
-  //console.log(`githubname: ${ghName} token: ${token}`);
-  request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
-  // get Issues from GitHub
-
-  // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
-  request.send();
-  request.onreadystatechange = function () {
-    // console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
-    if (this.readyState === 4 && this.status === 200) {
-      const data = JSON.parse(request.responseText);
-      const names = [];
-      let index = 0;
-      for (const repo of data) {
-        const repoName = repo.full_name;
-        names[index] = repoName;
-        index++;
+function starredRepositories(ghName, token){
+  return new Promise((resolve, reject) =>{
+    const request = new XMLHttpRequest();
+    //console.log(`githubname: ${ghName} token: ${token}`);
+    request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
+    // get Issues from GitHub
+  
+    // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
+    request.send();
+    request.onreadystatechange = function () {
+      // console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
+      if (this.readyState === 4 && this.status === 200) {
+        const data = JSON.parse(request.responseText);
+        const names = [];
+        let index = 0;
+        for (const repo of data) {
+          const repoName = repo.full_name;
+          names[index] = repoName;
+          index++;
+        }
+        // console.log("getStarred: " + names);
+        resolve(names);
+      } else if (this.readyState === 4) {
+        reject(this.status);
       }
-      // console.log("getStarred: " + names);
-      callback(names);
-    } else if (this.readyState === 4) {
-      callback(null);
-    }
-  };
+    };
+  });
 }
+
 
 function fuseGitWithDb(story, issueId) {
   return new Promise((resolve) => {
@@ -337,7 +339,7 @@ module.exports = {
   updateFeatureFiles,
   writeFile,
   runReport,
-  getStarredRepositories,
-  getOwnRepositories,
+  starredRepositories,
+  ownRepositories,
   fuseGitWithDb
 };
