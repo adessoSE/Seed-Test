@@ -1,3 +1,4 @@
+
 <div class="topnav">
   <div class="topnav-center">
     <a href="https://cucumber-app.herokuapp.com/" class="title">
@@ -18,7 +19,7 @@
       <div class="dropdown">
         <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
         <ul class="dropdown-list">
-            <li *ngFor="let repository of repositories; let i = index" >
+          <li *ngFor="let repository of repositories; let i = index" >
             <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
              href="#">{{repository}}</a>
           </li>

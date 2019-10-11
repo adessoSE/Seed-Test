@@ -13,14 +13,22 @@
   float: right;
 }
 
+#new_scenario, #run_story {
+  background-color: #0099CC;
+}
+
+#new_scenario:hover, #run_story:hover {
+  background-color: rgb(2, 111, 161);
+}
+
 .uk-button-group{
   border-radius:4px;
-  border:2px solid rgb(27, 86, 248);
+  border:2px solid rgb(255, 255, 255);
 }
 
 .uk-button{
   color:white;
-  background-color: rgb(27, 86, 248);
+  background-color: #0099CC;
   padding-right:15px;
 }
 
@@ -30,7 +38,7 @@
 }
 
 .uk-button:hover{
-  color: rgb(27, 86, 248);
+  color: #0099CC;
   background: white;
   transition-duration: 0.2s;
 }
@@ -117,21 +125,22 @@
 .storyTitleBlock{
   padding-left:40px;
   padding-top:40px;
-  padding-bottom:40px;
-  text-align: center;
+  /*padding-bottom:40px;*/
+  /*text-align: center;*/
 }
 
-.storyTitle{
-  padding-left:5px;
-  padding-top:5px;
-  padding-bottom:5px;
-  padding-right:5px;
+.storyTitle{    
+  color: #0099CC;
   font-size: large;
-  border-bottom: 2px solid;
-  border-left: 2px solid;
-  border-right: 2px solid;
-  border-top: 2px solid;
-  box-shadow: 1px 1px 3px grey;
+  padding-left:7px;
+  padding-top:7px;
+  padding-bottom:7px;
+  padding-right:7px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  border-top: 1px solid;
+  box-shadow: 1px 1px 3px rgb(255, 255, 255);
 }
 
 .testButtons{
@@ -156,3 +165,4 @@ table {
   margin-left: 40px;
   display:inline-block;
 }
+

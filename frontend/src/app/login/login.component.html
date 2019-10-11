@@ -22,7 +22,7 @@
     </div>
   </div>-->
   
-<div id="body" class="uk-card uk-card-default uk-padding ">
+<div id="body" class="uk-card uk-card-default uk-padding">
   <div class="uk-card-body">
     <ul class="uk-list">
       <li class="uk-card uk-card-default uk-text-secondary uk-text-center wrongLogin" *ngIf="error">{{error}}</li>
@@ -56,7 +56,7 @@
       <label id="selectRepositoryFont">Select Your Repository:</label>
       <ul class="uk-list">
         <li *ngFor="let repository of repositories; let i = index" >
-          <a id="{{'repository_'+i}}" (click)="selectRepository(repository);" href="#" style="color: grey">{{repository}}</a>
+          <a class="repoLink" id="{{'repository_'+i}}" (click)="selectRepository(repository);" href="#" style="color: grey">{{repository}}</a>
         </li>
       </ul>
     </div>

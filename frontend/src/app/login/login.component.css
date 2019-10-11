@@ -46,6 +46,6 @@
     padding: 5px 5px 5px 5px;
 }
 
-.repoLink:hover {
+.repoLink a:hover {
     color: #0099CC;
 }
