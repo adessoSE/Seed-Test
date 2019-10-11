@@ -2,9 +2,7 @@
   "name": "cucumber-app",
   "version": "0.0.1",
   "scripts": {
-    "start": "cd backend/src && node server.js",
-    "dev": "concurrently \"cd backend/src && nodemon server.js\" \"cd frontend/ && ng serve\"",
-    "test": "cucumber-js"
+    "start": "cd backend/src && node server.js"
   },
   "private": true,
   "dependencies": {
