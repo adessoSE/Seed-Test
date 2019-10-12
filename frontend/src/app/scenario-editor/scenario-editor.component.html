@@ -7,7 +7,7 @@
         <div class="uk-button-group uk-align-right ">
           <button id="new_scenario" class="uk-button-small uk-button-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)">New Scenario</button>
           <button id="run_story" class="uk-button-small uk-button-primary" [class.disabled]="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning|| !editorLocked || !backgroundLocked" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
-        </div>  
+        </div>
       </div>
       <hr>
       <br/>

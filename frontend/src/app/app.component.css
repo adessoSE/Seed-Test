@@ -80,12 +80,23 @@ img {
 }
 
 .right-button#logout{
+  border: solid 1px #f07289;
+  background: #0099CC;
+  background: -moz-linear-gradient(top,  #f07289, #f0506e);
   background-color: #f0506e;
   color:#fff;
 }
 
+.right-button#logout:hover {
+  background: #f0506e;
+}
+
 .right-button#repositories{
   color: #56595e;
+  border: solid 1px #b6b6b6;
+  background: #ffffff;
+  background: -moz-linear-gradient(top,  #ffffff, #b6b6b6);
+  background-color: #b6b6b6;
 }
 
 .dropdown{
