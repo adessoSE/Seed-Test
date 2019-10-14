@@ -7,6 +7,9 @@ const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const server = require('./server');
+const rootPath = path.normalize('features');
+const featuresPath = path.normalize('features/')
+
 // this is needed for the html report
 var options = {
   theme: 'bootstrap',
@@ -24,10 +27,9 @@ var options = {
 };
 
 //Time after which the report is deleted in minutes
-const reportDeletionTime = 5;
+const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 
-const rootPath = path.normalize('features');
-const featuresPath = path.normalize('features/')
+
 
 // only displays mid text and additional space if length not null
 function midNotEmpty(values) {

@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
 const mongo = require('./database/mongodatabase');
-
+require('dotenv').config;
 const app = express();
 const helper = require('./serverHelper');
 
@@ -25,6 +25,10 @@ function handleError(res, reason, statusMessage, code) {
   res.status(code || 500).json({ error: statusMessage });
 }
 
+//MongoDB uri
+const uri = process.env.DATABASE_URI //'mongodb+srv://Test:Test@seed-3eubh.mongodb.net/test?retryWrites=true&w=majority'//'mongodb+srv://Seed-Admin:KkPuqMeGUfgpyTVp@seed-tsqv2.mongodb.net/test?retryWrites=true&w=majority';
+
+console.log(uri);
 /**
  * API Description
  */

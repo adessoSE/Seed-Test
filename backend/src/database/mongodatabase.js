@@ -1,10 +1,11 @@
 const { MongoClient } = require('mongodb');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
+const stepTypes = require('./stepTypes.js');
+require('dotenv').config();
 
-const uri = 'mongodb+srv://Seed-Admin:KkPuqMeGUfgpyTVp@seed-tsqv2.mongodb.net/test?retryWrites=true&w=majority';
-
-
+var uri = process.env.DATABASE_URI;
+console.log(uri)
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 
 // get One Story
@@ -200,7 +201,6 @@ function upsertEntry(collection, story_id, content) {
 
 // ////////////////////////////////////////////////////////////////    ADMIN    ////////////////////////////////////////////////////////////////
 
-
 // show all Collections
 function showMeCollections() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
@@ -214,6 +214,7 @@ function showMeCollections() {
   });
 }
 
+
 // create Collection
 function makeCollection(name) {
   MongoClient.connect(uri, { useNewUrlParser: true }, { useNewUrlParser: true }, (err, db) => {
@@ -226,7 +227,6 @@ function makeCollection(name) {
     });
   });
 }
-
 
 // insert One document (collectionname, {document})
 function insertOne(collection, content) {
@@ -322,6 +322,11 @@ function dropCollection() {
   });
 }
 
+function installDatabase(){
+  makeCollection('Stories');
+  insertMore('stepDefinitions', stepTypes());
+}
+
 
 module.exports = {
   showStepdefinitions,
@@ -333,4 +338,5 @@ module.exports = {
   updateScenario,
   getOneStory,
   upsertEntry,
+  installDatabase
 };

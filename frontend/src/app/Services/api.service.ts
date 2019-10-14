@@ -5,14 +5,14 @@ import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
 import { Observable, throwError } from 'rxjs';
-// import {Constants} from 'Constants';
+import { Constants } from '../../../constants';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ApiService {
-  private apiServer: string = 'https://cucumberapp.herokuapp.com/api';  // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
+  private apiServer: string = Constants.API_SERVER_DEV;  // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
 
   public getStoriesEvent = new EventEmitter();
 
