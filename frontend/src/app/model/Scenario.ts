@@ -1,7 +1,7 @@
-import {StepDefinition} from './StepDefinition'
+import {StepDefinition} from './StepDefinition';
 
 
-export interface Scenario{
+export interface Scenario {
     scenario_id: number;
     name: string;
     stepDefinitions: StepDefinition;

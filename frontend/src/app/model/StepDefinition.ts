@@ -1,4 +1,4 @@
-export interface StepDefinition{
+export interface StepDefinition {
     given: any[];
     when: any[];
     then: any[];

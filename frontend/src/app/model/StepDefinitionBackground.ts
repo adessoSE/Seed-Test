@@ -1,3 +1,3 @@
-export interface StepDefinitionBackground{
+export interface StepDefinitionBackground {
     when: any;
 }

@@ -12,28 +12,28 @@ import { Constants } from '../../../constants';
 })
 
 export class ApiService {
-  private apiServer: string = Constants.API_SERVER_DEV;  // http://localhost:8080/api'; https://cucumberapp.herokuapp.com/api
+  private apiServer: string = Constants.API_SERVER_PROD;
 
   public getStoriesEvent = new EventEmitter();
 
   constructor(private http: HttpClient) {
   }
 
-  public getHeader(){
+  public getHeader() {
     return new HttpHeaders({
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Credentials': 'true'
     });
   }
 
-  public getRepositories(token, githubName): Observable<any>{
-    let options = {headers: this.getHeader()}
+  public getRepositories(token, githubName): Observable<any> {
+    const options = {headers: this.getHeader()};
     return this.http.get<any>(this.apiServer + '/repositories/' + token + '/' + githubName, options)
-    .pipe(tap(resp=>{}),
+    .pipe(tap(resp => {}),
       catchError(this.handleError));
   }
 
-  handleError(error: HttpErrorResponse){
+  handleError(error: HttpErrorResponse) {
     console.log(error);
     return throwError(error);
   }
@@ -43,7 +43,7 @@ export class ApiService {
   public getStories(repository, token) {
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + token)
-      .pipe(tap(resp =>{
+      .pipe(tap(resp => {
         this.getStoriesEvent.emit(resp);
       }));
   }
@@ -64,7 +64,7 @@ export class ApiService {
       ));
   }
 
-  public updateBackground(storyID, background){
+  public updateBackground(storyID, background) {
     return this.http
         .post<any>(this.apiServer + '/background/update/' + storyID, background)
         .pipe(tap(resp =>
@@ -80,7 +80,7 @@ export class ApiService {
         ));
   }
 
-  public deleteBackground(storyID){
+  public deleteBackground(storyID) {
     return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
         .pipe(tap(resp =>
@@ -97,18 +97,18 @@ export class ApiService {
   }
 
   // demands testing from the server
-  public runTests(storyID, scenarioID){
-    if(scenarioID){
+  public runTests(storyID, scenarioID) {
+    if (scenarioID) {
       return this.http
       .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType: 'text'});
     }
     return this.http
-    .get(this.apiServer + '/runFeature/'+ storyID, {responseType: 'text'});
+    .get(this.apiServer + '/runFeature/' + storyID, {responseType: 'text'});
   }
 
-  isLoggedIn(): boolean{
-    let token = this.getToken();
-    if(token) return true;
+  isLoggedIn(): boolean {
+    const token = this.getToken();
+    if (token) { return true; }
     return false;
   }
 

@@ -9,6 +9,7 @@ Scenario: Prime Kunde 5 Büchern
 Given As a "Prime Kunde"  
 Given I am on the website: "www.amazon.com/warenkorb"  
 
+When I click the button: ""Add 5 Books""  
 When I click the button: "Delivery Options"  
 
 Then So I can see the text "Free Delivery" in the textbox:  

@@ -1,6 +1,6 @@
-import { StepDefinitionBackground } from "./StepDefinitionBackground";
+import { StepDefinitionBackground } from './StepDefinitionBackground';
 
-export interface Background{
+export interface Background {
     name: string;
     stepDefinitions: StepDefinitionBackground;
 }

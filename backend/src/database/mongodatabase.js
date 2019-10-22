@@ -5,7 +5,6 @@ const stepTypes = require('./stepTypes.js');
 require('dotenv').config();
 
 var uri = process.env.DATABASE_URI;
-console.log(uri)
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 
 // get One Story

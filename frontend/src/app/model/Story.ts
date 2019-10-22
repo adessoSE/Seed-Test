@@ -1,7 +1,7 @@
-import {Scenario} from './Scenario'
+import {Scenario} from './Scenario';
 import { Background } from './Background';
 
-export interface Story{
+export interface Story {
     issue_number: any;
     name: string;
     story_id: string;

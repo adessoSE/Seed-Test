@@ -14,7 +14,7 @@ export const ROUTES = [
         canActivate: [AuthGuard]
     },
     {
-        path:'feedback',
-        component:FeedbackComponent
+        path: 'feedback',
+        component: FeedbackComponent
     }
-]
+];
