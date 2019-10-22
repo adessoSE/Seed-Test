@@ -40,6 +40,10 @@ yarn-error.log
 testem.log
 /typings
 
+# environment variables
+/frontend/constants.ts
+/backend/.env
+
 # System Files
 .DS_Store
 Thumbs.db
