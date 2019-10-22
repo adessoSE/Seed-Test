@@ -41,8 +41,8 @@ testem.log
 /typings
 
 # environment variables
-frontend/constants.ts
-backend/.env
+constants.ts
+.env
 
 # System Files
 .DS_Store
