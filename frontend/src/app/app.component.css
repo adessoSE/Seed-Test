@@ -3,10 +3,6 @@
   margin: 0px;
 }
 
-#topnav{
-  background-color: #999;
-}
-
 a:hover{
   color:#0099CC;
 }
@@ -35,10 +31,9 @@ img {
 
 
 .topnav{
+  background-color: #999;
   position: relative;
-  background-color: #f8f8f8;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .topnav a {
@@ -67,7 +62,6 @@ img {
   float: right;
   padding: 12px;
   margin-top: 4px;
-
 }
 
 .topnav-left-links a{
@@ -86,12 +80,23 @@ img {
 }
 
 .right-button#logout{
+  border: solid 1px #f07289;
+  background: #0099CC;
+  background: -moz-linear-gradient(top,  #f07289, #f0506e);
   background-color: #f0506e;
   color:#fff;
 }
 
+.right-button#logout:hover {
+  background: #f0506e;
+}
+
 .right-button#repositories{
   color: #56595e;
+  border: solid 1px #b6b6b6;
+  background: #ffffff;
+  background: -moz-linear-gradient(top,  #ffffff, #b6b6b6);
+  background-color: #b6b6b6;
 }
 
 .dropdown{
@@ -106,7 +111,6 @@ img {
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
   list-style-type: none;
-  right: 0;
 }
 
 .dropdown-list a{

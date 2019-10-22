@@ -4,7 +4,7 @@
 
 #loginFont{
     color:#0099CC;
-    font-size: 20pt;
+    font-size: 22pt;
     font-weight: bold;
 }
 
@@ -18,30 +18,33 @@
     text-align: center;
 }
 
-#loginTestButton{
-    background-color: #0099CC;
+.uk-button-primary{
     color:#ffffff;
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0 3px #999;
+    border-radius: 3px;
+    border: solid 1px #0099CC;
+    background: #0099CC;
+    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
 }
 
-#loginButton{
-    background-color: #0099CC;
-    color:#ffffff;
-    padding: 5px 10px;
-    font-size: 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0 3px #999;
+.uk-button-primary:hover {
+    background: rgb(2, 111, 161);
+    /*background: -webkit-gradient(linear, left top, left bottom, from(rgb(2, 111, 161), to(#0099CC)));
+    background: -moz-linear-gradient(top, rgb(2, 111, 161), to(#0099CC));*/
+    }
+
+.uk-button-primary:active {
+    background: -webkit-gradient(linear, left top, left bottom, from(rgb(2, 111, 161)), to(#0099CC));
+    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
+    }
+
+.uk-form-controls{
+    border-radius: 3px;
+    padding: 5px 5px 5px 5px;
 }
 
-#githubName{
-    border-radius: 5px;
-}
-
-#token{
-    border-radius: 5px;
+.repoLink a:hover {
+    color: #0099CC;
 }
