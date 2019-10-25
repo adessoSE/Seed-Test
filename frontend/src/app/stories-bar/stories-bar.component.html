@@ -1,5 +1,6 @@
   <div class="stories">
-    <div><h4>STORIES</h4></div>
+    <br>
+    <div id="storyHeader"><h4>STORIES</h4></div>
     <ul uk-accordion>
       <li *ngFor="let s of sortedStories(); let i = index ">
 
@@ -12,8 +13,8 @@
         </div>
 
         <div class="uk-accordion-content">
-          <a uk-icon="icon: plus-circle" data-uk-tooltip title="Add New Scenario"
-            (click)="addScenario(s.story_id)" id="{{'story_add_scenario' + i}}"></a>
+          <!--<a uk-icon="icon: plus-circle" data-uk-tooltip title="Add New Scenario"
+            (click)="addScenario(s.story_id)" id="{{'story_add_scenario' + i}}"></a>-->
           <li *ngFor="let scen of s.scenarios; let c = index">
             <a href="#" (click)="selectScenario(s.story_id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
           </li>

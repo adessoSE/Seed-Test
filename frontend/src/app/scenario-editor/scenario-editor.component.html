@@ -5,8 +5,8 @@
       <div class="uk-card-title storyTitleBlock padRight">
         <span class= "storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
         <div class="uk-button-group uk-align-right ">
-          <button id="new_scenario" class="uk-button-small uk-button-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)">New Scenario</button>
-          <button id="run_story" class="uk-button-small uk-button-primary" [class.disabled]="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning|| !editorLocked || !backgroundLocked" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
+          <!--<button id="new_scenario" class="uk-button-small uk-button-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)">New Scenario</button>-->
+          <!--<button id="run_story" class="uk-button-small uk-button-primary" [class.disabled]="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning|| !editorLocked || !backgroundLocked" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>-->
         </div>
       </div>
       <hr>
@@ -92,6 +92,7 @@
       <button id="scenario_change_title" [disabled]="editorLocked" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div class="uk-align-right">
+        <button id="new_scenario" class="uk-accordion-content" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
         <button id="scenario_delete"[class.disabled]="editorLocked" [disabled]="editorLocked"
           class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
           (click)="deleteScenario($event);"></button>
@@ -157,6 +158,7 @@
       </div>
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
+          <button id="run_story" class="uk-button" [class.disabledButton]="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning|| !editorLocked || !backgroundLocked" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
           <button id="run_tests" class="uk-button" [class.disabledButton] ="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning || !editorLocked || !backgroundLocked" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
             Run Tests</button>
           <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"

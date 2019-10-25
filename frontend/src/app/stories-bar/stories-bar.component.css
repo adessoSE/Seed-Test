@@ -18,6 +18,10 @@
     margin-right: 5px;
   }
 
+  #storyHeader{
+    text-decoration: underline;
+  }
+
   .stories{
     padding-left:10px;
     padding-right: 10px;
