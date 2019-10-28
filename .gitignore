@@ -43,6 +43,7 @@ testem.log
 
 # environment variables
 .env
+environment.prod.ts
 
 # System Files
 .DS_Store
