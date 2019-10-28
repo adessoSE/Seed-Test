@@ -8,9 +8,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "prod": "ng serve -c production",
-    "dev": "ng serve",
-    "postinstall": "ng build --aot --prod"
+    "prod": "ng serve ",
+    "dev": "ng serve -c production",
+    "heroku-postbuild": "ng build --aot --configuration=production"
   },
   "private": true,
   "dependencies": {
