@@ -41,7 +41,6 @@ testem.log
 /typings
 
 # environment variables
-constants.ts
 .env
 
 # System Files
