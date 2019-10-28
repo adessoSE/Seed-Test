@@ -51,49 +51,49 @@ export class ApiService {
   public getStepDefinitions() {
     return this.http
       .get<StepDefinition>(this.apiServer + '/stepDefinitions')
-      .pipe(tap(resp =>
-        console.log('GET step definitions', resp)
-      ));
+      .pipe(tap(resp => {
+       // console.log('GET step definitions', resp)
+      }));
   }
 
   public addScenario(storyID) {
       return this.http
-          .get<any>(this.apiServer + '/scenario/add/' + storyID)
-          .pipe(tap(resp =>
-            console.log('Add new scenario in story ' + storyID + '!', resp)
-      ));
+        .get<any>(this.apiServer + '/scenario/add/' + storyID)
+        .pipe(tap(resp => {
+         // console.log('Add new scenario in story ' + storyID + '!', resp)
+        }));
   }
 
   public updateBackground(storyID, background) {
     return this.http
         .post<any>(this.apiServer + '/background/update/' + storyID, background)
-        .pipe(tap(resp =>
-          console.log('Update background for story ' + storyID )
-        ));
+        .pipe(tap(resp => {
+         // console.log('Update background for story ' + storyID )
+        }));
   }
 
   public updateScenario(storyID, scenario) {
     return this.http
         .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
-        .pipe(tap(resp =>
-          console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
-        ));
+        .pipe(tap(resp => {
+         // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+        }));
   }
 
   public deleteBackground(storyID) {
     return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
-        .pipe(tap(resp =>
-          console.log('Delete background for story ' + storyID )
-        ));
+        .pipe(tap(resp => {
+        //  console.log('Delete background for story ' + storyID )
+        }));
   }
 
   public deleteScenario(storyID, scenario) {
    return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/scenario/delete/' + scenario.scenario_id)
-        .pipe(tap(resp =>
-          console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
-        ));
+        .pipe(tap(resp => {
+         // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
+        }));
   }
 
   // demands testing from the server

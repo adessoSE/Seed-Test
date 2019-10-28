@@ -2,7 +2,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-import {environment} from '../frontend/src/environments/environment';
+const environment = '../frontend/src/environments/environment';
 
 // Serve only the static files form the dist directory
 app.use(express.static(__dirname + '/dist/cucumber-frontend'));
