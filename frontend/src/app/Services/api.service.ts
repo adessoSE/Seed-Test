@@ -5,14 +5,14 @@ import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
 import { Observable, throwError } from 'rxjs';
-import { Constants } from '../../../constants';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ApiService {
-  private apiServer: string = Constants.API_SERVER_PROD;
+  private apiServer: string = environment.API_SERVER;
 
   public getStoriesEvent = new EventEmitter();
 
