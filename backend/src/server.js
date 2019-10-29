@@ -201,7 +201,7 @@ app
       //console.log(merged);
       res.status(200).json(merged);
     }).catch((reason) =>{
-      console.log(reason);
+      console.log("Get Repositories Error: " + reason);
     })
   });
 
