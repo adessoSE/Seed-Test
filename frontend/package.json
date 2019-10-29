@@ -8,8 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "prod": "ng serve ",
-    "dev": "ng serve -c production",
+    "prod": "ng serve -c production",
+    "dev": "ng serve ",
     "heroku-postbuild": "ng build --aot --configuration=production"
   },
   "private": true,
