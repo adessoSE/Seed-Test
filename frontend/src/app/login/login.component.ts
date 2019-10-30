@@ -6,7 +6,7 @@ import { EventEmitter } from 'protractor';
 import { JsonPipe } from '@angular/common';
 
 const testAccountName = 'adessoCucumber';
-const testAccountToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';
+const testAccountToken = '';
 
 @Component({
   selector: 'app-login',
