@@ -6,7 +6,6 @@ export const environment = {
   production: false,
   PORT : 4200,
   API_SERVER: 'http://localhost:8080/api',
-  TESTACCOUNT_TOKEN : 'e5e90cd3978bd89250aad48fb34600bc3f222ec1',
 };
 
 /*
