@@ -243,10 +243,18 @@ function runReport(req, res, stories, mode) {
 }
 
 function ownRepositories(token){
+   return execRepositoryRequests('https://api.github.com/user/repos', 'account_name', token);
+}
+
+function starredRepositories(user, token){
+    return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
+}
+
+function execRepositoryRequests(link, user, password) {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
     // get Issues from GitHub
-    request.open('GET', 'https://api.github.com/user/repos', true, 'account_name', token);
+    request.open('GET', link , true, user, password);
     request.send();
     request.onreadystatechange = function () {
       // console.log(
@@ -267,35 +275,6 @@ function ownRepositories(token){
       }
     };
   })
-}
-
-function starredRepositories(ghName, token){
-  return new Promise((resolve, reject) =>{
-    const request = new XMLHttpRequest();
-    //console.log(`githubname: ${ghName} token: ${token}`);
-    request.open('GET', `https://api.github.com/users/${ghName}/starred`, true, ghName, token);
-    // get Issues from GitHub
-  
-    // request.setRequestHeader("Authorization", 'Basic 56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1');
-    request.send();
-    request.onreadystatechange = function () {
-      // console.log("readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
-      if (this.readyState === 4 && this.status === 200) {
-        const data = JSON.parse(request.responseText);
-        const names = [];
-        let index = 0;
-        for (const repo of data) {
-          const repoName = repo.full_name;
-          names[index] = repoName;
-          index++;
-        }
-        // console.log("getStarred: " + names);
-        resolve(names);
-      } else if (this.readyState === 4) {
-        reject(this.status);
-      }
-    };
-  });
 }
 
 function fuseGitWithDb(story, issueId) {
