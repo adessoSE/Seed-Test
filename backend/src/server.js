@@ -7,9 +7,6 @@ const mongo = require('./database/mongodatabase');
 const app = express();
 const helper = require('./serverHelper');
 
-//This variable is for the github name
-let githubName;
-let githubRepo;
 let stories = [];
 
 // Initialize the app.
@@ -55,8 +52,8 @@ app
   })
 
   .get('/api/stories/:user/:repository/:token', async (req, res) => {
-    githubName = req.params.user;
-    githubRepo = req.params.repository;
+    let githubName = req.params.user;
+    let githubRepo = req.params.repository;
     let token = req.params.token;
 
     const tmpStories = [];
@@ -196,8 +193,8 @@ app
       //console.log(merged);
       res.status(200).json(merged);
     }).catch((reason) =>{
-      console.log("Get Repositories Error: " + reason);
+      console.log('Get Repositories Error: ' + reason);
     })
   });
 
-module.exports = {app, githubRepo};
+module.exports = {app};

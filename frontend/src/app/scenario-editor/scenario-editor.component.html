@@ -44,11 +44,9 @@
           <br/>
           <br/>
           <div class="uk-float-right backgroundItems">
-            <!-- <div class="uk-align-right"> -->
             <button id="background_add_step" [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" uk-icon="icon: plus-circle"
               class="uk-text-primary" title="Add New Step" uk-tooltip></button>
           </div>
-          <!-- </div> -->
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepDefinitions; let i = index" >
@@ -113,10 +111,8 @@
       <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
         <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
-          <!-- <div class="uk-align-right"> -->
           <button id="{{'scenario_add_step' + i}}" [class.disabled]="editorLocked || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="editorLocked || (this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
             class="uk-text-primary" title="Add new step" uk-tooltip></button>
-          <!-- </div> -->
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepDefinitions; let j = index;" >
