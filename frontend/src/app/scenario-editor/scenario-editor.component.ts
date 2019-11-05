@@ -456,7 +456,7 @@ export class ScenarioEditorComponent implements OnInit {
   runTests(story_id, scenario_id, callback) {
     this.testRunning = true;
     const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-    const loadingScreen: HTMLElement = document.getElementById('loading') as HTMLElement;
+    const loadingScreen: HTMLElement = document.getElementById('loading');
     loadingScreen.scrollIntoView();
     this.apiService
       .runTests(story_id, scenario_id)
