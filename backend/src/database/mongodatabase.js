@@ -188,8 +188,8 @@ function upsertEntry(collection, story_id, content) {
     dbo.collection(collection).findOneAndUpdate(myobj, { $set: updatedContent }, {
       returnOriginal: false,
       upsert: true,
-    }, (err) => {
-      if (err) throw err;
+    }, (error) => {
+      if (error) throw error;
     });
     db.close();
   });
@@ -207,7 +207,7 @@ function showMeCollections() {
     const dbo = db.db('Seed');
     dbo.listCollections().toArray((error, result) => {
       if (error) throw error;
-      console.log(result);
+      console.log('showMeCollections error: ' + result);
       db.close();
     });
   });
@@ -248,7 +248,7 @@ function showCollection(name) {
     const dbo = db.db('Seed');
     dbo.collection(name).find({}).toArray((error, result) => {
       if (error) throw error;
-      console.log(result);
+      console.log('showCollection error: ' + result);
       db.close();
     });
   });
@@ -302,7 +302,7 @@ function showStory(git_id) {
     const myobj = { story_id: git_id };
     dbo.collection('Stories').findOne(myobj, (error, result) => {
       if (error) throw error;
-      console.log(result);
+      console.log('showStory error: ' + result);
       db.close();
     });
   });
