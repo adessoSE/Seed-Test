@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-require('dotenv').config();
+const env = require('dotenv').config();
 
 var uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
