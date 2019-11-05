@@ -12,7 +12,7 @@ setDefaultTimeout(20 * 1000);
 const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('-headless');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
-driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+const driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
 
 // Starts the driver / Browser
 Before(function () {
@@ -81,7 +81,7 @@ When('I hover over the element {string} and select the option {string}', async f
 
 // TODO: Multiple Selection OR: copy the radio/button multiple times
 When('I select from the {string} multiple selection, the values {string}{string}{string}', async (string, string2, string3, string4) => {
-  const quatsch = string;
+  
 });
 
 // ################### THEN ##########################################

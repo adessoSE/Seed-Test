@@ -100,25 +100,25 @@ function createScenario(git_id, callback) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
-    dbo.collection('Stories').findOne(myobj, (err, result) => {
-      if (err) throw err;
+    dbo.collection('Stories').findOne(myobj, (error, result) => {
+      if (error) throw error;
       const story = result;
       const lastScenarioIndex = story.scenarios.length;
       const tmpScenario = emptyScenario();
-      if (story != null) {
-        if (story.scenarios.length === 0) {
-          story.scenarios.push(tmpScenario);
-        } else {
-          tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-          story.scenarios.push(tmpScenario);
-        }
-        dbo.collection('Stories').findOneAndReplace(myobj, story, {
-          returnOriginal: false,
-        }, (err, result) => {
-          if (err) throw err;
-          callback(tmpScenario);
-        });
+
+      if (story.scenarios.length === 0) {
+        story.scenarios.push(tmpScenario);
+      } else {
+        tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+        story.scenarios.push(tmpScenario);
       }
+      dbo.collection('Stories').findOneAndReplace(myobj, story, {
+        returnOriginal: false,
+      }, (error2, result2) => {
+        if (error2) throw error2;
+        callback(tmpScenario);
+      });
+      
       db.close();
     });
   });
@@ -130,8 +130,8 @@ function deleteScenario(git_id, s_id, callback) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
-    dbo.collection('Stories').findOne(myobj, (err, result) => {
-      if (err) throw err;
+    dbo.collection('Stories').findOne(myobj, (error, result) => {
+      if (error) throw error;
       const story = result;
       for (let i = 0; i < story.scenarios.length; i++) {
         if (story.scenarios[i].scenario_id === s_id) {
@@ -140,9 +140,9 @@ function deleteScenario(git_id, s_id, callback) {
       }
       dbo.collection('Stories').findOneAndReplace(myobj, story, {
         returnOriginal: false,
-      }, (err, result) => {
-        if (err) throw err;
-        callback(result.value);
+      }, (error2, result2) => {
+        if (error2) throw error2;
+        callback(result2.value);
       });
       db.close();
     });
@@ -155,8 +155,8 @@ function updateScenario(git_id, updated_scenario, callback) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
-    dbo.collection('Stories').findOne(myobj, (err, result) => {
-      if (err) throw err;
+    dbo.collection('Stories').findOne(myobj, (error, result) => {
+      if (error) throw error;
       const story = result;
       for (const scenario of story.scenarios) {
         if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
@@ -170,9 +170,9 @@ function updateScenario(git_id, updated_scenario, callback) {
       }
       dbo.collection('Stories').findOneAndReplace(myobj, story, {
         returnOriginal: false,
-      }, (err, result) => {
-        if (err) throw err;
-        callback(result.value);
+      }, (error2, result2) => {
+        if (error2) throw error2;
+        callback(result2.value);
       });
       db.close();
     });
@@ -184,8 +184,8 @@ function upsertEntry(collection, story_id, content) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id };
-    const update = content;
-    dbo.collection(collection).findOneAndUpdate(myobj, { $set: update }, {
+    const updatedContent = content;
+    dbo.collection(collection).findOneAndUpdate(myobj, { $set: updatedContent }, {
       returnOriginal: false,
       upsert: true,
     }, (err) => {
@@ -205,8 +205,8 @@ function showMeCollections() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.listCollections().toArray((err, result) => {
-      if (err) throw err;
+    dbo.listCollections().toArray((error, result) => {
+      if (error) throw error;
       console.log(result);
       db.close();
     });
@@ -219,8 +219,8 @@ function makeCollection(name) {
   MongoClient.connect(uri, { useNewUrlParser: true }, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.createCollection(name, (err, res) => {
-      if (err) throw err;
+    dbo.createCollection(name, (error, res) => {
+      if (error) throw error;
       console.log('Collection created!');
       db.close();
     });
@@ -233,8 +233,8 @@ function insertOne(collection, content) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = content;
-    dbo.collection(collection).insertOne(myobj, (err, res) => {
-      if (err) throw err;
+    dbo.collection(collection).insertOne(myobj, (error, res) => {
+      if (error) throw error;
       db.close();
     });
   });
@@ -246,8 +246,8 @@ function showCollection(name) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection(name).find({}).toArray((err, result) => {
-      if (err) throw err;
+    dbo.collection(name).find({}).toArray((error, result) => {
+      if (error) throw error;
       console.log(result);
       db.close();
     });
@@ -261,8 +261,8 @@ function insertMore(name, content) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = content;
-    dbo.collection(name).insertMany(myobj, (err, res) => {
-      if (err) throw err;
+    dbo.collection(name).insertMany(myobj, (error, res) => {
+      if (error) throw error;
       console.log(`Number of documents inserted: ${res.insertedCount}`);
       db.close();
     });
@@ -275,8 +275,8 @@ function update(git_id, updatedStuff) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').updateOne({ story_id: git_id }, { $set: updatedStuff }, (err, res) => {
-      if (err) throw err;
+    dbo.collection('Stories').updateOne({ story_id: git_id }, { $set: updatedStuff }, (error, res) => {
+      if (error) throw error;
       db.close();
     });
   });
@@ -287,8 +287,8 @@ function erase() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').deleteOne({ }, (err, obj) => {
-      if (err) throw err;
+    dbo.collection('Stories').deleteOne({ }, (error, obj) => {
+      if (error) throw error;
       db.close();
     });
   });
@@ -300,8 +300,8 @@ function showStory(git_id) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = { story_id: git_id };
-    dbo.collection('Stories').findOne(myobj, (err, result) => {
-      if (err) throw err;
+    dbo.collection('Stories').findOne(myobj, (error, result) => {
+      if (error) throw error;
       console.log(result);
       db.close();
     });
@@ -313,8 +313,8 @@ function dropCollection() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').drop((err, delOK) => {
-      if (err) throw err;
+    dbo.collection('Stories').drop((error, delOK) => {
+      if (error) throw error;
       if (delOK) console.log('Collection deleted');
       db.close();
     });

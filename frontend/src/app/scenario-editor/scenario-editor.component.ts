@@ -233,12 +233,8 @@ export class ScenarioEditorComponent implements OnInit {
         type: obj.type,
         values: obj.values
      };
-     switch (new_step.stepType) {
-       case 'when':
+     if (new_step.stepType == 'when') {
          this.selectedStory.background.stepDefinitions.when.push(new_step);
-         break;
-       default:
-         break;
       }
     }
   }

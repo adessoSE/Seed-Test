@@ -227,7 +227,7 @@ function execReport(req, res, stories, mode, callback) {
 function setOptions(reportTime) {
   const OSName = process.platform;
   options.metadata.Platform = OSName;
-  options.name = server.githubRepo;
+  options.name = 'Seed-Test Report';
   options.jsonFile = `features/reporting_${reportTime}.json`;
   options.output = `features/reporting_html_${reportTime}.html`;
 }
@@ -298,7 +298,6 @@ function starredRepositories(ghName, token){
   });
 }
 
-
 function fuseGitWithDb(story, issueId) {
   return new Promise((resolve) => {
     mongo.getOneStory(issueId, (result) => {
@@ -322,7 +321,7 @@ function deleteJsonReport(jsonReport){
   fs.unlink(report, function(err){
     if (err) console.log(err);
     else {
-      console.log(report + ' deleted.');
+      console.log(report + ' json deleted.');
     }
   });
 }
@@ -332,7 +331,7 @@ function deleteHtmlReport(htmlReport){
   fs.unlink(report, function(err){
     if (err) console.log(err);
     else {
-      console.log(report + ' deleted.');
+      console.log(report + ' html deleted.');
     }
   });
 }
