@@ -95,6 +95,7 @@
 }
 
 .disabledButton{
+  visibility: hidden;
   background:#dddddd
 }
 

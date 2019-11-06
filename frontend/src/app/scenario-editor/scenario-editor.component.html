@@ -156,7 +156,7 @@
         <div class="uk-button-group uk-align-right">
           <button id="run_story" class="uk-button" [class.disabledButton]="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning|| !editorLocked || !backgroundLocked" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
           <button id="run_tests" class="uk-button" [class.disabledButton] ="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning || !editorLocked || !backgroundLocked" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
-            Run Tests</button>
+            Run Scenario</button>
           <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
             uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
           <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
