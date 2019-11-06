@@ -4,13 +4,18 @@
 }
 
 /* Style The Dropdown Button */
-.dropbtn1 {
+.left-button {
   background-color: #999;
   color: white;
-  padding: 16px;
-  font-size: 16px;
+  padding: 15px;
+  font-size: 15px;
   border: none;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.left-button:hover {
+  color: #56595e;
 }
 
 a:hover{
@@ -27,16 +32,6 @@ a:hover{
 
 img {
   height: 50px;
-}
-
-#help, #feedback{
-  color: white;
-  font-size: 15px;
-  transition: 0.3s;
-}
-
-#help:hover, #feedback:hover{
-  color: #0099CC;
 }
 
 
@@ -75,7 +70,7 @@ img {
 }
 
 .topnav-left-links a{
-  padding: 12px;
+  float: left;
 }
 
 .right-button{
@@ -115,6 +110,7 @@ img {
 }
 
 .dropdown-list{
+  float: left;
   display: none;
   position: fixed;
   background-color:  #f8f8f8;
