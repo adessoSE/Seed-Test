@@ -3,7 +3,6 @@
   margin: 0px;
 }
 
-/* Style The Dropdown Button */
 .left-button {
   background-color: #999;
   color: white;
@@ -33,7 +32,6 @@ a:hover{
 img {
   height: 50px;
 }
-
 
 .topnav{
   background-color: #999;
@@ -138,12 +136,9 @@ img {
   color: #0099CC;
 }
 
-
 .dropdown:hover .dropdown-list{
   display: block;
 }
-
-
 
 @media screen and (max-width: 600px) {
   .topnav a, .topnav-right {
