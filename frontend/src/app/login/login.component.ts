@@ -4,9 +4,10 @@ import { Router } from '@angular/router';
 import { NgForm} from '@angular/forms';
 import { EventEmitter } from 'protractor';
 import { JsonPipe } from '@angular/common';
+import { environment } from '../../environments/environment'
 
 const testAccountName = 'adessoCucumber';
-const testAccountToken = '';
+const testAccountToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';
 
 @Component({
   selector: 'app-login',

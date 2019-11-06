@@ -4,13 +4,9 @@ const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
 const mongo = require('./database/mongodatabase');
-require('dotenv').config;
 const app = express();
 const helper = require('./serverHelper');
 
-//This variable is for the github name
-let githubName;
-let githubRepo;
 let stories = [];
 
 // Initialize the app.
@@ -25,10 +21,6 @@ function handleError(res, reason, statusMessage, code) {
   res.status(code || 500).json({ error: statusMessage });
 }
 
-//MongoDB uri
-const uri = process.env.DATABASE_URI //'mongodb+srv://Test:Test@seed-3eubh.mongodb.net/test?retryWrites=true&w=majority'//'mongodb+srv://Seed-Admin:KkPuqMeGUfgpyTVp@seed-tsqv2.mongodb.net/test?retryWrites=true&w=majority';
-
-console.log(uri);
 /**
  * API Description
  */
@@ -60,8 +52,8 @@ app
   })
 
   .get('/api/stories/:user/:repository/:token', async (req, res) => {
-    githubName = req.params.user;
-    githubRepo = req.params.repository;
+    let githubName = req.params.user;
+    let githubRepo = req.params.repository;
     let token = req.params.token;
 
     const tmpStories = [];
@@ -201,8 +193,8 @@ app
       //console.log(merged);
       res.status(200).json(merged);
     }).catch((reason) =>{
-      console.log("Get Repositories Error: " + reason);
+      console.log('Get Repositories Error: ' + reason);
     })
   });
 
-module.exports = {app, githubRepo};
+module.exports = {app};

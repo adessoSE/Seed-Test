@@ -69,3 +69,5 @@ frontend/dist/cucumber-frontend/runtime\.06daa30a2963fa413676\.js
 frontend/dist/cucumber-frontend/scripts\.1783ec7bceeab4026a81\.js
 
 frontend/dist/cucumber-frontend/styles\.929c34a151987d4e0622\.css
+
+*.feature
