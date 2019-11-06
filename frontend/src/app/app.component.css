@@ -30,7 +30,7 @@ a:hover{
 }
 
 img {
-  height: 50px;
+  height: 51px;
 }
 
 .topnav{
@@ -40,7 +40,6 @@ img {
 }
 
 .topnav a {
-  float: left;
   text-align: center;
   text-decoration: none;
   font-size: 17px;
@@ -53,6 +52,11 @@ img {
   left: 50%;
   transform: translate(-50%, -50%)
 }
+
+.topnav-left {
+  float:left;
+}
+
 .topnav-left a{
   transform: translate(0%, 0%);
 }
@@ -65,10 +69,6 @@ img {
   float: right;
   padding: 12px;
   margin-top: 4px;
-}
-
-.topnav-left-links a{
-  float: left;
 }
 
 .right-button{
@@ -108,7 +108,6 @@ img {
 }
 
 .dropdown-list{
-  float: left;
   display: none;
   position: fixed;
   background-color:  #f8f8f8;
