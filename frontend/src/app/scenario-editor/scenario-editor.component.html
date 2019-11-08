@@ -1,7 +1,7 @@
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
-    <div class=" uk-card uk-card-default ">
+    <div class=" uk-card uk-card-default" id="story">
       <div class="uk-card-title storyTitleBlock padRight">
         <span class= "storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
         <div class="uk-button-group uk-align-right ">
@@ -77,12 +77,13 @@
               <br/>
               <br/>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-  </div>
-  <br/>
+      
   <!--Scenario Header-->
-  <div class="uk-card uk-card-default"> 
+  <div class="uk-card uk-card-default" id="scenario"> 
     <div id="scenario_title" class="uk-card-title uk-padding">
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
@@ -103,11 +104,8 @@
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>
-  </div>
-  <br />
-  <!--Scenario Editor-->
-  <div class="uk-card uk-card-default uk-padding">
-    <div class="uk-card-title">
+
+    <div class="uk-card-title uk-padding">
       <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
         <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
@@ -167,6 +165,8 @@
       </div>
     </div>
   </div>
+
+  
   <!--Helps to see Loading text-->
   <div *ngIf="!testRunning && !testDone">
     <br/>

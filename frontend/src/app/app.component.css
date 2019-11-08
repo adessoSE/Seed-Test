@@ -3,6 +3,11 @@
   margin: 0px;
 }
 
+#version {
+  float: left;
+  padding: 13px;
+}
+
 .left-button {
   background-color: #999;
   color: white;

@@ -6,6 +6,10 @@
   width: 100%;
 }
 
+#scenario{
+  border: 1px solid #999;
+}
+
 .github-avatar{
   float: right;
 }
