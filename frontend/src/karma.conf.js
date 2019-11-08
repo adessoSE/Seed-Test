@@ -3,7 +3,11 @@
 
 module.exports = function (config) {
   config.set({
-    basePath: '',
+    files: [
+      {pattern: './app/**/*.js', included: true},
+      {pattern: '**/*.js', included: true}
+    ],
+    basePath: './',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
       require('karma-jasmine'),

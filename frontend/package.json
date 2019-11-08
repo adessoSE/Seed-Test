@@ -33,7 +33,7 @@
     "jquery": "^3.4.1",
     "ngx-take-until-destroy": "^5.4.0",
     "node-sass": "^4.13.0",
-    "set-value": "^2.0.1",
+    "set-value": ">=2.0.1",
     "uikit": "^3.2.2",
     "zone.js": "~0.8.26"
   },

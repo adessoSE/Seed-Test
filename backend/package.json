@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "test": "jasmine",
     "database": "node src/database/installDatabase.js",
     "clean": "rimraf ./dist",
     "tsc": "tsc",
@@ -51,6 +52,7 @@
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-config-google": "^0.11.0",
     "eslint-plugin-import": "^2.18.2",
+    "jasmine": "^3.5.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~3.0.0",
