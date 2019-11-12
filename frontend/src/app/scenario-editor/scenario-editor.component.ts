@@ -91,6 +91,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   stepsList(stepDefs: StepDefinition, i: number) {
     if (i == 0) {
+      console.log(JSON.stringify(stepDefs.given))
       return stepDefs.given;
     } else if (i == 1) {
       return stepDefs.when;
@@ -104,7 +105,7 @@ export class ScenarioEditorComponent implements OnInit {
   loadStepDefinitions() {
     this.apiService
       .getStepDefinitions()
-      .subscribe((resp: any)  => {
+      .subscribe((resp: StepDefinition)  => {
         this.originalStepDefinitions = resp;
       });
   }

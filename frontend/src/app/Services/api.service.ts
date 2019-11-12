@@ -12,7 +12,7 @@ import { environment } from '../../environments/environment';
 })
 
 export class ApiService {
-  private apiServer: string = environment.API_SERVER;
+  apiServer: string = environment.API_SERVER;
 
   public getStoriesEvent = new EventEmitter();
 
