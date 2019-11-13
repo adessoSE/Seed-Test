@@ -1,12 +1,14 @@
+  <br>
   <div class="stories">
     <br>
-    <div id="storyHeader"><h4>STORIES</h4></div>
+    <div><h3 id="storyHeader">Stories</h3></div>
+    <hr>
     <ul uk-accordion>
       <li *ngFor="let s of sortedStories(); let i = index ">
 
         <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
           <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
-            #{{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
+            {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
           </a>
           <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
               height="20px">{{s.assignee}}</span>
