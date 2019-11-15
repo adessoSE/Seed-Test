@@ -45,8 +45,8 @@ app
   /**
    * Scenarios API
    */
-  .get('/api/stepDefinitions', (req, res) => {
-    mongo.showStepdefinitions((result) => {
+  .get('/api/stepTypes', (req, res) => {
+    mongo.showSteptypes((result) => {
       res.status(200).json(result);
     });
   })
