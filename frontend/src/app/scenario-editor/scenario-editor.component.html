@@ -2,10 +2,15 @@
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
-    <div class=" uk-card uk-card-default" id="story">
-      <div class="uk-card-title storyTitleBlock padRight">
+    <div class="uk-card uk-card-default uk-padding" id="story">
+      <div class="uk-card-title">
           <h3 id="scenarioheader"><dfn class="def">Story   
-              <span rel="def">Definition Story</span></dfn></h3>
+              <span rel="def">A user story describes requirements for a software system. 
+                It is consciously kept in short sentences and simple words. 
+                A story includes several scenarios.
+                The following template is recommended: 
+                As a <...>, I want <...> so that <...>.
+              </span></dfn></h3>
           <hr>
         <span class= "storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
         <div class="uk-button-group uk-align-right ">
@@ -82,6 +87,18 @@
             </div>
           </div>
         </div>
+        <!--Buttons Run Story-->
+        <div class="uk-card-footer">
+            <div class="uk-button-group uk-align-right">
+              <button id="run_story" class="uk-button" [class.disabledButton]="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning|| !editorLocked || !backgroundLocked" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
+              <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
+                uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
+              <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
+                uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
+              <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
+                uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
+            </div>
+          </div>
       </div>
     </div>
     <br>
@@ -89,7 +106,13 @@
   <div class="uk-card uk-card-default" id="scenario"> 
     <div id="scenario_title" class="uk-card-title uk-padding">
         <h3 id="scenarioheader"><dfn class="def">Scenario   
-            <span rel="def">Definition Scenario</span></dfn></h3>
+            <span rel="def">
+              Each scenario is an example describing a specific behavioral aspect of the system.
+              It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
+              A scenario consists of individual steps:
+                   Given (precondition),
+                   When (action) and
+                   Then (desired result)</span></dfn></h3>
         <hr>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
@@ -156,10 +179,12 @@
           <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" [setEditorLocked]="editorLocked" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
         </ng-template>
       </div>
+      <br>
+      <br>
+      <!--Buttons Run Szenario-->
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-          <button id="run_story" class="uk-button" [class.disabledButton]="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning|| !editorLocked || !backgroundLocked" uk-tooltip="Runs all tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
-          <button id="run_tests" class="uk-button" [class.disabledButton] ="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning || !editorLocked || !backgroundLocked" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
+         <button id="run_tests" class="uk-button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning || !editorLocked || !backgroundLocked" [disabled]="testRunning || !editorLocked || !backgroundLocked" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
             Run Scenario</button>
           <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
             uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
