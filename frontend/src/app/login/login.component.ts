@@ -7,7 +7,7 @@ import { JsonPipe } from '@angular/common';
 import { environment } from '../../environments/environment'
 
 const testAccountName = 'adessoCucumber';
-const testAccountToken = environment.TESTACCOUNT_TOKEN;
+const testAccountToken = 'e4bfaa0db207d8d0b825c39362d4dc3cc17ad767';
 
 @Component({
   selector: 'app-login',
