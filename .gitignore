@@ -50,6 +50,8 @@ envrionment.ts
 .DS_Store
 Thumbs.db
 
+frontend/coverage
+
 frontend/\.editorconfig
 
 frontend/dist/cucumber-frontend/3rdpartylicenses\.txt
