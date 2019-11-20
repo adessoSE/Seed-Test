@@ -25,7 +25,7 @@
     "@angular/platform-browser": "^6.1.0",
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
-    "angular": "^1.7.8",
+    "angular": "^1.7.9",
     "chart.js": "^2.9.1",
     "core-js": "^2.6.10",
     "express": "^4.16.4",
