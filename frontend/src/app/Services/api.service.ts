@@ -4,19 +4,21 @@ import {HttpClient, HttpHeaders, HttpParams, HttpErrorResponse} from '@angular/c
 import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError} from 'rxjs';
 import { environment } from '../../environments/environment';
+//import {server} from '../../../server.js';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ApiService {
-  private apiServer: string = environment.API_SERVER;
-
+  private apiServer: string = sessionStorage.getItem('url_backend');
+  public token: string;
   public getStoriesEvent = new EventEmitter();
-
+  public getTokenEvent = new EventEmitter();
   constructor(private http: HttpClient) {
+    
   }
 
   public getHeader() {
@@ -26,9 +28,14 @@ export class ApiService {
     });
   }
 
-  public getRepositories(token, githubName): Observable<any> {
+  public getRepositories(token: string, githubName): Observable<any> {
+    let repoToken = token;
+    if(!repoToken || repoToken == 'undefined') {
+      repoToken = '';
+    }
     const options = {headers: this.getHeader()};
-    return this.http.get<any>(this.apiServer + '/repositories/' + token + '/' + githubName, options)
+    let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
+    return this.http.get<any>(str, options)
     .pipe(tap(resp => {}),
       catchError(this.handleError));
   }
@@ -38,11 +45,21 @@ export class ApiService {
     return throwError(error);
   }
 
-
+  public getBackendInfo() {
+    if(!sessionStorage.getItem('url_backend')){
+      this.http.get<any>(window.location.origin + '/backendInfo').subscribe((backendInfo) => {
+        sessionStorage.setItem('url_backend', backendInfo.url);
+      });
+    }
+  }
 
   public getStories(repository, token) {
+    let storytoken = token;
+    if(!storytoken || storytoken == 'undefined') {
+      storytoken = '';
+    }
     return this.http
-      .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + token)
+      .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + storytoken)
       .pipe(tap(resp => {
         this.getStoriesEvent.emit(resp);
       }));

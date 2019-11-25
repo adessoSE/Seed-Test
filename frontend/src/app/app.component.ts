@@ -14,11 +14,10 @@ export class AppComponent implements OnInit, DoCheck {
   repositories: string[] = [];
   repository: string;
   constructor(private apiService: ApiService, private router: Router) {
-
+    this.apiService.getBackendInfo()
   }
 
   ngOnInit() {
-
     this.refreshLoginData();
   }
 

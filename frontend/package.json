@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node server.js",
+    "start": "ng build & node server.js",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -28,6 +28,7 @@
     "angular": "^1.7.9",
     "chart.js": "^2.9.3",
     "core-js": "^2.6.10",
+    "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "file-saver": "^2.0.1",
     "jquery": "^3.4.1",
