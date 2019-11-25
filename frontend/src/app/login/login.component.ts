@@ -4,8 +4,6 @@ import { Router } from '@angular/router';
 import { NgForm} from '@angular/forms';
 import { EventEmitter } from 'protractor';
 import { JsonPipe } from '@angular/common';
-import { environment } from '../../environments/environment'
-
 
 
 @Component({
