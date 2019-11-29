@@ -107,6 +107,14 @@ Then('So I can´t see text in the textbox: {string} anymore' , async (label) => 
   });
 });
 
+Then('So I can\'t see the text: {string}', async (string) => {
+  await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
+    const text = await body.getText().then(bodytext => bodytext);
+    expect(text.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
+  });
+});
+
+
 // Closes the webdriver (Browser)
 After(async () => {
   // TODO: check for heroku and Chrome

@@ -5,7 +5,6 @@ import { NgForm} from '@angular/forms';
 import { EventEmitter } from 'protractor';
 import { JsonPipe } from '@angular/common';
 
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
