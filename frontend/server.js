@@ -3,12 +3,16 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const environment = '../frontend/src/environments/environment';
+const dotenv = require('dotenv').config();
 
 // Serve only the static files form the dist directory
 app.use(express.static(__dirname + '/dist/cucumber-frontend'));
 
-app.get('/*', function(req,res) {
+app.get('/backendInfo', function(req,res){
+    res.json({url: process.env.API_SERVER})
+});
 
+app.get('/*', function(req,res) {
     res.sendFile(path.join(__dirname+'/dist/cucumber-frontend/index.html'));
 });
 

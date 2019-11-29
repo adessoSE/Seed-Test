@@ -4,10 +4,9 @@ import { Router } from '@angular/router';
 import { NgForm} from '@angular/forms';
 import { EventEmitter } from 'protractor';
 import { JsonPipe } from '@angular/common';
-import { environment } from '../../environments/environment'
 
-const testAccountName = 'adessoCucumber';
-const testAccountToken = '56cc02bcf1e3083f574d14138faa1ff0a6c7b9a1';
+const testAccountName = '';
+const testAccountToken = '';
 
 @Component({
   selector: 'app-login',
@@ -18,10 +17,12 @@ export class LoginComponent implements OnInit {
 
   repositories;
   error;
+  private testAccountName = 'adessoCucumber';
+  private testAccountToken;
 
   constructor(private apiService: ApiService,
-              private router: Router) { }
-
+              private router: Router) { 
+    }
 
   ngOnInit() {
   }
@@ -39,10 +40,10 @@ export class LoginComponent implements OnInit {
 
   loginTestAccount() {
     this.error = undefined;
-    this.apiService.getRepositories(testAccountToken, testAccountName).subscribe((resp) => {
+    this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
       this.repositories = resp;
-      localStorage.setItem('token', testAccountToken);
-      localStorage.setItem('githubName', testAccountName);
+      localStorage.setItem('token', this.testAccountToken);
+      localStorage.setItem('githubName', this.testAccountName);
     }, (err) => {
       this.error = err.error;
     });
@@ -52,5 +53,4 @@ export class LoginComponent implements OnInit {
     localStorage.setItem('repository', userRepository);
     this.router.navigate(['/']);
   }
-
 }
