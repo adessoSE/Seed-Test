@@ -27,3 +27,9 @@ When I click the button: "Save"
 
 Then So I can see the text "Could not update scenario name!" in the textbox: "Validation" 
 
+@386692174_3
+Scenario: New Scenario
+
+
+
+

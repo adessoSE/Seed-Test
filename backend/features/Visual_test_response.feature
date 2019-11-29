@@ -12,3 +12,9 @@ When I click the button: "loginTest"
 
 Then So I will be navigated to the website: "https://cucumber-app.herokuapp.com/login"  
 
+@386692544_2
+Scenario: New Scenario
+
+
+
+

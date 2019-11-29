@@ -25,7 +25,7 @@ function showStepdefinitions(callback) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('stepDefinitions').find({}).toArray((error, result) => {
+    dbo.collection('stepTypes').find({}).toArray((error, result) => {
       if (error) throw error;
       callback(result);
     });
@@ -118,7 +118,7 @@ function createScenario(git_id, callback) {
         if (error2) throw error2;
         callback(tmpScenario);
       });
-      
+
       db.close();
     });
   });

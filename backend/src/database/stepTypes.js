@@ -100,6 +100,13 @@ function stepDefs() {
       mid: 'in the textbox:',
       values: ['',''],
     },
+    {
+      id: '',
+      stepType: 'then',
+      type: 'Text',
+      pre: "So I can't see the text:",
+      values: [''],
+    },
   ];
 }
 
