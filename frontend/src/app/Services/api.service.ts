@@ -4,7 +4,9 @@ import {HttpClient, HttpHeaders, HttpParams, HttpErrorResponse} from '@angular/c
 import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
-import { Observable, throwError} from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { StepType } from '../model/StepType';
 
 @Injectable({
   providedIn: 'root'
@@ -75,13 +77,12 @@ export class ApiService {
       }));
   }
 
-  public getStepDefinitions() {
+  public getStepTypes() {
     this.apiServer = sessionStorage.getItem('url_backend');
-
     return this.http
-      .get<StepDefinition>(this.apiServer + '/stepDefinitions')
+      .get<StepType[]>(this.apiServer + '/stepTypes')
       .pipe(tap(resp => {
-       // console.log('GET step definitions', resp)
+       //console.log('GET step types', resp)
       }));
   }
 
