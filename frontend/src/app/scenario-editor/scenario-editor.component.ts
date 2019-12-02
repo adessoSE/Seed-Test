@@ -44,11 +44,11 @@ export class ScenarioEditorComponent implements OnInit {
       this.setStories(stories);
     });    
     this.apiService.getBackendUrlEvent.subscribe(() => {
-      this.loadStepDefinitions();
+      this.loadStepTypes();
     });
 
     if(this.apiService.urlReceived) {
-      this.loadStepDefinitions();
+      this.loadStepTypes();
     }else {
       this.apiService.getBackendInfo()
     }
