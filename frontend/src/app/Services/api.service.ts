@@ -32,6 +32,7 @@ export class ApiService {
       repoToken = '';
     }
     const options = {headers: this.getHeader()};
+    this.apiServer = sessionStorage.getItem('url_backend');
     let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
     return this.http.get<any>(str, options)
     .pipe(tap(resp => {}),
@@ -44,11 +45,9 @@ export class ApiService {
   }
 
   public getBackendInfo() {
-    if(!sessionStorage.getItem('url_backend')){
       this.http.get<any>(window.location.origin + '/backendInfo').subscribe((backendInfo) => {
         sessionStorage.setItem('url_backend', backendInfo.url);
       });
-    }
   }
 
   public getStories(repository, token) {
@@ -56,6 +55,7 @@ export class ApiService {
     if(!storytoken || storytoken == 'undefined') {
       storytoken = '';
     }
+    this.apiServer = sessionStorage.getItem('url_backend');
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + storytoken)
       .pipe(tap(resp => {
@@ -64,6 +64,8 @@ export class ApiService {
   }
 
   public getStepDefinitions() {
+    this.apiServer = sessionStorage.getItem('url_backend');
+
     return this.http
       .get<StepDefinition>(this.apiServer + '/stepDefinitions')
       .pipe(tap(resp => {
@@ -72,6 +74,8 @@ export class ApiService {
   }
 
   public addScenario(storyID) {
+    this.apiServer = sessionStorage.getItem('url_backend');
+
       return this.http
         .get<any>(this.apiServer + '/scenario/add/' + storyID)
         .pipe(tap(resp => {
@@ -80,6 +84,8 @@ export class ApiService {
   }
 
   public updateBackground(storyID, background) {
+    this.apiServer = sessionStorage.getItem('url_backend');
+
     return this.http
         .post<any>(this.apiServer + '/background/update/' + storyID, background)
         .pipe(tap(resp => {
@@ -88,6 +94,8 @@ export class ApiService {
   }
 
   public updateScenario(storyID, scenario) {
+    this.apiServer = sessionStorage.getItem('url_backend');
+
     return this.http
         .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
         .pipe(tap(resp => {
@@ -96,6 +104,8 @@ export class ApiService {
   }
 
   public deleteBackground(storyID) {
+    this.apiServer = sessionStorage.getItem('url_backend');
+
     return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
         .pipe(tap(resp => {
@@ -104,6 +114,8 @@ export class ApiService {
   }
 
   public deleteScenario(storyID, scenario) {
+    this.apiServer = sessionStorage.getItem('url_backend');
+
    return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/scenario/delete/' + scenario.scenario_id)
         .pipe(tap(resp => {
@@ -113,6 +125,8 @@ export class ApiService {
 
   // demands testing from the server
   public runTests(storyID, scenarioID) {
+    this.apiServer = sessionStorage.getItem('url_backend');
+
     if (scenarioID) {
       return this.http
       .get(this.apiServer + '/runScenario/' + storyID + '/' + scenarioID, {responseType: 'text'});
