@@ -118,7 +118,7 @@ function createScenario(git_id, callback) {
         if (error2) throw error2;
         callback(tmpScenario);
       });
-      
+
       db.close();
     });
   });

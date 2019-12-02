@@ -16,7 +16,6 @@
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "chart.js": "^2.8.0",
-    "chromedriver": "^76.0.1",
     "core-js": "^2.6.9",
     "cors": "^2.8.5",
     "cucumber": "^5.1.0",
