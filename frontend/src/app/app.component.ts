@@ -14,7 +14,6 @@ export class AppComponent implements OnInit, DoCheck {
   repositories: string[] = [];
   repository: string;
   constructor(private apiService: ApiService, private router: Router) {
-    this.apiService.getBackendInfo()
   }
 
   ngOnInit() {
@@ -43,9 +42,11 @@ export class AppComponent implements OnInit, DoCheck {
   getRepositories() {
     this.token = localStorage.getItem('token');
     this.githubName = localStorage.getItem('githubName');
-
-    this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) => {
-      this.repositories = resp;
+    this.apiService.getBackendUrlEvent.subscribe(() => {
+      console.log('app trigger')
+      this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) => {
+        this.repositories = resp;
+      });
     });
   }
 

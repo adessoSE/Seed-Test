@@ -38,12 +38,20 @@ export class ScenarioEditorComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
     });
-    this.loadStepDefinitions();
+    
+    this.apiService.getBackendUrlEvent.subscribe(() => {
+      this.loadStepDefinitions();
+    });
+
+    if(this.apiService.urlReceived) {
+      this.loadStepDefinitions();
+    }else {
+      this.apiService.getBackendInfo()
+    }
   }
 
 

@@ -11,12 +11,13 @@ import { Observable, throwError} from 'rxjs';
 })
 
 export class ApiService {
-  private apiServer: string = sessionStorage.getItem('url_backend');
+  private apiServer: string = localStorage.getItem('url_backend');
   public token: string;
+  public urlReceived: boolean = false;
   public getStoriesEvent = new EventEmitter();
   public getTokenEvent = new EventEmitter();
+  public getBackendUrlEvent = new EventEmitter();
   constructor(private http: HttpClient) {
-    
   }
 
   public getHeader() {
@@ -33,10 +34,13 @@ export class ApiService {
     }
     const options = {headers: this.getHeader()};
     this.apiServer = sessionStorage.getItem('url_backend');
+    
     let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
     return this.http.get<any>(str, options)
-    .pipe(tap(resp => {}),
-      catchError(this.handleError));
+      .pipe(tap(resp => {}),
+        catchError(this.handleError));
+    
+    
   }
 
   handleError(error: HttpErrorResponse) {
@@ -45,9 +49,17 @@ export class ApiService {
   }
 
   public getBackendInfo() {
+    let url = sessionStorage.getItem('url_backend');
+    if(url && url != 'undefined'){
+      this.urlReceived = true;
+      this.getBackendUrlEvent.emit();
+    } else {
       this.http.get<any>(window.location.origin + '/backendInfo').subscribe((backendInfo) => {
         sessionStorage.setItem('url_backend', backendInfo.url);
+        this.urlReceived = true;
+        this.getBackendUrlEvent.emit();
       });
+    }
   }
 
   public getStories(repository, token) {
