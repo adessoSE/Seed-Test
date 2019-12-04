@@ -23,8 +23,8 @@ export class ScenarioEditorComponent implements OnInit {
   selectedScenario: Scenario;
   showEditor = false;
   showResults = false;
-  editorLocked = true;
-  backgroundLocked = true;
+  /*editorLocked = true;*/
+  /*backgroundLocked = true;*/
   showDescription = false;
   showBackground = false;
   arrowLeft = true;
@@ -74,15 +74,15 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
-    if (!this.editorLocked) {
+    /*if (!this.editorLocked) {*/
       moveItemInArray(this.stepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
-    }
+    /*}*/
   }
 
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
-    if (!this.backgroundLocked) {
+    /*if (!this.backgroundLocked) {*/
       moveItemInArray(this.backgroundList(stepDefs), event.previousIndex, event.currentIndex);
-    }
+    /*}*/
   }
 
   backgroundList(stepDefinitions: StepDefinitionBackground) {
@@ -183,7 +183,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   addStepToScenario(storyID, step) {
     const obj = this.clone( step );
-    if (!this.editorLocked) {
+    /*if (!this.editorLocked) {*/
       const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
       const new_step = {
         id: new_id,
@@ -216,13 +216,13 @@ export class ScenarioEditorComponent implements OnInit {
        default:
          break;
       }
-    }
+    /*}*/
   }
 
   addStepToBackground(storyID, step) {
     const obj = this.clone( step );
 
-    if (!this.backgroundLocked) {
+    /*if (!this.backgroundLocked) {*/
       const new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, obj.stepType) + 1;
       const new_step = {
         id: new_id,
@@ -236,7 +236,7 @@ export class ScenarioEditorComponent implements OnInit {
      if (new_step.stepType == 'when') {
          this.selectedStory.background.stepDefinitions.when.push(new_step);
       }
-    }
+    /*}*/
   }
 
   addStep(step) {
@@ -393,19 +393,19 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  lockBackground() {
+  /*lockBackground() {
     this.backgroundLocked = !this.backgroundLocked;
-  }
+  }*/
 
-  lockEditor() {
+  /*lockEditor() {
     this.editorLocked = !this.editorLocked;
-  }
+  }*/
 
   selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
     this.showEditor = true;
-    this.editorLocked = true;
+    /*this.editorLocked = true;*/
     this.testDone = false;
     this.arrowLeft = this.checkArrowLeft();
     this.arrowRight = this.checkArrowRight();
@@ -417,7 +417,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.showResults = false;
     this.selectedStory = story;
     this.showEditor = true;
-    this.editorLocked = true;
+    /*this.editorLocked = true;*/
     const storyIndex = this.stories.indexOf(this.selectedStory);
     if (this.stories[storyIndex].scenarios[0] !== undefined ) {
       this.selectScenario(this.selectedStory.story_id, this.stories[storyIndex].scenarios[0]);

@@ -4,7 +4,7 @@
     <!--Story-->
     <div class="uk-card uk-card-default uk-padding" id="story">
       <div class="uk-card-title">
-          <h3 id="scenarioheader"><dfn class="def">Story   
+          <h3 id="scenarioheader"><dfn class="def">Story
               <span rel="def">A user story describes requirements for a software system. 
                 It is consciously kept in short sentences and simple words. 
                 A story includes several scenarios.
@@ -42,18 +42,18 @@
           </div>
           <div class="uk-float-right backgroundItems">
             <button id="background_delete"
-              class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Background"  [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" uk-icon="trash"
+              class="uk-icon-button uk-text-muted" data-uk-tooltip title="Delete Background"  [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" uk-icon="trash"
               (click)="deleteBackground($event);">
             </button>
-            <a class="uk-icon-button uk-background-green uk-text-muted" *ngIf="!backgroundLocked"data-uk-tooltip
-              title="Lock and Save Background" uk-icon="unlock"
+            <a class="uk-icon-button uk-text-muted" *ngIf="!backgroundLocked"data-uk-tooltip
+              title="Save Background" uk-icon="unlock"
               (click)="updateBackground(selectedStory.story_id);lockBackground();"></a>
-            <a class="uk-icon-button uk-background-muted uk-text-primary" data-uk-tooltip
-              title="Unlock Background" uk-icon="lock" (click)="lockBackground();"></a>
+            <!--<a class="uk-icon-button uk-background-muted uk-text-primary" data-uk-tooltip
+              title="Unlock Background" uk-icon="lock" (click)="lockBackground();"></a>-->
           </div>
-          <div class="uk-float-right backgroundItems">
+          <div class="uk-float-right">
             <button id="background_add_step" uk-icon="icon: plus-circle"
-              class="uk-text-primary"  [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" title="Add New Step" uk-tooltip></button>
+              class="uk-icon-button uk-text-primary"  [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" title="Add New Step" uk-tooltip></button>
           </div>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
@@ -120,15 +120,15 @@
       <button id="scenario_change_title" [disabled]="editorLocked" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div class="uk-align-right">
-        <button id="new_scenario" class="uk-accordion-content" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
+        <button id="new_scenario" class="uk-icon-button uk-text-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
         <button id="scenario_delete"[class.disabled]="editorLocked" [disabled]="editorLocked"
-          class="uk-icon-button uk-background-red uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
+          class="uk-icon-button uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
           (click)="deleteScenario($event);"></button>
-        <a id="scenario_lock"class="uk-icon-button uk-background-green uk-text-muted" *ngIf="editorLocked === false;" data-uk-tooltip
-          title="Lock and Save Scenario" uk-icon="unlock"
+        <a id="scenario_lock"class="uk-icon-button uk-text-muted" data-uk-tooltip
+          title="Save Scenario" uk-icon="unlock"
           (click)="updateScenario(selectedStory.story_id);lockEditor();"></a>
-        <a id="scenario_unlock"class="uk-icon-button uk-background-muted uk-text-primary" *ngIf="editorLocked" data-uk-tooltip
-          title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>
+        <!--<a id="scenario_unlock"class="uk-icon-button uk-background-muted uk-text-primary" data-uk-tooltip
+          title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>-->
           <button id="scenario_shift_right"*ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
