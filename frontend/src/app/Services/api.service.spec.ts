@@ -54,6 +54,17 @@ describe('ApiService', () => {
     request.flush(dummyStories);
   });
 
+  it('should get BackendInfo', () => {
+    const backendInfo = {url: environment.API_SERVER}
+    sessionStorage.removeItem('url_backend')
+    service.getBackendInfo();
+    const request = httpMock.expectOne(window.location.origin + '/backendInfo');
+    expect(request.request.method).toBe('GET');
+    request.flush(backendInfo);
+    expect(sessionStorage.getItem('url_backend')).toBe(environment.API_SERVER);
+    httpMock.verify();
+  });
+
   /*it('should get StepDefinitions', () => {
     let dummySteps: StepDefinition = [{"_id":"5d765314aea0c94708a6e0a1","id":"","stepType":"given","type":"Role","pre":"As a","mid":"","values":[""],"selection":["Guest","User"]},{"_id":"5d765314aea0c94708a6e0a2","id":"","stepType":"given","type":"Website","pre":"I am on the website:","mid":"","values":[""]},{"_id":"5d765314aea0c94708a6e0a3","id":"","stepType":"example","type":"Add Variable","pre":"","mid":"","values":[""]},{"_id":"5d765314aea0c94708a6e0a4","id":"","stepType":"when","type":"Website","pre":"I go to the website:","mid":"","values":[""]},{"_id":"5d765314aea0c94708a6e0a5","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]},{"_id":"5d765314aea0c94708a6e0a6","id":"","stepType":"when","type":"Field","pre":"I insert","mid":"into the field","values":["",""]},{"_id":"5d765314aea0c94708a6e0a7","id":"","stepType":"when","type":"Radio","pre":"I select ","mid":"from the selection","values":["",""]},{"_id":"5d765314aea0c94708a6e0a8","id":"","stepType":"when","type":"Dropdown","pre":"I select the option","mid":"from the drop-down-menue","values":["",""]},{"_id":"5d765314aea0c94708a6e0a9","id":"","stepType":"when","type":"HoverOverAndSelect","pre":"I hover over the element","mid":"and select the option","values":["",""]},{"_id":"5d765314aea0c94708a6e0aa","id":"","stepType":"when","type":"Checkbox","pre":"I select from the","mid":"multiple selection, the values","values":["",""]},{"_id":"5d765314aea0c94708a6e0ab","id":"","stepType":"then","type":"Website","pre":"So I will be navigated to the website:","mid":"","values":[""]},{"_id":"5d765314aea0c94708a6e0ac","id":"","stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["",""]}];
     let token = '124';
