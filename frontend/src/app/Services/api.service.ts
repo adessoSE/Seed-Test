@@ -13,7 +13,7 @@ import { StepType } from '../model/StepType';
 })
 
 export class ApiService {
-  private apiServer: string = localStorage.getItem('url_backend');
+  public apiServer: string = localStorage.getItem('url_backend');
   public token: string;
   public urlReceived: boolean = false;
   public getStoriesEvent = new EventEmitter();
@@ -70,6 +70,7 @@ export class ApiService {
       storytoken = '';
     }
     this.apiServer = sessionStorage.getItem('url_backend');
+    console.log(this.apiServer + '/stories/' + repository + '/' + storytoken)
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + storytoken)
       .pipe(tap(resp => {

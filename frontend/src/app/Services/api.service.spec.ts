@@ -3,6 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { ApiService } from './api.service';
 import { HttpClient } from '@angular/common/http';
 import { Story } from '../model/Story';
+import { environment } from '../../environments/environment'
 import { StepDefinition } from '../model/StepDefinition';
 
 
@@ -33,7 +34,7 @@ describe('ApiService', () => {
       expect(repos).toEqual(dummyRepos)
     });
 
-    const request = httpMock.expectOne(service.apiServer + '/repositories/' + token + '/' + githubName);
+    const request = httpMock.expectOne(environment.API_SERVER + '/repositories/' + githubName + '/' + token);
     expect(request.request.method).toBe('GET');
     request.flush(dummyRepos);
   });
@@ -48,7 +49,7 @@ describe('ApiService', () => {
       expect(repos).toEqual(dummyStories);
     });
 
-    const request = httpMock.expectOne(service.apiServer + '/stories/' + repository + '/' + token);
+    const request = httpMock.expectOne(environment.API_SERVER + '/stories/' + repository + '/' + token);
     expect(request.request.method).toBe('GET');
     request.flush(dummyStories);
   });

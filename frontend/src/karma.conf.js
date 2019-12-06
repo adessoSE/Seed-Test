@@ -4,8 +4,8 @@
 module.exports = function (config) {
   config.set({
     files: [
-      {pattern: './app/**/*.js', included: true},
-      {pattern: '**/*.js', included: true}
+      {pattern: './app/**/*.ts', included: true},
+      {pattern: '**/*.ts', included: true}
     ],
     basePath: './',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
