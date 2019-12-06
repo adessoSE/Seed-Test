@@ -57,8 +57,8 @@
           </div>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of originalStepDefinitions; let i = index" >
-                <a id="{{'backgound_add_step_definition' + i}}" *ngIf="step.stepType=== 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
+              <li *ngFor="let step of originalStepTypes; let i = index" >
+                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
                   href="#">{{step.type}}</a>
               </li>
             </ul>
@@ -142,8 +142,8 @@
             class="uk-text-primary" title="Add new step" uk-tooltip></button>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of originalStepDefinitions; let j = index;" >
-                <a id="{{'scenario_add_step_' + i + '_definition_' + j}}" *ngIf="step.stepType===sd "  (click)="addStepToScenario(selectedStory.story_id,step);"
+              <li *ngFor="let step of originalStepTypes; let j = index;" >
+                <a id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd " (click)="addStepToScenario(selectedStory.story_id,step);"
                   href="#">{{step.type}}</a>
               </li>
             </ul>

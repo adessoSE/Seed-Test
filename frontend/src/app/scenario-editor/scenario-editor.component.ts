@@ -8,6 +8,7 @@ import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
+import { StepType } from '../model/StepType';
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
 @Component({
@@ -18,7 +19,7 @@ const emptyBackground = {name, stepDefinitions: {when: []}};
 
 export class ScenarioEditorComponent implements OnInit {
   stories: Story[];
-  originalStepDefinitions: StepDefinition;
+  originalStepTypes: StepType[];
   selectedStory: Story;
   selectedScenario: Scenario;
   showEditor = false;
@@ -38,12 +39,19 @@ export class ScenarioEditorComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
+    });    
+    this.apiService.getBackendUrlEvent.subscribe(() => {
+      this.loadStepTypes();
     });
-    this.loadStepDefinitions();
+
+    if(this.apiService.urlReceived) {
+      this.loadStepTypes();
+    }else {
+      this.apiService.getBackendInfo()
+    }
   }
 
 
@@ -101,11 +109,19 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  loadStepDefinitions() {
+  keysList(stepDefs) {
+    if (stepDefs != null) {
+      return Object.keys(stepDefs);
+    } else {
+      return '';
+    }
+  }
+
+  loadStepTypes() {
     this.apiService
-      .getStepDefinitions()
-      .subscribe((resp: any)  => {
-        this.originalStepDefinitions = resp;
+      .getStepTypes()
+      .subscribe((resp: StepType[])  => {
+        this.originalStepTypes = resp;
       });
   }
 
@@ -295,19 +311,6 @@ export class ScenarioEditorComponent implements OnInit {
         break;
     }
   }
-
-
-  keysList(stepDefs) {
-    if (stepDefs != null) {
-      return Object.keys(stepDefs);
-    } else {
-      return '';
-    }
-  }
-
-
-
-
 
   addToValuesBackground(input: string, stepIndex, valueIndex) {
     this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
