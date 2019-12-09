@@ -40,7 +40,6 @@ describe('ExampleTableComponent', () => {
 
   it('should setSelectedScenario without examples', () => {
     let selectedScenario: Scenario = {"name": "New Scenario", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
-    console.log("selectedScenario lengt: " + selectedScenario.stepDefinitions.example.length)
     fixture.componentInstance.newSelectedScenario = selectedScenario;
     expect(component.selectedScenario).toBe(selectedScenario);
     expect(component.exampleThere).toBeFalsy();

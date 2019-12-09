@@ -9,6 +9,7 @@ import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
+import { ExampleTableComponent } from '../example-table/example-table.component';
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
 @Component({
@@ -35,10 +36,10 @@ export class ScenarioEditorComponent implements OnInit {
   uncutInputs: string[] = [];
   htmlReport;
 
-  @ViewChild('exampleChildView') exampleChild;
+  @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
 
   constructor(
-    private apiService: ApiService,
+    public apiService: ApiService,
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
@@ -63,8 +64,8 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   @Input()
-  removeRowIndex(event) {
-    this.removeStepToScenario(event, 'example', event);
+  removeRowIndex(index: number) {
+    this.removeStepToScenario('example', index);
   }
 
   @Input()
@@ -294,7 +295,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.selectedStory.background.stepDefinitions.when.splice(index, 1);
   }
 
-  removeStepToScenario(event, stepDefType, index) {
+  removeStepToScenario(stepDefType, index) {
     switch (stepDefType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given.splice(index, 1);
