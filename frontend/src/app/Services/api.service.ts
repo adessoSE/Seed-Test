@@ -5,7 +5,6 @@ import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
 import { Observable, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { StepType } from '../model/StepType';
 
 @Injectable({

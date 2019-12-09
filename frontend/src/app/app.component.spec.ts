@@ -47,9 +47,9 @@ describe('AppComponent', () => {
     const injector = getTestBed();
     const router = injector.get(Router); 
 
-    localStorage.setItem('repository', 'test1')
-    localStorage.setItem('token', '123');
-    localStorage.setItem('githubName', 'name');
+    //localStorage.setItem('repository', 'test1')
+    //localStorage.setItem('token', '123');
+    //localStorage.setItem('githubName', 'name');
 
     //component.logout();
 
