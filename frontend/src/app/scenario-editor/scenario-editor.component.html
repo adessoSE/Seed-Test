@@ -183,7 +183,8 @@
       <br>
       <div>
           <label>Comment</label><br>
-          <textarea cols="50" rows="5"></textarea>
+          <textarea cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
+          </textarea>
       </div>
       <br>
       <br>
