@@ -18,21 +18,25 @@ export class ParentComponent implements OnInit {
 
   constructor(private apiService: ApiService,
               private router: Router) {
-
+    this.apiService.getBackendUrlEvent.subscribe(() => {
+      this.loadStories();
+    });
+    if(this.apiService.urlReceived) {
+      this.loadStories();
+    }else {
+      this.apiService.getBackendInfo()
+    }
    }
 
   ngOnInit() {
-
     // let users only use site if they are logged in
     /*let token = localStorage.getItem('token');
     if(!token){
       this.router.navigate(['/login']);
     }*/
-    this.loadStories();
   }
 
   loadStories() {
-
     let repository = localStorage.getItem('repository');
     this.apiService
       .getStories(repository, this.apiService.getToken())

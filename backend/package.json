@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "test": "jasmine",
     "database": "node src/database/installDatabase.js",
     "clean": "rimraf ./dist",
     "tsc": "tsc",
@@ -15,7 +16,6 @@
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "chart.js": "^2.8.0",
-    "chromedriver": "^76.0.1",
     "core-js": "^2.6.9",
     "cors": "^2.8.5",
     "cucumber": "^5.1.0",
@@ -51,6 +51,7 @@
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-config-google": "^0.11.0",
     "eslint-plugin-import": "^2.18.2",
+    "jasmine": "^3.5.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~3.0.0",

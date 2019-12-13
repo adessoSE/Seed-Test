@@ -1,19 +1,28 @@
-
 <div class="topnav">
+  <!--center-->
   <div class="topnav-center">
-    <a href="https://cucumber-app.herokuapp.com/" class="title">
+    <a href="https://seed-test-frontend.herokuapp.com/" class="title">
       <h4 id="cucumberApp">Seed-Test</h4>
     </a>
   </div>
+  <!--left-->
   <div class="topnav-left">
     <a id="img" href="https://www.adesso.de/en/">
       <img src="assets/adesso-logo.jpg" alt="adesso AG">
     </a>
-    <div class="topnav-left-links">
-      <a id="help" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank" rel="noopener noreferrer">Help</a>
-      <a id="feedback" href="https://cucumber-app.herokuapp.com/feedback" target="_blank" rel="noopener noreferrer">Feedback</a>
+    <a href="https://cucumber-app.herokuapp.com/feedback">
+      <button class="left-button">Feedback</button>
+    </a>
+    <div class="dropdown">
+      <button class="left-button">Help</button>
+      <div class="dropdown-list">
+        <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial">Tutorial (german)</a>
+        <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng">Tutorial (english)</a>
+      </div>
     </div>
   </div>
+  <p id="version">Version 0.1.0</p>
+  <!--right-->
   <div class="topnav-right">
     <span *ngIf="this.token || this.repository"> 
       <div class="dropdown">
@@ -30,6 +39,5 @@
     </span>
   </div>
 </div>
-
 
 <router-outlet></router-outlet>

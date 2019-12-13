@@ -45,17 +45,19 @@ app
   /**
    * Scenarios API
    */
-  .get('/api/stepDefinitions', (req, res) => {
-    mongo.showStepdefinitions((result) => {
+  .get('/api/stepTypes', (req, res) => {
+    mongo.showSteptypes((result) => {
       res.status(200).json(result);
     });
   })
 
-  .get('/api/stories/:user/:repository/:token', async (req, res) => {
+  .get('/api/stories/:user/:repository/:token?', async (req, res) => {
     let githubName = req.params.user;
     let githubRepo = req.params.repository;
     let token = req.params.token;
-
+    if(!token && githubName == process.env.TESTACCOUNT_NAME) {
+      token = process.env.TESTACCOUNT_TOKEN;
+    }
     const tmpStories = [];
     // get Issues from GitHub .
     const request = new XMLHttpRequest();
@@ -182,9 +184,12 @@ app
     helper.runReport(req, res, stories, 'scenario');
   })
 
-  .get('/api/repositories/:token?/:githubName?', (req, res) => {
+  .get('/api/repositories/:githubName?/:token?', (req, res) => {
     let token = req.params.token;
     let githubName = req.params.githubName
+    if(!token && githubName === process.env.TESTACCOUNT_NAME) {
+      token = process.env.TESTACCOUNT_TOKEN;
+    }
     Promise.all([
       helper.starredRepositories(githubName, token),
       helper.ownRepositories(token)

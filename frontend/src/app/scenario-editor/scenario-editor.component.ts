@@ -8,6 +8,7 @@ import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
+import { StepType } from '../model/StepType';
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
 @Component({
@@ -18,13 +19,13 @@ const emptyBackground = {name, stepDefinitions: {when: []}};
 
 export class ScenarioEditorComponent implements OnInit {
   stories: Story[];
-  originalStepDefinitions: StepDefinition;
+  originalStepTypes: StepType[];
   selectedStory: Story;
   selectedScenario: Scenario;
   showEditor = false;
   showResults = false;
-  editorLocked = true;
-  backgroundLocked = true;
+  /*editorLocked = true;*/
+  /*backgroundLocked = true;*/
   showDescription = false;
   showBackground = false;
   arrowLeft = true;
@@ -38,12 +39,17 @@ export class ScenarioEditorComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
+    });    
+    this.apiService.getBackendUrlEvent.subscribe(() => {
+      this.loadStepTypes();
     });
-    this.loadStepDefinitions();
+
+    if(this.apiService.urlReceived) {
+      this.loadStepTypes();
+    }
   }
 
 
@@ -74,15 +80,15 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
-    if (!this.editorLocked) {
+    /*if (!this.editorLocked) {*/
       moveItemInArray(this.stepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
-    }
+    /*}*/
   }
 
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
-    if (!this.backgroundLocked) {
+    /*if (!this.backgroundLocked) {*/
       moveItemInArray(this.backgroundList(stepDefs), event.previousIndex, event.currentIndex);
-    }
+    /*}*/
   }
 
   backgroundList(stepDefinitions: StepDefinitionBackground) {
@@ -101,11 +107,19 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  loadStepDefinitions() {
+  keysList(stepDefs) {
+    if (stepDefs != null) {
+      return Object.keys(stepDefs);
+    } else {
+      return '';
+    }
+  }
+
+  loadStepTypes() {
     this.apiService
-      .getStepDefinitions()
-      .subscribe((resp: any)  => {
-        this.originalStepDefinitions = resp;
+      .getStepTypes()
+      .subscribe((resp: StepType[])  => {
+        this.originalStepTypes = resp;
       });
   }
 
@@ -183,7 +197,7 @@ export class ScenarioEditorComponent implements OnInit {
 
   addStepToScenario(storyID, step) {
     const obj = this.clone( step );
-    if (!this.editorLocked) {
+    /*if (!this.editorLocked) {*/
       const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
       const new_step = {
         id: new_id,
@@ -216,13 +230,13 @@ export class ScenarioEditorComponent implements OnInit {
        default:
          break;
       }
-    }
+    /*}*/
   }
 
   addStepToBackground(storyID, step) {
     const obj = this.clone( step );
 
-    if (!this.backgroundLocked) {
+    /*if (!this.backgroundLocked) {*/
       const new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, obj.stepType) + 1;
       const new_step = {
         id: new_id,
@@ -236,7 +250,7 @@ export class ScenarioEditorComponent implements OnInit {
      if (new_step.stepType == 'when') {
          this.selectedStory.background.stepDefinitions.when.push(new_step);
       }
-    }
+    /*}*/
   }
 
   addStep(step) {
@@ -295,19 +309,6 @@ export class ScenarioEditorComponent implements OnInit {
         break;
     }
   }
-
-
-  keysList(stepDefs) {
-    if (stepDefs != null) {
-      return Object.keys(stepDefs);
-    } else {
-      return '';
-    }
-  }
-
-
-
-
 
   addToValuesBackground(input: string, stepIndex, valueIndex) {
     this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
@@ -393,19 +394,19 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  lockBackground() {
+  /*lockBackground() {
     this.backgroundLocked = !this.backgroundLocked;
-  }
+  }*/
 
-  lockEditor() {
+  /*lockEditor() {
     this.editorLocked = !this.editorLocked;
-  }
+  }*/
 
   selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
     this.showEditor = true;
-    this.editorLocked = true;
+    /*this.editorLocked = true;*/
     this.testDone = false;
     this.arrowLeft = this.checkArrowLeft();
     this.arrowRight = this.checkArrowRight();
@@ -417,7 +418,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.showResults = false;
     this.selectedStory = story;
     this.showEditor = true;
-    this.editorLocked = true;
+    /*this.editorLocked = true;*/
     const storyIndex = this.stories.indexOf(this.selectedStory);
     if (this.stories[storyIndex].scenarios[0] !== undefined ) {
       this.selectScenario(this.selectedStory.story_id, this.stories[storyIndex].scenarios[0]);
