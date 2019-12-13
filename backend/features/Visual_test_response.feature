@@ -2,19 +2,16 @@ Feature: Visual test response
 
 Background: 
 
-
-@386692544_1
-Scenario: test
-
-Given I am on the website: "https://cucumber-app.herokuapp.com/login"  
-
-When I click the button: "loginTest"  
-
-Then So I will be navigated to the website: "https://cucumber-app.herokuapp.com/login"  
+When I go to the website: ""  
+And I click the button: ""  
+And I insert "" into the field "" 
+And I select  "" from the selection "" 
+And I go to the website: "gg"  
 
 @386692544_2
 Scenario: New Scenario
 
 
 
+Then So I will be navigated to the website: "hhheg"  
 
