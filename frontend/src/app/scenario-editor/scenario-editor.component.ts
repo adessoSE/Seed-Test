@@ -108,7 +108,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  keysList(stepDefs) {
+  keysList(stepDefs: StepDefinition) {
     if (stepDefs != null) {
       return Object.keys(stepDefs);
     } else {
@@ -154,13 +154,13 @@ export class ScenarioEditorComponent implements OnInit {
 
   }
 
-  addScenario(storyID) {
-    this.apiService
-      .addScenario(storyID)
-      .subscribe((resp: any)  => {
-        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
-      });
-  }
+  //  addScenario(storyID) {
+  //    this.apiService
+  //      .addScenario(storyID)
+  //      .subscribe((resp: any) s => {
+  //        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
+  //      });
+  //  }
 
   deleteBackground() {
     this.apiService

@@ -69,7 +69,6 @@ export class ApiService {
       storytoken = '';
     }
     this.apiServer = sessionStorage.getItem('url_backend');
-    console.log(this.apiServer + '/stories/' + repository + '/' + storytoken)
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + storytoken)
       .pipe(tap(resp => {

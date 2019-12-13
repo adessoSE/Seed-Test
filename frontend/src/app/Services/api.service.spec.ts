@@ -22,6 +22,7 @@ describe('ApiService', () => {
   })
     service = TestBed.get(ApiService);
     httpMock = TestBed.get(HttpTestingController);
+    service.getBackendInfo();
 });
 
   it('should be created', () => {
