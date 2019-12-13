@@ -42,16 +42,16 @@
           </div>
           <div class="uk-float-right backgroundItems">
             <button id="background_delete"
-              class="uk-icon-button uk-text-muted" data-uk-tooltip title="Delete Background" uk-icon="trash"
+              class="uk-text-primary" data-uk-tooltip title="Delete Background" uk-icon="trash"
               (click)="deleteBackground($event);">
             </button>
-            <a class="uk-icon-button uk-text-muted" data-uk-tooltip
+            <button class="uk-text-primary" data-uk-tooltip
               title="Save Background" uk-icon="unlock"
-              (click)="updateBackground(selectedStory.story_id);"></a>
+              (click)="updateBackground(selectedStory.story_id);"></button>
           </div>
           <div class="uk-float-right">
             <button id="background_add_step" uk-icon="icon: plus-circle"
-              class="uk-icon-button uk-text-primary" title="Add New Step" uk-tooltip></button>
+              class="uk-text-primary" title="Add New Step" uk-tooltip></button>
           </div>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
@@ -117,14 +117,14 @@
       <span id="scname">#{{selectedScenario.name | titlecase}}</span>
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
-      <div class="uk-align-right">
-        <button id="new_scenario" class="uk-icon-button uk-text-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
+      <div class="uk-align-right backgroundItems">
+        <button id="new_scenario" class="uk-text-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
         <button id="scenario_delete"
-          class="uk-icon-button uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
+          class="uk-text-primary" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
           (click)="deleteScenario($event);"></button>
-        <a id="scenario_lock"class="uk-icon-button uk-text-muted" data-uk-tooltip
+        <button id="scenario_lock"class="uk-text-primary" data-uk-tooltip
           title="Save Scenario" uk-icon="unlock"
-          (click)="updateScenario(selectedStory.story_id);"></a>
+          (click)="updateScenario(selectedStory.story_id);"></button>
           <button id="scenario_shift_right"*ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
