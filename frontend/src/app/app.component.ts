@@ -18,6 +18,9 @@ export class AppComponent implements OnInit, DoCheck {
 
   ngOnInit() {
     this.refreshLoginData();
+    if(!this.apiService.urlReceived) {
+      this.apiService.getBackendInfo()
+    }
   }
 
   refreshLoginData() {

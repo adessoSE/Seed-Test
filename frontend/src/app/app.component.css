@@ -3,6 +3,25 @@
   margin: 0px;
 }
 
+#version {
+  float: left;
+  padding: 13px;
+}
+
+.left-button {
+  background-color: #999;
+  color: white;
+  padding: 15px;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.left-button:hover {
+  color: #56595e;
+}
+
 a:hover{
   color:#0099CC;
 }
@@ -16,19 +35,8 @@ a:hover{
 }
 
 img {
-  height: 50px;
+  height: 51px;
 }
-
-#help, #feedback{
-  color: white;
-  font-size: 15px;
-  transition: 0.3s;
-}
-
-#help:hover, #feedback:hover{
-  color: #0099CC;
-}
-
 
 .topnav{
   background-color: #999;
@@ -37,7 +45,6 @@ img {
 }
 
 .topnav a {
-  float: left;
   text-align: center;
   text-decoration: none;
   font-size: 17px;
@@ -50,6 +57,11 @@ img {
   left: 50%;
   transform: translate(-50%, -50%)
 }
+
+.topnav-left {
+  float:left;
+}
+
 .topnav-left a{
   transform: translate(0%, 0%);
 }
@@ -62,10 +74,6 @@ img {
   float: right;
   padding: 12px;
   margin-top: 4px;
-}
-
-.topnav-left-links a{
-  padding: 12px;
 }
 
 .right-button{
@@ -132,12 +140,9 @@ img {
   color: #0099CC;
 }
 
-
 .dropdown:hover .dropdown-list{
   display: block;
 }
-
-
 
 @media screen and (max-width: 600px) {
   .topnav a, .topnav-right {
