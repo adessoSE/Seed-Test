@@ -49,8 +49,6 @@ export class ScenarioEditorComponent implements OnInit {
 
     if(this.apiService.urlReceived) {
       this.loadStepTypes();
-    }else {
-      this.apiService.getBackendInfo()
     }
   }
 
