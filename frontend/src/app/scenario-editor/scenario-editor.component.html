@@ -2,9 +2,9 @@
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
-    <div class="uk-card uk-card-default uk-padding" id="story">
+    <div class="uk-card uk-card-default padding" id="story">
       <div class="uk-card-title">
-          <h3 id="storyheader">Story</h3>
+          <h4 id="storyheader">Story</h4>
           <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
               <span rel="def">A user story describes requirements for a software system. 
                 It is consciously kept in short sentences and simple words. 
@@ -13,13 +13,10 @@
                 As a <...>, I want <...> so that <...>
               </span></dfn>
             <br>
-          <hr>
         <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
         <div class="uk-button-group uk-align-right ">
         </div>
       </div>
-      <br>
-      <br>
       <br>
       <!--Description-->
       <div class="uk-card-title " [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
@@ -29,7 +26,6 @@
       <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
         {{selectedStory.body}}
       </div>
-      <br>
       <!--Background-->
       <div class="uk-card-title ">
         <div [class.backgroundTitle]="!showBackground" [class.description]="showBackground" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
@@ -100,12 +96,11 @@
             </div>
           </div>
       </div>
-    </div>
     <br>
   <!--Scenario Header-->
-  <div class="uk-card uk-card-default uk-padding" id="scenario"> 
+  <div class="uk-card uk-card-default padding" id="scenario"> 
     <div id="scenario_title" class="uk-card-title">
-        <h3 id="scenarioheader">Scenario</h3>
+        <h4 id="scenarioheader">Scenario</h4>
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
               It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -115,7 +110,6 @@
                    Then (desired result)
                   </span></dfn>
         <br>
-        <hr>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
       <span id="scname">#{{selectedScenario.name | titlecase}}</span>
@@ -134,7 +128,7 @@
       </div>
     </div>
 
-    <div class="uk-card-title uk-padding">
+    <div class="uk-card-title padding">
       <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
         <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
@@ -170,7 +164,6 @@
             </div>
           </div>
           <br>
-          <br>
         </div>
         <ng-template #exampleTitle>
           {{ sd | titlecase }}
@@ -180,13 +173,11 @@
         </ng-template>
       </div>
       <br>
-      <br>
       <div>
           <label>Comment</label><br>
           <textarea cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
           </textarea>
       </div>
-      <br>
       <br>
       <!--Buttons Run Szenario-->
       <div class="uk-card-footer">
@@ -203,11 +194,11 @@
       </div>
     </div>
   </div>
+</div>
 
   
   <!--Helps to see Loading text-->
   <div *ngIf="!testRunning && !testDone">
-    <br>
     <br>
     <br>
   </div>
@@ -218,7 +209,7 @@
     </div>
   </div>
 
-  <div id="testreport" class="uk-card uk-card-default uk-padding uk-animation-fade" [hidden]=!showResults>
+  <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
     <div id="report-header" class="uk-card-header">
       <h3 class="uk-card-title">Test Results</h3>
     </div>
