@@ -111,6 +111,23 @@
   background: #32d296;
 }*/
 
+#scenario_shift_left{
+  color: #0099CC;
+}
+
+#scenario_change_title {
+  color: #0099CC;
+}
+
+.buttonGroup{
+  margin-left: 10px;
+  color: #0099CC;
+}
+
+.addStepButtons{
+  color: rgba(0, 153, 204, 0.712);
+}
+
 
 .disabled {
   color: gray !important;
@@ -124,14 +141,7 @@
 .uk-card-title {
   font-size: medium;
   font-weight: bold;
-  /* line-height: 1.5; */
 }
-
-/* .uk-align-right {
-  margin-top: 0;
-  float: right;
-  margin-bottom: 0;
-} */
 
 .uk-card-footer{
   padding-bottom: 0;
@@ -175,8 +185,6 @@
 .storyTitleBlock{
   padding-left:40px;
   padding-top:40px;
-  /*padding-bottom:40px;*/
-  /*text-align: center;*/
 }
 
 .storyTitle{

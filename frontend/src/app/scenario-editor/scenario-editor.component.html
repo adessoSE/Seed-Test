@@ -12,7 +12,7 @@
                 As a <...>, I want <...> so that <...>.
               </span></dfn></h3>
           <hr>
-        <span class= "storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
+        <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
         <div class="uk-button-group uk-align-right ">
         </div>
       </div>
@@ -42,16 +42,16 @@
           </div>
           <div class="uk-float-right backgroundItems">
             <button id="background_delete"
-              class="uk-text-primary" data-uk-tooltip title="Delete Background" uk-icon="trash"
+              class="buttonGroup" data-uk-tooltip title="Delete Background" uk-icon="trash"
               (click)="deleteBackground($event);">
             </button>
-            <button class="uk-text-primary" data-uk-tooltip
-              title="Save Background" uk-icon="unlock"
+            <button class="buttonGroup" data-uk-tooltip
+              title="Save Background" uk-icon="lock"
               (click)="updateBackground(selectedStory.story_id);"></button>
           </div>
           <div class="uk-float-right">
             <button id="background_add_step" uk-icon="icon: plus-circle"
-              class="uk-text-primary" title="Add New Step" uk-tooltip></button>
+              class="buttonGroup" title="Add New Step" uk-tooltip></button>
           </div>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
@@ -118,14 +118,14 @@
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div class="uk-align-right">
-        <button id="new_scenario" class="uk-text-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
+        <button id="new_scenario" class="buttonGroup" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
         <button id="scenario_delete"
-          class="uk-text-primary" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
+          class="buttonGroup" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
           (click)="deleteScenario($event);"></button>
-        <button id="scenario_lock"class="uk-text-primary" data-uk-tooltip
-          title="Save Scenario" uk-icon="unlock"
+        <button id="scenario_save"class="buttonGroup" data-uk-tooltip
+          title="Save Scenario" uk-icon="lock"
           (click)="updateScenario(selectedStory.story_id);"></button>
-          <button id="scenario_shift_right" class="uk-text-primary" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
+        <button id="scenario_shift_right" class="buttonGroup" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>
@@ -135,7 +135,7 @@
         <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
         <div class="uk-float-right">
           <button id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
-            class="uk-text-primary" title="Add new step" uk-tooltip></button>
+            class="addStepButtons" title="Add new step" uk-tooltip></button>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
