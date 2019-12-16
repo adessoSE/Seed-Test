@@ -44,8 +44,20 @@
   color: #999;
 }
 
+#storyheader{
+  color: #999;
+  float: left;
+}
+
+#infoIcon{
+  color: #999;
+  padding-top: 3px;
+  margin-left: 7px;
+}
+
 #scenarioheader{
   color: #999;
+  float: left;
 }
 
 .github-avatar{
@@ -115,7 +127,7 @@
   color: #0099CC;
 }
 
-#scenario_change_title {
+#scenario_change_title{
   color: #0099CC;
 }
 
@@ -125,7 +137,7 @@
 }
 
 .addStepButtons{
-  color: rgba(0, 153, 204, 0.712);
+  color: rgba(7, 142, 187, 0.733);
 }
 
 
