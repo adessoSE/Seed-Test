@@ -12,7 +12,7 @@ let stories = [];
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
   const { port } = server.address();
-  console.log('App now running on port', port);  
+  console.log('App now running on port', port);
 });
 
 // Handling response errors
@@ -45,8 +45,8 @@ app
   /**
    * Scenarios API
    */
-  .get('/api/stepDefinitions', (req, res) => {
-    mongo.showStepdefinitions((result) => {
+  .get('/api/stepTypes', (req, res) => {
+    mongo.showStepTypes((result) => {
       res.status(200).json(result);
     });
   })

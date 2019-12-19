@@ -20,12 +20,12 @@ function getOneStory(id, callback) {
   });
 }
 
-// GET all  Stepdefinitions
-function showStepdefinitions(callback) {
+// GET all  StepTypes
+function showStepTypes(callback) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('stepDefinitions').find({}).toArray((error, result) => {
+    dbo.collection('stepTypes').find({}).toArray((error, result) => {
       if (error) throw error;
       callback(result);
     });
@@ -118,7 +118,7 @@ function createScenario(git_id, callback) {
         if (error2) throw error2;
         callback(tmpScenario);
       });
-      
+
       db.close();
     });
   });
@@ -323,12 +323,12 @@ function dropCollection() {
 
 function installDatabase(){
   makeCollection('Stories');
-  insertMore('stepDefinitions', stepTypes());
+  insertMore('stepTypes', stepTypes());
 }
 
 
 module.exports = {
-  showStepdefinitions,
+  showStepTypes,
   createBackground,
   deleteBackground,
   updateBackground,

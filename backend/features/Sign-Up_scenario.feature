@@ -7,6 +7,7 @@ Background:
 Scenario: successful Sign Up
 
 Given As a  
+Given I am on the website: ""  
 
 When I am on the website: "https://forum.golem.de/register.php?121624"  
 When I click the button: "golemAcceptCookies();"  
