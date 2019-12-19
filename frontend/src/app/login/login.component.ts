@@ -5,7 +5,8 @@ import { NgForm} from '@angular/forms';
 import { EventEmitter } from 'protractor';
 import { JsonPipe } from '@angular/common';
 
-const testAccountName = '';
+
+const testAccountName = 'adessoCucumber';
 const testAccountToken = '';
 
 @Component({
