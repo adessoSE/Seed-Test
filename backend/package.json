@@ -34,7 +34,7 @@
     "masonry-layout": "^4.2.2",
     "mongodb": "^3.2.7",
     "node-sass": "^4.12.0",
-    "npm": "^6.11.2",
+    "npm": "^6.13.4",
     "npm-run": "^5.0.1",
     "rxjs": "^6.5.2",
     "selenium-webdriver": "^4.0.0-alpha.4",

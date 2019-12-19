@@ -12,7 +12,7 @@ let stories = [];
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
   const { port } = server.address();
-  console.log('App now running on port', port);  
+  console.log('App now running on port', port);
 });
 
 // Handling response errors
