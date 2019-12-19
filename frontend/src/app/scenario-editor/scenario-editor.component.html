@@ -5,10 +5,10 @@
     <div class="uk-card uk-card-default uk-padding" id="story">
       <div class="uk-card-title">
           <h3 id="scenarioheader"><dfn class="def">Story
-              <span rel="def">A user story describes requirements for a software system. 
-                It is consciously kept in short sentences and simple words. 
+              <span rel="def">A user story describes requirements for a software system.
+                It is consciously kept in short sentences and simple words.
                 A story includes several scenarios.
-                The following template is recommended: 
+                The following template is recommended:
                 As a <...>, I want <...> so that <...>.
               </span></dfn></h3>
           <hr>
@@ -21,8 +21,8 @@
       <br>
       <!--Description-->
       <div class="uk-card-title " [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
-        <button id="description_up" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
-        <button id="description_down" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
+        <button id="description_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
+        <button id="description_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
       </div>
       <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
         {{selectedStory.body}}
@@ -31,8 +31,8 @@
       <!--Background-->
       <div class="uk-card-title ">
         <div [class.backgroundTitle]="!showBackground" [class.description]="showBackground" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
-          <button id="background_up" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
-          <button id="background_down" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
+          <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
+          <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
         </div>
         <br>
         <div *ngIf="showBackground">
@@ -62,7 +62,7 @@
             </ul>
           </div>
           <div class="uk-steps">
-            <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)"> 
+            <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
               <div class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
                 <button id="{{'background_remove_step' + j}}" a
                   uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
@@ -101,9 +101,9 @@
     </div>
     <br>
   <!--Scenario Header-->
-  <div class="uk-card uk-card-default" id="scenario"> 
+  <div class="uk-card uk-card-default" id="scenario">
     <div id="scenario_title" class="uk-card-title uk-padding">
-        <h3 id="scenarioheader"><dfn class="def">Scenario   
+        <h3 id="scenarioheader"><dfn class="def">Scenario
             <span rel="def">
               Each scenario is an example describing a specific behavioral aspect of the system.
               It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -146,7 +146,7 @@
           </div>
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
-          <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)"> 
+          <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
             <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
@@ -154,14 +154,14 @@
               </button>
               {{i+1}}.{{j+1}} {{currentStep.pre}}
               <p style="display:inline" *ngIf="currentStep.values.length > 0">
-                <input id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1 
+                <input id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
                  type="text" value="{{currentStep.values[0]}}" on-change="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" />
                  {{currentStep.mid}}
-                <input id="{{'scenario_' + i + '_input_mid_' + j}}"#step_type_input2 *ngIf="currentStep.values[1] != null" 
+                <input id="{{'scenario_' + i + '_input_mid_' + j}}"#step_type_input2 *ngIf="currentStep.values[1] != null"
                  type="text" value="{{currentStep.values[1]}}" on-change="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" />
               </p>
               {{currentStep.post}}
-              <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}"#step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;" 
+              <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}"#step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
                 type="text" value="{{value}}" on-change="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" />
             </div>
           </div>
@@ -200,7 +200,7 @@
     </div>
   </div>
 
-  
+
   <!--Helps to see Loading text-->
   <div *ngIf="!testRunning && !testDone">
     <br>

@@ -118,7 +118,7 @@ app
         res.status(200).json(result);
       }
     });
-    helper.updateFeatureFiles(req.params, stories);
+    helper.updateFeatureFiles(req.params.issueID, stories);
   })
 
   // delete background

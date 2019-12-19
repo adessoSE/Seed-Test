@@ -182,7 +182,7 @@ function getStoryByID(issueID, stories) {
 }
 
 // Updates feature file based on story_id
-//Still necessary?? Now with the Database?
+// Still necessary?? Now with the Database?
 function updateFeatureFiles(issueID, stories) {
   let selectedStory;
   for (let i = 0; i < stories.length; i++) {
@@ -203,7 +203,7 @@ function execReport(req, res, stories, mode, callback) {
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
   const path3 = `features/reporting_${reportTime}.json`;
-  
+
   let cmd;
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
@@ -296,7 +296,7 @@ function fuseGitWithDb(story, issueId) {
 }
 
 function deleteJsonReport(jsonReport){
-  let report = path.normalize(`${featuresPath}${jsonReport}`)     
+  let report = path.normalize(`${featuresPath}${jsonReport}`)
   fs.unlink(report, function(err){
     if (err) console.log(err);
     else {
@@ -306,7 +306,7 @@ function deleteJsonReport(jsonReport){
 }
 
 function deleteHtmlReport(htmlReport){
-  let report = path.normalize(`${featuresPath}${htmlReport}`)     
+  let report = path.normalize(`${featuresPath}${htmlReport}`)
   fs.unlink(report, function(err){
     if (err) console.log(err);
     else {
