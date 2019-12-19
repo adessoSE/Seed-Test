@@ -128,6 +128,10 @@ export class ScenarioEditorComponent implements OnInit {
     this.selectedStory.background.name = name;
   }
 
+  commentChange(comment: string) {
+    this.selectedScenario.comment = comment;
+  }
+
   updateBackground(storyID) {
     this.apiService
     .updateBackground(storyID, this.selectedStory.background)

@@ -36,24 +36,22 @@
         </div>
         <br>
         <div *ngIf="showBackground">
-        <!--Delete and Lock buttons-->
+        <!--Buttons-->
           <div class="marginLeft">
-            <input id="background_name" #backgroundName type="text" [disabled]="backgroundLocked" value="{{selectedStory.background.name}}" on-change="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
+            <input id="background_name" #backgroundName type="text" value="{{selectedStory.background.name}}" on-change="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
           </div>
           <div class="uk-float-right backgroundItems">
             <button id="background_delete"
-              class="uk-icon-button uk-text-muted" data-uk-tooltip title="Delete Background"  [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" uk-icon="trash"
+              class="uk-text-primary" data-uk-tooltip title="Delete Background" uk-icon="trash"
               (click)="deleteBackground($event);">
             </button>
-            <a class="uk-icon-button uk-text-muted" *ngIf="!backgroundLocked"data-uk-tooltip
+            <button class="uk-text-primary" data-uk-tooltip
               title="Save Background" uk-icon="unlock"
-              (click)="updateBackground(selectedStory.story_id);lockBackground();"></a>
-            <!--<a class="uk-icon-button uk-background-muted uk-text-primary" data-uk-tooltip
-              title="Unlock Background" uk-icon="lock" (click)="lockBackground();"></a>-->
+              (click)="updateBackground(selectedStory.story_id);"></button>
           </div>
           <div class="uk-float-right">
             <button id="background_add_step" uk-icon="icon: plus-circle"
-              class="uk-icon-button uk-text-primary"  [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" title="Add New Step" uk-tooltip></button>
+              class="uk-text-primary" title="Add New Step" uk-tooltip></button>
           </div>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
@@ -66,16 +64,16 @@
           <div class="uk-steps">
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)"> 
               <div class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
-                <button id="{{'background_remove_step' + j}}"  [class.disabled]="backgroundLocked" [disabled]="backgroundLocked" a
+                <button id="{{'background_remove_step' + j}}" a
                   uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
                   (click)="removeStepToBackground($event, j);">
                 </button>
                 {{j+1}}. {{currentStep.pre}}
                 <p style="display:inline" *ngIf="currentStep.values.length > 0">
-                  <input id="{{'background_step_input_pre' + j}}" #step_type_input [disabled]="backgroundLocked"
+                  <input id="{{'background_step_input_pre' + j}}" #step_type_input
                     type="text" value="{{currentStep.values[0]}}" on-change="addToValuesBackground(step_type_input.value,j,0)" />
                     {{currentStep.mid}}
-                  <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null" [disabled]="backgroundLocked"
+                  <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
                     type="text" value="{{currentStep.values[1]}}" on-change="addToValuesBackground(step_type_input.value,j,1)" />
                 </p>
                 {{currentStep.post}}
@@ -120,16 +118,14 @@
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div class="uk-align-right">
-        <button id="new_scenario" class="uk-icon-button uk-text-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
+        <button id="new_scenario" class="uk-text-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
         <button id="scenario_delete"
-          class="uk-icon-button uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
+          class="uk-text-primary" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
           (click)="deleteScenario($event);"></button>
-        <a id="scenario_lock"class="uk-icon-button uk-text-muted" data-uk-tooltip
+        <button id="scenario_lock"class="uk-text-primary" data-uk-tooltip
           title="Save Scenario" uk-icon="unlock"
-          (click)="updateScenario(selectedStory.story_id);lockEditor();"></a>
-        <!--<a id="scenario_unlock"class="uk-icon-button uk-background-muted uk-text-primary" data-uk-tooltip
-          title="Unlock Scenario" uk-icon="lock" (click)="lockEditor();"></a>-->
-          <button id="scenario_shift_right"*ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
+          (click)="updateScenario(selectedStory.story_id);"></button>
+          <button id="scenario_shift_right" class="uk-text-primary" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>
@@ -151,7 +147,7 @@
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)"> 
-            <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag [cdkDragDisabled]="editorLocked">
+            <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
                 (click)="removeStepToScenario($event, currentStep.stepType, j);">
@@ -176,14 +172,15 @@
           {{ sd | titlecase }}
         </ng-template>
         <ng-template #exampleCondition>
-          <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" [setEditorLocked]="editorLocked" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
+          <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
         </ng-template>
       </div>
       <br>
       <br>
       <div>
           <label>Comment</label><br>
-          <textarea cols="50" rows="5"></textarea>
+          <textarea cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
+          </textarea>
       </div>
       <br>
       <br>
