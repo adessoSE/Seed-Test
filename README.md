@@ -5,9 +5,9 @@ Behaviour-driven development (BDD) extends the Test-Driven Development (TDD) app
 
 
 ## What is Seed-Test?
-Seed-Test is a website user interface testing tool, which uses approaches of behaviour-driven development and the notation of Gherkin to enable developers and business users to execute automated tests for their website. It can be tested on the official [website](https://cucumber-app.herokuapp.com/).
+Seed-Test is a website user interface testing tool, which uses approaches of behaviour-driven development and the notation of Gherkin to enable developers and business users to execute automated tests for their website. It can be tested on the official [website](https://seed-test-frontend.herokuapp.com/).
 
-We are greateful for any testing and feedback, so please help us by filling out this [feedback form](https://cucumber-app.herokuapp.com/feedback)
+We are greateful for any testing and feedback, so please help us by filling out this [feedback form](https://seed-test-frontend.herokuapp.com/feedback)
 
 ## Bugs, Problems ...
 Please contact us via mail seed-test@adesso.de
@@ -41,7 +41,7 @@ Change the environment variables for the frontend in the `constants.ts` file
 
 ## Database
 Seed-Test uses a MongoDB. You can either create your own locally or in the cloud.
-For installation details check out our Check out the [Database Tutorial](https://github.com/adessoCucumber/Cucumber/wiki/Database)
+For installation details check out our Check out the [Database Tutorial](https://github.com/adessoAG/Seed-Test/wiki/Database)
 
 Once you set up the database, insert the uri into the mongodatabase.js file in the backend folder.
 Save it!
