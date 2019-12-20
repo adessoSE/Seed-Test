@@ -123,7 +123,7 @@
         <button id="new_scenario" class="uk-icon-button uk-text-primary" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates a new scenario" type="button" uk-icon="icon: plus-circle" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
         <button id="scenario_delete"
           class="uk-icon-button uk-text-muted" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
-          (click)="deleteScenario($event);"></button>
+          (click)="deleteScenario();"></button>
         <a id="scenario_lock"class="uk-icon-button uk-text-muted" data-uk-tooltip
           title="Save Scenario" uk-icon="unlock"
           (click)="updateScenario(selectedStory.story_id);lockEditor();"></a>

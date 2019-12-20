@@ -173,7 +173,7 @@ export class ScenarioEditorComponent implements OnInit {
       });
   }
 
-  deleteScenario(event) {
+  deleteScenario() {
     this.apiService
       .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
       .subscribe(resp => {
@@ -196,7 +196,7 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 
-  addStepToScenario(storyID, step) {
+  addStepToScenario(storyID, step: StepType) {
     const obj = this.clone( step );
     /*if (!this.editorLocked) {*/
       const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
@@ -335,6 +335,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
   checkForExamples(input, step, valueIndex){
+    console.log(JSON.stringify(step));
     // removes example if new input is not in example syntax < >
     if (step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') &&
      !input.startsWith('<') && !input.endsWith('>')) {
@@ -484,12 +485,7 @@ export class ScenarioEditorComponent implements OnInit {
   hideResults() {
     this.showResults = !this.showResults;
   }
-
-  compareFunction(a: number, b: number) {
-    return a - b;
-  }
-
-
+  
   // To bypass call by reference of object properties
   // therefore new objects are created and not the existing object changed
   clone(obj) {

@@ -9,23 +9,30 @@ describe('EditableComponent', () => {
   let component: EditableComponent;
   let fixture: ComponentFixture<EditableComponent>;
 
-  //beforeEach(async(() => {
-  //  TestBed.configureTestingModule({
-  //    imports: [],
-  //    declarations: [ EditableComponent],
-  //    providers: [TemplateRef ]
-  //  })
-  //  .compileComponents();
-  //}));
-//
-  //beforeEach(() => {
-  //  fixture = TestBed.createComponent(EditableComponent);
-  //  component = fixture.componentInstance;
-  //  fixture.detectChanges();
-  //});
-//
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [],
+      declarations: [ EditableComponent],
+      providers: [TemplateRef ]
+    })
+    .compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(EditableComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
   //it('should create', () => {
-  //  //expect(1).toBe(1);
-  //  //expect(component).toBeTruthy();
+  //  expect(1).toBe(1);
+  //  expect(component).toBeTruthy();
   //});
+
+  //describe('toViewMode', () => {
+  //  it('should set mode to view', () => {
+  //    component.toViewMode();
+  //    expect(component.mode).toBe('view');
+  //  })
+  //})
 });
