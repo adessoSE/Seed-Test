@@ -16,6 +16,7 @@
     "rules": {
         "linebreak-style": "off",
         "no-plusplus": "off",
-        "no-restricted-syntax": "off"
+        "no-restricted-syntax": "off",
+        "no-console": "off"
     }
 }
