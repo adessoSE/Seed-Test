@@ -12,7 +12,7 @@
                 The following template is recommended: 
                 As a <...>, I want <...> so that <...>
               </span></dfn>
-            <br>
+              <br>
         <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
         <div class="uk-button-group uk-align-right ">
         </div>
@@ -99,7 +99,7 @@
     <br>
   <!--Scenario Header-->
   <div class="uk-card uk-card-default padding" id="scenario"> 
-    <div id="scenario_title" class="uk-card-title">
+    <div class="uk-card-title">
         <h4 id="scenarioheader">Scenario</h4>
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
@@ -112,10 +112,10 @@
         <br>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
-      <span id="scname">#{{selectedScenario.name | titlecase}}</span>
+      <span id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
-      <div class="uk-align-right">
+      <div id="buttonGroupScenario" class="uk-align-right">
         <button id="new_scenario" class="buttonGroup" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" uk-icon="icon: plus" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
         <button id="scenario_delete"
           class="buttonGroup" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
@@ -165,6 +165,7 @@
           </div>
           <br>
         </div>
+        <br>
         <ng-template #exampleTitle>
           {{ sd | titlecase }}
         </ng-template>
