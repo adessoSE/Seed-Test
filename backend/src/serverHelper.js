@@ -32,12 +32,13 @@ const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 
 
 // only displays mid text and additional space if length not null
-function midNotEmpty(values) {
-  if (values.length === 0) {
-    return '';
-  }
-  return `${values} `;
-}
+//function midNotEmpty(values) {
+//  console.log('midNotEmpty: ' + JSON.stringify(values))
+//  if (values.length === 0) {
+//    return '';
+//  }
+//  return `${values} `;
+//}
 
 // adds content of each values to output
 function getValues(values) {
@@ -64,9 +65,9 @@ function getBackgroundSteps(steps) {
       data += 'And ';
     }
     if (steps[i].values[0] != null) {
-      data += `${steps[i].pre} "${steps[i].values[0]}" ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+      data += `${steps[i].pre} "${steps[i].values[0]}" ${steps[i].mid}${getValues(steps[i].values)} \n`;
     } else {
-      data += `${steps[i].pre} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+      data += `${steps[i].pre} ${steps[i].mid}${getValues(steps[i].values)} \n`;
     }
   }
   data += '\n';
@@ -93,11 +94,11 @@ function getSteps(steps, stepType) {
     data += `${jsUcfirst(stepType)} `;
     // TODO: If Given contains Background (Background>0): Add Background (method)
     if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-      data += `${step.pre} "${step.values[0]}" ${midNotEmpty(step.mid)}${getValues(step.values)} \n`;
+      data += `${step.pre} "${step.values[0]}" ${step.mid}${getValues(step.values)} \n`;
     } else if ((step.values[0]) === 'User') {
       data += `${step.pre} "${step.values[0]}"\n`;
     } else {
-      data += `${step.pre} ${midNotEmpty(step.mid)}${getValues(step.values)} \n`;
+      data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
     }
   }
   return data;
@@ -112,7 +113,6 @@ function getExamples(steps) {
       data += `${steps[i].values[k]} | `;
     }
   }
-
   return `${data}\n`;
 }
 
@@ -316,6 +316,13 @@ function deleteHtmlReport(htmlReport){
 }
 
 module.exports = {
+  //midNotEmpty,
+  getExamples,
+  getSteps,
+  jsUcfirst,
+  getBackgroundContent,
+  getBackgroundSteps,
+  getValues,
   updateFeatureFiles,
   writeFile,
   runReport,
