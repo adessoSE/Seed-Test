@@ -143,10 +143,19 @@
   color: #0099CC;
 }
 
+.dropdownStep{
+  color:#0099CC;
+  cursor: pointer;
+  transition: 0.3
+}
+
+.dropdownStep:hover {
+    color: gray;
+  }
+
 .addStepButtons{
   color: rgba(7, 142, 187, 0.733);
 }
-
 
 .disabled {
   color: gray !important;
@@ -208,7 +217,7 @@
 
 .storyTitle{
   color: #0099CC;
-  font-size: large;
+  font-size: medium;
   margin-top: 10px; 
 }
 
