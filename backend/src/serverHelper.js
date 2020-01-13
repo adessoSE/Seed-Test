@@ -317,6 +317,15 @@ function deleteHtmlReport(htmlReport){
 
 module.exports = {
   //midNotEmpty,
+  options,
+  deleteHtmlReport,
+  deleteJsonReport,
+  execRepositoryRequests,
+  setOptions,
+  execReport,
+  getStoryByID,
+  getFeatureContent,
+  getScenarioContent,
   getExamples,
   getSteps,
   jsUcfirst,
