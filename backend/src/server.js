@@ -97,16 +97,16 @@ app
 
 
   // create Background
-  .get('/api/background/add/:issueID', (req, res) => {
-    mongo.createBackground(parseInt(req.params.issueID, 100), (result) => {
-      if (typeof (result) === 'string') {
-        handleError(res, '"result" is not of type string', 'Error: /api/background/add/:issueID', 500);
-      } else {
-        res.status(200).json(result);
-      }
-    });
-    helper.updateFeatureFiles(req.params, stories);
-  })
+  //.get('/api/background/add/:issueID', (req, res) => {
+  //  mongo.createBackground(parseInt(req.params.issueID, 100), (result) => {
+  //    if (typeof (result) === 'string') {
+  //      handleError(res, '"result" is not of type string', 'Error: /api/background/add/:issueID', 500);
+  //    } else {
+  //      res.status(200).json(result);
+  //    }
+  //  });
+  //  helper.updateFeatureFiles(req.params, stories);
+  //})
 
   // update background
   .post('/api/background/update/:issueID', (req, res) => {
@@ -198,6 +198,7 @@ app
       //console.log(merged);
       res.status(200).json(merged);
     }).catch((reason) =>{
+      res.status(400).json('Wrong Github name or Token')
       console.log('Get Repositories Error: ' + reason);
     })
   });
