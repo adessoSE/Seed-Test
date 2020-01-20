@@ -94,7 +94,6 @@ describe("ServerHelper", function() {
 
     describe('getSteps', function(){
         it('should return empty string', function(){
-            let steps = {};
             let string = '';
             let stepType = ''
             let returnValue = helper.getSteps(string, stepType );
