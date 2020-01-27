@@ -162,14 +162,6 @@ function writeFile(__dirname, selectedStory) {
   });
 }
 
-// function getStoryByID(issueID) {
-//   let selectedStory = null;
-//   story = mongo.getOneStory(issueID)
-//   if (selectedStory == null) {
-//     console.log('NO STORY FOUND IN getStoryByID');
-//   }
-//   return selectedStory;
-// }
 
 // Updates feature file based on story_id
 function updateFeatureFile(issueID) {
@@ -304,7 +296,6 @@ module.exports = {
   execRepositoryRequests,
   setOptions,
   execReport,
-  getStoryByID,
   getFeatureContent,
   getScenarioContent,
   getExamples,
