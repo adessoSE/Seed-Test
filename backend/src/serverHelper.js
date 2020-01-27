@@ -182,8 +182,11 @@ function updateFeatureFile(issueID) {
 
 
 function execReport(req, res, stories, mode, callback) {
+  mongo.getOneStory(parseInt(req.params.issueID, 10), result => execReport2(req, res, stories, mode, result, callback));
+}
+
+function execReport2(req, res, stories,mode, story, callback){
   const reportTime = Date.now();
-  const story = mongo.getOneStory(parseInt(req.params.issueID, 10), result => result);
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
   const path3 = `features/reporting_${reportTime}.json`;
@@ -304,7 +307,6 @@ module.exports = {
   execRepositoryRequests,
   setOptions,
   execReport,
-  getStoryByID,
   getFeatureContent,
   getScenarioContent,
   getExamples,
@@ -313,7 +315,6 @@ module.exports = {
   getBackgroundContent,
   getBackgroundSteps,
   getValues,
-  updateFeatureFiles,
   writeFile,
   updateFeatureFile,
   runReport,
