@@ -6,12 +6,12 @@ const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-const server = require('./server');
+
 const rootPath = path.normalize('features');
-const featuresPath = path.normalize('features/')
+const featuresPath = path.normalize('features/');
 
 // this is needed for the html report
-var options = {
+const options = {
   theme: 'bootstrap',
   jsonFile: 'features/reporting.json',
   output: 'features/reporting_html.html',
@@ -26,9 +26,8 @@ var options = {
   },
 };
 
-//Time after which the report is deleted in minutes
+// Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
-
 
 
 // only displays mid text and additional space if length not null
@@ -48,11 +47,6 @@ function getValues(values) {
     data += `"${values[i]}"`;
   }
   return data;
-}
-
-// adds label content to output TODO: might want to reuse this...
-function getLabel(label) {
-  return `"${label}"`;
 }
 
 // Content in Background for FeatureFile
@@ -90,7 +84,7 @@ function jsUcfirst(string) {
 // Building feature file step-content
 function getSteps(steps, stepType) {
   let data = '';
-  for (let step of steps) {
+  for (const step of steps) {
     data += `${jsUcfirst(stepType)} `;
     // TODO: If Given contains Background (Background>0): Add Background (method)
     if ((step.values[0]) != null && (step.values[0]) !== 'User') {
@@ -119,7 +113,7 @@ function getExamples(steps) {
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
   let data = '';
-  for (let scenario of scenarios) {
+  for (const scenario of scenarios) {
     // console.log(`Scenario ID: ${scenario.scenario_id}`);
     data += `@${storyID}_${scenario.scenario_id}\n`;
     // if there are examples
@@ -168,42 +162,32 @@ function writeFile(__dirname, selectedStory) {
   });
 }
 
-function getStoryByID(issueID, stories) {
-  let selectedStory = null;
-  for (const story of stories) {
-    if (story.story_id === issueID) {
-      selectedStory = story;
-    }
-  }
-  if (selectedStory == null) {
-    console.log('NO STORY FOUND IN getStoryByID');
-  }
-  return selectedStory;
-}
+// function getStoryByID(issueID) {
+//   let selectedStory = null;
+//   story = mongo.getOneStory(issueID)
+//   if (selectedStory == null) {
+//     console.log('NO STORY FOUND IN getStoryByID');
+//   }
+//   return selectedStory;
+// }
 
 // Updates feature file based on story_id
-//Still necessary?? Now with the Database?
-function updateFeatureFiles(issueID, stories) {
-  let selectedStory;
-  for (let i = 0; i < stories.length; i++) {
-    if (stories[i].story_id == issueID) {
-      selectedStory = stories[i];
-      break;
+function updateFeatureFile(issueID) {
+  mongo.getOneStory(issueID, (result) => {
+    if (result != null) {
+      writeFile('', result);
     }
-  }
-  if (selectedStory) {
-    writeFile('', selectedStory);
-  }
+  });
 }
 
 
 function execReport(req, res, stories, mode, callback) {
-  var reportTime = Date.now();
-  const story = getStoryByID(parseInt(req.params.issueID, 10), stories);
+  const reportTime = Date.now();
+  const story = mongo.getOneStory(parseInt(req.params.issueID, 10), result => result);
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
   const path3 = `features/reporting_${reportTime}.json`;
-  
+
   let cmd;
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
@@ -232,33 +216,13 @@ function setOptions(reportTime) {
   options.output = `features/reporting_html_${reportTime}.html`;
 }
 
-function runReport(req, res, stories, mode) {
-  execReport(req, res, stories, mode, (reportTime) => {
-    setTimeout(deleteJsonReport, reportDeletionTime * 60000,`reporting_${reportTime}.json`);
-    setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
-    setOptions(reportTime);
-    reporter.generate(options);
-    res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
-  });
-}
-
-function ownRepositories(token){
-   return execRepositoryRequests('https://api.github.com/user/repos', 'account_name', token);
-}
-
-function starredRepositories(user, token){
-    return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
-}
-
 function execRepositoryRequests(link, user, password) {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
     // get Issues from GitHub
-    request.open('GET', link , true, user, password);
+    request.open('GET', link, true, user, password);
     request.send();
     request.onreadystatechange = function () {
-      // console.log(
-      // "readyState: " + this.readyState + " status: " + this.status +" "+ this.statusText)
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
         const names = [];
@@ -269,12 +233,19 @@ function execRepositoryRequests(link, user, password) {
           index++;
         }
         resolve(names);
-        // console.log("getRepo: " + names)
       } else if (this.readyState === 4) {
         reject(this.status);
       }
     };
-  })
+  });
+}
+
+function ownRepositories(token) {
+  return execRepositoryRequests('https://api.github.com/user/repos', 'account_name', token);
+}
+
+function starredRepositories(user, token) {
+  return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
 }
 
 function fuseGitWithDb(story, issueId) {
@@ -287,7 +258,7 @@ function fuseGitWithDb(story, issueId) {
         story.scenarios = [emptyScenario()];
         story.background = emptyBackground();
       }
-      mongo.upsertEntry("Stories", story.story_id, story);
+      mongo.upsertEntry('Stories', story.story_id, story);
       writeFile('', story); // Create & Update Feature Files
       resolve(story);
       // TODO: delete stories and save some storage
@@ -295,28 +266,38 @@ function fuseGitWithDb(story, issueId) {
   });
 }
 
-function deleteJsonReport(jsonReport){
-  let report = path.normalize(`${featuresPath}${jsonReport}`)     
-  fs.unlink(report, function(err){
+function deleteJsonReport(jsonReport) {
+  const report = path.normalize(`${featuresPath}${jsonReport}`);
+  fs.unlink(report, (err) => {
     if (err) console.log(err);
     else {
-      console.log(report + ' json deleted.');
+      console.log(`${report} json deleted.`);
     }
   });
 }
 
-function deleteHtmlReport(htmlReport){
-  let report = path.normalize(`${featuresPath}${htmlReport}`)     
-  fs.unlink(report, function(err){
+function deleteHtmlReport(htmlReport) {
+  const report = path.normalize(`${featuresPath}${htmlReport}`);
+  fs.unlink(report, (err) => {
     if (err) console.log(err);
     else {
-      console.log(report + ' html deleted.');
+      console.log(`${report} html deleted.`);
     }
+  });
+}
+
+
+function runReport(req, res, stories, mode) {
+  execReport(req, res, stories, mode, (reportTime) => {
+    setTimeout(deleteJsonReport, reportDeletionTime * 60000, `reporting_${reportTime}.json`);
+    setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
+    setOptions(reportTime);
+    reporter.generate(options);
+    res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
   });
 }
 
 module.exports = {
-  //midNotEmpty,
   options,
   deleteHtmlReport,
   deleteJsonReport,
@@ -334,8 +315,9 @@ module.exports = {
   getValues,
   updateFeatureFiles,
   writeFile,
+  updateFeatureFile,
   runReport,
   starredRepositories,
   ownRepositories,
-  fuseGitWithDb
+  fuseGitWithDb,
 };

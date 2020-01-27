@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
 const mongo = require('./database/mongodatabase');
+
 const app = express();
 const helper = require('./serverHelper');
 
@@ -12,7 +13,7 @@ let stories = [];
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
   const { port } = server.address();
-  console.log('App now running on port', port);  
+  console.log('App now running on port', port);
 });
 
 // Handling response errors
@@ -36,8 +37,8 @@ app
     res.writeHead(200, { 'content-type': 'text/html' });
     res.write('<h1>Cucumber-API</h1>');
     res.write('<h2>Check out our <a href="https://cucumber-app.herokuapp.com"title="https://cucumber-app.herokuapp.com">Seed-Test WebApp</a>.</h2>');
-    res.write('<h2>Or visit us on <a href="https://github.com/adessoCucumber/Cucumber"title="https://github.com/adessoCucumber/Cucumber">Github</a>' +
-        ' for further information.</h2>');
+    res.write('<h2>Or visit us on <a href="https://github.com/adessoCucumber/Cucumber"title="https://github.com/adessoCucumber/Cucumber">Github</a>'
+        + ' for further information.</h2>');
     res.write('<h3>Happy Testing!</h3>');
     res.status(200);
     res.end();
@@ -52,10 +53,10 @@ app
   })
 
   .get('/api/stories/:user/:repository/:token?', async (req, res) => {
-    let githubName = req.params.user;
-    let githubRepo = req.params.repository;
-    let token = req.params.token;
-    if(!token && githubName == process.env.TESTACCOUNT_NAME) {
+    const githubName = req.params.user;
+    const githubRepo = req.params.repository;
+    let { token } = req.params;
+    if (!token && githubName === process.env.TESTACCOUNT_NAME) {
       token = process.env.TESTACCOUNT_TOKEN;
     }
     const tmpStories = [];
@@ -78,7 +79,7 @@ app
           if (issue.assignee !== null) { // skip in case of "unassigned"
             story.assignee = issue.assignee.login;
             story.assignee_avatar_url = issue.assignee.avatar_url;
-          }else{
+          } else {
             story.assignee = 'unassigned';
             story.assignee_avatar_url = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png';
           }
@@ -86,7 +87,8 @@ app
         }
         Promise.all(tmpStories).then((results) => {
           res.status(200).json(results);
-          stories = results; // need this to clear promises from the Story List TODO: better fix it in "fuseGitWithDB"
+          stories = results;
+          // need this to clear promises from the Story List TODO: better fix it in "fuseGitWithDB"
         }).catch((e) => {
           console.log(e);
           // TODO: handle Error
@@ -95,19 +97,6 @@ app
     };
   })
 
-
-  // create Background
-  //.get('/api/background/add/:issueID', (req, res) => {
-  //  mongo.createBackground(parseInt(req.params.issueID, 100), (result) => {
-  //    if (typeof (result) === 'string') {
-  //      handleError(res, '"result" is not of type string', 'Error: /api/background/add/:issueID', 500);
-  //    } else {
-  //      res.status(200).json(result);
-  //    }
-  //  });
-  //  helper.updateFeatureFiles(req.params, stories);
-  //})
-
   // update background
   .post('/api/background/update/:issueID', (req, res) => {
     const background = req.body;
@@ -115,10 +104,10 @@ app
       if (typeof (result) === 'string') {
         handleError(res, result, result, 500);
       } else {
+        helper.updateFeatureFile(parseInt(req.params.issueID, 10));
         res.status(200).json(result);
       }
     });
-    helper.updateFeatureFiles(req.params, stories);
   })
 
   // delete background
@@ -127,10 +116,10 @@ app
       if (typeof (result) === 'string') {
         handleError(res, result, result, 500);
       } else {
+        helper.updateFeatureFile(parseInt(req.params.issueID, 10));
         res.status(200).json({});
       }
-    })
-    helper.updateFeatureFiles(req.params, stories);
+    });
   })
 
   // create scenario
@@ -139,10 +128,10 @@ app
       if (typeof (scenario) === 'string') {
         handleError(res, scenario, scenario, 500);
       } else {
+        helper.updateFeatureFile(parseInt(req.params.issueID, 10));
         res.status(200).json(scenario);
       }
     });
-    helper.updateFeatureFiles(req.params, stories);
   })
 
   // update scenario
@@ -153,11 +142,10 @@ app
       if (typeof (updatedStory) === 'string') {
         handleError(res, updatedStory, updatedStory, 500);
       } else {
-        helper.writeFile('', updatedStory);
+        helper.updateFeatureFile(parseInt(req.params.issueID, 10));
         res.status(200).json(updatedStory);
       }
-    })
-    helper.updateFeatureFiles(req.params, stories);
+    });
   })
 
 
@@ -168,10 +156,10 @@ app
         if (typeof (result) === 'string') {
           handleError(res, result, result, 500);
         } else {
+          helper.updateFeatureFile(parseInt(req.params.issueID, 10));
           res.status(200).json({});
         }
       });
-    helper.updateFeatureFiles(req.params, stories);
   })
 
   // run single Feature
@@ -185,17 +173,17 @@ app
   })
 
   .get('/api/repositories/:githubName?/:token?', (req, res) => {
-    let token = req.params.token;
-    let githubName = req.params.githubName
-    if(!token && githubName === process.env.TESTACCOUNT_NAME) {
+    let { token } = req.params;
+    const { githubName } = req.params;
+    if (!token && githubName === process.env.TESTACCOUNT_NAME) {
       token = process.env.TESTACCOUNT_TOKEN;
     }
     Promise.all([
       helper.starredRepositories(githubName, token),
-      helper.ownRepositories(token)
-    ]).then((repos) =>{
-      let merged = [].concat.apply([], repos);
-      //console.log(merged);
+      helper.ownRepositories(token),
+    ]).then((repos) => {
+      const merged = [].concat.apply([], repos);
+      // console.log(merged);
       res.status(200).json(merged);
     }).catch((reason) =>{
       res.status(400).json('Wrong Github name or Token')
@@ -203,4 +191,4 @@ app
     })
   });
 
-module.exports = {app};
+module.exports = { app };

@@ -1,10 +1,10 @@
+/* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-const env = require('dotenv').config();
 
-var uri = process.env.DATABASE_URI;
+const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 
 // get One Story
@@ -95,11 +95,11 @@ function deleteBackground(gitID, callback) {
 }
 
 // CREATE Scenario
-function createScenario(git_id, callback) {
+function createScenario(issueID, callback) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = { story_id: git_id };
+    const myobj = { story_id: issueID };
     dbo.collection('Stories').findOne(myobj, (error, result) => {
       if (error) throw error;
       const story = result;
@@ -114,7 +114,7 @@ function createScenario(git_id, callback) {
       }
       dbo.collection('Stories').findOneAndReplace(myobj, story, {
         returnOriginal: false,
-      }, (error2, result2) => {
+      }, (error2) => {
         if (error2) throw error2;
         callback(tmpScenario);
       });
@@ -125,16 +125,16 @@ function createScenario(git_id, callback) {
 }
 
 // DELETE Scenario
-function deleteScenario(git_id, s_id, callback) {
+function deleteScenario(issueID, scenarioID, callback) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = { story_id: git_id };
+    const myobj = { story_id: issueID };
     dbo.collection('Stories').findOne(myobj, (error, result) => {
       if (error) throw error;
       const story = result;
       for (let i = 0; i < story.scenarios.length; i++) {
-        if (story.scenarios[i].scenario_id === s_id) {
+        if (story.scenarios[i].scenario_id === scenarioID) {
           story.scenarios.splice(i, 1);
         }
       }
@@ -150,11 +150,11 @@ function deleteScenario(git_id, s_id, callback) {
 }
 
 // POST Scenario
-function updateScenario(git_id, updated_scenario, callback) {
+function updateScenario(issueID, updatedScenario, callback) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = { story_id: git_id };
+    const myobj = { story_id: issueID };
     dbo.collection('Stories').findOne(myobj, (error, result) => {
       if (error) throw error;
       const story = result;
@@ -163,8 +163,8 @@ function updateScenario(git_id, updated_scenario, callback) {
           story.scenarios.push(scenario);
           break;
         }
-        if (scenario.scenario_id === updated_scenario.scenario_id) {
-          story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updated_scenario);
+        if (scenario.scenario_id === updatedScenario.scenario_id) {
+          story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
           break;
         }
       }
@@ -179,11 +179,11 @@ function updateScenario(git_id, updated_scenario, callback) {
   });
 }
 
-function upsertEntry(collection, story_id, content) {
+function upsertEntry(collection, storyID, content) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = { story_id };
+    const myobj = { story_id: storyID };
     const updatedContent = content;
     dbo.collection(collection).findOneAndUpdate(myobj, { $set: updatedContent }, {
       returnOriginal: false,
@@ -195,19 +195,17 @@ function upsertEntry(collection, story_id, content) {
   });
 }
 
-
-// //////////////////////////////////////////////////////////////// API Methods ////////////////////////////////////////////////////////////////
-
-// ////////////////////////////////////////////////////////////////    ADMIN    ////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////// API Methods ////////////////////////////////////////
+// ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////
 
 // show all Collections
-function showMeCollections() {
+function getCollections() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.listCollections().toArray((error, result) => {
       if (error) throw error;
-      console.log('showMeCollections error: ' + result);
+      console.log(`showMeCollections error: ${result}`);
       db.close();
     });
   });
@@ -219,7 +217,7 @@ function makeCollection(name) {
   MongoClient.connect(uri, { useNewUrlParser: true }, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.createCollection(name, (error, res) => {
+    dbo.createCollection(name, (error) => {
       if (error) throw error;
       console.log('Collection created!');
       db.close();
@@ -233,7 +231,7 @@ function insertOne(collection, content) {
     if (err) throw err;
     const dbo = db.db('Seed');
     const myobj = content;
-    dbo.collection(collection).insertOne(myobj, (error, res) => {
+    dbo.collection(collection).insertOne(myobj, (error) => {
       if (error) throw error;
       db.close();
     });
@@ -242,13 +240,13 @@ function insertOne(collection, content) {
 
 
 // show content of a specific collection
-function showCollection(name) {
+function getCollection(name) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection(name).find({}).toArray((error, result) => {
       if (error) throw error;
-      console.log('showCollection error: ' + result);
+      console.log(`showCollection error: ${result}`);
       db.close();
     });
   });
@@ -269,13 +267,11 @@ function insertMore(name, content) {
   });
 }
 
-
-// update (git_id, {document})
-function update(git_id, updatedStuff) {
+function update(gitID, updatedStuff) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').updateOne({ story_id: git_id }, { $set: updatedStuff }, (error, res) => {
+    dbo.collection('Stories').updateOne({ story_id: gitID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
     });
@@ -283,11 +279,11 @@ function update(git_id, updatedStuff) {
 }
 
 // doesnt work yet
-function erase() {
+function eraseAllStories() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').deleteOne({ }, (error, obj) => {
+    dbo.collection('Stories').deleteOne({ }, (error) => {
       if (error) throw error;
       db.close();
     });
@@ -296,14 +292,14 @@ function erase() {
 
 
 // shows single story
-function showStory(git_id) {
+function showStory(gitID) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = { story_id: git_id };
+    const myobj = { story_id: gitID };
     dbo.collection('Stories').findOne(myobj, (error, result) => {
       if (error) throw error;
-      console.log('showStory error: ' + result);
+      console.log(`showStory error: ${result}`);
       db.close();
     });
   });
@@ -322,7 +318,7 @@ function dropCollection() {
   });
 }
 
-function installDatabase(){
+function installDatabase() {
   makeCollection('Stories');
   insertMore('stepTypes', stepTypes());
 }
@@ -338,5 +334,5 @@ module.exports = {
   updateScenario,
   getOneStory,
   upsertEntry,
-  installDatabase
+  installDatabase,
 };
