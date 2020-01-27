@@ -50,7 +50,12 @@ envrionment.ts
 .DS_Store
 Thumbs.db
 
-frontend/coverage
+
+
+
+frontend/coverage/src
+
+!frontend/coverage/
 
 frontend/\.editorconfig
 
@@ -80,4 +85,4 @@ tslint.json
 
 frontend/src/environments/environment.ts
 
-coverage/
+frontend/src/coverage/
