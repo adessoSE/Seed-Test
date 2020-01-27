@@ -53,9 +53,7 @@ Thumbs.db
 
 
 
-frontend/coverage/src
-
-!frontend/coverage/
+frontend/coverage/
 
 frontend/\.editorconfig
 
