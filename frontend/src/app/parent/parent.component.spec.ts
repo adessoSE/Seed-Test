@@ -13,6 +13,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { componentFactoryName } from '@angular/compiler';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
+import { CDK_DESCRIBEDBY_ID_PREFIX } from '@angular/cdk/a11y';
+import { of } from 'rxjs';
 
 describe('ParentComponent', () => {
   let component: ParentComponent;
@@ -45,18 +47,42 @@ describe('ParentComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setSelectedStory', () => {
-    expect(component.selectedStory).toBe(undefined);
-    component.setSelectedStory(story);
+  describe('setSelectedStory', function(){
+    it('should set the story', () => {
+      expect(component.selectedStory).toBe(undefined);
+      component.setSelectedStory(story);
+  
+      expect(component.selectedStory).toBe(story);
+    });
+  });
+  
+  describe('setSelectedScenario', function(){
+    it('should set the scenario', () => {
+      expect(component.selectedScenario).toBe(undefined);
+      component.setSelectedScenario(scenario);
+  
+      expect(component.selectedScenario).toBe(scenario);
+    });
+  });
 
-    expect(component.selectedStory).toBe(story);
-  })
+  describe('loadStories', function(){
+    beforeEach(function(){
+      let repository = 'adessoCucumber/Cucumber';
+      localStorage.setItem('repository', repository);
 
-  it('setSelectedScenario', () => {
-    expect(component.selectedScenario).toBe(undefined);
-    component.setSelectedScenario(scenario);
+    });
 
-    expect(component.selectedScenario).toBe(scenario);
-  })
+    afterEach(function(){
+      localStorage.removeItem('repository');
+    });
+
+    it('should set the stories', function(){
+      let stories = [{"story_id":540215588,"title":"Finden eines Elements über den Hover-Text","body":"HTML-Elemente wie Buttons, Textfelder, etc. via ihrem Hover-Text finden.","state":"open","issue_number":67,"assignee":"dsorna","assignee_avatar_url":"https://avatars3.githubusercontent.com/u/44997601?v=4","scenarios":[{"scenario_id":1,"name":"Find Button By Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://seed-test-frontend.herokuapp.com/"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Runs all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}},{"scenario_id":2,"name":"Fail Finding Button due to wrong Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://seed-test-frontend.herokuapp.com/#"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["TESTRuns all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}}],"background":null}];
+      spyOn(component.apiService, 'getStories').and.returnValue(of(stories))
+      component.loadStories();
+      expect(component.apiService.getStories).toHaveBeenCalled();
+      expect(component.stories).toBe(stories);
+    });
+  });
 
 });

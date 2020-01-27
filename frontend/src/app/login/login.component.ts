@@ -20,8 +20,8 @@ export class LoginComponent implements OnInit {
   private testAccountName = 'adessoCucumber';
   private testAccountToken;
 
-  constructor(private apiService: ApiService,
-              private router: Router) { 
+  constructor(public apiService: ApiService,
+              public router: Router) { 
     }
 
   ngOnInit() {
@@ -41,6 +41,7 @@ export class LoginComponent implements OnInit {
   loginTestAccount() {
     this.error = undefined;
     this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
+      console.log('repos: ' + JSON.stringify(resp));
       this.repositories = resp;
       localStorage.setItem('token', this.testAccountToken);
       localStorage.setItem('githubName', this.testAccountName);

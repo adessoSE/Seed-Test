@@ -13,7 +13,7 @@ export class AppComponent implements OnInit, DoCheck {
   title = 'cucumber-frontend';
   repositories: string[] = [];
   repository: string;
-  constructor(private apiService: ApiService, private router: Router) {
+  constructor(public apiService: ApiService, public router: Router) {
   }
 
   ngOnInit() {

@@ -16,7 +16,7 @@ export class ParentComponent implements OnInit {
   selectedStory: Story;
   selectedScenario: Scenario;
 
-  constructor(private apiService: ApiService,
+  constructor(public apiService: ApiService,
               private router: Router) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
