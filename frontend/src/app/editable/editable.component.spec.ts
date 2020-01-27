@@ -24,8 +24,15 @@ describe('EditableComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(1).toBe(1);
-    //expect(component).toBeTruthy();
-  });
+  //it('should create', () => {
+  //  expect(1).toBe(1);
+  //  expect(component).toBeTruthy();
+  //});
+
+  //describe('toViewMode', () => {
+  //  it('should set mode to view', () => {
+  //    component.toViewMode();
+  //    expect(component.mode).toBe('view');
+  //  })
+  //})
 });

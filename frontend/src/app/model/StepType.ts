@@ -3,7 +3,7 @@ export interface StepType {
     id: string;
     mid: string;
     pre: string;
-    selection: string[];
+    selection?: string[];
     stepType: string;
     type: string;
     values: string[];

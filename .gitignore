@@ -50,7 +50,10 @@ envrionment.ts
 .DS_Store
 Thumbs.db
 
-frontend/coverage
+
+
+
+frontend/coverage/
 
 frontend/\.editorconfig
 
@@ -73,6 +76,12 @@ frontend/dist/cucumber-frontend/scripts\.1783ec7bceeab4026a81\.js
 frontend/dist/cucumber-frontend/styles\.929c34a151987d4e0622\.css
 
 .eslintrc.json
+
+tslint.json
+
+frontend/src/environments/environment.ts
+
+frontend/src/coverage/
 
 # Cucumber & Reports
 **/*.feature

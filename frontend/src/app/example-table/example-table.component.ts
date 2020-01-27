@@ -80,18 +80,12 @@ export class ExampleTableComponent implements OnInit {
     } else {
       console.log('CONTROL NOT VALID');
     }
-
-
-
    }
 
   getControl(rowIndex, fieldName): FormControl {
     return this.controls.at(rowIndex).get(fieldName) as FormControl;
   }
 
-  addToValues(input: string, stepType, step, index, valueIndex? ) {
-    this.selectedScenario.stepDefinitions.example[index].values[valueIndex] = input;
-  }
   updateTable() {
     if (this.selectedScenario.stepDefinitions.example[1]) {
       this.exampleThere = true;
@@ -105,5 +99,4 @@ export class ExampleTableComponent implements OnInit {
   removeRow(rowIndex: number) {
     this.removeRowIndex.emit(rowIndex + 1 );
   }
-
 }

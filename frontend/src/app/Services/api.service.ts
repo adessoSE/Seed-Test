@@ -5,7 +5,6 @@ import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { StepDefinition } from '../model/StepDefinition';
 import { Observable, throwError } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { StepType } from '../model/StepType';
 
 @Injectable({
@@ -13,7 +12,7 @@ import { StepType } from '../model/StepType';
 })
 
 export class ApiService {
-  private apiServer: string = localStorage.getItem('url_backend');
+  public apiServer: string = localStorage.getItem('url_backend');
   public token: string;
   public urlReceived: boolean = false;
   public getStoriesEvent = new EventEmitter();
