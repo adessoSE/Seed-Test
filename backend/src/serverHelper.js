@@ -304,7 +304,6 @@ module.exports = {
   getBackgroundContent,
   getBackgroundSteps,
   getValues,
-  updateFeatureFiles,
   writeFile,
   updateFeatureFile,
   runReport,
