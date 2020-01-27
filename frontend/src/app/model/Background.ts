@@ -1,6 +1,6 @@
 import { StepDefinitionBackground } from './StepDefinitionBackground';
 
 export interface Background {
-    name: string;
+    name?: string;
     stepDefinitions: StepDefinitionBackground;
 }

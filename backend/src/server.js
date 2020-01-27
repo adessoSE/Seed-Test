@@ -97,19 +97,6 @@ app
     };
   })
 
-
-  // create Background
-  .get('/api/background/add/:issueID', (req, res) => {
-    mongo.createBackground(parseInt(req.params.issueID, 100), (result) => {
-      if (typeof (result) === 'string') {
-        handleError(res, '"result" is not of type string', 'Error: /api/background/add/:issueID', 500);
-      } else {
-        helper.updateFeatureFile(parseInt(req.params.issueID, 10));
-        res.status(200).json(result);
-      }
-    });
-  })
-
   // update background
   .post('/api/background/update/:issueID', (req, res) => {
     const background = req.body;
@@ -198,9 +185,10 @@ app
       const merged = [].concat.apply([], repos);
       // console.log(merged);
       res.status(200).json(merged);
-    }).catch((reason) => {
-      console.log(`Get Repositories Error: ${reason}`);
-    });
+    }).catch((reason) =>{
+      res.status(400).json('Wrong Github name or Token')
+      console.log('Get Repositories Error: ' + reason);
+    })
   });
 
 module.exports = { app };

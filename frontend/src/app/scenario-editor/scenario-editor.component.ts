@@ -9,6 +9,7 @@ import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
+import { ExampleTableComponent } from '../example-table/example-table.component';
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
 @Component({
@@ -35,10 +36,10 @@ export class ScenarioEditorComponent implements OnInit {
   uncutInputs: string[] = [];
   htmlReport;
 
-  @ViewChild('exampleChildView') exampleChild;
+  @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
 
   constructor(
-    private apiService: ApiService,
+    public apiService: ApiService,
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
@@ -61,8 +62,8 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   @Input()
-  removeRowIndex(event) {
-    this.removeStepToScenario(event, 'example', event);
+  removeRowIndex(index: number) {
+    this.removeStepToScenario('example', index);
   }
 
   @Input()
@@ -107,7 +108,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
   }
 
-  keysList(stepDefs) {
+  keysList(stepDefs: StepDefinition) {
     if (stepDefs != null) {
       return Object.keys(stepDefs);
     } else {
@@ -157,13 +158,13 @@ export class ScenarioEditorComponent implements OnInit {
 
   }
 
-  addScenario(storyID) {
-    this.apiService
-      .addScenario(storyID)
-      .subscribe((resp: any)  => {
-        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
-      });
-  }
+  //  addScenario(storyID) {
+  //    this.apiService
+  //      .addScenario(storyID)
+  //      .subscribe((resp: any) s => {
+  //        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
+  //      });
+  //  }
 
   deleteBackground() {
     this.apiService
@@ -176,7 +177,7 @@ export class ScenarioEditorComponent implements OnInit {
       });
   }
 
-  deleteScenario(event) {
+  deleteScenario() {
     this.apiService
       .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
       .subscribe(resp => {
@@ -199,7 +200,7 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
 
-  addStepToScenario(storyID, step) {
+  addStepToScenario(storyID, step: StepType) {
     const obj = this.clone( step );
     /*if (!this.editorLocked) {*/
       const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
@@ -296,7 +297,7 @@ export class ScenarioEditorComponent implements OnInit {
     this.selectedStory.background.stepDefinitions.when.splice(index, 1);
   }
 
-  removeStepToScenario(event, stepDefType, index) {
+  removeStepToScenario(stepDefType, index) {
     switch (stepDefType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given.splice(index, 1);
@@ -338,6 +339,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
   checkForExamples(input, step, valueIndex){
+    console.log(JSON.stringify(step));
     // removes example if new input is not in example syntax < >
     if (step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') &&
      !input.startsWith('<') && !input.endsWith('>')) {
@@ -487,12 +489,7 @@ export class ScenarioEditorComponent implements OnInit {
   hideResults() {
     this.showResults = !this.showResults;
   }
-
-  compareFunction(a: number, b: number) {
-    return a - b;
-  }
-
-
+  
   // To bypass call by reference of object properties
   // therefore new objects are created and not the existing object changed
   clone(obj) {

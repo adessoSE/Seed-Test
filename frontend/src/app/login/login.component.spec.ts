@@ -1,14 +1,15 @@
 import { async, ComponentFixture, TestBed, getTestBed, fakeAsync } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
-import { FormsModule} from '@angular/forms';
+import { FormsModule, NgForm} from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment'
 import { tick } from '@angular/core/src/render3';
+import { of } from 'rxjs';
+import { tokenName } from '@angular/compiler';
 
 const testAccountName = 'adessoCucumber';
-const testAccountToken = environment.TESTACCOUNT_TOKEN;
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -42,20 +43,37 @@ describe('LoginComponent', () => {
     expect(router.url).toEqual('/');
   }));
 
-  describe('Async functions', () => {
-    beforeEach(() => {
-      jasmine.clock().install();
-  });
-  
-  afterEach(() => {
-      jasmine.clock().uninstall();
+  describe('loginTestAccount', () => {
+
+    it('should set items for token and githubName', () => {
+      let repositories = ["adessoAG/Seed-Test","adessoCucumber/Cucumber","adessoCucumber/TestRepo"];
+      let token = 'undefined';
+      spyOn(component.apiService, 'getRepositories').and.returnValue(of(repositories));
+      component.loginTestAccount();
+      expect(localStorage.getItem('githubName')).toBe(testAccountName);
+      expect(localStorage.getItem('token')).toBe(token);
+      expect(component.error == undefined).toBeTruthy();
+      expect(component.apiService.getRepositories).toHaveBeenCalled();
+      expect(component.repositories).toBe(repositories);
+    });
   });
 
-    it('login test account', () => {
-      component.loginTestAccount();
-      expect(localStorage.getItem('token')).toBe(testAccountToken);
+  describe('login', () => {
+
+    it('should set items for token and githubName', () => {
+      let repositories = ["adessoAG/Seed-Test","adessoCucumber/Cucumber","adessoCucumber/TestRepo"];
+      let token = 'undefined';
+      spyOn(component.apiService, 'getRepositories').and.returnValue(of(repositories));
+      let form = new NgForm(null, null);
+      form.value.token = token;
+      form.value.githubName = testAccountName;
+
+      component.login(form);
       expect(localStorage.getItem('githubName')).toBe(testAccountName);
+      expect(localStorage.getItem('token')).toBe(token);
       expect(component.error == undefined).toBeTruthy();
+      expect(component.apiService.getRepositories).toHaveBeenCalled();
+      expect(component.repositories).toBe(repositories);
     });
   });
 

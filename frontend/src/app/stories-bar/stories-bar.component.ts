@@ -19,7 +19,7 @@ export class StoriesBarComponent implements OnInit {
   @Output()
   scenarioChosen: EventEmitter<any> = new EventEmitter();
 
-  constructor(private apiService: ApiService) {
+  constructor(public apiService: ApiService) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.stories = stories;
     } );

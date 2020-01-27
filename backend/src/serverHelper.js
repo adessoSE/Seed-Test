@@ -31,12 +31,13 @@ const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 
 
 // only displays mid text and additional space if length not null
-function midNotEmpty(values) {
-  if (values.length === 0) {
-    return '';
-  }
-  return `${values} `;
-}
+//function midNotEmpty(values) {
+//  console.log('midNotEmpty: ' + JSON.stringify(values))
+//  if (values.length === 0) {
+//    return '';
+//  }
+//  return `${values} `;
+//}
 
 // adds content of each values to output
 function getValues(values) {
@@ -58,9 +59,9 @@ function getBackgroundSteps(steps) {
       data += 'And ';
     }
     if (steps[i].values[0] != null) {
-      data += `${steps[i].pre} "${steps[i].values[0]}" ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+      data += `${steps[i].pre} "${steps[i].values[0]}" ${steps[i].mid}${getValues(steps[i].values)} \n`;
     } else {
-      data += `${steps[i].pre} ${midNotEmpty(steps[i].mid)}${getValues(steps[i].values)} \n`;
+      data += `${steps[i].pre} ${steps[i].mid}${getValues(steps[i].values)} \n`;
     }
   }
   data += '\n';
@@ -87,11 +88,11 @@ function getSteps(steps, stepType) {
     data += `${jsUcfirst(stepType)} `;
     // TODO: If Given contains Background (Background>0): Add Background (method)
     if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-      data += `${step.pre} "${step.values[0]}" ${midNotEmpty(step.mid)}${getValues(step.values)} \n`;
+      data += `${step.pre} "${step.values[0]}" ${step.mid}${getValues(step.values)} \n`;
     } else if ((step.values[0]) === 'User') {
       data += `${step.pre} "${step.values[0]}"\n`;
     } else {
-      data += `${step.pre} ${midNotEmpty(step.mid)}${getValues(step.values)} \n`;
+      data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
     }
   }
   return data;
@@ -106,7 +107,6 @@ function getExamples(steps) {
       data += `${steps[i].values[k]} | `;
     }
   }
-
   return `${data}\n`;
 }
 
@@ -162,14 +162,6 @@ function writeFile(__dirname, selectedStory) {
   });
 }
 
-// function getStoryByID(issueID) {
-//   let selectedStory = null;
-//   story = mongo.getOneStory(issueID)
-//   if (selectedStory == null) {
-//     console.log('NO STORY FOUND IN getStoryByID');
-//   }
-//   return selectedStory;
-// }
 
 // Updates feature file based on story_id
 function updateFeatureFile(issueID) {
@@ -182,8 +174,11 @@ function updateFeatureFile(issueID) {
 
 
 function execReport(req, res, stories, mode, callback) {
+  mongo.getOneStory(parseInt(req.params.issueID, 10), result => execReport2(req, res, stories, mode, result, callback));
+}
+
+function execReport2(req, res, stories,mode, story, callback){
   const reportTime = Date.now();
-  const story = mongo.getOneStory(parseInt(req.params.issueID, 10), result => result);
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
   const path3 = `features/reporting_${reportTime}.json`;
@@ -298,6 +293,21 @@ function runReport(req, res, stories, mode) {
 }
 
 module.exports = {
+  options,
+  deleteHtmlReport,
+  deleteJsonReport,
+  execRepositoryRequests,
+  setOptions,
+  execReport,
+  getFeatureContent,
+  getScenarioContent,
+  getExamples,
+  getSteps,
+  jsUcfirst,
+  getBackgroundContent,
+  getBackgroundSteps,
+  getValues,
+  writeFile,
   updateFeatureFile,
   runReport,
   starredRepositories,
