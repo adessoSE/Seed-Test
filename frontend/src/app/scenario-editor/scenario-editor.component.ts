@@ -1,5 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
@@ -7,7 +6,7 @@ import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
-import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 const emptyBackground = {name, stepDefinitions: {when: []}};

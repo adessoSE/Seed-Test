@@ -1,10 +1,7 @@
-import { Component, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import { Router } from '@angular/router';
 import { NgForm} from '@angular/forms';
-import { EventEmitter } from 'protractor';
-import { JsonPipe } from '@angular/common';
-
 
 const testAccountName = 'adessoCucumber';
 const testAccountToken = '';
@@ -22,7 +19,7 @@ export class LoginComponent implements OnInit {
   private testAccountToken;
 
   constructor(public apiService: ApiService,
-              public router: Router) { 
+              public router: Router) {
     }
 
   ngOnInit() {
