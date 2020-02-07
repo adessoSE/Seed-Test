@@ -3,10 +3,10 @@
     <br>
     <div><h3 id="storyHeader">Stories</h3>
       <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-        <span rel="def">A user story describes requirements for a software system. 
-          It is consciously kept in short sentences and simple words. 
+        <span rel="def">A user story describes requirements for a software system.
+          It is consciously kept in short sentences and simple words.
           A story includes several scenarios.
-          The following template is recommended: 
+          The following template is recommended:
           As a <...>, I want <...> so that <...>
         </span></dfn>
     </div>
@@ -23,8 +23,6 @@
         </div>
 
         <div class="uk-accordion-content">
-          <!--<a uk-icon="icon: plus-circle" data-uk-tooltip title="Add New Scenario"
-            (click)="addScenario(s.story_id)" id="{{'story_add_scenario' + i}}"></a>-->
           <li *ngFor="let scen of s.scenarios; let c = index">
             <a href="#" (click)="selectScenario(s.story_id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
           </li>

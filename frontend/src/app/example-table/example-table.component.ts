@@ -1,8 +1,6 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { FormGroup, FormArray, FormControl } from '@angular/forms';
 import { Scenario } from '../model/Scenario';
-import { Story } from '../model/Story';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-example-table',

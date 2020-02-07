@@ -1,4 +1,4 @@
-import { Directive, Input, HostListener } from '@angular/core';
+import { Directive, HostListener } from '@angular/core';
 import { EditableComponent } from './editable.component';
 
 @Directive({

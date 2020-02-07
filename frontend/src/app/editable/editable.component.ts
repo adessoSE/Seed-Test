@@ -1,10 +1,9 @@
-import { Component, ContentChild, HostListener, ElementRef, EventEmitter,
-   Output, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, ContentChild, ElementRef, EventEmitter,
+   Output, OnInit, OnDestroy } from '@angular/core';
 import { ViewModeDirective } from './view-mode.directive';
 import { EditModeDirective } from './edit-mode.directive';
-import { NgControl } from '@angular/forms';
 import { fromEvent, Subject } from 'rxjs';
-import { switchMap, takeUntil, filter, take, switchMapTo } from 'rxjs/operators';
+import { filter, take, switchMapTo } from 'rxjs/operators';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 
 @Component({

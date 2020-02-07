@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import {tap, catchError} from 'rxjs/operators';
-import {HttpClient, HttpHeaders, HttpParams, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
-import { StepDefinition } from '../model/StepDefinition';
 import { Observable, throwError } from 'rxjs';
 import { StepType } from '../model/StepType';
 
@@ -35,13 +34,13 @@ export class ApiService {
     }
     const options = {headers: this.getHeader()};
     this.apiServer = sessionStorage.getItem('url_backend');
-    
+
     let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
     return this.http.get<any>(str, options)
       .pipe(tap(resp => {}),
         catchError(this.handleError));
-    
-    
+
+
   }
 
   handleError(error: HttpErrorResponse) {
