@@ -6,10 +6,10 @@
       <div class="uk-card-title">
           <h4 id="storyheader">Story</h4>
           <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-              <span rel="def">A user story describes requirements for a software system. 
-                It is consciously kept in short sentences and simple words. 
+              <span rel="def">A user story describes requirements for a software system.
+                It is consciously kept in short sentences and simple words.
                 A story includes several scenarios.
-                The following template is recommended: 
+                The following template is recommended:
                 As a <...>, I want <...> so that <...>
               </span></dfn>
               <br>
@@ -98,19 +98,11 @@
       </div>
     <br>
   <!--Scenario Header-->
-<<<<<<< HEAD
-  <div class="uk-card uk-card-default" id="scenario">
-    <div id="scenario_title" class="uk-card-title uk-padding">
-        <h3 id="scenarioheader"><dfn class="def">Scenario
-            <span rel="def">
-              Each scenario is an example describing a specific behavioral aspect of the system.
-=======
-  <div class="uk-card uk-card-default padding" id="scenario"> 
+  <div class="uk-card uk-card-default padding" id="scenario">
     <div class="uk-card-title">
         <h4 id="scenarioheader">Scenario</h4>
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
->>>>>>> ux3.5
               It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
               A scenario consists of individual steps:
                    Given (precondition),
@@ -156,7 +148,7 @@
             <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
-                (click)="removeStepToScenario($event, currentStep.stepType, j);">
+                (click)="removeStepToScenario(currentStep.stepType, j);">
               </button>
               {{i+1}}.{{j+1}} {{currentStep.pre}}
               <p style="display:inline" *ngIf="currentStep.values.length > 0">
@@ -203,7 +195,7 @@
       </div>
     </div>
   </div>
-</div>
+
 
 
   <!--Helps to see Loading text-->

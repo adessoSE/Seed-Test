@@ -54,6 +54,10 @@ When('I insert {string} into the field {string}', async (value, label) => {
   await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
 });
 
+When('I insert {string} into the field{string}', async (value, label) => {
+  await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
+});
+
 // TODO: Date
 
 // "Radio"

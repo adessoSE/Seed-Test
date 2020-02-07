@@ -43,7 +43,7 @@ export class ScenarioEditorComponent implements OnInit {
   ) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.setStories(stories);
-    });    
+    });
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStepTypes();
     });
@@ -298,9 +298,12 @@ export class ScenarioEditorComponent implements OnInit {
   }
 
   removeStepToScenario(stepDefType, index) {
+    console.log(stepDefType)
+    console.log("trying to delete step | Stepdeftype: " + stepDefType + " Index: " + index );
     switch (stepDefType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given.splice(index, 1);
+        console.log("trying to delete step | Index: " + index );
         break;
       case 'when':
         this.selectedScenario.stepDefinitions.when.splice(index, 1);
@@ -489,7 +492,7 @@ export class ScenarioEditorComponent implements OnInit {
   hideResults() {
     this.showResults = !this.showResults;
   }
-  
+
   // To bypass call by reference of object properties
   // therefore new objects are created and not the existing object changed
   clone(obj) {
