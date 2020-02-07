@@ -9,17 +9,15 @@ const chrome = require('selenium-webdriver/chrome');
 
 // Cucumber default timer for timeout
 setDefaultTimeout(20 * 1000);
+let driver;
 const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('-headless');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
-const driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+
 
 // Starts the driver / Browser
-Before(function () {
-  // const chromeOptions = new chrome.Options();
-  // chromeOptions.addArguments('-headless');
-  // chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
-  // driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+Before(() => { // runs before each scenario
+  driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
 });
 
 // #################### GIVEN ########################################
@@ -81,7 +79,6 @@ When('I hover over the element {string} and select the option {string}', async f
 
 // TODO: Multiple Selection OR: copy the radio/button multiple times
 When('I select from the {string} multiple selection, the values {string}{string}{string}', async (string, string2, string3, string4) => {
-  
 });
 
 // ################### THEN ##########################################
@@ -116,8 +113,9 @@ Then('So I can\'t see the text: {string}', async (string) => {
 
 
 // Closes the webdriver (Browser)
-After(async () => {
-  // TODO: check for heroku and Chrome
-  // Without Timeout driver quit is happening too quickly. Need a better solution
-  setTimeout(function () {driver.quit()}, 10000)
+After(async () => { // runs after each Scenario
+  // // TODO: check for heroku and Chrome
+  // // Without Timeout driver quit is happening too quickly. Need a better solution
+  driver.wait(1000);
+  driver.quit();
 });
