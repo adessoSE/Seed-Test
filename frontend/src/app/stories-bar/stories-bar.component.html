@@ -1,7 +1,15 @@
   <br>
   <div class="stories">
     <br>
-    <div><h3 id="storyHeader">Stories</h3></div>
+    <div><h3 id="storyHeader">Stories</h3>
+      <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+        <span rel="def">A user story describes requirements for a software system. 
+          It is consciously kept in short sentences and simple words. 
+          A story includes several scenarios.
+          The following template is recommended: 
+          As a <...>, I want <...> so that <...>
+        </span></dfn>
+    </div>
     <hr>
     <ul uk-accordion>
       <li *ngFor="let s of sortedStories(); let i = index ">

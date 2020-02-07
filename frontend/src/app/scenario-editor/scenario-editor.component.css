@@ -32,7 +32,7 @@
   border: 1px solid #999;
 }
 
-#scname{
+#scenarioTitle{
   color: #56595e;
 }
 
@@ -42,14 +42,26 @@
 
 #storyheader{
   color: #999;
+  float: left; 
+}
+
+#infoIcon{
+  color: #999;
+  padding-top: 3px;
+  margin-left: 7px;
 }
 
 #scenarioheader{
   color: #999;
+  float: left;
 }
 
 .github-avatar{
   float: right;
+}
+
+#buttonGroupScenario{
+  margin-right: 20px;
 }
 
 #run_story {
@@ -111,6 +123,39 @@
   background: #32d296;
 }*/
 
+.padding{
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-bottom: 20px;
+  padding-right: 20px;
+}
+
+#scenario_shift_left{
+  color: #0099CC;
+}
+
+#scenario_change_title{
+  color: #0099CC;
+}
+
+.buttonGroup{
+  margin-left: 10px;
+  color: #0099CC;
+}
+
+.dropdownStep{
+  color:#0099CC;
+  cursor: pointer;
+  transition: 0.3
+}
+
+.dropdownStep:hover {
+    color: gray;
+  }
+
+.addStepButtons{
+  color: rgba(7, 142, 187, 0.733);
+}
 
 .disabled {
   color: gray !important;
@@ -124,14 +169,7 @@
 .uk-card-title {
   font-size: medium;
   font-weight: bold;
-  /* line-height: 1.5; */
 }
-
-/* .uk-align-right {
-  margin-top: 0;
-  float: right;
-  margin-bottom: 0;
-} */
 
 .uk-card-footer{
   padding-bottom: 0;
@@ -175,18 +213,12 @@
 .storyTitleBlock{
   padding-left:40px;
   padding-top:40px;
-  /*padding-bottom:40px;*/
-  /*text-align: center;*/
 }
 
 .storyTitle{
   color: #0099CC;
-  font-size: large;
-  padding-left:7px;
-  padding-top:7px;
-  padding-bottom:7px;
-  padding-right:7px;
-  box-shadow: 1px 1px 3px rgb(255, 255, 255);
+  font-size: medium;
+  margin-top: 10px; 
 }
 
 .testButtons{
