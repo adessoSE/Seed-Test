@@ -38,9 +38,9 @@ describe('ParentComponent', () => {
     state: "open", assignee: "adessoCucumber", 
     assignee_avatar_url: "https://avatars0.githubusercontent.com/u/50622173?v=4",
     background: {name: 'testBackground2', stepDefinitions: {when: 'testWhen2'}}, 
-    scenarios: [{scenario_id: 789, name: 'scenarioName2', 
+    scenarios: [{scenario_id: 789,comment:"", name: 'scenarioName2', 
     stepDefinitions: {given:[], when: [], then: [], example: []}}]}
-    scenario = {scenario_id: 789, name: 'scenarioName2', stepDefinitions: {given:[], when: [], then: [], example: []}};
+    scenario = {scenario_id: 789,comment:"", name: 'scenarioName2', stepDefinitions: {given:[], when: [], then: [], example: []}};
   });
 
   it('should create', () => {
@@ -77,7 +77,7 @@ describe('ParentComponent', () => {
     });
 
     it('should set the stories', function(){
-      let stories = [{"story_id":540215588,"title":"Finden eines Elements über den Hover-Text","body":"HTML-Elemente wie Buttons, Textfelder, etc. via ihrem Hover-Text finden.","state":"open","issue_number":67,"assignee":"dsorna","assignee_avatar_url":"https://avatars3.githubusercontent.com/u/44997601?v=4","scenarios":[{"scenario_id":1,"name":"Find Button By Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://seed-test-frontend.herokuapp.com/"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Runs all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}},{"scenario_id":2,"name":"Fail Finding Button due to wrong Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://seed-test-frontend.herokuapp.com/#"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["TESTRuns all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}}],"background":null}];
+      let stories: Story[] = [{"story_id":540215588,"title":"Finden eines Elements über den Hover-Text","body":"HTML-Elemente wie Buttons, Textfelder, etc. via ihrem Hover-Text finden.","state":"open","issue_number":67,"assignee":"dsorna","assignee_avatar_url":"https://avatars3.githubusercontent.com/u/44997601?v=4","scenarios":[{"scenario_id":1,"comment":"","name":"Find Button By Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://seed-test-frontend.herokuapp.com/"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Runs all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}},{"scenario_id":2,"comment":"","name":"Fail Finding Button due to wrong Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://seed-test-frontend.herokuapp.com/#"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["TESTRuns all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}}],"background":null}];
       spyOn(component.apiService, 'getStories').and.returnValue(of(stories))
       component.loadStories();
       expect(component.apiService.getStories).toHaveBeenCalled();

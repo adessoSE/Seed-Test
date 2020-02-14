@@ -76,7 +76,7 @@ describe('ApiService', () => {
 
   describe('getStories', () => {
     it('should get Stories', () => {
-      let dummyStories: Story[] = [{"story_id":502603476,"title":"Gratis Versand","body":"Als Premium Kunde erhalte ich freien Versand, wenn ich 5 B`cher bestelle","state":"open","issue_number":66,"assignee":"adessoCucumber","assignee_avatar_url":"https://avatars0.githubusercontent.com/u/50622173?v=4","scenarios":[{"scenario_id":1,"name":"Premium Kunde 5 Books","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Premium Customer"]},{"id":2,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["www.onlineshop.de"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Add 5 Books"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Delivery Options"]}],"then":[{"id":1,"mid":"in the textbox:","pre":"So I can see the text","stepType":"then","type":"Text","values":["Free Delivery","Delivery Costs"]}],"example":[]}}],"background":{"name":"New Background","stepDefinitions":{"when":[]}}}];
+      let dummyStories: Story[] = [{"story_id":502603476,"title":"Gratis Versand","body":"Als Premium Kunde erhalte ich freien Versand, wenn ich 5 B`cher bestelle","state":"open","issue_number":66,"assignee":"adessoCucumber","assignee_avatar_url":"https://avatars0.githubusercontent.com/u/50622173?v=4","scenarios":[{"scenario_id":1,"comment":"","name":"Premium Kunde 5 Books","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Premium Customer"]},{"id":2,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["www.onlineshop.de"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Add 5 Books"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Delivery Options"]}],"then":[{"id":1,"mid":"in the textbox:","pre":"So I can see the text","stepType":"then","type":"Text","values":["Free Delivery","Delivery Costs"]}],"example":[]}}],"background":{"name":"New Background","stepDefinitions":{"when":[]}}}];
       let token = '124';
       let repository = 'adessoCucumber/Cucumber';
       service.getStories(repository, token).subscribe(repos => {
@@ -134,7 +134,7 @@ describe('ApiService', () => {
   describe('addScenario', () => {
     it('should add a Scenario', () => {
       let storyID = 5;
-      let newScenario: Scenario = {"name": "New Scenario", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
+      let newScenario: Scenario = {"name": "New Scenario","comment":"", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
       service.addScenario(storyID).subscribe(scenario => {
         expect(scenario).toEqual(newScenario)
       });
@@ -162,7 +162,7 @@ describe('ApiService', () => {
   describe('updateScenario', () => {
     it('should update Scenaro', () => {
       let storyID = 5;
-      let updatedScenario: Scenario = {"name": "New Scenario", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
+      let updatedScenario: Scenario = {"name": "New Scenario","comment":"", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
       service.updateScenario(storyID, updatedScenario).subscribe(scenario => {
         expect(scenario).toEqual(updatedScenario)
       });
@@ -189,7 +189,7 @@ describe('ApiService', () => {
   describe('deleteScenario', () => {
     it('should delete Scenario', () => {
       let storyID = 5;
-      let deletedScenario: Scenario = {"name": "New Scenario", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
+      let deletedScenario: Scenario = {"name": "New Scenario","comment":"", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
       service.deleteScenario(storyID, deletedScenario).subscribe(response => {
         expect(response).toEqual({})
       });
