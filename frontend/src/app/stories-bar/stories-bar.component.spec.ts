@@ -10,7 +10,7 @@ describe('StoriesBarComponent', () => {
   body:"Als Premium Kunde erhalte ich freien Versand, wenn ich 5 BÜcher bestelle",
   state:"open",issue_number:66,assignee:"adessoCucumber",
   assignee_avatar_url:"https://avatars0.githubusercontent.com/u/50622173?v=4",
-  scenarios:[{scenario_id:1,name:"Premium Kunde 5 Books",
+  scenarios:[{scenario_id:1,comment:"",name:"Premium Kunde 5 Books",
   stepDefinitions:{given:[{id:1,mid:"",pre:"As a",stepType:"given",type:"Role",
   values:["Premium Customer"]},{id:2,"mid":"",pre:"I am on the website:",stepType:"given",
   type:"Website",values:["www.onlineshop.de"]}],when:[{id:1,mid:"",
@@ -23,7 +23,7 @@ describe('StoriesBarComponent', () => {
   {"story_id":501324078,"title":"Seed-Test","body":"Test the our own website","state":"open",
   issue_number:55,assignee:"adessoCucumber",
   assignee_avatar_url:"https://avatars0.githubusercontent.com/u/50622173?v=4",
-  scenarios:[{scenario_id:1,name:"Create Scenario",stepDefinitions:{given:[{id:1,mid:"",
+  scenarios:[{scenario_id:1,comment:"",name:"Create Scenario",stepDefinitions:{given:[{id:1,mid:"",
   pre:"I am on the website:",stepType:"given",type:"Website",
   values:["https://cucumber-app.herokuapp.com/login"]}],"when":[{"id":1,"mid":"",
   pre:"I click the button:",stepType:"when",type:"Button",values:["loginTestButton"]},
@@ -32,7 +32,7 @@ describe('StoriesBarComponent', () => {
   {id:4,mid:"",pre:"I click the button:",stepType:"when",type:"Button",values:["story_add_scenario0"]}],
   then:[{id:1,mid:"",pre:"So I will be navigated to the website:",stepType:"then",
   type:"Website",values:["https://cucumber-app.herokuapp.com/#"]}],example:[]}},
-  {scenario_id:2,name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}}],
+  {scenario_id:2,comment:"",name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}}],
   background:{name:"New Background",stepDefinitions:{when:[]}}}];
   
 
@@ -56,10 +56,10 @@ describe('StoriesBarComponent', () => {
   
   describe('sortedStories', function(){
     it('should return the stories sorted', async () => {
-      let sorted = [{"story_id":501324078,"title":"Seed-Test","body":"Test the our own website","state":"open",
+      let sorted = [{"story_id":501324078,"comment":"","title":"Seed-Test","body":"Test the our own website","state":"open",
       issue_number:55,assignee:"adessoCucumber",
       assignee_avatar_url:"https://avatars0.githubusercontent.com/u/50622173?v=4",
-      scenarios:[{scenario_id:1,name:"Create Scenario",stepDefinitions:{given:[{id:1,mid:"",
+      scenarios:[{scenario_id:1, comment:"",name:"Create Scenario",stepDefinitions:{given:[{id:1,mid:"",
       pre:"I am on the website:",stepType:"given",type:"Website",
       values:["https://cucumber-app.herokuapp.com/login"]}],"when":[{"id":1,"mid":"",
       pre:"I click the button:",stepType:"when",type:"Button",values:["loginTestButton"]},
@@ -68,12 +68,12 @@ describe('StoriesBarComponent', () => {
       {id:4,mid:"",pre:"I click the button:",stepType:"when",type:"Button",values:["story_add_scenario0"]}],
       then:[{id:1,mid:"",pre:"So I will be navigated to the website:",stepType:"then",
       type:"Website",values:["https://cucumber-app.herokuapp.com/#"]}],example:[]}},
-      {scenario_id:2,name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}}],
+      {scenario_id:2, comment:"",name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}}],
       background:{name:"New Background",stepDefinitions:{when:[]}}},{story_id:502603476,title:"Gratis Versand",
       body:"Als Premium Kunde erhalte ich freien Versand, wenn ich 5 BÜcher bestelle",
       state:"open",issue_number:66,assignee:"adessoCucumber",
       assignee_avatar_url:"https://avatars0.githubusercontent.com/u/50622173?v=4",
-      scenarios:[{scenario_id:1,name:"Premium Kunde 5 Books",
+      scenarios:[{scenario_id:1,comment:"",name:"Premium Kunde 5 Books",
       stepDefinitions:{given:[{id:1,mid:"",pre:"As a",stepType:"given",type:"Role",
       values:["Premium Customer"]},{id:2,"mid":"",pre:"I am on the website:",stepType:"given",
       type:"Website",values:["www.onlineshop.de"]}],when:[{id:1,mid:"",
@@ -97,7 +97,7 @@ describe('StoriesBarComponent', () => {
     });
 
     it('should set the selected scenario', function(){
-      let scenario = {scenario_id:2,name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}};
+      let scenario = {scenario_id:2,comment:"",name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}};
       let storyID = null;
       component.selectScenario(storyID, scenario);
       expect(component.selectedScenario).toBe(scenario);
@@ -115,7 +115,7 @@ describe('StoriesBarComponent', () => {
     })
 
     it('should set the selected scenario', function(){
-      let scenario = {scenario_id:2,name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}};
+      let scenario = {scenario_id:2,comment:"",name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}};
       let storyID = 502603476;
       spyOn(component.apiService, 'addScenario').and.returnValue(of(scenario));
 
