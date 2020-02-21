@@ -5,7 +5,7 @@ module.exports = function (config) {
   config.set({
     files: [
       {pattern: './app/**/*.ts', included: true},
-      {pattern: '**/*.ts', included: true}
+      {pattern: '**/*.ts', included: true},
     ],
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -25,7 +25,7 @@ module.exports = function (config) {
     coverageIstanbulReporter: {
       dir: require('path').join(__dirname, '../coverage'),
       reports: ['html', 'lcovonly'],
-      fixWebpackSourcePaths: true
+      fixWebpackSourcePaths: true,
     },
     coverageReporter: {
       type: 'lcov',
@@ -48,6 +48,6 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
-    singleRun: false
+    singleRun: false,
   });
 };
