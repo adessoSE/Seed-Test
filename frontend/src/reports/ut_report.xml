@@ -1,130 +1,130 @@
 <testExecutions version="1">
   <file path="ApiService">
-    <testCase name="ApiService create should be created" duration="34"/>
-    <testCase name="ApiService creatgetHeader should get Header" duration="12"/>
-    <testCase name="ApiService getRepositories should get Repositories" duration="14"/>
-    <testCase name="ApiService getBackendInfo should get BackendInfo" duration="14"/>
-    <testCase name="ApiService getStories should get Stories" duration="9"/>
-    <testCase name="ApiService getStepTypes should get StepTypes" duration="14"/>
-    <testCase name="ApiService addScenario should add a Scenario" duration="10"/>
-    <testCase name="ApiService updateBackground should update Background" duration="9"/>
-    <testCase name="ApiService updateScenario should update Scenaro" duration="9"/>
-    <testCase name="ApiService deleteBackground should delete Background" duration="10"/>
+    <testCase name="ApiService create should be created" duration="33"/>
+    <testCase name="ApiService creatgetHeader should get Header" duration="15"/>
+    <testCase name="ApiService getRepositories should get Repositories" duration="20"/>
+    <testCase name="ApiService getBackendInfo should get BackendInfo" duration="10"/>
+    <testCase name="ApiService getStories should get Stories" duration="16"/>
+    <testCase name="ApiService getStepTypes should get StepTypes" duration="10"/>
+    <testCase name="ApiService addScenario should add a Scenario" duration="9"/>
+    <testCase name="ApiService updateBackground should update Background" duration="13"/>
+    <testCase name="ApiService updateScenario should update Scenaro" duration="10"/>
+    <testCase name="ApiService deleteBackground should delete Background" duration="9"/>
     <testCase name="ApiService deleteScenario should delete Scenario" duration="9"/>
-    <testCase name="ApiService runTests should run Tests Scenario" duration="11"/>
-    <testCase name="ApiService runTests should run Tests Feature/Story" duration="10"/>
+    <testCase name="ApiService runTests should run Tests Scenario" duration="13"/>
+    <testCase name="ApiService runTests should run Tests Feature/Story" duration="15"/>
     <testCase name="ApiService isLoggedIn should be logged in" duration="9"/>
-    <testCase name="ApiService isLoggedIn should be not logged in" duration="9"/>
+    <testCase name="ApiService isLoggedIn should be not logged in" duration="10"/>
   </file>
   <file path="AppComponent">
-    <testCase name="AppComponent should create the app" duration="111"/>
-    <testCase name="AppComponent should have as title 'cucumber-frontend'" duration="43"/>
-    <testCase name="AppComponent refreshLoginData should call getRepositories" duration="50"/>
-    <testCase name="AppComponent refreshLoginData should not call getRepositories" duration="35"/>
-    <testCase name="AppComponent getRepositories should get all repositories" duration="32"/>
+    <testCase name="AppComponent should create the app" duration="123"/>
+    <testCase name="AppComponent should have as title 'cucumber-frontend'" duration="44"/>
+    <testCase name="AppComponent refreshLoginData should call getRepositories" duration="62"/>
+    <testCase name="AppComponent refreshLoginData should not call getRepositories" duration="43"/>
+    <testCase name="AppComponent getRepositories should get all repositories" duration="35"/>
   </file>
   <file path="ExampleTableComponent">
-    <testCase name="ExampleTableComponent create should create" duration="78"/>
-    <testCase name="ExampleTableComponent set newSelectedScenario should setSelectedScenario with examples" duration="69"/>
-    <testCase name="ExampleTableComponent set newSelectedScenario should setSelectedScenario without examples" duration="63"/>
-    <testCase name="ExampleTableComponent initializeTable should initialize Table" duration="64"/>
-    <testCase name="ExampleTableComponent initializeTableControls should initialize Table Controls" duration="64"/>
-    <testCase name="ExampleTableComponent updateField should update Field" duration="66"/>
-    <testCase name="ExampleTableComponent getControl should getControl" duration="69"/>
-    <testCase name="ExampleTableComponent updateTable should update Table" duration="62"/>
-    <testCase name="ExampleTableComponent updateTable should not update Table" duration="67"/>
-    <testCase name="ExampleTableComponent removeRow should remove Row" duration="58"/>
+    <testCase name="ExampleTableComponent create should create" duration="81"/>
+    <testCase name="ExampleTableComponent set newSelectedScenario should setSelectedScenario with examples" duration="79"/>
+    <testCase name="ExampleTableComponent set newSelectedScenario should setSelectedScenario without examples" duration="62"/>
+    <testCase name="ExampleTableComponent initializeTable should initialize Table" duration="62"/>
+    <testCase name="ExampleTableComponent initializeTableControls should initialize Table Controls" duration="69"/>
+    <testCase name="ExampleTableComponent updateField should update Field" duration="76"/>
+    <testCase name="ExampleTableComponent getControl should getControl" duration="65"/>
+    <testCase name="ExampleTableComponent updateTable should update Table" duration="65"/>
+    <testCase name="ExampleTableComponent updateTable should not update Table" duration="77"/>
+    <testCase name="ExampleTableComponent removeRow should remove Row" duration="65"/>
   </file>
   <file path="FeedbackComponent">
-    <testCase name="FeedbackComponent should create" duration="17"/>
+    <testCase name="FeedbackComponent should create" duration="19"/>
   </file>
   <file path="LoginComponent">
-    <testCase name="LoginComponent should create" duration="79"/>
-    <testCase name="LoginComponent should set localStorage item Repository" duration="66"/>
-    <testCase name="LoginComponent loginTestAccount should set items for token and githubName" duration="46"/>
-    <testCase name="LoginComponent login should set items for token and githubName" duration="46"/>
+    <testCase name="LoginComponent should create" duration="87"/>
+    <testCase name="LoginComponent should set localStorage item Repository" duration="79"/>
+    <testCase name="LoginComponent loginTestAccount should set items for token and githubName" duration="45"/>
+    <testCase name="LoginComponent login should set items for token and githubName" duration="49"/>
   </file>
   <file path="ParentComponent">
-    <testCase name="ParentComponent should create" duration="233"/>
-    <testCase name="ParentComponent setSelectedStory should set the story" duration="227"/>
-    <testCase name="ParentComponent setSelectedScenario should set the scenario" duration="197"/>
-    <testCase name="ParentComponent loadStories should set the stories" duration="202"/>
+    <testCase name="ParentComponent should create" duration="228"/>
+    <testCase name="ParentComponent setSelectedStory should set the story" duration="230"/>
+    <testCase name="ParentComponent setSelectedScenario should set the scenario" duration="199"/>
+    <testCase name="ParentComponent loadStories should set the stories" duration="200"/>
   </file>
   <file path="SafePipe">
     <testCase name="SafePipe create an instance" duration="1"/>
   </file>
   <file path="ScenarioEditorComponent">
-    <testCase name="ScenarioEditorComponent setStories should set stories" duration="186"/>
-    <testCase name="ScenarioEditorComponent removeRowIndex should remove Row Index" duration="181"/>
-    <testCase name="ScenarioEditorComponent set newSelectedStory should set newSelectedStory" duration="169"/>
-    <testCase name="ScenarioEditorComponent set newSelectedScenario should set newSelectedScenario without selectScenario" duration="168"/>
-    <testCase name="ScenarioEditorComponent set newSelectedScenario should set newSelectedScenario with selectScenario" duration="163"/>
-    <testCase name="ScenarioEditorComponent backgroundList should return backgroundList" duration="165"/>
-    <testCase name="ScenarioEditorComponent stepsList should return stepsList" duration="166"/>
-    <testCase name="ScenarioEditorComponent keysList should return keysList" duration="171"/>
-    <testCase name="ScenarioEditorComponent loadStepTypes should load the step types" duration="159"/>
-    <testCase name="ScenarioEditorComponent backgroundNameChange should set selectedStory background name" duration="156"/>
-    <testCase name="ScenarioEditorComponent updateBackground should update the background" duration="163"/>
-    <testCase name="ScenarioEditorComponent updateScenario should update the Scenario" duration="154"/>
-    <testCase name="ScenarioEditorComponent addScenarioFromStory should add a Scenario and select this scenario" duration="159"/>
-    <testCase name="ScenarioEditorComponent deleteBackground should delete the background" duration="157"/>
-    <testCase name="ScenarioEditorComponent deleteScenario should delete the Scenario" duration="158"/>
-    <testCase name="ScenarioEditorComponent openDescription should set true showDescription to !showDescription" duration="156"/>
-    <testCase name="ScenarioEditorComponent openDescription should set false showDescription to !showDescription" duration="146"/>
-    <testCase name="ScenarioEditorComponent openBackground should set true showBackground to !showBackground" duration="153"/>
-    <testCase name="ScenarioEditorComponent openBackground should set false showBackground to !showBackground" duration="148"/>
-    <testCase name="ScenarioEditorComponent addStepToScenario should add a given step to the scenario" duration="145"/>
-    <testCase name="ScenarioEditorComponent addStepToScenario should add a when step to the scenario" duration="148"/>
-    <testCase name="ScenarioEditorComponent addStepToScenario should add a then step to the scenario" duration="149"/>
-    <testCase name="ScenarioEditorComponent addStepToBackground should add a when step to the background" duration="154"/>
-    <testCase name="ScenarioEditorComponent addStep should add a when step to the example" duration="166"/>
-    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step given" duration="157"/>
-    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step when" duration="157"/>
-    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step then" duration="150"/>
-    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step example" duration="145"/>
-    <testCase name="ScenarioEditorComponent buildID should return 0" duration="148"/>
-    <testCase name="ScenarioEditorComponent buildID should return buildID" duration="157"/>
-    <testCase name="ScenarioEditorComponent removeStepToBackround should remove the step of the background" duration="159"/>
-    <testCase name="ScenarioEditorComponent removeStepToBackround should remove nothing" duration="142"/>
-    <testCase name="ScenarioEditorComponent removeStepToScenario remove step of scenario given" duration="151"/>
-    <testCase name="ScenarioEditorComponent removeStepToScenario remove step of scenario when" duration="166"/>
-    <testCase name="ScenarioEditorComponent removeStepToScenario remove step of scenario then" duration="149"/>
-    <testCase name="ScenarioEditorComponent addToValuesBackground should add hello to background values" duration="175"/>
-    <testCase name="ScenarioEditorComponent addToValues should add hello to given values" duration="142"/>
+    <testCase name="ScenarioEditorComponent setStories should set stories" duration="187"/>
+    <testCase name="ScenarioEditorComponent removeRowIndex should remove Row Index" duration="197"/>
+    <testCase name="ScenarioEditorComponent set newSelectedStory should set newSelectedStory" duration="211"/>
+    <testCase name="ScenarioEditorComponent set newSelectedScenario should set newSelectedScenario without selectScenario" duration="176"/>
+    <testCase name="ScenarioEditorComponent set newSelectedScenario should set newSelectedScenario with selectScenario" duration="168"/>
+    <testCase name="ScenarioEditorComponent backgroundList should return backgroundList" duration="164"/>
+    <testCase name="ScenarioEditorComponent stepsList should return stepsList" duration="170"/>
+    <testCase name="ScenarioEditorComponent keysList should return keysList" duration="166"/>
+    <testCase name="ScenarioEditorComponent loadStepTypes should load the step types" duration="155"/>
+    <testCase name="ScenarioEditorComponent backgroundNameChange should set selectedStory background name" duration="157"/>
+    <testCase name="ScenarioEditorComponent updateBackground should update the background" duration="151"/>
+    <testCase name="ScenarioEditorComponent updateScenario should update the Scenario" duration="151"/>
+    <testCase name="ScenarioEditorComponent addScenarioFromStory should add a Scenario and select this scenario" duration="156"/>
+    <testCase name="ScenarioEditorComponent deleteBackground should delete the background" duration="156"/>
+    <testCase name="ScenarioEditorComponent deleteScenario should delete the Scenario" duration="154"/>
+    <testCase name="ScenarioEditorComponent openDescription should set true showDescription to !showDescription" duration="152"/>
+    <testCase name="ScenarioEditorComponent openDescription should set false showDescription to !showDescription" duration="149"/>
+    <testCase name="ScenarioEditorComponent openBackground should set true showBackground to !showBackground" duration="150"/>
+    <testCase name="ScenarioEditorComponent openBackground should set false showBackground to !showBackground" duration="149"/>
+    <testCase name="ScenarioEditorComponent addStepToScenario should add a given step to the scenario" duration="148"/>
+    <testCase name="ScenarioEditorComponent addStepToScenario should add a when step to the scenario" duration="155"/>
+    <testCase name="ScenarioEditorComponent addStepToScenario should add a then step to the scenario" duration="147"/>
+    <testCase name="ScenarioEditorComponent addStepToBackground should add a when step to the background" duration="148"/>
+    <testCase name="ScenarioEditorComponent addStep should add a when step to the example" duration="144"/>
+    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step given" duration="152"/>
+    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step when" duration="186"/>
+    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step then" duration="168"/>
+    <testCase name="ScenarioEditorComponent getLastIDinStep should return the last id in step example" duration="136"/>
+    <testCase name="ScenarioEditorComponent buildID should return 0" duration="146"/>
+    <testCase name="ScenarioEditorComponent buildID should return buildID" duration="143"/>
+    <testCase name="ScenarioEditorComponent removeStepToBackround should remove the step of the background" duration="144"/>
+    <testCase name="ScenarioEditorComponent removeStepToBackround should remove nothing" duration="141"/>
+    <testCase name="ScenarioEditorComponent removeStepToScenario remove step of scenario given" duration="145"/>
+    <testCase name="ScenarioEditorComponent removeStepToScenario remove step of scenario when" duration="147"/>
+    <testCase name="ScenarioEditorComponent removeStepToScenario remove step of scenario then" duration="151"/>
+    <testCase name="ScenarioEditorComponent addToValuesBackground should add hello to background values" duration="169"/>
+    <testCase name="ScenarioEditorComponent addToValues should add hello to given values" duration="157"/>
     <testCase name="ScenarioEditorComponent addToValues should add hello to when values" duration="143"/>
-    <testCase name="ScenarioEditorComponent addToValues should add hello to then values" duration="147"/>
-    <testCase name="ScenarioEditorComponent addToValues should add hello to example values" duration="150"/>
-    <testCase name="ScenarioEditorComponent checkForExamples should create examples" duration="146"/>
-    <testCase name="ScenarioEditorComponent checkForExamples should remove one examples" duration="145"/>
-    <testCase name="ScenarioEditorComponent renameScenario should name the Scenario Donald" duration="143"/>
-    <testCase name="ScenarioEditorComponent renameScenario should not rename with null or undefined" duration="149"/>
-    <testCase name="ScenarioEditorComponent selectScenario should select the Scenario" duration="141"/>
-    <testCase name="ScenarioEditorComponent selectStoryScenario should select the Story" duration="143"/>
-    <testCase name="ScenarioEditorComponent checkArrowLeft should return false" duration="138"/>
-    <testCase name="ScenarioEditorComponent checkArrowLeft should return true" duration="143"/>
-    <testCase name="ScenarioEditorComponent checkArrowRight should return true" duration="145"/>
-    <testCase name="ScenarioEditorComponent checkArrowRight should return false" duration="148"/>
-    <testCase name="ScenarioEditorComponent scenarioShiftLeft should shift left" duration="145"/>
-    <testCase name="ScenarioEditorComponent scenarioShiftLeft should not shift left" duration="139"/>
-    <testCase name="ScenarioEditorComponent scenarioShiftRight should shift right" duration="144"/>
-    <testCase name="ScenarioEditorComponent scenarioShiftRight should not shift right" duration="247"/>
-    <testCase name="ScenarioEditorComponent hideResults should turn show results to true" duration="194"/>
-    <testCase name="ScenarioEditorComponent hideResults should turn show results to false" duration="173"/>
+    <testCase name="ScenarioEditorComponent addToValues should add hello to then values" duration="141"/>
+    <testCase name="ScenarioEditorComponent addToValues should add hello to example values" duration="142"/>
+    <testCase name="ScenarioEditorComponent checkForExamples should create examples" duration="148"/>
+    <testCase name="ScenarioEditorComponent checkForExamples should remove one examples" duration="142"/>
+    <testCase name="ScenarioEditorComponent renameScenario should name the Scenario Donald" duration="141"/>
+    <testCase name="ScenarioEditorComponent renameScenario should not rename with null or undefined" duration="146"/>
+    <testCase name="ScenarioEditorComponent selectScenario should select the Scenario" duration="139"/>
+    <testCase name="ScenarioEditorComponent selectStoryScenario should select the Story" duration="140"/>
+    <testCase name="ScenarioEditorComponent checkArrowLeft should return false" duration="141"/>
+    <testCase name="ScenarioEditorComponent checkArrowLeft should return true" duration="145"/>
+    <testCase name="ScenarioEditorComponent checkArrowRight should return true" duration="151"/>
+    <testCase name="ScenarioEditorComponent checkArrowRight should return false" duration="136"/>
+    <testCase name="ScenarioEditorComponent scenarioShiftLeft should shift left" duration="137"/>
+    <testCase name="ScenarioEditorComponent scenarioShiftLeft should not shift left" duration="134"/>
+    <testCase name="ScenarioEditorComponent scenarioShiftRight should shift right" duration="135"/>
+    <testCase name="ScenarioEditorComponent scenarioShiftRight should not shift right" duration="145"/>
+    <testCase name="ScenarioEditorComponent hideResults should turn show results to true" duration="230"/>
+    <testCase name="ScenarioEditorComponent hideResults should turn show results to false" duration="196"/>
   </file>
   <file path="StoriesBarComponent">
-    <testCase name="StoriesBarComponent should create" duration="25"/>
+    <testCase name="StoriesBarComponent should create" duration="30"/>
     <testCase name="StoriesBarComponent sortedStories should return the stories sorted" duration="38">
       <failure message="Error">Expected $[0] to have properties
     comment: ''
     at Suite.&lt;anonymous&gt; src/app/stories-bar/stories-bar.component.spec.ts:90:31)
-    at step (http://localhost:9876/_karma_webpack_/main.js:3285:23)
-    at Object.next (http://localhost:9876/_karma_webpack_/main.js:3266:53)
-    at http://localhost:9876/_karma_webpack_/main.js:3260:71
+    at step (http://localhost:9876/_karma_webpack_/main.js:2184:23)
+    at Object.next (http://localhost:9876/_karma_webpack_/main.js:2165:53)
+    at http://localhost:9876/_karma_webpack_/main.js:2159:71
 </failure>
     </testCase>
-    <testCase name="StoriesBarComponent selectScenario should set the selected scenario" duration="24"/>
-    <testCase name="StoriesBarComponent addScenario should set the selected scenario" duration="26"/>
+    <testCase name="StoriesBarComponent selectScenario should set the selected scenario" duration="25"/>
+    <testCase name="StoriesBarComponent addScenario should set the selected scenario" duration="23"/>
     <testCase name="StoriesBarComponent selectStoryScenario should set the story and the scenario" duration="24"/>
-    <testCase name="StoriesBarComponent selectStoryScenario should not call select Scenario" duration="23"/>
+    <testCase name="StoriesBarComponent selectStoryScenario should not call select Scenario" duration="27"/>
   </file>
 </testExecutions>
