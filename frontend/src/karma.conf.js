@@ -7,7 +7,7 @@ module.exports = function (config) {
       {pattern: './app/**/*.ts', included: true},
       {pattern: '**/*.ts', included: true}
     ],
-    basePath: './',
+    basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
       require('karma-jasmine'),
@@ -15,10 +15,11 @@ module.exports = function (config) {
       require('karma-jasmine-html-reporter'),
       require('karma-coverage-istanbul-reporter'),
       require('@angular-devkit/build-angular/plugins/karma'),
-      require('karma-coverage')
+      require('karma-coverage'),
+      require('karma-sonarqube-unit-reporter'),
     ],
     client: {
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
+      clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
 
     coverageIstanbulReporter: {
@@ -27,12 +28,21 @@ module.exports = function (config) {
       fixWebpackSourcePaths: true
     },
     coverageReporter: {
-      type: 'html',
-      dir: 'coverage/'
+      type: 'lcov',
+      dir: 'reports',
+      subdir: '../reports',
     },
+    reporters: ['progress', 'kjhtml', 'sonarqubeUnit', 'coverage'],
 
-
-    reporters: ['progress', 'kjhtml', 'coverage'],
+    preprocessors: {
+      'src/**/*.js': ['coverage'],
+      'test/**/*.js': ['coverage'],
+    },
+    sonarQubeUnitReporter: {
+      sonarQubeVersion: 'LATEST',
+      outputFile: 'reports/ut_report.xml',
+      useBrowserName: false,
+    },
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
