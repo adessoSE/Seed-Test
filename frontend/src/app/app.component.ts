@@ -13,6 +13,9 @@ export class AppComponent implements OnInit, DoCheck {
   title = 'cucumber-frontend';
   repositories: string[] = [];
   repository: string;
+  showImpressum: boolean = false;
+
+
   constructor(public apiService: ApiService, public router: Router) {
   }
 
@@ -20,6 +23,14 @@ export class AppComponent implements OnInit, DoCheck {
     this.refreshLoginData();
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
+    }
+  }
+
+  openImpressum(){
+    this.showImpressum = !this.showImpressum;
+    if(this.showImpressum) {
+      const impressumContent: HTMLElement = document.getElementById('footer') as HTMLElement;
+      impressumContent.scrollIntoView();
     }
   }
 

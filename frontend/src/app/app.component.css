@@ -3,6 +3,23 @@
   margin: 0px;
 }
 
+.impressum {
+  text-align: center;
+  color: white;
+  font-size: small;
+}
+
+.impressum:hover{
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.impressumContent p{
+  color: white;
+  text-align: center;
+  font-size: x-small;
+}
+
 #version {
   float: left;
   padding: 13px;

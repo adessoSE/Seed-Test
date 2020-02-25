@@ -39,5 +39,15 @@
     </span>
   </div>
 </div>
-
 <router-outlet></router-outlet>
+<footer id="footer" class="topnav topnav-center">
+  <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
+  <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
+    <p>adesso AG</p>
+    <p>Adessoplatz 1</p>
+    <p>44269 Dortmund</p>
+    <p>T +49 231 7000-7000</p>
+    <p>F +49 231 7000-1000</p>
+    <p>E info@adesso.de</p>
+  </div>
+</footer>
