@@ -1,7 +1,7 @@
 <div class="topnav">
   <!--center-->
   <div class="topnav-center">
-    <a href="https://seed-test-frontend.herokuapp.com/" class="title">
+    <a routerLink="/" class="title">
       <h4 id="cucumberApp">Seed-Test</h4>
     </a>
   </div>
@@ -10,7 +10,7 @@
     <a id="img" href="https://www.adesso.de/en/">
       <img src="assets/adesso-logo.jpg" alt="adesso AG">
     </a>
-    <a href="https://seed-test-frontend.herokuapp.com/feedback">
+    <a routerLink="/feedback">
       <button class="left-button">Feedback</button>
     </a>
     <div class="dropdown">
@@ -45,13 +45,13 @@
   <p class="terms" (click)="openTerms()">Terms</p>
   <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
     <p>Seed-Test</p>
-    <p>seed-test@adesso.de</p>
+    <p>Email: seed-test@adesso.de</p>
     <a href="https://github.com/adessoAG/Seed-Test" target="_blank">https://github.com/adessoAG/Seed-Test</a>
   </div>
   <div id="termsContent" class="termsContent" *ngIf="showTerms">
-    <p>This is a demo verion</p>
+    <p>This is only a demo version of an open source application</p>
     <p>The maker of this service is not liable for the user and its data</p>
-    <p>It is licenced under the MIT Licence</p>
-    <a href="https://github.com/adessoAG/Seed-Test" target="_blank">For more information</a>
+    <a href="https://github.com/adessoAG/Seed-Test/blob/master/LICENSE" target="_blank">It is licenced under the MIT Licence</a>
+    <p><a routerLink="/terms" target="_blank">For more information</a></p>
   </div>
 </footer>
