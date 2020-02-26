@@ -40,14 +40,18 @@
   </div>
 </div>
 <router-outlet></router-outlet>
-<footer id="footer" class="topnav topnav-center">
+<footer id="footer" class="footer">
   <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
+  <p class="terms" (click)="openTerms()">Terms</p>
   <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
-    <p>adesso AG</p>
-    <p>Adessoplatz 1</p>
-    <p>44269 Dortmund</p>
-    <p>T +49 231 7000-7000</p>
-    <p>F +49 231 7000-1000</p>
-    <p>E info@adesso.de</p>
+    <p>Seed-Test</p>
+    <p>seed-test@adesso.de</p>
+    <a href="https://github.com/adessoAG/Seed-Test" target="_blank">https://github.com/adessoAG/Seed-Test</a>
+  </div>
+  <div id="termsContent" class="termsContent" *ngIf="showTerms">
+    <p>This is a demo verion</p>
+    <p>The maker of this service is not liable for the user and its data</p>
+    <p>It is licenced under the MIT Licence</p>
+    <a href="https://github.com/adessoAG/Seed-Test" target="_blank">For more information</a>
   </div>
 </footer>

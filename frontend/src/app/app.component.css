@@ -3,18 +3,42 @@
   margin: 0px;
 }
 
-.impressum {
+.footer{
+  background-color: #999;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  width: 100%;
+  display: inline-block;
+  transform: translate(0, 25%);
+}
+
+.footer > p{
+  display: inline;
+  padding: 0px 15px;
+}
+
+.impressum, .terms {
   text-align: center;
   color: white;
   font-size: small;
+  padding: 4px;
 }
 
-.impressum:hover{
+.impressum:hover, 
+.terms:hover{
   text-decoration: underline;
   cursor: pointer;
 }
+.impressumContent,
+.termsContent{
+  display: block;
+}
 
-.impressumContent p{
+.impressumContent p,
+.impressumContent a,
+.termsContent a,
+.termsContent p{
   color: white;
   text-align: center;
   font-size: x-small;
