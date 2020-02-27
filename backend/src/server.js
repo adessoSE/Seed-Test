@@ -62,7 +62,8 @@ app
     const tmpStories = [];
     // get Issues from GitHub .
     const request = new XMLHttpRequest();
-    request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story&access_token=${token}`);
+    request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`);
+    request.setRequestHeader('Authorization',`token ${token}`)
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {

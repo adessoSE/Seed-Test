@@ -7,7 +7,7 @@
 	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" matColumnDef={{column}}> 
 			<th class="headerRow" mat-header-cell *matHeaderCellDef scope="col"> {{column}}</th>
 			<td class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
-					<button *ngIf="first" [class.disabled]="editorLocked" [disabled]="editorLocked" a uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Row"
+					<button *ngIf="first" a uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Row"
 					(click)="removeRow(rowIndex);" ></button>
 					<editable  (update)="updateField(columnIndex, rowIndex, column)">
 							<ng-template viewMode>

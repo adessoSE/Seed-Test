@@ -51,10 +51,8 @@ envrionment.ts
 Thumbs.db
 
 
-
-
-frontend/coverage/
-
+frontend/coverage
+!frontend/coverage/lcov.info
 frontend/\.editorconfig
 
 frontend/dist/cucumber-frontend/3rdpartylicenses\.txt

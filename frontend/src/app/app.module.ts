@@ -21,6 +21,7 @@ import { EditableOnEnterDirective } from './editable/edit-on-enter.directive';
 import {FocusableDirective} from './example-table/focusable.directive';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import { FeedbackComponent } from './feedback/feedback.component';
+import { TermsComponent } from './terms/terms.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { FeedbackComponent } from './feedback/feedback.component';
     EditableComponent,
     FocusableDirective,
     EditableOnEnterDirective,
-    FeedbackComponent
+    FeedbackComponent,
+    TermsComponent
   ],
   imports: [
     BrowserModule,
