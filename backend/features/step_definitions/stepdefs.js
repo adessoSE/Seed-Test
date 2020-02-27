@@ -120,6 +120,9 @@ Then('So I can\'t see the text: {string}', async (string) => {
 After(async () => { // runs after each Scenario
   // // TODO: check for heroku and Chrome
   // // Without Timeout driver quit is happening too quickly. Need a better solution
-  driver.wait(1000);
+  //https://github.com/SeleniumHQ/selenium/issues/5560
+  const condition = until.elementLocated(By.name('loader'))
+  driver.wait(async driver => condition.fn(driver), 1000, 'Loading failed.')
+  //driver.wait(1000);
   driver.quit();
 });
