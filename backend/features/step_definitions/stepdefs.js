@@ -122,7 +122,7 @@ After(async () => { // runs after each Scenario
   // // Without Timeout driver quit is happening too quickly. Need a better solution
   //https://github.com/SeleniumHQ/selenium/issues/5560
   const condition = until.elementLocated(By.name('loader'))
-  driver.wait(async driver => condition.fn(driver), 1000, 'Loading failed.')
+  driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.')
   //driver.wait(1000);
   driver.quit();
 });
