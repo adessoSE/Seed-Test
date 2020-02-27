@@ -14,7 +14,6 @@ export class ExampleTableComponent implements OnInit {
   controls: FormArray;
   selectedScenario: Scenario;
   exampleThere = false;
-  editorLocked = true;
 
   @Output()
   removeRowIndex: EventEmitter<number> = new EventEmitter();
@@ -35,11 +34,6 @@ export class ExampleTableComponent implements OnInit {
     } else {
       this.exampleThere = false;
     }
-  }
-
-  @Input()
-  set setEditorLocked(editorLocked: boolean) {
-    this.editorLocked = editorLocked;
   }
 
   initializeTableControls() {
