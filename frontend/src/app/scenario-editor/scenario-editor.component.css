@@ -32,6 +32,7 @@
   border: 1px solid #999;
 }
 
+
 #scenarioTitle{
   color: #56595e;
 }
@@ -41,6 +42,8 @@
 }
 
 #storyheader{
+=======
+#submitWarningHeader{
   color: #999;
   float: left; 
 }
@@ -51,7 +54,7 @@
   margin-left: 7px;
 }
 
-#scenarioheader{
+#submitWarning{
   color: #999;
   float: left;
 }
@@ -243,4 +246,5 @@ table {
   margin-left: 40px;
   display:inline-block;
 }
+
 

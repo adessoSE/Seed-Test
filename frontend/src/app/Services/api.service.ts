@@ -18,12 +18,14 @@ export class ApiService {
   public getTokenEvent = new EventEmitter();
   public getBackendUrlEvent = new EventEmitter();
   constructor(private http: HttpClient) {
+      sessionStorage.setItem('url_backend','http://localhost:8080/api')
+      sessionStorage.setItem('github', 'https://api.github.com/repos/adessoAG/Seed-Test/issues')
   }
 
   public getHeader() {
     return new HttpHeaders({
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': 'true'
+          'Access-Control-Allow-Credentials': 'true'
     });
   }
 
@@ -102,6 +104,18 @@ export class ApiService {
         .pipe(tap(resp => {
          // console.log('Update background for story ' + storyID )
         }));
+  }
+
+  public submitgithub(obj) {
+    let github = sessionStorage.getItem('github');
+
+    let options = {
+      headers: new HttpHeaders()
+          .set('Authorization',  `Basic ${btoa('b465e192f7f740f2bba994dab7d59283fc80acb2')}`)
+    }
+
+    return this.http
+        .post<any>(github, obj, options);
   }
 
   public updateScenario(storyID, scenario) {
