@@ -7,7 +7,7 @@ import { JsonPipe } from '@angular/common';
 
 
 const testAccountName = 'adessoCucumber';
-const testAccountToken = '';
+const testAccountToken = 'b465e192f7f740f2bba994dab7d59283fc80acb2';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
   repositories;
   error;
   private testAccountName = 'adessoCucumber';
-  private testAccountToken;
+  private testAccountToken ='b465e192f7f740f2bba994dab7d59283fc80acb2';
 
   constructor(private apiService: ApiService,
               private router: Router) { 

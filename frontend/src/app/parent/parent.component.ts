@@ -15,6 +15,7 @@ export class ParentComponent implements OnInit {
   stories: Story[];
   selectedStory: Story;
   selectedScenario: Scenario;
+  formtosubmit: [""];
 
   constructor(private apiService: ApiService,
               private router: Router) {
@@ -52,6 +53,10 @@ export class ParentComponent implements OnInit {
 
   setSelectedScenario(scenario){
     this.selectedScenario = scenario;
+  }
+
+  setform(form){
+    this.formtosubmit = form;
   }
 
 }
