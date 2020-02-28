@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, DoCheck {
     this.showImpressum = false;
     this.showTerms = !this.showTerms;
     if(this.showTerms) {
-      const footer: HTMLElement = document.getElementById('footer') as HTMLElement;
+      const footer: HTMLElement = document.getElementById('footer');
       footer.scrollIntoView();
     }
   }
@@ -39,7 +39,7 @@ export class AppComponent implements OnInit, DoCheck {
     this.showTerms = false;
     this.showImpressum = !this.showImpressum;
     if(this.showImpressum) {
-      const footer: HTMLElement = document.getElementById('footer') as HTMLElement;
+      const footer: HTMLElement = document.getElementById('footer');
       footer.scrollIntoView();
     }
   }

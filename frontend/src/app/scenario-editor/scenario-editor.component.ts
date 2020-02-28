@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import { Chart } from 'chart.js';
 import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';

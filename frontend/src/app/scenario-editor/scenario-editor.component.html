@@ -224,7 +224,7 @@
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
       <h2>Change Scenario Title</h2>
-      <input type="text" [value]="selectedScenario.name" #ScenarioName />
+      <input id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
       <p class="uk-text-right">
         <button id="change_scenario_title_cancel" class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
         <button id="change_scenario_title_save" class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)"
