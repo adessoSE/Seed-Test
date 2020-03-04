@@ -23,6 +23,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 
 import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
+import { SubmitformComponent } from './submitform/submitform.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { TermsComponent } from './terms/terms.component';
     FocusableDirective,
     EditableOnEnterDirective,
     FeedbackComponent,
-    TermsComponent
+    TermsComponent,
+    SubmitformComponent
   ],
   imports: [
     BrowserModule,
