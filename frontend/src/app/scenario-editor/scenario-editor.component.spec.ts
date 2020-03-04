@@ -246,7 +246,7 @@ describe('ScenarioEditorComponent', () => {
       let deletedScenario = component.stories[indexStory].scenarios[indexScenario];
       
       spyOn(component.apiService, 'deleteScenario').and.returnValue(of(''));
-      component.deleteScenario();
+      component.deleteScenario(null);
       expect(component.showEditor).toBeFalsy();
 
       expect(component.stories[component.stories.indexOf(component.selectedStory)].scenarios).not.toContain(deletedScenario);

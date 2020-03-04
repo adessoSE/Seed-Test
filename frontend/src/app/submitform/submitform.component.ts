@@ -30,26 +30,26 @@ export class SubmitformComponent implements OnInit {
     }
 
     submit() {
-        let title = document.getElementById("label_form").value;
-        if(title.length === 0)
-            title = document.getElementById("label_form").placeholder;
+       let title = (document.getElementById("label_form") as HTMLInputElement).value;
+       if(title.length === 0)
+           title = (document.getElementById("label_form") as HTMLInputElement).placeholder;
 
-        let description = document.getElementById("description_form").value;
+       let description = (document.getElementById("description_form") as HTMLTextAreaElement).value;
 
-        let email = document.getElementById("email_form").value;
+       let email = (document.getElementById("email_form") as HTMLInputElement).value;
 
-        let obj = {
-            "title": title,
-            "body": description,
-            "e-mail": email,
-            "assignees": [
-                "adessoCucumber"
-            ],
-            "milestone": null,
-            "labels": [
-                "generated",
-                "ToDo"
-            ]
+       let obj = {
+           "title": title,
+           "body": description,
+           "e-mail": email,
+           "assignees": [
+               "adessoCucumber"
+           ],
+           "milestone": null,
+           "labels": [
+               "generated",
+               "ToDo"
+           ]
         }
 
         this.apiService.submitgithub(obj).subscribe((resp) => {

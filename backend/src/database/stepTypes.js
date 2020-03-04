@@ -97,7 +97,7 @@ function stepDefs() {
       stepType: 'then',
       type: 'Text',
       pre: 'So I can see the text',
-      mid: 'in the textbox:',
+      mid: 'in the textbox: ',
       values: ['', ''],
     },
     {

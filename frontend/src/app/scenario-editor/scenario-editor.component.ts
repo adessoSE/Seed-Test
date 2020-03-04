@@ -1,5 +1,5 @@
 
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
@@ -40,7 +40,7 @@ export class ScenarioEditorComponent implements OnInit {
     @ViewChild('exampleChildView') exampleChild;
 
     constructor(
-        private apiService: ApiService,
+        public apiService: ApiService,
     ) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.setStories(stories);
@@ -64,7 +64,7 @@ export class ScenarioEditorComponent implements OnInit {
 
     @Input()
     removeRowIndex(event) {
-        this.removeStepToScenario(event, 'example', event);
+        this.removeStepToScenario('example', event);
     }
 
     @Input()
@@ -316,7 +316,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedStory.background.stepDefinitions.when.splice(index, 1);
     }
 
-    removeStepToScenario(event, stepDefType, index) {
+    removeStepToScenario(stepDefType, index) {
         switch (stepDefType) {
             case 'given':
                 this.selectedScenario.stepDefinitions.given.splice(index, 1);
