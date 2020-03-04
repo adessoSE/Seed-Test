@@ -51,6 +51,7 @@ When('I click the button: {string}', async (button) => {
 
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async (value, label) => {
+  await driver.findElement(By.css(`input#${label}`)).clear()  
   await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
 });
 
