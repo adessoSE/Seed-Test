@@ -3,8 +3,6 @@ import {ApiService} from '../Services/api.service';
 import { Router } from '@angular/router';
 import { NgForm} from '@angular/forms';
 
-const testAccountName = 'adessoCucumber';
-const testAccountToken = 'b465e192f7f740f2bba994dab7d59283fc80acb2';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +14,7 @@ export class LoginComponent implements OnInit {
   repositories;
   error;
   private testAccountName = 'adessoCucumber';
-  private testAccountToken ='b465e192f7f740f2bba994dab7d59283fc80acb2';
+  private testAccountToken;
 
   constructor(public apiService: ApiService,
               public router: Router) {
