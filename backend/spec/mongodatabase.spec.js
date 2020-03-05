@@ -49,139 +49,138 @@ describe("Mongodatabase", function() {
      });
  });
 
- //describe("createBackground", function() {
- //    let storyId = 386692544;
-//
- //    afterEach(function(done) {
- //        mongo.deleteBackground(storyId, function(result){
- //          done();
- //        })
- //      });
- //    it("creates Background", function(done) {
- //        let background = '"background":{"name":"New Background","stepDefinitions":{"when":[]}}'
- //        mongo.createBackground(storyId, function(result){
- //            result._id = null;
- //            expect(JSON.stringify(result)).toContain(background);
- //            done();
- //        })
- //    });
- //});
+ describe("createBackground", function() {
+     let storyId = 386692544;
 
- //describe("updateBackground", function() {
- //    let storyId = 386696070;
- //    let backgroundBefore = '';
- //    beforeEach(function (done) {
- //        mongo.getOneStory(storyId, function(result) {
- //            backgroundBefore = result.background;
- //            done();
- //        })
- //    })
-//
- //    afterEach(function(done) {
- //        mongo.updateBackground(storyId, backgroundBefore, function(result){
- //           done();
- //        })
- //      });
- //    it("returns updatedBackground", function(done) {
- //        let background = {"name":"Test","stepDefinitions":{"when":[{"id":1,"mid":"from the selection","pre":"I select ","stepType":"when","type":"Radio","values":["Test","Hallo"]}]}}
- //        let backgroundString = (JSON.stringify(background));
- //        mongo.updateBackground(storyId, background, function(result){
- //            expect(JSON.stringify(result)).toContain(backgroundString);
- //            done();
- //        })
- //    });
- //});
-//
- //describe("deleteBackground", function() {
- //    let storyId = 386697647;
- //    let backgroundBefore = '';
- //    beforeEach(function (done) {
- //        mongo.getOneStory(storyId, function(result) {
- //            backgroundBefore = result.background;
- //            done();
- //        })
- //    })
-//
- //    afterEach(function(done) {
- //        mongo.updateBackground(storyId, backgroundBefore, function(result){
- //           done();
- //        })
- //      });
- //    it("return empty background", function(done) {
- //        let background = { "name": "New Background", "stepDefinitions":{ "when": [  ] }};
- //        mongo.deleteBackground(storyId, function(result){
- //            expect(result.background).toEqual(background);
- //            done();
- //        })
- //    });
- //});
-//
- //describe("createScenario", function() {
- //    let storyId = 386696256;
- //    let scenarioId;
- //    afterEach(function(done) {
- //        mongo.deleteScenario(storyId, scenarioId, function(result){
- //           done();
- //        })
- //      });
- //    it("creates a new scenario", function(done) {
- //        let scenario = {"scenario_id":null, "comment"=null, name":"New Scenario","stepDefinitions":{"given":[],"when":[],"then":[],"example":[]}};
- //        
- //        mongo.createScenario(storyId, function(result){
- //            scenarioId = result.scenario_id;
- //            result.scenario_id = null
- //            expect(result).toEqual(scenario);
- //            done();
- //        })
- //    });
- //});
-//
- //describe("deleteScenario", function() {
- //    let storyId = 386693823;
- //    let scenarioId;
-//
- //    beforeEach(function(done) {
- //        mongo.createScenario(storyId, function(result){
- //            scenarioId = result.scenario_id;
- //            done();
- //        })
- //      });
- //    it("creates a new scenario", function(done) {
- //        let scenario = `{"scenario_id":${scenarioId}`
- //        mongo.deleteScenario(storyId, scenarioId, function(result){
- //            expect(JSON.stringify(result)).not.toContain(scenario);
- //            done();
- //        })
- //    });
- //});
-//
- //describe("updateScenario", function() {
- //    let storyId = 386692174;
- //    let oldScenario;
- //    let scenarioId;
-//
- //    beforeEach(function(done) {
- //        mongo.createScenario(storyId, function(result){
- //            oldScenario = result;
- //            scenarioId = result.scenario_id;
- //            done();
- //        })
- //      });
-//
- //    afterEach(function(done) {
- //       mongo.deleteScenario(storyId, scenarioId, function(result){
- //           done();
- //       })
- //      });
-//
- //    it("updated story", function(done) {
- //        let updateScenario = oldScenario;
- //        let newName = 'test';
- //        updateScenario.name = newName;
- //        mongo.updateScenario(storyId, updateScenario, function(result){
- //            expect(result.scenarios[scenarioId-1].name).toEqual(newName)
- //            done();
- //        })
- //    });
- //});
+     afterEach(function(done) {
+         mongo.deleteBackground(storyId, function(result){
+           done();
+         })
+       });
+     it("creates Background", function(done) {
+         let background = '"background":{"name":"New Background","stepDefinitions":{"when":[]}}'
+         mongo.createBackground(storyId, function(result){
+             result._id = null;
+             expect(JSON.stringify(result)).toContain(background);
+             done();
+         })
+     });
+ });
+
+describe("updateBackground", function() {
+    let storyId = 386696070;
+    let backgroundBefore = '';
+    beforeEach(function (done) {
+        mongo.getOneStory(storyId, function(result) {
+            backgroundBefore = result.background;
+            done();
+        })
+    })
+
+    afterEach(function(done) {
+        mongo.updateBackground(storyId, backgroundBefore, function(result){
+           done();
+        })
+      });
+    it("returns updatedBackground", function(done) {
+        let background = {"name":"Test","stepDefinitions":{"when":[{"id":1,"mid":"from the selection","pre":"I select ","stepType":"when","type":"Radio","values":["Test","Hallo"]}]}}
+        let backgroundString = (JSON.stringify(background));
+        mongo.updateBackground(storyId, background, function(result){
+            expect(JSON.stringify(result)).toContain(backgroundString);
+            done();
+        })
+    });
+});
+
+describe("deleteBackground", function() {
+    let storyId = 386697647;
+    let backgroundBefore = '';
+    beforeEach(function (done) {
+        mongo.getOneStory(storyId, function(result) {
+            backgroundBefore = result.background;
+            done();
+        })
+    })
+
+    afterEach(function(done) {
+        mongo.updateBackground(storyId, backgroundBefore, function(result){
+           done();
+        })
+      });
+    it("return empty background", function(done) {
+        let background = { "name": "New Background", "stepDefinitions":{ "when": [  ] }};
+        mongo.deleteBackground(storyId, function(result){
+            expect(result.background).toEqual(background);
+            done();
+        })
+    });
+});
+describe("createScenario", function() {
+    let storyId = 386696256;
+    let scenarioId;
+    afterEach(function(done) {
+        mongo.deleteScenario(storyId, scenarioId, function(result){
+           done();
+        })
+      });
+    it("creates a new scenario", function(done) {
+        let scenario = {"scenario_id":null, "comment":null, "name":"New Scenario","stepDefinitions":{"given":[],"when":[],"then":[],"example":[]}};
+        
+        mongo.createScenario(storyId, function(result){
+            scenarioId = result.scenario_id;
+            result.scenario_id = null
+            expect(result).toEqual(scenario);
+            done();
+        })
+    });
+});
+
+describe("deleteScenario", function() {
+    let storyId = 386693823;
+    let scenarioId;
+
+    beforeEach(function(done) {
+        mongo.createScenario(storyId, function(result){
+            scenarioId = result.scenario_id;
+            done();
+        })
+      });
+    it("deletes a new scenario", function(done) {
+        let scenario = `{"scenario_id":${scenarioId}`
+        mongo.deleteScenario(storyId, scenarioId, function(result){
+            expect(JSON.stringify(result)).not.toContain(scenario);
+            done();
+        })
+    });
+});
+
+describe("updateScenario", function() {
+    let storyId = 386692174;
+    let oldScenario;
+    let scenarioId;
+
+    beforeEach(function(done) {
+        mongo.createScenario(storyId, function(result){
+            oldScenario = result;
+            scenarioId = result.scenario_id;
+            done();
+        })
+      });
+
+    afterEach(function(done) {
+       mongo.deleteScenario(storyId, scenarioId, function(result){
+           done();
+       })
+      });
+
+    it("updated story", function(done) {
+        let updateScenario = oldScenario;
+        let newName = 'test';
+        updateScenario.name = newName;
+        mongo.updateScenario(storyId, updateScenario, function(result){
+            expect(result.scenarios[scenarioId-1].name).toEqual(newName)
+            done();
+        })
+    });
+});
 });
