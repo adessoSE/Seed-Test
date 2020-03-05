@@ -139,7 +139,26 @@
   color: #0099CC;
 }
 
+.iconButton {
+  border: none;
+  background-color: #ffffff;
+  padding: 0px;
+  border-radius: 10%;
+}
+
+i{
+  vertical-align:middle;
+}
+
+.iconButton:active {
+  background-color: #0099CC;
+  color: #ffffff;
+}
+
+
+
 .buttonGroup{
+  text-align: center;
   margin-left: 10px;
   color: #0099CC;
 }
