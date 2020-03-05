@@ -1,4 +1,11 @@
 <br>
+<div class="emptyStories" *ngIf="!stories || stories.length <= 0">
+  <h1>No Stories Yet In This Repository</h1>
+  <p>Find out how to create stories</p>
+  <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
+  <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
+</div>
+
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
@@ -243,3 +250,6 @@
       </p>
     </div>
   </div>
+</div>
+</div>
+</div>

@@ -6,6 +6,18 @@
   width: 100%;
 }
 
+.emptyStories{
+  color: #999;
+}
+.emptyStories h1{
+  color: #999;
+}
+
+.emptyStories a {
+  display: block;
+}
+
+
 .def {
 	color: #999;
 	cursor: help;
