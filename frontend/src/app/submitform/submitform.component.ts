@@ -1,6 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ApiService} from "../Services/api.service";
-import {Story} from "../model/Story";
 
 @Component({
     selector: 'app-submitform',

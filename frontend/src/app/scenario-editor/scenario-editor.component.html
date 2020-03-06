@@ -2,8 +2,8 @@
 <div class="emptyStories" *ngIf="!stories || stories.length <= 0">
   <h1>No Stories Yet In This Repository</h1>
   <p>Find out how to create stories</p>
-  <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
-  <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
+  <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
+  <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
 </div>
 
 <div *ngIf="stories">
@@ -49,18 +49,18 @@
             <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
               class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
               (click)="deleteBackground($event);">
-              <i class="material-icons">delete</i>
+              <em class="material-icons">delete</em>
             </button>
             <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning" [disabled]="testRunning"
               title="Save Background" 
               (click)="updateBackground(selectedStory.story_id);">
-              <i class="material-icons">save</i>
+              <em class="material-icons">save</em>
             </button>
           </div>
           <div class="uk-float-right">
             <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
               class="buttonGroup iconButton" title="Add New Step" uk-tooltip>
-              <i class="material-icons">add</i>
+              <em class="material-icons">add</em>
             </button>
           </div>
           <div uk-dropdown>
@@ -129,17 +129,17 @@
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div id="buttonGroupScenario" class="uk-align-right">
         <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)">
-          <i class="material-icons">add</i>
+          <em class="material-icons">add</em>
         </button>
         <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
           class="buttonGroup iconButton" data-uk-tooltip title="Delete Scenario"
           (click)="deleteScenario($event);">
-          <i class="material-icons">delete</i>
+          <em class="material-icons">delete</em>
         </button>
         <button id="scenario_save" [class.disabled]="testRunning" [disabled]="testRunning" class="buttonGroup iconButton" data-uk-tooltip
           title="Save Scenario"
           (click)="updateScenario(selectedStory.story_id);">
-          <i class="material-icons">save</i>
+          <em class="material-icons">save</em>
         </button>
         <button id="scenario_shift_right" class="buttonGroup" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
