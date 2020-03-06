@@ -158,11 +158,13 @@
   border-radius: 10%;
 }
 
-i{
+.iconButton em{
   vertical-align:middle;
+  color: #0099CC;
+  border-radius: 10%;
 }
 
-.iconButton:active {
+.iconButton em:active {
   background-color: #0099CC;
   color: #ffffff;
 }
@@ -190,6 +192,11 @@ i{
 }
 
 .disabled {
+  color: gray !important;
+  background: white !important;
+}
+
+.disabled em{
   color: gray !important;
   background: white !important;
 }

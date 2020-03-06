@@ -8,7 +8,6 @@ import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
-import { ExampleTableComponent } from '../example-table/example-table.component';
 
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
