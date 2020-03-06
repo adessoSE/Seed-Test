@@ -3,8 +3,6 @@ import {ApiService} from '../Services/api.service';
 import { Router } from '@angular/router';
 import { NgForm} from '@angular/forms';
 
-const testAccountName = 'adessoCucumber';
-const testAccountToken = '';
 
 @Component({
   selector: 'app-login',

@@ -6,6 +6,18 @@
   width: 100%;
 }
 
+.emptyStories{
+  color: #999;
+}
+.emptyStories h1{
+  color: #999;
+}
+
+.emptyStories a {
+  display: block;
+}
+
+
 .def {
 	color: #999;
 	cursor: help;
@@ -32,6 +44,7 @@
   border: 1px solid #999;
 }
 
+
 #scenarioTitle{
   color: #56595e;
 }
@@ -40,7 +53,7 @@
   border: 1px solid #999;
 }
 
-#storyheader{
+#submitWarningHeader{
   color: #999;
   float: left; 
 }
@@ -51,7 +64,7 @@
   margin-left: 7px;
 }
 
-#scenarioheader{
+#submitWarning{
   color: #999;
   float: left;
 }
@@ -138,7 +151,26 @@
   color: #0099CC;
 }
 
+.iconButton {
+  border: none;
+  background-color: #ffffff;
+  padding: 0px;
+  border-radius: 10%;
+}
+
+i{
+  vertical-align:middle;
+}
+
+.iconButton:active {
+  background-color: #0099CC;
+  color: #ffffff;
+}
+
+
+
 .buttonGroup{
+  text-align: center;
   margin-left: 10px;
   color: #0099CC;
 }
@@ -243,4 +275,5 @@ table {
   margin-left: 40px;
   display:inline-block;
 }
+
 

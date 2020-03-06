@@ -1,0 +1,33 @@
+<br>
+<div class="padRight" [hidden]=!showForm>
+    <div class="uk-card uk-card-default uk-padding" id="submitForm">
+        <div class="uk-card-title">
+            <h2 id="submitWarningHeader">Submit Step</h2>
+            <h3 id="submitWarning"><dfn class="def">
+                    <span rel="def">Warning: You are about to submit a new step-type.
+                        This step will be evaluated by our team, and eventually implemented.
+                        Please fill out the form below to submit the step.
+                        If you want an optimal solution,
+                        please leave us a way to reach out to you for further clarification.
+              </span></dfn></h3>
+        </div>
+        <div>
+            <form>
+                <label>Title:</label>
+                <div>
+                    <input id="label_form" [placeholder]=form[0]>
+                </div>
+                <label>Description:</label>
+                <div>
+                    <textarea id="description_form">
+                    </textarea>
+                </div>
+                <label>E-Mail:</label>
+                <div>
+                    <input id="email_form">
+                </div>
+                <button (click)="submit()">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>

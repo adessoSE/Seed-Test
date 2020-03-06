@@ -1,4 +1,11 @@
 <br>
+<div class="emptyStories" *ngIf="!stories || stories.length <= 0">
+  <h1>No Stories Yet In This Repository</h1>
+  <p>Find out how to create stories</p>
+  <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
+  <a href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
+</div>
+
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
@@ -39,17 +46,22 @@
             <input id="background_name" #backgroundName type="text" value="{{selectedStory.background.name}}" on-change="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
           </div>
           <div class="uk-float-right backgroundItems">
-            <button id="background_delete"
-              class="buttonGroup" data-uk-tooltip title="Delete Background" uk-icon="trash"
+            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+              class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
               (click)="deleteBackground($event);">
+              <i class="material-icons">delete</i>
             </button>
-            <button class="buttonGroup" data-uk-tooltip
-              title="Save Background" uk-icon="lock"
-              (click)="updateBackground(selectedStory.story_id);"></button>
+            <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning" [disabled]="testRunning"
+              title="Save Background" 
+              (click)="updateBackground(selectedStory.story_id);">
+              <i class="material-icons">save</i>
+            </button>
           </div>
           <div class="uk-float-right">
-            <button id="background_add_step" uk-icon="icon: plus"
-              class="buttonGroup" title="Add New Step" uk-tooltip></button>
+            <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
+              class="buttonGroup iconButton" title="Add New Step" uk-tooltip>
+              <i class="material-icons">add</i>
+            </button>
           </div>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
@@ -116,13 +128,19 @@
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div id="buttonGroupScenario" class="uk-align-right">
-        <button id="new_scenario" class="buttonGroup" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" uk-icon="icon: plus" (click)="addScenarioFromStory(selectedStory.story_id)"></button>
-        <button id="scenario_delete"
-          class="buttonGroup" data-uk-tooltip title="Delete Scenario" uk-icon="trash"
-          (click)="deleteScenario($event);"></button>
-        <button id="scenario_save"class="buttonGroup" data-uk-tooltip
-          title="Save Scenario" uk-icon="lock"
-          (click)="updateScenario(selectedStory.story_id);"></button>
+        <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)">
+          <i class="material-icons">add</i>
+        </button>
+        <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+          class="buttonGroup iconButton" data-uk-tooltip title="Delete Scenario"
+          (click)="deleteScenario($event);">
+          <i class="material-icons">delete</i>
+        </button>
+        <button id="scenario_save" [class.disabled]="testRunning" [disabled]="testRunning" class="buttonGroup iconButton" data-uk-tooltip
+          title="Save Scenario"
+          (click)="updateScenario(selectedStory.story_id);">
+          <i class="material-icons">save</i>
+        </button>
         <button id="scenario_shift_right" class="buttonGroup" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
@@ -130,7 +148,11 @@
 
     <div class="uk-card-title padding">
       <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
-        <div *ngIf="sd != 'example'; else exampleTitle">{{i+1}}. {{ sd | titlecase }}</div>
+        <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
+        <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
+        <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
+        <div *ngIf="sd == 'example'; then exampleTitle"></div>
+
         <div class="uk-float-right">
           <button id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
             class="addStepButtons" title="Add New Step" uk-tooltip></button>
@@ -145,7 +167,7 @@
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;">
+            <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
                 (click)="removeStepToScenario(currentStep.stepType, j);">
@@ -167,7 +189,7 @@
         </div>
         <br>
         <ng-template #exampleTitle>
-          {{ sd | titlecase }}
+          Example (Cases)
         </ng-template>
         <ng-template #exampleCondition>
           <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
@@ -232,3 +254,6 @@
       </p>
     </div>
   </div>
+</div>
+</div>
+</div>

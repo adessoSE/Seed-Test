@@ -18,12 +18,13 @@ export class ApiService {
   public getTokenEvent = new EventEmitter();
   public getBackendUrlEvent = new EventEmitter();
   constructor(private http: HttpClient) {
+      sessionStorage.setItem('github', 'https://api.github.com/repos/adessoAG/Seed-Test/issues')
   }
 
   public getHeader() {
     return new HttpHeaders({
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': 'true'
+          'Access-Control-Allow-Credentials': 'true'
     });
   }
 
@@ -33,7 +34,7 @@ export class ApiService {
       repoToken = '';
     }
     const options = {headers: this.getHeader()};
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
 
     let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
     return this.http.get<any>(str, options)
@@ -49,13 +50,13 @@ export class ApiService {
   }
 
   public getBackendInfo() {
-    let url = sessionStorage.getItem('url_backend');
+    let url = localStorage.getItem('url_backend');
     if(url && url != 'undefined'){
       this.urlReceived = true;
       this.getBackendUrlEvent.emit();
     } else {
       this.http.get<any>(window.location.origin + '/backendInfo').subscribe((backendInfo) => {
-        sessionStorage.setItem('url_backend', backendInfo.url);
+        localStorage.setItem('url_backend', backendInfo.url);
         this.urlReceived = true;
         this.getBackendUrlEvent.emit();
       });
@@ -67,7 +68,7 @@ export class ApiService {
     if(!storytoken || storytoken == 'undefined') {
       storytoken = '';
     }
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + storytoken)
       .pipe(tap(resp => {
@@ -76,7 +77,7 @@ export class ApiService {
   }
 
   public getStepTypes() {
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<StepType[]>(this.apiServer + '/stepTypes')
       .pipe(tap(resp => {
@@ -85,7 +86,7 @@ export class ApiService {
   }
 
   public addScenario(storyID) {
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
 
       return this.http
         .get<any>(this.apiServer + '/scenario/add/' + storyID)
@@ -95,7 +96,7 @@ export class ApiService {
   }
 
   public updateBackground(storyID, background) {
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
         .post<any>(this.apiServer + '/background/update/' + storyID, background)
@@ -104,8 +105,20 @@ export class ApiService {
         }));
   }
 
+  public submitgithub(obj) {
+    let github = sessionStorage.getItem('github');
+
+    let options = {
+      headers: new HttpHeaders()
+          .set('Authorization',  `Basic ${btoa('b465e192f7f740f2bba994dab7d59283fc80acb2')}`)
+    }
+
+    return this.http
+        .post<any>(github, obj, options);
+  }
+
   public updateScenario(storyID, scenario) {
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
         .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
@@ -115,7 +128,7 @@ export class ApiService {
   }
 
   public deleteBackground(storyID) {
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
@@ -125,7 +138,7 @@ export class ApiService {
   }
 
   public deleteScenario(storyID, scenario) {
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
 
    return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/scenario/delete/' + scenario.scenario_id)
@@ -136,7 +149,7 @@ export class ApiService {
 
   // demands testing from the server
   public runTests(storyID, scenarioID) {
-    this.apiServer = sessionStorage.getItem('url_backend');
+    this.apiServer = localStorage.getItem('url_backend');
 
     if (scenarioID) {
       return this.http
