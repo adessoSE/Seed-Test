@@ -10,8 +10,8 @@
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
     <div class="uk-card uk-card-default padding" id="story">
-      <div class="uk-card-title">
-          <h4 id="storyheader">Story</h4>
+      <div>
+        <span id="storyHeader">Story</span>
           <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
               <span rel="def">A user story describes requirements for a software system.
                 It is consciously kept in short sentences and simple words.
@@ -19,10 +19,7 @@
                 The following template is recommended:
                 As a <...>, I want <...> so that <...>
               </span></dfn>
-              <br>
         <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
-        <div class="uk-button-group uk-align-right ">
-        </div>
       </div>
       <br>
       <!--Description-->
@@ -111,8 +108,8 @@
     <br>
   <!--Scenario Header-->
   <div class="uk-card uk-card-default padding" id="scenario">
-    <div class="uk-card-title">
-        <h4 id="scenarioheader">Scenario</h4>
+    <div>
+      <span id="scenarioHeader">Scenario</span>
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
               It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -121,7 +118,6 @@
                    When (action) and
                    Then (desired result)
                   </span></dfn>
-        <br>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
       <span id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
