@@ -23,6 +23,7 @@
 	cursor: help;
   position: relative;
   font-size: 20px;
+  font-weight: lighter;
 }
 
 .def span[rel=def] {
@@ -219,11 +220,6 @@ i{
   font-weight:normal;
 }
 
-.uk-card-title {
-  font-size: medium;
-  font-weight: bold;
-}
-
 .uk-card-footer{
   padding-bottom: 0;
 }
@@ -244,6 +240,7 @@ i{
 .descriptionText{
   padding-left:40px;
   padding-bottom: 20px;
+  font-weight: lighter;
 }
 
 .backgroundItems{

@@ -14,7 +14,7 @@
     <ul uk-accordion>
       <li *ngFor="let s of sortedStories(); let i = index ">
 
-        <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
+        <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
           <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
             {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
           </a>

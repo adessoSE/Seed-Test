@@ -47,6 +47,7 @@
 #version {
   float: left;
   padding: 13px;
+  color: #56595e;
 }
 
 .left-button {
@@ -76,13 +77,14 @@ a:hover{
 }
 
 img {
-  height: 51px;
+  height: 55px;
 }
 
 .topnav{
   background-color: #999;
   position: relative;
   overflow: hidden;
+  height: 50px;
 }
 
 .topnav a {
@@ -101,6 +103,7 @@ img {
 
 .topnav-left {
   float:left;
+  height: 50px;
 }
 
 .topnav-left a{
