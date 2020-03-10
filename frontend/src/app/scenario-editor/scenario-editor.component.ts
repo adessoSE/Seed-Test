@@ -367,8 +367,11 @@ export class ScenarioEditorComponent implements OnInit {
                 this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
                 if (this.selectedScenario.stepDefinitions.example[0].values.length == 0) {
                     this.selectedScenario.stepDefinitions.example.splice(0, this.selectedScenario.stepDefinitions.example.length);
-
                 }
+            }
+            if(!this.selectedScenario.stepDefinitions.example || this.selectedScenario.stepDefinitions.example.length <= 0){
+                let table = document.getElementsByClassName('mat-table')[0];
+                table.classList.remove('mat-elevation-z8')
             }
         }
         // if input has < > and it is a new unique input
@@ -392,6 +395,8 @@ export class ScenarioEditorComponent implements OnInit {
                 this.exampleChild.updateTable();
             }
             this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
+            let table = document.getElementsByClassName('mat-table')[0];
+            if(table) table.classList.add('mat-elevation-z8')
         } else {
             // else just adds as many values to the examples to fill up the table
             this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
