@@ -44,6 +44,7 @@ export class ScenarioEditorComponent implements OnInit {
     ) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.storiesLoaded = true;
+            this.showEditor = false;
             this.setStories(stories);
         });
         this.apiService.getBackendUrlEvent.subscribe(() => {
