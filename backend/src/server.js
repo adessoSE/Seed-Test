@@ -63,7 +63,7 @@ app
     // get Issues from GitHub .
     const request = new XMLHttpRequest();
     request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`);
-    request.setRequestHeader('Authorization',`token ${token}`)
+    request.setRequestHeader('Authorization', `token ${token}`);
     request.send();
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
@@ -88,11 +88,9 @@ app
         }
         Promise.all(tmpStories).then((results) => {
           res.status(200).json(results);
-          stories = results;
-          // need this to clear promises from the Story List TODO: better fix it in "fuseGitWithDB"
+          stories = results; // need this to clear promises from the Story List
         }).catch((e) => {
           console.log(e);
-          // TODO: handle Error
         });
       }
     };
@@ -137,7 +135,6 @@ app
 
   // update scenario
   .post('/api/scenario/update/:issueID', (req, res) => {
-    // TODO: use model to check for scenario (priority 2)
     const scenario = req.body;
     mongo.updateScenario(parseInt(req.params.issueID, 10), scenario, (updatedStory) => {
       if (typeof (updatedStory) === 'string') {
@@ -186,10 +183,10 @@ app
       const merged = [].concat.apply([], repos);
       // console.log(merged);
       res.status(200).json(merged);
-    }).catch((reason) =>{
-      res.status(400).json('Wrong Github name or Token')
-      console.log('Get Repositories Error: ' + reason);
-    })
+    }).catch((reason) => {
+      res.status(400).json('Wrong Github name or Token');
+      console.log(`Get Repositories Error: ${reason}`);
+    });
   });
 
 module.exports = { app };

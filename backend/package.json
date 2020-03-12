@@ -8,7 +8,7 @@
     "database": "node src/database/installDatabase.js",
     "clean": "rimraf ./dist",
     "tsc": "tsc",
-    "lint": "./node_modules/.bin/eslint src/database/stepTypes.js --fix"
+    "lint": "./node_modules/.bin/eslint src/models/ --fix"
   },
   "private": true,
   "dependencies": {
