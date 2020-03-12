@@ -44,9 +44,12 @@ When('I go to the website: {string}', async (url) => {
 // clicks a button if found in html code with xpath,
 // timeouts if not found after 3 sek, waits for next page to be loaded
 When('I click the button: {string}', async (button) => {
-  await driver.wait(until.elementLocated(By.xpath(`${"//*[@*'='"}${button}']`)), 3 * 1000).click();
-  // if you get navigeted to another Website and want to check
-  // wether you reach the correct Site we may need this to wait for the new page
+  // old version without text of the element
+  // await driver.wait(until.elementLocated(By.xpath(`${'//*[@*' + "='"}${button}']`)), 3 * 1000).click();
+  // new version with text of the element
+  await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
+  // if you get navigeted to another Website and want to check wether,
+  // you reach the correct Site we may need this to wait for the new page
   await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 });
 
