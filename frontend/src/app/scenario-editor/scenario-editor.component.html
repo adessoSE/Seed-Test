@@ -1,14 +1,19 @@
 <br>
-<div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded">
+<div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1>No Stories Yet In This Repository</h1>
   <p>Find out how to create stories</p>
   <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
   <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
 </div>
 
-<div class="emptyStories" *ngIf="!storiesLoaded">
+<div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
   <h1>Loading Stories ...</h1>
 </div>
+
+<div class="emptyStories" *ngIf="storiesError">
+  <h1>You are not authorized to use this repository</h1>
+</div>
+
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->

@@ -66,6 +66,9 @@ app
     request.setRequestHeader('Authorization',`token ${token}`)
     request.send();
     request.onreadystatechange = function () {
+      if(this.readyState === 4 && this.status === 401){
+        res.sendStatus(401);
+      }
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
         for (const issue of data) {

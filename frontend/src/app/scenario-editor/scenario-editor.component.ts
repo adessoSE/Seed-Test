@@ -36,6 +36,7 @@ export class ScenarioEditorComponent implements OnInit {
     uncutInputs: string[] = [];
     htmlReport;
     storiesLoaded = false;
+    storiesError = false;
 
     @ViewChild('exampleChildView') exampleChild;
 
@@ -44,8 +45,13 @@ export class ScenarioEditorComponent implements OnInit {
     ) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.storiesLoaded = true;
+            this.storiesError = false;
             this.showEditor = false;
             this.setStories(stories);
+        });
+        this.apiService.storiesErrorEvent.subscribe(errorCode => {
+            this.storiesError = true;
+            this.showEditor = false;
         });
         this.apiService.getBackendUrlEvent.subscribe(() => {
             this.loadStepTypes();
