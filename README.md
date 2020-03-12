@@ -36,15 +36,18 @@ cd backend
 npm start
 ```
 
-Create an `.env` file with following variables:
+Create an `.env` file in the backend folder with following variables:
 ```
 DATABASE_URI
-CHROMEDRIVER_VERSION
-FIREFOX_VERSION
 REPORT_DELETION_TIME
 TESTACCOUNT_NAME
 TESTACCOUNT_TOKEN
 PORT
+```
+
+Create an `.env` file in the frontend folder with following variables:
+```
+API_SERVER=http://localhost:8080/api
 ```
 
 ## Database
