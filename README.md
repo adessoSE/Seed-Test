@@ -1,7 +1,7 @@
 # Seed-Test
 Behaviour-driven development (BDD) extends the Test-Driven Development (TDD) approach by the ‘desired behaviour’ of a software. It is designed to ensure a collaboration between business analysts and developers with explicitly written down scenarios.
 
-*   Check out the [Tutorial (english)](https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng) / [Tutorial (german)](https://github.com/adessoCucumber/Cucumber/wiki/Tutorial)
+*   Check out the [Tutorial (english)](https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng) / [Tutorial (german)](https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu)
 
 
 ## What is Seed-Test?
