@@ -2,7 +2,7 @@
   <!--center-->
   <div class="topnav-center">
     <a routerLink="/" class="title">
-      <h4 id="cucumberApp">Seed-Test</h4>
+      <h4 id="seedTest">Seed-Test</h4>
     </a>
   </div>
   <!--left-->
@@ -16,15 +16,15 @@
     <div class="dropdown">
       <button class="left-button">Help</button>
       <div class="dropdown-list">
-        <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial (german)</a>
-        <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
+        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
+        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
       </div>
     </div>
   </div>
   <p id="version">Version 0.1.0</p>
   <!--right-->
   <div class="topnav-right">
-    <span *ngIf="this.token || this.repository"> 
+    <span *ngIf="this.token || this.repository">
       <div class="dropdown">
         <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
         <ul class="dropdown-list">
@@ -35,7 +35,7 @@
         </ul>
       </div>
       <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
-      <a class="repoButton" id="githubHref" href="https://github.com/adessoCucumber/Cucumber" uk-icon="github"></a>
+      <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
     </span>
   </div>
 </div>

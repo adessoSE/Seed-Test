@@ -77,7 +77,6 @@ export class AppComponent implements OnInit, DoCheck {
   selectRepository(repository: string) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
     ref.href = 'https://github.com/' + repository;
-    this.repository = repository;
     localStorage.setItem('repository', repository);
     this.repository = repository;
     this.apiService.getStories(repository, this.token).subscribe(resp => {

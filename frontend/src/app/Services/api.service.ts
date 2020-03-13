@@ -3,7 +3,7 @@ import {tap, catchError} from 'rxjs/operators';
 import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { StepType } from '../model/StepType';
 
 @Injectable({
@@ -14,6 +14,7 @@ export class ApiService {
   public apiServer: string = localStorage.getItem('url_backend');
   public token: string;
   public urlReceived: boolean = false;
+  public storiesErrorEvent = new EventEmitter();
   public getStoriesEvent = new EventEmitter();
   public getTokenEvent = new EventEmitter();
   public getBackendUrlEvent = new EventEmitter();
@@ -40,13 +41,16 @@ export class ApiService {
     return this.http.get<any>(str, options)
       .pipe(tap(resp => {}),
         catchError(this.handleError));
+  }
 
-
+  handleStoryError = (error: HttpErrorResponse, caught: Observable<any> ) => {
+    this.storiesErrorEvent.emit();
+    return of([]);
   }
 
   handleError(error: HttpErrorResponse) {
     console.log(error);
-    return throwError(error);
+    return  throwError(error);
   }
 
   public getBackendInfo() {
@@ -73,7 +77,7 @@ export class ApiService {
       .get<Story[]>(this.apiServer + '/stories/' + repository + '/' + storytoken)
       .pipe(tap(resp => {
         this.getStoriesEvent.emit(resp);
-      }));
+      }), catchError(this.handleStoryError));
   }
 
   public getStepTypes() {
