@@ -77,3 +77,10 @@
     color: #56595e;
   }
 
+  .uk-accordion-content .passed{
+    color: green;
+  }
+  
+  .uk-accordion-content .notPassed{
+    color: red;
+  }

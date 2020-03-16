@@ -303,7 +303,8 @@ function runReport(req, res, stories, mode) {
       passed = parseInt(failed[1]) <= 0;
       console.log(passed)
 
-      if(scenarioID){
+
+      if(scenarioID && story.scenarios[scenarioID - 1]){ //passt nicht weil scenarioID -1 nicht immer passt also andere methode finden
         story.scenarios[scenarioID - 1].passed = passed;
         mongo.updateScenario(story.story_id, story.scenarios[scenarioID - 1], (result) => {
           console.log('updateScenario')
