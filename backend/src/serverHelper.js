@@ -6,7 +6,7 @@ const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-
+const HTMLParser = require('node-html-parser');
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
@@ -189,12 +189,12 @@ function execReport2(req, res, stories, mode, story, callback) {
     if (error) {
       console.error(`exec error: ${error}`);
 
-      callback(reportTime);
+      callback(reportTime, story, req.params.scenarioID);
       return;
     }
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
-    callback(reportTime);
+    callback(reportTime, story, req.params.scenarioID);
   });
 }
 
@@ -283,12 +283,38 @@ function deleteHtmlReport(htmlReport) {
 
 
 function runReport(req, res, stories, mode) {
-  execReport(req, res, stories, mode, (reportTime) => {
+  execReport(req, res, stories, mode, (reportTime, story, scenarioID) => {
     setTimeout(deleteJsonReport, reportDeletionTime * 60000, `reporting_${reportTime}.json`);
     setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
     setOptions(reportTime);
     reporter.generate(options);
     res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
+    //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
+    let passed = false;
+    fs.readFile(`./features/reporting_html_${reportTime}.html`, "utf8", function(err, data) {
+      const roots = HTMLParser.parse(data)
+      //console.log(root);
+      //console.log(roots.childNodes[0].childNodes[1].childNodes)
+
+      //console.log(roots.structure)
+      let failed = roots.querySelector('.label-danger').innerHTML;
+      failed = failed.split(' ');
+      console.log(failed)
+      passed = parseInt(failed[1]) <= 0;
+      console.log(passed)
+
+      if(scenarioID){
+        story.scenarios[scenarioID - 1].passed = passed;
+        mongo.updateScenario(story.story_id, story.scenarios[scenarioID - 1], (result) => {
+          console.log('updateScenario')
+        })
+      }
+      //console.log(roots.querySelector('.label-danger').innerHTML)
+    });
+
+
+    //console.log('story: ' +  story);
+    //console.log('scenarioid: ' + scenarioID)
   });
 }
 
