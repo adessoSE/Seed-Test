@@ -15,8 +15,8 @@
       <li *ngFor="let s of sortedStories(); let i = index ">
 
         <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
-            <span class="dot" [class.notPassed]="!s.passed && s.passed != undefined" [class.passed]="s.passed && s.passed != undefined"></span>
-          <a maxlength="10" id="{{'story' + i}}" [class.notPassed]="!s.passed && s.passed != undefined" [class.passed]="s.passed && s.passed != undefined" uk-tooltip="pos:right; delay: 200" >
+            <span class="dot" [class.notPassed]="!s.lastTestPassed && s.lastTestPassed != undefined" [class.passed]="s.lastTestPassed && s.lastTestPassed != undefined"></span>
+          <a maxlength="10" id="{{'story' + i}}" [class.notPassed]="!s.lastTestPassed && s.lastTestPassed != undefined" [class.passed]="s.lastTestPassed && s.lastTestPassed != undefined" title="{{s.body}}" uk-tooltip="pos:right; delay: 200" >
             {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }} 
           </a>
           <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
@@ -25,7 +25,7 @@
 
         <div class="uk-accordion-content">
           <li *ngFor="let scen of s.scenarios; let c = index">
-            <a href="#" [class.notPassed]="!scen.passed && scen.passed != undefined" [class.passed]="scen.passed && scen.passed != undefined" [class.notTested] ="" (click)="selectScenario(s.story_id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
+            <a href="#" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(s.story_id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
           </li>
         </div>
 

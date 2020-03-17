@@ -337,4 +337,5 @@ module.exports = {
   getOneStory,
   upsertEntry,
   installDatabase,
+  updateStory
 };

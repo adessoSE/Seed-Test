@@ -107,11 +107,10 @@
   }
 
   .dot {
-    height: 15px;
-    width: 15px;
+    height: 11px;
+    width: 11px;
     background-color: #bbb;
     border-radius: 50%;
     display: inline-block;
-    line-height: 10px;
    /* visibility: hidden;*/
   }

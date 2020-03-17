@@ -250,7 +250,7 @@ function fuseGitWithDb(story, issueId) {
       if (result !== null) {
         story.scenarios = result.scenarios;
         story.background = result.background;
-        story.passed = result.passed;
+        story.lastTestPassed = result.lastTestPassed;
       } else {
         story.scenarios = [emptyScenario()];
         story.background = emptyBackground();
@@ -309,12 +309,12 @@ function runReport(req, res, stories, mode) {
       console.log(scenario)
       if(scenarioID && scenario){ //passt nicht weil scenarioID -1 nicht immer passt also andere methode finden
         console.log('in if')
-        scenario.passed = passed;
+        scenario.lastTestPassed = passed;
         mongo.updateScenario(story.story_id, scenario, (result) => {
           console.log('updateScenario')
         })
       }else if(!scenarioID) {
-        story.passed = passed;
+        story.lastTestPassed = passed;
         mongo.updateStory(story.story_id, story, (result) => {
           console.log('updateStory')
         })
