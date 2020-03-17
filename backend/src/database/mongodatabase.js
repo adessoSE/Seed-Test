@@ -1,9 +1,11 @@
 /* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
+const fs = require('fs');
+const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-//const dotenv = require('dotenv').config();
+const dotenv = require('dotenv').config();
 
 const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
@@ -199,6 +201,20 @@ function upsertEntry(collection, storyID, content) {
 // /////////////////////////////////////////// API Methods ////////////////////////////////////////
 // ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////
 
+// Creates Database Backupfile
+function writeBackup(__dirname, collection) {
+  fs.writeFile(path.join(__dirname, 'dbbackups','dbbackup.json'), helper(collection), (err) => {
+    if (err) throw err;
+  });
+}
+
+function helper(collection){
+  let data = ""
+  data += JSON.stringify(getCollection(collection));
+  console.log(data)
+  return data;
+}
+
 // show all Collections
 function getCollections() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
@@ -246,8 +262,8 @@ function getCollection(name) {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection(name).find({}).toArray((error, result) => {
-      if (error) throw error;
-      console.log(`showCollection error: ${result}`);
+      if (error) throw error ;
+      //console.log(JSON.stringify(result))
       db.close();
     });
   });
@@ -324,6 +340,8 @@ function installDatabase() {
   insertMore('stepTypes', stepTypes());
 }
 
+//getCollection("Stories")
+writeBackup("", "Stories")
 
 module.exports = {
   showSteptypes,
