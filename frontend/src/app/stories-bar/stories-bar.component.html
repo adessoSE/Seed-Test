@@ -15,8 +15,9 @@
       <li *ngFor="let s of sortedStories(); let i = index ">
 
         <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
-          <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
-            {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
+            <span class="dot" [class.notPassed]="!s.passed && s.passed != undefined" [class.passed]="s.passed && s.passed != undefined"></span>
+          <a maxlength="10" id="{{'story' + i}}" [class.notPassed]="!s.passed && s.passed != undefined" [class.passed]="s.passed && s.passed != undefined" uk-tooltip="pos:right; delay: 200" >
+            {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }} 
           </a>
           <span class="github-avatar"><img [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px"
               height="20px">{{s.assignee}}</span>

@@ -11,4 +11,5 @@ export interface Story {
     state: string;
     assignee: string;
     assignee_avatar_url: string;
+    passed?: boolean;
 }

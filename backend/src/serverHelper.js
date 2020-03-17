@@ -250,6 +250,7 @@ function fuseGitWithDb(story, issueId) {
       if (result !== null) {
         story.scenarios = result.scenarios;
         story.background = result.background;
+        story.passed = result.passed;
       } else {
         story.scenarios = [emptyScenario()];
         story.background = emptyBackground();
@@ -298,16 +299,24 @@ function runReport(req, res, stories, mode) {
 
       //console.log(roots.structure)
       let failed = roots.querySelector('.label-danger').innerHTML;
+
       failed = failed.split(' ');
-      console.log(failed)
       passed = parseInt(failed[1]) <= 0;
-      console.log(passed)
+      console.log("passed: " + passed)
 
-
-      if(scenarioID && story.scenarios[scenarioID - 1]){ //passt nicht weil scenarioID -1 nicht immer passt also andere methode finden
-        story.scenarios[scenarioID - 1].passed = passed;
-        mongo.updateScenario(story.story_id, story.scenarios[scenarioID - 1], (result) => {
+      console.log("scenarioID: " + scenarioID)
+      let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID )
+      console.log(scenario)
+      if(scenarioID && scenario){ //passt nicht weil scenarioID -1 nicht immer passt also andere methode finden
+        console.log('in if')
+        scenario.passed = passed;
+        mongo.updateScenario(story.story_id, scenario, (result) => {
           console.log('updateScenario')
+        })
+      }else if(!scenarioID) {
+        story.passed = passed;
+        mongo.updateStory(story.story_id, story, (result) => {
+          console.log('updateStory')
         })
       }
       //console.log(roots.querySelector('.label-danger').innerHTML)
