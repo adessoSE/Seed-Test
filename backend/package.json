@@ -32,7 +32,6 @@
     "lokijs": "^1.5.7",
     "masonry-layout": "^4.2.2",
     "mongodb": "^3.2.7",
-    "node-html-parser": "^1.2.12",
     "node-sass": "^4.12.0",
     "npm": "^6.13.4",
     "npm-run": "^5.0.1",

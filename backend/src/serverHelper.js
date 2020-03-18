@@ -6,7 +6,6 @@ const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-const HTMLParser = require('node-html-parser');
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
@@ -16,7 +15,7 @@ const options = {
   jsonFile: 'features/reporting.json',
   output: 'features/reporting_html.html',
   reportSuiteAsScenarios: true,
-  launchReport: true,
+  launchReport: false,
   metadata: {
     'App Version': '0.3.2',
     'Test Environment': 'STAGING',
@@ -291,40 +290,39 @@ function runReport(req, res, stories, mode) {
     reporter.generate(options);
     res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
     //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
-    let passed = false;
-    fs.readFile(`./features/reporting_html_${reportTime}.html`, "utf8", function(err, data) {
-      const roots = HTMLParser.parse(data)
-      //console.log(root);
-      //console.log(roots.childNodes[0].childNodes[1].childNodes)
-
-      //console.log(roots.structure)
-      let failed = roots.querySelector('.label-danger').innerHTML;
-
-      failed = failed.split(' ');
-      passed = parseInt(failed[1]) <= 0;
-      console.log("passed: " + passed)
-
-      console.log("scenarioID: " + scenarioID)
+    let testPassed = false;
+    fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function(err, data) {
+      let json = JSON.parse(data)
+      let passed = 0;
+      let failed  = 0;
+      let skipped = 0;
       let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID )
-      console.log(scenario)
-      if(scenarioID && scenario){ //passt nicht weil scenarioID -1 nicht immer passt also andere methode finden
-        console.log('in if')
-        scenario.lastTestPassed = passed;
+
+      json[0].elements.forEach((d) => {
+        d.steps.forEach((s, i) => {
+          switch(s.result.status){
+            case 'passed': passed++; break;
+            case 'failed': failed++; break;
+            case 'skipped': skipped++; break;
+            default:  console.log('Status default: ' + s.result.status);
+          }
+        })
+      })
+
+      testPassed = failed <= 0 && passed >= 1;
+      
+      if(scenarioID && scenario){ 
+        scenario.lastTestPassed = testPassed;
         mongo.updateScenario(story.story_id, scenario, (result) => {
           console.log('updateScenario')
         })
       }else if(!scenarioID) {
-        story.lastTestPassed = passed;
+        story.lastTestPassed = testPassed;
         mongo.updateStory(story.story_id, story, (result) => {
           console.log('updateStory')
         })
       }
-      //console.log(roots.querySelector('.label-danger').innerHTML)
     });
-
-
-    //console.log('story: ' +  story);
-    //console.log('scenarioid: ' + scenarioID)
   });
 }
 
