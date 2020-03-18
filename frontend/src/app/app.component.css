@@ -16,6 +16,7 @@
 .footer > p{
   display: inline;
   padding: 0px 15px;
+  justify-content: center;
 }
 
 .impressum, .terms {
@@ -23,9 +24,11 @@
   color: white;
   font-size: small;
   padding: 4px;
+  position: center;
+
 }
 
-.impressum:hover, 
+.impressum:hover,
 .terms:hover{
   text-decoration: underline;
   cursor: pointer;
@@ -75,7 +78,14 @@ a:hover{
   font-variant: small-caps;
 }
 
-img {
+#adesso-logo {
+   padding: 5px;
+   height: 40px;
+   float: right;
+   position: relative;
+ }
+
+#logo {
   height: 51px;
 }
 
