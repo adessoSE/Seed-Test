@@ -29,7 +29,7 @@ export class StoriesBarComponent implements OnInit {
   }
 
 
-  sortedStories() {
+  getSortedStories() {
     if (this.stories) {
       return this.stories.sort(function(a, b) { return a.issue_number - b.issue_number; });
     }

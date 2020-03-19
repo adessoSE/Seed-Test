@@ -84,7 +84,7 @@
               <div class="text-inline backgroundItems" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
                 <button id="{{'background_remove_step' + j}}" a
                   uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
-                  (click)="removeStepToBackground($event, j);">
+                  (click)="removeStepFromBackground($event, j);">
                 </button>
                 {{j+1}}. {{currentStep.pre}}
                 <p style="display:inline" *ngIf="currentStep.values.length > 0">
@@ -178,7 +178,7 @@
             <div class="text-inline getBackgroundList" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
-                (click)="removeStepToScenario(currentStep.stepType, j);">
+                (click)="removeStepFromScenario(currentStep.stepType, j);">
               </button>
               {{i+1}}.{{j+1}} {{currentStep.pre}}
               <p style="display:inline" *ngIf="currentStep.values.length > 0">

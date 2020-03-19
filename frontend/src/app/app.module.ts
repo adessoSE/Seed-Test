@@ -5,7 +5,6 @@ import {ROUTES} from '../app/routes/routes';
 import {AppComponent} from './app.component';
 import {ScenarioEditorComponent} from './scenario-editor/scenario-editor.component';
 import {HttpClientModule} from '@angular/common/http';
-import {SafePipe} from './safe.pipe';
 import {ApiService} from './Services/api.service';
 import {StoriesBarComponent} from './stories-bar/stories-bar.component';
 import {ParentComponent} from './parent/parent.component';
@@ -29,7 +28,6 @@ import { SubmitformComponent } from './submitform/submitform.component';
   declarations: [
     AppComponent,
     ScenarioEditorComponent,
-    SafePipe,
     StoriesBarComponent,
     ParentComponent,
     LoginComponent,

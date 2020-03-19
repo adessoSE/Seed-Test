@@ -72,7 +72,7 @@ export class ScenarioEditorComponent implements OnInit {
 
     @Input()
     removeRowIndex(event) {
-        this.removeStepToScenario('example', event);
+        this.removeStepFromScenario('example', event);
     }
 
     @Input()
@@ -323,11 +323,11 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    removeStepToBackground(event, index) {
+    removeStepFromBackground(event, index) {
         this.selectedStory.background.stepDefinitions.when.splice(index, 1);
     }
 
-    removeStepToScenario(stepDefType, index) {
+    removeStepFromScenario(stepDefType, index) {
         switch (stepDefType) {
             case 'given':
                 this.selectedScenario.stepDefinitions.given.splice(index, 1);
@@ -393,6 +393,7 @@ export class ScenarioEditorComponent implements OnInit {
             this.handleExamples(input, cutInput, step, valueIndex);
         }
     }
+
 
     handleExamples(input, cutInput, step, valueIndex) {
         // changes example header name if the name is just changed in step

@@ -5,6 +5,8 @@ import { EventEmitter } from '@angular/core';
 import { Story } from '../model/Story';
 import { Observable, throwError, of } from 'rxjs';
 import { StepType } from '../model/StepType';
+import { Scenario } from '../model/Scenario';
+import { Background } from '../model/Background';
 
 @Injectable({
   providedIn: 'root'
@@ -67,7 +69,7 @@ export class ApiService {
     }
   }
 
-  public getStories(repository, token) {
+  public getStories(repository: string, token: string) {
     let storytoken = token;
     if(!storytoken || storytoken == 'undefined') {
       storytoken = '';
@@ -89,7 +91,7 @@ export class ApiService {
       }));
   }
 
-  public addScenario(storyID) {
+  public addScenario(storyID: number) {
     this.apiServer = localStorage.getItem('url_backend');
 
       return this.http
@@ -99,7 +101,7 @@ export class ApiService {
         }));
   }
 
-  public updateBackground(storyID, background) {
+  public updateBackground(storyID: number, background: Background) {
     this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
@@ -121,7 +123,7 @@ export class ApiService {
         .post<any>(github, obj, options);
   }
 
-  public updateScenario(storyID, scenario) {
+  public updateScenario(storyID: number, scenario: Scenario) {
     this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
@@ -131,7 +133,7 @@ export class ApiService {
         }));
   }
 
-  public deleteBackground(storyID) {
+  public deleteBackground(storyID: number) {
     this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
@@ -141,7 +143,7 @@ export class ApiService {
         }));
   }
 
-  public deleteScenario(storyID, scenario) {
+  public deleteScenario(storyID: number, scenario: Scenario) {
     this.apiServer = localStorage.getItem('url_backend');
 
    return this.http
@@ -152,7 +154,7 @@ export class ApiService {
   }
 
   // demands testing from the server
-  public runTests(storyID, scenarioID) {
+  public runTests(storyID: number, scenarioID: number) {
     this.apiServer = localStorage.getItem('url_backend');
 
     if (scenarioID) {

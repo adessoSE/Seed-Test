@@ -12,7 +12,7 @@
     </div>
     <hr>
     <ul uk-accordion>
-      <li *ngFor="let s of sortedStories(); let i = index ">
+      <li *ngFor="let s of getSortedStories(); let i = index ">
 
         <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
           <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">

@@ -58,11 +58,11 @@ describe('ScenarioEditorComponent', () => {
     it('should remove Row Index', () => {
       let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}};
       //spyOn(component.exampleChild, 'updateTable');
-      spyOn(component, 'removeStepToScenario');
+      spyOn(component, 'removeStepFromScenario');
       component.selectedScenario = scenario;
       fixture.componentInstance.removeRowIndex(1);
       //expect(component.exampleChild.updateTable).toHaveBeenCalled();
-      expect(component.removeStepToScenario).toHaveBeenCalled();
+      expect(component.removeStepFromScenario).toHaveBeenCalled();
     });
   })
   describe('set newSelectedStory', () => {
@@ -499,7 +499,7 @@ describe('ScenarioEditorComponent', () => {
       component.stories = stories;
       component.selectedStory = stories[0];
       expect(component.selectedStory.background.stepDefinitions.when.length).toBe(1);
-      component.removeStepToBackground(null, 0);
+      component.removeStepFromBackground(null, 0);
       expect(component.selectedStory.background.stepDefinitions.when.length).toBe(0);
     })
 
@@ -508,7 +508,7 @@ describe('ScenarioEditorComponent', () => {
       component.stories = stories;
       component.selectedStory = stories[0];
       expect(component.selectedStory.background.stepDefinitions.when.length).toBe(0);
-      component.removeStepToBackground(null, 0);
+      component.removeStepFromBackground(null, 0);
       expect(component.selectedStory.background.stepDefinitions.when.length).toBe(0);
     })
   })
@@ -524,21 +524,21 @@ describe('ScenarioEditorComponent', () => {
     it('remove step of scenario given', () => {
       let stepDefType = 'given';
       expect(component.selectedScenario.stepDefinitions.given.length).toBe(1);
-      component.removeStepToScenario(stepDefType, 0);
+      component.removeStepFromScenario(stepDefType, 0);
       expect(component.selectedScenario.stepDefinitions.given.length).toBe(0);
     })
 
     it('remove step of scenario when', () => {
       let stepDefType = 'when';
       expect(component.selectedScenario.stepDefinitions.when.length).toBe(2);
-      component.removeStepToScenario(stepDefType, 0);
+      component.removeStepFromScenario(stepDefType, 0);
       expect(component.selectedScenario.stepDefinitions.when.length).toBe(1);
     })
 
     it('remove step of scenario then', () => {
       let stepDefType = 'then';
       expect(component.selectedScenario.stepDefinitions.then.length).toBe(1);
-      component.removeStepToScenario(stepDefType, 0);
+      component.removeStepFromScenario(stepDefType, 0);
       expect(component.selectedScenario.stepDefinitions.then.length).toBe(0);
     })
 
