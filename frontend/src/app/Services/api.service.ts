@@ -29,7 +29,7 @@ export class ApiService {
     });
   }
 
-  public getRepositories(token: string, githubName): Observable<any> {
+  public getRepositories(token: string, githubName: string): Observable<any> {
     let repoToken = token;
     if(!repoToken || repoToken == 'undefined') {
       repoToken = '';
@@ -38,7 +38,7 @@ export class ApiService {
     this.apiServer = localStorage.getItem('url_backend');
 
     let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
-    return this.http.get<any>(str, options)
+    return this.http.get<string[]>(str, options)
       .pipe(tap(resp => {}),
         catchError(this.handleError));
   }

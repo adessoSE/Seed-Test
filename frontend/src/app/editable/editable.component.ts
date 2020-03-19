@@ -8,9 +8,7 @@ import { untilDestroyed } from 'ngx-take-until-destroy';
 
 @Component({
   selector: 'editable',
-  template: `
-    <ng-container *ngTemplateOutlet="currentView"></ng-container>
-  `,
+  templateUrl: './editable.component.html',
   styleUrls: ['./editable.component.css']
 })
 export class EditableComponent implements OnInit, OnDestroy {

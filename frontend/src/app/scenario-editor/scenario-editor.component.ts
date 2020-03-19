@@ -43,7 +43,7 @@ export class ScenarioEditorComponent implements OnInit {
     constructor(
         public apiService: ApiService,
     ) {
-        this.apiService.getStoriesEvent.subscribe(stories => {
+        this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
             this.storiesLoaded = true;
             this.storiesError = false;
             this.showEditor = false;
@@ -98,21 +98,21 @@ export class ScenarioEditorComponent implements OnInit {
 
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         /*if (!this.editorLocked) {*/
-        moveItemInArray(this.stepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
+        moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
         /*}*/
     }
 
     onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
         /*if (!this.backgroundLocked) {*/
-        moveItemInArray(this.backgroundList(stepDefs), event.previousIndex, event.currentIndex);
+        moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
         /*}*/
     }
 
-    backgroundList(stepDefinitions: StepDefinitionBackground) {
+    getBackgroundList(stepDefinitions: StepDefinitionBackground) {
         return stepDefinitions.when;
     }
 
-    stepsList(stepDefs: StepDefinition, i: number) {
+    getStepsList(stepDefs: StepDefinition, i: number) {
         if (i == 0) {
             return stepDefs.given;
         } else if (i == 1) {
@@ -124,7 +124,7 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    keysList(stepDefs) {
+    getKeysList(stepDefs) {
         if (stepDefs != null) {
             return Object.keys(stepDefs);
         } else {
@@ -197,25 +197,33 @@ export class ScenarioEditorComponent implements OnInit {
         this.apiService
             .deleteBackground(this.selectedStory.story_id)
             .subscribe(resp => {
-                this.showBackground = false;
-
-                const indexStory: number = this.stories.indexOf(this.selectedStory);
-                this.stories[indexStory].background = emptyBackground;
+                this.backgroundDeleted();
             });
+    }
+
+    backgroundDeleted(){
+        this.showBackground = false;
+
+        const indexStory: number = this.stories.indexOf(this.selectedStory);
+        this.stories[indexStory].background = emptyBackground;
     }
 
     deleteScenario(event) {
         this.apiService
             .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
             .subscribe(resp => {
-                this.showEditor = false;
+                this.scenarioDeleted();
+            });
+    }
+
+    scenarioDeleted(){
+        this.showEditor = false;
 
                 const indexStory: number = this.stories.indexOf(this.selectedStory);
                 const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
                 if (indexScenario !== -1) {
                     this.stories[indexStory].scenarios.splice(indexScenario, 1);
                 }
-            });
     }
 
     openDescription() {
@@ -228,61 +236,56 @@ export class ScenarioEditorComponent implements OnInit {
 
 
     addStepToScenario(storyID, step) {
-        const obj = this.clone(step);
-        /*if (!this.editorLocked) {*/
-        const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
-        const new_step = {
-            id: new_id,
-            mid: obj.mid,
-            pre: obj.pre,
-            stepType: obj.stepType,
-            type: obj.type,
-            values: obj.values
-        };
-        switch (new_step.stepType) {
+        const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
+
+        switch (newStep.stepType) {
             case 'given':
-                this.selectedScenario.stepDefinitions.given.push(new_step);
+                this.selectedScenario.stepDefinitions.given.push(newStep);
                 break;
             case 'when':
-                this.selectedScenario.stepDefinitions.when.push(new_step);
+                this.selectedScenario.stepDefinitions.when.push(newStep);
                 break;
             case 'then':
-                this.selectedScenario.stepDefinitions.then.push(new_step);
+                this.selectedScenario.stepDefinitions.then.push(newStep);
                 break;
             case 'example':
-                if (this.selectedScenario.stepDefinitions.example.length > 0) {
-                    this.addStep(step);
-                    const len = this.selectedScenario.stepDefinitions.example[0].values.length;
-                    for (let j = 1; j < len; j++) {
-                        this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
-                    }
-                    this.exampleChild.updateTable();
-                }
+                this.addExampleStep(step);
                 break;
             default:
                 break;
         }
-        /*}*/
+    }
+
+    addExampleStep(step){
+        if (this.selectedScenario.stepDefinitions.example.length > 0) {
+            this.addStep(step);
+            const len = this.selectedScenario.stepDefinitions.example[0].values.length;
+            for (let j = 1; j < len; j++) {
+                this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+            }
+            this.exampleChild.updateTable();
+        }  
     }
 
     addStepToBackground(storyID, step) {
-        const obj = this.clone(step);
+        const newStep = this.createNewStep(step,this.selectedStory.background.stepDefinitions)
+        if (newStep.stepType == 'when') {
+            this.selectedStory.background.stepDefinitions.when.push(newStep);
+        }
+    }
 
-        /*if (!this.backgroundLocked) {*/
-        const new_id = this.getLastIDinStep(this.selectedStory.background.stepDefinitions, obj.stepType) + 1;
-        const new_step = {
-            id: new_id,
-            label: obj.label,
+    createNewStep(step, stepDefinitions){
+        const obj = this.clone(step);
+        const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
+        const newStep = {
+            id: newId,
             mid: obj.mid,
             pre: obj.pre,
             stepType: obj.stepType,
             type: obj.type,
             values: obj.values
         };
-        if (new_step.stepType == 'when') {
-            this.selectedStory.background.stepDefinitions.when.push(new_step);
-        }
-        /*}*/
+        return newStep;
     }
 
     addStep(step) {

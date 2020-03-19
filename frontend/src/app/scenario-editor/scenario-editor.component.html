@@ -81,7 +81,7 @@
           </div>
           <div class="uk-steps">
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
-              <div class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
+              <div class="text-inline backgroundItems" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
                 <button id="{{'background_remove_step' + j}}" a
                   uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
                   (click)="removeStepToBackground($event, j);">
@@ -155,7 +155,7 @@
     </div>
 
     <div class="uk-card-title padding">
-      <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
+      <div *ngFor="let sd of getKeysList(selectedScenario.stepDefinitions);let i = index;">
         <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
         <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
         <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
@@ -175,7 +175,7 @@
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
+            <div class="text-inline getBackgroundList" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
                 (click)="removeStepToScenario(currentStep.stepType, j);">
