@@ -1,7 +1,7 @@
   <br>
   <div class="stories">
     <br>
-    <div><h3 id="storyHeader">Stories</h3>
+      <div class="uk-card-title"><span id="storyHeader">Stories</span>
       <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
         <span rel="def">A user story describes requirements for a software system.
           It is consciously kept in short sentences and simple words.
@@ -14,7 +14,7 @@
     <ul uk-accordion>
       <li *ngFor="let s of sortedStories(); let i = index ">
 
-        <div (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
+        <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
           <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
             {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
           </a>
