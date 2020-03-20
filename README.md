@@ -1,7 +1,7 @@
 # Seed-Test
 Behaviour-driven development (BDD) extends the Test-Driven Development (TDD) approach by the ‘desired behaviour’ of a software. It is designed to ensure a collaboration between business analysts and developers with explicitly written down scenarios.
 
-*   Check out the [Tutorial (english)](https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng) / [Tutorial (german)](https://github.com/adessoCucumber/Cucumber/wiki/Tutorial)
+*   Check out the [Tutorial (english)](https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng) / [Tutorial (german)](https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu)
 
 
 ## What is Seed-Test?
@@ -28,7 +28,7 @@ For the frontend server, remember to change the link to the backend server in th
 To run the frontend server switch to the frontend folder and use this command:
 ```
 cd frontend
-ng serve
+npm start
 ```
 To run the backend server switch to the backend folder and use this command:
 ```
@@ -36,8 +36,19 @@ cd backend
 npm start
 ```
 
-Change the environment variables for the backend in the `.env` file.
-Change the environment variables for the frontend in the `constants.ts` file
+Create an `.env` file in the backend folder with following variables:
+```
+DATABASE_URI
+REPORT_DELETION_TIME
+TESTACCOUNT_NAME
+TESTACCOUNT_TOKEN
+PORT
+```
+
+Create an `.env` file in the frontend folder with following variables:
+```
+API_SERVER=http://localhost:8080/api
+```
 
 ## Database
 Seed-Test uses a MongoDB. You can either create your own locally or in the cloud.
@@ -50,7 +61,7 @@ Then you can set up the database through this command:
 ```
 npm run database
 ```
-This command creates the collections 'Stories' and 'stepDefinitions' and inserts the current stepDefinitions into the collection.
+This command creates the collections 'Stories' and 'stepTypes' and inserts the current stepTypes into the collection.
 The Stories collection can stay empty. It will be automatically filled while accessing the web-app.
 
 ### License

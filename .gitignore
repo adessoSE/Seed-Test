@@ -80,6 +80,8 @@ tslint.json
 frontend/src/environments/environment.ts
 
 frontend/src/coverage/
+sonar-project.properties
+.scannerwork
 
 # Cucumber & Reports
 **/*.feature

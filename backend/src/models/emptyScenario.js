@@ -9,7 +9,7 @@ function emptyScenario() {
       when: [],
       then: [],
       example: [],
-    }, 
-  }
+    },
+  };
 }
 module.exports = emptyScenario;
