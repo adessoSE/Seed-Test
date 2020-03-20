@@ -349,7 +349,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
     }
 
-    addToValues(input: string, stepType, step, stepIndex, valueIndex) {
+    addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
         this.checkForExamples(input, step, valueIndex);
         switch (stepType) {
             case 'given':
@@ -368,51 +368,76 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
 
-    checkForExamples(input, step, valueIndex) {
+    checkForExamples(input: string, step: StepType, valueIndex: number) {
         // removes example if new input is not in example syntax < >
-        if (step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') &&
-            !input.startsWith('<') && !input.endsWith('>')) {
-            const cutOld = step.values[valueIndex].substr(1, step.values[valueIndex].length - 2);
-            this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]), 1);
-
-            for (let i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++) {
-                this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
-                if (this.selectedScenario.stepDefinitions.example[0].values.length == 0) {
-                    this.selectedScenario.stepDefinitions.example.splice(0, this.selectedScenario.stepDefinitions.example.length);
-                }
-            }
-            if(!this.selectedScenario.stepDefinitions.example || this.selectedScenario.stepDefinitions.example.length <= 0){
-                let table = document.getElementsByClassName('mat-table')[0];
-                table.classList.remove('mat-elevation-z8')
-            }
+        if (this.inputRemovedExample(input, step, valueIndex)) {
+            this.removeExample(step, valueIndex);
         }
         // if input has < > and it is a new unique input
-        if (input.startsWith('<') && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))) {
-            this.uncutInputs.push(input);
-            const cutInput = input.substr(1, input.length - 2);
-            this.handleExamples(input, cutInput, step, valueIndex);
+        if (this.inputHasExample(input, step, valueIndex)) {
+            this.createExample(input, step, valueIndex);
+        }
+    }
+
+    inputRemovedExample(input: string, step: StepType, valueIndex: number){
+        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
+    }
+
+    inputHasExample(input: string, step: StepType, valueIndex: number){
+        return input.startsWith('<') && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))
+    }
+
+    createExample(input: string, step: StepType, valueIndex: number){
+        this.uncutInputs.push(input);
+        const cutInput = input.substr(1, input.length - 2);
+        this.handleExamples(input, cutInput, step, valueIndex);
+    }
+
+    removeExample(step: StepType, valueIndex: number){
+        const cutOld = step.values[valueIndex].substr(1, step.values[valueIndex].length - 2);
+        this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]), 1);
+
+        for (let i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++) {
+            this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
+            if (this.selectedScenario.stepDefinitions.example[0].values.length == 0) {
+                this.selectedScenario.stepDefinitions.example.splice(0, this.selectedScenario.stepDefinitions.example.length);
+            }
+        }
+        if(!this.selectedScenario.stepDefinitions.example || this.selectedScenario.stepDefinitions.example.length <= 0){
+            let table = document.getElementsByClassName('mat-table')[0];
+            table.classList.remove('mat-elevation-z8')
         }
     }
 
 
-    handleExamples(input, cutInput, step, valueIndex) {
+    handleExamples(input: string, cutInput: string, step: StepType, valueIndex: number) {
         // changes example header name if the name is just changed in step
-        if (step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined) {
+        if (this.exampleHeaderChanged(input, step, valueIndex)) {
             this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
             return;
         }
         // for first example creates 2 steps
         if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
-            for (let i = 0; i <= 2; i++) {
-                this.addStep(step);
-                this.exampleChild.updateTable();
-            }
-            this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
-            let table = document.getElementsByClassName('mat-table')[0];
-            if(table) table.classList.add('mat-elevation-z8')
+            this.createFirstExample(cutInput, step);
         } else {
             // else just adds as many values to the examples to fill up the table
-            this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
+            this.fillExamples(cutInput, step);
+        }
+        this.exampleChild.updateTable();
+    }
+
+    createFirstExample(cutInput: string, step: StepType){
+        for (let i = 0; i <= 2; i++) {
+            this.addStep(step);
+            this.exampleChild.updateTable();
+        }
+        this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
+        let table = document.getElementsByClassName('mat-table')[0];
+        if(table) table.classList.add('mat-elevation-z8')
+    }
+
+    fillExamples(cutInput: string, step: StepType){
+        this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
 
             for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
                 this.selectedScenario.stepDefinitions.example[j].values.push('value');
@@ -425,8 +450,11 @@ export class ScenarioEditorComponent implements OnInit {
                     this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
                 }
             }
-        }
-        this.exampleChild.updateTable();
+    }
+
+
+    exampleHeaderChanged(input: string, step: StepType, valueIndex: number){
+        return step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
     }
 
     renameScenario(event, name) {
