@@ -25,8 +25,6 @@ export class ScenarioEditorComponent implements OnInit {
     selectedScenario: Scenario;
     showEditor = false;
     showResults = false;
-    /*editorLocked = true;*/
-    /*backgroundLocked = true;*/
     showDescription = false;
     showBackground = false;
     arrowLeft = true;
@@ -71,8 +69,8 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     @Input()
-    removeRowIndex(event) {
-        this.removeStepFromScenario('example', event);
+    removeRowIndex(index: number) {
+        this.removeStepFromScenario('example', index);
     }
 
     @Input()
@@ -84,7 +82,7 @@ export class ScenarioEditorComponent implements OnInit {
     set newSelectedScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
         if (this.stories && this.selectedStory) {
-            this.selectScenario(null, scenario);
+            this.selectScenario(scenario);
         }
 
     }
@@ -124,7 +122,7 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    getKeysList(stepDefs) {
+    getKeysList(stepDefs: StepDefinition) {
         if (stepDefs != null) {
             return Object.keys(stepDefs);
         } else {
@@ -145,7 +143,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedStory.background.name = name;
     }
 
-    updateBackground(storyID) {
+    updateBackground(storyID: number) {
         this.apiService
             .updateBackground(storyID, this.selectedStory.background)
             .subscribe(resp => {
@@ -153,7 +151,7 @@ export class ScenarioEditorComponent implements OnInit {
 
     }
 
-    updateScenario(storyID) {
+    updateScenario(storyID: number) {
         let steps = this.selectedScenario["stepDefinitions"]["given"];
         steps = steps.concat(this.selectedScenario["stepDefinitions"]["when"]);
         steps = steps.concat(this.selectedScenario["stepDefinitions"]["then"]);
@@ -175,21 +173,12 @@ export class ScenarioEditorComponent implements OnInit {
             });
     }
 
-    addScenarioFromStory(storyID) {
+    addScenarioFromStory(storyID: number) {
         this.apiService
             .addScenario(storyID)
-            .subscribe((resp: any) => {
+            .subscribe((resp: Scenario) => {
                 this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
-                this.selectScenario(resp.story_id, resp);
-            });
-
-    }
-
-    addScenario(storyID) {
-        this.apiService
-            .addScenario(storyID)
-            .subscribe((resp: any) => {
-                this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
+                this.selectScenario(resp);
             });
     }
 
@@ -203,7 +192,6 @@ export class ScenarioEditorComponent implements OnInit {
 
     backgroundDeleted(){
         this.showBackground = false;
-
         const indexStory: number = this.stories.indexOf(this.selectedStory);
         this.stories[indexStory].background = emptyBackground;
     }
@@ -218,12 +206,11 @@ export class ScenarioEditorComponent implements OnInit {
 
     scenarioDeleted(){
         this.showEditor = false;
-
-                const indexStory: number = this.stories.indexOf(this.selectedStory);
-                const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
-                if (indexScenario !== -1) {
-                    this.stories[indexStory].scenarios.splice(indexScenario, 1);
-                }
+        const indexStory: number = this.stories.indexOf(this.selectedStory);
+        const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
+        if (indexScenario !== -1) {
+            this.stories[indexStory].scenarios.splice(indexScenario, 1);
+        }
     }
 
     openDescription() {
@@ -235,9 +222,8 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
 
-    addStepToScenario(storyID, step) {
+    addStepToScenario(storyID: number, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
-
         switch (newStep.stepType) {
             case 'given':
                 this.selectedScenario.stepDefinitions.given.push(newStep);
@@ -256,7 +242,7 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    addExampleStep(step){
+    addExampleStep(step: StepType){
         if (this.selectedScenario.stepDefinitions.example.length > 0) {
             this.addStep(step);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
@@ -267,17 +253,17 @@ export class ScenarioEditorComponent implements OnInit {
         }  
     }
 
-    addStepToBackground(storyID, step) {
-        const newStep = this.createNewStep(step,this.selectedStory.background.stepDefinitions)
+    addStepToBackground(storyID: number, step: StepType) {
+        const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions)
         if (newStep.stepType == 'when') {
             this.selectedStory.background.stepDefinitions.when.push(newStep);
         }
     }
 
-    createNewStep(step, stepDefinitions){
+    createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{
         const obj = this.clone(step);
         const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
-        const newStep = {
+        const newStep: StepType = {
             id: newId,
             mid: obj.mid,
             pre: obj.pre,
@@ -288,11 +274,10 @@ export class ScenarioEditorComponent implements OnInit {
         return newStep;
     }
 
-    addStep(step) {
+    addStep(step: StepType) {
         const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
-        const new_step = {
+        const new_step: StepType = {
             id: new_id,
-            label: step.label,
             mid: step.mid,
             pre: step.pre,
             stepType: 'example',
@@ -302,8 +287,8 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.stepDefinitions.example.push(new_step);
     }
 
-    getLastIDinStep(stepDefs, stepType) {
-        switch (stepType) {
+    getLastIDinStep(stepDefs: any, stepStepType: string): number {
+        switch (stepStepType) {
             case 'given':
                 return this.buildID(stepDefs.given);
             case 'when':
@@ -315,20 +300,20 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    buildID(stepType): number {
-        if (stepType.length !== 0) {
-            return stepType[stepType.length - 1].id;
+    buildID(step): number {
+        if (step.length !== 0) {
+            return step[step.length - 1].id;
         } else {
             return 0;
         }
     }
 
-    removeStepFromBackground(event, index) {
+    removeStepFromBackground(event, index: number) {
         this.selectedStory.background.stepDefinitions.when.splice(index, 1);
     }
 
-    removeStepFromScenario(stepDefType, index) {
-        switch (stepDefType) {
+    removeStepFromScenario(stepStepType: string, index: number) {
+        switch (stepStepType) {
             case 'given':
                 this.selectedScenario.stepDefinitions.given.splice(index, 1);
                 break;
@@ -345,7 +330,7 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    addToValuesBackground(input: string, stepIndex, valueIndex) {
+    addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
         this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
     }
 
@@ -379,11 +364,11 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    inputRemovedExample(input: string, step: StepType, valueIndex: number){
+    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
         return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
     }
 
-    inputHasExample(input: string, step: StepType, valueIndex: number){
+    inputHasExample(input: string, step: StepType, valueIndex: number): boolean{
         return input.startsWith('<') && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))
     }
 
@@ -453,7 +438,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
 
-    exampleHeaderChanged(input: string, step: StepType, valueIndex: number){
+    exampleHeaderChanged(input: string, step: StepType, valueIndex: number): boolean{
         return step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
     }
 
@@ -463,15 +448,7 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    /*lockBackground() {
-      this.backgroundLocked = !this.backgroundLocked;
-    }*/
-
-    /*lockEditor() {
-      this.editorLocked = !this.editorLocked;
-    }*/
-
-    selectScenario(storyID, scenario: Scenario) {
+    selectScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
         this.showResults = false;
         this.showEditor = true;
@@ -489,17 +466,17 @@ export class ScenarioEditorComponent implements OnInit {
         /*this.editorLocked = true;*/
         const storyIndex = this.stories.indexOf(this.selectedStory);
         if (this.stories[storyIndex].scenarios[0] !== undefined) {
-            this.selectScenario(this.selectedStory.story_id, this.stories[storyIndex].scenarios[0]);
+            this.selectScenario(this.stories[storyIndex].scenarios[0]);
         }
     }
 
-    checkArrowLeft() {
+    checkArrowLeft(): boolean {
         const storyIndex = this.stories.indexOf(this.selectedStory);
         const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
         return this.stories[storyIndex].scenarios[scenarioIndex - 1] === undefined;
     }
 
-    checkArrowRight() {
+    checkArrowRight(): boolean {
         const storyIndex = this.stories.indexOf(this.selectedStory);
         const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
         return this.stories[storyIndex].scenarios[scenarioIndex + 1] === undefined;
@@ -509,7 +486,7 @@ export class ScenarioEditorComponent implements OnInit {
         const storyIndex = this.stories.indexOf(this.selectedStory);
         const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
         if (this.stories[storyIndex].scenarios[scenarioIndex - 1] !== undefined) {
-            this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex - 1]);
+            this.selectScenario(this.stories[storyIndex].scenarios[scenarioIndex - 1]);
         }
     }
 
@@ -517,7 +494,7 @@ export class ScenarioEditorComponent implements OnInit {
         const storyIndex = this.stories.indexOf(this.selectedStory);
         const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
         if (this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined) {
-            this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1]);
+            this.selectScenario(this.stories[storyIndex].scenarios[scenarioIndex + 1]);
         }
     }
 
@@ -550,7 +527,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     // Make the API Request to run the tests and display the results as a chart
-    runTests(story_id, scenario_id, callback) {
+    runTests(story_id: number, scenario_id: number, callback) {
         let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
 
 
@@ -587,11 +564,6 @@ export class ScenarioEditorComponent implements OnInit {
     hideResults() {
         this.showResults = !this.showResults;
     }
-
-    compareFunction(a: number, b: number) {
-        return a - b;
-    }
-
 
     // To bypass call by reference of object properties
     // therefore new objects are created and not the existing object changed

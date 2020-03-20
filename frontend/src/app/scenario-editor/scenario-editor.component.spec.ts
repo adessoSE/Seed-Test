@@ -141,31 +141,31 @@ describe('ScenarioEditorComponent', () => {
 
   describe('loadStepTypes', () => {
     it('should load the step types', () => {
-      let resp: StepType[] = [{"_id":"5d765314aea0c94708a6e0a1","id":"",
+      let resp: StepType[] = [{"_id":"5d765314aea0c94708a6e0a1","id":0,
     "stepType":"given","type":"Role","pre":"As a","mid":"","values":[""],
     "selection":["Guest","User"]},
-    {"_id":"5d765314aea0c94708a6e0a2","id":"","stepType":"given","type":"Website",
+    {"_id":"5d765314aea0c94708a6e0a2","id":0,"stepType":"given","type":"Website",
     "pre":"I am on the website:","mid":"","values":[""]},
-    {"_id":"5d765314aea0c94708a6e0a3","id":"","stepType":"example",
+    {"_id":"5d765314aea0c94708a6e0a3","id":0,"stepType":"example",
     "type":"Add Variable","pre":"","mid":"","values":[""]},
-    {"_id":"5d765314aea0c94708a6e0a4","id":"","stepType":"when","type":"Website",
+    {"_id":"5d765314aea0c94708a6e0a4","id":0,"stepType":"when","type":"Website",
     "pre":"I go to the website:","mid":"","values":[""]},
-    {"_id":"5d765314aea0c94708a6e0a5","id":"","stepType":"when","type":"Button",
+    {"_id":"5d765314aea0c94708a6e0a5","id":0,"stepType":"when","type":"Button",
     "pre":"I click the button:","mid":"","values":[""]},
-    {"_id":"5d765314aea0c94708a6e0a6","id":"","stepType":"when","type":"Field",
+    {"_id":"5d765314aea0c94708a6e0a6","id":0,"stepType":"when","type":"Field",
     "pre":"I insert","mid":"into the field","values":["",""]},
-    {"_id":"5d765314aea0c94708a6e0a7","id":"","stepType":"when","type":"Radio",
+    {"_id":"5d765314aea0c94708a6e0a7","id":0,"stepType":"when","type":"Radio",
     "pre":"I select ","mid":"from the selection","values":["",""]},
-    {"_id":"5d765314aea0c94708a6e0a8","id":"","stepType":"when","type":"Dropdown",
+    {"_id":"5d765314aea0c94708a6e0a8","id":0,"stepType":"when","type":"Dropdown",
     "pre":"I select the option","mid":"from the drop-down-menue","values":["",""]},
-    {"_id":"5d765314aea0c94708a6e0a9","id":"","stepType":"when",
+    {"_id":"5d765314aea0c94708a6e0a9","id":0,"stepType":"when",
     "type":"HoverOverAndSelect","pre":"I hover over the element",
     "mid":"and select the option","values":["",""]},
-    {"_id":"5d765314aea0c94708a6e0aa","id":"","stepType":"when","type":"Checkbox",
+    {"_id":"5d765314aea0c94708a6e0aa","id":0,"stepType":"when","type":"Checkbox",
     "pre":"I select from the","mid":"multiple selection, the values","values":["",""]},
-    {"_id":"5d765314aea0c94708a6e0ab","id":"","stepType":"then","type":"Website",
+    {"_id":"5d765314aea0c94708a6e0ab","id":0,"stepType":"then","type":"Website",
     "pre":"So I will be navigated to the website:","mid":"","values":[""]},
-    {"_id":"5d765314aea0c94708a6e0ac","id":"","stepType":"then","type":"Text",
+    {"_id":"5d765314aea0c94708a6e0ac","id":0,"stepType":"then","type":"Text",
     "pre":"So I can see the text","mid":"in the textbox:","values":["",""]}];
       spyOn(component.apiService, 'getStepTypes').and.returnValue(of(resp));
       component.loadStepTypes();
@@ -293,7 +293,7 @@ describe('ScenarioEditorComponent', () => {
     });
 
     it('should add a given step to the scenario', () => {
-      let step: StepType = {"_id":"5dce728851e70f2894a170ad","id":"","stepType":"given","type":"Website","pre":"I am on the website:","mid":"","values":[""]}
+      let step: StepType = {"_id":"5dce728851e70f2894a170ad","id": 0,"stepType":"given","type":"Website","pre":"I am on the website:","mid":"","values":[""]}
       const obj = component.clone( step );
       const new_step = {
         id: 6,
@@ -313,7 +313,7 @@ describe('ScenarioEditorComponent', () => {
     });
 
     it('should add a when step to the scenario', () => {
-      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
+      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id": 0,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
       const obj = component.clone( step );
       const new_step = {
         id: 6,
@@ -332,7 +332,7 @@ describe('ScenarioEditorComponent', () => {
     });
 
     it('should add a then step to the scenario', () => {
-      let step: StepType = {"_id":"5dce728851e70f2894a170b7","id":"","stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["",""]}
+      let step: StepType = {"_id":"5dce728851e70f2894a170b7","id": 0,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["",""]}
       const obj = component.clone( step );
       const new_step = {
         id: 6,
@@ -391,7 +391,7 @@ describe('ScenarioEditorComponent', () => {
     });
 
     it('should add a when step to the background', () => {
-      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
+      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id": 0,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
       const obj = component.clone( step );
       const new_step = {
         id: 6,
@@ -420,7 +420,7 @@ describe('ScenarioEditorComponent', () => {
     });
 
     it('should add a when step to the example', () => {
-      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
+      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id": 0,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
       const obj = component.clone( step );
       const new_step = {
         id: 6,
@@ -576,7 +576,7 @@ describe('ScenarioEditorComponent', () => {
 
     it('should add hello to given values', () => {
       let stepType = 'given'
-      let step = '';
+      let step = null;
       let stepIndex = 0;
       let valueIndex = 0;
       let input = 'hello'
@@ -588,7 +588,7 @@ describe('ScenarioEditorComponent', () => {
 
     it('should add hello to when values', () => {
       let stepType = 'when'
-      let step = '';
+      let step = null;
       let stepIndex = 0;
       let valueIndex = 0;
       let input = 'hello'
@@ -600,7 +600,7 @@ describe('ScenarioEditorComponent', () => {
 
     it('should add hello to then values', () => {
       let stepType = 'then'
-      let step = '';
+      let step = null;
       let stepIndex = 0;
       let valueIndex = 0;
       let input = 'hello'
@@ -614,7 +614,7 @@ describe('ScenarioEditorComponent', () => {
       let scenario: Scenario = {"scenario_id":3,"comment":"","name":"Successful Login","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Guest"]}],"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":["https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home"]},{"id":2,"mid":"into the field","pre":"I insert","stepType":"when","type":"Field","values":["<userName>","login_field"]},{"id":3,"mid":"into the field","pre":"I insert","stepType":"when","type":"Field","values":["<password>","password"]},{"id":4,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["commit"]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["<website>"]}],"example":[{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["userName","password","website"]},{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["AdorableHamster","cutehamsterlikesnuts2000","https://github.com/"]},{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["NormalHamster","FatHamster123","https://github.com/"]},{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster","UglyHamster123","https://github.com/"]}]}};
       component.selectedScenario = scenario;
       let stepType = 'example'
-      let step = '';
+      let step = null;
       let stepIndex = 0;
       let valueIndex = 0;
       let input = 'hello'
@@ -637,7 +637,7 @@ describe('ScenarioEditorComponent', () => {
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
       let input = '<test>';
-      let step = {"id":5,"mid":"from the drop-down-menue","pre":"I select the option","stepType":"when","type":"Dropdown","values":["","<l>"]};
+      let step: StepType = {"id":5,"mid":"from the drop-down-menue","pre":"I select the option","stepType":"when","type":"Dropdown","values":["","<l>"]};
       let valueIndex = 0;
       spyOn(component, 'handleExamples');
       component.checkForExamples(input, step, valueIndex);
@@ -690,7 +690,7 @@ describe('ScenarioEditorComponent', () => {
       spyOn(component, 'checkArrowLeft').and.returnValue(true);
       spyOn(component, 'checkArrowRight').and.returnValue(true);
 
-      component.selectScenario(null, scenario);
+      component.selectScenario(scenario);
       expect(component.selectedScenario).toBe(scenario);
       expect(component.showResults).toBe(false);
       expect(component.showEditor).toBe(true);

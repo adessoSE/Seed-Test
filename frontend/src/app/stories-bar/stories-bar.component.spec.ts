@@ -76,27 +76,6 @@ describe('StoriesBarComponent', () => {
     });
   });
 
-  describe('addScenario', function(){
-    beforeEach(function(){
-      component.selectedStory = storiesForAll[0];
-      component.stories = storiesForAll
-    })
-
-    afterEach(function(){
-      component.stories = undefined;
-    })
-
-    it('should set the selected scenario', function(){
-      let scenario = {scenario_id:2,comment:"",name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}};
-      let storyID = 502603476;
-      spyOn(component.apiService, 'addScenario').and.returnValue(of(scenario));
-
-      component.addScenario(storyID);
-      expect(component.apiService.addScenario).toHaveBeenCalled();
-      expect(component.stories[0].scenarios[1]).toEqual(scenario);
-    });
-  });
-
   describe('selectStoryScenario', function(){
 
     beforeEach(function(){

@@ -24,14 +24,14 @@ export class ApiService {
       sessionStorage.setItem('github', 'https://api.github.com/repos/adessoAG/Seed-Test/issues')
   }
 
-  public getHeader() {
+  public getHeader(): HttpHeaders {
     return new HttpHeaders({
-      'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': 'true'
+   //   'Access-Control-Allow-Origin': '*',
+     //     'Access-Control-Allow-Credentials': 'true'
     });
   }
 
-  public getRepositories(token: string, githubName: string): Observable<any> {
+  public getRepositories(token: string, githubName: string): Observable<string[]> {
     let repoToken = token;
     if(!repoToken || repoToken == 'undefined') {
       repoToken = '';
@@ -69,7 +69,7 @@ export class ApiService {
     }
   }
 
-  public getStories(repository: string, token: string) {
+  public getStories(repository: string, token: string): Observable<Story[]> {
     let storytoken = token;
     if(!storytoken || storytoken == 'undefined') {
       storytoken = '';
@@ -82,7 +82,7 @@ export class ApiService {
       }), catchError(this.handleStoryError));
   }
 
-  public getStepTypes() {
+  public getStepTypes(): Observable<StepType[]> {
     this.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<StepType[]>(this.apiServer + '/stepTypes')
@@ -91,21 +91,20 @@ export class ApiService {
       }));
   }
 
-  public addScenario(storyID: number) {
+  public addScenario(storyID: number): Observable<Scenario> {
     this.apiServer = localStorage.getItem('url_backend');
 
       return this.http
-        .get<any>(this.apiServer + '/scenario/add/' + storyID)
+        .get<Scenario>(this.apiServer + '/scenario/add/' + storyID)
         .pipe(tap(resp => {
          // console.log('Add new scenario in story ' + storyID + '!', resp)
         }));
   }
 
-  public updateBackground(storyID: number, background: Background) {
+  public updateBackground(storyID: number, background: Background): Observable<Background> {
     this.apiServer = localStorage.getItem('url_backend');
-
     return this.http
-        .post<any>(this.apiServer + '/background/update/' + storyID, background)
+        .post<Background>(this.apiServer + '/background/update/' + storyID, background)
         .pipe(tap(resp => {
          // console.log('Update background for story ' + storyID )
         }));
@@ -123,17 +122,17 @@ export class ApiService {
         .post<any>(github, obj, options);
   }
 
-  public updateScenario(storyID: number, scenario: Scenario) {
+  public updateScenario(storyID: number, scenario: Scenario): Observable<Story> {
     this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
-        .post<any>(this.apiServer + '/scenario/update/' + storyID, scenario)
+        .post<Story>(this.apiServer + '/scenario/update/' + storyID, scenario)
         .pipe(tap(resp => {
          // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
         }));
   }
 
-  public deleteBackground(storyID: number) {
+  public deleteBackground(storyID: number): Observable<any>  {
     this.apiServer = localStorage.getItem('url_backend');
 
     return this.http
@@ -143,7 +142,7 @@ export class ApiService {
         }));
   }
 
-  public deleteScenario(storyID: number, scenario: Scenario) {
+  public deleteScenario(storyID: number, scenario: Scenario): Observable<Story>{
     this.apiServer = localStorage.getItem('url_backend');
 
    return this.http
