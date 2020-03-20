@@ -3,10 +3,46 @@ const { MongoClient } = require('mongodb');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-// const dotenv = require('dotenv').config();
+//const dotenv = require('dotenv').config();
 
 const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
+
+function registerUser(user){
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+    if (err) throw err;
+    const dbo = db.db('Seed');
+    dbo.collection('User').insertOne(user, (error) => {
+      if (error) throw error;
+      db.close();
+    });
+  });
+}
+
+function getUserByEmail(email, callback){
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+    if (err) throw err;
+    const dbo = db.db('Seed');
+    dbo.collection('User').findOne({ email: email }, (error, result) => {
+      if (error) throw error;
+      callback(result);
+    });
+    db.close();
+  });
+}
+
+function getUserById(id, callback){
+  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+    if (err) throw err;
+    const dbo = db.db('Seed');
+    dbo.collection('User').findOne({ id: id }, (error, result) => {
+      if (error) throw error;
+      callback(result);
+    });
+    db.close();
+  });
+}
+
 
 // get One Story
 function getOneStory(id, callback) {
@@ -326,6 +362,8 @@ function installDatabase() {
 
 
 module.exports = {
+  registerUser,
+  getUserByEmail,
   showSteptypes,
   createBackground,
   deleteBackground,

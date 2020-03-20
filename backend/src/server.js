@@ -4,9 +4,15 @@ const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
 const mongo = require('./database/mongodatabase');
-
+const bcrypt = require('bcrypt');
+const passport = require('passport');
+const flash = require('express-flash');
+const session = require('express-session');
 const app = express();
 const helper = require('./serverHelper');
+
+const initializePassport = require('./passport-config');
+initializePassport(passport, getUserByEmail, getUserById)
 
 let stories = [];
 
@@ -22,13 +28,29 @@ function handleError(res, reason, statusMessage, code) {
   res.status(code || 500).json({ error: statusMessage });
 }
 
+function getUserByEmail(email, callback){
+  mongo.getUserByEmail(email, callback)
+}
+
+function getUserById(id, callback){
+  mongo.getUserById(id, callback)
+}
+
 /**
  * API Description
  */
 app
   .use(cors())
+  .use(flash())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
+  .use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+  }))
+  .use(passport.initialize())
+  .use(passport.session())
   .use((req, res, next) => {
     console.log('Time:', Date.now());
     next();
@@ -50,6 +72,23 @@ app
     mongo.showSteptypes((result) => {
       res.status(200).json(result);
     });
+  })
+
+  .get('/api/login', (req, res) => {
+
+  })
+
+  .post('/api/register', (req, res) => {
+    try{
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      user = {
+        email: req.body.email,
+        password: hashedPassword,
+      }
+      mongo.registerUser(user)
+    } catch {
+
+    }
   })
 
   .get('/api/stories/:user/:repository/:token?', async (req, res) => {
