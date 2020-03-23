@@ -1,7 +1,5 @@
-
 import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -9,7 +7,6 @@ import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 
-const emptyBackground = {name, stepDefinitions: {when: []}};
 
 @Component({
     selector: 'app-scenario-editor',
@@ -19,38 +16,18 @@ const emptyBackground = {name, stepDefinitions: {when: []}};
 
 export class ScenarioEditorComponent implements OnInit {
 
-    stories: Story[];
     originalStepTypes: StepType[];
     selectedStory: Story;
     selectedScenario: Scenario;
-    showEditor = false;
-    showResults = false;
-    showDescription = false;
-    showBackground = false;
     arrowLeft = true;
     arrowRight = true;
-    testDone = false;
-    testRunning = false;
     uncutInputs: string[] = [];
-    htmlReport;
-    storiesLoaded = false;
-    storiesError = false;
 
     @ViewChild('exampleChildView') exampleChild;
 
     constructor(
         public apiService: ApiService,
     ) {
-        this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
-            this.storiesLoaded = true;
-            this.storiesError = false;
-            this.showEditor = false;
-            this.setStories(stories);
-        });
-        this.apiService.storiesErrorEvent.subscribe(errorCode => {
-            this.storiesError = true;
-            this.showEditor = false;
-        });
         this.apiService.getBackendUrlEvent.subscribe(() => {
             this.loadStepTypes();
         });
@@ -62,10 +39,6 @@ export class ScenarioEditorComponent implements OnInit {
 
 
     ngOnInit() {
-    }
-
-    setStories(stories: Story[]) {
-        this.stories = stories;
     }
 
     @Input()
@@ -81,7 +54,7 @@ export class ScenarioEditorComponent implements OnInit {
     @Input()
     set newSelectedScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
-        if (this.stories && this.selectedStory) {
+        if (this.selectedStory) {
             this.selectScenario(scenario);
         }
 
@@ -98,16 +71,6 @@ export class ScenarioEditorComponent implements OnInit {
         /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
         /*}*/
-    }
-
-    onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
-        /*if (!this.backgroundLocked) {*/
-        moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
-        /*}*/
-    }
-
-    getBackgroundList(stepDefinitions: StepDefinitionBackground) {
-        return stepDefinitions.when;
     }
 
     getStepsList(stepDefs: StepDefinition, i: number) {
@@ -139,18 +102,6 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
 
-    backgroundNameChange(name: string) {
-        this.selectedStory.background.name = name;
-    }
-
-    updateBackground(storyID: number) {
-        this.apiService
-            .updateBackground(storyID, this.selectedStory.background)
-            .subscribe(resp => {
-            });
-
-    }
-
     updateScenario(storyID: number) {
         let steps = this.selectedScenario["stepDefinitions"]["given"];
         steps = steps.concat(this.selectedScenario["stepDefinitions"]["when"]);
@@ -177,50 +128,25 @@ export class ScenarioEditorComponent implements OnInit {
         this.apiService
             .addScenario(storyID)
             .subscribe((resp: Scenario) => {
-                this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
                 this.selectScenario(resp);
             });
-    }
-
-    deleteBackground() {
-        this.apiService
-            .deleteBackground(this.selectedStory.story_id)
-            .subscribe(resp => {
-                this.backgroundDeleted();
-            });
-    }
-
-    backgroundDeleted(){
-        this.showBackground = false;
-        const indexStory: number = this.stories.indexOf(this.selectedStory);
-        this.stories[indexStory].background = emptyBackground;
     }
 
     deleteScenario(event) {
         this.apiService
             .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
             .subscribe(resp => {
-                this.scenarioDeleted();
+                //this.scenarioDeleted();
             });
     }
 
-    scenarioDeleted(){
-        this.showEditor = false;
-        const indexStory: number = this.stories.indexOf(this.selectedStory);
-        const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
-        if (indexScenario !== -1) {
-            this.stories[indexStory].scenarios.splice(indexScenario, 1);
-        }
-    }
-
-    openDescription() {
-        this.showDescription = !this.showDescription;
-    }
-
-    openBackground() {
-        this.showBackground = !this.showBackground;
-    }
-
+    //scenarioDeleted(){
+    //    const indexStory: number = this.stories.indexOf(this.selectedStory);
+    //    const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
+    //    if (indexScenario !== -1) {
+    //        this.stories[indexStory].scenarios.splice(indexScenario, 1);
+    //    }
+    //}
 
     addStepToScenario(storyID: number, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
@@ -251,13 +177,6 @@ export class ScenarioEditorComponent implements OnInit {
             }
             this.exampleChild.updateTable();
         }  
-    }
-
-    addStepToBackground(storyID: number, step: StepType) {
-        const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions)
-        if (newStep.stepType == 'when') {
-            this.selectedStory.background.stepDefinitions.when.push(newStep);
-        }
     }
 
     createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{
@@ -308,10 +227,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    removeStepFromBackground(event, index: number) {
-        this.selectedStory.background.stepDefinitions.when.splice(index, 1);
-    }
-
     removeStepFromScenario(stepStepType: string, index: number) {
         switch (stepStepType) {
             case 'given':
@@ -328,10 +243,6 @@ export class ScenarioEditorComponent implements OnInit {
                 this.exampleChild.updateTable();
                 break;
         }
-    }
-
-    addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
-        this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
     }
 
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
@@ -450,51 +361,32 @@ export class ScenarioEditorComponent implements OnInit {
 
     selectScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
-        this.showResults = false;
-        this.showEditor = true;
         /*this.editorLocked = true;*/
-        this.testDone = false;
         this.arrowLeft = this.checkArrowLeft();
         this.arrowRight = this.checkArrowRight();
     }
 
-
-    selectStoryScenario(story: Story) {
-        this.showResults = false;
-        this.selectedStory = story;
-        this.showEditor = true;
-        /*this.editorLocked = true;*/
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        if (this.stories[storyIndex].scenarios[0] !== undefined) {
-            this.selectScenario(this.stories[storyIndex].scenarios[0]);
-        }
-    }
-
     checkArrowLeft(): boolean {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        return this.stories[storyIndex].scenarios[scenarioIndex - 1] === undefined;
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        return this.selectedStory.scenarios[scenarioIndex - 1] === undefined;
     }
 
     checkArrowRight(): boolean {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        return this.stories[storyIndex].scenarios[scenarioIndex + 1] === undefined;
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        return this.selectedStory.scenarios[scenarioIndex + 1] === undefined;
     }
 
     scenarioShiftLeft() {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        if (this.stories[storyIndex].scenarios[scenarioIndex - 1] !== undefined) {
-            this.selectScenario(this.stories[storyIndex].scenarios[scenarioIndex - 1]);
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        if (this.selectedStory.scenarios[scenarioIndex - 1]) {
+            this.selectScenario(this.selectedStory.scenarios[scenarioIndex - 1]);
         }
     }
 
     scenarioShiftRight() {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        if (this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined) {
-            this.selectScenario(this.stories[storyIndex].scenarios[scenarioIndex + 1]);
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        if (this.selectedStory.scenarios[scenarioIndex + 1]) {
+            this.selectScenario(this.selectedStory.scenarios[scenarioIndex + 1]);
         }
     }
 
@@ -526,45 +418,7 @@ export class ScenarioEditorComponent implements OnInit {
         return undefined_list;
     }
 
-    // Make the API Request to run the tests and display the results as a chart
-    runTests(story_id: number, scenario_id: number, callback) {
-        let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
-
-
-        if(undefined_list.length > 0){
-            this.chooseform(undefined_list);
-        }
-        else {
-            this.testRunning = true;
-            const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-            const loadingScreen: HTMLElement = document.getElementById('loading');
-            loadingScreen.scrollIntoView();
-            this.apiService
-                .runTests(story_id, scenario_id)
-                .subscribe(resp => {
-                    iframe.srcdoc = resp;
-                    // console.log("This is the response: " + resp);
-                    this.htmlReport = resp;
-                    this.testDone = true;
-                    this.showResults = true;
-                    this.testRunning = false;
-                    setTimeout(function () {
-                        iframe.scrollIntoView();
-                    }, 10);
-                });
-        }
-
-    }
-
-    downloadFile() {
-        const blob = new Blob([this.htmlReport], {type: 'text/html'});
-        saveAs(blob);
-    }
-
-    hideResults() {
-        this.showResults = !this.showResults;
-    }
-
+    
     // To bypass call by reference of object properties
     // therefore new objects are created and not the existing object changed
     clone(obj) {

@@ -3,7 +3,7 @@
         <app-stories-bar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);"></app-stories-bar>
     </div>
     <div class="uk-width-expand@m">
-        <app-scenario-editor (formtosubmit)="setform($event)" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario"></app-scenario-editor>
+        <app-story-editor (formtosubmit)="setform($event)" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario"></app-story-editor>
         <app-submitform [newform]="formtosubmit"></app-submitform>
     </div>
 </div>
