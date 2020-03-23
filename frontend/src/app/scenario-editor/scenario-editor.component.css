@@ -1,23 +1,3 @@
-.uk-accordion-title, .uk-accordion-content, .uk-label {
-  font-size: small;
-}
-
-.uk-accordion{
-  width: 100%;
-}
-
-.emptyStories{
-  color: #999;
-}
-.emptyStories h1{
-  color: #999;
-}
-
-.emptyStories a {
-  display: block;
-}
-
-
 .def {
 	color: #999;
 	cursor: help;
@@ -49,14 +29,6 @@
   color: #56595e;
 }
 
-#story{
-  border: 1px solid #999;
-}
-
-#submitWarningHeader{
-  color: #999;
-  float: left; 
-}
 
 #infoIcon{
   color: #999;
@@ -64,34 +36,10 @@
   margin-left: 7px;
 }
 
-#submitWarning{
-  color: #999;
-  float: left;
-}
-
-.github-avatar{
-  float: right;
-}
-
 #buttonGroupScenario{
   margin-right: 20px;
 }
 
-#run_story {
-  margin-right: 8px;
-  color:#ffffff;
-  padding: 0px 10px;
-  font-size: 15px;
-  cursor: pointer;
-  border-radius: 3px;
-  border: solid 1px #0099CC;
-  background: #0099CC;
-  background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
-}
-
-#run_story:hover {
-  background: rgb(2, 111, 161);
-}
 
 .uk-button-group{
   border-radius:4px;
@@ -118,23 +66,6 @@
   padding-right:0;
 }
 
-.error-message{
-  font-family: "Consolas", monospace;
-  color:red;
-  margin-bottom: 5px;
-}
-
-.report-chart{
-  margin-bottom: 20px;
-}
-
-/*.uk-background-red {
-  background: red;
-}
-
-.uk-background-green {
-  background: #32d296;
-}*/
 
 .padding{
   padding-top: 20px;
@@ -219,68 +150,11 @@
   background:#dddddd
 }
 
-.exampleHeader{
-  color: rgb(27, 86, 248);
-  text-align: center
-}
-
-.description{
-  padding-left:40px;
-}
-.descriptionText{
-  padding-left:40px;
-  padding-bottom: 20px;
-}
-
-.backgroundItems{
-  padding-right:40px;
-}
-
-.loading{
-  text-align: center;
-  font-size: 40px;
-}
-
-.backgroundTitle{
-  padding-left:40px;
-  padding-bottom:20px;
-}
-.showButton{
-  padding-right: 40px;
-}
-
-.storyTitleBlock{
-  padding-left:40px;
-  padding-top:40px;
-}
-
-.storyTitle{
-  color: #0099CC;
-  font-size: medium;
-  margin-top: 10px; 
-}
-
 .testButtons{
   padding-left:10px;
   padding-right:10px;
 }
 
-.selectStories{
-  padding-left:60px;
-  padding-right: 10px;
-}
-
-.padRight{
-  padding-right: 10px;
-}
-
 table {
   width: 100%;
 }
-
-.marginLeft{
-  margin-left: 40px;
-  display:inline-block;
-}
-
-

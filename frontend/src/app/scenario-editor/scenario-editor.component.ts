@@ -61,6 +61,15 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     @Output()
+    deleteScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
+
+    @Output()
+    addScenarioEvent: EventEmitter<number> = new EventEmitter();
+
+    @Output()
+    runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
+
+    @Output()
     formtosubmit: EventEmitter<any> = new EventEmitter();
 
     chooseform(list) {
@@ -124,29 +133,15 @@ export class ScenarioEditorComponent implements OnInit {
             });
     }
 
-    addScenarioFromStory(storyID: number) {
-        this.apiService
-            .addScenario(storyID)
-            .subscribe((resp: Scenario) => {
-                this.selectScenario(resp);
-            });
+    addScenarioToStory(storyID: number) {
+        this.addScenarioEvent.emit(storyID);
+
     }
 
-    deleteScenario(event) {
-        this.apiService
-            .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
-            .subscribe(resp => {
-                //this.scenarioDeleted();
-            });
+    deleteScenario(event){
+        console.log('scenario editor delete scenario')
+        this.deleteScenarioEvent.emit(this.selectedScenario);
     }
-
-    //scenarioDeleted(){
-    //    const indexStory: number = this.stories.indexOf(this.selectedStory);
-    //    const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
-    //    if (indexScenario !== -1) {
-    //        this.stories[indexStory].scenarios.splice(indexScenario, 1);
-    //    }
-    //}
 
     addStepToScenario(storyID: number, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
@@ -361,7 +356,6 @@ export class ScenarioEditorComponent implements OnInit {
 
     selectScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
-        /*this.editorLocked = true;*/
         this.arrowLeft = this.checkArrowLeft();
         this.arrowRight = this.checkArrowRight();
     }
@@ -388,6 +382,10 @@ export class ScenarioEditorComponent implements OnInit {
         if (this.selectedStory.scenarios[scenarioIndex + 1]) {
             this.selectScenario(this.selectedStory.scenarios[scenarioIndex + 1]);
         }
+    }
+
+    runTestScenario(storyId: number, scenarioId: number){
+        this.runTestScenarioEvent.emit({storyId, scenarioId})
     }
 
     undefined_definition(definition){

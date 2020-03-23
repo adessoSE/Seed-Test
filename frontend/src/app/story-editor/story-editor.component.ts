@@ -63,9 +63,43 @@ export class StoryEditorComponent implements OnInit {
       this.selectedStory = story;
   }
 
+  @Input()
+  set newSelectedScenario(scenario: Scenario) {
+      this.selectedScenario = scenario;
+      if (this.selectedStory) {
+          this.selectScenario(scenario);
+      }
+  }
 
   @Output()
   formtosubmit: EventEmitter<any> = new EventEmitter();
+
+  //from Scenario deleteScenarioEvent
+  deleteScenario(scenario: Scenario){
+    this.apiService
+        .deleteScenario(this.selectedStory.story_id, scenario)
+        .subscribe(resp => {
+          this.scenarioDeleted();
+        })
+  }
+
+  scenarioDeleted(){
+    const indexStory: number = this.stories.indexOf(this.selectedStory);
+    const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
+    if(indexScenario !== -1){
+      this.stories[indexStory].scenarios.splice(indexScenario, 1);
+    }
+    this.showEditor = false;
+  }
+
+  addScenario(storyID: number){
+    this.apiService
+    .addScenario(storyID)
+    .subscribe((resp: Scenario) => {
+        this.selectScenario(resp);
+        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
+    });
+  }
 
   chooseform(list) {
       this.formtosubmit.emit(list);
@@ -237,8 +271,12 @@ export class StoryEditorComponent implements OnInit {
       return undefined_list;
   }
 
+  runTestScenario(ids){
+    this.runTests(ids.storyId, ids.scenarioId)
+  }
+
   // Make the API Request to run the tests and display the results as a chart
-  runTests(story_id: number, scenario_id: number, callback) {
+  runTests(story_id: number, scenario_id: number) {
       let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
 
 
@@ -264,7 +302,6 @@ export class StoryEditorComponent implements OnInit {
                   }, 10);
               });
       }
-
   }
 
   downloadFile() {

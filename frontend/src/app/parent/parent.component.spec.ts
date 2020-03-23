@@ -33,7 +33,7 @@ describe('ParentComponent', () => {
     fixture = TestBed.createComponent(ParentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    story = {issue_number: 123 , story_id: '1231', title:'123', 
+    story = {issue_number: 123 , story_id: 1231, title:'123', 
     body: "Als Premium Kunde erhalte ich freien Versand, wenn ich 5 Bücher bestelle", 
     state: "open", assignee: "adessoCucumber", 
     assignee_avatar_url: "https://avatars0.githubusercontent.com/u/50622173?v=4",
