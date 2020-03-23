@@ -14,9 +14,9 @@ import {AuthGuard} from './guards/auth.guard';
 import {MatTableModule} from '@angular/material';
 import {ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
-import {ViewModeDirective} from './editable/view-mode.directive';
-import {EditModeDirective} from './editable/edit-mode.directive';
-import {EditableOnEnterDirective} from './editable/edit-on-enter.directive';
+import {ViewModeDirective} from './directives/view-mode.directive';
+import {EditModeDirective} from './directives/edit-mode.directive';
+import {EditableOnEnterDirective} from './directives/edit-on-enter.directive';
 import {FocusableDirective} from './example-table/focusable.directive';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 

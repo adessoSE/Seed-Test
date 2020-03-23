@@ -1,8 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EditableComponent } from './editable.component';
-import { EditModeDirective } from './edit-mode.directive';
-import { EditableOnEnterDirective } from './edit-on-enter.directive';
+import { EditModeDirective } from '../directives/edit-mode.directive';
+import { EditableOnEnterDirective } from '../directives/edit-on-enter.directive';
 import { TemplateRef } from '@angular/core';
 
 describe('EditableComponent', () => {
