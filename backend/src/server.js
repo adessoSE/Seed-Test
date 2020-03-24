@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
+const path = require('path');
 const mongo = require('./database/mongodatabase');
 
 const app = express();
@@ -18,7 +19,7 @@ const server = app.listen(process.env.PORT || 8080, () => {
 
 // Handling response errors
 function handleError(res, reason, statusMessage, code) {
-  console.log(`ERROR: ${reason}`);
+  console.error(`ERROR: ${reason}`);
   res.status(code || 500).json({ error: statusMessage });
 }
 
@@ -29,24 +30,27 @@ app
   .use(cors())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
-  .use((req, res, next) => {
+  .use((_, __, next) => {
     console.log('Time:', Date.now());
     next();
   })
-  .get('/api', (req, res) => {
-    res.writeHead(200, { 'content-type': 'text/html' });
+  .get('/api', (_, res) => {
+    // res.writeHead(200, { 'content-type': 'text/html' });
+    /*
     res.write('<h1>Cucumber-API</h1>');
     res.write('<h2>Check out our <a href="https://cucumber-app.herokuapp.com"title="https://cucumber-app.herokuapp.com">Seed-Test WebApp</a>.</h2>');
     res.write('<h2>Or visit us on <a href="https://github.com/adessoCucumber/Cucumber"title="https://github.com/adessoCucumber/Cucumber">Github</a>'
         + ' for further information.</h2>');
     res.write('<h3>Happy Testing!</h3>');
-    res.status(200);
-    res.end();
+     */
+    res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
+    // res.status(200);
+    // res.end();
   })
-  /**
+  /*
    * Scenarios API
    */
-  .get('/api/stepTypes', (req, res) => {
+  .get('/api/stepTypes', (_, res) => {
     mongo.showSteptypes((result) => {
       res.status(200).json(result);
     });
