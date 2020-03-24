@@ -24,23 +24,15 @@ export class ApiService {
       sessionStorage.setItem('github', 'https://api.github.com/repos/adessoAG/Seed-Test/issues')
   }
 
-  public getHeader(): HttpHeaders {
-    return new HttpHeaders({
-   //   'Access-Control-Allow-Origin': '*',
-     //     'Access-Control-Allow-Credentials': 'true'
-    });
-  }
-
   public getRepositories(token: string, githubName: string): Observable<string[]> {
     let repoToken = token;
     if(!repoToken || repoToken == 'undefined') {
       repoToken = '';
     }
-    const options = {headers: this.getHeader()};
     this.apiServer = localStorage.getItem('url_backend');
 
     let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
-    return this.http.get<string[]>(str, options)
+    return this.http.get<string[]>(str)
       .pipe(tap(resp => {}),
         catchError(this.handleError));
   }
@@ -134,7 +126,7 @@ export class ApiService {
 
   public deleteBackground(storyID: number): Observable<any>  {
     this.apiServer = localStorage.getItem('url_backend');
-
+    console.log(this.apiServer + '/story/' + storyID + '/background/delete/')
     return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
         .pipe(tap(resp => {

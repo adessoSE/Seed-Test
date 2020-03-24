@@ -37,110 +37,110 @@ describe('AppComponent', () => {
   {scenario_id:2,name:"New Scenario",stepDefinitions:{given:[],when:[],then:[],example:[]}}],
   background:{name:"New Background",stepDefinitions:{when:[]}}}];
   
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [RouterTestingModule, HttpClientTestingModule],
-      declarations: [
-        AppComponent
-      ],
-    }).compileComponents();
-  }));
-
-  beforeEach(()=> {
-    fixture = TestBed.createComponent(AppComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  })
-
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'cucumber-frontend'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('cucumber-frontend');
-  });
-
-  describe('refreshLoginData', function(){
-
-    afterEach(function(){
-      localStorage.clear();
-    })
-
-    it('should call getRepositories', function(){
-      let token = 'token';
-      let githubName = 'name';
-      let repository = 'repository';
-
-      localStorage.setItem('token', token);
-      localStorage.setItem('githubName', githubName);
-      localStorage.setItem('repository', repository);
-
-      spyOn(component, 'getRepositories');
-      component.refreshLoginData();
-
-      expect(component.getRepositories).toHaveBeenCalled();
-      expect(component.token).toBe(token);
-      expect(component.githubName).toBe(githubName);
-      expect(component.repository).toBe(repository);
-    });
-
-    it('should not call getRepositories', function(){
-      let token = null;
-      let githubName = null;
-      let repository = 'repository';
-
-      localStorage.setItem('repository', repository);
-
-      spyOn(component, 'getRepositories');
-      component.refreshLoginData();
-
-      expect(component.getRepositories).not.toHaveBeenCalled();
-      expect(component.token).toBe(token);
-      expect(component.githubName).toBe(githubName);
-      expect(component.repository).toBe(repository);
-    
-    })
-  });
-
-  //describe('selectRepository', function(){
-  //  it('should select a repository', function(){
-  //    let repository = 'Cucumber';
+  //beforeEach(async(() => {
+  //  TestBed.configureTestingModule({
+  //    imports: [RouterTestingModule, HttpClientTestingModule],
+  //    declarations: [
+  //      AppComponent
+  //    ],
+  //  }).compileComponents();
+  //}));
 //
-  //    spyOn(component.apiService, 'getStories');
+  //beforeEach(()=> {
+  //  fixture = TestBed.createComponent(AppComponent);
+  //  component = fixture.componentInstance;
+  //  fixture.detectChanges();
+  //})
 //
-  //    component.selectRepository(repository);
-  //    expect(component.apiService.getStories).toHaveBeenCalled();
+  //it('should create the app', () => {
+  //  const fixture = TestBed.createComponent(AppComponent);
+  //  const app = fixture.debugElement.componentInstance;
+  //  expect(app).toBeTruthy();
+  //});
+//
+  //it(`should have as title 'cucumber-frontend'`, () => {
+  //  const fixture = TestBed.createComponent(AppComponent);
+  //  const app = fixture.debugElement.componentInstance;
+  //  expect(app.title).toEqual('cucumber-frontend');
+  //});
+//
+  //describe('refreshLoginData', function(){
+//
+  //  afterEach(function(){
+  //    localStorage.clear();
+  //  })
+//
+  //  it('should call getRepositories', function(){
+  //    let token = 'token';
+  //    let githubName = 'name';
+  //    let repository = 'repository';
+//
+  //    localStorage.setItem('token', token);
+  //    localStorage.setItem('githubName', githubName);
+  //    localStorage.setItem('repository', repository);
+//
+  //    spyOn(component, 'getRepositories');
+  //    component.refreshLoginData();
+//
+  //    expect(component.getRepositories).toHaveBeenCalled();
+  //    expect(component.token).toBe(token);
+  //    expect(component.githubName).toBe(githubName);
   //    expect(component.repository).toBe(repository);
-  //    
+  //  });
 //
+  //  it('should not call getRepositories', function(){
+  //    let token = null;
+  //    let githubName = null;
+  //    let repository = 'repository';
+//
+  //    localStorage.setItem('repository', repository);
+//
+  //    spyOn(component, 'getRepositories');
+  //    component.refreshLoginData();
+//
+  //    expect(component.getRepositories).not.toHaveBeenCalled();
+  //    expect(component.token).toBe(token);
+  //    expect(component.githubName).toBe(githubName);
+  //    expect(component.repository).toBe(repository);
+  //  
+  //  })
+  //});
+//
+  ////describe('selectRepository', function(){
+  ////  it('should select a repository', function(){
+  ////    let repository = 'Cucumber';
+////
+  ////    spyOn(component.apiService, 'getStories');
+////
+  ////    component.selectRepository(repository);
+  ////    expect(component.apiService.getStories).toHaveBeenCalled();
+  ////    expect(component.repository).toBe(repository);
+  ////    
+////
+  ////  });
+  ////});
+//
+  //describe('getRepositories', function(){
+  //  let token = 'undefined';
+  //  let githubName = 'adessoCucumber/Cucumber';
+//
+  //  beforeEach(function(){
+  //    localStorage.setItem('token', token);
+  //    localStorage.setItem('githubName', githubName);
+  //  });
+//
+  //  afterEach(function(){
+  //    localStorage.clear();
+  //  })
+//
+  //  it('should get all repositories', function(){
+  //    spyOn(component.apiService, 'getRepositories');
+  //    component.getRepositories();
+  //    //expect(component.apiService.getRepositories).toHaveBeenCalled();
+  //    expect(component.token).toBe(token);
+  //    expect(component.githubName).toBe(githubName);
   //  });
   //});
-
-  describe('getRepositories', function(){
-    let token = 'undefined';
-    let githubName = 'adessoCucumber/Cucumber';
-
-    beforeEach(function(){
-      localStorage.setItem('token', token);
-      localStorage.setItem('githubName', githubName);
-    });
-
-    afterEach(function(){
-      localStorage.clear();
-    })
-
-    it('should get all repositories', function(){
-      spyOn(component.apiService, 'getRepositories');
-      component.getRepositories();
-      //expect(component.apiService.getRepositories).toHaveBeenCalled();
-      expect(component.token).toBe(token);
-      expect(component.githubName).toBe(githubName);
-    });
-  });
 
   //describe('logout', function(){
   //  beforeEach(function(){
