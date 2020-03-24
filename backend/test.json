@@ -1340,7 +1340,796 @@
                     {
                         "id": 2,
                         "mid": "",
-                        "pre":"I
-click the button: ","stepType":"when","type":"Button","values":["testAccountButton"]},{"id":3,"mid":"","pre":"I click the button: ","stepType":"when","type":"Button","values":["repository_1"]}]}},"body":"As a user,\r\nIn order to validate authentication,\r\nI want a logout option\r\nTo test my logout \r\n","issue_number":10,"scenarios":[{"scenario_id":1,"name":"Logout","comment":null,"stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website: ","stepType":"given","type":"Website","values":["https: //seed-test-frontend.herokuapp.com/"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["https://seed-test-frontend.herokuapp.com/login"]}],"example":[]}}],"state":"open","title":"Logout scenario"},{"_id":"5d7b3e7c7bf94fd3499c00de","story_id":493167391,"background":{"name":"New Background","stepDefinitions":{"when":[]}},"body":"This is a Test","issue_number":46,"scenarios":[{"scenario_id":1,"name":"First Test","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["User"]},{"id":2,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://www.google.com/"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Auf gut Glück!"]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["https://www.google.com/doodles/"]}],"example":[]}}],"state":"open","title":"CoP Vortrag"},{"_id":"5d8a0ba37bf94fd34963b406","story_id":497645321,"background":{"name":"New Background","stepDefinitions":{"when":[]}},"body":"","issue_number":1,"scenarios":[],"state":"open","title":"Teststory"},{"_id":"5d91d0de7bf94fd349a393ab","story_id":500171057,"assignee":"dsorna","assignee_avatar_url":"https://avatars3.githubusercontent.com/u/44997601?v=4","background":{"name":"New Background","stepDefinitions":{"when":[]}},"body":"Als Premium Kunde erhalte ich freien Versand wenn ich 5 Bücher bestelle","issue_number":50,"scenarios":[{"scenario_id":1,"name":"Premium Kunde 5 Bücher","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Premium Kunde"]},{"id":2,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["www.amazon.de"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Add 5 Books"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Delivery Options"]}],"then":[{"id":1,"mid":"in the textbox:","pre":"So I can see the text","stepType":"then","type":"Text","values":["Free Delivery","Delivery Costs"]}],"example":[]}}],"state":"open","title":"Gratis Versand"},{"_id":"5d94521e7bf94fd3498dbdf3","story_id":501324078,"assignee":"adessoCucumber","assignee_avatar_url":"https://avatars0.githubusercontent.com/u/50622173?v=4","background":{"name":"New Background","stepDefinitions":{"when":[]}},"body":"Test the our own website","issue_number":55,"scenarios":[{"scenario_id":1,"name":"New Scenario","comment":null,"stepDefinitions":{"given":[],"when":[],"then":[],"example":[]}}],"state":"open","title":"Seed-Test"},{"_id":"5d9458777bf94fd34992dc4d","story_id":501335469,"assignee":"adessoCucumber","assignee_avatar_url":"https://avatars0.githubusercontent.com/u/50622173?v=4","background":{"name":"New Background","stepDefinitions":{"when":[]}},"body":"Als Premium Kunde erhalte ich freien Versand, wenn ich 5 Bücher bestelle","issue_number":56,"scenarios":[{"scenario_id":1,"name":"Premium Kunde 5 Bücher","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Premium Customer"]},{"id":2,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["www.amazon.de"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Add 5 Books"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Delivery Options"]}],"then":[{"id":1,"mid":"in the textbox:","pre":"So I can see the text","stepType":"then","type":"Text","values":["Free Delivery","Delivery Costs"]}],"example":[]}}],"state":"open","title":"Gratis Versand"},{"_id":"5d946b347bf94fd349a215b5","story_id":501372179,"assignee":"adessoCucumber","assignee_avatar_url":"https://avatars0.githubusercontent.com/u/50622173?v=4","background":{"name":"New Background","stepDefinitions":{"when":[]}},"body":"Als Premium Kunde erhalte ich freien Versand, wenn ich 5
-Bücher bestelle.","issue_number":58,"scenarios":[{"scenario_id":1,"name":"Premium Kunde 5 Bücher","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Premium Kunde"]},{"id":2,"mid":"","pre":"I am on the website: ","stepType":"given","type":"Website","values":["www.amazon.de"]}],"when":[{"id":1,"mid":"","pre":"I click the button: ","stepType":"when","type":"Button","values":["Add 5 Books"]},{"id":2,"mid":"","pre":"I click the button: ","stepType":"when","type":"Button","values":["Delivery Options"]}],"then":[{"id":1,"mid":"in the textbox: ","pre":"So I can see the text","stepType":"then","type":"Text","values":["Free Delivery","Delivery Costs"]}],"example":[]}}],"state":"open","title":"Gratis Versand"},{"_id":"5dfb4e289c78e1aa7ec05042","story_id":540215588,"assignee":"dsorna","assignee_avatar_url":"https: //avatars3.githubusercontent.com/u/44997601?v=4","background":null,"body":"HTML-Elemente wie Buttons, Textfelder, etc.
-via ihrem Hover-Text finden.","issue_number":67,"scenarios":[{"scenario_id":1,"name":"Find Button By Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website: ","stepType":"given","type":"Website","values":["https: //seed-test-frontend.herokuapp.com/"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Runs all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}},{"scenario_id":2,"name":"Fail Finding Button due to wrong Hover-Text","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"I am on the website:","stepType":"given","type":"Website","values":["https://seed-test-frontend.herokuapp.com/#"]}],"when":[{"id":1,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["story0"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["TESTRuns all scenario tests for the story"]},{"id":3,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["logout"]}],"then":[],"example":[]}}],"state":"open","title":"Finden eines Elements über den Hover-Text"},{"_id":"5e579eca3643368abb57fb62","story_id":571984246,"assignee":"unassigned","assignee_avatar_url":"https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png","background":{"name":"New Background","stepDefinitions":{"when":[]}},"body":"As a user,\r\nIn order to validate authentication,\r\nI want a sign up option\r\nTo test signing up new users","issue_number":68,"scenarios":[{"scenario_id":1,"name":"successful Sign Up","comment":null,"stepDefinitions":{"given":[],"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":["https://forum.golem.de/register.php?121624"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["golemAcceptCookies();"]},{"id":3,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["abcdefguuh1234567890","reg-username"]},{"id":4,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["telefonnuuummer@gmail.com","reg-email"]},{"id":5,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["cucumber2000","reg-password"]},{"id":6,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["cucumber2000","reg-password2"]},{"id":7,"mid":"from the drop-down-menue ","pre":"I select the option","stepType":"when","type":"Dropdown","values":["name","tos_accept"]},{"id":8,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["Abschicken"]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["https://forum.golem.de/register.php"]}],"example":[]}},{"scenario_id":2,"name":"failed Sign up","comment":null,"stepDefinitions":{"given":[],"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":["https://forum.golem.de/register.php?121624"]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["golemAcceptCookies();"]},{"id":3,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["abcdefguuh1234567890","reg-username"]},{"id":4,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["telefonnuuummer@gmail.com","reg-email"]},{"id":5,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["cucumber2000","reg-password"]},{"id":8,"mid":"into the field ","pre":"I insert","stepType":"when","type":"Textfield","values":["cucumber2000","reg-password2"]},{"id":6,"mid":"from the drop-down-menue ","pre":"I select the option","stepType":"when","type":"Dropdown","values":["name","tos_accept"]},{"id":7,"mid":"","pre":"I click the button: ","stepType":"when","type":"Button","values":["Abschicken"]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website: ","stepType":"then","type":"Website","values":["https: //forum.golem.de/register.php"]},{"id":2,"mid":"in the textbox: ","pre":"So I can see the text","stepType":"then","type":"Text","values":["Dieser Name wird bereits von einem Benutzer verwendet. Wenn Sie derjenige sind, loggen Sie sich bitte ein. Ansonsten nutzen Sie bitte einen anderen Namen.","attention"]}],"example":[]}}],"state":"open","title":"Sign Up"}]
+                        "pre": "I click the button: ",
+                        "stepType": "when",
+                        "type": "Button",
+                        "values": [
+                            "testAccountButton"
+                        ]
+                    },
+                    {
+                        "id": 3,
+                        "mid": "",
+                        "pre": "I click the button: ",
+                        "stepType": "when",
+                        "type": "Button",
+                        "values": [
+                            "repository_1"
+                        ]
+                    }
+                ]
+            }
+        },
+        "body": "As a user,\r\nIn order to validate authentication,\r\nI want a logout option\r\nTo test my logout \r\n",
+        "issue_number": 10,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "Logout",
+                "comment": null,
+                "stepDefinitions": {
+                    "given": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I am on the website: ",
+                            "stepType": "given",
+                            "type": "Website",
+                            "values": [
+                                "https: //seed-test-frontend.herokuapp.com/"
+                            ]
+                        }
+                    ],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "logout"
+                            ]
+                        }
+                    ],
+                    "then": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "So I will be navigated to the website:",
+                            "stepType": "then",
+                            "type": "Website",
+                            "values": [
+                                "https://seed-test-frontend.herokuapp.com/login"
+                            ]
+                        }
+                    ],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "Logout scenario"
+    },
+    {
+        "_id": "5d7b3e7c7bf94fd3499c00de",
+        "story_id": 493167391,
+        "background": {
+            "name": "New Background",
+            "stepDefinitions": {
+                "when": []
+            }
+        },
+        "body": "This is a Test",
+        "issue_number": 46,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "First Test",
+                "stepDefinitions": {
+                    "given": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "As a",
+                            "stepType": "given",
+                            "type": "Role",
+                            "values": [
+                                "User"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I am on the website:",
+                            "stepType": "given",
+                            "type": "Website",
+                            "values": [
+                                "https://www.google.com/"
+                            ]
+                        }
+                    ],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Auf gut Glück!"
+                            ]
+                        }
+                    ],
+                    "then": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "So I will be navigated to the website:",
+                            "stepType": "then",
+                            "type": "Website",
+                            "values": [
+                                "https://www.google.com/doodles/"
+                            ]
+                        }
+                    ],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "CoP Vortrag"
+    },
+    {
+        "_id": "5d8a0ba37bf94fd34963b406",
+        "story_id": 497645321,
+        "background": {
+            "name": "New Background",
+            "stepDefinitions": {
+                "when": []
+            }
+        },
+        "body": "",
+        "issue_number": 1,
+        "scenarios": [],
+        "state": "open",
+        "title": "Teststory"
+    },
+    {
+        "_id": "5d91d0de7bf94fd349a393ab",
+        "story_id": 500171057,
+        "assignee": "dsorna",
+        "assignee_avatar_url": "https://avatars3.githubusercontent.com/u/44997601?v=4",
+        "background": {
+            "name": "New Background",
+            "stepDefinitions": {
+                "when": []
+            }
+        },
+        "body": "Als Premium Kunde erhalte ich freien Versand wenn ich 5 Bücher bestelle",
+        "issue_number": 50,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "Premium Kunde 5 Bücher",
+                "stepDefinitions": {
+                    "given": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "As a",
+                            "stepType": "given",
+                            "type": "Role",
+                            "values": [
+                                "Premium Kunde"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I am on the website:",
+                            "stepType": "given",
+                            "type": "Website",
+                            "values": [
+                                "www.amazon.de"
+                            ]
+                        }
+                    ],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Add 5 Books"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Delivery Options"
+                            ]
+                        }
+                    ],
+                    "then": [
+                        {
+                            "id": 1,
+                            "mid": "in the textbox:",
+                            "pre": "So I can see the text",
+                            "stepType": "then",
+                            "type": "Text",
+                            "values": [
+                                "Free Delivery",
+                                "Delivery Costs"
+                            ]
+                        }
+                    ],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "Gratis Versand"
+    },
+    {
+        "_id": "5d94521e7bf94fd3498dbdf3",
+        "story_id": 501324078,
+        "assignee": "adessoCucumber",
+        "assignee_avatar_url": "https://avatars0.githubusercontent.com/u/50622173?v=4",
+        "background": {
+            "name": "New Background",
+            "stepDefinitions": {
+                "when": []
+            }
+        },
+        "body": "Test the our own website",
+        "issue_number": 55,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "New Scenario",
+                "comment": null,
+                "stepDefinitions": {
+                    "given": [],
+                    "when": [],
+                    "then": [],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "Seed-Test"
+    },
+    {
+        "_id": "5d9458777bf94fd34992dc4d",
+        "story_id": 501335469,
+        "assignee": "adessoCucumber",
+        "assignee_avatar_url": "https://avatars0.githubusercontent.com/u/50622173?v=4",
+        "background": {
+            "name": "New Background",
+            "stepDefinitions": {
+                "when": []
+            }
+        },
+        "body": "Als Premium Kunde erhalte ich freien Versand, wenn ich 5 Bücher bestelle",
+        "issue_number": 56,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "Premium Kunde 5 Bücher",
+                "stepDefinitions": {
+                    "given": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "As a",
+                            "stepType": "given",
+                            "type": "Role",
+                            "values": [
+                                "Premium Customer"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I am on the website:",
+                            "stepType": "given",
+                            "type": "Website",
+                            "values": [
+                                "www.amazon.de"
+                            ]
+                        }
+                    ],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Add 5 Books"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Delivery Options"
+                            ]
+                        }
+                    ],
+                    "then": [
+                        {
+                            "id": 1,
+                            "mid": "in the textbox:",
+                            "pre": "So I can see the text",
+                            "stepType": "then",
+                            "type": "Text",
+                            "values": [
+                                "Free Delivery",
+                                "Delivery Costs"
+                            ]
+                        }
+                    ],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "Gratis Versand"
+    },
+    {
+        "_id": "5d946b347bf94fd349a215b5",
+        "story_id": 501372179,
+        "assignee": "adessoCucumber",
+        "assignee_avatar_url": "https://avatars0.githubusercontent.com/u/50622173?v=4",
+        "background": {
+            "name": "New Background",
+            "stepDefinitions": {
+                "when": []
+            }
+        },
+        "body": "Als Premium Kunde erhalte ich freien Versand, wenn ich 5 Bücher bestelle.",
+        "issue_number": 58,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "Premium Kunde 5 Bücher",
+                "stepDefinitions": {
+                    "given": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "As a",
+                            "stepType": "given",
+                            "type": "Role",
+                            "values": [
+                                "Premium Kunde"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I am on the website: ",
+                            "stepType": "given",
+                            "type": "Website",
+                            "values": [
+                                "www.amazon.de"
+                            ]
+                        }
+                    ],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I click the button: ",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Add 5 Books"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I click the button: ",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Delivery Options"
+                            ]
+                        }
+                    ],
+                    "then": [
+                        {
+                            "id": 1,
+                            "mid": "in the textbox: ",
+                            "pre": "So I can see the text",
+                            "stepType": "then",
+                            "type": "Text",
+                            "values": [
+                                "Free Delivery",
+                                "Delivery Costs"
+                            ]
+                        }
+                    ],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "Gratis Versand"
+    },
+    {
+        "_id": "5dfb4e289c78e1aa7ec05042",
+        "story_id": 540215588,
+        "assignee": "dsorna",
+        "assignee_avatar_url": "https: //avatars3.githubusercontent.com/u/44997601?v=4",
+        "background": null,
+        "body": "HTML-Elemente wie Buttons, Textfelder, etc. via ihrem Hover-Text finden.",
+        "issue_number": 67,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "Find Button By Hover-Text",
+                "stepDefinitions": {
+                    "given": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I am on the website: ",
+                            "stepType": "given",
+                            "type": "Website",
+                            "values": [
+                                "https: //seed-test-frontend.herokuapp.com/"
+                            ]
+                        }
+                    ],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "story0"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Runs all scenario tests for the story"
+                            ]
+                        },
+                        {
+                            "id": 3,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "logout"
+                            ]
+                        }
+                    ],
+                    "then": [],
+                    "example": []
+                }
+            },
+            {
+                "scenario_id": 2,
+                "name": "Fail Finding Button due to wrong Hover-Text",
+                "stepDefinitions": {
+                    "given": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I am on the website:",
+                            "stepType": "given",
+                            "type": "Website",
+                            "values": [
+                                "https://seed-test-frontend.herokuapp.com/#"
+                            ]
+                        }
+                    ],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "story0"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "TESTRuns all scenario tests for the story"
+                            ]
+                        },
+                        {
+                            "id": 3,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "logout"
+                            ]
+                        }
+                    ],
+                    "then": [],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "Finden eines Elements über den Hover-Text"
+    },
+    {
+        "_id": "5e579eca3643368abb57fb62",
+        "story_id": 571984246,
+        "assignee": "unassigned",
+        "assignee_avatar_url": "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png",
+        "background": {
+            "name": "New Background",
+            "stepDefinitions": {
+                "when": []
+            }
+        },
+        "body": "As a user,\r\nIn order to validate authentication,\r\nI want a sign up option\r\nTo test signing up new users",
+        "issue_number": 68,
+        "scenarios": [
+            {
+                "scenario_id": 1,
+                "name": "successful Sign Up",
+                "comment": null,
+                "stepDefinitions": {
+                    "given": [],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I go to the website:",
+                            "stepType": "when",
+                            "type": "Website",
+                            "values": [
+                                "https://forum.golem.de/register.php?121624"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "golemAcceptCookies();"
+                            ]
+                        },
+                        {
+                            "id": 3,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "abcdefguuh1234567890",
+                                "reg-username"
+                            ]
+                        },
+                        {
+                            "id": 4,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "telefonnuuummer@gmail.com",
+                                "reg-email"
+                            ]
+                        },
+                        {
+                            "id": 5,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "cucumber2000",
+                                "reg-password"
+                            ]
+                        },
+                        {
+                            "id": 6,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "cucumber2000",
+                                "reg-password2"
+                            ]
+                        },
+                        {
+                            "id": 7,
+                            "mid": "from the drop-down-menue ",
+                            "pre": "I select the option",
+                            "stepType": "when",
+                            "type": "Dropdown",
+                            "values": [
+                                "name",
+                                "tos_accept"
+                            ]
+                        },
+                        {
+                            "id": 8,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Abschicken"
+                            ]
+                        }
+                    ],
+                    "then": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "So I will be navigated to the website:",
+                            "stepType": "then",
+                            "type": "Website",
+                            "values": [
+                                "https://forum.golem.de/register.php"
+                            ]
+                        }
+                    ],
+                    "example": []
+                }
+            },
+            {
+                "scenario_id": 2,
+                "name": "failed Sign up",
+                "comment": null,
+                "stepDefinitions": {
+                    "given": [],
+                    "when": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "I go to the website:",
+                            "stepType": "when",
+                            "type": "Website",
+                            "values": [
+                                "https://forum.golem.de/register.php?121624"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "",
+                            "pre": "I click the button:",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "golemAcceptCookies();"
+                            ]
+                        },
+                        {
+                            "id": 3,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "abcdefguuh1234567890",
+                                "reg-username"
+                            ]
+                        },
+                        {
+                            "id": 4,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "telefonnuuummer@gmail.com",
+                                "reg-email"
+                            ]
+                        },
+                        {
+                            "id": 5,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "cucumber2000",
+                                "reg-password"
+                            ]
+                        },
+                        {
+                            "id": 8,
+                            "mid": "into the field ",
+                            "pre": "I insert",
+                            "stepType": "when",
+                            "type": "Textfield",
+                            "values": [
+                                "cucumber2000",
+                                "reg-password2"
+                            ]
+                        },
+                        {
+                            "id": 6,
+                            "mid": "from the drop-down-menue ",
+                            "pre": "I select the option",
+                            "stepType": "when",
+                            "type": "Dropdown",
+                            "values": [
+                                "name",
+                                "tos_accept"
+                            ]
+                        },
+                        {
+                            "id": 7,
+                            "mid": "",
+                            "pre": "I click the button: ",
+                            "stepType": "when",
+                            "type": "Button",
+                            "values": [
+                                "Abschicken"
+                            ]
+                        }
+                    ],
+                    "then": [
+                        {
+                            "id": 1,
+                            "mid": "",
+                            "pre": "So I will be navigated to the website: ",
+                            "stepType": "then",
+                            "type": "Website",
+                            "values": [
+                                "https: //forum.golem.de/register.php"
+                            ]
+                        },
+                        {
+                            "id": 2,
+                            "mid": "in the textbox: ",
+                            "pre": "So I can see the text",
+                            "stepType": "then",
+                            "type": "Text",
+                            "values": [
+                                "Dieser Name wird bereits von einem Benutzer verwendet. Wenn Sie derjenige sind, loggen Sie sich bitte ein. Ansonsten nutzen Sie bitte einen anderen Namen.",
+                                "attention"
+                            ]
+                        }
+                    ],
+                    "example": []
+                }
+            }
+        ],
+        "state": "open",
+        "title": "Sign Up"
+    }
+]

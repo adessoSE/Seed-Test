@@ -253,7 +253,7 @@ function fuseGitWithDb(story, issueId) {
         story.scenarios = [emptyScenario()];
         story.background = emptyBackground();
       }
-      mongo.upsertEntry('Stories', story.story_id, story);
+      mongo.upsertEntry('ChrisPlayground', story.story_id, story);
       writeFile('', story); // Create & Update Feature Files
       resolve(story);
       // TODO: delete stories and save some storage
