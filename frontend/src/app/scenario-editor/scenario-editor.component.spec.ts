@@ -46,13 +46,6 @@ describe('ScenarioEditorComponent', () => {
   //  }
   //});
 
-  describe('setStories', () => {
-    it('should set stories', () => {
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.setStories(stories);
-      expect(component.stories).toBe(stories);
-    });
-  })
 
   describe('removeRowIndex', () => {
     it('should remove Row Index', () => {
@@ -76,7 +69,6 @@ describe('ScenarioEditorComponent', () => {
   describe('set newSelectedScenario', () => {
     it('should set newSelectedScenario without selectScenario', () => {
       let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}};
-      component.stories = undefined;
       spyOn(component, 'selectScenario');
       fixture.componentInstance.newSelectedScenario = scenario;
       expect(component.selectedScenario).toBe(scenario);
@@ -85,10 +77,8 @@ describe('ScenarioEditorComponent', () => {
   
     it('should set newSelectedScenario with selectScenario', () => {
       let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}};
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
       let story: Story = {"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"};
       component.selectedStory = story;
-      component.stories = stories;
       spyOn(component, 'selectScenario');
       fixture.componentInstance.newSelectedScenario = scenario;
       expect(component.selectedScenario).toBe(scenario);
@@ -96,15 +86,9 @@ describe('ScenarioEditorComponent', () => {
     });
   })
 
-  describe('backgroundList', () => {
-    it('should return backgroundList', () => {
-      let stepDefinitions: StepDefinitionBackground = {"when":[{"_id":'5dce728851e70f2894a170b4',"id":"", "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""]}]};
-      let when = component.getBackgroundList(stepDefinitions)
-      expect(when).toBe(stepDefinitions.when);
-    });
-  });
+  
  
-  describe('stepsList', () => {
+  describe('getStepsList', () => {
     it('should return stepsList', () => {
       let stepDefs : StepDefinition = {"given":[],"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":[""]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":[""]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["<fea>"]}],"example":[{"id":2,"mid":"","pre":"So I will be navigated to the website:","stepType":"example","type":"Website","values":["fea"]},{"id":2,"mid":"","pre":"So I will be navigated to the website:","stepType":"example","type":"Website","values":["valueadf"]},{"id":2,"mid":"","pre":"So I will be navigated to the website:","stepType":"example","type":"Website","values":["value"]}]};
       let given, when, then, example;
@@ -123,7 +107,7 @@ describe('ScenarioEditorComponent', () => {
     });
   });
   
-  describe('keysList', () => {
+  describe('getKeysList', () => {
     it('should return keysList', () => {
       let stepDefs : StepDefinition = {"given":[],"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":[""]},{"id":2,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":[""]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["<fea>"]}],"example":[{"id":2,"mid":"","pre":"So I will be navigated to the website:","stepType":"example","type":"Website","values":["fea"]},{"id":2,"mid":"","pre":"So I will be navigated to the website:","stepType":"example","type":"Website","values":["valueadf"]},{"id":2,"mid":"","pre":"So I will be navigated to the website:","stepType":"example","type":"Website","values":["value"]}]};
       let keys;
@@ -174,26 +158,7 @@ describe('ScenarioEditorComponent', () => {
     });
   });
 
-  describe('backgroundNameChange', () => {
-    it('should set selectedStory background name', () => {
-      let name = 'TestBackground';
-      let story: Story = {"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"};
-      component.selectedStory = story;
-      component.backgroundNameChange(name);
-      expect(component.selectedStory.background.name).toBe(name);
-    });
-  })
 
-  describe('updateBackground', () => {
-    it('should update the background', () => {
-      let storyID = 5;
-      let story: Story = {"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"};
-      component.selectedStory = story;
-      spyOn(component.apiService, 'updateBackground').and.returnValue(of(''));
-      component.updateBackground(storyID);
-      expect(component.apiService.updateBackground).toHaveBeenCalled();
-    });
-  })
 
   describe('updateScenario', () => {
     it('should update the Scenario', () => {
@@ -204,90 +169,31 @@ describe('ScenarioEditorComponent', () => {
     });
   })
 
-  describe('addScenarioFromStory', () => {
-    it('should add a Scenario and select this scenario', () => {
+  describe('addScenarioToStory', () => {
+    it('should emit an event to story-editor scenario', () => {
       let storyID = 5;
-      let resp: Scenario = {"name": "New Scenario","comment":"", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      component.selectedStory = stories[0];
-      spyOn(component.apiService, 'addScenario').and.returnValue(of(resp));
-      spyOn(component, 'selectScenario');
+      spyOn(component.addScenarioEvent, 'emit');
 
-      component.addScenarioFromStory(storyID);
-      expect(component.stories[component.stories.indexOf(component.selectedStory)].scenarios).toContain(resp);
-      expect(component.apiService.addScenario).toHaveBeenCalled();
-      expect(component.selectScenario).toHaveBeenCalled();
+      component.addScenarioToStory(storyID);
+      expect(component.addScenarioEvent.emit).toHaveBeenCalledWith(storyID);
     });
   })
 
-  describe('deleteBackground', () => {
-    it('should delete the background', () => {
-      let emptyBackground = {name, stepDefinitions: {when: []}};
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      component.selectedStory = stories[0];
-      spyOn(component.apiService, 'deleteBackground').and.returnValue(of(''));
-      component.deleteBackground();
-      expect(component.showBackground).toBeFalsy();
-      expect(component.stories[component.stories.indexOf(component.selectedStory)].background).toEqual(emptyBackground);
-      expect(component.apiService.deleteBackground).toHaveBeenCalled();
-    });
-  })
 
   describe('deleteScenario', () => {
     it('should delete the Scenario', () => {
       let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"name":"successful Story creation","comment":"","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
-      let indexStory: number = component.stories.indexOf(component.selectedStory);
-      let indexScenario: number = component.stories[indexStory].scenarios.indexOf(component.selectedScenario);
-      let deletedScenario = component.stories[indexStory].scenarios[indexScenario];
-      
-      spyOn(component.apiService, 'deleteScenario').and.returnValue(of(''));
-      component.deleteScenario(null);
-      expect(component.showEditor).toBeFalsy();
-
-      expect(component.stories[component.stories.indexOf(component.selectedStory)].scenarios).not.toContain(deletedScenario);
-      expect(indexScenario).not.toBe(-1);
-      expect(component.apiService.deleteScenario).toHaveBeenCalled();
+      spyOn(component.deleteScenarioEvent, 'emit');
+      component.deleteScenario(component.selectedScenario);
+      expect(component.deleteScenarioEvent.emit).toHaveBeenCalledWith(component.selectedScenario);
     });
   })
 
-  describe('openDescription', () => {
-    it('should set true showDescription to !showDescription', () => {
-      component.showDescription = true;
-      component.openDescription();
-      expect(component.showDescription).toBeFalsy();
-    });
-
-    it('should set false showDescription to !showDescription', () => {
-      component.showDescription = false;
-      component.openDescription();
-      expect(component.showDescription).toBeTruthy();
-    });
-  })
-
-  describe('openBackground', () => {
-    it('should set true showBackground to !showBackground', () => {
-      component.showBackground = true;
-      component.openBackground();
-      expect(component.showBackground).toBeFalsy();
-    });
-
-    it('should set false showBackground to !showBackground', () => {
-      component.showBackground = false;
-      component.openBackground();
-      expect(component.showBackground).toBeTruthy();
-    });
-  })
-
+  
   describe('addStepToScenario', () => {
     let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"name":"successful Story creation","comment":"","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"_id":"5dce728851e70f2894a170ae","id":"","stepType":"example","type":"Add Variable","pre":"","mid":"","values":["BLUBB"]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
     beforeEach(() => {
-      component.stories = stories;
-      component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
       
     });
@@ -324,10 +230,10 @@ describe('ScenarioEditorComponent', () => {
         values: obj.values
      };
       spyOn(component, 'clone').and.returnValue(obj);
-      spyOn(component, 'getLastIDinStep').and.returnValue(5);
+      spyOn(component, 'createNewStep').and.returnValue(new_step);
       component.addStepToScenario(1,step);
       expect(component.selectedScenario.stepDefinitions.when).toContain(new_step);
-      expect(component.getLastIDinStep).toHaveBeenCalled();
+      expect(component.createNewStep).toHaveBeenCalled();
       expect(component.clone).toHaveBeenCalled();
     });
 
@@ -343,54 +249,25 @@ describe('ScenarioEditorComponent', () => {
         values: obj.values
      };
       spyOn(component, 'clone').and.returnValue(obj);
-      spyOn(component, 'getLastIDinStep').and.returnValue(5);
+      spyOn(component, 'createNewStep').and.returnValue(new_step);
       component.addStepToScenario(1,step);
       expect(component.selectedScenario.stepDefinitions.then).toContain(new_step);
       
-      expect(component.getLastIDinStep).toHaveBeenCalled();
+      expect(component.createNewStep).toHaveBeenCalled();
       expect(component.clone).toHaveBeenCalled();
     });
-
-  //  it('should add a example step to the scenario', () => {
-  //    component.selectedScenario = scenario;
-//
-  //    let step: StepType = {"_id":"5dce728851e70f2894a170ae","id":"","stepType":"example","type":"Add Variable","pre":"","mid":"","values":[""]}
-  //    const obj = component.clone( step );
-  //    const new_step = {
-  //      id: 6,
-  //      mid: obj.mid,
-  //      pre: obj.pre,
-  //      stepType: 'example',
-  //      type: obj.type,
-  //      values: ['value']
-  //   };
-  //    spyOn(component, 'clone').and.returnValue(obj);
-  //    spyOn(component, 'getLastIDinStep').and.returnValue(5);
-  //    spyOn(component, 'addStep');
-  //    //spyOn(component.exampleChild, 'updateTable').and.callThrough();
-//
-  //    // TODO test
-  //    //component.addStepToScenario(1,step);
-  //    expect(component.selectedScenario.stepDefinitions.example).toContain(new_step);
-  //    
-  //    expect(component.getLastIDinStep).toHaveBeenCalled();
-  //    expect(component.clone).toHaveBeenCalled();
-  //    expect(component.addStep).toHaveBeenCalled();
-  //    //expect(fixture.componentInstance.exampleChild.updateTable).toHaveBeenCalled();
-//
-//
-  //  });
   })
 
-  describe('addStepToBackground', () => {
+ 
+
+  describe('createNewStep', () => {
     let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"_id":"5dce728851e70f2894a170ae","id":"","stepType":"example","type":"Add Variable","pre":"","mid":"","values":["BLUBB"]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
     beforeEach(() => {
-      component.stories = stories;
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
     });
 
-    it('should add a when step to the background', () => {
+    it('should add a when step', () => {
       let step: StepType = {"_id":"5dce728851e70f2894a170b0","id": 0,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
       const obj = component.clone( step );
       const new_step = {
@@ -402,24 +279,13 @@ describe('ScenarioEditorComponent', () => {
         type: obj.type,
         values: obj.values
      };
-      spyOn(component, 'clone').and.returnValue(obj);
       spyOn(component, 'getLastIDinStep').and.returnValue(5);
-      component.addStepToBackground(1,step);
-      expect(component.selectedStory.background.stepDefinitions.when).toContain(new_step);
+      let createdNewStep = component.createNewStep(step, component.selectedScenario.stepDefinitions);
       expect(component.getLastIDinStep).toHaveBeenCalled();
-      expect(component.clone).toHaveBeenCalled();
-    });
-  });
-
-  describe('addStep', () => {
-    let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"_id":"5dce728851e70f2894a170ae","id":"","stepType":"example","type":"Add Variable","pre":"","mid":"","values":["BLUBB"]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-    beforeEach(() => {
-      component.stories = stories;
-      component.selectedStory = stories[0];
-      component.selectedScenario = stories[0].scenarios[0];
+      expect(new_step).toEqual(createdNewStep);
     });
 
-    it('should add a when step to the example', () => {
+    it('should add a example step', () => {
       let step: StepType = {"_id":"5dce728851e70f2894a170b0","id": 0,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}
       const obj = component.clone( step );
       const new_step = {
@@ -431,10 +297,10 @@ describe('ScenarioEditorComponent', () => {
         type: obj.type,
         values: ['value']
      };
-      spyOn(component, 'getLastIDinStep').and.returnValue(5);
-      component.addStep(step);
-      expect(component.selectedScenario.stepDefinitions.example).toContain(new_step);
-      expect(component.getLastIDinStep).toHaveBeenCalled();
+     spyOn(component, 'getLastIDinStep').and.returnValue(5);
+     let createdNewStep = component.createNewStep(step, component.selectedScenario.stepDefinitions, 'example');
+     expect(component.getLastIDinStep).toHaveBeenCalled();
+     expect(new_step).toEqual(createdNewStep);
     });
   });
 
@@ -493,30 +359,11 @@ describe('ScenarioEditorComponent', () => {
     })
   })
 
-  describe('removeStepToBackround', () => {
-    it('should remove the step of the background', () => {
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      component.selectedStory = stories[0];
-      expect(component.selectedStory.background.stepDefinitions.when.length).toBe(1);
-      component.removeStepFromBackground(null, 0);
-      expect(component.selectedStory.background.stepDefinitions.when.length).toBe(0);
-    })
+  
 
-    it('should remove nothing', () => {
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      component.selectedStory = stories[0];
-      expect(component.selectedStory.background.stepDefinitions.when.length).toBe(0);
-      component.removeStepFromBackground(null, 0);
-      expect(component.selectedStory.background.stepDefinitions.when.length).toBe(0);
-    })
-  })
-
-  describe('removeStepToScenario', () => {
+  describe('removeStepFromScenario', () => {
     beforeEach(() => {
       let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
     })
@@ -542,33 +389,19 @@ describe('ScenarioEditorComponent', () => {
       expect(component.selectedScenario.stepDefinitions.then.length).toBe(0);
     })
 
-    //it('remove step of scenario example', () => {
-    //  let stepDefType = 'example';
-    //  expect(component.selectedScenario.stepDefinitions.example.length).toBe(0);
-    //  component.removeStepToScenario(stepDefType, 0);
-    //  expect(component.selectedScenario.stepDefinitions.example.length).toBe(1);
-    //})
-  });
-
-  describe('addToValuesBackground', () => {
-    it('should add hello to background values', () => {
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      component.selectedStory = stories[0];
-      let stepIndex = 0;
-      let valueIndex = 0;
-      let input = 'hello'
-
-      component.addToValuesBackground(input, stepIndex, valueIndex);
-      expect(component.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex]).toBe(input);
-
-    });
+    it('remove step of scenario example', () => {
+      let stepDefType = 'example';
+      spyOn(component.exampleChild, 'updateTable');
+      expect(component.selectedScenario.stepDefinitions.example.length).toBe(0);
+      component.removeStepFromScenario(stepDefType, 0);
+      expect(component.selectedScenario.stepDefinitions.example.length).toBe(1);
+      expect(component.exampleChild.updateTable).toHaveBeenCalled();
+    })
   });
 
   describe('addToValues', () => {
     beforeEach(() => {
       let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
 
@@ -627,13 +460,174 @@ describe('ScenarioEditorComponent', () => {
 
   describe('checkForExamples', () => {
 
-    beforeEach(() => {
+    it('should remove Example', () => {
+      spyOn(component, 'inputRemovedExample').and.returnValue(true);
+      spyOn(component, 'removeExample');
+      spyOn(component, 'inputHasExample').and.returnValue(false);
+      spyOn(component, 'createExample');
+      component.checkForExamples('', null, null);
 
+      expect(component.inputRemovedExample).toHaveBeenCalled();
+      expect(component.removeExample).toHaveBeenCalled();
+      expect(component.inputHasExample).toHaveBeenCalled();
+      expect(component.createExample).not.toHaveBeenCalled();
+    });
+
+    it('should create Example', () => {
+      spyOn(component, 'inputRemovedExample').and.returnValue(false);
+      spyOn(component, 'removeExample');
+      spyOn(component, 'inputHasExample').and.returnValue(true);
+      spyOn(component, 'createExample');
+      component.checkForExamples('', null, null);
+
+      expect(component.inputRemovedExample).toHaveBeenCalled();
+      expect(component.removeExample).not.toHaveBeenCalled();
+      expect(component.inputHasExample).toHaveBeenCalled();
+      expect(component.createExample).toHaveBeenCalled();
+    });
+
+    it('should do nothing', () => {
+      spyOn(component, 'inputRemovedExample').and.returnValue(false);
+      spyOn(component, 'removeExample');
+      spyOn(component, 'inputHasExample').and.returnValue(false);
+      spyOn(component, 'createExample');
+      component.checkForExamples('', null, null);
+
+      expect(component.inputRemovedExample).toHaveBeenCalled();
+      expect(component.removeExample).not.toHaveBeenCalled();
+      expect(component.inputHasExample).toHaveBeenCalled();
+      expect(component.createExample).not.toHaveBeenCalled();
+    });
+
+    describe('inputRemovedExample', () => {
+      it('should return true', () => {
+        let step: StepType = {
+          id: 0,
+          mid: 'string',
+          pre: 'string',
+          stepType: 'string',
+          type: 'string',
+          values: ['<blubb>']
+        }
+        let result = component.inputRemovedExample('test', step, 0);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let step: StepType = {
+          id: 0,
+          mid: 'string',
+          pre: 'string',
+          stepType: 'string',
+          type: 'string',
+          values: ['<blubb']
+        }
+        let result = component.inputRemovedExample('test', step, 0);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let step: StepType = {
+          id: 0,
+          mid: 'string',
+          pre: 'string',
+          stepType: 'string',
+          type: 'string',
+          values: ['blubb>']
+        }
+        let result = component.inputRemovedExample('test', step, 0);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let step: StepType = {
+          id: 0,
+          mid: 'string',
+          pre: 'string',
+          stepType: 'string',
+          type: 'string',
+          values: ['blubb']
+        }
+        let result = component.inputRemovedExample('<test', step, 0);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let step: StepType = {
+          id: 0,
+          mid: 'string',
+          pre: 'string',
+          stepType: 'string',
+          type: 'string',
+          values: ['blubb']
+        }
+        let result = component.inputRemovedExample('test>', step, 0);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let step: StepType = {
+          id: 0,
+          mid: 'string',
+          pre: 'string',
+          stepType: 'string',
+          type: 'string',
+          values: ['blubb']
+        }
+        let result = component.inputRemovedExample('test', step, 0);
+        expect(result).toBe(true);
+      })
     })
 
+
+    describe('inputHasExample', () => {
+      let scenario: Scenario = {"scenario_id":3,"comment":"","name":"Successful Login","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Guest"]}],"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":["https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home"]},{"id":2,"mid":"into the field","pre":"I insert","stepType":"when","type":"Field","values":["<userName>","login_field"]},{"id":3,"mid":"into the field","pre":"I insert","stepType":"when","type":"Field","values":["<password>","password"]},{"id":4,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["commit"]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["<website>"]}],"example":[{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["userName","password","website"]},{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["AdorableHamster","cutehamsterlikesnuts2000","https://github.com/"]},{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["NormalHamster","FatHamster123","https://github.com/"]},{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster","UglyHamster123","https://github.com/"]}]}};
+
+      beforeEach(() => {
+        component.selectedScenario = scenario;
+      })
+
+      it('should return true', () => {
+        let input = '<test>'
+        component.uncutInputs = [];
+        let result = component.inputHasExample(input);
+        expect(result).toBe(true);
+      })
+
+
+      it('should return false', () => {
+        let input = 'test'
+        component.uncutInputs = [];
+        let result = component.inputHasExample(input);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let input = '<test'
+        component.uncutInputs = [];
+        let result = component.inputHasExample(input);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let input = 'test>'
+        component.uncutInputs = [];
+        let result = component.inputHasExample(input);
+        expect(result).toBe(true);
+      })
+
+      it('should return false', () => {
+        let input = '<test>'
+        component.uncutInputs = ['<test>'];
+        let result = component.inputHasExample(input);
+        expect(result).toBe(true);
+      })
+    })
+  })
+
+  describe('createExample', () => {
     it('should create examples', () => {
       let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
       let input = '<test>';
@@ -642,26 +636,139 @@ describe('ScenarioEditorComponent', () => {
       spyOn(component, 'handleExamples');
       component.checkForExamples(input, step, valueIndex);
       expect(component.handleExamples).toHaveBeenCalled();
+      expect(component.uncutInputs).toContain(input)
+    })
+  })
+    
+describe('removeExample', () => {
+  it('should remove one examples', () => {
+    let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[]}};
+    component.selectedScenario = scenario;
+    let input = 'hallo';
+    let step = {"id":5,"mid":"from the drop-down-menue","pre":"I select the option","stepType":"given","type":"Dropdown","values":["<l>"]};
+    let valueIndex = 0;
+    component.uncutInputs = ['<test>']
+    expect(component.selectedScenario.stepDefinitions.example.length).toBe(1);
+    component.checkForExamples(input, step, valueIndex);
+    expect(component.selectedScenario.stepDefinitions.example.length).toBe(0);
+    expect(component.uncutInputs).not.toContain(input)
+  });
+});
+
+  describe('handleExamples', () => {
+    it('should change example header', () => {
+      let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":{"$numberInt":"1"},"stepType":"example","type":"Text","pre":"","mid":"","values":["test2","test2"]}]}};
+      component.selectedScenario = scenario;
+      let valueIndex = 0
+      let cutInput = 'test'
+      let input = '<test>'
+      spyOn(component, 'handleExamples'). and.returnValue(true);
+      spyOn(component, 'handleExamples'). and.returnValue(true);
+      spyOn(component.exampleChild, 'updateTable');
+      let step: StepType = {"id":5,"mid":"from the drop-down-menue","pre":"I select the option","stepType":"when","type":"Dropdown","values":["","<l>"]};
+      component.handleExamples(input, cutInput, step ,valueIndex)
+      expect(this.selectedScenario.stepDefinitions.example[0].values[0]).toEqual(cutInput)
+      expect(component.exampleHeaderChanged).toHaveBeenCalled();
+      expect(component.exampleChild.updateTable).toHaveBeenCalled();
+
     })
 
-    it('should remove one examples', () => {
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["<Guest>"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster"]}]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      component.selectedStory = stories[0];
-      component.selectedScenario = stories[0].scenarios[0];
-      let input = 'hallo';
-      let step = {"id":5,"mid":"from the drop-down-menue","pre":"I select the option","stepType":"given","type":"Dropdown","values":["<l>"]};
-      let valueIndex = 0;
-      expect(component.selectedScenario.stepDefinitions.example.length).toBe(1);
-      component.checkForExamples(input, step, valueIndex);
-      expect(component.selectedScenario.stepDefinitions.example.length).toBe(0);
-    });
   });
 
-  //describe('handleExamples', () => {
-  //  it('should ')
-//
-  //});
+  describe('createFirstExample', () => {
+    let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":{"$numberInt":"1"},"stepType":"example","type":"Text","pre":"","mid":"","values":["test2","test2"]}]}};
+
+    beforeEach(() => {
+      component.selectedScenario = scenario;
+    })
+
+    it('executes', () => {
+      let step: StepType = {"id":5,"mid":"from the drop-down-menue","pre":"I select the option","stepType":"when","type":"Dropdown","values":["","<l>"]};
+      let cutInput = 'test'
+      spyOn(component.exampleChild, 'updateTable');
+      spyOn(component, 'createNewStep');
+
+      component.createFirstExample(cutInput, step);
+      expect(component.exampleChild.updateTable).toHaveBeenCalledTimes(2);
+      expect(component.createNewStep).toHaveBeenCalledTimes(2);
+      expect(this.selectedScenario.stepDefinitions.example.length).toBe(2)
+    })
+  })
+
+
+  describe('fillExamples', () => {
+    let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":{"$numberInt":"1"},"stepType":"example","type":"Text","pre":"","mid":"","values":["test2","test2"]}]}};
+
+    beforeEach(() => {
+      component.selectedScenario = scenario;
+    })
+
+    it('executes', () => {
+      let step: StepType = {"id":5,"mid":"from the drop-down-menue","pre":"I select the option","stepType":"when","type":"Dropdown","values":["","<l>"]};
+      let cutInput = 'test'
+      spyOn(component, 'createNewStep');
+
+      component.fillExamples(cutInput, step);
+      expect(component.createNewStep).toHaveBeenCalledTimes(1);
+      expect(this.selectedScenario.stepDefinitions.example[0].values.length).toBe(2)
+    })
+  })
+
+
+  describe('exampleHeaderChanged', () => {
+    let scenario : Scenario = {"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":{"$numberInt":"1"},"stepType":"example","type":"Text","pre":"","mid":"","values":["test2","test2"]}]}};
+
+    beforeEach(() => {
+      component.selectedScenario = scenario;
+    })
+
+    it('returns true', () => {
+      let input = '<hallo>'
+      let valueIndex = 0;
+      let step: StepType = {
+        id: 0,
+        mid: 'string',
+        pre: 'string',
+        stepType: 'string',
+        type: 'string',
+        values: ['<blubb>']
+      }
+      let result = component.exampleHeaderChanged(input, step, valueIndex);
+      expect(result).toBe(true);
+    })
+
+    it('returns false', () => {
+      let input = 'hallo'
+      let valueIndex = 0;
+      let step: StepType = {
+        id: 0,
+        mid: 'string',
+        pre: 'string',
+        stepType: 'string',
+        type: 'string',
+        values: ['<blubb>']
+      }
+      let result = component.exampleHeaderChanged(input, step, valueIndex);
+      expect(result).toBe(false);
+    })
+
+    it('returns false', () => {
+      let input = '<hallo>'
+      let valueIndex = 0;
+      let step: StepType = {
+        id: 0,
+        mid: 'string',
+        pre: 'string',
+        stepType: 'string',
+        type: 'string',
+        values: ['blubb']
+      }
+      let result = component.exampleHeaderChanged(input, step, valueIndex);
+      expect(result).toBe(false);
+    })
+  })
+
+
 
   describe('renameScenario', () => {
     let scenario: Scenario = {"scenario_id":3,"comment":"","name":"Successful Login","stepDefinitions":{"given":[{"id":1,"mid":"","pre":"As a","stepType":"given","type":"Role","values":["Guest"]}],"when":[{"id":1,"mid":"","pre":"I go to the website:","stepType":"when","type":"Website","values":["https://github.com/login?return_to=%2Fjoin%3Fsource%3Dheader-home"]},{"id":2,"mid":"into the field","pre":"I insert","stepType":"when","type":"Field","values":["<userName>","login_field"]},{"id":3,"mid":"into the field","pre":"I insert","stepType":"when","type":"Field","values":["<password>","password"]},{"id":4,"mid":"","pre":"I click the button:","stepType":"when","type":"Button","values":["commit"]}],"then":[{"id":1,"mid":"","pre":"So I will be navigated to the website:","stepType":"then","type":"Website","values":["<website>"]}],"example":[{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["userName","password","website"]},{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["AdorableHamster","cutehamsterlikesnuts2000","https://github.com/"]},{"id":5,"mid":"into the field","pre":"I insert","stepType":"example","type":"Field","values":["NormalHamster","FatHamster123","https://github.com/"]},{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster","UglyHamster123","https://github.com/"]}]}};
@@ -692,36 +799,17 @@ describe('ScenarioEditorComponent', () => {
 
       component.selectScenario(scenario);
       expect(component.selectedScenario).toBe(scenario);
-      expect(component.showResults).toBe(false);
-      expect(component.showEditor).toBe(true);
-      expect(component.testDone).toBe(false);
       expect(component.checkArrowLeft).toHaveBeenCalled();
       expect(component.checkArrowRight).toHaveBeenCalled();
 
     });
   });
 
-  describe('selectStoryScenario', () => {
-    it('should select the Story', () => {
-      let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["<Guest>"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster"]}]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-      component.stories = stories;
-      spyOn(component, 'selectScenario');
 
-      component.selectStoryScenario(stories[0]);
-      expect(component.selectedStory).toBe(stories[0]);
-      expect(component.showResults).toBe(false);
-      expect(component.showEditor).toBe(true);
-      expect(component.selectScenario).toHaveBeenCalled();
-
-    });
-  });
 
   describe('checkArrowLeft', () => {
     let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["<Guest>"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster"]}]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
 
-    beforeEach(() => {
-      component.stories = stories;
-    });
     it('should return false', () => {
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[1];
@@ -740,9 +828,6 @@ describe('ScenarioEditorComponent', () => {
   describe('checkArrowRight', () => {
     let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["<Guest>"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster"]}]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
 
-    beforeEach(() => {
-      component.stories = stories;
-    });
     it('should return true', () => {
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[1];
@@ -761,9 +846,6 @@ describe('ScenarioEditorComponent', () => {
   describe('scenarioShiftLeft', () => {
     let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["<Guest>"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster"]}]}},{"scenario_id":3,"name":"failed Story creation","comment":"","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
 
-    beforeEach(() => {
-      component.stories = stories;
-    });
     it('should shift left', () => {
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[1];
@@ -784,9 +866,6 @@ describe('ScenarioEditorComponent', () => {
   describe('scenarioShiftRight', () => {
     let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[]}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["<Guest>"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster"]}]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
 
-    beforeEach(() => {
-      component.stories = stories;
-    });
     it('should shift right', () => {
       component.selectedStory = stories[0];
       component.selectedScenario = stories[0].scenarios[0];
@@ -804,38 +883,21 @@ describe('ScenarioEditorComponent', () => {
     });
   });
 
-  //describe('runTests', () => {
-  //  let stories : Story[]= [{"story_id": 123,"background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":"","stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[]}]}},"scenarios":[{"scenario_id":1,"name":"successful Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["<Guest>"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"]}],"example":[{"id":6,"mid":"","pre":"","stepType":"example","type":"Add Variable","values":["OldHamster"]}]}},{"scenario_id":3,"name":"failed Story creation","stepDefinitions":{"given":[{"id":{"$numberInt":"1"},"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"selection":["Guest","User"]}],"when":[{"id":{"$numberInt":"1"},"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"]},{"id":{"$numberInt":"2"},"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"]}],"then":[{"id":{"$numberInt":"2"},"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"]}],"example":[{"values":[]}]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
-//
-  //  beforeEach(() => {
-  //    component.stories = stories;
-  //  });
-  //  it('should run tests', () => {
-  //    component.selectedStory = stories[0];
-  //    component.selectedScenario = stories[0].scenarios[0];
-  //    spyOn(component.apiService, 'runTests').and.returnValue(of({}));
-  //    component.runTests(1,2,null);
-  //    expect(component.testDone).toBe(true);
-  //    expect(component.showResults).toBe(true);
-  //    expect(component.testRunning).toBe(false);
-//
-  //    expect(component.apiService.runTests).toHaveBeenCalled();
-  //  });
-  //});
+describe('runTestScenario', () => {
 
-  describe('hideResults', () => {
-    it('should turn show results to true', () => {
-      component.showResults = false;
-      component.hideResults();
-      expect(component.showResults).toBe(true);
-    })
+  it('emit runTestScenarioEvent run tests', () => {
+    spyOn(component.runTestScenarioEvent, 'emit');
+    component.runTestScenario(1,1);
+    expect(component.runTestScenarioEvent.emit).toHaveBeenCalledWith({storyId: 1, scenarioId: 1});
+  
+  });
+});
 
-    it('should turn show results to false', () => {
-      component.showResults = true;
-      component.hideResults();
-      expect(component.showResults).toBe(false);
-    })
-  })
+describe('undefined_definition', () => {
+
+});
+
+
 
 
 });

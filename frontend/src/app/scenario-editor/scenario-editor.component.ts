@@ -139,7 +139,6 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     deleteScenario(event){
-        console.log('scenario editor delete scenario')
         this.deleteScenarioEvent.emit(this.selectedScenario);
     }
 
@@ -165,7 +164,8 @@ export class ScenarioEditorComponent implements OnInit {
 
     addExampleStep(step: StepType){
         if (this.selectedScenario.stepDefinitions.example.length > 0) {
-            this.addStep(step);
+            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            this.selectedScenario.stepDefinitions.example.push(newStep);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
             for (let j = 1; j < len; j++) {
                 this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
@@ -174,32 +174,20 @@ export class ScenarioEditorComponent implements OnInit {
         }  
     }
 
-    createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{
+    createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground, stepType?: string): StepType{
         const obj = this.clone(step);
         const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
         const newStep: StepType = {
             id: newId,
             mid: obj.mid,
             pre: obj.pre,
-            stepType: obj.stepType,
+            stepType: stepType === 'example' ? stepType : obj.stepType,
             type: obj.type,
-            values: obj.values
+            values: stepType === 'example' ? ['value'] : obj.values
         };
         return newStep;
     }
 
-    addStep(step: StepType) {
-        const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
-        const new_step: StepType = {
-            id: new_id,
-            mid: step.mid,
-            pre: step.pre,
-            stepType: 'example',
-            type: step.type,
-            values: ['value']
-        };
-        this.selectedScenario.stepDefinitions.example.push(new_step);
-    }
 
     getLastIDinStep(stepDefs: any, stepStepType: string): number {
         switch (stepStepType) {
@@ -265,7 +253,7 @@ export class ScenarioEditorComponent implements OnInit {
             this.removeExample(step, valueIndex);
         }
         // if input has < > and it is a new unique input
-        if (this.inputHasExample(input, step, valueIndex)) {
+        if (this.inputHasExample(input)) {
             this.createExample(input, step, valueIndex);
         }
     }
@@ -274,8 +262,8 @@ export class ScenarioEditorComponent implements OnInit {
         return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
     }
 
-    inputHasExample(input: string, step: StepType, valueIndex: number): boolean{
-        return input.startsWith('<') && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))
+    inputHasExample(input: string): boolean{
+        return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input)
     }
 
     createExample(input: string, step: StepType, valueIndex: number){
@@ -306,20 +294,23 @@ export class ScenarioEditorComponent implements OnInit {
         if (this.exampleHeaderChanged(input, step, valueIndex)) {
             this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
             return;
+        }else {
+            if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
+                this.createFirstExample(cutInput, step);
+            } else {
+                // else just adds as many values to the examples to fill up the table
+                this.fillExamples(cutInput, step);
+            }
         }
         // for first example creates 2 steps
-        if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
-            this.createFirstExample(cutInput, step);
-        } else {
-            // else just adds as many values to the examples to fill up the table
-            this.fillExamples(cutInput, step);
-        }
+
         this.exampleChild.updateTable();
     }
 
     createFirstExample(cutInput: string, step: StepType){
         for (let i = 0; i <= 2; i++) {
-            this.addStep(step);
+            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            this.selectedScenario.stepDefinitions.example.push(newStep);
             this.exampleChild.updateTable();
         }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
@@ -330,17 +321,18 @@ export class ScenarioEditorComponent implements OnInit {
     fillExamples(cutInput: string, step: StepType){
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
 
-            for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
-                this.selectedScenario.stepDefinitions.example[j].values.push('value');
+        for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
+            this.selectedScenario.stepDefinitions.example[j].values.push('value');
+        }
+        // if the table has no rows add a row
+        if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
+            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            this.selectedScenario.stepDefinitions.example.push(newStep);
+            const len = this.selectedScenario.stepDefinitions.example[0].values.length;
+            for (let j = 1; j < len; j++) {
+                this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
             }
-            // if the table has no rows add a row
-            if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
-                this.addStep(step);
-                const len = this.selectedScenario.stepDefinitions.example[0].values.length;
-                for (let j = 1; j < len; j++) {
-                    this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
-                }
-            }
+        }
     }
 
 
