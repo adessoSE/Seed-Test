@@ -1,7 +1,6 @@
-<div uk-grid  >
-    <div class="uk-width-1-4@m">
-        <app-stories-bar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);"></app-stories-bar>
-    </div>
+
+<div uk-grid class="bgColor" >
+    <div class="uk-width-1-4@m"><app-stories-bar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);"></app-stories-bar></div>
     <div class="uk-width-expand@m">
         <app-scenario-editor (formtosubmit)="setform($event)" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario"></app-scenario-editor>
         <app-submitform [newform]="formtosubmit"></app-submitform>
