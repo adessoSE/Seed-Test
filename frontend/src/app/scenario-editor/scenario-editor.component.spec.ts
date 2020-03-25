@@ -275,7 +275,6 @@ describe('ScenarioEditorComponent', () => {
   //    const obj = component.clone( step );
   //    const new_step = {
   //      id: 6,
-  //      label: obj.label,
   //      mid: obj.mid,
   //      pre: obj.pre,
   //      stepType: obj.stepType,
@@ -293,7 +292,6 @@ describe('ScenarioEditorComponent', () => {
   //    const obj = component.clone( step );
   //    const new_step = {
   //      id: 6,
-  //      label: obj.label,
   //      mid: obj.mid,
   //      pre: obj.pre,
   //      stepType: 'example',

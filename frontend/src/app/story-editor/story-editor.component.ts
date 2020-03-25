@@ -50,16 +50,12 @@ export class StoryEditorComponent implements OnInit {
       });
   }
 
-
   ngOnInit() {
   }
 
   setStories(stories: Story[]) {
       this.stories = stories;
   }
-
-
-
 
   @Input()
   set newSelectedScenario(scenario: Scenario) {
@@ -87,21 +83,19 @@ export class StoryEditorComponent implements OnInit {
   }
 
   scenarioDeleted(){
-    const indexStory: number = this.stories.indexOf(this.selectedStory);
-    const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
+    const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
     if(indexScenario !== -1){
-      this.stories[indexStory].scenarios.splice(indexScenario, 1);
+        this.selectedStory.scenarios.splice(indexScenario, 1)
     }
     this.showEditor = false;
   }
 
   addScenario(storyID: number){
-    this.apiService
-    .addScenario(storyID)
-    .subscribe((resp: Scenario) => {
-        this.selectScenario(resp);
-        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
-    });
+    this.apiService.addScenario(storyID)
+        .subscribe((resp: Scenario) => {
+           this.selectScenario(resp);
+           this.selectedStory.scenarios.push(resp);
+        });
   }
 
   chooseform(list) {
@@ -109,9 +103,7 @@ export class StoryEditorComponent implements OnInit {
   }
 
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
-      /*if (!this.backgroundLocked) {*/
       moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
-      /*}*/
   }
 
   getBackgroundList(stepDefinitions: StepDefinitionBackground) {
@@ -124,11 +116,11 @@ export class StoryEditorComponent implements OnInit {
   }
 
   updateBackground(storyID: number) {
+      
       this.apiService
           .updateBackground(storyID, this.selectedStory.background)
           .subscribe(resp => {
           });
-
   }
 
   deleteBackground() {
@@ -141,8 +133,7 @@ export class StoryEditorComponent implements OnInit {
 
   backgroundDeleted(){
       this.showBackground = false;
-      const indexStory: number = this.stories.indexOf(this.selectedStory);
-      this.stories[indexStory].background = emptyBackground;
+      this.selectedStory.background = emptyBackground;
   }
 
   openDescription() {
@@ -151,17 +142,6 @@ export class StoryEditorComponent implements OnInit {
 
   openBackground() {
       this.showBackground = !this.showBackground;
-  }
-
-  addExampleStep(step: StepType){
-      if (this.selectedScenario.stepDefinitions.example.length > 0) {
-          this.addStep(step);
-          const len = this.selectedScenario.stepDefinitions.example[0].values.length;
-          for (let j = 1; j < len; j++) {
-              this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
-          }
-          this.exampleChild.updateTable();
-      }  
   }
 
   addStepToBackground(storyID: number, step: StepType) {
@@ -183,19 +163,6 @@ export class StoryEditorComponent implements OnInit {
           values: obj.values
       };
       return newStep;
-  }
-
-  addStep(step: StepType) {
-      const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
-      const new_step: StepType = {
-          id: new_id,
-          mid: step.mid,
-          pre: step.pre,
-          stepType: 'example',
-          type: step.type,
-          values: ['value']
-      };
-      this.selectedScenario.stepDefinitions.example.push(new_step);
   }
 
   getLastIDinStep(stepDefs: any, stepStepType: string): number {

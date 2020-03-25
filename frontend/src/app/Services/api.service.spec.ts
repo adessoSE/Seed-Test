@@ -123,19 +123,19 @@ describe('ApiService', () => {
     });
   })
 
-  describe('addScenario', () => {
-    it('should add a Scenario', () => {
-      let storyID = 5;
-      let newScenario: Scenario = {"name": "New Scenario","comment":"", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
-      service.addScenario(storyID).subscribe(scenario => {
-        expect(scenario).toEqual(newScenario)
-      });
-
-      const request = httpMock.expectOne(service.apiServer + '/scenario/add/' + storyID);
-      expect(request.request.method).toBe('GET');
-      request.flush(newScenario);
+describe('addScenario', () => {
+  it('should add a Scenario', () => {
+    let storyID = 5;
+    let newScenario: Scenario = {"name": "New Scenario","comment":"", "scenario_id": 2, "stepDefinitions": {"given": [], "when": [], "then": [], "example": []}};
+    service.addScenario(storyID).subscribe(scenario => {
+      expect(scenario).toEqual(newScenario)
     });
-  })
+
+    const request = httpMock.expectOne(service.apiServer + '/scenario/add/' + storyID);
+    expect(request.request.method).toBe('GET');
+    request.flush(newScenario);
+  });
+})
 
   describe('updateBackground', () => {
     it('should update Background', () => {
