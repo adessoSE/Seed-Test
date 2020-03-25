@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
-const path = require('path');
+const fetch = require('node-fetch');
 const mongo = require('./database/mongodatabase');
 
 const app = express();
@@ -35,17 +35,7 @@ app
     next();
   })
   .get('/api', (_, res) => {
-    // res.writeHead(200, { 'content-type': 'text/html' });
-    /*
-    res.write('<h1>Cucumber-API</h1>');
-    res.write('<h2>Check out our <a href="https://cucumber-app.herokuapp.com"title="https://cucumber-app.herokuapp.com">Seed-Test WebApp</a>.</h2>');
-    res.write('<h2>Or visit us on <a href="https://github.com/adessoCucumber/Cucumber"title="https://github.com/adessoCucumber/Cucumber">Github</a>'
-        + ' for further information.</h2>');
-    res.write('<h3>Happy Testing!</h3>');
-     */
     res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
-    // res.status(200);
-    // res.end();
   })
   /*
    * Scenarios API
@@ -65,12 +55,52 @@ app
     }
     const tmpStories = [];
     // get Issues from GitHub .
+    const headers = {
+      Authorization: `token ${token}`,
+    };
+    fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
+      .then((response) => {
+        if (response.status === 401) {
+          res.sendStatus(401);
+        }
+        if (response.status === 200) {
+          response.json().then((json) => {
+            for (const issue of json) {
+              // only relevant issues with label: "story"
+              const story = {
+                story_id: issue.id,
+                title: issue.title,
+                body: issue.body,
+                state: issue.state,
+                issue_number: issue.number,
+              };
+              if (issue.assignee !== null) { // skip in case of "unassigned"
+                story.assignee = issue.assignee.login;
+                story.assignee_avatar_url = issue.assignee.avatar_url;
+              } else {
+                story.assignee = 'unassigned';
+                story.assignee_avatar_url = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png';
+              }
+              tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+            }
+            Promise.all(tmpStories).then((results) => {
+              res.status(200).json(results);
+              stories = results; // need this to clear promises from the Story List
+            }).catch((e) => {
+              console.log(e);
+            });
+          });
+        }
+      })
+      .catch(err => console.log(err));
+    // ________________________
+    /*
     const request = new XMLHttpRequest();
     request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`);
     request.setRequestHeader('Authorization', `token ${token}`);
     request.send();
     request.onreadystatechange = function () {
-      if(this.readyState === 4 && this.status === 401){
+      if (this.readyState === 4 && this.status === 401) {
         res.sendStatus(401);
       }
       if (this.readyState === 4 && this.status === 200) {
@@ -101,6 +131,7 @@ app
         });
       }
     };
+    */
   })
 
   // update background
