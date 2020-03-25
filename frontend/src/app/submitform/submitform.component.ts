@@ -18,7 +18,7 @@ export class SubmitformComponent implements OnInit {
     }
 
     @Input()
-    set newform(form) {
+    set newform(form: string[]) {
         if (form !== undefined){
             this.showForm = true;
             this.form = form;

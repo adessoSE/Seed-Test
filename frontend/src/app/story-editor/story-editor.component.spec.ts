@@ -6,24 +6,26 @@ import { Story } from '../model/Story';
 import { of } from 'rxjs';
 import { StepType } from '../model/StepType';
 import { Scenario } from '../model/Scenario';
+import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
+import { ExampleTableComponent } from '../example-table/example-table.component';
 
 describe('StoryEditorComponent', () => {
   let component: StoryEditorComponent;
   let fixture: ComponentFixture<StoryEditorComponent>;
 
-  //beforeEach(async(() => {
-  //  TestBed.configureTestingModule({
-  //    declarations: [ StoryEditorComponent ]
-  //  })
-  //  .compileComponents();
-  //}));
-//
-  //beforeEach(() => {
-  //  fixture = TestBed.createComponent(StoryEditorComponent);
-  //  component = fixture.componentInstance;
-  //  fixture.detectChanges();
-  //});
-//
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ StoryEditorComponent, ScenarioEditorComponent, ExampleTableComponent ]
+    })
+    .compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(StoryEditorComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
   //it('should create', () => {
   //  expect(component).toBeTruthy();
   //});

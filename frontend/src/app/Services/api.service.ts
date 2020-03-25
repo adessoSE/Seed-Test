@@ -126,7 +126,6 @@ export class ApiService {
 
   public deleteBackground(storyID: number): Observable<any>  {
     this.apiServer = localStorage.getItem('url_backend');
-    console.log(this.apiServer + '/story/' + storyID + '/background/delete/')
     return this.http
         .delete<any>(this.apiServer + '/story/' + storyID + '/background/delete/')
         .pipe(tap(resp => {

@@ -58,10 +58,8 @@ export class StoryEditorComponent implements OnInit {
       this.stories = stories;
   }
 
-  @Input()
-  set newSelectedStory(story: Story) {
-      this.selectedStory = story;
-  }
+
+
 
   @Input()
   set newSelectedScenario(scenario: Scenario) {
@@ -69,6 +67,11 @@ export class StoryEditorComponent implements OnInit {
       if (this.selectedStory) {
           this.selectScenario(scenario);
       }
+  }
+
+  @Input()
+  set newSelectedStory(story: Story) {
+      this.selectedStory = story;
   }
 
   @Output()

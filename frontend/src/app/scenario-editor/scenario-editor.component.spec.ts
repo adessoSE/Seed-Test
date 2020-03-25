@@ -35,16 +35,19 @@ describe('ScenarioEditorComponent', () => {
     fixture.detectChanges();
   });
 
-  //it('should create url received', () => {
+  //it('should create', () => {
   //  expect(component).toBeTruthy();
-  //  if(component.apiService.urlReceived){
-  //    spy = spyOn(component.apiService, 'getBackendInfo');
-  //    expect(spy).toHaveBeenCalled();
-  //  } else{
-  //    spy = spyOn(component, 'loadStepTypes');
-  //    expect(spy).toHaveBeenCalled();
-  //  }
   //});
+
+   //it('should create url received', () => {
+   //  if(component.apiService.urlReceived){
+   //    spy = spyOn(component.apiService, 'getBackendInfo');
+   //    expect(spy).toHaveBeenCalled();
+   //  } else{
+   //    spy = spyOn(component, 'loadStepTypes');
+   //    expect(spy).toHaveBeenCalled();
+   //  }
+   //});
 
 
   //describe('removeRowIndex', () => {

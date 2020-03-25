@@ -47,12 +47,12 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     @Input()
-    set newSelectedStory(story: Story) {
+    set newlySelectedStory(story: Story) {
         this.selectedStory = story;
     }
 
     @Input()
-    set newSelectedScenario(scenario: Scenario) {
+    set newlySelectedScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
         if (this.selectedStory) {
             this.selectScenario(scenario);
