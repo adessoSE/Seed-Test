@@ -55,7 +55,7 @@ export class ScenarioEditorComponent implements OnInit {
     set newlySelectedScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
         if (this.selectedStory) {
-            this.selectScenario(scenario);
+           this.selectScenario(scenario);
         }
 
     }
@@ -70,8 +70,7 @@ export class ScenarioEditorComponent implements OnInit {
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
     @Output()
-    formtosubmit: EventEmitter<any> = new EventEmitter();
-
+    formtosubmit: EventEmitter<any> = new EventEmitter();   
     chooseform(list) {
         this.formtosubmit.emit(list);
     }
@@ -112,9 +111,10 @@ export class ScenarioEditorComponent implements OnInit {
 
 
     updateScenario(storyID: number) {
-        let steps = this.selectedScenario["stepDefinitions"]["given"];
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["when"]);
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["then"]);
+        let steps = this.selectedScenario.stepDefinitions["given"];
+        steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
+        steps = steps.concat(this.selectedScenario.stepDefinitions["then"]);
+        steps = steps.concat(this.selectedScenario.stepDefinitions["example"]);
 
         let undefined_steps = [];
         for (let i = 0; i < steps.length; i++) {
@@ -320,9 +320,12 @@ export class ScenarioEditorComponent implements OnInit {
 
     fillExamples(cutInput: string, step: StepType){
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
-
         for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
+            console.log('values ' + j + ' length: ')
+
             this.selectedScenario.stepDefinitions.example[j].values.push('value');
+            console.log('after push ' + j + ' length: ')
+
         }
         // if the table has no rows add a row
         if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
@@ -337,7 +340,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
     exampleHeaderChanged(input: string, step: StepType, valueIndex: number): boolean{
-        return step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
+        return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
     }
 
     renameScenario(event, name) {
@@ -408,7 +411,7 @@ export class ScenarioEditorComponent implements OnInit {
         return undefined_list;
     }
 
-    
+
     // To bypass call by reference of object properties
     // therefore new objects are created and not the existing object changed
     clone(obj) {
@@ -419,9 +422,6 @@ export class ScenarioEditorComponent implements OnInit {
         for (var key in obj) {
             temp[key] = this.clone(obj[key]);
         }
-
         return temp;
     }
-
-
-}
+}  

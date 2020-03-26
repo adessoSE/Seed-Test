@@ -13,7 +13,7 @@
         <br>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
-      <span id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
+      <span *ngIf="this.selectedScenario" id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
         title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
       <div id="buttonGroupScenario" class="uk-align-right">
@@ -34,9 +34,10 @@
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>
-
+  
     <div class="uk-card-title padding">
-      <div *ngFor="let sd of getKeysList(selectedScenario.stepDefinitions);let i = index;">
+      <div *ngIf="this.selectedScenario">
+      <div *ngFor="let sd of getKeysList(this.selectedScenario.stepDefinitions);let i = index;">
         <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
         <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
         <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
@@ -84,15 +85,16 @@
           <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
         </ng-template>
       </div>
+      </div>
       <br>
       <div>
           <label>Comment</label><br>
-          <textarea cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
+          <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
           </textarea>
       </div>
       <br>
       <!--Buttons Run Szenario-->
-      <div class="uk-card-footer">
+     <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
          <button id="run_scenario" class="uk-button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTestScenario(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
             Run Scenario</button>
@@ -111,7 +113,7 @@
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
       <h2>Change Scenario Title</h2>
-      <input id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
+      <input *ngIf="this.selectedScenario" id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
       <p class="uk-text-right">
         <button id="change_scenario_title_cancel" class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
         <button id="change_scenario_title_save" class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)"
