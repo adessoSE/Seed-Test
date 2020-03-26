@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { XMLHttpRequest } = require('xmlhttprequest');
+// const { XMLHttpRequest } = require('xmlhttprequest');
 const process = require('process');
 const fetch = require('node-fetch');
 const mongo = require('./database/mongodatabase');
@@ -10,6 +10,8 @@ const app = express();
 const helper = require('./serverHelper');
 
 let stories = [];
+
+const unassignedAvatarLink = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png';
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
@@ -79,7 +81,7 @@ app
                 story.assignee_avatar_url = issue.assignee.avatar_url;
               } else {
                 story.assignee = 'unassigned';
-                story.assignee_avatar_url = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png';
+                story.assignee_avatar_url = unassignedAvatarLink;
               }
               tmpStories.push(helper.fuseGitWithDb(story, issue.id));
             }

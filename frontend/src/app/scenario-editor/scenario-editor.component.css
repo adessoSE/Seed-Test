@@ -205,6 +205,13 @@
   transition: 0.3
 }
 
+
+.dropdownStep_undefined{
+  color: red;
+  cursor: pointer;
+  transition: 0.3
+}
+
 .dropdownStep:hover {
     color: gray;
   }

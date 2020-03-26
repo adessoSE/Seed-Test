@@ -13,7 +13,7 @@
 <div class="emptyStories" *ngIf="storiesError">
   <h1>You are not authorized to use this repository</h1>
 </div>
-
+<app-submitform #submitForm></app-submitform>
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
@@ -71,7 +71,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let i = index" >
-                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
+                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when' && step.type !== 'Undefined Step'"  (click)="addStepToBackground(selectedStory.story_id,step);"
                   href="#">{{step.type}}</a>
               </li>
             </ul>
@@ -163,7 +163,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span class="dropdownStep" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd " (click)="addStepToScenario(selectedStory.story_id,step);"
+                <span [ngClass]="(step.type !== 'Undefined Step')?'dropdownStep' : 'dropdownStep_undefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
                   href="#">{{step.type}}</span>
               </li>
             </ul>

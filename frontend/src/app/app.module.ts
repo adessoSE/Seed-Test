@@ -20,7 +20,7 @@ import {EditModeDirective} from './editable/edit-mode.directive';
 import {EditableOnEnterDirective} from './editable/edit-on-enter.directive';
 import {FocusableDirective} from './example-table/focusable.directive';
 import {DragDropModule} from '@angular/cdk/drag-drop';
-
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
@@ -44,6 +44,7 @@ import { SubmitformComponent } from './submitform/submitform.component';
     SubmitformComponent
   ],
   imports: [
+      NgbModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
