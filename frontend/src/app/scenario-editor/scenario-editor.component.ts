@@ -295,6 +295,7 @@ export class ScenarioEditorComponent implements OnInit {
             this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
             return;
         }else {
+        // for first example creates 2 steps
             if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
                 this.createFirstExample(cutInput, step);
             } else {
@@ -302,7 +303,6 @@ export class ScenarioEditorComponent implements OnInit {
                 this.fillExamples(cutInput, step);
             }
         }
-        // for first example creates 2 steps
 
         this.exampleChild.updateTable();
     }
@@ -320,20 +320,19 @@ export class ScenarioEditorComponent implements OnInit {
 
     fillExamples(cutInput: string, step: StepType){
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
-        for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
-            console.log('values ' + j + ' length: ')
-
-            this.selectedScenario.stepDefinitions.example[j].values.push('value');
-            console.log('after push ' + j + ' length: ')
-
-        }
         // if the table has no rows add a row
+
         if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
             let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
             this.selectedScenario.stepDefinitions.example.push(newStep);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
             for (let j = 1; j < len; j++) {
                 this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+
+            }
+        }else {
+            for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
+                this.selectedScenario.stepDefinitions.example[j].values.push('value');
             }
         }
     }
