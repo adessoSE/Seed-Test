@@ -207,7 +207,7 @@
 
 
 .dropdownStep_undefined{
-  color: red;
+  color: #000080;
   cursor: pointer;
   transition: 0.3
 }

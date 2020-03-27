@@ -39,6 +39,7 @@ export class ScenarioEditorComponent implements OnInit {
     htmlReport;
     storiesLoaded = false;
     storiesError = false;
+    newStepName = 'New Step';
 
     @ViewChild('exampleChildView') exampleChild;
 
@@ -148,21 +149,6 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     updateScenario(storyID) {
-        let steps = this.selectedScenario["stepDefinitions"]["given"];
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["when"]);
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["then"]);
-
-        let undefined_steps = [];
-        for (let i = 0; i < steps.length; i++) {
-            if (String(steps[i]["type"]).includes("Undefined Step")) {
-                undefined_steps = undefined_steps.concat(steps[i]);
-            }
-        }
-
-        if (undefined_steps.length != 0) {
-            console.log("There are undefined steps here");
-        }
-
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
             .subscribe(resp => {
@@ -224,7 +210,7 @@ export class ScenarioEditorComponent implements OnInit {
     addStepToScenario(storyID, step) {
         const obj = this.clone(step);
         /*if (!this.editorLocked) {*/
-        if (obj['type'] === 'Undefined Step') {
+        if (obj['type'] === this.newStepName) {
             this.modalService.open(obj['stepType']);
         } else {
             const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
@@ -486,34 +472,6 @@ export class ScenarioEditorComponent implements OnInit {
         if (this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined) {
             this.selectScenario(null, this.stories[storyIndex].scenarios[scenarioIndex + 1]);
         }
-    }
-
-    undefined_definition(definition){
-        let undefined_list = [];
-        if(definition !== undefined){
-            let given = definition["given"];
-            for(let key in given){
-                let obj = given[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-            let then = definition["then"];
-            for(let key in then){
-                let obj = then[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-            let when = definition["when"];
-            for(let key in when){
-                let obj = when[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-        }
-        return undefined_list;
     }
 
     // Make the API Request to run the tests and display the results as a chart
