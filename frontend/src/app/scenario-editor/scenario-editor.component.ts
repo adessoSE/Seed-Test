@@ -6,6 +6,7 @@ import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
+import { ExampleTableComponent } from '../example-table/example-table.component';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class ScenarioEditorComponent implements OnInit {
     arrowRight = true;
     uncutInputs: string[] = [];
 
-    @ViewChild('exampleChildView') exampleChild;
+    @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
 
     constructor(
         public apiService: ApiService,
@@ -258,20 +259,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
-        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
-    }
-
-    inputHasExample(input: string): boolean{
-        return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input)
-    }
-
-    createExample(input: string, step: StepType, valueIndex: number){
-        this.uncutInputs.push(input);
-        const cutInput = input.substr(1, input.length - 2);
-        this.handleExamples(input, cutInput, step, valueIndex);
-    }
-
     removeExample(step: StepType, valueIndex: number){
         const cutOld = step.values[valueIndex].substr(1, step.values[valueIndex].length - 2);
         this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]), 1);
@@ -288,14 +275,28 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
+    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
+        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
+    }
+
+    inputHasExample(input: string): boolean{
+        return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input)
+    }
+
+
+    createExample(input: string, step: StepType, valueIndex: number){
+        const cutInput = input.substr(1, input.length - 2);
+        this.handleExamples(input, cutInput, step, valueIndex);
+    }
 
     handleExamples(input: string, cutInput: string, step: StepType, valueIndex: number) {
         // changes example header name if the name is just changed in step
         if (this.exampleHeaderChanged(input, step, valueIndex)) {
+            this.uncutInputs[this.uncutInputs.indexOf(step.values[valueIndex])] = input;
             this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
-            return;
         }else {
-        // for first example creates 2 steps
+            this.uncutInputs.push(input);
+            // for first example creates 2 steps
             if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
                 this.createFirstExample(cutInput, step);
             } else {
@@ -303,8 +304,8 @@ export class ScenarioEditorComponent implements OnInit {
                 this.fillExamples(cutInput, step);
             }
         }
-
         this.exampleChild.updateTable();
+
     }
 
     createFirstExample(cutInput: string, step: StepType){
@@ -342,7 +343,7 @@ export class ScenarioEditorComponent implements OnInit {
         return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
     }
 
-    renameScenario(event, name) {
+    renameScenario(event, name: string) {
         if (name) {
             this.selectedScenario.name = name;
         }
