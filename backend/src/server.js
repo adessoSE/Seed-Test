@@ -149,6 +149,21 @@ app
     });
   })
 
+  .post('/api/submitIssue/', (req, res) => {
+    const { body } = req;
+    const token = process.env.TESTACCOUNT_TOKEN;
+    fetch('https://api.github.com/repos/adessoAG/Seed-Test/issues', {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: { Authorization: `token ${token}` },
+    })
+      .then(response => response.json())
+      .then((json) => {
+        console.log(json);
+        res.status(200).json(json);
+      });
+  })
+
   // delete background
   .delete('/api/story/:issueID/background/delete/', (req, res) => {
     mongo.deleteBackground(parseInt(req.params.issueID, 10), (result) => {

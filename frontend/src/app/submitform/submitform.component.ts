@@ -43,7 +43,7 @@ export class SubmitformComponent {
             ]
         };
 
-        this.apiService.submitgithub(obj).subscribe((resp) => {
+        this.apiService.submitGithub(obj).subscribe((resp) => {
             console.log(resp);
         });
 
