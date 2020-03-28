@@ -95,45 +95,6 @@ app
         }
       })
       .catch(err => console.log(err));
-    // ________________________
-    /*
-    const request = new XMLHttpRequest();
-    request.open('GET', `https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`);
-    request.setRequestHeader('Authorization', `token ${token}`);
-    request.send();
-    request.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 401) {
-        res.sendStatus(401);
-      }
-      if (this.readyState === 4 && this.status === 200) {
-        const data = JSON.parse(request.responseText);
-        for (const issue of data) {
-          // only relevant issues with label: "story"
-          const story = {
-            story_id: issue.id,
-            title: issue.title,
-            body: issue.body,
-            state: issue.state,
-            issue_number: issue.number,
-          };
-          if (issue.assignee !== null) { // skip in case of "unassigned"
-            story.assignee = issue.assignee.login;
-            story.assignee_avatar_url = issue.assignee.avatar_url;
-          } else {
-            story.assignee = 'unassigned';
-            story.assignee_avatar_url = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png';
-          }
-          tmpStories.push(helper.fuseGitWithDb(story, issue.id));
-        }
-        Promise.all(tmpStories).then((results) => {
-          res.status(200).json(results);
-          stories = results; // need this to clear promises from the Story List
-        }).catch((e) => {
-          console.log(e);
-        });
-      }
-    };
-    */
   })
 
   // update background
