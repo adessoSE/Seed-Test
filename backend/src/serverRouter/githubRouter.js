@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 const helper = require('../serverHelper');
 
 const router = express.Router();
-const unassignedAvatarLink = 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png';
+const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 // router for all github requests
 router
   .use(cors())
