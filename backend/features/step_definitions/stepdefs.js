@@ -89,14 +89,6 @@ When('I select from the {string} multiple selection, the values {string}{string}
 });
 
 // ################### THEN ##########################################
-// Search a textfield in the html code and asert it with a Text
-Then('So I can see the text {string} in the textbox: {string}', async (string, label) => {
-  await driver.wait(until.elementLocated(By.xpath(`${"//*[@*'='"}${label}']`)), 3 * 1000).then(async (link) => {
-    const resp = await link.getText().then(text => text);
-    expect(string).to.equal(resp, 'Error');
-  });
-});
-
 // Checks if the current Website is the one it is suposed to be
 Then('So I will be navigated to the website: {string}', async (url) => {
   await driver.getCurrentUrl().then(async (currentUrl) => {
@@ -104,13 +96,31 @@ Then('So I will be navigated to the website: {string}', async (url) => {
   });
 });
 
-Then('So I can´t see text in the textbox: {string} anymore', async (label) => {
+// Search a textfield in the html code and assert it with a Text
+Then('So I can see the text {string} in the textbox: {string}', async (string, label) => {
+  await driver.wait(until.elementLocated(By.xpath(`${"//*[@*'='"}${label}']`)), 3 * 1000).then(async (link) => {
+    const resp = await link.getText().then(text => text);
+    expect(string).to.equal(resp, 'Error');
+  });
+});
+
+// Search if a is text in html code
+Then('So I can see the text: {string}', async (string) => {
+  await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
+    const text = await body.getText().then(bodytext => bodytext);
+    expect(text.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
+  });
+});
+
+// Search a textfield in the html code and assert if it's empty
+Then('So I can´t see text in the textbox: {string}', async (label) => {
   await driver.wait(until.elementLocated(By.xpath(`${"//*[@*'='"}${label}']`)), 3 * 1000).then(async (link) => {
     const resp = await link.getText().then(text => text);
     expect('').to.equal(resp, 'Error');
   });
 });
 
+// Search if a text isn'T in html code
 Then('So I can\'t see the text: {string}', async (string) => {
   await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
     const text = await body.getText().then(bodytext => bodytext);
