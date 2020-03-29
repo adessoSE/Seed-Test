@@ -8,6 +8,7 @@ import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
+import {SubmitformComponent} from '../submitform/submitform.component';
 
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
@@ -19,6 +20,7 @@ const emptyBackground = {name, stepDefinitions: {when: []}};
 
 export class ScenarioEditorComponent implements OnInit {
 
+    @ViewChild('submitForm') modalService: SubmitformComponent;
     stories: Story[];
     originalStepTypes: StepType[];
     selectedStory: Story;
@@ -36,6 +38,8 @@ export class ScenarioEditorComponent implements OnInit {
     uncutInputs: string[] = [];
     htmlReport;
     storiesLoaded = false;
+    storiesError = false;
+    newStepName = 'New Step';
 
     @ViewChild('exampleChildView') exampleChild;
 
@@ -44,8 +48,13 @@ export class ScenarioEditorComponent implements OnInit {
     ) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.storiesLoaded = true;
+            this.storiesError = false;
             this.showEditor = false;
             this.setStories(stories);
+        });
+        this.apiService.storiesErrorEvent.subscribe(errorCode => {
+            this.storiesError = true;
+            this.showEditor = false;
         });
         this.apiService.getBackendUrlEvent.subscribe(() => {
             this.loadStepTypes();
@@ -55,7 +64,6 @@ export class ScenarioEditorComponent implements OnInit {
             this.loadStepTypes();
         }
     }
-
 
     ngOnInit() {
     }
@@ -81,13 +89,6 @@ export class ScenarioEditorComponent implements OnInit {
             this.selectScenario(null, scenario);
         }
 
-    }
-
-    @Output()
-    formtosubmit: EventEmitter<any> = new EventEmitter();
-
-    chooseform(list) {
-        this.formtosubmit.emit(list);
     }
 
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
@@ -148,21 +149,6 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     updateScenario(storyID) {
-        let steps = this.selectedScenario["stepDefinitions"]["given"];
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["when"]);
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["then"]);
-
-        let undefined_steps = [];
-        for (let i = 0; i < steps.length; i++) {
-            if (String(steps[i]["type"]).includes("Undefined Step")) {
-                undefined_steps = undefined_steps.concat(steps[i]);
-            }
-        }
-
-        if (undefined_steps.length != 0) {
-            console.log("There are undefined steps here");
-        }
-
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
             .subscribe(resp => {
@@ -224,37 +210,42 @@ export class ScenarioEditorComponent implements OnInit {
     addStepToScenario(storyID, step) {
         const obj = this.clone(step);
         /*if (!this.editorLocked) {*/
-        const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
-        const new_step = {
-            id: new_id,
-            mid: obj.mid,
-            pre: obj.pre,
-            stepType: obj.stepType,
-            type: obj.type,
-            values: obj.values
-        };
-        switch (new_step.stepType) {
-            case 'given':
-                this.selectedScenario.stepDefinitions.given.push(new_step);
-                break;
-            case 'when':
-                this.selectedScenario.stepDefinitions.when.push(new_step);
-                break;
-            case 'then':
-                this.selectedScenario.stepDefinitions.then.push(new_step);
-                break;
-            case 'example':
-                if (this.selectedScenario.stepDefinitions.example.length > 0) {
-                    this.addStep(step);
-                    const len = this.selectedScenario.stepDefinitions.example[0].values.length;
-                    for (let j = 1; j < len; j++) {
-                        this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+        if (obj['type'] === this.newStepName) {
+            this.modalService.open(obj['stepType']);
+        } else {
+            const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, obj.stepType) + 1;
+            const new_step = {
+                id: new_id,
+                mid: obj.mid,
+                pre: obj.pre,
+                stepType: obj.stepType,
+                type: obj.type,
+                values: obj.values
+            };
+            switch (new_step.stepType) {
+                case 'given':
+                    this.selectedScenario.stepDefinitions.given.push(new_step);
+                    break;
+                case 'when':
+                    this.selectedScenario.stepDefinitions.when.push(new_step);
+                    break;
+                case 'then':
+                    this.selectedScenario.stepDefinitions.then.push(new_step);
+                    break;
+                case 'example':
+                    if (this.selectedScenario.stepDefinitions.example.length > 0) {
+                        this.addStep(step);
+                        const len = this.selectedScenario.stepDefinitions.example[0].values.length;
+                        for (let j = 1; j < len; j++) {
+                            this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1]
+                                .values.push('value');
+                        }
+                        this.exampleChild.updateTable();
                     }
-                    this.exampleChild.updateTable();
-                }
-                break;
-            default:
-                break;
+                    break;
+                default:
+                    break;
+            }
         }
         /*}*/
     }
@@ -483,43 +474,8 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    undefined_definition(definition){
-        let undefined_list = [];
-        if(definition !== undefined){
-            let given = definition["given"];
-            for(let key in given){
-                let obj = given[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-            let then = definition["then"];
-            for(let key in then){
-                let obj = then[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-            let when = definition["when"];
-            for(let key in when){
-                let obj = when[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-        }
-        return undefined_list;
-    }
-
     // Make the API Request to run the tests and display the results as a chart
     runTests(story_id, scenario_id, callback) {
-        let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
-
-
-        if(undefined_list.length > 0){
-            this.chooseform(undefined_list);
-        }
-        else {
             this.testRunning = true;
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
@@ -537,8 +493,6 @@ export class ScenarioEditorComponent implements OnInit {
                         iframe.scrollIntoView();
                     }, 10);
                 });
-        }
-
     }
 
     downloadFile() {

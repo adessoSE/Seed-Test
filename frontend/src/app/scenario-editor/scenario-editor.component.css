@@ -21,7 +21,9 @@
 .def {
 	color: #999;
 	cursor: help;
-	position: relative;
+  position: relative;
+  font-size: 20px;
+  font-weight: lighter;
 }
 
 .def span[rel=def] {
@@ -42,15 +44,30 @@
 
 #scenario{
   border: 1px solid #999;
+
 }
 
 
 #scenarioTitle{
   color: #56595e;
+  font-weight: bold;
 }
 
 #story{
   border: 1px solid #999;
+  font-weight: bold;
+}
+
+#storyHeader{
+  color: #999;
+  float: left;
+  font-size: 20px;
+}
+
+#scenarioHeader{
+  color: #999;
+  float: left;
+  font-size: 20px;
 }
 
 #submitWarningHeader{
@@ -60,8 +77,13 @@
 
 #infoIcon{
   color: #999;
-  padding-top: 3px;
-  margin-left: 7px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.uk-card-title {
+  font-size: medium;
+  font-weight: bold;
 }
 
 #submitWarning{
@@ -183,6 +205,13 @@
   transition: 0.3
 }
 
+
+.dropdownStep_undefined{
+  color: #000080;
+  cursor: pointer;
+  transition: 0.3
+}
+
 .dropdownStep:hover {
     color: gray;
   }
@@ -205,11 +234,6 @@
   font-weight:normal;
 }
 
-.uk-card-title {
-  font-size: medium;
-  font-weight: bold;
-}
-
 .uk-card-footer{
   padding-bottom: 0;
 }
@@ -230,6 +254,7 @@
 .descriptionText{
   padding-left:40px;
   padding-bottom: 20px;
+  font-weight: lighter;
 }
 
 .backgroundItems{

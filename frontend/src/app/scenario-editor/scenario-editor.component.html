@@ -1,20 +1,25 @@
 <br>
-<div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded">
+<div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1>No Stories Yet In This Repository</h1>
   <p>Find out how to create stories</p>
   <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
   <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
 </div>
 
-<div class="emptyStories" *ngIf="!storiesLoaded">
+<div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
   <h1>Loading Stories ...</h1>
 </div>
+
+<div class="emptyStories" *ngIf="storiesError">
+  <h1>You are not authorized to use this repository</h1>
+</div>
+<app-submitform #submitForm></app-submitform>
 <div *ngIf="stories">
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
     <div class="uk-card uk-card-default padding" id="story">
-      <div class="uk-card-title">
-          <h4 id="storyheader">Story</h4>
+      <div>
+        <span id="storyHeader">Story</span>
           <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
               <span rel="def">A user story describes requirements for a software system.
                 It is consciously kept in short sentences and simple words.
@@ -22,10 +27,7 @@
                 The following template is recommended:
                 As a <...>, I want <...> so that <...>
               </span></dfn>
-              <br>
         <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
-        <div class="uk-button-group uk-align-right ">
-        </div>
       </div>
       <br>
       <!--Description-->
@@ -69,7 +71,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let i = index" >
-                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
+                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when' && step.type !== this.newStepName"  (click)="addStepToBackground(selectedStory.story_id,step);"
                   href="#">{{step.type}}</a>
               </li>
             </ul>
@@ -114,8 +116,8 @@
     <br>
   <!--Scenario Header-->
   <div class="uk-card uk-card-default padding" id="scenario">
-    <div class="uk-card-title">
-        <h4 id="scenarioheader">Scenario</h4>
+    <div>
+      <span id="scenarioHeader">Scenario</span>
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
               It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -124,7 +126,6 @@
                    When (action) and
                    Then (desired result)
                   </span></dfn>
-        <br>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
       <span id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
@@ -162,7 +163,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span class="dropdownStep" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd " (click)="addStepToScenario(selectedStory.story_id,step);"
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStep_undefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
                   href="#">{{step.type}}</span>
               </li>
             </ul>

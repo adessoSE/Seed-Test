@@ -31,13 +31,13 @@ const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 
 
 // only displays mid text and additional space if length not null
-//function midNotEmpty(values) {
+// function midNotEmpty(values) {
 //  console.log('midNotEmpty: ' + JSON.stringify(values))
 //  if (values.length === 0) {
 //    return '';
 //  }
 //  return `${values} `;
-//}
+// }
 
 // adds content of each values to output
 function getValues(values) {
@@ -172,12 +172,7 @@ function updateFeatureFile(issueID) {
   });
 }
 
-
-function execReport(req, res, stories, mode, callback) {
-  mongo.getOneStory(parseInt(req.params.issueID, 10), result => execReport2(req, res, stories, mode, result, callback));
-}
-
-function execReport2(req, res, stories,mode, story, callback){
+function execReport2(req, res, stories, mode, story, callback) {
   const reportTime = Date.now();
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
@@ -202,6 +197,12 @@ function execReport2(req, res, stories,mode, story, callback){
     callback(reportTime);
   });
 }
+
+function execReport(req, res, stories, mode, callback) {
+  mongo.getOneStory(parseInt(req.params.issueID, 10),
+    result => execReport2(req, res, stories, mode, result, callback));
+}
+
 
 function setOptions(reportTime) {
   const OSName = process.platform;
@@ -256,7 +257,6 @@ function fuseGitWithDb(story, issueId) {
       mongo.upsertEntry('ChrisPlayground', story.story_id, story);
       writeFile('', story); // Create & Update Feature Files
       resolve(story);
-      // TODO: delete stories and save some storage
     });
   });
 }
