@@ -22,26 +22,25 @@ router
     next();
   });
 // get steptypes from mongo
-router.get('/stepTypes', (_, res) => {
-  mongo.showSteptypes((result) => {
-    res.status(200).json(result);
-  });
+router.get('/stepTypes', async (_, res) => {
+  let result = await mongo.showSteptypes()
+  res.status(200).json(result);
 });
+
 // update background
-router.post('/background/update/:issueID', (req, res) => {
+router.post('/background/update/:issueID', async (req, res) => {
   const background = req.body;
-  mongo.updateBackground(parseInt(req.params.issueID, 10), background, (result) => {
-    if (typeof (result) === 'string') {
-      handleError(res, result, result, 500);
-    } else {
-      helper.updateFeatureFile(parseInt(req.params.issueID, 10));
-      res.status(200).json(result);
-    }
-  });
+  let result = await mongo.updateBackground(parseInt(req.params.issueID, 10), background)
+  if (typeof (result) === 'string') {
+    handleError(res, result, result, 500);
+  } else {
+    helper.updateFeatureFile(parseInt(req.params.issueID, 10));
+    res.status(200).json(result);
+  }
 });
 // delete background
-router.delete('/background/delete/:issueID/', (req, res) => {
-  mongo.deleteBackground(parseInt(req.params.issueID, 10), (result) => {
+router.delete('/background/delete/:issueID/', async (req, res) => {
+  let result = await mongo.deleteBackground(parseInt(req.params.issueID, 10))
     if (typeof (result) === 'string') {
       handleError(res, result, result, 500);
     } else {
@@ -49,10 +48,9 @@ router.delete('/background/delete/:issueID/', (req, res) => {
       res.status(200).json({});
     }
   });
-});
 // create scenario
-router.get('/scenario/add/:issueID', (req, res) => {
-  mongo.createScenario(parseInt(req.params.issueID, 10), (scenario) => {
+router.get('/scenario/add/:issueID', async (req, res) => {
+  let scenario = await mongo.createScenario(parseInt(req.params.issueID, 10))
     if (typeof (scenario) === 'string') {
       handleError(res, scenario, scenario, 500);
     } else {
@@ -60,11 +58,10 @@ router.get('/scenario/add/:issueID', (req, res) => {
       res.status(200).json(scenario);
     }
   });
-});
 // update scenario
-router.post('/scenario/update/:issueID', (req, res) => {
+router.post('/scenario/update/:issueID', async (req, res) => {
   const scenario = req.body;
-  mongo.updateScenario(parseInt(req.params.issueID, 10), scenario, (updatedStory) => {
+  let updatedStory = await mongo.updateScenario(parseInt(req.params.issueID, 10), scenario)
     if (typeof (updatedStory) === 'string') {
       handleError(res, updatedStory, updatedStory, 500);
     } else {
@@ -72,9 +69,8 @@ router.post('/scenario/update/:issueID', (req, res) => {
       res.status(200).json(updatedStory);
     }
   });
-});
 // delete scenario
-router.delete('/scenario/delete/:issueID/:scenarioID', (req, res) => {
+router.delete('/scenario/delete/:issueID/:scenarioID', async (req, res) => {
   mongo.deleteScenario(parseInt(req.params.issueID, 10),
     parseInt(req.params.scenarioID, 10), (result) => {
       if (typeof (result) === 'string') {
