@@ -38,7 +38,7 @@ function selectCollection(db) {
 function findStory(storyID, collection) {
   const myObjt = { story_id: storyID };
   return new Promise((resolve, reject) => {
-    collection.findOne((myObjt), (err, result) => {
+    collection.findOne(myObjt, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -48,9 +48,10 @@ function findStory(storyID, collection) {
   })
 }
 
-function replace(story, collection) {
+function replace(storyID, story, collection) {
+  const myObjt = { story_id: storyID };
   return new Promise((resolve, reject) => {
-    collection.findOneAndReplace((myObjt, story), (err, result) => {
+    collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -97,7 +98,7 @@ function replace(story, collection) {
 async function getOneStory(storyID) {
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let story = findStory(storyID, collection)
+  let story = await findStory(storyID, collection)
   db.close()
   return story
 }
@@ -130,10 +131,10 @@ async function showSteptypes() {
 async function createBackground(storyID) {
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let story = findStory(storyID, collection)
+  let story = await findStory(storyID, collection)
   const tmpBackground = emptyBackground();
   story.background = tmpBackground;
-  let result = await replace(story, collection)
+  let result = await replace(storyID, story, collection)
   db.close()
   return result
 }
@@ -142,9 +143,9 @@ async function createBackground(storyID) {
 async function updateBackground(storyID, updatedBackground) {
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let story = findStory(storyID, collection)
+  let story = await findStory(storyID, collection)
   story.background = updatedBackground;
-  let result = await replace(story, collection)
+  let result = await replace(storyID, story, collection)
   db.close()
   return result
 }
@@ -153,9 +154,9 @@ async function updateBackground(storyID, updatedBackground) {
 async function deleteBackground(storyID) {
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let story = findStory(storyID, collection)
+  let story = await findStory(storyID, collection)
   story.background = emptyBackground();
-  let result = await replace(story, collection)
+  let result = await replace(storyID, story, collection)
   db.close()
   return result
 }
@@ -164,7 +165,7 @@ async function deleteBackground(storyID) {
 async function createScenario(storyID) {
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let story = findStory(storyID, collection)
+  let story = await findStory(storyID, collection)
   const lastScenarioIndex = story.scenarios.length;
   const tmpScenario = emptyScenario();
   if (story.scenarios.length === 0) {
@@ -173,7 +174,7 @@ async function createScenario(storyID) {
     tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
     story.scenarios.push(tmpScenario);
   }
-  let result = await replace(story, collection)
+  let result = await replace(storyID, story, collection)
   db.close()
   return result
 }
@@ -184,13 +185,13 @@ async function createScenario(storyID) {
 async function deleteScenario(storyID, scenarioID) {
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let story = findStory(storyID, collection)
+  let story = await findStory(storyID, collection)
   for (let i = 0; i < story.scenarios.length; i++) {
     if (story.scenarios[i].scenario_id === scenarioID) {
       story.scenarios.splice(i, 1);
     }
   }
-  let result = await replace(story, collection)
+  let result = await replace(storyID, story, collection)
   db.close()
   return result
 }
@@ -199,7 +200,7 @@ async function deleteScenario(storyID, scenarioID) {
 async function updateScenario(storyID, updatedScenario) {
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let story = findStory(storyID, collection)
+  let story = await findStory(storyID, collection)
   for (const scenario of story.scenarios) {
     if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
       story.scenarios.push(scenario);
@@ -210,7 +211,7 @@ async function updateScenario(storyID, updatedScenario) {
       break;
     }
   }
-  let result = await replace(story, collection)
+  let result = await replace(storyID, story, collection)
   db.close()
   return result
 }
@@ -219,8 +220,7 @@ async function upsertEntry(storyID, updatedContent) {
   const myObjt = { story_id: storyID };
   let db = await connectDb()
   let collection = await selectCollection(db)
-  let dbo = db.db('Seed')
-  dbo.collection(collection).findOneAndUpdate(myObjt, { $set: updatedContent }, {
+  collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
     returnOriginal: false,
     upsert: true,
   }, (error) => {

@@ -158,18 +158,17 @@ function getFeatureContent(story) {
 function writeFile(__dirname, selectedStory) {
   fs.writeFile(path.join(__dirname, 'features',
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
-    if (err) throw err;
-  });
+      if (err) throw err;
+    });
 }
 
 
 // Updates feature file based on story_id
-function updateFeatureFile(issueID) {
-  mongo.getOneStory(issueID, (result) => {
+async function updateFeatureFile(issueID) {
+ let result = await mongo.getOneStory(issueID)
     if (result != null) {
       writeFile('', result);
     }
-  });
 }
 
 function execReport2(req, res, stories, mode, story, callback) {
@@ -198,9 +197,9 @@ function execReport2(req, res, stories, mode, story, callback) {
   });
 }
 
-function execReport(req, res, stories, mode, callback) {
-  mongo.getOneStory(parseInt(req.params.issueID, 10),
-    result => execReport2(req, res, stories, mode, result, callback));
+async function execReport(req, res, stories, mode, callback) {
+  let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
+  xecReport2(req, res, stories, mode, result, callback)
 }
 
 
@@ -244,21 +243,18 @@ function starredRepositories(user, token) {
   return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
 }
 
-function fuseGitWithDb(story, issueId) {
-  return new Promise((resolve) => {
-    mongo.getOneStory(issueId, (result) => {
-      if (result !== null) {
-        story.scenarios = result.scenarios;
-        story.background = result.background;
-      } else {
-        story.scenarios = [emptyScenario()];
-        story.background = emptyBackground();
-      }
-      mongo.upsertEntry('ChrisPlayground', story.story_id, story);
-      writeFile('', story); // Create & Update Feature Files
-      resolve(story);
-    });
-  });
+async function fuseGitWithDb(story, issueId) {
+  let result = await mongo.getOneStory(issueId)
+  if (result !== null) {
+    story.scenarios = result.scenarios;
+    story.background = result.background;
+  } else {
+    story.scenarios = [emptyScenario()];
+    story.background = emptyBackground();
+  }
+  mongo.upsertEntry(story.story_id, story);
+  writeFile('', story); // Create & Update Feature Files
+  return story
 }
 
 function deleteJsonReport(jsonReport) {
