@@ -19,7 +19,7 @@ import {EditModeDirective} from './directives/edit-mode.directive';
 import {EditableOnEnterDirective} from './directives/edit-on-enter.directive';
 import {FocusableDirective} from './example-table/focusable.directive';
 import {DragDropModule} from '@angular/cdk/drag-drop';
-
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
@@ -44,6 +44,7 @@ import { StoryEditorComponent } from './story-editor/story-editor.component';
     StoryEditorComponent
   ],
   imports: [
+      NgbModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,

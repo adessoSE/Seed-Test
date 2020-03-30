@@ -1,7 +1,7 @@
   <!--Scenario Header-->
   <div class="uk-card uk-card-default padding" id="scenario">
-    <div class="uk-card-title">
-        <h4 id="scenarioheader">Scenario</h4>
+    <div>
+      <span id="scenarioHeader">Scenario</span>
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
               It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -10,7 +10,6 @@
                    When (action) and
                    Then (desired result)
                   </span></dfn>
-        <br>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
       <span *ngIf="this.selectedScenario" id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
@@ -49,7 +48,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span class="dropdownStep" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd " (click)="addStepToScenario(selectedStory.story_id,step);"
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStep_undefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
                   href="#">{{step.type}}</span>
               </li>
             </ul>

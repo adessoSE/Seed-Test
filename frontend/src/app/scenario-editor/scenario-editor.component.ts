@@ -38,7 +38,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-
     ngOnInit() {
     }
 
@@ -127,7 +126,7 @@ export class ScenarioEditorComponent implements OnInit {
         if (undefined_steps.length != 0) {
             console.log("There are undefined steps here");
         }
-
+      
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
             .subscribe(resp => {
