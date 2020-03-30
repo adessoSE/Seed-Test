@@ -30,9 +30,9 @@ export class ApiService {
           repoToken = '';
         }
         this.apiServer = localStorage.getItem('url_backend');
-
-        let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
-
+      
+        const str = this.apiServer + '/github/repositories/' + githubName + '/' + repoToken; 
+        
         return this.http.get<string[]>(str)
           .pipe(tap(resp => {}),
             catchError(this.handleError));

@@ -33,6 +33,7 @@ export class StoryEditorComponent implements OnInit {
   htmlReport;
   storiesLoaded = false;
   storiesError = false;
+  newStepName= 'New Step';
 
   @ViewChild('exampleChildView') exampleChild;
 

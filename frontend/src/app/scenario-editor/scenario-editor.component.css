@@ -22,11 +22,17 @@
   display: block;
 }
 
+
+
 #scenario{
   border: 1px solid #999;
 
 }
 
+.uk-card-title {
+  font-size: medium;
+  font-weight: bold;
+}
 
 #scenarioTitle{
   color: #56595e;
@@ -114,21 +120,17 @@
 
 .dropdownStep{
   color:#0099CC;
-  cursor: pointer;
-  transition: 0.3
-}
-
-
+  cursor: pointer;
+}  
+  
 .dropdownStep_undefined{
-  color: #000080;
-  cursor: pointer;
-  transition: 0.3
+  color: #000080;
+  cursor: pointer;
 }
 
 .dropdownStep:hover {
     color: gray;
   }
-
 .addStepButtons{
   color: rgba(7, 142, 187, 0.733);
 }

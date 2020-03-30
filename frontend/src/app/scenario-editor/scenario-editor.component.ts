@@ -7,6 +7,7 @@ import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
+import { SubmitformComponent } from '../submitform/submitform.component';
 
 
 @Component({
@@ -23,9 +24,10 @@ export class ScenarioEditorComponent implements OnInit {
     arrowLeft = true;
     arrowRight = true;
     uncutInputs: string[] = [];
-
+    newStepName= 'New Step';
+    
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
-
+    @ViewChild('submitForm') modalService: SubmitformComponent;
     constructor(
         public apiService: ApiService,
     ) {
@@ -143,21 +145,25 @@ export class ScenarioEditorComponent implements OnInit {
 
     addStepToScenario(storyID: number, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
-        switch (newStep.stepType) {
-            case 'given':
-                this.selectedScenario.stepDefinitions.given.push(newStep);
-                break;
-            case 'when':
-                this.selectedScenario.stepDefinitions.when.push(newStep);
-                break;
-            case 'then':
-                this.selectedScenario.stepDefinitions.then.push(newStep);
-                break;
-            case 'example':
-                this.addExampleStep(step);
-                break;
-            default:
-                break;
+        if(newStep['type'] === this.newStepName){
+            this.modalService.open(newStep['stepType']);
+        }else{
+            switch (newStep.stepType) {
+                case 'given':
+                    this.selectedScenario.stepDefinitions.given.push(newStep);
+                    break;
+                case 'when':
+                    this.selectedScenario.stepDefinitions.when.push(newStep);
+                    break;
+                case 'then':
+                    this.selectedScenario.stepDefinitions.then.push(newStep);
+                    break;
+                case 'example':
+                    this.addExampleStep(step);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

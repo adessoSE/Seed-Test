@@ -48,7 +48,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStep_undefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStep_undefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
                   href="#">{{step.type}}</span>
               </li>
             </ul>
@@ -108,6 +108,7 @@
     </div>
   </div>
 
+<app-submitform #submitForm></app-submitform>
 
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">

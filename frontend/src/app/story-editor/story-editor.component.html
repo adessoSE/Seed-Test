@@ -74,7 +74,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let i = index" >
-                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
+                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when' && step.type !== this.newStepName"  (click)="addStepToBackground(selectedStory.story_id,step);"
                   href="#">{{step.type}}</a>
               </li>
             </ul>
