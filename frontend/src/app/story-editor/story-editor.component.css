@@ -1,0 +1,193 @@
+ 
+  .emptyStories{
+    color: #999;
+  }
+  .emptyStories h1{
+    color: #999;
+  }
+  
+  .emptyStories a {
+    display: block;
+  }
+  
+  .def {
+      color: #999;
+      cursor: help;
+      position: relative;
+  }
+  
+  .def span[rel=def] {
+      display: none;
+  }
+  
+  .def:hover span[rel=def] {
+    font-size: small;
+    color: white;
+      background-color: rgb(109, 109, 109);
+      position: absolute;
+      bottom: 2em;
+      left: 2em;
+      width: 30em;
+    padding: 0.5em;
+    display: block;
+  }
+
+  
+  #story{
+    border: 1px solid #999;
+  }
+
+  
+  #infoIcon{
+    color: #999;
+    padding-top: 3px;
+    margin-left: 7px;
+  }
+
+  #run_story {
+    margin-right: 8px;
+    color:#ffffff;
+    padding: 0px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: solid 1px #0099CC;
+    background: #0099CC;
+    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+  }
+  
+  #run_story:hover {
+    background: rgb(2, 111, 161);
+  }
+  
+  .uk-button-group{
+    border-radius:4px;
+    border:2px solid rgb(255, 255, 255);
+  }
+  
+  .uk-button{
+    color:#ffffff;
+    padding: 0px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: solid 1px #ffffff;
+    background: #0099CC;
+    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+  }
+  
+  .uk-button:hover{
+    background: rgb(2, 111, 161);
+  }
+  
+  .uk-button-icon{
+    padding-left:0;
+    padding-right:0;
+  }
+
+  
+  .padding{
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-bottom: 20px;
+    padding-right: 20px;
+  }
+  
+  .iconButton {
+    border: none;
+    background-color: #ffffff;
+    padding: 0px;
+    border-radius: 10%;
+  }
+  
+  .iconButton em{
+    vertical-align:middle;
+    color: #0099CC;
+    border-radius: 10%;
+  }
+  
+  .iconButton em:active {
+    background-color: #0099CC;
+    color: #ffffff;
+  }
+  
+  
+  
+  .buttonGroup{
+    text-align: center;
+    margin-left: 10px;
+    color: #0099CC;
+  }
+  
+  .disabled {
+    color: gray !important;
+    background: white !important;
+  }
+  
+  .disabled em{
+    color: gray !important;
+    background: white !important;
+  }
+  
+  .text-inline{
+    font-weight:normal;
+  }
+  
+  .uk-card-title {
+    font-size: medium;
+    font-weight: bold;
+  }
+  
+  .uk-card-footer{
+    padding-bottom: 0;
+  }
+  
+  .disabledButton{
+    visibility: hidden;
+    background:#dddddd
+  }
+
+  .description{
+    padding-left:40px;
+  }
+  .descriptionText{
+    padding-left:40px;
+    padding-bottom: 20px;
+  }
+  
+  .backgroundItems{
+    padding-right:40px;
+  }
+  
+  .loading{
+    text-align: center;
+    font-size: 40px;
+  }
+  
+  .backgroundTitle{
+    padding-left:40px;
+    padding-bottom:20px;
+  }
+  .showButton{
+    padding-right: 40px;
+  }
+  
+  .storyTitle{
+    color: #0099CC;
+    font-size: medium;
+    margin-top: 10px; 
+  }
+  
+  .testButtons{
+    padding-left:10px;
+    padding-right:10px;
+  }
+  
+  .padRight{
+    padding-right: 10px;
+  }
+  
+  .marginLeft{
+    margin-left: 40px;
+    display:inline-block;
+  }

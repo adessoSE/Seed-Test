@@ -28,7 +28,7 @@ describe('EditableComponent', () => {
   //  expect(1).toBe(1);
   //  expect(component).toBeTruthy();
   //});
-
+//
   //describe('toViewMode', () => {
   //  it('should set mode to view', () => {
   //    component.toViewMode();

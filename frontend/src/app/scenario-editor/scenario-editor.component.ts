@@ -1,16 +1,14 @@
-
 import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
-import {SubmitformComponent} from '../submitform/submitform.component';
+import { ExampleTableComponent } from '../example-table/example-table.component';
+import { SubmitformComponent } from '../submitform/submitform.component';
 
-const emptyBackground = {name, stepDefinitions: {when: []}};
 
 @Component({
     selector: 'app-scenario-editor',
@@ -20,40 +18,19 @@ const emptyBackground = {name, stepDefinitions: {when: []}};
 
 export class ScenarioEditorComponent implements OnInit {
 
-    @ViewChild('submitForm') modalService: SubmitformComponent;
-    stories: Story[];
     originalStepTypes: StepType[];
     selectedStory: Story;
     selectedScenario: Scenario;
-    showEditor = false;
-    showResults = false;
-    showDescription = false;
-    showBackground = false;
     arrowLeft = true;
     arrowRight = true;
-    testDone = false;
-    testRunning = false;
     uncutInputs: string[] = [];
-    htmlReport;
-    storiesLoaded = false;
-    storiesError = false;
-    newStepName = 'New Step';
-
-    @ViewChild('exampleChildView') exampleChild;
-
+    newStepName= 'New Step';
+    
+    @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
+    @ViewChild('submitForm') modalService: SubmitformComponent;
     constructor(
         public apiService: ApiService,
     ) {
-        this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
-            this.storiesLoaded = true;
-            this.storiesError = false;
-            this.showEditor = false;
-            this.setStories(stories);
-        });
-        this.apiService.storiesErrorEvent.subscribe(errorCode => {
-            this.storiesError = true;
-            this.showEditor = false;
-        });
         this.apiService.getBackendUrlEvent.subscribe(() => {
             this.loadStepTypes();
         });
@@ -66,43 +43,44 @@ export class ScenarioEditorComponent implements OnInit {
     ngOnInit() {
     }
 
-    setStories(stories: Story[]) {
-        this.stories = stories;
-    }
-
     @Input()
     removeRowIndex(index: number) {
         this.removeStepFromScenario('example', index);
     }
 
     @Input()
-    set newSelectedStory(story: Story) {
+    set newlySelectedStory(story: Story) {
         this.selectedStory = story;
     }
 
     @Input()
-    set newSelectedScenario(scenario: Scenario) {
+    set newlySelectedScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
-        if (this.stories && this.selectedStory) {
-            this.selectScenario(scenario);
+        if (this.selectedStory) {
+           this.selectScenario(scenario);
         }
 
+    }
+
+    @Output()
+    deleteScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
+
+    @Output()
+    addScenarioEvent: EventEmitter<number> = new EventEmitter();
+
+    @Output()
+    runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
+
+    @Output()
+    formtosubmit: EventEmitter<any> = new EventEmitter();   
+    chooseform(list) {
+        this.formtosubmit.emit(list);
     }
 
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
         /*}*/
-    }
-
-    onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
-        /*if (!this.backgroundLocked) {*/
-        moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
-        /*}*/
-    }
-
-    getBackgroundList(stepDefinitions: StepDefinitionBackground) {
-        return stepDefinitions.when;
     }
 
     getStepsList(stepDefs: StepDefinition, i: number) {
@@ -134,22 +112,11 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
 
-    backgroundNameChange(name: string) {
-        this.selectedStory.background.name = name;
-    }
-
-    updateBackground(storyID: number) {
-        this.apiService
-            .updateBackground(storyID, this.selectedStory.background)
-            .subscribe(resp => {
-            });
-
-    }
-  
     updateScenario(storyID: number) {
-        let steps = this.selectedScenario["stepDefinitions"]["given"];
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["when"]);
-        steps = steps.concat(this.selectedScenario["stepDefinitions"]["then"]);
+        let steps = this.selectedScenario.stepDefinitions["given"];
+        steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
+        steps = steps.concat(this.selectedScenario.stepDefinitions["then"]);
+        steps = steps.concat(this.selectedScenario.stepDefinitions["example"]);
 
         let undefined_steps = [];
         for (let i = 0; i < steps.length; i++) {
@@ -168,78 +135,42 @@ export class ScenarioEditorComponent implements OnInit {
             });
     }
 
-    addScenarioFromStory(storyID: number) {
-        this.apiService
-            .addScenario(storyID)
-            .subscribe((resp: Scenario) => {
-                this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
-                this.selectScenario(resp);
-            });
+    addScenarioToStory(storyID: number) {
+        this.addScenarioEvent.emit(storyID);
     }
 
-    deleteBackground() {
-        this.apiService
-            .deleteBackground(this.selectedStory.story_id)
-            .subscribe(resp => {
-                this.backgroundDeleted();
-            });
+    deleteScenario(event){
+        this.deleteScenarioEvent.emit(this.selectedScenario);
     }
-
-    backgroundDeleted(){
-        this.showBackground = false;
-        const indexStory: number = this.stories.indexOf(this.selectedStory);
-        this.stories[indexStory].background = emptyBackground;
-    }
-
-    deleteScenario(event) {
-        this.apiService
-            .deleteScenario(this.selectedStory.story_id, this.selectedScenario)
-            .subscribe(resp => {
-                this.scenarioDeleted();
-            });
-    }
-
-    scenarioDeleted(){
-        this.showEditor = false;
-        const indexStory: number = this.stories.indexOf(this.selectedStory);
-        const indexScenario: number = this.stories[indexStory].scenarios.indexOf(this.selectedScenario);
-        if (indexScenario !== -1) {
-            this.stories[indexStory].scenarios.splice(indexScenario, 1);
-        }
-    }
-
-    openDescription() {
-        this.showDescription = !this.showDescription;
-    }
-
-    openBackground() {
-        this.showBackground = !this.showBackground;
-    }
-
 
     addStepToScenario(storyID: number, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
-        switch (newStep.stepType) {
-            case 'given':
-                this.selectedScenario.stepDefinitions.given.push(newStep);
-                break;
-            case 'when':
-                this.selectedScenario.stepDefinitions.when.push(newStep);
-                break;
-            case 'then':
-                this.selectedScenario.stepDefinitions.then.push(newStep);
-                break;
-            case 'example':
-                this.addExampleStep(step);
-                break;
-            default:
-                break;
+        if(newStep['type'] === this.newStepName){
+            this.modalService.open(newStep['stepType']);
+        }else{
+            switch (newStep.stepType) {
+                case 'given':
+                    this.selectedScenario.stepDefinitions.given.push(newStep);
+                    break;
+                case 'when':
+                    this.selectedScenario.stepDefinitions.when.push(newStep);
+                    break;
+                case 'then':
+                    this.selectedScenario.stepDefinitions.then.push(newStep);
+                    break;
+                case 'example':
+                    this.addExampleStep(step);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     addExampleStep(step: StepType){
         if (this.selectedScenario.stepDefinitions.example.length > 0) {
-            this.addStep(step);
+            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            this.selectedScenario.stepDefinitions.example.push(newStep);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
             for (let j = 1; j < len; j++) {
                 this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
@@ -248,39 +179,20 @@ export class ScenarioEditorComponent implements OnInit {
         }  
     }
 
-    addStepToBackground(storyID: number, step: StepType) {
-        const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions)
-        if (newStep.stepType == 'when') {
-            this.selectedStory.background.stepDefinitions.when.push(newStep);
-        }
-    }
-
-    createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{
+    createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground, stepType?: string): StepType{
         const obj = this.clone(step);
         const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
         const newStep: StepType = {
             id: newId,
             mid: obj.mid,
             pre: obj.pre,
-            stepType: obj.stepType,
+            stepType: stepType === 'example' ? stepType : obj.stepType,
             type: obj.type,
-            values: obj.values
+            values: stepType === 'example' ? ['value'] : obj.values
         };
         return newStep;
     }
 
-    addStep(step: StepType) {
-        const new_id = this.getLastIDinStep(this.selectedScenario.stepDefinitions, step.stepType) + 1;
-        const new_step: StepType = {
-            id: new_id,
-            mid: step.mid,
-            pre: step.pre,
-            stepType: 'example',
-            type: step.type,
-            values: ['value']
-        };
-        this.selectedScenario.stepDefinitions.example.push(new_step);
-    }
 
     getLastIDinStep(stepDefs: any, stepStepType: string): number {
         switch (stepStepType) {
@@ -303,10 +215,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    removeStepFromBackground(event, index: number) {
-        this.selectedStory.background.stepDefinitions.when.splice(index, 1);
-    }
-
     removeStepFromScenario(stepStepType: string, index: number) {
         switch (stepStepType) {
             case 'given':
@@ -323,10 +231,6 @@ export class ScenarioEditorComponent implements OnInit {
                 this.exampleChild.updateTable();
                 break;
         }
-    }
-
-    addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
-        this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
     }
 
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
@@ -354,23 +258,9 @@ export class ScenarioEditorComponent implements OnInit {
             this.removeExample(step, valueIndex);
         }
         // if input has < > and it is a new unique input
-        if (this.inputHasExample(input, step, valueIndex)) {
+        if (this.inputHasExample(input)) {
             this.createExample(input, step, valueIndex);
         }
-    }
-
-    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
-        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
-    }
-
-    inputHasExample(input: string, step: StepType, valueIndex: number): boolean{
-        return input.startsWith('<') && input.endsWith('>') && (this.selectedScenario.stepDefinitions.example[0] == undefined || !this.uncutInputs.includes(input))
-    }
-
-    createExample(input: string, step: StepType, valueIndex: number){
-        this.uncutInputs.push(input);
-        const cutInput = input.substr(1, input.length - 2);
-        this.handleExamples(input, cutInput, step, valueIndex);
     }
 
     removeExample(step: StepType, valueIndex: number){
@@ -389,26 +279,43 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
+    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
+        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
+    }
+
+    inputHasExample(input: string): boolean{
+        return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input)
+    }
+
+
+    createExample(input: string, step: StepType, valueIndex: number){
+        const cutInput = input.substr(1, input.length - 2);
+        this.handleExamples(input, cutInput, step, valueIndex);
+    }
 
     handleExamples(input: string, cutInput: string, step: StepType, valueIndex: number) {
         // changes example header name if the name is just changed in step
         if (this.exampleHeaderChanged(input, step, valueIndex)) {
+            this.uncutInputs[this.uncutInputs.indexOf(step.values[valueIndex])] = input;
             this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
-            return;
-        }
-        // for first example creates 2 steps
-        if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
-            this.createFirstExample(cutInput, step);
-        } else {
-            // else just adds as many values to the examples to fill up the table
-            this.fillExamples(cutInput, step);
+        }else {
+            this.uncutInputs.push(input);
+            // for first example creates 2 steps
+            if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
+                this.createFirstExample(cutInput, step);
+            } else {
+                // else just adds as many values to the examples to fill up the table
+                this.fillExamples(cutInput, step);
+            }
         }
         this.exampleChild.updateTable();
+
     }
 
     createFirstExample(cutInput: string, step: StepType){
         for (let i = 0; i <= 2; i++) {
-            this.addStep(step);
+            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            this.selectedScenario.stepDefinitions.example.push(newStep);
             this.exampleChild.updateTable();
         }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
@@ -418,26 +325,29 @@ export class ScenarioEditorComponent implements OnInit {
 
     fillExamples(cutInput: string, step: StepType){
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
+        // if the table has no rows add a row
 
+        if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
+            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            this.selectedScenario.stepDefinitions.example.push(newStep);
+            const len = this.selectedScenario.stepDefinitions.example[0].values.length;
+            for (let j = 1; j < len; j++) {
+                this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+
+            }
+        }else {
             for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
                 this.selectedScenario.stepDefinitions.example[j].values.push('value');
             }
-            // if the table has no rows add a row
-            if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
-                this.addStep(step);
-                const len = this.selectedScenario.stepDefinitions.example[0].values.length;
-                for (let j = 1; j < len; j++) {
-                    this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
-                }
-            }
+        }
     }
 
 
     exampleHeaderChanged(input: string, step: StepType, valueIndex: number): boolean{
-        return step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
+        return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
     }
 
-    renameScenario(event, name) {
+    renameScenario(event, name: string) {
         if (name) {
             this.selectedScenario.name = name;
         }
@@ -445,90 +355,66 @@ export class ScenarioEditorComponent implements OnInit {
 
     selectScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
-        this.showResults = false;
-        this.showEditor = true;
-        /*this.editorLocked = true;*/
-        this.testDone = false;
         this.arrowLeft = this.checkArrowLeft();
         this.arrowRight = this.checkArrowRight();
     }
 
-
-    selectStoryScenario(story: Story) {
-        this.showResults = false;
-        this.selectedStory = story;
-        this.showEditor = true;
-        /*this.editorLocked = true;*/
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        if (this.stories[storyIndex].scenarios[0] !== undefined) {
-            this.selectScenario(this.stories[storyIndex].scenarios[0]);
-        }
-    }
-
     checkArrowLeft(): boolean {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        return this.stories[storyIndex].scenarios[scenarioIndex - 1] === undefined;
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        return this.selectedStory.scenarios[scenarioIndex - 1] === undefined;
     }
 
     checkArrowRight(): boolean {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        return this.stories[storyIndex].scenarios[scenarioIndex + 1] === undefined;
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        return this.selectedStory.scenarios[scenarioIndex + 1] === undefined;
     }
 
     scenarioShiftLeft() {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        if (this.stories[storyIndex].scenarios[scenarioIndex - 1] !== undefined) {
-            this.selectScenario(this.stories[storyIndex].scenarios[scenarioIndex - 1]);
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        if (this.selectedStory.scenarios[scenarioIndex - 1]) {
+            this.selectScenario(this.selectedStory.scenarios[scenarioIndex - 1]);
         }
     }
 
     scenarioShiftRight() {
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        const scenarioIndex = this.stories[storyIndex].scenarios.indexOf(this.selectedScenario);
-        if (this.stories[storyIndex].scenarios[scenarioIndex + 1] !== undefined) {
-            this.selectScenario(this.stories[storyIndex].scenarios[scenarioIndex + 1]);
+        const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        if (this.selectedStory.scenarios[scenarioIndex + 1]) {
+            this.selectScenario(this.selectedStory.scenarios[scenarioIndex + 1]);
         }
     }
 
-    // Make the API Request to run the tests and display the results as a chart
-    runTests(story_id: number, scenario_id: number, callback) {
-        let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
+    runTestScenario(storyId: number, scenarioId: number){
+        this.runTestScenarioEvent.emit({storyId, scenarioId})
+    }
 
-
-        if(undefined_list.length > 0){
-            this.chooseform(undefined_list);
+    undefined_definition(definition){
+        let undefined_list = [];
+        if(definition !== undefined){
+            let given = definition["given"];
+            for(let key in given){
+                let obj = given[key];
+                if (obj["type"] === "Undefined Step"){
+                    undefined_list = undefined_list.concat(obj["values"][0]);
+                }
+            }
+            let then = definition["then"];
+            for(let key in then){
+                let obj = then[key];
+                if (obj["type"] === "Undefined Step"){
+                    undefined_list = undefined_list.concat(obj["values"][0]);
+                }
+            }
+            let when = definition["when"];
+            for(let key in when){
+                let obj = when[key];
+                if (obj["type"] === "Undefined Step"){
+                    undefined_list = undefined_list.concat(obj["values"][0]);
+                }
+            }
         }
-        else {
-            this.testRunning = true;
-            const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-            const loadingScreen: HTMLElement = document.getElementById('loading');
-            loadingScreen.scrollIntoView();
-            this.apiService
-                .runTests(story_id, scenario_id)
-                .subscribe(resp => {
-                    iframe.srcdoc = resp;
-                    // console.log("This is the response: " + resp);
-                    this.htmlReport = resp;
-                    this.testDone = true;
-                    this.showResults = true;
-                    this.testRunning = false;
-                    setTimeout(function () {
-                        iframe.scrollIntoView();
-                    }, 10);
-                });
+        return undefined_list;
     }
 
-    downloadFile() {
-        const blob = new Blob([this.htmlReport], {type: 'text/html'});
-        saveAs(blob);
-    }
-
-    hideResults() {
-        this.showResults = !this.showResults;
-    }
 
     // To bypass call by reference of object properties
     // therefore new objects are created and not the existing object changed
@@ -540,9 +426,6 @@ export class ScenarioEditorComponent implements OnInit {
         for (var key in obj) {
             temp[key] = this.clone(obj[key]);
         }
-
         return temp;
     }
-
-
-}
+}  

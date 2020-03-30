@@ -24,20 +24,19 @@ export class ApiService {
     constructor(private http: HttpClient) {
     }
 
-
-  public getRepositories(token: string, githubName: string): Observable<string[]> {
-    let repoToken = token;
-    if(!repoToken || repoToken == 'undefined') {
-      repoToken = '';
+    public getRepositories(token: string, githubName: string): Observable<string[]> {
+        let repoToken = token;
+        if(!repoToken || repoToken == 'undefined') {
+          repoToken = '';
+        }
+        this.apiServer = localStorage.getItem('url_backend');
+      
+        const str = this.apiServer + '/github/repositories/' + githubName + '/' + repoToken; 
+        
+        return this.http.get<string[]>(str)
+          .pipe(tap(resp => {}),
+            catchError(this.handleError));
     }
-    const options = {headers: this.getHeader()};
-    this.apiServer = localStorage.getItem('url_backend');
-
-    let str = this.apiServer + '/repositories/' + githubName + '/' + repoToken;
-    return this.http.get<string[]>(str)
-      .pipe(tap(resp => {}),
-        catchError(this.handleError));
-  }
 
     handleStoryError = (error: HttpErrorResponse, caught: Observable<any>) => {
         this.storiesErrorEvent.emit();
@@ -131,7 +130,6 @@ export class ApiService {
 
     public deleteScenario(storyID: number, scenario: Scenario): Observable<Story>{
         this.apiServer = localStorage.getItem('url_backend');
-
         return this.http
             .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id)
             .pipe(tap(resp => {
