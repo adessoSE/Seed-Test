@@ -72,10 +72,8 @@ export class StoryEditorComponent implements OnInit {
   @Input()
   set newSelectedStory(story: Story) {
       this.selectedStory = story;
+      this.showEditor = true;
   }
-
-  @Output()
-  formtosubmit: EventEmitter<any> = new EventEmitter();
 
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
@@ -101,10 +99,6 @@ export class StoryEditorComponent implements OnInit {
            this.selectedStory.scenarios.push(resp);
            this.storiesBar.selectScenario(null, resp)
         });
-  }
-
-  chooseform(list) {
-      this.formtosubmit.emit(list);
   }
 
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
@@ -252,31 +246,24 @@ export class StoryEditorComponent implements OnInit {
 
   // Make the API Request to run the tests and display the results as a chart
   runTests(story_id: number, scenario_id: number) {
-      let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
-
-
-      if(undefined_list.length > 0){
-          this.chooseform(undefined_list);
-      }
-      else {
-          this.testRunning = true;
-          const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-          const loadingScreen: HTMLElement = document.getElementById('loading');
-          loadingScreen.scrollIntoView();
-          this.apiService
-              .runTests(story_id, scenario_id)
-              .subscribe(resp => {
-                  iframe.srcdoc = resp;
-                  // console.log("This is the response: " + resp);
-                  this.htmlReport = resp;
-                  this.testDone = true;
-                  this.showResults = true;
-                  this.testRunning = false;
-                  setTimeout(function () {
-                      iframe.scrollIntoView();
-                  }, 10);
-              });
-      }
+    let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
+    this.testRunning = true;
+    const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+    const loadingScreen: HTMLElement = document.getElementById('loading');
+    loadingScreen.scrollIntoView();
+    this.apiService
+        .runTests(story_id, scenario_id)
+        .subscribe(resp => {
+            iframe.srcdoc = resp;
+            // console.log("This is the response: " + resp);
+            this.htmlReport = resp;
+            this.testDone = true;
+            this.showResults = true;
+            this.testRunning = false;
+            setTimeout(function () {
+                iframe.scrollIntoView();
+            }, 10);
+        });
   }
 
   downloadFile() {

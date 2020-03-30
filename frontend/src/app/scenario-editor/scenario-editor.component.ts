@@ -71,12 +71,6 @@ export class ScenarioEditorComponent implements OnInit {
     @Output()
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
-    @Output()
-    formtosubmit: EventEmitter<any> = new EventEmitter();   
-    chooseform(list) {
-        this.formtosubmit.emit(list);
-    }
-
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
