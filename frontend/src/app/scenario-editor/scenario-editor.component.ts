@@ -343,7 +343,8 @@ export class ScenarioEditorComponent implements OnInit {
         return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
     }
 
-    renameScenario(event, name: string) {
+    renameScenario(event) {
+        let name = (document.getElementById('scenarioName') as HTMLInputElement).value ;
         if (name) {
             this.selectedScenario.name = name;
         }

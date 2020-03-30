@@ -14,7 +14,7 @@
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
       <span *ngIf="this.selectedScenario" id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
-        title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
+        title="Change Scenario Title" uk-toggle></button>
       <div id="buttonGroupScenario" class="uk-align-right">
         <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory.story_id)">
           <em class="material-icons">add</em>
@@ -103,7 +103,7 @@
       <input *ngIf="this.selectedScenario" id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
       <p class="uk-text-right">
         <button id="change_scenario_title_cancel" class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-        <button id="change_scenario_title_save" class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)"
+        <button id="change_scenario_title_save" class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event)"
           type="button">Save</button>
       </p>
     </div>
