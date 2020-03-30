@@ -43,6 +43,8 @@ export class ScenarioEditorComponent implements OnInit {
     ngOnInit() {
     }
 
+    @Input() testRunning: boolean;
+
     @Input()
     removeRowIndex(index: number) {
         this.removeStepFromScenario('example', index);
@@ -408,7 +410,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
         return undefined_list;
     }
-
 
     // To bypass call by reference of object properties
     // therefore new objects are created and not the existing object changed

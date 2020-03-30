@@ -92,19 +92,6 @@
           </textarea>
       </div>
       <br>
-      <!--Buttons Run Szenario-->
-     <div class="uk-card-footer">
-        <div class="uk-button-group uk-align-right">
-         <button id="run_scenario" class="uk-button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTestScenario(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
-            Run Scenario</button>
-          <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
-            uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
-          <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
-            uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
-          <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
-            uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
-        </div>
-      </div>
     </div>
   </div>
 

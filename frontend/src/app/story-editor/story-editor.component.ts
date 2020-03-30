@@ -240,9 +240,6 @@ export class StoryEditorComponent implements OnInit {
       return undefined_list;
   }
 
-  runTestScenario(ids){
-    this.runTests(ids.storyId, ids.scenarioId)
-  }
 
   // Make the API Request to run the tests and display the results as a chart
   runTests(story_id: number, scenario_id: number) {
