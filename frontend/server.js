@@ -1,6 +1,9 @@
 // Install express server
 
-//const dotenv = require('dotenv').config();
+if(!process.env.NODE_ENV){
+  const dotenv = require('dotenv').config();
+}
+
 const express = require('express');
 const path = require('path');
 
