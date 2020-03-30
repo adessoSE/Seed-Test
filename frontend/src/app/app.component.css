@@ -50,6 +50,7 @@
 #version {
   float: left;
   padding: 13px;
+  color: #56595e;
 }
 
 .left-button {
@@ -78,6 +79,10 @@ a:hover{
   font-variant: small-caps;
 }
 
+
+img {
+  height: 55px;
+}
 #adesso-logo {
    padding: 5px;
    height: 40px;
@@ -93,6 +98,7 @@ a:hover{
   background-color: #999;
   position: relative;
   overflow: hidden;
+  height: 50px;
 }
 
 .topnav a {
@@ -111,6 +117,7 @@ a:hover{
 
 .topnav-left {
   float:left;
+  height: 50px;
 }
 
 .topnav-left a{

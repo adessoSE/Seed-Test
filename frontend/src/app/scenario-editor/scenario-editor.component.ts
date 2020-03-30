@@ -8,6 +8,7 @@ import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
+import {SubmitformComponent} from '../submitform/submitform.component';
 
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
@@ -19,6 +20,7 @@ const emptyBackground = {name, stepDefinitions: {when: []}};
 
 export class ScenarioEditorComponent implements OnInit {
 
+    @ViewChild('submitForm') modalService: SubmitformComponent;
     stories: Story[];
     originalStepTypes: StepType[];
     selectedStory: Story;
@@ -35,6 +37,7 @@ export class ScenarioEditorComponent implements OnInit {
     htmlReport;
     storiesLoaded = false;
     storiesError = false;
+    newStepName = 'New Step';
 
     @ViewChild('exampleChildView') exampleChild;
 
@@ -60,7 +63,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-
     ngOnInit() {
     }
 
@@ -85,13 +87,6 @@ export class ScenarioEditorComponent implements OnInit {
             this.selectScenario(scenario);
         }
 
-    }
-
-    @Output()
-    formtosubmit: EventEmitter<any> = new EventEmitter();
-
-    chooseform(list) {
-        this.formtosubmit.emit(list);
     }
 
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
@@ -150,7 +145,7 @@ export class ScenarioEditorComponent implements OnInit {
             });
 
     }
-
+  
     updateScenario(storyID: number) {
         let steps = this.selectedScenario["stepDefinitions"]["given"];
         steps = steps.concat(this.selectedScenario["stepDefinitions"]["when"]);
@@ -166,7 +161,7 @@ export class ScenarioEditorComponent implements OnInit {
         if (undefined_steps.length != 0) {
             console.log("There are undefined steps here");
         }
-
+      
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
             .subscribe(resp => {
@@ -498,34 +493,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    undefined_definition(definition){
-        let undefined_list = [];
-        if(definition !== undefined){
-            let given = definition["given"];
-            for(let key in given){
-                let obj = given[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-            let then = definition["then"];
-            for(let key in then){
-                let obj = then[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-            let when = definition["when"];
-            for(let key in when){
-                let obj = when[key];
-                if (obj["type"] === "Undefined Step"){
-                    undefined_list = undefined_list.concat(obj["values"][0]);
-                }
-            }
-        }
-        return undefined_list;
-    }
-
     // Make the API Request to run the tests and display the results as a chart
     runTests(story_id: number, scenario_id: number, callback) {
         let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
@@ -552,8 +519,6 @@ export class ScenarioEditorComponent implements OnInit {
                         iframe.scrollIntoView();
                     }, 10);
                 });
-        }
-
     }
 
     downloadFile() {
