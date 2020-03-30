@@ -24,6 +24,10 @@
     margin-bottom: 10px;
   }
 
+  #storyList{
+    color: #0099CC;
+  }
+
   .stories{
     border: 1px solid #999;
     padding-left:10px;

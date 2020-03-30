@@ -95,7 +95,7 @@ function stepDefs() {
     {
       id: '',
       stepType: 'then',
-      type: 'Text',
+      type: 'Textbox',
       pre: 'So I can see the text',
       mid: 'in the textbox: ',
       values: ['', ''],
@@ -103,8 +103,22 @@ function stepDefs() {
     {
       id: '',
       stepType: 'then',
-      type: 'Text',
-      pre: "So I can't see the text:",
+      type: 'This Text',
+      pre: 'So I can see the text:',
+      values: [''],
+    },
+    {
+      id: '',
+      stepType: 'then',
+      type: 'Not this Text',
+      pre: 'So I can\'t see the text:',
+      values: [''],
+    },
+    {
+      id: '',
+      stepType: 'then',
+      type: 'Empty Textbox',
+      pre: 'So I can see the text in the textbox:',
       values: [''],
     },
   ];

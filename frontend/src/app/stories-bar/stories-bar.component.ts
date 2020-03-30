@@ -29,7 +29,7 @@ export class StoriesBarComponent implements OnInit {
   }
 
 
-  sortedStories() {
+  getSortedStories() {
     if (this.stories) {
       return this.stories.sort(function(a, b) { return a.issue_number - b.issue_number; });
     }
@@ -40,20 +40,12 @@ export class StoriesBarComponent implements OnInit {
     this.scenarioChosen.emit(scenario);
   }
 
-  addScenario(storyID) {
-    this.apiService
-      .addScenario(storyID)
-      .subscribe((resp: any)  => {
-        this.stories[this.stories.indexOf(this.selectedStory)].scenarios.push(resp);
-      });
-  }
-
 
   selectStoryScenario(story: Story) {
     this.selectedStory = story;
     this.storyChosen.emit(story);
     const storyIndex = this.stories.indexOf(this.selectedStory);
-    if (this.stories[storyIndex].scenarios[0] !== undefined ) {
+    if (this.stories[storyIndex].scenarios[0]) {
       this.selectScenario(this.selectedStory.story_id, this.stories[storyIndex].scenarios[0]);
     }
   }
