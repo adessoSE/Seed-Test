@@ -136,7 +136,6 @@ export class ScenarioEditorComponent implements OnInit {
 
     addScenarioToStory(storyID: number) {
         this.addScenarioEvent.emit(storyID);
-
     }
 
     deleteScenario(event){

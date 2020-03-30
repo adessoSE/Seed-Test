@@ -7,6 +7,7 @@ import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
+import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
@@ -57,6 +58,8 @@ export class StoryEditorComponent implements OnInit {
       this.stories = stories;
   }
 
+  @Input() storiesBar: StoriesBarComponent;
+
   @Input()
   set newSelectedScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
@@ -78,7 +81,7 @@ export class StoryEditorComponent implements OnInit {
     this.apiService
         .deleteScenario(this.selectedStory.story_id, scenario)
         .subscribe(resp => {
-          this.scenarioDeleted();
+            this.scenarioDeleted();
         })
   }
 
@@ -95,6 +98,7 @@ export class StoryEditorComponent implements OnInit {
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
+           this.storiesBar.selectScenario(null, resp)
         });
   }
 
