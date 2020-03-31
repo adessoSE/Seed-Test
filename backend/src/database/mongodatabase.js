@@ -5,7 +5,9 @@ const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-const dotenv = require('dotenv').config();
+if(!process.env.NODE_ENV){
+  const dotenv = require('dotenv').config();
+}
 
 const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////

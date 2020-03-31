@@ -1,10 +1,12 @@
 import {Injectable} from '@angular/core';
 import {tap, catchError} from 'rxjs/operators';
 import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
-import {EventEmitter} from '@angular/core';
-import {Story} from '../model/Story';
-import {Observable, throwError, of} from 'rxjs';
-import {StepType} from '../model/StepType';
+import { EventEmitter } from '@angular/core';
+import { Story } from '../model/Story';
+import { Observable, throwError, of } from 'rxjs';
+import { StepType } from '../model/StepType';
+import { Scenario } from '../model/Scenario';
+import { Background } from '../model/Background';
 
 @Injectable({
     providedIn: 'root'
@@ -13,34 +15,27 @@ import {StepType} from '../model/StepType';
 export class ApiService {
     public apiServer: string = localStorage.getItem('url_backend');
     public token: string;
-    public urlReceived = false;
+    public urlReceived: boolean = false;
     public storiesErrorEvent = new EventEmitter();
     public getStoriesEvent = new EventEmitter();
+    public getTokenEvent = new EventEmitter();
     public getBackendUrlEvent = new EventEmitter();
 
     constructor(private http: HttpClient) {
     }
 
-    public getHeader() {
-        return new HttpHeaders({
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': 'true'
-        });
-    }
-
-    public getRepositories(token: string, githubName): Observable<any> {
+    public getRepositories(token: string, githubName: string): Observable<string[]> {
         let repoToken = token;
-        if (!repoToken || repoToken === 'undefined') {
-            repoToken = '';
+        if(!repoToken || repoToken == 'undefined') {
+          repoToken = '';
         }
-        const options = {headers: this.getHeader()};
         this.apiServer = localStorage.getItem('url_backend');
-
-        const str = this.apiServer + '/github/repositories/' + githubName + '/' + repoToken;
-        return this.http.get<any>(str, options)
-            .pipe(tap(resp => {
-                }),
-                catchError(this.handleError));
+      
+        const str = this.apiServer + '/github/repositories/' + githubName + '/' + repoToken; 
+        
+        return this.http.get<string[]>(str)
+          .pipe(tap(resp => {}),
+            catchError(this.handleError));
     }
 
     handleStoryError = (error: HttpErrorResponse, caught: Observable<any>) => {
@@ -67,7 +62,7 @@ export class ApiService {
         }
     }
 
-    public getStories(repository, token) {
+    public getStories(repository: string, token: string): Observable<Story[]> {
         let storytoken = token;
         if (!storytoken || storytoken === 'undefined') {
             storytoken = '';
@@ -80,7 +75,7 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public getStepTypes() {
+    public getStepTypes(): Observable<StepType[]> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .get<StepType[]>(this.apiServer + '/mongo/stepTypes')
@@ -88,7 +83,7 @@ export class ApiService {
             }));
     }
 
-    public addScenario(storyID) {
+    public addScenario(storyID: number): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -97,10 +92,9 @@ export class ApiService {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
-
-    public updateBackground(storyID, background) {
+    
+    public updateBackground(storyID: number, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
-
         return this.http
             .post<any>(this.apiServer + '/mongo/background/update/' + storyID, background)
             .pipe(tap(resp => {
@@ -114,7 +108,7 @@ export class ApiService {
             .post<any>(this.apiServer + '/github/submitIssue/', obj);
     }
 
-    public updateScenario(storyID, scenario) {
+    public updateScenario(storyID: number, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -124,7 +118,7 @@ export class ApiService {
             }));
     }
 
-    public deleteBackground(storyID) {
+    public deleteBackground(storyID: number): Observable<any>  {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -134,9 +128,8 @@ export class ApiService {
             }));
     }
 
-    public deleteScenario(storyID, scenario) {
+    public deleteScenario(storyID: number, scenario: Scenario): Observable<Story>{
         this.apiServer = localStorage.getItem('url_backend');
-
         return this.http
             .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id)
             .pipe(tap(resp => {
@@ -145,7 +138,7 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID, scenarioID) {
+    public runTests(storyID: number, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
 
         if (scenarioID) {

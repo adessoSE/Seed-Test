@@ -1,8 +1,8 @@
 <div uk-grid  >
     <div class="uk-width-1-4@m">
-        <app-stories-bar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);"></app-stories-bar>
+        <app-stories-bar #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);"></app-stories-bar>
     </div>
     <div class="uk-width-expand@m">
-        <app-scenario-editor (formtosubmit)="setform($event)" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario"></app-scenario-editor>
+        <app-story-editor [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario"></app-story-editor>
     </div>
 </div>
