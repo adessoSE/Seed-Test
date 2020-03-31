@@ -1,33 +1,50 @@
-<br>
-<div class="padRight" [hidden]=!showForm>
-    <div class="uk-card uk-card-default uk-padding" id="submitForm">
-        <div class="uk-card-title">
-            <h2 id="submitWarningHeader">Submit Step</h2>
-            <h3 id="submitWarning"><dfn class="def">
-                    <span rel="def">Warning: You are about to submit a new step-type.
+<ng-template #content let-modal>
+    <div class="modal-header modal-xl">
+        <span id="modalHeader">New Step Request</span>
+        <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+            <span rel="def">Warning: You are about to submit a new step-type.
                         This step will be evaluated by our team, and eventually implemented.
                         Please fill out the form below to submit the step.
                         If you want an optimal solution,
                         please leave us a way to reach out to you for further clarification.
-              </span></dfn></h3>
-        </div>
-        <div>
-            <form>
-                <label>Title:</label>
-                <div>
-                    <input id="label_form" [placeholder]=form[0]>
-                </div>
-                <label>Description:</label>
-                <div>
-                    <textarea id="description_form">
-                    </textarea>
-                </div>
-                <label>E-Mail:</label>
-                <div>
-                    <input id="email_form">
-                </div>
-                <button (click)="submit()">Submit</button>
-            </form>
+                  </span></dfn>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body modal-xl">
+        <div class="uk-card-title" id="submitForm">
+            <div>
+                <form>
+                    <div class="padding_top">
+                        <label class="padding_right">Title:</label>
+                        <input id="label_form">
+                    </div>
+                    <div class="padding_top">
+                        <label class="padding_right">Type:</label>
+                        <select id="type_form">
+                            <option id="type_form_given" value="given">given</option>
+                            <option id="type_form_when" value="when">when</option>
+                            <option id="type_form_then" value="then">then</option>
+                        </select>
+                    </div>
+                    <div class="padding_top">
+                        <label class="padding_right">Description:</label>
+                        <div>
+                            <textarea id="description_form">
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="padding_top">
+                        <label class="padding_right">E-Mail:</label>
+                        <input id="email_form">
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+    <div class="modal-footer">
+        <button type="button" class="uk-button" (click)="submit(); modal.close('Save click')">Submit
+        </button>
+    </div>
+</ng-template>

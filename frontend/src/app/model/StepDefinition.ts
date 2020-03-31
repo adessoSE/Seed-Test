@@ -1,6 +1,8 @@
+import { StepType } from "./StepType";
+
 export interface StepDefinition {
-    given: any[];
-    when: any[];
-    then: any[];
-    example: any[];
+    given: StepType[];
+    when: StepType[];
+    then: StepType[];
+    example: StepType[];
 }

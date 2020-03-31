@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { SubmitformComponent } from './submitform.component';
 
@@ -8,7 +9,8 @@ describe('SubmitformComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SubmitformComponent ]
+      declarations: [ SubmitformComponent ],
+      imports: [HttpClientTestingModule],
     })
     .compileComponents();
   }));
