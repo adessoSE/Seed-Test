@@ -18,42 +18,43 @@
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
     <div class="uk-card uk-card-default padding" id="story">
-      <div class="uk-card-title">
-          <h4 id="storyheader">Story</h4>
-          <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-              <span rel="def">A user story describes requirements for a software system.
-                It is consciously kept in short sentences and simple words.
-                A story includes several scenarios.
-                The following template is recommended:
-                As a <...>, I want <...> so that <...>
-              </span></dfn>
-              <br>
+      <div class="title">
+            <span id="storyHeader">Story</span>
+            <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                <span rel="def">A user story describes requirements for a software system.
+                  It is consciously kept in short sentences and simple words.
+                  A story includes several scenarios.
+                  The following template is recommended:
+                  As a <...>, I want <...> so that <...>
+                </span></dfn>
+                <br>
         <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
         <div class="uk-button-group uk-align-right ">
         </div>
       </div>
-      <br>
       <!--Description-->
-      <div class="uk-card-title " [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
-        <button id="description_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
-        <button id="description_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
-      </div>
-      <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
-        {{selectedStory.body}}
+      <div class="title" (click)="openDescription();">
+        <div class="expand">
+          Description
+          <button id="description_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
+          <button id="description_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
+        </div>
+        <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
+          {{selectedStory.body}}
+        </div>
       </div>
       <!--Background-->
-      <div class="uk-card-title ">
-        <div [class.backgroundTitle]="!showBackground" [class.description]="showBackground" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
+      <div class="title ">
+        <div class="expand" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
           <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
           <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
         </div>
-        <br>
         <div *ngIf="showBackground">
         <!--Buttons-->
           <div class="marginLeft">
             <input id="background_name" #backgroundName type="text" value="{{selectedStory.background.name}}" on-change="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
           </div>
-          <div class="uk-float-right backgroundItems">
+          <div class="backgroundButtons">
             <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
               class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
               (click)="deleteBackground($event);">
@@ -79,9 +80,10 @@
               </li>
             </ul>
           </div>
+
           <div class="uk-steps">
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
-              <div class="text-inline backgroundItems" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
+              <div class="text-inline" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
                 <button id="{{'background_remove_step' + j}}" a
                   uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
                   (click)="removeStepFromBackground($event, j);">
@@ -98,25 +100,24 @@
                 <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
                 type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j , n + 2)" />
               </div>
-              <br>
-              <br>
+
             </div>
           </div>
         </div>
+      </div>
         <!--Buttons Run Story-->
         <div class="uk-card-footer">
             <div class="uk-button-group uk-align-right">
-              <button id="run_story" class="uk-button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
-              <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
+              <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
+              <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
                 uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
-              <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
+              <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-up"
                 uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
-              <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
+              <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button" uk-icon="icon:download"
                 uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
             </div>
           </div>
-      </div>
-    <br>
+      
   <!--Scenario Header-->
 
   <app-scenario-editor (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
@@ -124,32 +125,26 @@
       <!--Buttons Run Szenario-->
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-         <button id="run_scenario" class="uk-button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
+         <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
             Run Scenario</button>
-          <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
+          <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
             uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
-          <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
+          <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-up"
             uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
-          <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
+          <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button" uk-icon="icon:download"
             uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
         </div>
       </div>
 
-  <!--Helps to see Loading text-->
-  <div *ngIf="!testRunning && !testDone">
-    <br>
-    <br>
-  </div>
-
   <div id="loading">
-    <div class="uk-card-default loading" *ngIf="testRunning">
+    <div class="loading" *ngIf="testRunning">
      Loading . . .
     </div>
   </div>
 
   <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
     <div id="report-header" class="uk-card-header">
-      <h3 class="uk-card-title">Test Results</h3>
+      <h3 class="title">Test Results</h3>
     </div>
     <div id="report-body" class="uk-card-body">
       <div id="chartcontainer" class="chart-container" >

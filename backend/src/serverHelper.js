@@ -16,7 +16,7 @@ const options = {
   jsonFile: 'features/reporting.json',
   output: 'features/reporting_html.html',
   reportSuiteAsScenarios: true,
-  launchReport: true,
+  launchReport: false,
   metadata: {
     'App Version': '0.3.2',
     'Test Environment': 'STAGING',
