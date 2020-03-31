@@ -199,7 +199,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 async function execReport(req, res, stories, mode, callback) {
   let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
-  xecReport2(req, res, stories, mode, result, callback)
+  execReport2(req, res, stories, mode, result, callback)
 }
 
 

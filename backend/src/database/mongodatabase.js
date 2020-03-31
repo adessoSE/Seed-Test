@@ -25,7 +25,7 @@ function connectDb() {
 function selectCollection(db) {
   dbo = db.db('Seed');
   return new Promise((resolve, reject) => {
-    dbo.collection('ChrisPlayground', (err, collection) => {
+    dbo.collection('Stories', (err, collection) => {
       if (err) {
         reject(err);
       } else {
@@ -61,39 +61,6 @@ function replace(storyID, story, collection) {
   })
 }
 
-
-
-// //Connecttion to DB
-// function connectDB) {
-//   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-//     if (err) throw err;
-//     const dbo = db.db('Seed');
-//     (dbo, db)
-//   });
-// }
-
-
-
-// //find a Story in DB
-// function findSStory(dbo, myObjt, db) {
-//   dbo.collection(collection).findOne(myObjt, (findError, result) => {
-//     if (findError) throw findError;
-//     const story = result;
-//   (dbo, db, story)
-//   })
-// }
-
-// //replace the DB Object and closes the DB-Connection
-// function replaceAndClose(dbo, db, myObjt, story) {
-//   dbo.collection(collection).findOneAndReplace(myObjt, story, { returnOriginal: false }, (replaceError, replaceResult) => {
-//     if (replaceError) throw replaceError;
-//   (replaceResult.value);
-//     db.close();
-//   })
-// }
-
-
-
 // get One Story
 async function getOneStory(storyID) {
   let db = await connectDb()
@@ -102,19 +69,6 @@ async function getOneStory(storyID) {
   db.close()
   return story
 }
-
-
-
-// // GET all  Steptypes
-// function showSteptype) {
-//   connectDB((dbo, db) => {
-//     dbo.collection('stepTypes').find({}).toArray((error, result) => {
-//       if (error) throw error;
-//     (result);
-//       db.close();
-//     });
-//   });
-// }
 
 // GET all  Steptypes
 async function showSteptypes() {
@@ -125,7 +79,6 @@ async function showSteptypes() {
   db.close();
   return result
 }
-
 
 // Create Background
 async function createBackground(storyID) {
@@ -174,12 +127,10 @@ async function createScenario(storyID) {
     tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
     story.scenarios.push(tmpScenario);
   }
-  let result = await replace(storyID, story, collection)
+  await replace(storyID, story, collection)
   db.close()
-  return result
+  return tmpScenario
 }
-
-
 
 // DELETE Scenario
 async function deleteScenario(storyID, scenarioID) {
@@ -232,19 +183,26 @@ async function upsertEntry(storyID, updatedContent) {
 // /////////////////////////////////////////// API Methods ////////////////////////////////////////
 // ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////
 
-// // Creates Database Backupfile
-// function writeBackup(__dirname, collection) {
-//   fs.writeFile(path.join(__dirname, 'dbbackups', 'dbbackup.json'), helper(collection), (err) => {
-//     if (err) throw err;
-//   });
-// }
+// Creates Database Backupfile
+async function writeBackup() {
+  fs.writeFile(path.join('./dbbackups/dbbackup.json'), await createContent(), (err) => {
+    if (err) throw err;
+  });
+}
 
-// function helper(collection) {
-//   let data = ""
-//   data += JSON.stringify(getCollection(collection));
-//   console.log(data)
-//   return data;
-// }
+async function createContent() {
+  let collection = await getCollection()
+  let data = '[\n'
+  for (let i = 0; i < collection.length; i++) {
+    if (collection[i] === collection[collection.length - 1]) {
+      data += JSON.stringify(collection[i]) + '\n]'
+    } else {
+      data += JSON.stringify(collection[i]) + ',\n';
+    }
+  }
+  return data;
+}
+//writeBackup()
 
 // show all Collections
 function getCollections() {
@@ -286,19 +244,15 @@ function insertOne(collection, content) {
   });
 }
 
-
 // show content of a specific collection
-function getCollection(name) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    dbo.collection(name).find({}).toArray((error, result) => {
-      if (error) throw error;
-      //console.log(JSON.stringify(result))
-      db.close();
-    });
-  });
+async function getCollection() {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let result = await collection.find({}).toArray()
+  db.close()
+  return result
 }
+
 
 
 // insert Many documents ("collectionname", [{documents},{...}] )
@@ -370,9 +324,6 @@ function installDatabase() {
   makeCollection(collection);
   insertMore('stepTypes', stepTypes());
 }
-
-//getCollection(collection)
-//writeBackup("", collection)
 
 module.exports = {
   showSteptypes,
