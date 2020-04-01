@@ -314,12 +314,10 @@ function runReport(req, res, stories, mode) {
       if(scenarioID && scenario){ 
         scenario.lastTestPassed = testPassed;
         mongo.updateScenario(story.story_id, scenario, (result) => {
-          console.log('updateScenario')
         })
       }else if(!scenarioID) {
         story.lastTestPassed = testPassed;
         mongo.updateStory(story.story_id, story, (result) => {
-          console.log('updateStory')
         })
       }
     });
