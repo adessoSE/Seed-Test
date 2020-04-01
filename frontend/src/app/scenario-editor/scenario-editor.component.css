@@ -23,6 +23,7 @@
 #scenarioHeader{
   color: #999;
   font-size: 20px;
+  font-weight: bold;
 }
 
 #scenario{
@@ -38,6 +39,7 @@
 #scenarioTitle{
   color: #56595e;
   font-weight: bold;
+  font-size: 17px;
 }
 
 
