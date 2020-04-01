@@ -2,8 +2,6 @@
 	color: #999;
 	cursor: help;
   position: relative;
-  font-size: 20px;
-  font-weight: lighter;
 }
 
 .def span[rel=def] {
@@ -22,7 +20,10 @@
   display: block;
 }
 
-
+#scenarioHeader{
+  color: #999;
+  font-size: 20px;
+}
 
 #scenario{
   border: 1px solid #999;
