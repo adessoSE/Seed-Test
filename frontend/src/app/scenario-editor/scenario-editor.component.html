@@ -90,22 +90,6 @@
           <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
         </ng-template>
       </div>
-      <!--------------------------------------------------
-      <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions); let i = index;">
-      <div class="uk-float-right">
-        <button id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
-          class="addStepButtons" (click)="addStepToScenario(selectedStory.story_id,step);" title="Add New Step" uk-tooltip></button>
-        <div uk-dropdown>
-          <ul class="uk-nav uk-dropdown-nav">
-            <li *ngFor="let step of originalStepTypes; let j = index;" >
-              <span class="dropdownStep" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd " (click)="addStepToScenario(selectedStory.story_id,step);"
-                href="#">{{step.type}}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-      -------------------------------------------------->
       <br>
       <div>
           <label>Comment</label><br>
