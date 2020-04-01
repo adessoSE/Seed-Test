@@ -290,7 +290,7 @@ function runReport(req, res, stories, mode) {
     reporter.generate(options);
     res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
     //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
-    let testPassed = false;
+    let testStatus = false;
     fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function(err, data) {
       let json = JSON.parse(data)
       let passed = 0;
@@ -299,29 +299,49 @@ function runReport(req, res, stories, mode) {
       let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID )
 
       json[0].elements.forEach((d) => {
+        let scenarioPassed = 0;
+        let scenarioFailed = 0;
+        let scenarioSkipped = 0;
         d.steps.forEach((s, i) => {
           switch(s.result.status){
-            case 'passed': passed++; break;
-            case 'failed': failed++; break;
-            case 'skipped': skipped++; break;
+            case 'passed': passed++; scenarioPassed++; break;
+            case 'failed': failed++; scenarioFailed++; break;
+            case 'skipped': skipped++; scenarioSkipped++; break;
             default:  console.log('Status default: ' + s.result.status);
           }
         })
+        story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed), d.tags[0].name, story)
       })
 
-      testPassed = failed <= 0 && passed >= 1;
+      testStatus = testPassed(failed, passed);
       
       if(scenarioID && scenario){ 
-        scenario.lastTestPassed = testPassed;
+        scenario.lastTestPassed = testStatus;
         mongo.updateScenario(story.story_id, scenario, (result) => {
         })
       }else if(!scenarioID) {
-        story.lastTestPassed = testPassed;
+        story.lastTestPassed = testStatus;
         mongo.updateStory(story.story_id, story, (result) => {
         })
       }
     });
   });
+}
+
+function testPassed(failed, passed){
+  return failed <= 0 && passed >= 1;
+}
+
+
+function updateScenarioTestStatus(testPassed, scenarioTagName, story){
+  let scenarioId = parseInt(scenarioTagName.split('_')[1]);
+  let scenario = story.scenarios.find(scenario => scenario.scenario_id === scenarioId);
+  if(scenario){
+    let index = story.scenarios.indexOf(scenario);
+    scenario.lastTestPassed = testPassed;
+    story.scenarios[index] = scenario;
+  }
+  return story;
 }
 
 module.exports = {
