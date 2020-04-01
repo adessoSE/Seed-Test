@@ -74,8 +74,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let i = index" >
-                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when' && step.type !== this.newStepName"  (click)="addStepToBackground(selectedStory.story_id,step);"
-                  href="#">{{step.type}}</a>
+                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when' && step.type !== this.newStepName"  (click)="addStepToBackground(selectedStory.story_id,step);">{{step.type}}</a>
               </li>
             </ul>
           </div>
@@ -106,6 +105,8 @@
         <!--Buttons Run Story-->
         <div class="uk-card-footer">
             <div class="uk-button-group uk-align-right">
+              <span class="lastTestText">Result of the last test:  </span>
+              <span class="dot" [class.notPassed]="!selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined" [class.passed]="selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined"></span>
               <button id="run_story" class="uk-button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
               <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
                 uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
@@ -119,11 +120,13 @@
     <br>
   <!--Scenario Header-->
 
-  <app-scenario-editor (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
+  <app-scenario-editor (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
 
       <!--Buttons Run Szenario-->
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
+          <span class="lastTestText">Result of the last test:</span>
+            <span class="dot"  [class.notPassed]="!selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined" [class.passed]="selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined"></span>
          <button id="run_scenario" class="uk-button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
             Run Scenario</button>
           <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
