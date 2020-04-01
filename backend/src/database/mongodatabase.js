@@ -270,13 +270,14 @@ function insertMore(name, content) {
   });
 }
 
-function update(gitID, updatedStuff) {
+function updateStory(gitID, updatedStuff, callback) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection('Stories').updateOne({ story_id: gitID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
+      callback(res)
     });
   });
 }
@@ -338,4 +339,5 @@ module.exports = {
   getOneStory,
   upsertEntry,
   installDatabase,
+  updateStory
 };
