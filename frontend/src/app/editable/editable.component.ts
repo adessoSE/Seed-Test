@@ -1,16 +1,14 @@
 import { Component, ContentChild, ElementRef, EventEmitter,
    Output, OnInit, OnDestroy } from '@angular/core';
-import { ViewModeDirective } from './view-mode.directive';
-import { EditModeDirective } from './edit-mode.directive';
+import { ViewModeDirective } from '../directives/view-mode.directive';
+import { EditModeDirective } from '../directives/edit-mode.directive';
 import { fromEvent, Subject } from 'rxjs';
 import { filter, take, switchMapTo } from 'rxjs/operators';
 import { untilDestroyed } from 'ngx-take-until-destroy';
 
 @Component({
   selector: 'editable',
-  template: `
-    <ng-container *ngTemplateOutlet="currentView"></ng-container>
-  `,
+  templateUrl: './editable.component.html',
   styleUrls: ['./editable.component.css']
 })
 export class EditableComponent implements OnInit, OnDestroy {

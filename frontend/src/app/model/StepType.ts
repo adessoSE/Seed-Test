@@ -1,6 +1,6 @@
 export interface StepType {
-    _id: string;
-    id: string;
+    _id?: string;
+    id: number;
     mid: string;
     pre: string;
     selection?: string[];

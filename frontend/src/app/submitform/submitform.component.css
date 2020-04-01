@@ -2,6 +2,12 @@
     font-size: small;
 }
 
+.uk-card-title {
+    font-size: medium;
+    font-weight: bold;
+}
+
+
 .uk-accordion{
     width: 100%;
 }
@@ -9,6 +15,12 @@
     color: #999;
     cursor: help;
     position: relative;
+    font-size: 20px;
+    font-weight: lighter;
+}
+
+.def span[rel=def] {
+    display: none;
 }
 
 .def:hover span[rel=def] {
@@ -16,15 +28,23 @@
     color: white;
     background-color: rgb(109, 109, 109);
     position: absolute;
-    bottom: 2em;
+    top: 2em;
     left: 2em;
     width: 30em;
     padding: 0.5em;
     display: block;
+    z-index: 100;
+}
+
+
+#infoIcon{
+    color: #999;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 #submitForm{
-    border: 1px solid #999;
+    width: 100%
 }
 
 #scname{
@@ -35,15 +55,40 @@
     border: 1px solid #999;
 }
 
-#storyheader{
+#modalHeader{
     color: #999;
+    float: left;
+    font-size: 20px;
 }
 
 #scenarioheader{
     color: #999;
 }
 
-#desricptionform{
+#description_form{
     width: 100%;
-    height: 10em;
+    height: 8em;
+}
+
+.padding_top{
+    padding-top: 10px;
+}
+
+.padding_right{
+    padding-right: 10px;
+}
+
+.uk-button{
+    color:#ffffff;
+    padding: 0px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: solid 1px #ffffff;
+    background: #0099CC;
+    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+}
+
+.uk-button:hover{
+    background: rgb(2, 111, 161);
 }

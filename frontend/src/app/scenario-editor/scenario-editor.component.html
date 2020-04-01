@@ -1,119 +1,3 @@
-<br>
-<div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
-  <h1>No Stories Yet In This Repository</h1>
-  <p>Find out how to create stories</p>
-  <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
-  <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
-</div>
-
-<div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
-  <h1>Loading Stories ...</h1>
-</div>
-
-<div class="emptyStories" *ngIf="storiesError">
-  <h1>You are not authorized to use this repository</h1>
-</div>
-
-<div *ngIf="stories">
-  <div class="padRight" *ngIf="(showEditor === true)">
-    <!--Story-->
-    <div class="uk-card uk-card-default padding" id="story">
-      <div>
-        <span id="storyHeader">Story</span>
-          <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-              <span rel="def">A user story describes requirements for a software system.
-                It is consciously kept in short sentences and simple words.
-                A story includes several scenarios.
-                The following template is recommended:
-                As a <...>, I want <...> so that <...>
-              </span></dfn>
-        <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
-      </div>
-      <br>
-      <!--Description-->
-      <div class="uk-card-title " [class.backgroundTitle]="!showDescription" [class.description]="showDescription" (click)="openDescription();">Description
-        <button id="description_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
-        <button id="description_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
-      </div>
-      <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
-        {{selectedStory.body}}
-      </div>
-      <!--Background-->
-      <div class="uk-card-title ">
-        <div [class.backgroundTitle]="!showBackground" [class.description]="showBackground" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
-          <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
-          <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
-        </div>
-        <br>
-        <div *ngIf="showBackground">
-        <!--Buttons-->
-          <div class="marginLeft">
-            <input id="background_name" #backgroundName type="text" value="{{selectedStory.background.name}}" on-change="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
-          </div>
-          <div class="uk-float-right backgroundItems">
-            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
-              class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
-              (click)="deleteBackground($event);">
-              <em class="material-icons">delete</em>
-            </button>
-            <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning" [disabled]="testRunning"
-              title="Save Background" 
-              (click)="updateBackground(selectedStory.story_id);">
-              <em class="material-icons">save</em>
-            </button>
-          </div>
-          <div class="uk-float-right">
-            <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
-              class="buttonGroup iconButton" title="Add New Step" uk-tooltip>
-              <em class="material-icons">add</em>
-            </button>
-          </div>
-          <div uk-dropdown>
-            <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of originalStepTypes; let i = index" >
-                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when'"  (click)="addStepToBackground(selectedStory.story_id,step);"
-                  href="#">{{step.type}}</a>
-              </li>
-            </ul>
-          </div>
-          <div class="uk-steps">
-            <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
-              <div class="text-inline backgroundItems" *ngFor="let currentStep of backgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
-                <button id="{{'background_remove_step' + j}}" a
-                  uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
-                  (click)="removeStepToBackground($event, j);">
-                </button>
-                {{j+1}}. {{currentStep.pre}}
-                <p style="display:inline" *ngIf="currentStep.values.length > 0">
-                  <input id="{{'background_step_input_pre' + j}}" #step_type_input
-                    type="text" value="{{currentStep.values[0]}}" on-change="addToValuesBackground(step_type_input.value,j,0)" />
-                    {{currentStep.mid}}
-                  <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
-                    type="text" value="{{currentStep.values[1]}}" on-change="addToValuesBackground(step_type_input.value,j,1)" />
-                </p>
-                {{currentStep.post}}
-                <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
-                type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j , n + 2)" />
-              </div>
-              <br>
-              <br>
-            </div>
-          </div>
-        </div>
-        <!--Buttons Run Story-->
-        <div class="uk-card-footer">
-            <div class="uk-button-group uk-align-right">
-              <button id="run_story" class="uk-button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
-              <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
-                uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
-              <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
-                uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
-              <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
-                uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
-            </div>
-          </div>
-      </div>
-    <br>
   <!--Scenario Header-->
   <div class="uk-card uk-card-default padding" id="scenario">
     <div>
@@ -128,11 +12,11 @@
                   </span></dfn>
         <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
         title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
-      <span id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
+      <span *ngIf="this.selectedScenario" id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
       <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
-        title="Change Scenario Title" uk-toggle (click)="renameScenario();"></button>
+        title="Change Scenario Title" uk-toggle></button>
       <div id="buttonGroupScenario" class="uk-align-right">
-        <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioFromStory(selectedStory.story_id)">
+        <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory.story_id)">
           <em class="material-icons">add</em>
         </button>
         <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
@@ -149,9 +33,10 @@
           title="Next Scenario" (click)="scenarioShiftRight();"></button>
       </div>
     </div>
-
+  
     <div class="uk-card-title padding">
-      <div *ngFor="let sd of keysList(selectedScenario.stepDefinitions);let i = index;">
+      <div *ngIf="this.selectedScenario">
+      <div *ngFor="let sd of getKeysList(this.selectedScenario.stepDefinitions);let i = index;">
         <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
         <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
         <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
@@ -163,7 +48,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span class="dropdownStep" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd " (click)="addStepToScenario(selectedStory.story_id,step);"
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStep_undefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
                   href="#">{{step.type}}</span>
               </li>
             </ul>
@@ -171,10 +56,10 @@
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div class="text-inline backgroundList" *ngFor="let currentStep of stepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
+            <div class="text-inline getBackgroundList" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
-                (click)="removeStepToScenario(currentStep.stepType, j);">
+                (click)="removeStepFromScenario(currentStep.stepType, j);">
               </button>
               {{i+1}}.{{j+1}} {{currentStep.pre}}
               <p style="display:inline" *ngIf="currentStep.values.length > 0">
@@ -218,62 +103,23 @@
       <br>
       <div>
           <label>Comment</label><br>
-          <textarea cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
+          <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
           </textarea>
       </div>
       <br>
-      <!--Buttons Run Szenario-->
-      <div class="uk-card-footer">
-        <div class="uk-button-group uk-align-right">
-         <button id="run_scenario" class="uk-button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
-            Run Scenario</button>
-          <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-down"
-            uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
-          <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:chevron-up"
-            uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
-          <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="uk-button uk-button-icon testButtons" uk-icon="icon:download"
-            uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
-        </div>
-      </div>
     </div>
   </div>
 
-
-
-  <!--Helps to see Loading text-->
-  <div *ngIf="!testRunning && !testDone">
-    <br>
-    <br>
-  </div>
-
-  <div id="loading">
-    <div class="uk-card-default loading" *ngIf="testRunning">
-     Loading . . .
-    </div>
-  </div>
-
-  <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
-    <div id="report-header" class="uk-card-header">
-      <h3 class="uk-card-title">Test Results</h3>
-    </div>
-    <div id="report-body" class="uk-card-body">
-      <div id="chartcontainer" class="chart-container" >
-        <iframe title="Test Report" id="testFrame" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
-      </div>
-    </div>
-  </div>
+<app-submitform #submitForm></app-submitform>
 
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
       <h2>Change Scenario Title</h2>
-      <input id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
+      <input *ngIf="this.selectedScenario" id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
       <p class="uk-text-right">
         <button id="change_scenario_title_cancel" class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-        <button id="change_scenario_title_save" class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event, ScenarioName.value)"
+        <button id="change_scenario_title_save" class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event)"
           type="button">Save</button>
       </p>
     </div>
   </div>
-</div>
-</div>
-</div>
