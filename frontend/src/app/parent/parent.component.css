@@ -1,4 +1,10 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
 .grid{
+    background-color: rgb(224, 224, 224);
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: auto;
@@ -14,6 +20,7 @@
 .storyEditor{
     grid-area: storyEditor;
 }
+
 
 
 @media screen and (max-width: 600px) {

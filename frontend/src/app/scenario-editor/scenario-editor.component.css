@@ -1,3 +1,8 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
 .def {
 	color: #999;
 	cursor: help;
@@ -119,19 +124,27 @@
   color: #0099CC;
 }
 
-.dropdownStep{
-  color:#0099CC;
-  cursor: pointer;
-}  
-  
-.dropdownStep_undefined{
-  color: #000080;
-  cursor: pointer;
+.uk-dropdown{
+  padding: 15px;
 }
 
-.dropdownStep:hover {
+.uk-nav > li > span{
+  padding: 1px;
+  cursor: pointer;
+}
+
+.uk-nav > li > .dropdownStep {
+  color:#0099CC;
+}  
+  
+.uk-nav > li > span:hover {
     color: gray;
-  }
+}
+
+.uk-nav > li > .dropdownStepUndefined {
+  color:#010186;
+}
+
 .addStepButtons{
   color: rgba(7, 142, 187, 0.733);
 }
