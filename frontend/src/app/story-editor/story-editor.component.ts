@@ -19,6 +19,7 @@ const emptyBackground = {name, stepDefinitions: {when: []}};
 })
 export class StoryEditorComponent implements OnInit {
 
+  originalStepTypes: StepType[];
   stories: Story[];
   selectedStory: Story;
   selectedScenario: Scenario;
@@ -50,6 +51,14 @@ export class StoryEditorComponent implements OnInit {
           this.storiesError = true;
           this.showEditor = false;
       });
+
+      this.apiService.getBackendUrlEvent.subscribe(() => {
+        this.loadStepTypes();
+    });
+
+    if (this.apiService.urlReceived) {
+        this.loadStepTypes();
+    }
   }
 
   ngOnInit() {
@@ -74,6 +83,15 @@ export class StoryEditorComponent implements OnInit {
       this.selectedStory = story;
       this.showEditor = true;
   }
+
+
+  loadStepTypes() {
+    this.apiService
+        .getStepTypes()
+        .subscribe((resp: StepType[]) => {
+            this.originalStepTypes = resp;
+        });
+}
 
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){

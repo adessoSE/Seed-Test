@@ -6,7 +6,6 @@ const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
@@ -189,12 +188,12 @@ function execReport2(req, res, stories, mode, story, callback) {
     if (error) {
       console.error(`exec error: ${error}`);
 
-      callback(reportTime);
+      callback(reportTime, story, req.params.scenarioID);
       return;
     }
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
-    callback(reportTime);
+    callback(reportTime, story, req.params.scenarioID);
   });
 }
 
@@ -250,6 +249,7 @@ function fuseGitWithDb(story, issueId) {
       if (result !== null) {
         story.scenarios = result.scenarios;
         story.background = result.background;
+        story.lastTestPassed = result.lastTestPassed;
       } else {
         story.scenarios = [emptyScenario()];
         story.background = emptyBackground();
@@ -283,13 +283,65 @@ function deleteHtmlReport(htmlReport) {
 
 
 function runReport(req, res, stories, mode) {
-  execReport(req, res, stories, mode, (reportTime) => {
+  execReport(req, res, stories, mode, (reportTime, story, scenarioID) => {
     setTimeout(deleteJsonReport, reportDeletionTime * 60000, `reporting_${reportTime}.json`);
     setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
     setOptions(reportTime);
     reporter.generate(options);
     res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
+    //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
+    let testStatus = false;
+    fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function(err, data) {
+      let json = JSON.parse(data)
+      let passed = 0;
+      let failed  = 0;
+      let skipped = 0;
+      let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID )
+
+      json[0].elements.forEach((d) => {
+        let scenarioPassed = 0;
+        let scenarioFailed = 0;
+        let scenarioSkipped = 0;
+        d.steps.forEach((s, i) => {
+          switch(s.result.status){
+            case 'passed': passed++; scenarioPassed++; break;
+            case 'failed': failed++; scenarioFailed++; break;
+            case 'skipped': skipped++; scenarioSkipped++; break;
+            default:  console.log('Status default: ' + s.result.status);
+          }
+        })
+        story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed), d.tags[0].name, story)
+      })
+
+      testStatus = testPassed(failed, passed);
+      
+      if(scenarioID && scenario){ 
+        scenario.lastTestPassed = testStatus;
+        mongo.updateScenario(story.story_id, scenario, (result) => {
+        })
+      }else if(!scenarioID) {
+        story.lastTestPassed = testStatus;
+        mongo.updateStory(story.story_id, story, (result) => {
+        })
+      }
+    });
   });
+}
+
+function testPassed(failed, passed){
+  return failed <= 0 && passed >= 1;
+}
+
+
+function updateScenarioTestStatus(testPassed, scenarioTagName, story){
+  let scenarioId = parseInt(scenarioTagName.split('_')[1]);
+  let scenario = story.scenarios.find(scenario => scenario.scenario_id === scenarioId);
+  if(scenario){
+    let index = story.scenarios.indexOf(scenario);
+    scenario.lastTestPassed = testPassed;
+    story.scenarios[index] = scenario;
+  }
+  return story;
 }
 
 module.exports = {

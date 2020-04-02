@@ -13,7 +13,7 @@ export class LoginComponent implements OnInit {
 
   repositories: string[];
   error: string;
-  private testAccountName: string = 'adessoCucumber';
+  private testAccountName = 'adessoCucumber';
   private testAccountToken: string;
 
   constructor(public apiService: ApiService,
