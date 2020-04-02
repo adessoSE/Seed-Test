@@ -76,19 +76,6 @@
               <em class="material-icons">save</em>
             </button>
           </div>
-          <div class="uk-float-right">
-            <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
-              class="buttonGroup iconButton" title="Add New Step" uk-tooltip>
-              <em class="material-icons">add</em>
-            </button>
-          </div>
-          <div uk-dropdown>
-            <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of originalStepTypes; let i = index" >
-                <a id="{{'backgound_add_step_type' + i}}" *ngIf="step.stepType === 'when' && step.type !== this.newStepName"  (click)="addStepToBackground(selectedStory.story_id,step);">{{step.type}}</a>
-              </li>
-            </ul>
-          </div>
           <div class="uk-steps">
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
               <div class="text-inline" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
