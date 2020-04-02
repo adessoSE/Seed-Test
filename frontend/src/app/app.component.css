@@ -3,21 +3,72 @@
   margin: 0px;
 }
 /* Refactor this*/
+.grid{
+  background-color: rgb(224, 224, 224);
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+  "topnav"
+  "router"
+  "footer";
+  
+  /*Below provides sticky footer*/
+  min-height: 100vh;
+}
+
+.router{
+  grid-area: router;
+}
 
 .footer{
+  grid-area: footer;
   background-color: #999;
-  overflow: hidden;
-  position: relative;
   text-align: center;
-  width: 100%;
-  display: inline-block;
-  transform: translate(0, 25%);
 }
 
 .footer > p{
   display: inline;
   padding: 0px 15px;
   justify-content: center;
+}
+
+.topnav{
+  grid-area: topnav;
+  background-color: #999;
+}
+
+.topnav a {
+  text-align: center;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav-center a {
+  float: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%)
+}
+
+.topnav-left {
+  float:left;
+  height: 50px;
+}
+
+.topnav-left a{
+  transform: translate(0%, 0%);
+}
+
+.topnav-right{
+  float: right;
+}
+
+.topnav-right a{
+  float: right;
+  padding: 12px;
+  margin-top: 4px;
 }
 
 .impressum, .terms {
@@ -95,45 +146,7 @@ img {
   height: 51px;
 }
 
-.topnav{
-  background-color: #999;
-  position: relative;
-  overflow: hidden;
-  height: 50px;
-}
 
-.topnav a {
-  text-align: center;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.topnav-center a {
-  float: none;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%)
-}
-
-.topnav-left {
-  float:left;
-  height: 50px;
-}
-
-.topnav-left a{
-  transform: translate(0%, 0%);
-}
-
-.topnav-right{
-  float: right;
-}
-
-.topnav-right a{
-  float: right;
-  padding: 12px;
-  margin-top: 4px;
-}
 
 .right-button{
   border: 1px solid transparent;

@@ -11,6 +11,7 @@
     grid-template-areas:
     "storiesBar storyEditor storyEditor storyEditor";
     grid-column-gap: 10px;
+    padding-bottom: 5px;
 }
 
 .storiesBar{
