@@ -1,4 +1,37 @@
-.bgColor{
-    margin-top: 6px;
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+.grid{
     background-color: rgb(224, 224, 224);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+    "storiesBar storyEditor storyEditor storyEditor";
+    grid-column-gap: 10px;
+    padding-bottom: 5px;
+}
+
+.storiesBar{
+    grid-area: storiesBar;
+}
+
+.storyEditor{
+    grid-area: storyEditor;
+}
+
+
+
+@media screen and (max-width: 600px) {
+    .grid{
+        display: grid;
+        grid-template-columns: 94%;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+        "storiesBar"
+        "storyEditor";
+        justify-content: center;
+    }
 }
