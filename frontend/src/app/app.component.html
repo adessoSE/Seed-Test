@@ -1,13 +1,6 @@
 <div class="grid">
   <div class="topnav">
-    <!--center-->
-    <div class="topnav-center">
-      <a routerLink="/" class="title">
-        <h4 id="seedTest">
-          <img id= logo src="assets/seed-test-logo1.png" alt="Seed-Test">
-        </h4>
-      </a>
-    </div>
+
     <!--left-->
     <div class="topnav-left">
       <a routerLink="/feedback">
@@ -22,10 +15,19 @@
       </div>
       <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
     </div>
+
+    <!--center-->
+    <div class="topnav-center">
+      <a routerLink="/" class="title">
+        <h4 id="seedTest">
+          <img id="logo" src="assets/seed-test-logo1.png" alt="Seed-Test">
+        </h4>
+      </a>
+    </div>
     <!--right-->
     <div class="topnav-right">
-      <p id="version">Version 1.0.0</p>
-      <span *ngIf="this.token || this.repository">
+        <p id="version">Version 1.0.0</p>
+      <div *ngIf="this.token || this.repository">
         <div class="dropdown">
           <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
           <ul class="dropdown-list">
@@ -36,7 +38,7 @@
           </ul>
         </div>
         <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
-      </span>
+      </div>
     </div>
   </div>
 
