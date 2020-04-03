@@ -1,3 +1,8 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
 .def {
 	color: #999;
 	cursor: help;
@@ -58,26 +63,32 @@
   border:2px solid rgb(255, 255, 255);
 }
 
-.uk-button{
-  color:#ffffff;
-  padding: 0px 10px;
-  font-size: 15px;
-  cursor: pointer;
-  border: solid 1px #ffffff;
-  background: #0099CC;
-  background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
-}
-
-.uk-button:hover{
-  background: rgb(2, 111, 161);
-}
-
 .uk-button-icon{
   padding-left:0;
   padding-right:0;
 }
 
+.button {
+  margin-right: 3px;
+  color:#ffffff;
+  padding: 0px 10px;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 3px;
+  border: solid 1px #0099CC;
+  background: #0099CC;
+  background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+  line-height: 38px;
+  text-transform: uppercase;
+}
 
+.modalMargin{
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.button:hover {
+  background: rgb(2, 111, 161);
+}
 .padding{
   padding-top: 20px;
   padding-left: 20px;
@@ -119,19 +130,27 @@
   color: #0099CC;
 }
 
-.dropdownStep{
-  color:#0099CC;
-  cursor: pointer;
-}  
-  
-.dropdownStep_undefined{
-  color: #000080;
-  cursor: pointer;
+.uk-dropdown{
+  padding: 15px;
 }
 
-.dropdownStep:hover {
+.uk-nav > li > span{
+  padding: 1px;
+  cursor: pointer;
+}
+
+.uk-nav > li > .dropdownStep {
+  color:#0099CC;
+}  
+  
+.uk-nav > li > span:hover {
     color: gray;
-  }
+}
+
+.uk-nav > li > .dropdownStepUndefined {
+  color:#000080;
+}
+
 .addStepButtons{
   color: rgba(7, 142, 187, 0.733);
 }
@@ -166,4 +185,9 @@
 
 table {
   width: 100%;
+}
+
+.comment > textarea {
+  width: 60%;
+  height: 50px;
 }

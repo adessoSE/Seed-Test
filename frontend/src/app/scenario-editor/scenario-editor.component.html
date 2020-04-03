@@ -48,8 +48,8 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStep_undefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);"
-                  href="#">{{step.type}}</span>
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);">
+              {{step.type}}</span>
               </li>
             </ul>
           </div>
@@ -91,7 +91,7 @@
         </ng-template>
       </div>
       <br>
-      <div>
+      <div class="comment">
           <label>Comment</label><br>
           <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
           </textarea>
@@ -103,12 +103,12 @@
 <app-submitform #submitForm></app-submitform>
 
   <div id="changeScenario" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body">
-      <h2>Change Scenario Title</h2>
+    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin padding">
+      <h2 class="padding">Change Scenario Title</h2>
       <input *ngIf="this.selectedScenario" id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
       <p class="uk-text-right">
-        <button id="change_scenario_title_cancel" class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-        <button id="change_scenario_title_save" class="uk-button uk-button-primary uk-modal-close" (click)="renameScenario($event)"
+        <button id="change_scenario_title_cancel" class="button uk-modal-close" type="button">Cancel</button>
+        <button id="change_scenario_title_save" class="button uk-modal-close" (click)="renameScenario($event)"
           type="button">Save</button>
       </p>
     </div>

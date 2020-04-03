@@ -18,7 +18,7 @@ import { SubmitformComponent } from '../submitform/submitform.component';
 
 export class ScenarioEditorComponent implements OnInit {
 
-    originalStepTypes: StepType[];
+    
     selectedStory: Story;
     selectedScenario: Scenario;
     arrowLeft = true;
@@ -30,18 +30,12 @@ export class ScenarioEditorComponent implements OnInit {
     @ViewChild('submitForm') modalService: SubmitformComponent;
     constructor(
         public apiService: ApiService,
-    ) {
-        this.apiService.getBackendUrlEvent.subscribe(() => {
-            this.loadStepTypes();
-        });
-
-        if (this.apiService.urlReceived) {
-            this.loadStepTypes();
-        }
-    }
+    ) { }
 
     ngOnInit() {
     }
+
+    @Input() originalStepTypes: StepType[];
 
     @Input() testRunning: boolean;
 
@@ -99,13 +93,6 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    loadStepTypes() {
-        this.apiService
-            .getStepTypes()
-            .subscribe((resp: StepType[]) => {
-                this.originalStepTypes = resp;
-            });
-    }
 
 
     updateScenario(storyID: number) {
@@ -124,7 +111,8 @@ export class ScenarioEditorComponent implements OnInit {
         if (undefined_steps.length != 0) {
             console.log("There are undefined steps here");
         }
-      
+        this.selectedScenario.lastTestPassed = null;
+
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
             .subscribe(resp => {

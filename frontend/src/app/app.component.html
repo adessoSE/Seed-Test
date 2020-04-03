@@ -1,61 +1,73 @@
-<div class="topnav">
-  <!--center-->
-  <div class="topnav-center">
-    <a routerLink="/" class="title">
-      <h4 id="seedTest">
-        <img id= logo src="assets/seed-test-logo1.png" alt="Seed-Test">
-      </h4>
-    </a>
-  </div>
-  <!--left-->
-  <div class="topnav-left">
-    <a routerLink="/feedback">
-      <button class="left-button">Feedback</button>
-    </a>
-    <div class="dropdown">
-      <button class="left-button">Help</button>
-      <div class="dropdown-list">
-        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
-        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
+<div class="grid">
+  <div class="topnav">
+
+    <!--left-->
+    <div class="topnav-left">
+      <a routerLink="/feedback">
+        <button class="left-button">Feedback</button>
+      </a>
+      <div class="dropdown">
+        <button class="left-button">Help</button>
+        <div class="dropdown-list">
+          <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
+          <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
+        </div>
+      </div>
+      <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
+    </div>
+
+    <!--center-->
+    <div class="topnav-center">
+      <a routerLink="/" class="title">
+        <h4 id="seedTest">
+          <img id="logo" src="assets/seed-test-logo1.png" alt="Seed-Test">
+        </h4>
+      </a>
+    </div>
+    <!--right-->
+    <div class="topnav-right">
+        <p id="version">Version 1.0.0</p>
+      <div *ngIf="this.token || this.repository">
+        <div class="dropdown">
+          <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
+          <ul class="dropdown-list">
+            <li *ngFor="let repository of repositories; let i = index" >
+              <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
+               href="#">{{repository}}</a>
+            </li>
+          </ul>
+        </div>
+        <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
       </div>
     </div>
-    <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
   </div>
-  <!--right-->
-  <div class="topnav-right">
-    <p id="version">Version 1.0.0</p>
-    <span *ngIf="this.token || this.repository">
-      <div class="dropdown">
-        <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
-        <ul class="dropdown-list">
-          <li *ngFor="let repository of repositories; let i = index" >
-            <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-             href="#">{{repository}}</a>
-          </li>
-        </ul>
+
+  <div class="router">
+    <router-outlet></router-outlet>
+  </div>
+
+  <footer id="footer" class="footer">
+    <div class="footerCenter">
+      <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
+      <p class="terms" (click)="openTerms()">Terms</p>
+    </div>
+    <div class="adessoLogo">
+      <a href="https://www.adesso.de/en/">
+        <img id="adesso-logo" src="assets/adesso-logo.jpg" alt="adesso AG">
+      </a>
+    </div>
+    <div class="expendable">
+      <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
+        <p>Seed-Test</p>
+        <p>Email: seed-test@adesso.de</p>
+        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test" target="_blank">https://github.com/adessoAG/Seed-Test</a>
       </div>
-      <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
-    </span>
-  </div>
+      <div id="termsContent" class="termsContent" *ngIf="showTerms">
+        <p>This is only a demo version of an open source application</p>
+        <p>The maker of this service is not liable for the user and its data</p>
+        <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/blob/master/LICENSE" target="_blank">It is licenced under the MIT Licence</a>
+        <p><a routerLink="/terms" target="_blank">For more information</a></p>
+      </div>
+    </div>
+  </footer>
 </div>
-
-<router-outlet></router-outlet>
-
-<footer id="footer" class="footer">
-  <a href="https://www.adesso.de/en/">
-    <img id="adesso-logo" src="assets/adesso-logo.jpg" alt="adesso AG">
-  </a>
-  <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
-  <p class="terms" (click)="openTerms()">Terms</p>
-  <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
-    <p>Seed-Test</p>
-    <p>Email: seed-test@adesso.de</p>
-    <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test" target="_blank">https://github.com/adessoAG/Seed-Test</a>
-  </div>
-  <div id="termsContent" class="termsContent" *ngIf="showTerms">
-    <p>This is only a demo version of an open source application</p>
-    <p>The maker of this service is not liable for the user and its data</p>
-    <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/blob/master/LICENSE" target="_blank">It is licenced under the MIT Licence</a>
-    <p><a routerLink="/terms" target="_blank">For more information</a></p>
-  </div>
-</footer>
