@@ -56,7 +56,7 @@
               class="buttonGroup iconButton" title="Add New Step" uk-tooltip uk-icon="icon: plus-circle">
               <!--<em class="material-icons">add</em>-->
             </button>
-            <div uk-dropdown="pos: left">
+            <div uk-dropdown="pos: left-bottom">
               <ul class="uk-nav uk-dropdown-nav">
                 <li *ngFor="let step of originalStepTypes; let i = index" >
                   <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory.story_id,step);">
