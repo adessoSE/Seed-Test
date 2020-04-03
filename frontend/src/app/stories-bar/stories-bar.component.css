@@ -34,6 +34,7 @@
     padding-right: 10px;
     padding-bottom: 1px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
+    background-color: white;
   }
 
   #infoIcon{
@@ -67,7 +68,7 @@
 }
 
   a {
-    color: #0099CC;
+    color: black;
     transition: 0.3s;
     font-size: 1em;
   }
@@ -81,3 +82,40 @@
     color: #56595e;
   }
 
+  .uk-accordion-content .passed,
+  .uk-accordion-title.uk-background-muted .passed{
+    color: green;
+  }
+  
+  .uk-accordion-title.uk-background-muted span.notPassed{
+    background-color: red;
+    /*visibility:visible;*/
+  }
+
+
+  .uk-accordion-title.uk-background-muted span.passed{
+    background-color: green;
+    /*visibility:visible;*/
+  }
+  
+  .uk-accordion-content .notPassed,
+  .uk-accordion-title.uk-background-muted .notPassed{
+    color: red;
+  }
+  /*.uk-accordion-title.uk-background-muted{
+    display: flex;
+    align-items: center;
+  }*/
+  .spanContainer {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .dot {
+    height: 11px;
+    width: 11px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+   /* visibility: hidden;*/
+  }

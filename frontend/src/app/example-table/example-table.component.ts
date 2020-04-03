@@ -13,7 +13,7 @@ export class ExampleTableComponent implements OnInit {
   data = [];
   controls: FormArray;
   selectedScenario: Scenario;
-  exampleThere = false;
+  exampleThere: boolean = false;
 
   @Output()
   removeRowIndex: EventEmitter<number> = new EventEmitter();
@@ -64,7 +64,7 @@ export class ExampleTableComponent implements OnInit {
     }
   }
 
-  updateField(columnIndex, rowIndex, field) {
+  updateField(columnIndex: number, rowIndex: number, field: string) {
     const control = this.getControl(rowIndex, field);
     if (control.valid) {
       this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex] = control.value;
@@ -74,7 +74,7 @@ export class ExampleTableComponent implements OnInit {
     }
    }
 
-  getControl(rowIndex, fieldName): FormControl {
+  getControl(rowIndex: number, fieldName: string): FormControl {
     return this.controls.at(rowIndex).get(fieldName) as FormControl;
   }
 

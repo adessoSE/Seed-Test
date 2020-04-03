@@ -3,7 +3,9 @@ const { MongoClient } = require('mongodb');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-//const dotenv = require('dotenv').config();
+if(!process.env.NODE_ENV){
+  const dotenv = require('dotenv').config();
+}
 
 const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
@@ -304,13 +306,14 @@ function insertMore(name, content) {
   });
 }
 
-function update(gitID, updatedStuff) {
+function updateStory(gitID, updatedStuff, callback) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
     dbo.collection('Stories').updateOne({ story_id: gitID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
+      callback(res)
     });
   });
 }
@@ -374,4 +377,5 @@ module.exports = {
   getOneStory,
   upsertEntry,
   installDatabase,
+  updateStory
 };

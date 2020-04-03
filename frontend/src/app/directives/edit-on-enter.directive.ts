@@ -1,5 +1,5 @@
 import { Directive, HostListener } from '@angular/core';
-import { EditableComponent } from './editable.component';
+import { EditableComponent } from '../editable/editable.component';
 
 @Directive({
   selector: '[editableOnEnter]'

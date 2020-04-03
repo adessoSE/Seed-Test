@@ -14,6 +14,11 @@
     font-size: 20px;
 }
 
+.bgSelectRepository{
+    background-color:rgb(224, 224, 224);
+    border: 1px solid #999;
+}
+
 #body{
     text-align: center;
 }
@@ -23,7 +28,6 @@
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    border-radius: 3px;
     border: solid 1px #0099CC;
     background: #0099CC;
     background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));

@@ -1,0 +1,229 @@
+ * {
+   margin: 0;
+   padding: 0;
+ }
+  .emptyStories{
+    color: #999;
+  }
+  .emptyStories h1{
+    color: #999;
+  }
+  
+  .emptyStories a {
+    display: block;
+  }
+
+  #storyHeader{
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+  
+  .def {
+      color: #999;
+      cursor: help;
+      position: relative;
+  }
+  
+  .def span[rel=def] {
+      display: none;
+  }
+  
+  .def:hover span[rel=def] {
+    font-size: small;
+    color: white;
+    background-color: rgb(109, 109, 109);
+    position: absolute;
+    bottom: 2em;
+    left: 2em;
+    width: 30em;
+    padding: 0.5em;
+    display: block;
+  }
+
+  #storyHeader{
+      color: #999;
+      font-size: 20px;
+      font-weight: bold;
+  }
+  
+  #story{
+    border: 1px solid #999;
+  }
+
+  
+  #infoIcon{
+    color: #999;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+  .button {
+    margin-right: 3px;
+    color:#ffffff;
+    padding: 0px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 3px;
+    border: solid 1px #0099CC;
+    background: #0099CC;
+    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+    line-height: 38px;
+    text-transform: uppercase;
+  }
+
+  .uk-card-footer{
+    padding: 15px 0px;
+  }
+  
+  .button:hover {
+    background: rgb(2, 111, 161);
+  }
+  
+  .uk-button-group{
+    border-radius:4px;
+    border:2px solid rgb(255, 255, 255);
+  }
+  
+  .padding{
+    padding: 20px;
+  }
+  
+  .iconButton {
+    border: none;
+    background-color: #ffffff;
+    padding: 0px;
+    border-radius: 10%;
+  }
+  
+  .iconButton em{
+    vertical-align:middle;
+    color: #0099CC;
+    border-radius: 10%;
+  }
+  
+  .iconButton em:active {
+    background-color: #0099CC;
+    color: #ffffff;
+  }
+
+  .uk-dropdown{
+    padding: 15px;
+  }
+  
+  .uk-nav > li > span{
+    padding: 1px;
+    cursor: pointer;
+  }
+  
+  .uk-nav > li > .dropdownStep {
+    color:#0099CC;
+  }  
+    
+  .uk-nav > li > span:hover {
+      color: gray;
+  }
+  
+  .buttonGroup{
+    text-align: center;
+    margin-left: 10px;
+    color: #0099CC;
+  }
+  
+  .disabled {
+    color: gray !important;
+    background: white !important;
+  }
+  
+  .disabled em{
+    color: gray !important;
+    background: white !important;
+  }
+  
+  .text-inline{
+    font-weight:normal;
+  }
+  
+  .uk-card-title {
+    font-size: medium;
+    font-weight: bold;
+  }
+
+  .disabledButton{
+    visibility: hidden;
+    background:#dddddd
+  }
+
+
+  .descriptionText{
+    font-weight: 100;
+  }
+  
+  .backgroundItems{
+    padding-right:40px;
+  }
+
+  .backgroundButtons{
+    float: right;
+    padding-right:40px;
+  }
+  
+  .loading{
+    text-align: center;
+    font-size: 40px;
+  }
+
+  .showButton{
+    padding-right: 40px;
+  }
+
+  .expand:hover {
+    background-color: lightgrey;
+    transition: 0.3s;
+    cursor: pointer;
+  }
+  
+  .title {
+    color: #333;
+    font-size: medium;
+    font-weight: 700;
+    line-height: 1.4;
+    padding: 15px 30px;
+  }
+
+  .storyTitle{
+    color: #0099CC;
+    font-weight: bold;
+    font-size: 17px;
+  }
+  
+  .padRight{
+    padding-right: 10px;
+  }
+  
+  .marginLeft{
+    margin-left: 40px;
+    display:inline-block;
+  }
+
+  span.notPassed{
+    background-color: red;
+  }
+
+
+  span.passed{
+    background-color: green;
+  }
+
+  .dot {
+    height: 20px;
+    width: 20px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 20px;
+    vertical-align: middle;
+  }
+
+  .lastTestText {
+    margin-right: 10px;
+  }

@@ -30,28 +30,23 @@ export class ParentComponent implements OnInit {
    }
 
   ngOnInit() {
-    // let users only use site if they are logged in
-    /*let token = localStorage.getItem('token');
-    if(!token){
-      this.router.navigate(['/login']);
-    }*/
   }
 
   loadStories() {
     let repository = localStorage.getItem('repository');
     this.apiService
       .getStories(repository, this.apiService.getToken())
-      .subscribe((resp: any) => {
+      .subscribe((resp: Story[]) => {
         this.stories = resp;
       });
 
   }
 
-  setSelectedStory(story){
+  setSelectedStory(story: Story){
     this.selectedStory = story;
   }
 
-  setSelectedScenario(scenario){
+  setSelectedScenario(scenario: Scenario){
     this.selectedScenario = scenario;
   }
 

@@ -11,10 +11,10 @@ import { NgForm} from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
 
-  repositories;
-  error;
+  repositories: string[];
+  error: string;
   private testAccountName = 'adessoCucumber';
-  private testAccountToken;
+  private testAccountToken: string;
 
   constructor(public apiService: ApiService,
               public router: Router) {
@@ -37,7 +37,6 @@ export class LoginComponent implements OnInit {
   loginTestAccount() {
     this.error = undefined;
     this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
-      console.log('repos: ' + JSON.stringify(resp));
       this.repositories = resp;
       localStorage.setItem('token', this.testAccountToken);
       localStorage.setItem('githubName', this.testAccountName);

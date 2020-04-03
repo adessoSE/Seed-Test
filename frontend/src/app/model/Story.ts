@@ -2,8 +2,8 @@ import {Scenario} from './Scenario';
 import { Background } from './Background';
 
 export interface Story {
-    issue_number: any;
-    story_id: any;
+    issue_number: number;
+    story_id: number;
     background: Background;
     scenarios: Scenario[];
     title: string;
@@ -11,4 +11,5 @@ export interface Story {
     state: string;
     assignee: string;
     assignee_avatar_url: string;
+    lastTestPassed?: boolean;
 }
