@@ -271,6 +271,7 @@ function insertMore(name, content) {
   });
 }
 
+
 function update(storyID, updatedStuff) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
@@ -278,6 +279,7 @@ function update(storyID, updatedStuff) {
     dbo.collection(collection).updateOne({ story_id: storyID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
+      callback(res)
     });
   });
 }
@@ -338,4 +340,5 @@ module.exports = {
   getOneStory,
   upsertEntry,
   installDatabase,
+  updateStory
 };
