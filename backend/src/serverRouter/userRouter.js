@@ -38,10 +38,11 @@ router.post('/login', (req, res, next) => {
             if(err){
                 return res.json(err);
             }else {
-                res.json(user);
+                //res.json(user);
             }
         });
-    })(req, res, next);
+    })
+    (req, res, next)
 });
 
 // registers user
@@ -58,5 +59,9 @@ router.get('/logout', async (req, res) => {
     req.logout();
     res.json({status: 'success'})
 });
+
+router.post('/loginGithub', async (req, res) => {
+    passport.authenticate('twitter');
+})
 
 module.exports = router;

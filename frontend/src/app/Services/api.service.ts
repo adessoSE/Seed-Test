@@ -20,7 +20,7 @@ export class ApiService {
     public getStoriesEvent = new EventEmitter();
     public getTokenEvent = new EventEmitter();
     public getBackendUrlEvent = new EventEmitter();
-
+    public user;
     constructor(private http: HttpClient) {
     }
 
@@ -35,6 +35,19 @@ export class ApiService {
         
         return this.http.get<string[]>(str)
           .pipe(tap(resp => {}),
+            catchError(this.handleError));
+    }
+
+    public loginUser(email: string, password: string): Observable<any> {
+        const str = this.apiServer + '/user/login'
+        let user = {
+            email, password
+        }
+        return this.http.post<string[]>(str, user)
+          .pipe(tap(resp => {
+              console.log('resp: ' + JSON.stringify(resp))
+            this.getStoriesEvent.emit(resp);
+          }),
             catchError(this.handleError));
     }
 

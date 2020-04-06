@@ -25,11 +25,14 @@ export class LoginComponent implements OnInit {
 
   login(form: NgForm) {
     this.error = undefined;
-    this.apiService.getRepositories(form.value.token, form.value.githubName).subscribe((resp) => {
-      this.repositories = resp;
-      localStorage.setItem('token', form.value.token);
-      localStorage.setItem('githubName', form.value.githubName);
-    }, (err) => {
+    //this.apiService.getRepositories(form.value.token, form.value.githubName).subscribe((resp) => {
+    //  this.repositories = resp;
+    //  localStorage.setItem('token', form.value.token);
+    //  localStorage.setItem('githubName', form.value.githubName);
+    //}, (err) => {
+      this.apiService.loginUser(form.value.githubName, form.value.token).subscribe((resp) => {
+        console.log('login')
+      }, (err) => {
       this.error = err.error;
     });
   }

@@ -45,7 +45,6 @@ async function getUserById(id){
   return result
 }
 
-
 function connectDb() {
   return new Promise((resolve, reject) => {
     MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
@@ -69,6 +68,16 @@ function selectCollection(db) {
       }
     })
   })
+}
+
+
+async function updateStory(gitID, updatedStuff) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await replace(gitID, updatedStuff, collection)
+  db.close()
+  console.log('story: ' + JSON.stringify(story))
+  return story
 }
 
 function findStory(storyID, collection) {
@@ -313,7 +322,6 @@ function update(storyID, updatedStuff) {
     dbo.collection(collection).updateOne({ story_id: storyID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
-      callback(res)
     });
   });
 }
@@ -364,6 +372,7 @@ function installDatabase() {
 }
 
 module.exports = {
+  updateStory,
   getUserById,
   registerUser,
   getUserByEmail,

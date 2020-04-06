@@ -8,6 +8,8 @@ const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
+const fetch = require('node-fetch');
+const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 
 // this is needed for the html report
 const options = {
@@ -139,6 +141,40 @@ function getScenarioContent(scenarios, storyID) {
   return data;
 }
 
+async function getGithubStories(githubName, githubRepo, token){
+  const tmpStories = [];
+  // get Issues from GitHub .
+  const headers = {
+    Authorization: `token ${token}`,
+  };
+  let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
+      if (response.status === 401) {
+        console.log('test')
+        //res.sendStatus(401);
+      }
+      if (response.status === 200) {
+        let json = await response.json();
+          for (const issue of json) {
+            // only relevant issues with label: "story"
+            const story = {
+              story_id: issue.id,
+              title: issue.title,
+              body: issue.body,
+              state: issue.state,
+              issue_number: issue.number,
+            };
+            if (issue.assignee !== null) { // skip in case of "unassigned"
+              story.assignee = issue.assignee.login;
+              story.assignee_avatar_url = issue.assignee.avatar_url;
+            } else {
+              story.assignee = 'unassigned';
+              story.assignee_avatar_url = unassignedAvatarLink;
+            }
+            tmpStories.push(fuseGitWithDb(story, issue.id));
+          }
+          return Promise.all(tmpStories);
+      }
+}
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
@@ -316,8 +352,7 @@ function runReport(req, res, stories, mode) {
         })
       }else if(!scenarioID) {
         story.lastTestPassed = testStatus;
-        mongo.updateStory(story.story_id, story, (result) => {
-        })
+        mongo.updateStory(story.story_id, story)
       }
     });
   });
@@ -340,6 +375,7 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story){
 }
 
 module.exports = {
+  getGithubStories,
   options,
   deleteHtmlReport,
   deleteJsonReport,

@@ -36,12 +36,15 @@ export class StoriesBarComponent implements OnInit {
   }
 
   selectScenario(storyID, scenario: Scenario) {
+
     this.selectedScenario = scenario;
     this.scenarioChosen.emit(scenario);
   }
 
 
   selectStoryScenario(story: Story) {
+    console.log(story.lastTestPassed)
+
     this.selectedStory = story;
     this.storyChosen.emit(story);
     const storyIndex = this.stories.indexOf(this.selectedStory);
