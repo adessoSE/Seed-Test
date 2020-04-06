@@ -283,6 +283,7 @@ async function fuseGitWithDb(story, issueId) {
   if (result !== null) {
     story.scenarios = result.scenarios;
     story.background = result.background;
+    story.lastTestPassed = result.lastTestPassed;
   } else {
     story.scenarios = [emptyScenario()];
     story.background = emptyBackground();
