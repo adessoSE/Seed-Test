@@ -5,47 +5,58 @@ const process = require('process');
 const fetch = require('node-fetch');
 const helper = require('../serverHelper');
 const passport = require('passport')
-const initializePassport = require('./passport-config');
+const initializePassport = require('../passport-config');
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
+const mongo = require('../database/mongodatabase');
 
 const router = express.Router();
 // router for all user requests
 
-initializePassport(passport, getUserByEmail, getUserById)
-
-
-function getUserByEmail(email, callback){
-    mongo.getUserByEmail(email, callback)
-  }
-  
-function getUserById(id, callback){
-  mongo.getUserById(id, callback)
-}
-  
+initializePassport(passport, mongo.getUserByEmail, mongo.getUserById)
 
 router
   .use(cors())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
   .use((_, __, next) => {
-    console.log('Time of github request:', Date.now());
+    console.log('Time of user request:', Date.now());
     next();
   });
 
-// get stories from github
-router.get('/login', passport.authenticate('local'), (req, res) => {
-    console.log('test')
+// logges in user
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', function(error, user, info){
+        if(error){
+            return res.json(error);
+        }
+        if(!user){
+            info.status = 'error';
+            return res.json(info);
+        }
+        req.logIn(user, function(err){
+            if(err){
+                return res.json(err);
+            }else {
+                res.json(user);
+            }
+        });
+    })(req, res, next);
 });
 
-// submits new StepType-Request as an Issue to our github
+// registers user
 router.post('/register', async (req, res) => {
- const hashedPassword = bcrypt.hashSync(req.body.password, salt);
- const email = req.body.email;
+    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+    req.body.password = hashedPassword;
+    console.log('user: ' + JSON.stringify(req.body))
+    let user = await mongo.registerUser(req.body)
+    res.json(user)
+});
 
- 
-
-
+//logout for user
+router.get('/logout', async (req, res) => {
+    req.logout();
+    res.json({status: 'success'})
 });
 
 module.exports = router;

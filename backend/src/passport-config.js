@@ -6,8 +6,9 @@ function initialize(passport, getUserByEmail, getUserById) {
     const authenticateUser = async(email, password, done) => {
 
         // not working yet , needs callback, or database change to Promises 
-        const user = getUserByEmail(email);
-        if(user == null){
+        const user = await getUserByEmail(email);
+
+        if(!user){
             return done(null, false, {message: 'No user with this email'});
         }
 
@@ -18,12 +19,13 @@ function initialize(passport, getUserByEmail, getUserById) {
                 return done(null, false, {message: 'Password incorrect'});
             }
         } catch(e){
+            console.log('error: ' + e)
             return done(e);
         }
     }
 
     passport.use(new LocalStrategy({ usernameField: 'email' }, authenticateUser))
-    passport.serializeUser((user, done) => done(null, user.id));
+    passport.serializeUser((user, done) => done(null, user._id));
     passport.deserializeUser((id, done) => {
         return done(null, getUserById(id));
     })

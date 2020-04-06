@@ -13,39 +13,36 @@ const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 
 
-function registerUser(user){
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    dbo.collection('User').insertOne(user, (error) => {
-      if (error) throw error;
-      db.close();
-    });
-  });
+async function registerUser(user){
+  let db = await connectDb()
+  dbo = db.db('Seed');
+  let collection = await dbo.collection('User')
+  let dbUser = await getUserByEmail(user.email);
+  let result;
+  if(dbUser === null){
+    result = 'User already exists'
+  } else {
+   result = await collection.insertOne(user);
+  }
+  return result;
 }
 
-function getUserByEmail(email, callback){
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    dbo.collection('User').findOne({ email: email }, (error, result) => {
-      if (error) throw error;
-      callback(result);
-    });
-    db.close();
-  });
+async function getUserByEmail(email){
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let result = await collection.findOne({email: email})
+  db.close();
+  return result
 }
 
-function getUserById(id, callback){
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    dbo.collection('User').findOne({ id: id }, (error, result) => {
-      if (error) throw error;
-      callback(result);
-    });
-    db.close();
-  });
+async function getUserById(id){
+  let db = await connectDb()
+  dbo = db.db('Seed')
+  let collection = await dbo.collection('User')
+  let result = await collection.findOne({_id: id})
+  db.close();
+  return result
 }
 
 
@@ -367,6 +364,7 @@ function installDatabase() {
 }
 
 module.exports = {
+  getUserById,
   registerUser,
   getUserByEmail,
   showSteptypes,
@@ -379,5 +377,4 @@ module.exports = {
   getOneStory,
   upsertEntry,
   installDatabase,
-  updateStory
 };
