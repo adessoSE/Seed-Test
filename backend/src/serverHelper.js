@@ -247,6 +247,7 @@ async function fuseGitWithDb(story, issueId) {
   if (result !== null) {
     story.scenarios = result.scenarios;
     story.background = result.background;
+    story.lastTestPassed = result.lastTestPassed;
   } else {
     story.scenarios = [emptyScenario()];
     story.background = emptyBackground();
@@ -316,8 +317,7 @@ function runReport(req, res, stories, mode) {
         })
       }else if(!scenarioID) {
         story.lastTestPassed = testStatus;
-        mongo.updateStory(story.story_id, story, (result) => {
-        })
+        mongo.updateStory(story.story_id, story)
       }
     });
   });

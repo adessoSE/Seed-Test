@@ -63,6 +63,16 @@ function replace(storyID, story, collection) {
   })
 }
 
+async function updateStory(gitID, updatedStuff) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await replace(gitID, updatedStuff, collection)
+  db.close()
+  //console.log('story: ' + JSON.stringify(story))
+  return story
+}
+
+
 // get One Story
 async function getOneStory(storyID) {
   let db = await connectDb()
