@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
+const fs = require('fs');
+const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
@@ -9,6 +11,7 @@ if(!process.env.NODE_ENV){
 
 const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
+
 
 function registerUser(user){
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
@@ -46,196 +49,199 @@ function getUserById(id, callback){
 }
 
 
-// get One Story
-function getOneStory(id, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    dbo.collection('Stories').findOne({ story_id: id }, (error, result) => {
-      if (error) throw error;
-      callback(result);
+function connectDb() {
+  return new Promise((resolve, reject) => {
+    MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(db);
+      }
     });
-    db.close();
   });
+}
+
+function selectCollection(db) {
+  dbo = db.db('Seed');
+  return new Promise((resolve, reject) => {
+    dbo.collection('Stories', (err, collection) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(collection);
+      }
+    })
+  })
+}
+
+function findStory(storyID, collection) {
+  const myObjt = { story_id: storyID };
+  return new Promise((resolve, reject) => {
+    collection.findOne(myObjt, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    })
+  })
+}
+
+function replace(storyID, story, collection) {
+  const myObjt = { story_id: storyID };
+  return new Promise((resolve, reject) => {
+    collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result.value);
+      }
+    })
+  })
+}
+
+// get One Story
+async function getOneStory(storyID) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await findStory(storyID, collection)
+  db.close()
+  return story
 }
 
 // GET all  Steptypes
-function showSteptypes(callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    dbo.collection('stepTypes').find({}).toArray((error, result) => {
-      if (error) throw error;
-      callback(result);
-    });
-    db.close();
-  });
+async function showSteptypes() {
+  let db = await connectDb()
+  dbo = db.db('Seed')
+  let collection = await dbo.collection('stepTypes')
+  let result = await collection.find({}).toArray()
+  db.close();
+  return result
 }
 
-
 // Create Background
-function createBackground(gitId, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    const myobj = { story_id: gitId };
-    dbo.collection('Stories').findOne(myobj, (error, result) => {
-      if (error) throw error;
-      const story = result;
-      const tmpBackground = emptyBackground();
-      story.background = tmpBackground;
-      dbo.collection('Stories').findOneAndReplace(myobj, story, (replaceError, replaceResult) => {
-        if (replaceError) throw replaceError;
-        callback(replaceResult.value);
-      });
-      db.close();
-    });
-  });
+async function createBackground(storyID) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await findStory(storyID, collection)
+  const tmpBackground = emptyBackground();
+  story.background = tmpBackground;
+  let result = await replace(storyID, story, collection)
+  db.close()
+  return result
 }
 
 // UPDATE Background
-function updateBackground(gitId, updatedBackground, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    const myObj = { story_id: gitId };
-    dbo.collection('Stories').findOne(myObj, (findError, result) => {
-      if (findError) throw findError;
-      const story = result;
-      story.background = updatedBackground;
-      dbo.collection('Stories').findOneAndReplace(myObj, story, { returnOriginal: false }, (replaceError, replaceResult) => {
-        if (replaceError) throw replaceError;
-        callback(replaceResult.value);
-      });
-      db.close();
-    });
-  });
+async function updateBackground(storyID, updatedBackground) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await findStory(storyID, collection)
+  story.background = updatedBackground;
+  let result = await replace(storyID, story, collection)
+  db.close()
+  return result
 }
 
 // DELETE Background
-function deleteBackground(gitID, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    const myObj = { story_id: gitID };
-    dbo.collection('Stories').findOne(myObj, (findError, result) => {
-      if (findError) throw findError;
-      const story = result;
-      story.background = emptyBackground();
-      dbo.collection('Stories').findOneAndReplace(myObj, story, {
-        returnOriginal: false,
-      }, (replaceError, replaceResult) => {
-        if (replaceError) throw replaceError;
-        callback(replaceResult.value);
-      });
-      db.close();
-    });
-  });
+async function deleteBackground(storyID) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await findStory(storyID, collection)
+  story.background = emptyBackground();
+  let result = await replace(storyID, story, collection)
+  db.close()
+  return result
 }
 
 // CREATE Scenario
-function createScenario(issueID, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    const myobj = { story_id: issueID };
-    dbo.collection('Stories').findOne(myobj, (error, result) => {
-      if (error) throw error;
-      const story = result;
-      const lastScenarioIndex = story.scenarios.length;
-      const tmpScenario = emptyScenario();
-
-      if (story.scenarios.length === 0) {
-        story.scenarios.push(tmpScenario);
-      } else {
-        tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-        story.scenarios.push(tmpScenario);
-      }
-      dbo.collection('Stories').findOneAndReplace(myobj, story, {
-        returnOriginal: false,
-      }, (error2) => {
-        if (error2) throw error2;
-        callback(tmpScenario);
-      });
-
-      db.close();
-    });
-  });
+async function createScenario(storyID) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await findStory(storyID, collection)
+  const lastScenarioIndex = story.scenarios.length;
+  const tmpScenario = emptyScenario();
+  if (story.scenarios.length === 0) {
+    story.scenarios.push(tmpScenario);
+  } else {
+    tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+    story.scenarios.push(tmpScenario);
+  }
+  await replace(storyID, story, collection)
+  db.close()
+  return tmpScenario
 }
 
 // DELETE Scenario
-function deleteScenario(issueID, scenarioID, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    const myobj = { story_id: issueID };
-    dbo.collection('Stories').findOne(myobj, (error, result) => {
-      if (error) throw error;
-      const story = result;
-      for (let i = 0; i < story.scenarios.length; i++) {
-        if (story.scenarios[i].scenario_id === scenarioID) {
-          story.scenarios.splice(i, 1);
-        }
-      }
-      dbo.collection('Stories').findOneAndReplace(myobj, story, {
-        returnOriginal: false,
-      }, (error2, result2) => {
-        if (error2) throw error2;
-        callback(result2.value);
-      });
-      db.close();
-    });
-  });
+async function deleteScenario(storyID, scenarioID) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await findStory(storyID, collection)
+  for (let i = 0; i < story.scenarios.length; i++) {
+    if (story.scenarios[i].scenario_id === scenarioID) {
+      story.scenarios.splice(i, 1);
+    }
+  }
+  let result = await replace(storyID, story, collection)
+  db.close()
+  return result
 }
 
 // POST Scenario
-function updateScenario(issueID, updatedScenario, callback) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    const myobj = { story_id: issueID };
-    dbo.collection('Stories').findOne(myobj, (error, result) => {
-      if (error) throw error;
-      const story = result;
-      for (const scenario of story.scenarios) {
-        if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
-          story.scenarios.push(scenario);
-          break;
-        }
-        if (scenario.scenario_id === updatedScenario.scenario_id) {
-          story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
-          break;
-        }
-      }
-      dbo.collection('Stories').findOneAndReplace(myobj, story, {
-        returnOriginal: false,
-      }, (error2, result2) => {
-        if (error2) throw error2;
-        callback(result2.value);
-      });
-      db.close();
-    });
-  });
+async function updateScenario(storyID, updatedScenario) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await findStory(storyID, collection)
+  for (const scenario of story.scenarios) {
+    if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
+      story.scenarios.push(scenario);
+      break;
+    }
+    if (scenario.scenario_id === updatedScenario.scenario_id) {
+      story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
+      break;
+    }
+  }
+  let result = await replace(storyID, story, collection)
+  db.close()
+  return result
 }
 
-function upsertEntry(collection, storyID, content) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    const myobj = { story_id: storyID };
-    const updatedContent = content;
-    dbo.collection(collection).findOneAndUpdate(myobj, { $set: updatedContent }, {
-      returnOriginal: false,
-      upsert: true,
-    }, (error) => {
-      if (error) throw error;
-    });
+async function upsertEntry(storyID, updatedContent) {
+  const myObjt = { story_id: storyID };
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
+    returnOriginal: false,
+    upsert: true,
+  }, (error) => {
+    if (error) throw error;
     db.close();
   });
 }
 
 // /////////////////////////////////////////// API Methods ////////////////////////////////////////
 // ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////
+
+// Creates Database Backupfile
+async function writeBackup() {
+  fs.writeFile(path.join('./dbbackups/dbbackup.json'), await createContent(), (err) => {
+    if (err) throw err;
+  });
+}
+
+async function createContent() {
+  let collection = await getCollection()
+  let data = '[\n'
+  for (let i = 0; i < collection.length; i++) {
+    if (collection[i] === collection[collection.length - 1]) {
+      data += JSON.stringify(collection[i]) + '\n]'
+    } else {
+      data += JSON.stringify(collection[i]) + ',\n';
+    }
+  }
+  return data;
+}
+//writeBackup()
 
 // show all Collections
 function getCollections() {
@@ -269,27 +275,23 @@ function insertOne(collection, content) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = content;
-    dbo.collection(collection).insertOne(myobj, (error) => {
+    const myObjt = content;
+    dbo.collection(collection).insertOne(myObjt, (error) => {
       if (error) throw error;
       db.close();
     });
   });
 }
-
 
 // show content of a specific collection
-function getCollection(name) {
-  MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
-    if (err) throw err;
-    const dbo = db.db('Seed');
-    dbo.collection(name).find({}).toArray((error, result) => {
-      if (error) throw error;
-      console.log(`showCollection error: ${result}`);
-      db.close();
-    });
-  });
+async function getCollection() {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let result = await collection.find({}).toArray()
+  db.close()
+  return result
 }
+
 
 
 // insert Many documents ("collectionname", [{documents},{...}] )
@@ -297,8 +299,8 @@ function insertMore(name, content) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = content;
-    dbo.collection(name).insertMany(myobj, (error, res) => {
+    const myObjt = content;
+    dbo.collection(name).insertMany(myObjt, (error, res) => {
       if (error) throw error;
       console.log(`Number of documents inserted: ${res.insertedCount}`);
       db.close();
@@ -306,11 +308,12 @@ function insertMore(name, content) {
   });
 }
 
-function updateStory(gitID, updatedStuff, callback) {
+
+function update(storyID, updatedStuff) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').updateOne({ story_id: gitID }, { $set: updatedStuff }, (error, res) => {
+    dbo.collection(collection).updateOne({ story_id: storyID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
       callback(res)
@@ -323,7 +326,7 @@ function eraseAllStories() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').deleteOne({ }, (error) => {
+    dbo.collection(collection).deleteOne({}, (error) => {
       if (error) throw error;
       db.close();
     });
@@ -332,12 +335,12 @@ function eraseAllStories() {
 
 
 // shows single story
-function showStory(gitID) {
+function showStory(storyID) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    const myobj = { story_id: gitID };
-    dbo.collection('Stories').findOne(myobj, (error, result) => {
+    const myObjt = { story_id: storyID };
+    dbo.collection(collection).findOne(myObjt, (error, result) => {
       if (error) throw error;
       console.log(`showStory error: ${result}`);
       db.close();
@@ -350,7 +353,7 @@ function dropCollection() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
     const dbo = db.db('Seed');
-    dbo.collection('Stories').drop((error, delOK) => {
+    dbo.collection(collection).drop((error, delOK) => {
       if (error) throw error;
       if (delOK) console.log('Collection deleted');
       db.close();
@@ -359,10 +362,9 @@ function dropCollection() {
 }
 
 function installDatabase() {
-  makeCollection('Stories');
+  makeCollection(collection);
   insertMore('stepTypes', stepTypes());
 }
-
 
 module.exports = {
   registerUser,
