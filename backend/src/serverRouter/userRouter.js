@@ -34,11 +34,12 @@ router.post('/login', (req, res, next) => {
             info.status = 'error';
             return res.json(info);
         }
-        req.logIn(user, function(err){
+        req.logIn(user, async function(err){
             if(err){
                 return res.json(err);
             }else {
-                //res.json(user);
+                let results = await helper.getGithubStories(req.user.githubAccountName, req.user.githubRepo, req.user.githubToken, res)
+                res.json(results);
             }
         });
     })

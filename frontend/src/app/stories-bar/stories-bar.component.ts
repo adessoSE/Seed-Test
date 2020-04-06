@@ -36,7 +36,6 @@ export class StoriesBarComponent implements OnInit {
   }
 
   selectScenario(storyID, scenario: Scenario) {
-
     this.selectedScenario = scenario;
     this.scenarioChosen.emit(scenario);
   }

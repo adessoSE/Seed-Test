@@ -141,7 +141,7 @@ function getScenarioContent(scenarios, storyID) {
   return data;
 }
 
-async function getGithubStories(githubName, githubRepo, token){
+async function getGithubStories(githubName, githubRepo, token, res){
   const tmpStories = [];
   // get Issues from GitHub .
   const headers = {
@@ -149,8 +149,7 @@ async function getGithubStories(githubName, githubRepo, token){
   };
   let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
       if (response.status === 401) {
-        console.log('test')
-        //res.sendStatus(401);
+        res.sendStatus(401);
       }
       if (response.status === 200) {
         let json = await response.json();

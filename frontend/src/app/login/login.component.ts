@@ -32,6 +32,7 @@ export class LoginComponent implements OnInit {
     //}, (err) => {
       this.apiService.loginUser(form.value.githubName, form.value.token).subscribe((resp) => {
         console.log('login')
+        this.router.navigate(['/']);
       }, (err) => {
       this.error = err.error;
     });

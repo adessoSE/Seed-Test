@@ -24,8 +24,8 @@ router.get('/stories/:user/:repository/:token?', async (req, res) => {
   if (!token && githubName === process.env.TESTACCOUNT_NAME) {
     token = process.env.TESTACCOUNT_TOKEN;
   }
-  let results = await helper.getGithubStories(githubName, githubRepo, token)
-  res.status(200).json(results);
+  let results = await helper.getGithubStories(githubName, githubRepo, token, res)
+  if(results) res.status(200).json(results);
 });
 
 // submits new StepType-Request as an Issue to our github
