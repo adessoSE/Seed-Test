@@ -1,15 +1,60 @@
-  .uk-accordion-title, .uk-accordion-content, .uk-label {
-    font-size: small;
-  }
-  
-  .uk-accordion{
-    width: 100%;
+  .grid {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-template-areas: "storyHeader" "storyList";
+    margin-top: 24px;
+    border: 1px solid #999;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 1px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
+    background-color: white;
   }
 
-  .uk-accordion-title:hover{
-    cursor: pointer;
+  #storyHeader{
+    grid-area: storyHeader;
+    color: #999;
+    float: left;
+    margin-bottom: 10px;
+  }
+
+  #infoIcon{
+    grid-area: storyHeader;
+    color: #999;
+    padding-top: 3px;
+    margin-left: 7px;
+  }
+
+  .def {
+    color: #999;
+    cursor: help;
+    position: relative;
+    z-index: 2;
   }
   
+  .def span[rel=def] {
+    display: none;
+  }
+  
+  .def:hover span[rel=def] {
+    font-size: small;
+    color: white;
+    background-color: rgb(109, 109, 109);
+    position: absolute;
+    bottom: 2em;
+    left: 2em;
+    width: 30em;
+    padding: 0.5em;
+    display: block;
+  }
+
+  #storyList{
+    grid-area: storyList;
+    color: #0099CC;
+    font-size: small;
+  }
+
   .github-avatar{
     float: right;
   }
@@ -18,69 +63,25 @@
     margin-right: 5px;
   }
 
-  #storyHeader{
-    color: #999;
-    float: left;
-    margin-bottom: 10px;
-  }
-
-  #storyList{
-    color: #0099CC;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  .stories{
-    border: 1px solid #999;
-    padding-left:10px;
-    padding-right: 10px;
-    padding-bottom: 1px;
-    box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
-    background-color: white;
-  }
-
-  #infoIcon{
-    color: #999;
-    padding-top: 3px;
-    margin-left: 7px;
-  }
-
-  
-.def {
-	color: #999;
-	cursor: help;
-  position: relative;
-  z-index: 2;
-}
-
-.def span[rel=def] {
-	display: none;
-}
-
-.def:hover span[rel=def] {
-  font-size: small;
-  color: white;
-	background-color: rgb(109, 109, 109);
-	position: absolute;
-	bottom: 2em;
-	left: 2em;
-	width: 30em;
-  padding: 0.5em;
-  display: block;
-}
-
   a {
     color: black;
     transition: 0.3s;
     font-size: 1em;
   }
-  /*
-  a:hover {
+  
+  a:hover, a:focus {
     font-size: 1.2em;
-  }*/
+    font-weight: bold;
+    text-decoration: none;
+  }
 
+  .uk-accordion{
+    width: 100%;
+  }
+  
+  .uk-accordion-content {
+    font-size: small;
+  }
 
   .uk-accordion-content a{
     color: #56595e;
@@ -91,35 +92,24 @@
     color: green;
   }
   
-  .uk-accordion-title.uk-background-muted span.notPassed{
-    background-color: red;
-    /*visibility:visible;*/
-  }
-
-
-  .uk-accordion-title.uk-background-muted span.passed{
-    background-color: green;
-    /*visibility:visible;*/
-  }
-  
   .uk-accordion-content .notPassed,
   .uk-accordion-title.uk-background-muted .notPassed{
     color: red;
   }
-  /*.uk-accordion-title.uk-background-muted{
-    display: flex;
-    align-items: center;
-  }*/
-  .spanContainer {
-    display: inline-flex;
-    align-items: center;
+
+  .uk-accordion-title.uk-background-muted span.passed{
+    background-color: green;
   }
 
-  .dot {
-    height: 11px;
-    width: 11px;
-    background-color: #bbb;
-    border-radius: 50%;
-    display: inline-block;
-   /* visibility: hidden;*/
+  .uk-accordion-title.uk-background-muted span.notPassed{
+    background-color: red;
   }
+  
+@media screen and (max-width: 600px) {
+  .grid{
+      display: grid;
+      grid-template-areas:
+      "storyHeader"
+      "storyList";
+  }
+}
