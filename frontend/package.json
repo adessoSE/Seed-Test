@@ -29,6 +29,7 @@
     "@ng-bootstrap/ng-bootstrap": "^3.0.0",
     "angular": "^1.7.8",
     "core-js": "^2.6.11",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "file-saver": "^2.0.1",

@@ -12,6 +12,7 @@ router
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
   .use((_, __, next) => {
+    console.log(_.url + JSON.stringify(_.user))
     console.log('Time of github request:', Date.now());
     next();
   });

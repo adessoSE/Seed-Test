@@ -19,6 +19,12 @@ router
   .use(cors())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
+  .use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.header('Access-Control-Allow-Credentials','true' );
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
+   next();
+  })
   .use((_, __, next) => {
     console.log('Time of user request:', Date.now());
     next();
@@ -38,8 +44,12 @@ router.post('/login', (req, res, next) => {
             if(err){
                 return res.json(err);
             }else {
-                let results = await helper.getGithubStories(req.user.githubAccountName, req.user.githubRepo, req.user.githubToken, res)
-                res.json(results);
+                console.log(JSON.stringify(user))
+                //let results = await helper.getGithubStories(req.user.githubAccountName, req.user.githubRepo, req.user.githubToken, res)
+                res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+                res.header('Access-Control-Allow-Credentials','true' );
+                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
+                res.json(user);
             }
         });
     })

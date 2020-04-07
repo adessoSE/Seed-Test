@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectID } = require('mongodb');
+var ObjectId = require('mongodb').ObjectID;
 const fs = require('fs');
 const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
@@ -38,9 +39,10 @@ async function getUserByEmail(email){
 
 async function getUserById(id){
   let db = await connectDb()
-  dbo = db.db('Seed')
+  let dbo = await db.db('Seed')
   let collection = await dbo.collection('User')
-  let result = await collection.findOne({_id: id})
+  let result = await collection.findOne({_id: ObjectId(id)})
+  console.log('getuserbyid: ' + id)
   db.close();
   return result
 }

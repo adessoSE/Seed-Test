@@ -6,7 +6,6 @@ if(!process.env.NODE_ENV){
 
 const express = require('express');
 const path = require('path');
-
 const app = express();
 const environment = '../frontend/src/environments/environment';
 

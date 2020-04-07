@@ -17,13 +17,24 @@ router
   .use(cors())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
+  .use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.header('Access-Control-Allow-Credentials','true' );
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
+   next();
+  })
   .use((_, __, next) => {
+    console.log(_.url + JSON.stringify(_.user))
     console.log('Time of mongoDB request:', Date.now());
     next();
   });
 // get steptypes from mongo
 router.get('/stepTypes', async (_, res) => {
+  console.log('headers: ' + JSON.stringify(_.headers))
   let result = await mongo.showSteptypes()
+  //res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+  //res.header('Access-Control-Allow-Credentials','true' );
+  //res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
   res.status(200).json(result);
 });
 

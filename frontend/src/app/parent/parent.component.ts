@@ -20,10 +20,10 @@ export class ParentComponent implements OnInit {
   constructor(public apiService: ApiService,
               private router: Router) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
-      this.loadStories();
+     // this.loadStories();
     });
     if(this.apiService.urlReceived) {
-      this.loadStories();
+     // this.loadStories();
     }else {
       this.apiService.getBackendInfo()
     }

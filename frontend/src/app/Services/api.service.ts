@@ -24,6 +24,11 @@ export class ApiService {
     constructor(private http: HttpClient) {
     }
 
+
+    public getOptions(){
+        return { withCredentials: true}
+    }
+
     public getRepositories(token: string, githubName: string): Observable<string[]> {
         let repoToken = token;
         if(!repoToken || repoToken == 'undefined') {
@@ -33,7 +38,7 @@ export class ApiService {
       
         const str = this.apiServer + '/github/repositories/' + githubName + '/' + repoToken; 
         
-        return this.http.get<string[]>(str)
+        return this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {}),
             catchError(this.handleError));
     }
@@ -43,10 +48,10 @@ export class ApiService {
         let user = {
             email, password
         }
-        return this.http.post<string[]>(str, user)
+        return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
               console.log('resp: ' + JSON.stringify(resp))
-            this.getStoriesEvent.emit(resp);
+            //this.getStoriesEvent.emit(resp);
           }),
             catchError(this.handleError));
     }
@@ -67,7 +72,7 @@ export class ApiService {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
         } else {
-            this.http.get<any>(window.location.origin + '/backendInfo').subscribe((backendInfo) => {
+            this.http.get<any>(window.location.origin + '/backendInfo', this.getOptions()).subscribe((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
                 this.urlReceived = true;
                 this.getBackendUrlEvent.emit();
@@ -82,7 +87,7 @@ export class ApiService {
         }
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<Story[]>(this.apiServer + '/github/stories/' + repository + '/' + storytoken)
+            .get<Story[]>(this.apiServer + '/github/stories/' + repository + '/' + storytoken, this.getOptions())
             .pipe(tap(resp => {
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
@@ -91,7 +96,7 @@ export class ApiService {
     public getStepTypes(): Observable<StepType[]> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<StepType[]>(this.apiServer + '/mongo/stepTypes')
+            .get<StepType[]>(this.apiServer + '/mongo/stepTypes', this.getOptions())
             .pipe(tap(resp => {
             }));
     }
@@ -100,7 +105,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID)
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID, this.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
@@ -109,7 +114,7 @@ export class ApiService {
     public updateBackground(storyID: number, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/background/update/' + storyID, background)
+            .post<any>(this.apiServer + '/mongo/background/update/' + storyID, background, this.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
             }));
@@ -118,14 +123,14 @@ export class ApiService {
     public submitGithub(obj) {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/github/submitIssue/', obj);
+            .post<any>(this.apiServer + '/github/submitIssue/', obj, this.getOptions());
     }
 
     public updateScenario(storyID: number, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID, scenario)
+            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID, scenario, this.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
             }));
@@ -135,7 +140,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID )
+            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID, this.getOptions() )
             .pipe(tap(resp => {
                 //  console.log('Delete background for story ' + storyID )
             }));
@@ -144,7 +149,7 @@ export class ApiService {
     public deleteScenario(storyID: number, scenario: Scenario): Observable<Story>{
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id)
+            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id, this.getOptions())
             .pipe(tap(resp => {
                 // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
             }));

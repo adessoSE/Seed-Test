@@ -32,7 +32,9 @@ function handleError(res, reason, statusMessage, code) {
  * API Description
  */
 app
-  .use(cors())
+  .use(cors({origin: [
+    "http://localhost:4200"
+  ], credentials: true}))
   .use(flash())
   .use(session({
     secret: process.env.SESSION_SECRET,
@@ -44,10 +46,6 @@ app
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
   .use((_, __, next) => {
-    console.log('Time:', Date.now());
-    next();
-  })
-  .use((req, res, next) => {
     console.log('Time:', Date.now());
     next();
   })
