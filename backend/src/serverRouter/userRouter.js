@@ -32,7 +32,17 @@ router
 
 // logges in user
 router.post('/login', (req, res, next) => {
+    console.log('req body1 ' + JSON.stringify(req.body))
+    if(!req.body.email){
+        req.body = {
+            "email": "r@test.de", 
+            "password": "r"
+        }
+    } 
+    console.log('req body2 ' + JSON.stringify(req.body))
+
     passport.authenticate('local', function(error, user, info){
+        console.log('in authenticate')
         if(error){
             return res.json(error);
         }
@@ -46,9 +56,6 @@ router.post('/login', (req, res, next) => {
             }else {
                 console.log(JSON.stringify(user))
                 //let results = await helper.getGithubStories(req.user.githubAccountName, req.user.githubRepo, req.user.githubToken, res)
-                res.header("Access-Control-Allow-Origin", "http://localhost:4200");
-                res.header('Access-Control-Allow-Credentials','true' );
-                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
                 res.json(user);
             }
         });

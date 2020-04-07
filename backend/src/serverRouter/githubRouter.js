@@ -12,19 +12,27 @@ router
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
   .use((_, __, next) => {
-    console.log(_.url + JSON.stringify(_.user))
     console.log('Time of github request:', Date.now());
     next();
+  })
+  .use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.header('Access-Control-Allow-Credentials','true' );
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
+   next();
   });
 
 // get stories from github
-router.get('/stories/:user/:repository/:token?', async (req, res) => {
-  const githubName = req.params.user;
+router.get('/stories/:repository', async (req, res) => {
+  const githubName = req.user.githubAccountName;
   const githubRepo = req.params.repository;
-  let token = req.params.token;
-  if (!token && githubName === process.env.TESTACCOUNT_NAME) {
+  let token = req.user.githubToken;
+  if (!token || !githubName ||  ! githubRepo) {
+    githubName = process.env.TESTACCOUNT_NAME
     token = process.env.TESTACCOUNT_TOKEN;
+    githubRepo = 'Cucumber'
   }
+  
   let results = await helper.getGithubStories(githubName, githubRepo, token, res)
   if(results) res.status(200).json(results);
 });
@@ -45,9 +53,9 @@ router.post('/submitIssue/', (req, res) => {
     });
 });
 // Gets all possible repositories from Github
-router.get('/repositories/:githubName?/:token?', (req, res) => {
-  let { token } = req.params;
-  const { githubName } = req.params;
+router.get('/repositories', (req, res) => {
+  let { token } = req.user.githubToken;
+  const { githubName } = req.user.githubAccountName;
   if (!token && githubName === process.env.TESTACCOUNT_NAME) {
     token = process.env.TESTACCOUNT_TOKEN;
   }

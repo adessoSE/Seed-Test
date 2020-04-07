@@ -20,10 +20,10 @@ export class ParentComponent implements OnInit {
   constructor(public apiService: ApiService,
               private router: Router) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
-     // this.loadStories();
+      this.loadStories();
     });
     if(this.apiService.urlReceived) {
-     // this.loadStories();
+      this.loadStories();
     }else {
       this.apiService.getBackendInfo()
     }
@@ -33,8 +33,8 @@ export class ParentComponent implements OnInit {
   }
 
   loadStories() {
-    let repository = localStorage.getItem('repository');
-
+    //let repository = localStorage.getItem('repository');
+    let repository = 'Cucumber'
     this.apiService
       .getStories(repository, this.apiService.getToken())
       .subscribe((resp: Story[]) => {

@@ -27,7 +27,7 @@
     <!--right-->
     <div class="topnav-right">
         <p id="version">Version 1.0.0</p>
-      <div *ngIf="this.token || this.repository">
+      <div *ngIf="this.apiService.isLoggedIn()">
         <div class="dropdown">
           <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
           <ul class="dropdown-list">

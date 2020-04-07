@@ -31,7 +31,6 @@ export class LoginComponent implements OnInit {
     //  localStorage.setItem('githubName', form.value.githubName);
     //}, (err) => {
       this.apiService.loginUser(form.value.githubName, form.value.token).subscribe((resp) => {
-        console.log('login')
         this.router.navigate(['/']);
       }, (err) => {
       this.error = err.error;
@@ -40,10 +39,12 @@ export class LoginComponent implements OnInit {
 
   loginTestAccount() {
     this.error = undefined;
-    this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
-      this.repositories = resp;
-      localStorage.setItem('token', this.testAccountToken);
-      localStorage.setItem('githubName', this.testAccountName);
+    //this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
+    //  this.repositories = resp;
+    //  localStorage.setItem('token', this.testAccountToken);
+    //  localStorage.setItem('githubName', this.testAccountName);
+    this.apiService.loginUser(null, null).subscribe((resp) => {
+      this.router.navigate(['/']);
     }, (err) => {
       this.error = err.error;
     });

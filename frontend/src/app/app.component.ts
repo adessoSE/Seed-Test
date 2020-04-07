@@ -45,29 +45,18 @@ export class AppComponent implements OnInit, DoCheck {
   }
 
   refreshLoginData() {
-    this.token = localStorage.getItem('token');
-    this.githubName = localStorage.getItem('githubName');
-    this.repository = localStorage.getItem('repository');
-
     if (this.token && this.githubName) {
       this.getRepositories();
     }
   }
 
   ngDoCheck() {
-    const newToken = localStorage.getItem('token');
-    const newGithubName = localStorage.getItem('githubName');
-    const newRepository = localStorage.getItem('repository');
-    if (newToken != this.token || newGithubName != this.githubName || newRepository != this.repository) {
       this.refreshLoginData();
-    }
   }
 
   getRepositories() {
-    this.token = localStorage.getItem('token');
-    this.githubName = localStorage.getItem('githubName');
     this.apiService.getBackendUrlEvent.subscribe(() => {
-      this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) => {
+      this.apiService.getRepositories().subscribe((resp: any) => {
         this.repositories = resp;
       });
     });

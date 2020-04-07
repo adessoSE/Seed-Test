@@ -29,14 +29,10 @@ export class ApiService {
         return { withCredentials: true}
     }
 
-    public getRepositories(token: string, githubName: string): Observable<string[]> {
-        let repoToken = token;
-        if(!repoToken || repoToken == 'undefined') {
-          repoToken = '';
-        }
+    public getRepositories(): Observable<string[]> {
         this.apiServer = localStorage.getItem('url_backend');
       
-        const str = this.apiServer + '/github/repositories/' + githubName + '/' + repoToken; 
+        const str = this.apiServer + '/github/repositories'; 
         
         return this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {}),
@@ -45,9 +41,15 @@ export class ApiService {
 
     public loginUser(email: string, password: string): Observable<any> {
         const str = this.apiServer + '/user/login'
-        let user = {
-            email, password
+        let user;
+        if(!email && !password){
+
+        }else {
+            user = {
+                email, password
+            }
         }
+
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
               console.log('resp: ' + JSON.stringify(resp))
@@ -87,7 +89,7 @@ export class ApiService {
         }
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<Story[]>(this.apiServer + '/github/stories/' + repository + '/' + storytoken, this.getOptions())
+            .get<Story[]>(this.apiServer + '/github/stories/' + repository , this.getOptions())
             .pipe(tap(resp => {
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
@@ -168,8 +170,7 @@ export class ApiService {
     }
 
     isLoggedIn(): boolean {
-        const token = this.getToken();
-        if (token) {
+        if (document.cookie) {
             return true;
         }
         return false;
@@ -179,6 +180,3 @@ export class ApiService {
         return localStorage.getItem('token');
     }
 }
-
-
-
