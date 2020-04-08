@@ -23,60 +23,64 @@ router
   });
 // get steptypes from mongo
 router.get('/stepTypes', async (_, res) => {
-  let result = await mongo.showSteptypes()
-  res.status(200).json(result);
+  try {
+    let result = await mongo.showSteptypes()
+    res.status(200).json(result);
+  } catch (error) {
+    handleError(res, error, error, 500);
+  }
 });
 
 // update background
 router.post('/background/update/:issueID', async (req, res) => {
-  const background = req.body;
-  let result = await mongo.updateBackground(parseInt(req.params.issueID, 10), background)
-  if (typeof (result) === 'string') {
-    handleError(res, result, result, 500);
-  } else {
+  try {
+    const background = req.body;
+    let result = await mongo.updateBackground(parseInt(req.params.issueID, 10), background)
     helper.updateFeatureFile(parseInt(req.params.issueID, 10));
     res.status(200).json(result);
+  } catch (error) {
+    handleError(res, error, error, 500);
   }
 });
 // delete background
 router.delete('/background/delete/:issueID/', async (req, res) => {
-  let result = await mongo.deleteBackground(parseInt(req.params.issueID, 10))
-  if (typeof (result) === 'string') {
-    handleError(res, result, result, 500);
-  } else {
+  try {
+    await mongo.deleteBackground(parseInt(req.params.issueID, 10))
     helper.updateFeatureFile(parseInt(req.params.issueID, 10));
     res.status(200).json({});
+  } catch (error) {
+    handleError(res, error, error, 500);
   }
 });
 // create scenario
 router.get('/scenario/add/:issueID', async (req, res) => {
-  let scenario = await mongo.createScenario(parseInt(req.params.issueID, 10))
-  if (typeof (scenario) === 'string') {
-    handleError(res, scenario, scenario, 500);
-  } else {
+  try {
+    let scenario = await mongo.createScenario(parseInt(req.params.issueID, 10))
     helper.updateFeatureFile(parseInt(req.params.issueID, 10));
     res.status(200).json(scenario);
+  } catch (error) {
+    handleError(res, error, error, 500);
   }
 });
 // update scenario
 router.post('/scenario/update/:issueID', async (req, res) => {
-  const scenario = req.body;
-  let updatedStory = await mongo.updateScenario(parseInt(req.params.issueID, 10), scenario)
-  if (typeof (updatedStory) === 'string') {
-    handleError(res, updatedStory, updatedStory, 500);
-  } else {
+  try {
+    const scenario = req.body;
+    let updatedStory = await mongo.updateScenario(parseInt(req.params.issueID, 10), scenario)
     helper.updateFeatureFile(parseInt(req.params.issueID, 10));
     res.status(200).json(updatedStory);
+  } catch (error) {
+    handleError(res, error, error, 500);
   }
 });
 // delete scenario
 router.delete('/scenario/delete/:issueID/:scenarioID', async (req, res) => {
-  let result = await mongo.deleteScenario(parseInt(req.params.issueID, 10), parseInt(req.params.scenarioID, 10))
-  if (typeof (result) === 'string') {
-    handleError(res, result, result, 500);
-  } else {
+  try {
+    await mongo.deleteScenario(parseInt(req.params.issueID, 10), parseInt(req.params.scenarioID, 10))
     helper.updateFeatureFile(parseInt(req.params.issueID, 10));
     res.status(200).json({});
+  } catch (error) {
+    handleError(res, error, error, 500);
   }
 });
 
