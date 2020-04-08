@@ -5,7 +5,7 @@ const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-if(!process.env.NODE_ENV){
+if (!process.env.NODE_ENV) {
   const dotenv = require('dotenv').config();
 }
 
@@ -24,10 +24,22 @@ function connectDb() {
   });
 }
 
-function selectCollection(db) {
+function selectStoriesCollection(db) {
   dbo = db.db('Seed');
   return new Promise((resolve, reject) => {
     dbo.collection('Stories', (err, collection) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(collection);
+      }
+    })
+  })
+}
+function selectUsersCollection(db) {
+  dbo = db.db('Seed');
+  return new Promise((resolve, reject) => {
+    dbo.collection('Users', (err, collection) => {
       if (err) {
         reject(err);
       } else {
@@ -63,9 +75,22 @@ function replace(storyID, story, collection) {
   })
 }
 
+function replaceUser(userID, user, collection) {
+  const myObjt = { zukünftigID: userID }
+  return new Promise((resolve, reject) => {
+    collection.findOneAndReplace(myObjt, user, { returnOriginal: false }, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result.value);
+      }
+    })
+  })
+}
+
 async function updateStory(gitID, updatedStuff) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await replace(gitID, updatedStuff, collection)
   db.close()
   //console.log('story: ' + JSON.stringify(story))
@@ -76,7 +101,7 @@ async function updateStory(gitID, updatedStuff) {
 // get One Story
 async function getOneStory(storyID) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await findStory(storyID, collection)
   db.close()
   return story
@@ -95,7 +120,7 @@ async function showSteptypes() {
 // Create Background
 async function createBackground(storyID) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await findStory(storyID, collection)
   const tmpBackground = emptyBackground();
   story.background = tmpBackground;
@@ -107,7 +132,7 @@ async function createBackground(storyID) {
 // UPDATE Background
 async function updateBackground(storyID, updatedBackground) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await findStory(storyID, collection)
   story.background = updatedBackground;
   let result = await replace(storyID, story, collection)
@@ -118,7 +143,7 @@ async function updateBackground(storyID, updatedBackground) {
 // DELETE Background
 async function deleteBackground(storyID) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await findStory(storyID, collection)
   story.background = emptyBackground();
   let result = await replace(storyID, story, collection)
@@ -129,7 +154,7 @@ async function deleteBackground(storyID) {
 // CREATE Scenario
 async function createScenario(storyID) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await findStory(storyID, collection)
   const lastScenarioIndex = story.scenarios.length;
   const tmpScenario = emptyScenario();
@@ -147,7 +172,7 @@ async function createScenario(storyID) {
 // DELETE Scenario
 async function deleteScenario(storyID, scenarioID) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await findStory(storyID, collection)
   for (let i = 0; i < story.scenarios.length; i++) {
     if (story.scenarios[i].scenario_id === scenarioID) {
@@ -162,7 +187,7 @@ async function deleteScenario(storyID, scenarioID) {
 // POST Scenario
 async function updateScenario(storyID, updatedScenario) {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let story = await findStory(storyID, collection)
   for (const scenario of story.scenarios) {
     if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
@@ -182,7 +207,7 @@ async function updateScenario(storyID, updatedScenario) {
 async function upsertEntry(storyID, updatedContent) {
   const myObjt = { story_id: storyID };
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
     returnOriginal: false,
     upsert: true,
@@ -190,6 +215,42 @@ async function upsertEntry(storyID, updatedContent) {
     if (error) throw error;
     db.close();
   });
+}
+
+// create User in DB
+async function createUser(user) {
+  let db = await connectDb()
+  let collection = await selectUsersCollection(db)
+  await collection.insertOne(user, (error) => {
+    if (error) throw error;
+    db.close();
+  })
+}
+// delete User in DB
+async function deleteUser(userID){
+  const myObjt = { zukünftigeIDname: userID}
+  let db = await connectDb()
+  let collection = await selectUsersCollection(db)
+  await collection.deleteOne(myObjt)
+    db.close();
+}
+// update a User in DB
+async function updateUser(userID, updatedUser) {
+  const myObjt = { zukünftigeIDname: userID }
+  let db = await connectDb()
+  let collection = await selectUsersCollection(db)
+  let result = await collection.findOneAndReplace(myObjt, updatedUser, { returnOriginal: false })
+  db.close()
+  return result
+}
+//get UserData 
+async function getUserData(userID) {
+  const myObjt = { zukünftigeIDname: userID }
+  let db = await connectDb()
+  let collection = await selectUsersCollection(db)
+  let result = await collection.findOne(myObjt)
+  db.close()
+  return result
 }
 
 // /////////////////////////////////////////// API Methods ////////////////////////////////////////
@@ -259,7 +320,7 @@ function insertOne(collection, content) {
 // show content of a specific collection
 async function getCollection() {
   let db = await connectDb()
-  let collection = await selectCollection(db)
+  let collection = await selectStoriesCollection(db)
   let result = await collection.find({}).toArray()
   db.close()
   return result
@@ -350,5 +411,9 @@ module.exports = {
   getOneStory,
   upsertEntry,
   installDatabase,
-  updateStory
+  updateStory,
+  createUser,
+  deleteUser,
+  updateUser,
+  getUserData
 };
