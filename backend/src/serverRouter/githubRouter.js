@@ -54,11 +54,13 @@ router.post('/submitIssue/', (req, res) => {
 });
 // Gets all possible repositories from Github
 router.get('/repositories', (req, res) => {
-  let { token } = req.user.githubToken;
-  const { githubName } = req.user.githubAccountName;
+  let token  = req.user.githubToken;
+  const  githubName  = req.user.githubAccountName;
   if (!token && githubName === process.env.TESTACCOUNT_NAME) {
     token = process.env.TESTACCOUNT_TOKEN;
   }
+  console.log('user: ' + JSON.stringify(req.user.password))
+  console.log('token: ' + token + ' githubName: ' + githubName)
   Promise.all([
     helper.starredRepositories(githubName, token),
     helper.ownRepositories(token),

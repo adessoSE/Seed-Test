@@ -8,13 +8,13 @@
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <hr>
       <!-- Github Name -->
-      <label for="githubName" class="uk-form-label" style="color: grey;"></label>
-      <input id="githubName" type="text" name="githubName" placeholder=" Github Name" #githubName ngModel class="uk-form-controls" required>
+      <label for="email" class="uk-form-label" style="color: grey;"></label>
+      <input id="email" type="text" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
       <br>
       <!-- Token -->
-      <label for="token" class="uk-form-label" style="color: grey;"></label>
+      <label for="password" class="uk-form-label" style="color: grey;"></label>
       <br>
-      <input id="token" type="text" name="token" placeholder=" Token" #token ngModel class="uk-form-controls" required>
+      <input id="password" type="text" name="password" placeholder=" Password" #password ngModel class="uk-form-controls" required>
       <br>
       <br>
       <!-- Button Login -->
