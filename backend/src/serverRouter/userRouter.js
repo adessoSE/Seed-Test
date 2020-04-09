@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const process = require('process');
 const fetch = require('node-fetch');
 const helper = require('../serverHelper');
-const passport = require('passport')
+const passport = require('passport');
 const initializePassport = require('../passport-config');
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
@@ -22,7 +22,7 @@ router
   .use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:4200");
     res.header('Access-Control-Allow-Credentials','true' );
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect");
    next();
   })
   .use((_, __, next) => {
@@ -63,6 +63,19 @@ router.post('/login', (req, res, next) => {
     (req, res, next)
 });
 
+router.get('/githubLogin', (req, res) =>{
+    console.log('githubLogin')
+    passport.authenticate('github', { scope: [ 'repo' ] }, function (error, user, info) {
+        console.log('error: ' + error)
+        console.log('user: ' + JSON.stringify(user))
+    })(req,res);
+});
+
+router.get('/callback', (req, res) =>{
+    console.log('callback')
+});
+
+
 // registers user
 router.post('/register', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(req.body.password, salt);
@@ -77,9 +90,5 @@ router.get('/logout', async (req, res) => {
     req.logout();
     res.json({status: 'success'})
 });
-
-router.post('/loginGithub', async (req, res) => {
-    passport.authenticate('twitter');
-})
 
 module.exports = router;

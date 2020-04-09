@@ -44,6 +44,17 @@ export class ApiService {
             catchError(this.handleError));
     }
 
+    public githubLogin(): Observable<any> {
+        const str = this.apiServer + '/user/githubLogin'
+        
+        return this.http.get<string[]>(str)
+          .pipe(tap(resp => {
+              console.log('resp: ' + JSON.stringify(resp))
+            //this.getStoriesEvent.emit(resp);
+          }),
+            catchError(this.handleError));
+    }
+
     public loginUser(email: string, password: string): Observable<any> {
         const str = this.apiServer + '/user/login'
         let user;
@@ -77,7 +88,7 @@ export class ApiService {
     }
 
     handleError(error: HttpErrorResponse) {
-        console.log(error);
+        console.log(JSON.stringify(error));
         return throwError(error);
     }
 

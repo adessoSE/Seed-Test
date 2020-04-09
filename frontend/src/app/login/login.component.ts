@@ -57,4 +57,11 @@ export class LoginComponent implements OnInit {
     localStorage.setItem('repository', userRepository);
     this.router.navigate(['/']);
   }
+
+  githubLogin(){
+    this.apiService.githubLogin().subscribe((resp) => {
+    }, (err) => {
+      this.error = err.error;
+    });
+  }
 }

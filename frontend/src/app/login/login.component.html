@@ -16,8 +16,10 @@
       <br>
       <br>
       <!-- Button Login -->
-      <button class="loginButton" type="submit" [disabled]="form.invalid">Submit</button>
+      <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
     </form>
+    <button class="loginButton" (click)="githubLogin();">Login via Github</button>
+
     <hr>
     <!-- Button Login-TestAccount -->
     <button class="loginButton" name="loginTest" type="button" (click)="loginTestAccount();">Test Account</button>

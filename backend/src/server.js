@@ -33,7 +33,7 @@ function handleError(res, reason, statusMessage, code) {
  */
 app
   .use(cors({origin: [
-    "http://localhost:4200"
+    'http://localhost:4200'
   ], credentials: true}))
   .use(flash())
   .use(session({
