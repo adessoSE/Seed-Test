@@ -12,7 +12,7 @@ export const ROUTES = [
     {
         path: '',
         component: ParentComponent,
-        //canActivate: [AuthGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: 'feedback',

@@ -1,4 +1,4 @@
-import { Component, OnInit, DoCheck } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 
@@ -7,20 +7,23 @@ import { Router } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, DoCheck {
+export class AppComponent implements OnInit {
   token: string;
   githubName: string;
   title = 'cucumber-frontend';
-  repositories: string[] = [];
+  repositories: string[];
   repository: string;
   showImpressum: boolean = false;
   showTerms: boolean = false;
 
   constructor(public apiService: ApiService, public router: Router) {
+    this.apiService.getRepositoriesEvent.subscribe((resp: string[]) => {
+      this.repositories = resp;
+    })
   }
 
   ngOnInit() {
-    this.refreshLoginData();
+    this.getRepositories();
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
     }
@@ -44,22 +47,13 @@ export class AppComponent implements OnInit, DoCheck {
     }
   }
 
-  refreshLoginData() {
-    if (this.token && this.githubName) {
-      this.getRepositories();
-    }
-  }
-
-  ngDoCheck() {
-      this.refreshLoginData();
-  }
 
   getRepositories() {
-    this.apiService.getBackendUrlEvent.subscribe(() => {
+    if(this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)){
       this.apiService.getRepositories().subscribe((resp: any) => {
-        this.repositories = resp;
+          this.repositories = resp;
       });
-    });
+    }
   }
 
 
@@ -73,9 +67,8 @@ export class AppComponent implements OnInit, DoCheck {
   }
 
   logout() {
-    localStorage.removeItem('repository');
-    localStorage.removeItem('token');
-    localStorage.removeItem('githubName');
-    this.router.navigate(['/login']);
+    this.apiService.logoutUser().subscribe(resp => {
+      this.router.navigate(['/login']);
+    });
   }
 }

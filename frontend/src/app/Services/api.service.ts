@@ -7,6 +7,7 @@ import { Observable, throwError, of } from 'rxjs';
 import { StepType } from '../model/StepType';
 import { Scenario } from '../model/Scenario';
 import { Background } from '../model/Background';
+import {CookieService} from 'ngx-cookie-service'
 
 @Injectable({
     providedIn: 'root'
@@ -20,8 +21,10 @@ export class ApiService {
     public getStoriesEvent = new EventEmitter();
     public getTokenEvent = new EventEmitter();
     public getBackendUrlEvent = new EventEmitter();
+    public getRepositoriesEvent = new EventEmitter();
+
     public user;
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private cookieService: CookieService) {
     }
 
 
@@ -35,7 +38,9 @@ export class ApiService {
         const str = this.apiServer + '/github/repositories'; 
         
         return this.http.get<string[]>(str, this.getOptions())
-          .pipe(tap(resp => {}),
+          .pipe(tap(resp => {
+            this.getRepositoriesEvent.emit(resp);
+          }),
             catchError(this.handleError));
     }
 
@@ -52,8 +57,16 @@ export class ApiService {
 
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
-              console.log('resp: ' + JSON.stringify(resp))
             //this.getStoriesEvent.emit(resp);
+          }),
+            catchError(this.handleError));
+    }
+
+    logoutUser(){
+        let str = this.apiServer + '/user/logout'
+       return  this.http.get<string[]>(str, this.getOptions())
+          .pipe(tap(resp => {
+            this.cookieService.delete('connect.sid');
           }),
             catchError(this.handleError));
     }
@@ -170,7 +183,7 @@ export class ApiService {
     }
 
     isLoggedIn(): boolean {
-        if (document.cookie) {
+        if (this.cookieService.check('connect.sid')) {
             return true;
         }
         return false;
@@ -179,4 +192,6 @@ export class ApiService {
     getToken(): string {
         return localStorage.getItem('token');
     }
+
+
 }

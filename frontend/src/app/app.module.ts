@@ -24,6 +24,7 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
+import {CookieService } from 'ngx-cookie-service'
 
 @NgModule({
   declarations: [
@@ -54,7 +55,7 @@ import { StoryEditorComponent } from './story-editor/story-editor.component';
     FormsModule,
     DragDropModule
   ],
-  providers: [ApiService, AuthGuard],
+  providers: [ApiService, AuthGuard, CookieService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
