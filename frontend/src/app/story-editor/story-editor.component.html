@@ -18,7 +18,7 @@
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
     <div class="uk-card uk-card-default padding" id="story">
-      <div class="title">
+      <div>
             <span id="storyHeader">Story</span>
             <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
                 <span rel="def">A user story describes requirements for a software system.
@@ -41,7 +41,7 @@
         </div>
       </div>
       <!--Background-->
-      <div class="title ">
+      <div class="title">
         <div class="expand" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
           <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
           <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
