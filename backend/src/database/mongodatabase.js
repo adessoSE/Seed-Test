@@ -5,6 +5,7 @@ const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
+const { ObjectId } = require('mongodb').ObjectId;
 if (!process.env.NODE_ENV) {
   const dotenv = require('dotenv').config();
 }
@@ -39,7 +40,7 @@ function selectStoriesCollection(db) {
 function selectUsersCollection(db) {
   dbo = db.db('Seed');
   return new Promise((resolve, reject) => {
-    dbo.collection('Users', (err, collection) => {
+    dbo.collection('User', (err, collection) => {
       if (err) {
         reject(err);
       } else {
@@ -217,43 +218,65 @@ async function upsertEntry(storyID, updatedContent) {
   });
 }
 
-// create User in DB
+// create User in DB needs JsonObject User returns JsonObject(user)
 async function createUser(user) {
-  let db = await connectDb()
-  let collection = await selectUsersCollection(db)
-  await collection.insertOne(user, (error) => {
-    if (error) throw error;
+  try {
+    let db = await connectDb()
+    let collection = await selectUsersCollection(db)
+    let result = await collection.insertOne(user)
+    console.log(result.ops[0])
     db.close();
-  })
-}
-// delete User in DB
-async function deleteUser(userID){
-  const myObjt = { zukünftigeIDname: userID}
-  let db = await connectDb()
-  let collection = await selectUsersCollection(db)
-  await collection.deleteOne(myObjt)
-    db.close();
-}
-// update a User in DB
-async function updateUser(userID, updatedUser) {
-  const myObjt = { zukünftigeIDname: userID }
-  let db = await connectDb()
-  let collection = await selectUsersCollection(db)
-  let result = await collection.findOneAndReplace(myObjt, updatedUser, { returnOriginal: false })
-  db.close()
-  return result
-}
-//get UserData 
-async function getUserData(userID) {
-  const myObjt = { zukünftigeIDname: userID }
-  let db = await connectDb()
-  let collection = await selectUsersCollection(db)
-  let result = await collection.findOne(myObjt)
-  db.close()
-  return result
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER" + e)
+  }
 }
 
-// /////////////////////////////////////////// API Methods ////////////////////////////////////////
+// delete User in DB needs ID
+async function deleteUser(userID) {
+  try {
+    oId = ObjectId(userID)
+    const myObjt = { _id: oId }
+    let db = await connectDb()
+    let collection = await selectUsersCollection(db)
+    await collection.deleteOne(myObjt)
+    db.close();
+  } catch (e) {
+    console.log("UPS!!!! FEHLER" + e)
+  }
+}
+// update a User in DB needs ID and JsonObject User returns altered JsonObject User
+async function updateUser(userID, updatedUser) {
+  try {
+    oId = ObjectId(userID)
+    const myObjt = { _id: oId }
+    let db = await connectDb()
+    let collection = await selectUsersCollection(db)
+    let result = await collection.findOneAndReplace(myObjt, updatedUser, { returnOriginal: false })
+    db.close()
+    return result.value
+  } catch (e) {
+    console.log("UPS!!!! FEHLER" + e)
+  }
+}
+
+//get UserData needs ID returns JsonObject User
+async function getUserData(userID) {
+  try {
+    oId = ObjectId(userID)
+    const myObjt = { _id: oId }
+    let db = await connectDb()
+    let collection = await selectUsersCollection(db)
+    let result = await collection.findOne(myObjt)
+    db.close()
+    console.log(result)
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER" + e)
+  }
+}
+
+// /////////////////////////////////////////// API Methods end ////////////////////////////////////////
 // ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////
 
 // Creates Database Backupfile
