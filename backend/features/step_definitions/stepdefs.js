@@ -45,8 +45,6 @@ When('I go to the website: {string}', async (url) => {
 // timeouts if not found after 3 sek, waits for next page to be loaded
 When('I click the button: {string}', async (button) => {
   await driver.getCurrentUrl().then(async (currentUrl) => {
-    console.log(currentUrl);
-    console.log(currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/');
     if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase().match(/^run[ _](story|scenario)$/) !== null) {
       throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
     } else {
