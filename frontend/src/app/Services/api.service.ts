@@ -1,12 +1,13 @@
-import {Injectable} from '@angular/core';
-import {tap, catchError} from 'rxjs/operators';
-import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
-import {EventEmitter} from '@angular/core';
-import {Story} from '../model/Story';
-import {Observable, throwError, of} from 'rxjs';
-import {StepType} from '../model/StepType';
-import {Scenario} from '../model/Scenario';
-import {Background} from '../model/Background';
+import { Injectable } from '@angular/core';
+import { tap, catchError } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { EventEmitter } from '@angular/core';
+import { Story } from '../model/Story';
+import { Observable, throwError, of } from 'rxjs';
+import { StepType } from '../model/StepType';
+import { Scenario } from '../model/Scenario';
+import { Background } from '../model/Background';
+import { User } from '../model/User';
 
 @Injectable({
     providedIn: 'root'
@@ -31,7 +32,7 @@ export class ApiService {
 
         return this.http.get<string[]>(str)
             .pipe(tap(resp => {
-                }),
+            }),
                 catchError(this.handleError));
     }
 
@@ -46,7 +47,7 @@ export class ApiService {
 
         return this.http.get<string[]>(str)
             .pipe(tap(resp => {
-                }),
+            }),
                 catchError(this.handleError));
     }
 
@@ -98,7 +99,7 @@ export class ApiService {
         console.log(str);
         this.http.get<string[]>(str)
             .pipe(tap(resp => {
-                }),
+            }),
                 catchError(this.handleError));
         return this.http
             .get<Story[]>(str)
@@ -113,6 +114,39 @@ export class ApiService {
             .get<StepType[]>(this.apiServer + '/mongo/stepTypes')
             .pipe(tap(resp => {
             }));
+    }
+
+    public createUser(user: User): Observable<User> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .post<any>(this.apiServer + '/mongo/user/add', user)
+            .pipe(tap(resp => {
+            }), catchError(this.handleStoryError));
+    }
+
+    public updateUser(userID: string, user: User): Observable<User> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .post<User>(this.apiServer + '/mongo/user/update/' + userID, user)
+            .pipe(tap(resp => {
+            }), catchError(this.handleStoryError));
+    }
+
+
+    public deleteUser(userID: string) {
+        this.apiServer = localStorage.getItem('url_backend');
+        this.http
+            .delete<any>(this.apiServer + '/mongo/user/delete/' + userID)
+            .pipe(tap(resp => {
+            }), catchError(this.handleStoryError));
+    }
+
+    public getUserData(userID: string): Observable<Story[]> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .get<Story[]>(this.apiServer + '/mongo/user/' + userID)
+            .pipe(tap(resp => {
+            }), catchError(this.handleStoryError));
     }
 
     public addScenario(storyID: number): Observable<Scenario> {
@@ -175,10 +209,10 @@ export class ApiService {
 
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, {responseType: 'text'});
+                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, { responseType: 'text' });
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID, {responseType: 'text'});
+            .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text' });
     }
 
     isLoggedIn(): boolean {
