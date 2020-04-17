@@ -83,5 +83,43 @@ router.delete('/scenario/delete/:issueID/:scenarioID', async (req, res) => {
     handleError(res, error, error, 500);
   }
 });
+// create user
+router.post('/user/add', async (req, res) => {
+  try {
+    const user = req.body;
+    let result = await mongo.createUser(user)
+    res.status(200).json(result);
+  } catch (error) {
+    handleError(res, error, error, 500);
+  }
+});
+// update user
+router.post('/user/update/:userID', async (req, res) => {
+  try {
+    const user = req.body;
+    let updatedUser = await mongo.updateUser(parseInt(req.params.userID, 10), user)
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    handleError(res, error, error, 500);
+  }
+});
+// delete user
+router.delete('/user/delete/:userID', async (req, res) => {
+  try {
+    await mongo.deleteUser(parseInt(req.params.userID, 10))
+    res.status(200);
+  } catch (error) {
+    handleError(res, error, error, 500);
+  }
+});
+// get userObject
+router.get('/user/:userID', async (req, res) => {
+  try {
+    let result = await mongo.getUserData(parseInt(req.params.userID, 10))
+    res.status(200).json(result);
+  } catch (error) {
+    handleError(res, error, error, 500);
+  }
+});
 
 module.exports = router;
