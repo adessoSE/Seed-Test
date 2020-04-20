@@ -37,6 +37,17 @@ async function getUserByEmail(email){
   return result
 }
 
+async function getUserByToken(token){
+  console.log('in getuserbyToken')
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let result = await collection.findOne({githubToken: token})
+  console.log('result: ' + JSON.stringify(result))
+  db.close();
+  return result
+}
+
 async function getUserById(id){
   let db = await connectDb()
   let dbo = await db.db('Seed')
@@ -445,6 +456,7 @@ function installDatabase() {
 }
 
 module.exports = {
+  getUserByToken,
   updateStory,
   getUserById,
   registerUser,

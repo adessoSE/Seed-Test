@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {ApiService} from '../Services/api.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NgForm} from '@angular/forms';
 
 
@@ -16,8 +16,21 @@ export class LoginComponent implements OnInit {
   private testAccountName = 'adessoCucumber';
   private testAccountToken: string;
 
-  constructor(public apiService: ApiService,
-              public router: Router) {
+  constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
+        console.log(this.route.queryParams)
+        this.route.queryParams.subscribe((params) => {
+          console.log('params: ' + JSON.stringify(params))
+          if(params.accessToken){
+            this.apiService.loginGihubToken(params.accessToken).subscribe((resp) => {
+              console.log(resp)
+              this.apiService.getRepositories().subscribe((resp) => {
+                this.repositories = resp;
+              }, (err) => {
+                this.error = err.error;
+              });
+            })
+          }
+        })
     }
 
   ngOnInit() {
@@ -59,9 +72,9 @@ export class LoginComponent implements OnInit {
   }
 
   githubLogin(){
-    this.apiService.githubLogin().subscribe((resp) => {
-    }, (err) => {
-      this.error = err.error;
-    });
-  }
+    this.apiService.githubLogin()//.subscribe((resp) => {
+ //  }, (err) => {
+ //    this.error = err.error;
+ //  });
+ }
 }

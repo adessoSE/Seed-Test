@@ -1,4 +1,5 @@
 // Install express server
+const request = require('request')
 
 if(!process.env.NODE_ENV){
   const dotenv = require('dotenv').config();
@@ -15,6 +16,47 @@ app.use(express.static(`${__dirname}/dist/cucumber-frontend`));
 app.get('/backendInfo', (req, res) => {
   res.json({ url: process.env.API_SERVER });
 });
+
+app.get('/callback', (req, res) => {
+  console.log(req.query.code)
+  let code = req.query.code;
+  console.log('callback')
+  const TOKEN_URL = 'https://github.com/login/oauth/access_token'
+    request(
+        {
+            uri: TOKEN_URL,
+            method: "POST",
+            form: {
+                client_id: process.env.GITHUB_CLIENT_ID,
+                client_secret: process.env.GITHUB_CLIENT_SECRET,
+                code: code,
+                redirect_uri:'http://localhost:4200/callback'
+            },
+        }, function(err, response, body){
+            console.log('error: ' + JSON.stringify(err))
+            const accessToken = body.split("&")[0].split("=")[1];
+            console.log(body)
+            console.log('accessToken: ' + accessToken)
+            getData(res, req, accessToken);
+        }
+    )
+});
+
+const getData = (res, req, accessToken) => {
+  request(
+      {
+          uri: `https://api.github.com/user?access_token=${accessToken}`,
+          method:"GET",
+          headers: {
+              "User-Agent": "SampleOAuth",
+          }
+      }, 
+      function(err, response, body){
+          console.log(body);
+          res.redirect('/login?accessToken=' + accessToken);
+        }
+  )
+}
 
 app.get('/*', (req, res) => {
   res.sendFile(path.join(`${__dirname}/dist/cucumber-frontend/index.html`));

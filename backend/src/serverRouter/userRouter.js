@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const process = require('process');
 const fetch = require('node-fetch');
+const request = require('request')
 const helper = require('../serverHelper');
 const passport = require('passport');
 const initializePassport = require('../passport-config');
@@ -13,7 +14,7 @@ const mongo = require('../database/mongodatabase');
 const router = express.Router();
 // router for all user requests
 
-initializePassport(passport, mongo.getUserByEmail, mongo.getUserById)
+initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByToken)
 
 router
   .use(cors())
@@ -41,12 +42,11 @@ router.post('/login', (req, res, next) => {
     } 
     console.log('req body2 ' + JSON.stringify(req.body))
 
-    passport.authenticate('local', function(error, user, info){
+    passport.authenticate('normal-local', function(error, user, info){
         console.log('in authenticate')
         if(error){
             return res.json(error);
-        }
-        if(!user){
+        }else if(!user){
             info.status = 'error';
             return res.json(info);
         }
@@ -63,18 +63,29 @@ router.post('/login', (req, res, next) => {
     (req, res, next)
 });
 
-router.get('/githubLogin', (req, res) =>{
-    console.log('githubLogin')
-    passport.authenticate('github', { scope: [ 'repo' ] }, function (error, user, info) {
-        console.log('error: ' + error)
-        console.log('user: ' + JSON.stringify(user))
+router.post('/githubLogin', (req, res) =>{
+    let token = req.body.token;
+    console.log('githubLogin: ' + token)
+    //req.body.password = 'test'
+    passport.authenticate('github-local', function (error, user, info) {
+        console.log('in authenticate: ' + JSON.stringify(info))
+        if(error){
+            return res.json(error);
+        } else if(!user){
+            info.status = 'error';
+            return res.json(info);
+        }
+        req.logIn(user, async function(err){
+            if(err){
+                return res.json(err);
+            }else {
+                console.log(JSON.stringify(user))
+                //let results = await helper.getGithubStories(req.user.githubAccountName, req.user.githubRepo, req.user.githubToken, res)
+                res.json(user);
+            }
+        });
     })(req,res);
 });
-
-router.get('/callback', (req, res) =>{
-    console.log('callback')
-});
-
 
 // registers user
 router.post('/register', async (req, res) => {

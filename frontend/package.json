@@ -38,6 +38,7 @@
     "ngx-take-until-destroy": "^5.4.0",
     "node-fetch": "^2.6.0",
     "node-sass": "^4.13.1",
+    "request": "^2.88.2",
     "set-value": ">=2.0.1",
     "uikit": "^3.3.7",
     "zone.js": "~0.8.26"
