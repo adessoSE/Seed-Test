@@ -20,7 +20,6 @@ export class LoginComponent implements OnInit {
         this.route.queryParams.subscribe((params) => {
           if(params.login){
             this.apiService.loginGihubToken(params.login, params.id).subscribe((resp) => {
-              console.log(resp)
               this.apiService.getRepositories().subscribe((resp) => {
                 this.repositories = resp;
               }, (err) => {
