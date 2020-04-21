@@ -33,14 +33,23 @@ export class ParentComponent implements OnInit {
   }
 
   loadStories() {
-    let repository = localStorage.getItem('repository');
-    
-    this.apiService
-      .getStories(repository, this.apiService.getToken())
-      .subscribe((resp: Story[]) => {
-        this.stories = resp;
-      });
-
+    const repository = localStorage.getItem('repository');
+    const repositorytype = localStorage.getItem('repositoryType');
+    if (repositorytype === 'github') {
+      this.apiService
+          .getStories(repository, this.apiService.getToken())
+          .subscribe((resp: Story[]) => {
+            this.stories = resp;
+            console.log(resp);
+          });
+    } else {
+      this.apiService
+          .getIssuesFromJira(localStorage.getItem('jiraHost'), localStorage.getItem('jiraKey'))
+          .subscribe((resp: Story[]) => {
+            this.stories = resp;
+            console.log(resp);
+          });
+    }
   }
 
   setSelectedStory(story: Story){

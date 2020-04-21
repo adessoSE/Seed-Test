@@ -5,6 +5,7 @@ const process = require('process');
 const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
+const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter')
 
 const mongo = require('./database/mongodatabase');
@@ -53,6 +54,7 @@ app
   .use('/api/run', runReportRouter)
   .use('/api/github', githubRouter)
   .use('/api/mongo', mongoRouter)
+  .use('/api/jira', jiraRouter)
   .use('/api/user', userRouter)
   .get('/api', (_, res) => {
     res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });

@@ -52,7 +52,6 @@ router.post('/submitIssue/', (req, res) => {
   })
     .then(response => response.json())
     .then((json) => {
-      console.log(json);
       res.status(200).json(json);
     });
 });
@@ -68,7 +67,6 @@ router.get('/repositories', (req, res) => {
     helper.ownRepositories(token),
   ]).then((repos) => {
     const merged = [].concat(...repos);
-    // console.log(merged);
     res.status(200).json(merged);
   }).catch((reason) => {
     res.status(400).json('Wrong Github name or Token');

@@ -1,11 +1,12 @@
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 const fs = require('fs');
-const { XMLHttpRequest } = require('xmlhttprequest');
+const {XMLHttpRequest} = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
+
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 const fetch = require('node-fetch');
@@ -192,17 +193,17 @@ function getFeatureContent(story) {
 function writeFile(__dirname, selectedStory) {
   fs.writeFile(path.join(__dirname, 'features',
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
-      if (err) throw err;
-    });
+    if (err) throw err;
+  });
 }
 
 
 // Updates feature file based on story_id
 async function updateFeatureFile(issueID) {
- let result = await mongo.getOneStory(issueID)
-    if (result != null) {
-      writeFile('', result);
-    }
+  let result = await mongo.getOneStory(issueID)
+  if (result != null) {
+    writeFile('', result);
+  }
 }
 
 function execReport2(req, res, stories, mode, story, callback) {
@@ -319,38 +320,48 @@ function runReport(req, res, stories, mode) {
     setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
     setOptions(reportTime);
     reporter.generate(options);
-    res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
+    res.sendFile(`/reporting_html_${reportTime}.html`, {root: rootPath});
     //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
     let testStatus = false;
-    fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function(err, data) {
+    fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function (err, data) {
       let json = JSON.parse(data)
       let passed = 0;
-      let failed  = 0;
+      let failed = 0;
       let skipped = 0;
-      let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID )
+      let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID)
 
       json[0].elements.forEach((d) => {
         let scenarioPassed = 0;
         let scenarioFailed = 0;
         let scenarioSkipped = 0;
         d.steps.forEach((s, i) => {
-          switch(s.result.status){
-            case 'passed': passed++; scenarioPassed++; break;
-            case 'failed': failed++; scenarioFailed++; break;
-            case 'skipped': skipped++; scenarioSkipped++; break;
-            default:  console.log('Status default: ' + s.result.status);
+          switch (s.result.status) {
+            case 'passed':
+              passed++;
+              scenarioPassed++;
+              break;
+            case 'failed':
+              failed++;
+              scenarioFailed++;
+              break;
+            case 'skipped':
+              skipped++;
+              scenarioSkipped++;
+              break;
+            default:
+              console.log('Status default: ' + s.result.status);
           }
         })
         story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed), d.tags[0].name, story)
       })
 
       testStatus = testPassed(failed, passed);
-      
-      if(scenarioID && scenario){ 
+
+      if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
         mongo.updateScenario(story.story_id, scenario, (result) => {
         })
-      }else if(!scenarioID) {
+      } else if (!scenarioID) {
         story.lastTestPassed = testStatus;
         mongo.updateStory(story.story_id, story)
       }
@@ -358,15 +369,15 @@ function runReport(req, res, stories, mode) {
   });
 }
 
-function testPassed(failed, passed){
+function testPassed(failed, passed) {
   return failed <= 0 && passed >= 1;
 }
 
 
-function updateScenarioTestStatus(testPassed, scenarioTagName, story){
+function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
   let scenarioId = parseInt(scenarioTagName.split('_')[1]);
   let scenario = story.scenarios.find(scenario => scenario.scenario_id === scenarioId);
-  if(scenario){
+  if (scenario) {
     let index = story.scenarios.indexOf(scenario);
     scenario.lastTestPassed = testPassed;
     story.scenarios[index] = scenario;

@@ -46,7 +46,8 @@
     "selenium-webdriver": "^4.0.0-alpha.7",
     "uikit": "^3.3.7",
     "underscore": "^1.9.2",
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest": "^1.8.0",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.16",
