@@ -45,22 +45,12 @@ export class ApiService {
     }    
 
     public githubLogin() {
-        const str = this.apiServer + '/user/githubLogin'
 
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
         const CLIENT_ID = 'cbd4f16f4d38bce28a25'
-        const REDIRECT_URI = 'http://localhost:4200/callback'
-        const ENCODED_REDIRECT_URI = encodeURIComponent(REDIRECT_URI);
-        let s = `${AUTHORIZE_URL}?scope=repo&client_id=${CLIENT_ID}&redirect_uri=${ENCODED_REDIRECT_URI}`;
-        console.log(s)
-        window.location.href = s;
+        let s = `${AUTHORIZE_URL}?scope=repo&client_id=${CLIENT_ID}`;
 
-        //return this.http.get<string[]>(str)
-        //  .pipe(tap(resp => {
-        //      console.log('resp: ' + JSON.stringify(resp))
-        //    //this.getStoriesEvent.emit(resp);
-        //  }),
-        //    catchError(this.handleError));
+        window.location.href = s;
     }
 
     public loginGihubToken(login: string, id){
