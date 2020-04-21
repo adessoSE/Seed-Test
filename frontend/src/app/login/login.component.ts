@@ -91,20 +91,16 @@ export class LoginComponent implements OnInit {
         return projectNames;
     }
 
-    selectRepository(userRepository: string) {
-        const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
-        if (index < 0) {
-            localStorage.setItem('repositoryType', 'github');
-        } else {
-            localStorage.setItem('repositoryType', 'jira');
-            localStorage.setItem('jiraKey', this.jirakeys[index]);
-        }
-        localStorage.setItem('repository', userRepository);
-        this.router.navigate(['/']);
-    }
   selectRepository(userRepository: string) {
-    localStorage.setItem('repository', userRepository);
-    this.router.navigate(['/']);
+      const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
+      if (index < 0) {
+          localStorage.setItem('repositoryType', 'github');
+      } else {
+          localStorage.setItem('repositoryType', 'jira');
+          localStorage.setItem('jiraKey', this.jirakeys[index]);
+      }
+      localStorage.setItem('repository', userRepository);
+      this.router.navigate(['/']);
   }
 
   githubLogin(){

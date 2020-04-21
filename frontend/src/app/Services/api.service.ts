@@ -50,20 +50,13 @@ export class ApiService {
         }
         this.apiServer = localStorage.getItem('url_backend');
 
-        const str = this.apiServer + '/github/repositories/' + githubName + '/' + repoToken;
-
-        return this.http.get<string[]>(str)
-            .pipe(tap(resp => {
-            }),
-                catchError(this.handleError));
-      
         const str = this.apiServer + '/github/repositories'; 
-        
+
         return this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {
             this.getRepositoriesEvent.emit(resp);
           }),
-            catchError(this.handleError));
+                catchError(this.handleError));
     }    
 
     public githubAuthentication() {
