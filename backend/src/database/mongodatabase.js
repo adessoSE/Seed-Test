@@ -28,6 +28,14 @@ async function registerUser(user){
   return result;
 }
 
+async function registerGithubUser(user){
+  let db = await connectDb()
+  dbo = db.db('Seed');
+  let collection = await dbo.collection('User')
+  let result = await collection.insertOne({github: user});
+  return result;
+}
+
 async function getUserByEmail(email){
   let db = await connectDb()
   let dbo = await db.db('Seed')
@@ -37,13 +45,12 @@ async function getUserByEmail(email){
   return result
 }
 
-async function getUserByToken(token){
+async function getUserByGithub(login, id){
   console.log('in getuserbyToken')
   let db = await connectDb()
   let dbo = await db.db('Seed')
   let collection = await dbo.collection('User')
-  let result = await collection.findOne({githubToken: token})
-  console.log('result: ' + JSON.stringify(result))
+  let result = await collection.findOne({$and :[{'github.id': id}, {'github.login': login}]})
   db.close();
   return result
 }
@@ -56,6 +63,26 @@ async function getUserById(id){
   console.log('getuserbyid: ' + id)
   db.close();
   return result
+}
+
+async function findOrRegister(user){
+  let result = await getUserByGithub(user.login, user.id)
+  if(!result) {
+    result = await registerGithubUser(user)
+  }else {
+    result = await updateGithubToken(result._id, user.githubToken)
+  }
+  //console.log('getuserbyid: ' + JSON.stringify(result))
+  return result
+}
+
+async function updateGithubToken(objId, updatedToken) {
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let user = await collection.updateOne({"_id" : ObjectId(objId)}, {$set: { 'github.githubToken' : updatedToken}})
+  db.close()
+  return user
 }
 
 function connectDb() {
@@ -456,7 +483,8 @@ function installDatabase() {
 }
 
 module.exports = {
-  getUserByToken,
+  findOrRegister,
+  getUserByGithub,
   updateStory,
   getUserById,
   registerUser,

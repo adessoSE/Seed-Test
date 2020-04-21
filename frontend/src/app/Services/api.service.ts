@@ -63,9 +63,9 @@ export class ApiService {
         //    catchError(this.handleError));
     }
 
-    public loginGihubToken(token: string){
+    public loginGihubToken(login: string, id){
         const str = this.apiServer + '/user/githubLogin'
-        let user = {token}
+        let user = {login, id}
 
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {

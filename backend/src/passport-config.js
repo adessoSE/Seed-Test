@@ -3,7 +3,7 @@ const LocalStrategy = require('passport-local').Strategy;
 var GitHubStrategy = require('passport-github2').Strategy;
 const bcrypt = require('bcrypt');
 
-function initialize(passport, getUserByEmail, getUserById, getUserByToken) {
+function initialize(passport, getUserByEmail, getUserById, getUserByGithub) {
     const authenticateUser = async(email, password, done) => {
 
         // not working yet , needs callback, or database change to Promises 
@@ -25,10 +25,8 @@ function initialize(passport, getUserByEmail, getUserById, getUserByToken) {
         }
     }
 
-    const authenticateUserGithub = async(token, password, done) => {
-        console.log('in authenticateUserGithub: ' + token + ' useless: ')
-        const user = await getUserByToken(token);
-
+    const authenticateUserGithub = async(login, id, done) => {
+        const user = await getUserByGithub(login, id);
         if(!user){
             return done(null, false, {message: 'No user with this Github Account'});
         }
@@ -37,7 +35,7 @@ function initialize(passport, getUserByEmail, getUserById, getUserByToken) {
     
 
     passport.use('normal-local', new LocalStrategy({ usernameField: 'email' }, authenticateUser));
-    passport.use('github-local', new LocalStrategy({ usernameField: 'token', passwordField: 'token',}, authenticateUserGithub));
+    passport.use('github-local', new LocalStrategy({ usernameField: 'login', passwordField: 'id',}, authenticateUserGithub));
 
     passport.serializeUser((user, done) => done(null, user._id));
     passport.deserializeUser(async (id, done) => {

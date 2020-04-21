@@ -33,10 +33,7 @@ app.get('/callback', (req, res) => {
                 redirect_uri:'http://localhost:4200/callback'
             },
         }, function(err, response, body){
-            console.log('error: ' + JSON.stringify(err))
             const accessToken = body.split("&")[0].split("=")[1];
-            console.log(body)
-            console.log('accessToken: ' + accessToken)
             getData(res, req, accessToken);
         }
     )
@@ -51,11 +48,30 @@ const getData = (res, req, accessToken) => {
               "User-Agent": "SampleOAuth",
           }
       }, 
-      function(err, response, body){
-          console.log(body);
-          res.redirect('/login?accessToken=' + accessToken);
+      async function(err, response, body){
+          body = await JSON.parse(body)
+          body.githubToken = accessToken;
+          //console.log(body);
+          findOrRegisterUser(res, body)
         }
   )
+}
+
+
+const findOrRegisterUser = (res, user) => {
+  var apiServer = process.env.API_SERVER;
+  request(
+    {
+        uri: apiServer + '/user/githubRegister',
+        method:"POST",
+        body: user,
+        json: true
+    }, 
+    function(err, response, body){
+        //console.log(body);
+        res.redirect('/login?login=' + user.login + '&id=' + user.id);
+      }
+)
 }
 
 app.get('/*', (req, res) => {

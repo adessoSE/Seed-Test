@@ -14,7 +14,7 @@ const mongo = require('../database/mongodatabase');
 const router = express.Router();
 // router for all user requests
 
-initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByToken)
+initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub)
 
 router
   .use(cors())
@@ -64,9 +64,8 @@ router.post('/login', (req, res, next) => {
 });
 
 router.post('/githubLogin', (req, res) =>{
-    let token = req.body.token;
-    console.log('githubLogin: ' + token)
-    //req.body.password = 'test'
+    console.log(req.body)
+    req.body.id = parseInt(req.body.id)
     passport.authenticate('github-local', function (error, user, info) {
         console.log('in authenticate: ' + JSON.stringify(info))
         if(error){
@@ -87,11 +86,17 @@ router.post('/githubLogin', (req, res) =>{
     })(req,res);
 });
 
+router.post('/githubRegister', async (req, res) => {
+    console.log('githubRegister:')
+    let user = await mongo.findOrRegister(req.body)
+    res.json(user)
+});
+
+
 // registers user
 router.post('/register', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(req.body.password, salt);
     req.body.password = hashedPassword;
-    console.log('user: ' + JSON.stringify(req.body))
     let user = await mongo.registerUser(req.body)
     res.json(user)
 });

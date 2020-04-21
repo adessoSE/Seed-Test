@@ -17,11 +17,9 @@ export class LoginComponent implements OnInit {
   private testAccountToken: string;
 
   constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
-        console.log(this.route.queryParams)
         this.route.queryParams.subscribe((params) => {
-          console.log('params: ' + JSON.stringify(params))
-          if(params.accessToken){
-            this.apiService.loginGihubToken(params.accessToken).subscribe((resp) => {
+          if(params.login){
+            this.apiService.loginGihubToken(params.login, params.id).subscribe((resp) => {
               console.log(resp)
               this.apiService.getRepositories().subscribe((resp) => {
                 this.repositories = resp;
