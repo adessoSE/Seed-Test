@@ -22,7 +22,6 @@ export class ApiService {
     public getTokenEvent = new EventEmitter();
     public getBackendUrlEvent = new EventEmitter();
     public getRepositoriesEvent = new EventEmitter();
-
     public user;
     constructor(private http: HttpClient, private cookieService: CookieService) {
     }
@@ -44,12 +43,9 @@ export class ApiService {
             catchError(this.handleError));
     }    
 
-    public githubLogin() {
-
+    public githubAuthentication() {
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
-        const CLIENT_ID = 'cbd4f16f4d38bce28a25'
-        let s = `${AUTHORIZE_URL}?scope=repo&client_id=${CLIENT_ID}`;
-
+        let s = `${AUTHORIZE_URL}?scope=repo&client_id=${localStorage.getItem('clientId')}`;
         window.location.href = s;
     }
 
@@ -103,12 +99,15 @@ export class ApiService {
 
     public getBackendInfo() {
         const url = localStorage.getItem('url_backend');
-        if (url && url !== 'undefined') {
+        const clientId = localStorage.getItem('clientId');
+
+        if (url && url !== 'undefined' && clientId && clientId !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
         } else {
             this.http.get<any>(window.location.origin + '/backendInfo', this.getOptions()).subscribe((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
+                localStorage.setItem('clientId', backendInfo.clientId);
                 this.urlReceived = true;
                 this.getBackendUrlEvent.emit();
             });

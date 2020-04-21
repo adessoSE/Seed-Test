@@ -36,26 +36,17 @@ export class LoginComponent implements OnInit {
 
   async login(form: NgForm) {
     this.error = undefined;
-    //this.apiService.getRepositories(form.value.token, form.value.githubName).subscribe((resp) => {
-    //  this.repositories = resp;
-    //  localStorage.setItem('token', form.value.token);
-    //  localStorage.setItem('githubName', form.value.githubName);
-    //}, (err) => {
-      let user = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
-      this.apiService.getRepositories().subscribe((resp) => {
-        this.repositories = resp;
-      }, (err) => {
-        this.error = err.error;
-      });
+    let user = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
+    this.apiService.getRepositories().subscribe((resp) => {
+      this.repositories = resp;
+    }, (err) => {
+      this.error = err.error;
+    });
 
   }
 
   async loginTestAccount() {
     this.error = undefined;
-    //this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
-    //  this.repositories = resp;
-    //  localStorage.setItem('token', this.testAccountToken);
-    //  localStorage.setItem('githubName', this.testAccountName);
     let user = await this.apiService.loginUser(null, null).toPromise()
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
@@ -70,9 +61,6 @@ export class LoginComponent implements OnInit {
   }
 
   githubLogin(){
-    this.apiService.githubLogin()//.subscribe((resp) => {
- //  }, (err) => {
- //    this.error = err.error;
- //  });
+    this.apiService.githubAuthentication()
  }
 }

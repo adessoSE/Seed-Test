@@ -18,7 +18,13 @@
       <!-- Button Login -->
       <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
     </form>
-    <button class="loginButton" (click)="githubLogin();">Login via Github</button>
+    <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
+    <a class="githubLoginContainer" (click)="githubLogin();">
+      <div class="githubLogin" >
+         <img src ="../assets/github-logo.png" >
+         <p>Login via Github</p>
+      </div>
+   </a>
 
     <hr>
     <!-- Button Login-TestAccount -->

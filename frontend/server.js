@@ -14,13 +14,11 @@ const environment = '../frontend/src/environments/environment';
 app.use(express.static(`${__dirname}/dist/cucumber-frontend`));
 
 app.get('/backendInfo', (req, res) => {
-  res.json({ url: process.env.API_SERVER });
+  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID});
 });
 
 app.get('/callback', (req, res) => {
-  console.log(req.query.code)
   let code = req.query.code;
-  console.log('callback')
   const TOKEN_URL = 'https://github.com/login/oauth/access_token'
     request(
         {
@@ -51,7 +49,6 @@ const getData = (res, req, accessToken) => {
       async function(err, response, body){
           body = await JSON.parse(body)
           body.githubToken = accessToken;
-          //console.log(body);
           findOrRegisterUser(res, body)
         }
   )
