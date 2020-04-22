@@ -22,11 +22,7 @@ export class LoginComponent implements OnInit {
         this.route.queryParams.subscribe((params) => {
           if(params.login){
             this.apiService.loginGihubToken(params.login, params.id).subscribe((resp) => {
-              this.apiService.getRepositories().subscribe((resp) => {
-                this.repositories = resp;
-              }, (err) => {
-                this.error = err.error;
-              });
+              this.getRepositories();
             })
           }
         })
@@ -37,46 +33,45 @@ export class LoginComponent implements OnInit {
 
   async login(form: NgForm) {
     this.error = undefined;
-    let user = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
-    this.apiService.getRepositories().subscribe((resp) => {
-      this.repositories = resp;
-    }, (err) => {
-      this.error = err.error;
-    });
-
+    let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
+    if(response.status === 'error'){
+      this.error = response.message;
+    } else{
+      this.getRepositories()
+    }
   }
 
-    loginTestAccount() {
-        this.error = undefined;
-        let tmp_repositories = [];
-        this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
-            tmp_repositories = resp;
-            localStorage.setItem('token', this.testAccountToken);
-            localStorage.setItem('githubName', this.testAccountName);
-            localStorage.setItem('githubCount', `${tmp_repositories.length}`);
-            if (this.testJiraHost.length > 0) {
-                this.apiService.getProjectsFromJira(this.testJiraHost).subscribe((resp2) => {
-                    this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
-                    localStorage.setItem('jiraHost', this.testJiraHost);
-                }, (err) => {
-                    this.error = err.error;
-                    this.repositories = tmp_repositories;
-                });
-            } else {
-                this.repositories = tmp_repositories;
-            }
-        }, (err) => {
-            this.error = err.error;
-        });
-    }
   async loginTestAccount() {
     this.error = undefined;
-    let user = await this.apiService.loginUser(null, null).toPromise()
-      this.apiService.getRepositories().subscribe((resp) => {
-        this.repositories = resp;
-      }, (err) => {
-        this.error = err.error;
-      });
+    let response = await this.apiService.loginUser(null, null).toPromise()
+    if(response.status === 'error'){
+      this.error = response.message;
+    } else{
+      this.getRepositories()
+    }
+  }
+
+  getRepositories() {
+    let tmp_repositories = [];
+    this.apiService.getRepositories().subscribe((resp) => {
+      tmp_repositories = resp;
+      localStorage.setItem('token', this.testAccountToken);
+      localStorage.setItem('githubName', this.testAccountName);
+      localStorage.setItem('githubCount', `${tmp_repositories.length}`);
+      if (this.testJiraHost.length > 0) {
+          this.apiService.getProjectsFromJira(this.testJiraHost).subscribe((resp2) => {
+              this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
+              localStorage.setItem('jiraHost', this.testJiraHost);
+          }, (err) => {
+              this.error = err.error;
+              this.repositories = tmp_repositories;
+          });
+      } else {
+          this.repositories = tmp_repositories;
+      }
+  }, (err) => {
+      this.error = err.error;
+  });
   }
 
     filterProjects(resp) {

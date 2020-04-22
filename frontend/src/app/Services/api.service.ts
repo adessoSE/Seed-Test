@@ -43,21 +43,17 @@ export class ApiService {
                 catchError(this.handleError));
     }
 
-    public getRepositories(token: string, githubName: string): Observable<string[]> {
-        let repoToken = token;
-        if (!repoToken || repoToken === 'undefined') {
-            repoToken = '';
-        }
+    public getRepositories(): Observable<string[]> {
         this.apiServer = localStorage.getItem('url_backend');
-
+      
         const str = this.apiServer + '/github/repositories'; 
-
+        
         return this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {
             this.getRepositoriesEvent.emit(resp);
           }),
-                catchError(this.handleError));
-    }    
+            catchError(this.handleError));
+    } 
 
     public githubAuthentication() {
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 

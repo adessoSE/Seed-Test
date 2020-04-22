@@ -1,12 +1,12 @@
 /* eslint-disable no-unused-vars */
-const { MongoClient, ObjectID } = require('mongodb');
+const { MongoClient } = require('mongodb');
 var ObjectId = require('mongodb').ObjectID;
 const fs = require('fs');
 const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-const { ObjectId } = require('mongodb').ObjectId;
+
 if (!process.env.NODE_ENV) {
   const dotenv = require('dotenv').config();
 }
