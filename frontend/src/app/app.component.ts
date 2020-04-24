@@ -84,6 +84,10 @@ export class AppComponent implements OnInit, DoCheck {
     });
   }
 
+  manageAccount() {
+    this.router.navigate(['/accountManagment']);
+  }
+
   logout() {
     localStorage.removeItem('repository');
     localStorage.removeItem('token');

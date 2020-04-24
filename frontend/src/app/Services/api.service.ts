@@ -107,6 +107,13 @@ export class ApiService {
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
     }
+    public createJiraAccount(request) {
+        this.apiServer = localStorage.getItem('url_backend');
+        console.log(request);
+        console.log(this.apiServer + '/jira/user/create/');
+        return this.http
+            .post<any>(this.apiServer + '/jira/user/create/', request);
+    }
 
     public getStepTypes(): Observable<StepType[]> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -141,10 +148,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public getUserData(userID: string): Observable<Story[]> {
+    public getUserData(userID: string): Observable<User[]> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<Story[]>(this.apiServer + '/mongo/user/' + userID)
+            .get<User[]>(this.apiServer + '/mongo/user/' + userID)
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }

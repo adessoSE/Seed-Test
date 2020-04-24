@@ -263,12 +263,12 @@ async function updateUser(userID, updatedUser) {
 //get UserData needs ID returns JsonObject User
 async function getUserData(userID) {
   try {
-    oId = ObjectId(userID)
-    const myObjt = { _id: oId }
-    let db = await connectDb()
-    let collection = await selectUsersCollection(db)
-    let result = await collection.findOne(myObjt)
-    db.close()
+    const oId = ObjectId(userID);
+    const myObjt = { _id: oId };
+    let db = await connectDb();
+    let collection = await selectUsersCollection(db);
+    let result = await collection.findOne(myObjt);
+    db.close();
     console.log(result)
     return result
   } catch (e) {

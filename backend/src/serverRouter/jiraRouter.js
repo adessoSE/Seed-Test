@@ -18,6 +18,7 @@ router
   });
 // Gets all possible issues from project
 router.get('/issues/:hostServer/:projectKey', (req, res) => {
+  console.log(req);
   const { hostServer } = req.params;
   const { projectKey } = req.params;
   const username = 'admin';
@@ -27,7 +28,7 @@ router.get('/issues/:hostServer/:projectKey', (req, res) => {
   const tmpStories = [];
   const options = {
     method: 'GET',
-    url: `http://${hostServer}/jira/rest/api/2/search?jql=project=${projectKey}`,
+    url: `http://${hostServer}/rest/api/2/search?jql=project=${projectKey}`,
     jar: cookieJar,
     qs: {
       type: 'page',
@@ -77,14 +78,14 @@ router.get('/issues/:hostServer/:projectKey', (req, res) => {
 });
 // gets all project from user
 router.get('/projects/:hostServer', (req, res) => {
-  const { hostServer } = req.params;
-  const username = 'admin';
-  const password = 'admin';
+  const { hostServer } = req.body;
+  const { username } = req.body;
+  const { password } = req.body;
   const auth = Buffer.from(`${username}:${password}`).toString('base64');
   const cookieJar = request.jar();
   const options = {
     method: 'GET',
-    url: `http://${hostServer}/jira/rest/api/2/issue/createmeta`,
+    url: `http://${hostServer}/rest/api/2/issue/createmeta`,
     jar: cookieJar,
     qs: {
       type: 'page',
@@ -105,9 +106,46 @@ router.get('/projects/:hostServer', (req, res) => {
         res.status(500).json(error);
         throw new Error(error);
       }
+      console.log(body);
       res.status(200).json(body);
     });
   });
 });
 
+router.post('/user/create/', (req, res) => {
+  const { jiraAccountName } = req.body;
+  const { jiraPassword } = req.body;
+  const { jiraHost } = req.body;
+  const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
+  const cookieJar = request.jar();
+  const options = {
+    method: 'GET',
+    url: `http://${jiraHost}/rest/api/2/issue/createmeta`,
+    jar: cookieJar,
+    qs: {
+      type: 'page',
+      title: 'title',
+    },
+    headers: {
+      'cache-control': 'no-cache',
+      Authorization: `Basic ${auth}`,
+    },
+  };
+  request(options, (error) => {
+    if (error) {
+      res.status(500);
+      throw new Error(error);
+    }
+    request(options, (error2) => {
+      if (error2) {
+        res.status(500);
+        console.log(error);
+        throw new Error(error);
+      }
+      helper.updateJira(req.body).then((result) => {
+        res.status(200).json(result);
+      });
+    });
+  });
+});
 module.exports = router;

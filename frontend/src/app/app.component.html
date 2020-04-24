@@ -28,6 +28,7 @@
     <div class="topnav-right">
         <p id="version">Version 1.0.0</p>
       <div *ngIf="this.token || this.repository">
+        <button id="manageAccount" class="right-button" title="Logout" (click)="manageAccount();">Account Settings</button>
         <div class="dropdown">
           <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
           <ul class="dropdown-list">

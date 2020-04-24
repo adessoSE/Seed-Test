@@ -202,6 +202,21 @@ a:hover{
   background: -moz-linear-gradient(top, #b6b6b6, #ffffff);
 }
 
+.right-button#manageAccount{
+  color: #56595e;
+  border: solid 1px #b6b6b6;
+  background: #ffffff;
+  background: -moz-linear-gradient(top,  #ffffff, #b6b6b6);
+}
+
+.right-button#manageAccount:hover{
+  background: #b6b6b6;
+}
+
+.right-button#manageAccount:active{
+  background: -moz-linear-gradient(top, #b6b6b6, #ffffff);
+}
+
 .dropdown{
   position: relative;
   display: inline-block;
