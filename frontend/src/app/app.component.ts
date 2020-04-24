@@ -66,6 +66,10 @@ export class AppComponent implements OnInit {
     });
   }
 
+  manageAccount() {
+    this.router.navigate(['/accountManagment']);
+  }
+
   logout() {
     this.apiService.logoutUser().subscribe(resp => {
       this.router.navigate(['/login']);

@@ -60,8 +60,4 @@ export class ParentComponent implements OnInit {
     this.selectedScenario = scenario;
   }
 
-  setform(form){
-    this.formtosubmit = form;
-  }
-
 }

@@ -24,6 +24,8 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
+import { AccountManagmentComponent } from './account-managment/account-managment.component';
+import { LoginFormComponent } from './login-form/login-form.component';
 import {CookieService } from 'ngx-cookie-service'
 
 @NgModule({
@@ -42,7 +44,9 @@ import {CookieService } from 'ngx-cookie-service'
     FeedbackComponent,
     TermsComponent,
     SubmitformComponent,
-    StoryEditorComponent
+    StoryEditorComponent,
+    AccountManagmentComponent,
+    LoginFormComponent
   ],
   imports: [
       NgbModule,

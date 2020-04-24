@@ -1,0 +1,70 @@
+<h1>
+    Account Settings
+</h1>
+<div>
+    <form>
+        <div class="underlying_grid">
+            <div class="grid seedTest" id="seedTestDiv">
+                <div class="uk-card-title"><span class="header">Seed-Test Account</span></div>
+                <div class="uk-form-horizontal">
+                    <label>
+                        E-Mail
+                        <input [defaultValue]="email">
+                    </label>
+                </div>
+                <div class="uk-form-horizontal">
+                    <label>
+                        Password
+                        <input [defaultValue]="password">
+                    </label>
+                </div>
+            </div>
+            <div class="grid github" id="githubDiv" *ngIf="github!==null">
+                <div class="uk-card-title"><span class="header">Github</span></div>
+                <div class="uk-form-horizontal">
+                    <label>
+                        Github-Token
+                        <input [defaultValue]="github['githubToken']">
+                    </label>
+                </div>
+                <div class="uk-form-horizontal">
+                    <label>
+                        Github-Name
+                        <input [defaultValue]="github['githubAccountName']">
+                    </label>
+                </div>
+            </div>
+            <div id="noGithubDiv" *ngIf="github===null">
+                <button (click)="login('Github')">Login to Github</button>
+            </div>
+            <div class="grid jira">
+                <div class="uk-card-title"><span class="header">Jira</span></div>
+                <div id="jiraDiv" *ngIf="jira!==null">
+                    <div class="uk-form-horizontal">
+                        <label>
+                            Jira-Name
+                            <input [defaultValue]="jira['AccountName']">
+                        </label>
+                    </div>
+                    <div class="uk-form-horizontal">
+                        <label>
+                            Jira-Password
+                            <input [defaultValue]="jira['Password']">
+                        </label>
+                    </div>
+                    <div class="uk-form-horizontal">
+                        <label>
+                            Jira-Host
+                            <input [defaultValue]="jira['Host']">
+                        </label>
+                    </div>
+                </div>
+                <div id="ChangeJiraDiv">
+                    <button class="std_button" id="change-jira" (click)="login('Jira')">Login to Jira</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+<app-login-form #loginForm (mongoUpdate)="updateSite($event);"></app-login-form>

@@ -122,7 +122,7 @@ router.delete('/user/delete/:userID', async (req, res) => {
 // get userObject
 router.get('/user/:userID', async (req, res) => {
   try {
-    let result = await mongo.getUserData(parseInt(req.params.userID, 10))
+    const result = await mongo.getUserData(req.params.userID);
     res.status(200).json(result);
   } catch (error) {
     handleError(res, error, error, 500);

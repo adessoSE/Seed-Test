@@ -197,6 +197,19 @@ function writeFile(__dirname, selectedStory) {
   });
 }
 
+async function updateJira(request) {
+  const { UserID } = request;
+  const jira = {
+    AccountName: request.jiraAccountName,
+    Password: request.jiraPassword,
+    Host: request.jiraHost,
+  };
+  const user = await mongo.getUserData(UserID);
+  user.jira = jira;
+  await mongo.updateUser(UserID, user);
+  return 'Successful';
+}
+
 
 // Updates feature file based on story_id
 async function updateFeatureFile(issueID) {
@@ -407,4 +420,5 @@ module.exports = {
   starredRepositories,
   ownRepositories,
   fuseGitWithDb,
+  updateJira,
 };
