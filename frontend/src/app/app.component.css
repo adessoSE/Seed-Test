@@ -187,20 +187,11 @@ a:hover{
   background: -moz-linear-gradient(top, #f0506e, #f07289);
 }
 
-.right-button#repositories{
-  color: #56595e;
-  border: solid 1px #b6b6b6;
-  background: #ffffff;
-  background: -moz-linear-gradient(top,  #ffffff, #b6b6b6);
+.menulist{
+  list-style: none;
 }
 
-.right-button#repositories:hover{
-  background: #b6b6b6;
-}
-
-.right-button#repositories:active{
-  background: -moz-linear-gradient(top, #b6b6b6, #ffffff);
-}
+/*dropdown general*/
 
 .dropdown{
   position: relative;

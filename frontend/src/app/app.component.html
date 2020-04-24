@@ -26,19 +26,31 @@
     </div>
     <!--right-->
     <div class="topnav-right">
-        <p id="version">Version 1.0.0</p>
-      <div *ngIf="this.token || this.repository">
-        <div class="dropdown">
-          <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
-          <ul class="dropdown-list">
-            <li *ngFor="let repository of repositories; let i = index" >
-              <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-               href="#">{{repository}}</a>
+      <div class="uk-inline">
+        <button class="menuButton material-icons" type="button" title="menu">menu</button>
+        <div uk-dropdown="mode: click">
+          <ul class="menulist">
+            <li>
+              <div *ngIf="this.token || this.repository" class="dropdown">
+                <a id="repositories" title="Select Repository">Repositories</a>
+                <ul class="dropdown-list">
+                  <li *ngFor="let repository of repositories; let i = index" >
+                    <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
+                    href="#">{{repository}}</a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <a>Accountmanagement</a>
+            </li>
+            <li>
+              <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
             </li>
           </ul>
         </div>
-        <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
       </div>
+      <p id="version">Version 1.0.0</p>
     </div>
   </div>
 
