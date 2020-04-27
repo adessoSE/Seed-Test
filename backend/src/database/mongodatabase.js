@@ -419,6 +419,7 @@ function dropCollection() {
 }
 
 function installDatabase() {
+  let collection = 'Stories'
   makeCollection(collection);
   insertMore('stepTypes', stepTypes());
 }
