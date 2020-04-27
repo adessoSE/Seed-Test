@@ -1,6 +1,6 @@
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 const fs = require('fs');
-const { XMLHttpRequest } = require('xmlhttprequest');
+const {XMLHttpRequest} = require('xmlhttprequest');
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
@@ -16,7 +16,7 @@ const options = {
   jsonFile: 'features/reporting.json',
   output: 'features/reporting_html.html',
   reportSuiteAsScenarios: true,
-  launchReport: true,
+  launchReport: false,
   metadata: {
     'App Version': '0.3.2',
     'Test Environment': 'STAGING',
@@ -164,12 +164,11 @@ function writeFile(__dirname, selectedStory) {
 
 
 // Updates feature file based on story_id
-function updateFeatureFile(issueID) {
-  mongo.getOneStory(issueID, (result) => {
-    if (result != null) {
-      writeFile('', result);
-    }
-  });
+async function updateFeatureFile(issueID) {
+  let result = await mongo.getOneStory(issueID)
+  if (result != null) {
+    writeFile('', result);
+  }
 }
 
 function execReport2(req, res, stories, mode, story, callback) {
@@ -189,18 +188,18 @@ function execReport2(req, res, stories, mode, story, callback) {
     if (error) {
       console.error(`exec error: ${error}`);
 
-      callback(reportTime);
+      callback(reportTime, story, req.params.scenarioID);
       return;
     }
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
-    callback(reportTime);
+    callback(reportTime, story, req.params.scenarioID);
   });
 }
 
-function execReport(req, res, stories, mode, callback) {
-  mongo.getOneStory(parseInt(req.params.issueID, 10),
-    result => execReport2(req, res, stories, mode, result, callback));
+async function execReport(req, res, stories, mode, callback) {
+  let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
+  execReport2(req, res, stories, mode, result, callback)
 }
 
 
@@ -244,21 +243,19 @@ function starredRepositories(user, token) {
   return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
 }
 
-function fuseGitWithDb(story, issueId) {
-  return new Promise((resolve) => {
-    mongo.getOneStory(issueId, (result) => {
-      if (result !== null) {
-        story.scenarios = result.scenarios;
-        story.background = result.background;
-      } else {
-        story.scenarios = [emptyScenario()];
-        story.background = emptyBackground();
-      }
-      mongo.upsertEntry('Stories', story.story_id, story);
-      writeFile('', story); // Create & Update Feature Files
-      resolve(story);
-    });
-  });
+async function fuseGitWithDb(story, issueId) {
+  let result = await mongo.getOneStory(issueId)
+  if (result !== null) {
+    story.scenarios = result.scenarios;
+    story.background = result.background;
+    story.lastTestPassed = result.lastTestPassed;
+  } else {
+    story.scenarios = [emptyScenario()];
+    story.background = emptyBackground();
+  }
+  mongo.upsertEntry(story.story_id, story);
+  writeFile('', story); // Create & Update Feature Files
+  return story
 }
 
 function deleteJsonReport(jsonReport) {
@@ -283,13 +280,74 @@ function deleteHtmlReport(htmlReport) {
 
 
 function runReport(req, res, stories, mode) {
-  execReport(req, res, stories, mode, (reportTime) => {
+  execReport(req, res, stories, mode, (reportTime, story, scenarioID) => {
     setTimeout(deleteJsonReport, reportDeletionTime * 60000, `reporting_${reportTime}.json`);
     setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
     setOptions(reportTime);
     reporter.generate(options);
-    res.sendFile(`/reporting_html_${reportTime}.html`, { root: rootPath });
+    res.sendFile(`/reporting_html_${reportTime}.html`, {root: rootPath});
+    //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
+    let testStatus = false;
+    fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function (err, data) {
+      let json = JSON.parse(data)
+      let passed = 0;
+      let failed = 0;
+      let skipped = 0;
+      let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID)
+
+      json[0].elements.forEach((d) => {
+        let scenarioPassed = 0;
+        let scenarioFailed = 0;
+        let scenarioSkipped = 0;
+        d.steps.forEach((s, i) => {
+          switch (s.result.status) {
+            case 'passed':
+              passed++;
+              scenarioPassed++;
+              break;
+            case 'failed':
+              failed++;
+              scenarioFailed++;
+              break;
+            case 'skipped':
+              skipped++;
+              scenarioSkipped++;
+              break;
+            default:
+              console.log('Status default: ' + s.result.status);
+          }
+        })
+        story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed), d.tags[0].name, story)
+      })
+
+      testStatus = testPassed(failed, passed);
+
+      if (scenarioID && scenario) {
+        scenario.lastTestPassed = testStatus;
+        mongo.updateScenario(story.story_id, scenario, (result) => {
+        })
+      } else if (!scenarioID) {
+        story.lastTestPassed = testStatus;
+        mongo.updateStory(story.story_id, story)
+      }
+    });
   });
+}
+
+function testPassed(failed, passed) {
+  return failed <= 0 && passed >= 1;
+}
+
+
+function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
+  let scenarioId = parseInt(scenarioTagName.split('_')[1]);
+  let scenario = story.scenarios.find(scenario => scenario.scenario_id === scenarioId);
+  if (scenario) {
+    let index = story.scenarios.indexOf(scenario);
+    scenario.lastTestPassed = testPassed;
+    story.scenarios[index] = scenario;
+  }
+  return story;
 }
 
 module.exports = {

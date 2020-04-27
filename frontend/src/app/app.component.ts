@@ -69,6 +69,7 @@ export class AppComponent implements OnInit, DoCheck {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) => {
         this.repositories = resp;
+        console.log(resp);
       });
     });
   }

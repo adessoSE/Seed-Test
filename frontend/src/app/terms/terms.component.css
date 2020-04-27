@@ -1,3 +1,13 @@
 .container{
     margin: 20px;
 }
+
+a {
+    color: #212529;
+}
+
+@media screen and (max-width: 600px) {
+    .container{
+        width: 94%;
+    }
+}

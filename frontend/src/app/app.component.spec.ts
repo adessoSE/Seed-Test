@@ -108,14 +108,11 @@ describe('AppComponent', () => {
 
   //describe('selectRepository', function(){
   //  it('should select a repository', function(){
-  //    let repository = 'Cucumber';
-//
-  //    spyOn(component.apiService, 'getStories');
-//
+  //    let repository = 'Cucumber';  
+  //    spyOn(component.apiService, 'getStories');  
   //    component.selectRepository(repository);
   //    expect(component.apiService.getStories).toHaveBeenCalled();
   //    expect(component.repository).toBe(repository);
-  //    
 //
   //  });
   //});
@@ -123,16 +120,16 @@ describe('AppComponent', () => {
   describe('getRepositories', function(){
     let token = 'undefined';
     let githubName = 'adessoCucumber/Cucumber';
-
+  
     beforeEach(function(){
       localStorage.setItem('token', token);
       localStorage.setItem('githubName', githubName);
     });
-
+  
     afterEach(function(){
       localStorage.clear();
     })
-
+  
     it('should get all repositories', function(){
       spyOn(component.apiService, 'getRepositories');
       component.getRepositories();
@@ -140,29 +137,27 @@ describe('AppComponent', () => {
       expect(component.token).toBe(token);
       expect(component.githubName).toBe(githubName);
     });
-  });
+  }); 
 
-  //describe('logout', function(){
-  //  beforeEach(function(){
-  //    localStorage.setItem('repository', 'test1')
-  //    localStorage.setItem('token', '123');
-  //    localStorage.setItem('githubName', 'name');
-  //  })
-//
-  //  afterEach(function(){
-  //    localStorage.clear();
-  //  })
-  //  it('logout', fakeAsync(() => {    
-  //    const injector = getTestBed();
-  //    //const router = injector.get(Router);
-  //    const router = component.router;
-  //    component.logout();
-  //    expect(localStorage.getItem('repository')).toEqual(null);
-  //    expect(localStorage.getItem('token')).toEqual(null);
-  //    expect(localStorage.getItem('githubName')).toEqual(null);
-  //    //expect(router.url).toEqual('/login');
-  //  }));
-  //});
-
-  
+ // describe('logout', function(){
+ //   beforeEach(function(){
+ //     localStorage.setItem('repository', 'test1')
+ //     localStorage.setItem('token', '123');
+ //     localStorage.setItem('githubName', 'name');
+ //   })
+ // 
+ //   afterEach(function(){
+ //     localStorage.clear();
+ //   })
+ //   it('logout', (() => {    
+ //     const injector = getTestBed();
+ //     //const router = injector.get(Router);
+ //     const router = component.router;
+ //     component.logout();
+ //     expect(localStorage.getItem('repository')).toEqual(null);
+ //     expect(localStorage.getItem('token')).toEqual(null);
+ //     expect(localStorage.getItem('githubName')).toEqual(null);
+ //     //expect(router.url).toEqual('/login');
+ //   }));
+ // }); 
 });
