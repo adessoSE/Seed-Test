@@ -38,11 +38,12 @@ npm start
 
 Create an `.env` file in the backend folder with following variables:
 ```
-DATABASE_URI
-REPORT_DELETION_TIME
-TESTACCOUNT_NAME
-TESTACCOUNT_TOKEN
-PORT
+DATABASE_URI= uri for the database connection
+REPORT_DELETION_TIME= minutes after which the generated reports are deleted (e.g. 5 for 5 minutes)
+TESTACCOUNT_NAME= name of the github test account (not needed for you if you do not use a test account)
+TESTACCOUNT_TOKEN= github token of the test account (not needed for you if you do not use a test account)
+PORT= port of the server
+Unassigned_AVATAR_URL=https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png  image of the user for unassigned issues
 ```
 
 Create an `.env` file in the frontend folder with following variables:
