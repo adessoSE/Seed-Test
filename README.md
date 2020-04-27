@@ -24,18 +24,6 @@ Then install all necessary node modules once in the backend and in the frontend 
 npm install
 ```
 
-For the frontend server, remember to change the link to the backend server in the api-service.ts file.
-To run the frontend server switch to the frontend folder and use this command:
-```
-cd frontend
-npm start
-```
-To run the backend server switch to the backend folder and use this command:
-```
-cd backend
-npm start
-```
-
 Create an `.env` file in the backend folder with following variables:
 ```
 DATABASE_URI= uri for the database connection
@@ -49,6 +37,17 @@ Unassigned_AVATAR_URL=https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577
 Create an `.env` file in the frontend folder with following variables:
 ```
 API_SERVER=http://localhost:8080/api
+```
+
+To run the frontend server switch to the frontend folder and use this command:
+```
+cd frontend
+npm start
+```
+To run the backend server switch to the backend folder and use this command:
+```
+cd backend
+npm start
 ```
 
 ## Database
