@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
-import { Router } from '@angular/router';
 
 
 @Component({
@@ -17,8 +16,7 @@ export class ParentComponent implements OnInit {
   selectedScenario: Scenario;
   formtosubmit: [""];
 
-  constructor(public apiService: ApiService,
-              private router: Router) {
+  constructor(public apiService: ApiService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -37,7 +35,7 @@ export class ParentComponent implements OnInit {
     const repositorytype = localStorage.getItem('repositoryType');
     if (repositorytype === 'github') {
       this.apiService
-          .getStories(repository, this.apiService.getToken())
+          .getStories(repository)
           .subscribe((resp: Story[]) => {
             this.stories = resp;
             console.log(resp);

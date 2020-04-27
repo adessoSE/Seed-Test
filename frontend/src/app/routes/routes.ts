@@ -4,6 +4,7 @@ import { ParentComponent } from '../parent/parent.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { FeedbackComponent } from '../feedback/feedback.component';
 import { TermsComponent } from '../terms/terms.component';
+import { TestAccountComponent } from '../test-account/test-account.component';
 
 export const ROUTES = [
     {
@@ -18,6 +19,10 @@ export const ROUTES = [
         path: '',
         component: ParentComponent,
         canActivate: [AuthGuard]
+    },
+    {
+        path: 'testaccount',
+        component: TestAccountComponent
     },
     {
         path: 'feedback',

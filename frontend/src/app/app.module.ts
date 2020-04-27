@@ -26,7 +26,8 @@ import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagmentComponent } from './account-managment/account-managment.component';
 import { LoginFormComponent } from './login-form/login-form.component';
-import {CookieService } from 'ngx-cookie-service'
+import {CookieService } from 'ngx-cookie-service';
+import { TestAccountComponent } from './test-account/test-account.component'
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import {CookieService } from 'ngx-cookie-service'
     SubmitformComponent,
     StoryEditorComponent,
     AccountManagmentComponent,
-    LoginFormComponent
+    LoginFormComponent,
+    TestAccountComponent
   ],
   imports: [
       NgbModule,

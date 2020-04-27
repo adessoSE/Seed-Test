@@ -42,13 +42,7 @@ export class LoginComponent implements OnInit {
   }
 
   async loginTestAccount() {
-    this.error = undefined;
-    let response = await this.apiService.loginUser(null, null).toPromise()
-    if(response.status === 'error'){
-      this.error = response.message;
-    } else{
-      this.getRepositories()
-    }
+    this.router.navigate(['/testaccount']);
   }
 
   getRepositories() {

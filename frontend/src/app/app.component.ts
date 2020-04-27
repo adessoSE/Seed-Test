@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
     ref.href = 'https://github.com/' + repository;
     localStorage.setItem('repository', repository);
     this.repository = repository;
-    this.apiService.getStories(repository, this.token).subscribe(resp => {
+    this.apiService.getStories(repository).subscribe(resp => {
     });
   }
 

@@ -126,14 +126,8 @@ export class ApiService {
         }
     }
 
-    public getStories(repository: string, token: string): Observable<Story[]> {
-        let storytoken = token;
-        if (!storytoken || storytoken === 'undefined') {
-            storytoken = '';
-        }
+    public getStories(repository: string): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log('Send');
-        console.log('/github/stories/' + repository + '/' + storytoken);
         return this.http
             .get<Story[]>(this.apiServer + '/github/stories/' + repository , this.getOptions())
             .pipe(tap(resp => {
