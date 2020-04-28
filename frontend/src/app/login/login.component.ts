@@ -64,8 +64,6 @@ export class LoginComponent implements OnInit {
     let tmp_repositories = [];
     this.apiService.getRepositories().subscribe((resp) => {
       tmp_repositories = resp;
-      localStorage.setItem('token', this.testAccountToken);
-      localStorage.setItem('githubName', this.testAccountName);
       localStorage.setItem('githubCount', `${tmp_repositories.length}`);
       if (this.testJiraHost.length > 0) {
           this.apiService.getProjectsFromJira(this.testJiraHost).subscribe((resp2) => {
