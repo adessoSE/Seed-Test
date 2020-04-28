@@ -286,12 +286,12 @@ function execRepositoryRequests(link, user, password) {
   });
 }
 
-function ownRepositories(token) {
-  return execRepositoryRequests('https://api.github.com/user/repos', 'account_name', token);
+function ownRepositories(githubName, token) {
+  return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token);
 }
 
-function starredRepositories(user, token) {
-  return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
+function starredRepositories(githubName, token) {
+  return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
 }
 
 async function fuseGitWithDb(story, issueId) {

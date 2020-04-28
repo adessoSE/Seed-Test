@@ -65,7 +65,6 @@ const findOrRegisterUser = (res, user) => {
         json: true
     }, 
     function(err, response, body){
-        //console.log(body);
         res.redirect('/login?login=' + user.login + '&id=' + user.id);
       }
 )

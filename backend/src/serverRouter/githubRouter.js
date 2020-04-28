@@ -57,14 +57,19 @@ router.post('/submitIssue/', (req, res) => {
 });
 // Gets all possible repositories from Github
 router.get('/repositories', (req, res) => {
-  let token  = req.user.github.githubToken;
-  const  githubName  = req.user.githubAccountName;
-  if (!token && githubName === process.env.TESTACCOUNT_NAME) {
+  let githubName;
+  let token;
+  if (req.user) {
+    githubName  = req.user.github.login;
+    token  = req.user.github.githubToken;
+  }else {
+    githubName = process.env.TESTACCOUNT_NAME
     token = process.env.TESTACCOUNT_TOKEN;
   }
+ 
   Promise.all([
     helper.starredRepositories(githubName, token),
-    helper.ownRepositories(token),
+    helper.ownRepositories(githubName, token),
   ]).then((repos) => {
     const merged = [].concat(...repos);
     res.status(200).json(merged);

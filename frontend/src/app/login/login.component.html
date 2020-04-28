@@ -5,6 +5,7 @@
     <h1 id="loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <hr>
+      <br>
       <!-- Github Name -->
       <label for="email" class="uk-form-label" style="color: grey;"></label>
       <input id="email" type="text" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
@@ -28,7 +29,7 @@
 
     <hr>
     <!-- Button Login-TestAccount -->
-    <button class="loginButton" name="loginTest" type="button" (click)="loginTestAccount();">Test Account</button>
+    <button id="testAccountLogin" class="loginButton" name="loginTest" type="button" (click)="loginTestAccount();">Test Account</button>
   </div>
   <!-- Repositories -->
   <div class="repositories" *ngIf="repositories">

@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
 
   constructor(public apiService: ApiService, public router: Router) {
     this.apiService.getRepositoriesEvent.subscribe((resp: string[]) => {
+      console.log('repositories Event')
       this.repositories = resp;
     })
   }
@@ -26,11 +27,6 @@ export class AppComponent implements OnInit {
     this.getRepositories();
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
-    }
-  }
-  ngDoCheck(){
-    if(!this.repositories){
-      this.getRepositories();
     }
   }
 
@@ -57,6 +53,7 @@ export class AppComponent implements OnInit {
     if(this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)){
       this.apiService.getRepositories().subscribe((resp: any) => {
           this.repositories = resp;
+          console.log(resp)
       });
     }
   }
@@ -76,6 +73,7 @@ export class AppComponent implements OnInit {
   }
 
   logout() {
+    this.repositories = undefined;
     this.apiService.logoutUser().subscribe(resp => {
       this.router.navigate(['/login']);
     });

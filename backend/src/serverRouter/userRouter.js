@@ -33,15 +33,6 @@ router
 
 // logges in user
 router.post('/login', (req, res, next) => {
-    console.log('req body1 ' + JSON.stringify(req.body))
-    if(!req.body.email){
-        req.body = {
-            "email": "r@test.de", 
-            "password": "r"
-        }
-    } 
-    console.log('req body2 ' + JSON.stringify(req.body))
-
     passport.authenticate('normal-local', function(error, user, info){
         console.log('in authenticate')
         if(error){

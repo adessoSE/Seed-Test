@@ -56,8 +56,9 @@ export class ApiService {
     } 
 
     public githubAuthentication() {
+        let scope = 'repo'
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
-        let s = `${AUTHORIZE_URL}?scope=repo&client_id=${localStorage.getItem('clientId')}`;
+        let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
         window.location.href = s;
     }
 
@@ -268,9 +269,7 @@ export class ApiService {
     }
 
     isLoggedIn(): boolean {
-        if (this.cookieService.check('connect.sid')) {
-            return true;
-        }
+        if (this.cookieService.check('connect.sid')) return true;
         return false;
     }
 }

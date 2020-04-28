@@ -28,6 +28,8 @@ export class ParentComponent implements OnInit {
    }
 
   ngOnInit() {
+    console.log('on nginit in parent')
+    this.apiService.getRepositories().subscribe();
   }
 
   loadStories() {
@@ -38,14 +40,12 @@ export class ParentComponent implements OnInit {
           .getStories(repository)
           .subscribe((resp: Story[]) => {
             this.stories = resp;
-            console.log(resp);
           });
     } else {
       this.apiService
           .getIssuesFromJira(localStorage.getItem('jiraHost'), localStorage.getItem('jiraKey'))
           .subscribe((resp: Story[]) => {
             this.stories = resp;
-            console.log(resp);
           });
     }
   }
