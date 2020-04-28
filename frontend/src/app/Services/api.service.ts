@@ -273,10 +273,4 @@ export class ApiService {
         }
         return false;
     }
-
-    getToken(): string {
-        return localStorage.getItem('token');
-    }
-
-
 }
