@@ -65,7 +65,7 @@ export class ApiService {
         const str = this.apiServer + '/user/githubLogin'
         let user = {login, id}
 
-        return this.http.post<string[]>(str, user, this.getOptions())
+        return this.http.post<any>(str, user, this.getOptions())
           .pipe(tap(resp => {
             //this.getStoriesEvent.emit(resp);
           }),

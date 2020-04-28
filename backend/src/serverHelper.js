@@ -142,12 +142,15 @@ function getScenarioContent(scenarios, storyID) {
   return data;
 }
 
-async function getGithubStories(githubName, githubRepo, token, res){
+async function getGithubStories(githubName, githubRepo, token, res, req){
   const tmpStories = [];
   // get Issues from GitHub .
   const headers = {
     Authorization: `token ${token}`,
   };
+  let repository = `${githubName}/${githubRepo}`
+  if(req.user) await mongo.setLastRepository(req.user._id, repository);
+
   let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
       if (response.status === 401) {
         res.sendStatus(401);

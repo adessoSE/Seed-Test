@@ -54,9 +54,17 @@ router.post('/login', (req, res, next) => {
             if(err){
                 return res.json(err);
             }else {
-                console.log(JSON.stringify(user))
-                //let results = await helper.getGithubStories(req.user.githubAccountName, req.user.githubRepo, req.user.githubToken, res)
-                res.json(user);
+                if(req.user.github.lastRepository){
+                    let response = {
+                        status: 'success',
+                        message: 'repository',
+                        repository: req.user.github.lastRepository
+                    };
+                    res.json(response);
+
+                } else {
+                    res.json(user);
+                }
             }
         });
     })
@@ -78,9 +86,17 @@ router.post('/githubLogin', (req, res) =>{
             if(err){
                 return res.json(err);
             }else {
-                console.log(JSON.stringify(user))
-                //let results = await helper.getGithubStories(req.user.githubAccountName, req.user.githubRepo, req.user.githubToken, res)
-                res.json(user);
+                if(req.user.github.lastRepository){
+                    let response = {
+                        status: 'success',
+                        message: 'repository',
+                        repository: req.user.github.lastRepository
+                    };
+                    res.json(response);
+
+                } else {
+                    res.json(user);
+                }
             }
         });
     })(req,res);

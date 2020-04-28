@@ -22,7 +22,16 @@ export class LoginComponent implements OnInit {
         this.route.queryParams.subscribe((params) => {
           if(params.login){
             this.apiService.loginGihubToken(params.login, params.id).subscribe((resp) => {
-              this.getRepositories();
+              if(resp.status === 'error'){
+                this.error = resp.message;
+              } else if(resp.message === 'repository') {
+                let repository = resp.repository;
+                localStorage.setItem('repositoryType', 'github');
+                localStorage.setItem('repository', repository);
+                this.router.navigate(['/']);
+              }else{
+                this.getRepositories()
+              }
             })
           }
         })
@@ -34,9 +43,15 @@ export class LoginComponent implements OnInit {
   async login(form: NgForm) {
     this.error = undefined;
     let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
+    console.log('response: ' + JSON.stringify(response))
     if(response.status === 'error'){
       this.error = response.message;
-    } else{
+    } else if(response.message === 'repository') {
+      let repository = response.repository;
+      localStorage.setItem('repositoryType', 'github');
+      localStorage.setItem('repository', repository);
+      this.router.navigate(['/']);
+    }else{
       this.getRepositories()
     }
   }

@@ -28,6 +28,11 @@ export class AppComponent implements OnInit {
       this.apiService.getBackendInfo()
     }
   }
+  ngDoCheck(){
+    if(!this.repositories){
+      this.getRepositories();
+    }
+  }
 
   openTerms(){
     this.showImpressum = false;

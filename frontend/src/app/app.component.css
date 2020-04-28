@@ -27,7 +27,7 @@
   background-color: #999;
   grid-area: topnav;
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
+  grid-template-columns: 3fr auto 1fr auto 3fr;
   grid-template-areas: 
   "left . center . right";
 }

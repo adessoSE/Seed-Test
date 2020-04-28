@@ -28,8 +28,8 @@ router.get('/stories/:githubName?/:repository?', async (req, res) => {
   let githubRepo;
   let token;
   if(req.user){
-    githubName = req.user.githubName;
-    githubRepo = req.user.githubRepo;
+    githubName = req.params.githubName;
+    githubRepo = req.params.repository;
     token = req.user.github.githubToken;
   }else{
     githubName = process.env.TESTACCOUNT_NAME;
@@ -37,7 +37,7 @@ router.get('/stories/:githubName?/:repository?', async (req, res) => {
     token = process.env.TESTACCOUNT_TOKEN;
   }
 
-  let results = await helper.getGithubStories(githubName, githubRepo, token, res)
+  let results = await helper.getGithubStories(githubName, githubRepo, token, res, req)
   if(results) res.status(200).json(results);
 });
 
