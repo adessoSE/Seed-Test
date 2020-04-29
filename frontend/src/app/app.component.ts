@@ -97,13 +97,16 @@ export class AppComponent implements OnInit {
   }
 
 
-  selectRepository(repository: string) {
-    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + repository;
-    localStorage.setItem('repository', repository);
-    this.repository = repository;
-    this.apiService.getStories(repository).subscribe(resp => {
-    });
+  selectRepository(userRepository: string) {
+    const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
+    if (index < 0) {
+      localStorage.setItem('repositoryType', 'github');
+    } else {
+      localStorage.setItem('repositoryType', 'jira');
+      localStorage.setItem('jiraKey', this.jirakeys[index]);
+    }
+    localStorage.setItem('repository', userRepository);
+    this.router.navigate(['/']);
   }
 
   manageAccount() {
