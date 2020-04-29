@@ -60,10 +60,10 @@ router.get('/repositories', (req, res) => {
   let githubName;
   let token;
   if (req.user) {
-    githubName  = req.user.github.login;
-    token  = req.user.github.githubToken;
+    githubName = req.user.github.login;
+    token = req.user.github.githubToken;
   }else {
-    githubName = process.env.TESTACCOUNT_NAME
+    githubName = process.env.TESTACCOUNT_NAME;
     token = process.env.TESTACCOUNT_TOKEN;
   }
  

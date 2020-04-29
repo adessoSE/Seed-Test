@@ -23,22 +23,24 @@ export class ApiService {
     public getTokenEvent = new EventEmitter();
     public getBackendUrlEvent = new EventEmitter();
     public getRepositoriesEvent = new EventEmitter();
+    public getProjectsEvent = new EventEmitter();
     public user;
     constructor(private http: HttpClient, private cookieService: CookieService) {
     }
 
 
-    public getOptions(){
-        return { withCredentials: true}
+    public getOptions() {
+        return { withCredentials: true};
     }
 
-    public getProjectsFromJira(host: string) {
+    public getProjectsFromJira() {
         this.apiServer = localStorage.getItem('url_backend');
 
-        const str = this.apiServer + '/jira/projects/' + host;
+        const str = this.apiServer + '/jira/projects/';
 
-        return this.http.get<string[]>(str)
+        return this.http.get<string[]>(str, this.getOptions())
             .pipe(tap(resp => {
+                    this.getProjectsEvent.emit(resp);
             }),
                 catchError(this.handleError));
     }
@@ -136,29 +138,21 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public getIssuesFromJira(host: string, projectKey: string) {
+    public getIssuesFromJira(projectKey: string) {
         this.apiServer = localStorage.getItem('url_backend');
-
-        const str = this.apiServer + '/jira/issues/' + host + '/' + projectKey;
-
+        const str = this.apiServer + '/jira/issues/' + projectKey;
         console.log('Send');
         console.log(str);
-        this.http.get<string[]>(str)
-            .pipe(tap(resp => {
-            }),
-                catchError(this.handleError));
         return this.http
-            .get<Story[]>(str)
+            .get<Story[]>(str, this.getOptions())
             .pipe(tap(resp => {
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
     }
     public createJiraAccount(request) {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log(request);
-        console.log(this.apiServer + '/jira/user/create/');
         return this.http
-            .post<any>(this.apiServer + '/jira/user/create/', request);
+            .post<any>(this.apiServer + '/jira/user/create/', request, this.getOptions());
     }
 
     public getStepTypes(): Observable<StepType[]> {
@@ -194,10 +188,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public getUserData(userID: string): Observable<User[]> {
+    public getUserData(): Observable<User[]> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<User[]>(this.apiServer + '/mongo/user/' + userID)
+            .get<User[]>(this.apiServer + '/mongo/user/', this.getOptions())
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }

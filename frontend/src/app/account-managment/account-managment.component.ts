@@ -24,12 +24,12 @@ export class AccountManagmentComponent implements OnInit {
         });
     }
     login(type) {
-        this.modalService.open(type, '5e8ae7c4f41b171ab0f704cb');
+        this.modalService.open(type);
     }
     updateSite(report) {
         console.log(report);
         if (report === 'Successful') {
-            this.apiService.getUserData('5e8ae7c4f41b171ab0f704cb').subscribe(user => {
+            this.apiService.getUserData().subscribe(user => {
                 console.log(user);
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];

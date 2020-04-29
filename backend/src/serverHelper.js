@@ -149,7 +149,7 @@ async function getGithubStories(githubName, githubRepo, token, res, req){
     Authorization: `token ${token}`,
   };
   let repository = `${githubName}/${githubRepo}`
-  if(req.user) await mongo.setLastRepository(req.user._id, repository);
+  //if(req.user) await mongo.setLastRepository(req.user._id, repository);
 
   let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
       if (response.status === 401) {
@@ -200,8 +200,7 @@ function writeFile(__dirname, selectedStory) {
   });
 }
 
-async function updateJira(request) {
-  const { UserID } = request;
+async function updateJira(UserID, request) {
   const jira = {
     AccountName: request.jiraAccountName,
     Password: request.jiraPassword,

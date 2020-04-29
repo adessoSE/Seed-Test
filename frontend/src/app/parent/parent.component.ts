@@ -43,9 +43,11 @@ export class ParentComponent implements OnInit {
           });
     } else {
       this.apiService
-          .getIssuesFromJira(localStorage.getItem('jiraHost'), localStorage.getItem('jiraKey'))
+          .getIssuesFromJira(localStorage.getItem('jiraKey'))
           .subscribe((resp: Story[]) => {
             this.stories = resp;
+            console.log('Jira Response');
+            console.log(resp);
           });
     }
   }

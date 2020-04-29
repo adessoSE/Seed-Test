@@ -12,140 +12,158 @@ router
   .use(cors())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
+  .use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.header('Access-Control-Allow-Credentials','true' );
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect");
+    next();
+  })
   .use((_, __, next) => {
     console.log('Time of jira request:', Date.now());
     next();
   });
 // Gets all possible issues from project
-router.get('/issues/:hostServer/:projectKey', (req, res) => {
-  console.log(req);
-  const { hostServer } = req.params;
-  const { projectKey } = req.params;
-  const username = 'admin';
-  const password = 'admin';
-  const auth = Buffer.from(`${username}:${password}`).toString('base64');
-  const cookieJar = request.jar();
-  const tmpStories = [];
-  const options = {
-    method: 'GET',
-    url: `http://${hostServer}/rest/api/2/search?jql=project=${projectKey}`,
-    jar: cookieJar,
-    qs: {
-      type: 'page',
-      title: 'title',
-    },
-    headers: {
-      'cache-control': 'no-cache',
-      Authorization: `Basic ${auth}`,
-    },
-  };
-  request(options, (error) => {
-    if (error) {
-      res.status(500).json(error);
-      throw new Error(error);
-    }
-    request(options, (error2, response2, body) => {
-      if (error2) {
+router.get('/issues/:projectKey', (req, res) => {
+  console.log(req.user);
+  if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
+    const { Host } = req.user.jira;
+    const { AccountName } = req.user.jira;
+    const { Password } = req.user.jira;
+    const { projectKey } = req.params;
+    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+    const cookieJar = request.jar();
+    const tmpStories = [];
+    const options = {
+      method: 'GET',
+      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+      jar: cookieJar,
+      qs: {
+        type: 'page',
+        title: 'title',
+      },
+      headers: {
+        'cache-control': 'no-cache',
+        Authorization: `Basic ${auth}`,
+      },
+    };
+    request(options, (error) => {
+      if (error) {
         res.status(500).json(error);
         throw new Error(error);
       }
-      const json = JSON.parse(body).issues;
-      for (const issue of json) {
-        const story = {
-          story_id: issue.id,
-          title: issue.fields.summary,
-          body: issue.fields.description,
-          state: issue.fields.status.name,
-          issue_number: issue.id,
-        };
-        if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-          story.assignee = issue.fields.assignee.name;
-          story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-        } else {
-          story.assignee = 'unassigned';
-          story.assignee_avatar_url = unassignedAvatarLink;
+      request(options, (error2, response2, body) => {
+        if (error2) {
+          res.status(500).json(error);
+          throw new Error(error);
         }
-        tmpStories.push(helper.fuseGitWithDb(story, issue.id));
-      }
-      Promise.all(tmpStories).then((results) => {
-        res.status(200).json(results);
-        // let stories = results; // need this to clear promises from the Story List
-      }).catch((e) => {
-        console.log(e);
+        const json = JSON.parse(body).issues;
+        for (const issue of json) {
+          const story = {
+            story_id: issue.id,
+            title: issue.fields.summary,
+            body: issue.fields.description,
+            state: issue.fields.status.name,
+            issue_number: issue.id,
+          };
+          if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+            story.assignee = issue.fields.assignee.name;
+            story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+          } else {
+            story.assignee = 'unassigned';
+            story.assignee_avatar_url = unassignedAvatarLink;
+          }
+          tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+        }
+        Promise.all(tmpStories).then((results) => {
+          res.status(200).json(results);
+          // let stories = results; // need this to clear promises from the Story List
+        }).catch((e) => {
+          console.log(e);
+        });
       });
     });
-  });
+  } else {
+    res.status(401);
+  }
 });
 // gets all project from user
-router.get('/projects/:hostServer', (req, res) => {
-  const { hostServer } = req.body;
-  const { username } = req.body;
-  const { password } = req.body;
-  const auth = Buffer.from(`${username}:${password}`).toString('base64');
-  const cookieJar = request.jar();
-  const options = {
-    method: 'GET',
-    url: `http://${hostServer}/rest/api/2/issue/createmeta`,
-    jar: cookieJar,
-    qs: {
-      type: 'page',
-      title: 'title',
-    },
-    headers: {
-      'cache-control': 'no-cache',
-      Authorization: `Basic ${auth}`,
-    },
-  };
-  request(options, (error) => {
-    if (error) {
-      res.status(500).json(error);
-      throw new Error(error);
-    }
-    request(options, (error2, response2, body) => {
-      if (error2) {
+router.get('/projects', (req, res) => {
+  if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
+    const { Host } = req.user.jira;
+    const { AccountName } = req.user.jira;
+    const { Password } = req.user.jira;
+    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+    const cookieJar = request.jar();
+    const options = {
+      method: 'GET',
+      url: `http://${Host}/rest/api/2/issue/createmeta`,
+      jar: cookieJar,
+      qs: {
+        type: 'page',
+        title: 'title',
+      },
+      headers: {
+        'cache-control': 'no-cache',
+        Authorization: `Basic ${auth}`,
+      },
+    };
+    request(options, (error) => {
+      if (error) {
         res.status(500).json(error);
         throw new Error(error);
       }
-      console.log(body);
-      res.status(200).json(body);
+      request(options, (error2, response2, body) => {
+        if (error2) {
+          res.status(500).json(error);
+          throw new Error(error);
+        }
+        console.log(body);
+        res.status(200).json(body);
+      });
     });
-  });
+  } else {
+    res.status(401);
+  }
 });
 
 router.post('/user/create/', (req, res) => {
-  const { jiraAccountName } = req.body;
-  const { jiraPassword } = req.body;
-  const { jiraHost } = req.body;
-  const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
-  const cookieJar = request.jar();
-  const options = {
-    method: 'GET',
-    url: `http://${jiraHost}/rest/api/2/issue/createmeta`,
-    jar: cookieJar,
-    qs: {
-      type: 'page',
-      title: 'title',
-    },
-    headers: {
-      'cache-control': 'no-cache',
-      Authorization: `Basic ${auth}`,
-    },
-  };
-  request(options, (error) => {
-    if (error) {
-      res.status(500);
-      throw new Error(error);
-    }
-    request(options, (error2) => {
-      if (error2) {
+  if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') {
+    const { jiraAccountName } = req.body;
+    const { jiraPassword } = req.body;
+    const { jiraHost } = req.body;
+    const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
+    const cookieJar = request.jar();
+    const options = {
+      method: 'GET',
+      url: `http://${jiraHost}/rest/api/2/issue/createmeta`,
+      jar: cookieJar,
+      qs: {
+        type: 'page',
+        title: 'title',
+      },
+      headers: {
+        'cache-control': 'no-cache',
+        Authorization: `Basic ${auth}`,
+      },
+    };
+    request(options, (error) => {
+      if (error) {
         res.status(500);
-        console.log(error);
         throw new Error(error);
       }
-      helper.updateJira(req.body).then((result) => {
-        res.status(200).json(result);
+      request(options, (error2) => {
+        if (error2) {
+          res.status(500);
+          console.log(error);
+          throw new Error(error);
+        }
+        helper.updateJira(req.user._id, req.body).then((result) => {
+          res.status(200).json(result);
+        });
       });
     });
-  });
+  } else {
+    res.status(401).json('User doesnt exist.');
+  }
 });
 module.exports = router;

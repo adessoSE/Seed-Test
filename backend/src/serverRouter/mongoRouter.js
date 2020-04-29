@@ -9,19 +9,19 @@ const router = express.Router();
 // Handling response errors
 function handleError(res, reason, statusMessage, code) {
   console.error(`ERROR: ${reason}`);
-  res.status(code || 500).json({ error: statusMessage });
+  res.status(code || 500).json({error: statusMessage});
 }
 
 // router for all mongo requests
 router
   .use(cors())
-  .use(bodyParser.json({ limit: '100kb' }))
-  .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
-  .use(function(req, res, next) {
+  .use(bodyParser.json({limit: '100kb'}))
+  .use(bodyParser.urlencoded({limit: '100kb', extended: true}))
+  .use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:4200");
-    res.header('Access-Control-Allow-Credentials','true' );
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials");
-   next();
+    next();
   })
   .use((_, __, next) => {
     console.log(_.url + JSON.stringify(_.user))
@@ -120,12 +120,17 @@ router.delete('/user/delete/:userID', async (req, res) => {
   }
 });
 // get userObject
-router.get('/user/:userID', async (req, res) => {
-  try {
-    const result = await mongo.getUserData(req.params.userID);
-    res.status(200).json(result);
-  } catch (error) {
-    handleError(res, error, error, 500);
+router.get('/user', async (req, res) => {
+  if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') {
+    try {
+      const result = await mongo.getUserData(req.user._id);
+      res.status(200).json(result);
+    } catch (error) {
+      handleError(res, error, error, 500);
+    }
+  } else {
+    console.log('Undefined');
+    console.log(req.user);
   }
 });
 

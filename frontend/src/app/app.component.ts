@@ -12,15 +12,33 @@ export class AppComponent implements OnInit {
   githubName: string;
   title = 'cucumber-frontend';
   repositories: string[];
+  githubRepo: string[];
+  jiraProject: string[];
   repository: string;
   showImpressum: boolean = false;
   showTerms: boolean = false;
+  jirakeys: any;
+  error: string;
 
   constructor(public apiService: ApiService, public router: Router) {
+    this.apiService.getProjectsEvent.subscribe((resp: string[]) => {
+      console.log('repositories Event');
+      this.jiraProject = this.filterProjects(resp);
+      if (typeof this.githubRepo !== 'undefined') {
+          this.repositories = this.githubRepo.concat(this.jiraProject);
+      } else {
+          this.repositories = this.jiraProject;
+      }
+    });
     this.apiService.getRepositoriesEvent.subscribe((resp: string[]) => {
-      console.log('repositories Event')
-      this.repositories = resp;
-    })
+      console.log('repositories Event');
+      this.githubRepo = resp;
+      if (typeof this.jiraProject !== 'undefined') {
+        this.repositories = this.githubRepo.concat(this.jiraProject);
+      } else {
+        this.repositories = this.githubRepo;
+      }
+    });
   }
 
   ngOnInit() {
@@ -48,14 +66,34 @@ export class AppComponent implements OnInit {
     }
   }
 
-
   getRepositories() {
-    if(this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)){
-      this.apiService.getRepositories().subscribe((resp: any) => {
-          this.repositories = resp;
-          console.log(resp)
+    let tmp_repositories = [];
+    if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)) {
+      this.apiService.getRepositories().subscribe((resp) => {
+        tmp_repositories = resp;
+        localStorage.setItem('githubCount', `${tmp_repositories.length}`);
+        this.apiService.getProjectsFromJira().subscribe((resp2) => {
+          this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
+        }, (err) => {
+          this.error = err.error;
+          this.repositories = tmp_repositories;
+        });
+      }, (err) => {
+        this.error = err.error;
       });
     }
+  }
+
+  filterProjects(resp) {
+    let projectNames = [];
+    let projectKeys = [];
+    JSON.parse(resp)['projects'].forEach(entry => {
+      projectNames = projectNames.concat(`jira/${entry['name']}`);
+      projectKeys = projectKeys.concat(`${entry['key']}`);
+    });
+    this.jirakeys = projectKeys;
+    console.log(this.jirakeys);
+    return projectNames;
   }
 
 
