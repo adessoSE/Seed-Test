@@ -77,6 +77,22 @@
     padding: 5px 5px 5px 5px;
 }
 
+#register{
+    font-size: 100%;
+    font-style: inherit;
+    padding: 12px 16px;
+    border: 0px;
+    background-color: white;
+    color: #56595e;
+    outline: none; 
+    text-decoration: underline;
+}
+
+#register:hover{
+    color: #0099CC;
+  }
+  
+
 @media screen and (max-width: 600px) {
     .grid{
         display: grid;

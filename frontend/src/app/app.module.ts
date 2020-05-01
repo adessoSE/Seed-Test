@@ -24,6 +24,7 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
+import { RegistrationComponent } from './registration/registration.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { StoryEditorComponent } from './story-editor/story-editor.component';
     FeedbackComponent,
     TermsComponent,
     SubmitformComponent,
-    StoryEditorComponent
+    StoryEditorComponent,
+    RegistrationComponent,
   ],
   imports: [
       NgbModule,

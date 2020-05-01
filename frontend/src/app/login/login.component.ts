@@ -84,4 +84,8 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('repository', userRepository);
         this.router.navigate(['/']);
     }
+
+    navToRegistration() {
+    this.router.navigate(['/registration']);
+  }
 }
