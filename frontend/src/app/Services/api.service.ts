@@ -141,10 +141,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public getUserData(userID: string): Observable<Story[]> {
+    public getUserData(userID: string): Observable<User> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<Story[]>(this.apiServer + '/mongo/user/' + userID)
+            .get<any>(this.apiServer + '/mongo/user/' + userID)
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
