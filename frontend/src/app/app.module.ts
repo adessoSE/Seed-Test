@@ -28,6 +28,7 @@ import { AccountManagmentComponent } from './account-managment/account-managment
 import { LoginFormComponent } from './login-form/login-form.component';
 import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
+import {MatProgressSpinnerModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { TestAccountComponent } from './test-account/test-account.component'
     MatTableModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
-    DragDropModule
+    DragDropModule,
+    MatProgressSpinnerModule
   ],
   providers: [ApiService, AuthGuard, CookieService],
   bootstrap: [AppComponent],

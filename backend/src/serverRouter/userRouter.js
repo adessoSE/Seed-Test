@@ -45,7 +45,7 @@ router.post('/login', (req, res, next) => {
             if(err){
                 return res.json(err);
             }else {
-                if(req.user.github.lastRepository){
+                if(req.user.github && req.user.github.lastRepository){
                     let response = {
                         status: 'success',
                         message: 'repository',

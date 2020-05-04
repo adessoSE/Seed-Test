@@ -12,6 +12,7 @@ h1{
     grid-template-rows: auto;
     grid-template-areas: "formular" "repositories";
     background-color: white;
+    place-items: center;
 }
 
 .formular{
@@ -111,6 +112,10 @@ h1{
 
 #testAccountLogin {
     margin: 5px;
+}
+
+:host ::ng-deep .loadingSpinner circle{   
+    stroke: rgb(2, 111, 161);
 }
 
 @media screen and (max-width: 600px) {
