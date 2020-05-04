@@ -1,3 +1,12 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+h1{
+    margin: 5px;
+}
+
 .grid{
     display: grid;
     grid-template-rows: auto;
@@ -11,6 +20,7 @@
     text-align: center;
     background-color: white;
     padding: 80px 50px 20px;
+    text-align: center;
 }
 
 .repositories{
@@ -64,6 +74,30 @@
 
 .loginButton:focus {outline:0 !important;}
 
+.githubLogin{
+    color: #fff;
+    padding: 5px 10px;
+    background-color: black;
+    border: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.githubLoginContainer{
+    margin: 10px;
+    display:inline-block;
+}
+
+.githubLogin img{
+    margin-right: 5px;
+    width: 17px;
+    height: 17px;
+}
+
+.loginButton:focus {outline:0 !important;}
+
 .loginButton:hover {
     background: rgb(2, 111, 161);
     }
@@ -75,6 +109,10 @@
 .uk-form-controls{
     border-radius: 3px;
     padding: 5px 5px 5px 5px;
+}
+
+#testAccountLogin {
+    margin: 5px;
 }
 
 #register{

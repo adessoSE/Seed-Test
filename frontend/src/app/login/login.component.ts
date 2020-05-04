@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ApiService} from '../Services/api.service';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 
 
@@ -18,44 +18,59 @@ export class LoginComponent implements OnInit {
     private testAccountToken: string;
     private testJiraHost = '';
 
-    constructor(public apiService: ApiService,
-                public router: Router) {
+    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
+        this.route.queryParams.subscribe((params) => {
+            if (params.login) {
+                this.apiService.loginGihubToken(params.login, params.id).subscribe((resp) => {
+                    if (resp.status === 'error') {
+                        this.error = resp.message;
+                    } else if (resp.message === 'repository') {
+                        let repository = resp.repository;
+                        localStorage.setItem('repositoryType', 'github');
+                        localStorage.setItem('repository', repository);
+                        this.router.navigate(['/']);
+                    } else {
+                        this.getRepositories()
+                    }
+                })
+            }
+        })
     }
 
     ngOnInit() {
     }
 
-    login(form: NgForm) {
+    async login(form: NgForm) {
         this.error = undefined;
-        this.apiService.getRepositories(form.value.token, form.value.githubName).subscribe((resp) => {
-            this.repositories = resp;
-            localStorage.setItem('token', form.value.token);
-            localStorage.setItem('githubName', form.value.githubName);
-            localStorage.setItem('githubCount', `${this.repositories.length}`);
-        }, (err) => {
-            this.error = err.error;
-        });
+        let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
+        if (response.status === 'error') {
+            this.error = response.message;
+        } else if (response.message === 'repository') {
+            let repository = response.repository;
+            localStorage.setItem('repositoryType', 'github');
+            localStorage.setItem('repository', repository);
+            this.router.navigate(['/']);
+        } else {
+            this.getRepositories()
+        }
     }
 
-    loginTestAccount() {
-        this.error = undefined;
+    async loginTestAccount() {
+        this.router.navigate(['/testaccount']);
+    }
+
+    getRepositories() {
         let tmp_repositories = [];
-        this.apiService.getRepositories(this.testAccountToken, this.testAccountName).subscribe((resp) => {
+        this.apiService.getRepositories().subscribe((resp) => {
             tmp_repositories = resp;
-            localStorage.setItem('token', this.testAccountToken);
-            localStorage.setItem('githubName', this.testAccountName);
             localStorage.setItem('githubCount', `${tmp_repositories.length}`);
-            if (this.testJiraHost.length > 0) {
-                this.apiService.getProjectsFromJira(this.testJiraHost).subscribe((resp2) => {
-                    this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
-                    localStorage.setItem('jiraHost', this.testJiraHost);
-                }, (err) => {
-                    this.error = err.error;
-                    this.repositories = tmp_repositories;
-                });
-            } else {
+            this.apiService.getProjectsFromJira().subscribe((resp2) => {
+                this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
+                localStorage.setItem('jiraHost', this.testJiraHost);
+            }, (err) => {
+                this.error = err.error;
                 this.repositories = tmp_repositories;
-            }
+            });
         }, (err) => {
             this.error = err.error;
         });
@@ -65,7 +80,7 @@ export class LoginComponent implements OnInit {
         let projectNames = [];
         let projectKeys = [];
         JSON.parse(resp)['projects'].forEach(entry => {
-            projectNames = projectNames.concat(`${localStorage.getItem('jiraHost')}/${entry['name']}`);
+            projectNames = projectNames.concat(`jira/${entry['name']}`);
             projectKeys = projectKeys.concat(`${entry['key']}`);
         });
         this.jirakeys = projectKeys;
@@ -88,4 +103,8 @@ export class LoginComponent implements OnInit {
     navToRegistration() {
     this.router.navigate(['/register']);
   }
+
+    githubLogin() {
+        this.apiService.githubAuthentication();
+    }
 }

@@ -9,6 +9,8 @@ const emptyBackground = require('./models/emptyBackground');
 
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
+const fetch = require('node-fetch');
+const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 
 // this is needed for the html report
 const options = {
@@ -140,6 +142,42 @@ function getScenarioContent(scenarios, storyID) {
   return data;
 }
 
+async function getGithubStories(githubName, githubRepo, token, res, req){
+  const tmpStories = [];
+  // get Issues from GitHub .
+  const headers = {
+    Authorization: `token ${token}`,
+  };
+  let repository = `${githubName}/${githubRepo}`
+  //if(req.user) await mongo.setLastRepository(req.user._id, repository);
+
+  let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
+      if (response.status === 401) {
+        res.sendStatus(401);
+      }
+      if (response.status === 200) {
+        let json = await response.json();
+          for (const issue of json) {
+            // only relevant issues with label: "story"
+            const story = {
+              story_id: issue.id,
+              title: issue.title,
+              body: issue.body,
+              state: issue.state,
+              issue_number: issue.number,
+            };
+            if (issue.assignee !== null) { // skip in case of "unassigned"
+              story.assignee = issue.assignee.login;
+              story.assignee_avatar_url = issue.assignee.avatar_url;
+            } else {
+              story.assignee = 'unassigned';
+              story.assignee_avatar_url = unassignedAvatarLink;
+            }
+            tmpStories.push(fuseGitWithDb(story, issue.id));
+          }
+          return Promise.all(tmpStories);
+      }
+}
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
@@ -160,6 +198,18 @@ function writeFile(__dirname, selectedStory) {
     `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
     if (err) throw err;
   });
+}
+
+async function updateJira(UserID, request) {
+  const jira = {
+    AccountName: request.jiraAccountName,
+    Password: request.jiraPassword,
+    Host: request.jiraHost,
+  };
+  const user = await mongo.getUserData(UserID);
+  user.jira = jira;
+  await mongo.updateUser(UserID, user);
+  return 'Successful';
 }
 
 
@@ -235,12 +285,12 @@ function execRepositoryRequests(link, user, password) {
   });
 }
 
-function ownRepositories(token) {
-  return execRepositoryRequests('https://api.github.com/user/repos', 'account_name', token);
+function ownRepositories(githubName, token) {
+  return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token);
 }
 
-function starredRepositories(user, token) {
-  return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
+function starredRepositories(githubName, token) {
+  return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
 }
 
 async function fuseGitWithDb(story, issueId) {
@@ -351,6 +401,7 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 }
 
 module.exports = {
+  getGithubStories,
   options,
   deleteHtmlReport,
   deleteJsonReport,
@@ -371,4 +422,5 @@ module.exports = {
   starredRepositories,
   ownRepositories,
   fuseGitWithDb,
+  updateJira,
 };

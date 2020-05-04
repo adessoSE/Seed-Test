@@ -1,0 +1,83 @@
+.grid {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    grid-template-areas: "storyHeader" "storyList";
+    margin-top: 24px;
+    border: 1px solid #999;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 24px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
+    background-color: white;
+}
+
+.header{
+    grid-area: storyHeader;
+    color: #999;
+    float: left;
+    margin-bottom: 10px;
+}
+
+#infoIcon{
+    grid-area: storyHeader;
+    color: #999;
+    padding-top: 3px;
+    margin-left: 7px;
+}
+
+
+
+.underlying_grid{
+    background-color: rgb(224, 224, 224);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+            "seedTest github jira";
+    grid-column-gap: 10px;
+    padding-bottom: 10px;
+    height: 100%;
+}
+
+.jira{
+    grid-area: jira;
+}
+
+.github{
+    grid-area: github;
+}
+
+.seedTest{
+    grid-area: seedTest;
+}
+
+
+@media screen and (max-width: 600px) {
+    .grid{
+        display: grid;
+        grid-template-columns: 94%;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+                "seedTest"
+                "github"
+                "jira";
+        justify-content: center;
+    }
+}
+
+
+.std_button{
+    color: white;
+    border: solid 1px #b6b6b6;
+    background: #0071b9;
+    background: -moz-linear-gradient(top,  #0071b9, #0b93e9);
+}
+
+.std_button:hover{
+    background: #0b93e9;
+}
+
+.std_button:active{
+    background: -moz-linear-gradient(top, #0b93e9, #0071b9);
+}

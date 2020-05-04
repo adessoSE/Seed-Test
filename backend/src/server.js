@@ -6,8 +6,16 @@ const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
+const userRouter = require('./serverRouter/userRouter')
 
+const mongo = require('./database/mongodatabase');
+const bcrypt = require('bcrypt');
+const passport = require('passport');
+const flash = require('express-flash');
+const session = require('express-session');
 const app = express();
+
+let stories = [];
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
@@ -15,11 +23,28 @@ const server = app.listen(process.env.PORT || 8080, () => {
   console.log('App now running on port', port);
 });
 
+// Handling response errors
+function handleError(res, reason, statusMessage, code) {
+  console.log(`ERROR: ${reason}`);
+  res.status(code || 500).json({ error: statusMessage });
+}
+
 /**
  * API Description
  */
 app
-  .use(cors())
+  .use(cors({origin: [
+    'http://localhost:4200'
+  ], credentials: true}))
+  .use(flash())
+  .use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {httpOnly: false}
+  }))
+  .use(passport.initialize())
+  .use(passport.session())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
   .use((_, __, next) => {
@@ -30,6 +55,7 @@ app
   .use('/api/github', githubRouter)
   .use('/api/mongo', mongoRouter)
   .use('/api/jira', jiraRouter)
+  .use('/api/user', userRouter)
   .get('/api', (_, res) => {
     res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
   });

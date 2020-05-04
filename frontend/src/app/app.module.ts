@@ -24,6 +24,10 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
+import { AccountManagmentComponent } from './account-managment/account-managment.component';
+import { LoginFormComponent } from './login-form/login-form.component';
+import {CookieService } from 'ngx-cookie-service';
+import { TestAccountComponent } from './test-account/test-account.component'
 import { RegistrationComponent } from './registration/registration.component';
 
 @NgModule({
@@ -43,6 +47,10 @@ import { RegistrationComponent } from './registration/registration.component';
     TermsComponent,
     SubmitformComponent,
     StoryEditorComponent,
+    AccountManagmentComponent,
+    LoginFormComponent,
+    TestAccountComponent
+    StoryEditorComponent,
     RegistrationComponent,
   ],
   imports: [
@@ -56,7 +64,7 @@ import { RegistrationComponent } from './registration/registration.component';
     FormsModule,
     DragDropModule
   ],
-  providers: [ApiService, AuthGuard],
+  providers: [ApiService, AuthGuard, CookieService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

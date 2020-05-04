@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
-import { Router } from '@angular/router';
 
 
 @Component({
@@ -17,8 +16,7 @@ export class ParentComponent implements OnInit {
   selectedScenario: Scenario;
   formtosubmit: [""];
 
-  constructor(public apiService: ApiService,
-              private router: Router) {
+  constructor(public apiService: ApiService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -30,6 +28,8 @@ export class ParentComponent implements OnInit {
    }
 
   ngOnInit() {
+    console.log('on nginit in parent')
+    this.apiService.getRepositories().subscribe();
   }
 
   loadStories() {
@@ -37,16 +37,16 @@ export class ParentComponent implements OnInit {
     const repositorytype = localStorage.getItem('repositoryType');
     if (repositorytype === 'github') {
       this.apiService
-          .getStories(repository, this.apiService.getToken())
+          .getStories(repository)
           .subscribe((resp: Story[]) => {
             this.stories = resp;
-            console.log(resp);
           });
     } else {
       this.apiService
-          .getIssuesFromJira(localStorage.getItem('jiraHost'), localStorage.getItem('jiraKey'))
+          .getIssuesFromJira(localStorage.getItem('jiraKey'))
           .subscribe((resp: Story[]) => {
             this.stories = resp;
+            console.log('Jira Response');
             console.log(resp);
           });
     }
@@ -58,10 +58,6 @@ export class ParentComponent implements OnInit {
 
   setSelectedScenario(scenario: Scenario){
     this.selectedScenario = scenario;
-  }
-
-  setform(form){
-    this.formtosubmit = form;
   }
 
 }

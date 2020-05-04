@@ -5,24 +5,32 @@
     <h1 id="loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <hr>
+      <br>
       <!-- Github Name -->
-      <label for="githubName" class="uk-form-label"></label>
-      <input type="text" name="githubName" placeholder=" Github Name" #githubName ngModel class="uk-form-controls" required>
+      <label for="email" class="uk-form-label" style="color: grey;"></label>
+      <input id="email" type="text" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
       <br>
       <!-- Token -->
-      <label for="token" class="uk-form-label"></label>
+      <label for="password" class="uk-form-label" style="color: grey;"></label>
       <br>
-      <input type="text" name="token" placeholder="Token" #token ngModel class="uk-form-controls" required>
+      <input id="password" type="password" name="password" placeholder=" Password" #password ngModel class="uk-form-controls" required>
       <br>
       <br>
       <!-- Button Login -->
-      <button class="loginButton" type="submit" [disabled]="form.invalid">Submit</button>
-      <br>
       <button id="register" title="register" (click)="navToRegistration();">Registration</button>
+      <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
     </form>
+    <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
+    <a class="githubLoginContainer" (click)="githubLogin();">
+      <div class="githubLogin" >
+         <img src ="../assets/github-logo.png" >
+         <p>Login via Github</p>
+      </div>
+   </a>
+
     <hr>
     <!-- Button Login-TestAccount -->
-    <button class="loginButton" name="loginTest" type="button" (click)="loginTestAccount();">Test Account</button>
+    <button id="testAccountLogin" class="loginButton" name="loginTest" type="button" (click)="loginTestAccount();">Test Account</button>
   </div>
   <!-- Repositories -->
   <div class="repositories" *ngIf="repositories">

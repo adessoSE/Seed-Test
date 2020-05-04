@@ -1,4 +1,4 @@
-import { Component, OnInit, DoCheck } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 
@@ -7,20 +7,42 @@ import { Router } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, DoCheck {
+export class AppComponent implements OnInit {
   token: string;
   githubName: string;
   title = 'cucumber-frontend';
-  repositories: string[] = [];
+  repositories: string[];
+  githubRepo: string[];
+  jiraProject: string[];
   repository: string;
   showImpressum: boolean = false;
   showTerms: boolean = false;
+  jirakeys: any;
+  error: string;
 
   constructor(public apiService: ApiService, public router: Router) {
+    this.apiService.getProjectsEvent.subscribe((resp: string[]) => {
+      console.log('repositories Event');
+      this.jiraProject = this.filterProjects(resp);
+      if (typeof this.githubRepo !== 'undefined') {
+          this.repositories = this.githubRepo.concat(this.jiraProject);
+      } else {
+          this.repositories = this.jiraProject;
+      }
+    });
+    this.apiService.getRepositoriesEvent.subscribe((resp: string[]) => {
+      console.log('repositories Event');
+      this.githubRepo = resp;
+      if (typeof this.jiraProject !== 'undefined') {
+        this.repositories = this.githubRepo.concat(this.jiraProject);
+      } else {
+        this.repositories = this.githubRepo;
+      }
+    });
   }
 
   ngOnInit() {
-    this.refreshLoginData();
+    this.getRepositories();
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
     }
@@ -44,50 +66,57 @@ export class AppComponent implements OnInit, DoCheck {
     }
   }
 
-  refreshLoginData() {
-    this.token = localStorage.getItem('token');
-    this.githubName = localStorage.getItem('githubName');
-    this.repository = localStorage.getItem('repository');
-
-    if (this.token && this.githubName) {
-      this.getRepositories();
-    }
-  }
-
-  ngDoCheck() {
-    const newToken = localStorage.getItem('token');
-    const newGithubName = localStorage.getItem('githubName');
-    const newRepository = localStorage.getItem('repository');
-    if (newToken != this.token || newGithubName != this.githubName || newRepository != this.repository) {
-      this.refreshLoginData();
-    }
-  }
-
   getRepositories() {
-    this.token = localStorage.getItem('token');
-    this.githubName = localStorage.getItem('githubName');
-    this.apiService.getBackendUrlEvent.subscribe(() => {
-      this.apiService.getRepositories(this.token, this.githubName).subscribe((resp: any) => {
-        this.repositories = resp;
-        console.log(resp);
+    let tmp_repositories = [];
+    if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)) {
+      this.apiService.getRepositories().subscribe((resp) => {
+        tmp_repositories = resp;
+        localStorage.setItem('githubCount', `${tmp_repositories.length}`);
+        this.apiService.getProjectsFromJira().subscribe((resp2) => {
+          this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
+        }, (err) => {
+          this.error = err.error;
+          this.repositories = tmp_repositories;
+        });
+      }, (err) => {
+        this.error = err.error;
       });
+    }
+  }
+
+  filterProjects(resp) {
+    let projectNames = [];
+    let projectKeys = [];
+    JSON.parse(resp)['projects'].forEach(entry => {
+      projectNames = projectNames.concat(`jira/${entry['name']}`);
+      projectKeys = projectKeys.concat(`${entry['key']}`);
     });
+    this.jirakeys = projectKeys;
+    console.log(this.jirakeys);
+    return projectNames;
   }
 
 
-  selectRepository(repository: string) {
-    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + repository;
-    localStorage.setItem('repository', repository);
-    this.repository = repository;
-    this.apiService.getStories(repository, this.token).subscribe(resp => {
-    });
+  selectRepository(userRepository: string) {
+    const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
+    if (index < 0) {
+      localStorage.setItem('repositoryType', 'github');
+    } else {
+      localStorage.setItem('repositoryType', 'jira');
+      localStorage.setItem('jiraKey', this.jirakeys[index]);
+    }
+    localStorage.setItem('repository', userRepository);
+    this.router.navigate(['/']);
+  }
+
+  manageAccount() {
+    this.router.navigate(['/accountManagment']);
   }
 
   logout() {
-    localStorage.removeItem('repository');
-    localStorage.removeItem('token');
-    localStorage.removeItem('githubName');
-    this.router.navigate(['/login']);
+    this.repositories = undefined;
+    this.apiService.logoutUser().subscribe(resp => {
+      this.router.navigate(['/login']);
+    });
   }
 }
