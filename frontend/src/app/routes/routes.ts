@@ -3,6 +3,7 @@ import { ParentComponent } from '../parent/parent.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { FeedbackComponent } from '../feedback/feedback.component';
 import { TermsComponent } from '../terms/terms.component';
+import { RegistrationComponent } from '../registration/registration.component';
 
 export const ROUTES = [
     {
@@ -21,5 +22,9 @@ export const ROUTES = [
     {
         path: 'terms',
         component: TermsComponent
+    },
+    {
+        path: 'register',
+        component: RegistrationComponent
     }
 ];
