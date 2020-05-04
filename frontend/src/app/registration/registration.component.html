@@ -2,21 +2,21 @@
     <div class="formular">
       <!-- Formular -->
       <h1 id="headerFont">Registration</h1>
-      <form #form="ngForm">
+      <form #form="ngForm" (ngSubmit)="registerUser(form);">
         <hr>
         <!-- Label1 -->
         <label class="uk-form-label"></label>
-        <input type="text" placeholder="E-Mail" class="uk-form-controls" required>
+        <input type="email" placeholder="Email" class="uk-form-controls" required>
         <br>
         <!-- Label2 -->
         <label class="uk-form-label"></label>
         <br>
-        <input type="text" placeholder="Password" class="uk-form-controls" required>
-        <!-- Label3 -->
+        <input type="password" placeholder="Password" class="uk-form-controls" required>
+        <!-- Label3
         <label class="uk-form-label"></label>
         <br>
-        <input type="text" placeholder="Password" class="uk-form-controls" required>
-        <!-- more Labels:
+        <input type="password" placeholder="Password" class="uk-form-controls" required>
+        more Labels:
         <label class="uk-form-label"></label>
         <br>
         <input type="text" placeholder="labelMore" class="uk-form-controls" required>
@@ -24,7 +24,7 @@
         <br>
         <br>
         <!-- Button Register -->
-        <button class="registerButton" [disabled]="form.invalid">Register</button>
+        <button class="registerButton" type="submit" [disabled]="form.invalid">Register</button>
         <br>
       </form>
       <hr>

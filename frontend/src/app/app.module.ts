@@ -46,10 +46,9 @@ import { RegistrationComponent } from './registration/registration.component';
     FeedbackComponent,
     TermsComponent,
     SubmitformComponent,
-    StoryEditorComponent,
     AccountManagmentComponent,
     LoginFormComponent,
-    TestAccountComponent
+    TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
   ],

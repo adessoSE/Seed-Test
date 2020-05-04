@@ -8,7 +8,7 @@
       <br>
       <!-- Github Name -->
       <label for="email" class="uk-form-label" style="color: grey;"></label>
-      <input id="email" type="text" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
+      <input id="email" type="text" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required>
       <br>
       <!-- Token -->
       <label for="password" class="uk-form-label" style="color: grey;"></label>
@@ -17,9 +17,10 @@
       <br>
       <br>
       <!-- Button Login -->
-      <button id="register" title="register" (click)="navToRegistration();">Registration</button>
       <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
+      
     </form>
+    <button id="register" title="register" (click)="navToRegistration();">Registration</button>
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
     <a class="githubLoginContainer" (click)="githubLogin();">
       <div class="githubLogin" >

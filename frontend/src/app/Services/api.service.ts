@@ -49,6 +49,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
       
         const str = this.apiServer + '/github/repositories'; 
+        console.log(str);
         
         return this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {
@@ -77,6 +78,7 @@ export class ApiService {
 
     public loginUser(email: string, password: string): Observable<any> {
         const str = this.apiServer + '/user/login'
+        console.log(str);
         let user;
         if(!email && !password){
 
@@ -85,7 +87,7 @@ export class ApiService {
                 email, password
             }
         }
-
+        console.log(user);
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
             //this.getStoriesEvent.emit(resp);
@@ -163,10 +165,11 @@ export class ApiService {
             }));
     }
 
-    public createUser(user: User): Observable<User> {
+    public registerUser(email:string, password:string): Observable<any> {
+        const user = {email, password};
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/user/add', user)
+            .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }

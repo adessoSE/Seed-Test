@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
+import { NgForm } from '@angular/forms';
 
 @Component({
     selector: 'app-registration',
@@ -10,10 +11,22 @@ import {NavigationEnd, Router} from '@angular/router';
 
 export class RegistrationComponent implements OnInit {
 
-    constructor(public apiService: ApiService, router: Router) {
+    error: string;
+
+    constructor(public apiService: ApiService, private router: Router) {
     }
 
     ngOnInit() {
     }
 
+    async registerUser(form: NgForm){
+        console.log(form.value.email, form.value.password);
+        this.error = undefined;
+        let response = await this.apiService.registerUser(form.value.email, form.value.password).toPromise()
+        if (response.status === 'error') {
+            this.error = response.message;
+        } else {
+            this.router.navigate(["/"]);
+        } 
+    }
 }
