@@ -3,6 +3,9 @@
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
     <h1 id="loginFont">Login</h1>
+    <p class="noAccount">No account? 
+      <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
+    </p>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <hr>
       <br>
@@ -17,10 +20,10 @@
       <br>
       <br>
       <!-- Button Login -->
-      <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
-      
+      <button class="loginButton" type="submit" [disabled]="form.invalid">Submit</button>
     </form>
-    <button id="register" title="register" (click)="navToRegistration();">Registration</button>
+    <br>
+    <hr>
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
     <a class="githubLoginContainer" (click)="githubLogin();">
       <div class="githubLogin" >
@@ -28,10 +31,10 @@
          <p>Login via Github</p>
       </div>
    </a>
-
-    <hr>
+   <br>
     <!-- Button Login-TestAccount -->
-    <button id="testAccountLogin" class="loginButton" name="loginTest" type="button" (click)="loginTestAccount();">Test Account</button>
+    <button class="testAccount" name="loginTest" type="button" (click)="loginTestAccount();">Testaccount</button>
+    <br>
   </div>
   <!-- Repositories -->
   <div class="repositories" *ngIf="repositories">
