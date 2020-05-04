@@ -21,7 +21,7 @@ async function registerUser(user){
   let collection = await dbo.collection('User')
   let dbUser = await getUserByEmail(user.email);
   let result;
-  if(dbUser === null){
+  if(dbUser !== null){
     result = 'User already exists'
   } else {
    result = await collection.insertOne(user);

@@ -57,7 +57,6 @@ router.post('/submitIssue/', (req, res) => {
 });
 // Gets all possible repositories from Github
 router.get('/repositories', (req, res) => {
-  console.log(req.user);
   let githubName;
   let token;
   if (req.user) {

@@ -2,16 +2,16 @@
     <div class="formular">
       <!-- Formular -->
       <h1 id="headerFont">Registration</h1>
-      <form #form="ngForm" (ngSubmit)="registerUser(form);">
+      <form #form="ngForm" novalidate (ngSubmit)="registerUser(form);">
         <hr>
         <!-- Label1 -->
         <label class="uk-form-label"></label>
-        <input type="email" placeholder="Email" class="uk-form-controls" required>
+        <input id="email" type="email" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required>
         <br>
         <!-- Label2 -->
         <label class="uk-form-label"></label>
         <br>
-        <input type="password" placeholder="Password" class="uk-form-controls" required>
+        <input id="password" type="password" name="password" placeholder=" Password" #password ngModel class="uk-form-controls" required>
         <!-- Label3
         <label class="uk-form-label"></label>
         <br>
