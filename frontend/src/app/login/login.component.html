@@ -11,7 +11,7 @@
       <br>
       <!-- Github Name -->
       <label for="email" class="uk-form-label" style="color: grey;"></label>
-      <input id="email" type="text" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required>
+      <input id="email" type="email" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
       <br>
       <!-- Token -->
       <label for="password" class="uk-form-label" style="color: grey;"></label>
@@ -37,6 +37,9 @@
     <br>
   </div>
   <!-- Repositories -->
+  <div *ngIf="this.repositoriesLoading">
+    <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
+  </div>
   <div class="repositories" *ngIf="repositories">
     <div>
       <label class="selectRepository">Select Your Repository:</label>

@@ -153,7 +153,7 @@ async function getGithubStories(githubName, githubRepo, token, res, req){
 
   let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
       if (response.status === 401) {
-        res.sendStatus(401);
+        throw new GithubError('Github Status 401')
       }
       if (response.status === 200) {
         let json = await response.json();
@@ -248,8 +248,12 @@ function execReport2(req, res, stories, mode, story, callback) {
 }
 
 async function execReport(req, res, stories, mode, callback) {
-  let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
-  execReport2(req, res, stories, mode, result, callback)
+  try{
+    let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
+    execReport2(req, res, stories, mode, result, callback)
+  }catch(error){
+    res.status(501).send(error)
+  }
 }
 
 

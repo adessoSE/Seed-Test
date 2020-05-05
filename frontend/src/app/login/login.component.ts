@@ -3,7 +3,6 @@ import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 
-
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -14,9 +13,8 @@ export class LoginComponent implements OnInit {
     repositories: string[];
     jirakeys: string[];
     error: string;
-    private testAccountName = 'adessoCucumber';
-    private testAccountToken: string;
     private testJiraHost = '';
+    repositoriesLoading: boolean;
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.route.queryParams.subscribe((params) => {
@@ -28,6 +26,7 @@ export class LoginComponent implements OnInit {
                         let repository = resp.repository;
                         localStorage.setItem('repositoryType', 'github');
                         localStorage.setItem('repository', repository);
+                        this.repositoriesLoading = false;
                         this.router.navigate(['/']);
                     } else {
                         this.getRepositories()
@@ -41,9 +40,11 @@ export class LoginComponent implements OnInit {
     }
 
     async login(form: NgForm) {
+        this.repositoriesLoading = true;
         this.error = undefined;
         let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
         if (response.status === 'error') {
+            this.repositoriesLoading = false;
             this.error = response.message;
         } else if (response.message === 'repository') {
             let repository = response.repository;
@@ -60,19 +61,23 @@ export class LoginComponent implements OnInit {
     }
 
     getRepositories() {
+        this.repositoriesLoading = true;
         let tmp_repositories = [];
         this.apiService.getRepositories().subscribe((resp) => {
             tmp_repositories = resp;
             localStorage.setItem('githubCount', `${tmp_repositories.length}`);
             this.apiService.getProjectsFromJira().subscribe((resp2) => {
+                this.repositoriesLoading = false;
                 this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
                 localStorage.setItem('jiraHost', this.testJiraHost);
             }, (err) => {
+                this.repositoriesLoading = false;
                 this.error = err.error;
                 this.repositories = tmp_repositories;
             });
         }, (err) => {
             this.error = err.error;
+            this.repositoriesLoading = false;
         });
     }
 
@@ -105,6 +110,7 @@ export class LoginComponent implements OnInit {
   }
 
     githubLogin() {
+        this.repositoriesLoading = true;
         this.apiService.githubAuthentication();
     }
 }
