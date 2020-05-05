@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const process = require('process');
 const fetch = require('node-fetch');
 const helper = require('../serverHelper');
-
+const {GithubError, UserError} = require('../errors/CustomErrors')
 const router = express.Router();
 // router for all github requests
 router
@@ -38,13 +38,15 @@ router.get('/stories/:githubName?/:repository?', async (req, res) => {
   }
   try{
     let results = await helper.getGithubStories(githubName, githubRepo, token, res, req)
-    
+    if(results) res.status(200).json(results);
   } catch(error){
     if(error instanceof GithubError){
-      res.sendStatus(401);
+      res.status(401).send(error.message);
+    }
+    else {
+      res.status(503).send(error.message);
     }
   }
-  if(results) res.status(200).json(results);
 });
 
 // submits new StepType-Request as an Issue to our github
@@ -66,8 +68,12 @@ router.get('/repositories', (req, res) => {
   let githubName;
   let token;
   if (req.user) {
-    githubName = req.user.github.login;
-    token = req.user.github.githubToken;
+    if(req.user.github){
+      githubName = req.user.github.login;
+      token = req.user.github.githubToken;
+    } else {
+      throw new UserError('No Github')
+    }
   }else {
     githubName = process.env.TESTACCOUNT_NAME;
     token = process.env.TESTACCOUNT_TOKEN;

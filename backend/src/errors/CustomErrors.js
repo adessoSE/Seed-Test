@@ -1,29 +1,37 @@
-export class MongoError extends Error {
+class MongoError extends Error {
     constructor(message){
         super(message);
     }
 }
 
-export class CucumberError extends Error {
+class CucumberError extends Error {
     constructor(message){
         super(message);
     }
 }
 
-export class JiraError extends Error{
+class JiraError extends Error{
     constructor(message){
         super(message);
     }
 }
 
-export class GithubError extends Error{
+class GithubError extends Error{
     constructor(message){
         super(message);
     }
 }
 
-export class UserError extends Error{
+class UserError extends Error{
     constructor(message){
         super(message);
     }
 }
+
+module.exports = {
+    UserError,
+    GithubError,
+    JiraError,
+    CucumberError,
+    MongoError
+};
