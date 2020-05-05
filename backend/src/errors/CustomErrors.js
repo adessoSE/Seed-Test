@@ -21,3 +21,9 @@ export class GithubError extends Error{
         super(message);
     }
 }
+
+export class UserError extends Error{
+    constructor(message){
+        super(message);
+    }
+}
