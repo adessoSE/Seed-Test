@@ -153,7 +153,7 @@ async function getGithubStories(githubName, githubRepo, token, res, req){
 
   let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
       if (response.status === 401) {
-        res.sendStatus(401);
+        throw GithubError('Github Status 401')
       }
       if (response.status === 200) {
         let json = await response.json();

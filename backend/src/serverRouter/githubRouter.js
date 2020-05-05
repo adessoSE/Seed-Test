@@ -36,8 +36,14 @@ router.get('/stories/:githubName?/:repository?', async (req, res) => {
     githubRepo = process.env.TESTACCOUNT_REPO;
     token = process.env.TESTACCOUNT_TOKEN;
   }
-
-  let results = await helper.getGithubStories(githubName, githubRepo, token, res, req)
+  try{
+    let results = await helper.getGithubStories(githubName, githubRepo, token, res, req)
+    
+  } catch(error){
+    if(error instanceof GithubError){
+      res.sendStatus(401);
+    }
+  }
   if(results) res.status(200).json(results);
 });
 

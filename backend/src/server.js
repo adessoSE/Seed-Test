@@ -34,14 +34,16 @@ function handleError(res, reason, statusMessage, code) {
  */
 app
   .use(cors({origin: [
-    'http://localhost:4200'
+  'http://localhost:4200'
   ], credentials: true}))
   .use(flash())
   .use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {httpOnly: false}
+    cookie: {httpOnly: false, 
+    //  maxAge: 864000000 
+    }
   }))
   .use(passport.initialize())
   .use(passport.session())
