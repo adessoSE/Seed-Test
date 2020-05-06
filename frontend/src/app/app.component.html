@@ -1,13 +1,12 @@
 <div class="grid">
   <div class="topnav">
-
     <!--left-->
     <div class="uk-inline">
-      <button class="menuButton material-icons" title="menu">menu</button>
-      <div uk-dropdown="mode: click">
+      <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
+      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: click">
         <ul class="menulist">
           <li>
-            <div *ngIf="this.token || this.repository" class="dropdown">
+            <div *ngIf="this.token || this.repositories" class="dropdown">
               <button class="menuSelection" title="Select Repository">Repositories</button>
                 <div uk-dropdown="mode: click">
                   <ul class="dropdown-list">
