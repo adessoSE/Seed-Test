@@ -262,101 +262,92 @@ async function getUserData(userID) {
   }
 }
 
-getUserData("5e8ae7c4f41b171ab0f704cb")
+
 
 //sets the "outdated" Flag for "pre" Stepdefinitons in the Stories Collection
 async function preStepFlag(oldText) {
   try {
     let db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].preOutdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].preOutdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].preOutdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    db.close()
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   }
 }
 
-// preStepFlag("I click the Button:")
+
 
 //sets the "outdated" Flag for "mid" Stepdefinitons in the Stories Collection
 async function midStepFlag(oldText) {
   try {
     let db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].midOutdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].midOutdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].midOutdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    db.close()
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   }
 }
 
-// Update "pre" Stepdefinitions in the Stories Collection and sets each step to updated
-async function preStepUpdateAndFlagFalse(oldText, newText) {
+// if "storyID" Parameter is null: Updates "pre" Stepdefinitions in the "Stories" Collection and sets each step to outdated: false
+// else: Updates "pre" Stepdefinitions in the selected Story and sets each step to outdated: false
+async function updatePreStepsInOneStory(oldText, newText, storyID) {
+  let myObjt
+  if (storyID == null) {
+    myObjt = {}
+  } else {
+    myObjt = { story_id: storyID }
+  }
   try {
     let db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].preOutdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].preOutdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].preOutdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    let result = await findStory(storyID, collection)
+    db.close()
+    return result
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   }
 }
 
-// Update "mid" Stepdefinitions in the Stories Collection sets each step to updated
-async function midStepUpdateAndFlagFalse(oldText, newText) {
+// updatePreStepsInOneStory("I click the Button:", "I click the Button:")
+
+// if "storyID" Parameter is null: Updates "mid" Stepdefinitions in the "Stories" Collection and sets each step to outdated: false
+// else: Updates "mid" Stepdefinitions in the selected Story and sets each step to outdated: false
+async function updateMidStepsInOneStory(oldText, newText, storyID) {
+  let myObjt
+  if (storyID == null) {
+    myObjt = {}
+  } else {
+    myObjt = { story_id: storyID }
+  }
   try {
     let db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
-    await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].midOutdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].midOutdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].midOutdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    let result = await findStory(storyID, collection)
+    db.close()
+    return result
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   }
 }
 
-async function storyPreStepUpdate(storyID, oldText, newText) {
-  const myObjt = { story_id: storyID };
-  try {
-    let db = await connectDb()
-    let collection = await selectStoriesCollection(db)
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": false } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
-  } catch (e) {
-    console.log("UPS!!!! FEHLER: " + e)
-  }
-}
-
-async function storyMidStepUpdate(storyID, oldText, newText) {
-  const myObjt = { story_id: storyID };
-  try {
-    let db = await connectDb()
-    let collection = await selectStoriesCollection(db)
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
-    await collection.updateMany({myObjt}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
-  } catch (e) {
-    console.log("UPS!!!! FEHLER: " + e)
-  }
-}
-
-//storyPreStepUpdate("5d668f349c4d903ea889a4fb", "I click the Button:", "I click the Button:")
 
 
 
@@ -524,5 +515,7 @@ module.exports = {
   createUser,
   deleteUser,
   updateUser,
-  getUserData
+  getUserData,
+  updateMidStepsInOneStory,
+  updatePreStepsInOneStory,
 };
