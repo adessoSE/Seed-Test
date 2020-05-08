@@ -69,6 +69,10 @@ export class LoginComponent implements OnInit {
             this.apiService.getProjectsFromJira().subscribe((resp2) => {
                 this.repositoriesLoading = false;
                 this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
+                if(this.repositories.length <= 0){
+                    console.log('repositories empty')
+                    this.router.navigate(['/accountManagment'])
+                }
                 localStorage.setItem('jiraHost', this.testJiraHost);
             }, (err) => {
                 this.repositoriesLoading = false;
@@ -82,15 +86,19 @@ export class LoginComponent implements OnInit {
     }
 
     filterProjects(resp) {
-        let projectNames = [];
-        let projectKeys = [];
-        JSON.parse(resp)['projects'].forEach(entry => {
-            projectNames = projectNames.concat(`jira/${entry['name']}`);
-            projectKeys = projectKeys.concat(`${entry['key']}`);
-        });
-        this.jirakeys = projectKeys;
-        console.log(this.jirakeys);
-        return projectNames;
+        try{
+            let projectNames = [];
+            let projectKeys = [];
+            JSON.parse(resp)['projects'].forEach(entry => {
+                projectNames = projectNames.concat(`jira/${entry['name']}`);
+                projectKeys = projectKeys.concat(`${entry['key']}`);
+            });
+            this.jirakeys = projectKeys;
+            console.log(this.jirakeys);
+            return projectNames;
+        }catch(error) {
+            return []
+        }
     }
 
     selectRepository(userRepository: string) {

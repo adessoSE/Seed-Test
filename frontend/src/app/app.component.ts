@@ -85,15 +85,19 @@ export class AppComponent implements OnInit {
   }
 
   filterProjects(resp) {
-    let projectNames = [];
-    let projectKeys = [];
-    JSON.parse(resp)['projects'].forEach(entry => {
-      projectNames = projectNames.concat(`jira/${entry['name']}`);
-      projectKeys = projectKeys.concat(`${entry['key']}`);
-    });
-    this.jirakeys = projectKeys;
-    console.log(this.jirakeys);
-    return projectNames;
+    try{
+      let projectNames = [];
+      let projectKeys = [];
+      JSON.parse(resp)['projects'].forEach(entry => {
+          projectNames = projectNames.concat(`jira/${entry['name']}`);
+          projectKeys = projectKeys.concat(`${entry['key']}`);
+      });
+      this.jirakeys = projectKeys;
+      console.log(this.jirakeys);
+      return projectNames;
+  }catch(error) {
+      return []
+  }
   }
 
 

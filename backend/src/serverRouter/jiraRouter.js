@@ -24,7 +24,6 @@ router
   });
 // Gets all possible issues from project
 router.get('/issues/:projectKey', (req, res) => {
-  console.log(req.user);
   if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
     const { Host } = req.user.jira;
     const { AccountName } = req.user.jira;
@@ -88,7 +87,10 @@ router.get('/issues/:projectKey', (req, res) => {
 });
 // gets all project from user
 router.get('/projects', (req, res) => {
+  console.log('in jira projects')
   if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
+    console.log('in if')
+
     const { Host } = req.user.jira;
     const { AccountName } = req.user.jira;
     const { Password } = req.user.jira;
@@ -122,7 +124,7 @@ router.get('/projects', (req, res) => {
       });
     });
   } else {
-    res.status(401);
+    res.status(200).json([]);
   }
 });
 

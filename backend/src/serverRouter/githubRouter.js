@@ -72,7 +72,9 @@ router.get('/repositories', (req, res) => {
       githubName = req.user.github.login;
       token = req.user.github.githubToken;
     } else {
-      throw new UserError('No Github')
+      res.status(200).json([])
+      return;
+      //throw new UserError('No Github')
     }
   }else {
     githubName = process.env.TESTACCOUNT_NAME;
