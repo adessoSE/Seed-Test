@@ -79,6 +79,9 @@
             <br>
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
               <div class="text-inline" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
+                <div class="dragIconContainer" cdkDragHandle>
+                  <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
+                </div>
                 <button id="{{'background_remove_step' + j}}" a
                   uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
                   (click)="removeStepFromBackground($event, j);">

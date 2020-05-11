@@ -142,8 +142,30 @@
     background: white !important;
   }
   
+  .dragIconContainer{
+    text-align: center;
+    cursor: move;
+  }
+  
+  .dragIcon{
+    position: relative;
+    top: -2px;
+  }
+  
   .text-inline{
-    font-weight:normal;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    font-weight: normal;
+    justify-self: start;
+  }
+  
+  .text-inline > button{
+    margin: 0 5px;
+  }
+  
+  .text-inline > p > input{
+    margin: 0 5px;
   }
   
   .uk-card-title {

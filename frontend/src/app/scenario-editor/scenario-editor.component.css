@@ -13,6 +13,32 @@
 	display: none;
 }
 
+.dragIconContainer{
+  text-align: center;
+  cursor: move;
+}
+
+.dragIcon{
+  position: relative;
+  top: -2px;
+}
+
+.text-inline{
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  font-weight: normal;
+  justify-self: start;
+}
+
+.text-inline > button{
+  margin: 0 5px;
+}
+
+.text-inline > p > input{
+  margin: 0 5px;
+}
+
 .def:hover span[rel=def] {
   font-size: small;
   color: white;
@@ -162,10 +188,6 @@
 .disabled em{
   color: gray !important;
   background: white !important;
-}
-
-.text-inline{
-  font-weight:normal;
 }
 
 .uk-card-footer{
