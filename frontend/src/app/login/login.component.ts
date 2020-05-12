@@ -21,10 +21,8 @@ export class LoginComponent implements OnInit {
             if (params.login) {
                 let email = localStorage.getItem('email');
                 localStorage.removeItem('email')
-                        this.error = resp.message;
                 if (email){
                    this.apiService.mergeAccountGithub(email, params.login, params.id).subscribe((resp) => {
-                        localStorage.setItem('repositoryType', 'github');
                        this.loginGithubToken(params.login, params.id);
                    });
                 } else {
@@ -56,6 +54,7 @@ export class LoginComponent implements OnInit {
     }
 
     async login(form: NgForm) {
+        //localStorage.setItem('email', form.value.email)
         this.repositoriesLoading = true;
         this.error = undefined;
         let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
