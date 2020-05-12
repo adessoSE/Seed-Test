@@ -23,11 +23,15 @@ export class AccountManagmentComponent implements OnInit {
             }
         });
     }
-    login(type) {
+    login() {
         if(this.email) {
             localStorage.setItem('email', this.email)
             this.apiService.githubAuthentication();
         }
+    }
+
+    jiraLogin(type){
+        this.modalService.open(type);
     }
     updateSite(report) {
         console.log(report);
@@ -54,4 +58,9 @@ export class AccountManagmentComponent implements OnInit {
     ngOnInit() {
     }
 
+    disconnectGithub(){
+        this.apiService.disconnectGithub().subscribe((resp) => {
+            window.location.reload();
+        });
+    }
 }

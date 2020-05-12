@@ -57,6 +57,16 @@ export class ApiService {
             catchError(this.handleError));
     } 
 
+    disconnectGithub(){
+        let str = this.apiServer + '/github/disconnectGithub'
+        
+        return this.http.delete<any>(str, this.getOptions())
+        .pipe(tap(resp => {
+          //this.getStoriesEvent.emit(resp);
+        }),
+          catchError(this.handleError));
+    }
+
     mergeAccountGithub(email: string, login: string, id: any) {
         let str = this.apiServer + '/user/mergeGithub'
         let obj = {email, login, id}

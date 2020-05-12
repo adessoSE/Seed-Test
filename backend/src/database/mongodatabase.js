@@ -184,6 +184,14 @@ function replace(storyID, story, collection) {
   })
 }
 
+async function disconnectGithub(user){
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let removedUser = await replaceUser(user, collection);
+  return removedUser;
+}
+
 function replaceUser(newUser, collection) {
   const myObjt = { _id: ObjectId(newUser._id) }
   return new Promise((resolve, reject) => {
@@ -531,6 +539,7 @@ function installDatabase() {
 }
 
 module.exports = {
+  disconnectGithub,
   mergeGithub,
   setLastRepository,
   findOrRegister,

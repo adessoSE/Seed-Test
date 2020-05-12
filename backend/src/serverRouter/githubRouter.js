@@ -5,6 +5,7 @@ const process = require('process');
 const fetch = require('node-fetch');
 const helper = require('../serverHelper');
 const {GithubError, UserError} = require('../errors/CustomErrors')
+const mongo = require('../database/mongodatabase');
 const router = express.Router();
 // router for all github requests
 router
@@ -63,6 +64,19 @@ router.post('/submitIssue/', (req, res) => {
       res.status(200).json(json);
     });
 });
+
+router.delete('/disconnectGithub', (req, res) => {
+  let user = req.user;
+  if(user && user.github){
+    delete user.github;
+    let result = mongo.disconnectGithub(user);
+    res.status(200).json(result);
+  }else {
+    res.sendStatus(400);
+  }
+});
+
+
 // Gets all possible repositories from Github
 router.get('/repositories', (req, res) => {
   let githubName;
