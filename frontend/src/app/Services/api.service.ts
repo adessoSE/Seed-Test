@@ -57,6 +57,17 @@ export class ApiService {
             catchError(this.handleError));
     } 
 
+    mergeAccountGithub(email: string, login: string, id: any) {
+        let str = this.apiServer + '/user/mergeGithub'
+        let obj = {email, login, id}
+
+        return this.http.post<any>(str, obj, this.getOptions())
+        .pipe(tap(resp => {
+          //this.getStoriesEvent.emit(resp);
+        }),
+          catchError(this.handleError));
+    }
+
     public githubAuthentication() {
         let scope = 'repo'
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
@@ -64,7 +75,7 @@ export class ApiService {
         window.location.href = s;
     }
 
-    public loginGihubToken(login: string, id){
+    public loginGithubToken(login: string, id){
         const str = this.apiServer + '/user/githubLogin'
         let user = {login, id}
 

@@ -19,7 +19,7 @@
                     </label>
                 </div>
             </div>
-            <div class="grid github" id="githubDiv" *ngIf="github!==null">
+            <div class="grid github" id="githubDiv" *ngIf="github">
                 <div class="uk-card-title"><span class="header">Github</span></div>
                 <div class="uk-form-horizontal">
                     <label>
@@ -34,12 +34,18 @@
                     </label>
                 </div>
             </div>
-            <div id="noGithubDiv" *ngIf="github===null">
-                <button (click)="login('Github')">Login to Github</button>
+            <div id="noGithubDiv" *ngIf="!github">
+                <a class="githubLoginContainer" (click)="login('Github')">
+                    <div class="githubLogin" >
+                       <img src ="../assets/github-logo.png" >
+                       <p>Login via Github</p>
+                    </div>
+                 </a>
             </div>
+
             <div class="grid jira">
                 <div class="uk-card-title"><span class="header">Jira</span></div>
-                <div id="jiraDiv" *ngIf="jira!==null">
+                <div id="jiraDiv" *ngIf="jira">
                     <div class="uk-form-horizontal">
                         <label>
                             Jira-Name

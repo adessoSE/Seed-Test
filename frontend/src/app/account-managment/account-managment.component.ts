@@ -11,10 +11,10 @@ import {LoginFormComponent} from '../login-form/login-form.component';
 export class AccountManagmentComponent implements OnInit {
     @ViewChild('loginForm') modalService: LoginFormComponent;
 
-    email = null;
-    password = null;
-    github = null;
-    jira = null;
+    email: string;
+    password: string;
+    github: any;
+    jira: any;
 
     constructor(public apiService: ApiService, router: Router) {
         router.events.forEach((event) => {
@@ -24,7 +24,10 @@ export class AccountManagmentComponent implements OnInit {
         });
     }
     login(type) {
-        this.modalService.open(type);
+        if(this.email) {
+            localStorage.setItem('email', this.email)
+            this.apiService.githubAuthentication();
+        }
     }
     updateSite(report) {
         console.log(report);

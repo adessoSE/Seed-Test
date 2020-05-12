@@ -37,6 +37,23 @@ async function registerGithubUser(user){
   return result;
 }
 
+async function mergeGithub(email, login, id){
+  console.log('login:', login, 'id:', id)
+  let db = await connectDb()
+  dbo = db.db('Seed');
+  let collection = await dbo.collection('User')
+  let githubAccount = await getUserByGithub(login, id)
+  let seedAccount = await getUserByEmail(email);
+  seedAccount.github = githubAccount.github;
+  if(githubAccount.hasOwnProperty('jira') && !seedAccount.hasOwnProperty('jira') ){
+    seedAccount.jira = githubAccount.jira;
+  }
+  let deletedGithub = await deleteUser(githubAccount._id);
+  let result = await replaceUser(seedAccount, collection)
+
+  return result;
+}
+
 async function setLastRepository(userId, repository){
   let db = await connectDb()
   let dbo = await db.db('Seed')
@@ -56,7 +73,6 @@ async function getUserByEmail(email){
 }
 
 async function getUserByGithub(login, id){
-  console.log('in getuserbyToken')
   let db = await connectDb()
   let dbo = await db.db('Seed')
   let collection = await dbo.collection('User')
@@ -168,10 +184,10 @@ function replace(storyID, story, collection) {
   })
 }
 
-function replaceUser(userID, user, collection) {
-  const myObjt = { zukünftigID: userID }
+function replaceUser(newUser, collection) {
+  const myObjt = { _id: ObjectId(newUser._id) }
   return new Promise((resolve, reject) => {
-    collection.findOneAndReplace(myObjt, user, { returnOriginal: false }, (err, result) => {
+    collection.findOneAndReplace(myObjt, newUser, { returnOriginal: false }, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -515,6 +531,7 @@ function installDatabase() {
 }
 
 module.exports = {
+  mergeGithub,
   setLastRepository,
   findOrRegister,
   getUserByGithub,

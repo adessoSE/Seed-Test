@@ -19,24 +19,40 @@ export class LoginComponent implements OnInit {
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.route.queryParams.subscribe((params) => {
             if (params.login) {
-                this.apiService.loginGihubToken(params.login, params.id).subscribe((resp) => {
-                    if (resp.status === 'error') {
+                let email = localStorage.getItem('email');
+                localStorage.removeItem('email')
                         this.error = resp.message;
-                    } else if (resp.message === 'repository') {
-                        let repository = resp.repository;
+                if (email){
+                   this.apiService.mergeAccountGithub(email, params.login, params.id).subscribe((resp) => {
                         localStorage.setItem('repositoryType', 'github');
-                        localStorage.setItem('repository', repository);
-                        this.repositoriesLoading = false;
-                        this.router.navigate(['/']);
-                    } else {
-                        this.getRepositories()
-                    }
-                })
+                       this.loginGithubToken(params.login, params.id);
+                   });
+                } else {
+                    this.loginGithubToken(params.login, params.id);
+                }
             }
         })
     }
 
+    
+
     ngOnInit() {
+    }
+
+    loginGithubToken(login: string, id: any){
+        this.apiService.loginGithubToken(login, id).subscribe((resp) => {
+            if (resp.status === 'error') {
+                this.error = resp.message;
+            } else if (resp.message === 'repository') {
+                let repository = resp.repository;
+                localStorage.setItem('repositoryType', 'github');
+                localStorage.setItem('repository', repository);
+                this.repositoriesLoading = false;
+                this.router.navigate(['/']);
+            } else {
+                this.getRepositories()
+            }
+        })
     }
 
     async login(form: NgForm) {
