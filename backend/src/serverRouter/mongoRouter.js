@@ -97,7 +97,7 @@ router.post('/user/add', async (req, res) => {
 router.post('/user/update/:userID', async (req, res) => {
   try {
     const user = req.body;
-    let updatedUser = await mongo.updateUser(parseInt(req.params.userID, 10), user)
+    let updatedUser = await mongo.updateUser(parseString(req.params.userID, 10), user)
     res.status(200).json(updatedUser);
   } catch (error) {
     handleError(res, error, error, 500);
@@ -106,7 +106,7 @@ router.post('/user/update/:userID', async (req, res) => {
 // delete user
 router.delete('/user/delete/:userID', async (req, res) => {
   try {
-    await mongo.deleteUser(parseInt(req.params.userID, 10))
+    await mongo.deleteUser(parseString(req.params.userID, 10))
     res.status(200);
   } catch (error) {
     handleError(res, error, error, 500);
@@ -115,7 +115,7 @@ router.delete('/user/delete/:userID', async (req, res) => {
 // get userObject
 router.get('/user/:userID', async (req, res) => {
   try {
-    let result = await mongo.getUserData(parseInt(req.params.userID, 10))
+    let result = await mongo.getUserData(parseString(req.params.userID, 10))
     res.status(200).json(result);
   } catch (error) {
     handleError(res, error, error, 500);

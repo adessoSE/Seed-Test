@@ -12,7 +12,9 @@ setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('-headless');
+chromeOptions.addArguments('--ignore-certificate-errors')
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
+
 
 
 // Starts the driver / Browser

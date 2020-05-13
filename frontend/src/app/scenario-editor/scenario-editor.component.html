@@ -62,7 +62,7 @@
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div class="text-inline getBackgroundList" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
+            <div class="text-inline getBackgroundList" [class.outdated]="currentStep.outdated" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
                 (click)="removeStepFromScenario(currentStep.stepType, j);">
@@ -78,6 +78,12 @@
               {{currentStep.post}}
               <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}"#step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
                 type="text" value="{{value}}" on-change="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" />
+                <div *ngIf="currentStep.outdated">
+                  <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                    <span rel="def">
+                      This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the scenario to confirm your adjustments.
+                          </span></dfn>
+                </div>
             </div>
           </div>
           <br>

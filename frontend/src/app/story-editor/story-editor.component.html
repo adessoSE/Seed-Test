@@ -78,7 +78,7 @@
           <div class="uk-steps">
             <br>
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
-              <div class="text-inline" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
+              <div class="text-inline" [class.outdated]="currentStep.outdated" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
                 <button id="{{'background_remove_step' + j}}" a
                   uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
                   (click)="removeStepFromBackground($event, j);">
@@ -94,6 +94,12 @@
                 {{currentStep.post}}
                 <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
                 type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j , n + 2)" />
+                <div *ngIf="currentStep.outdated">
+                  <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                    <span rel="def">
+                      This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the background to confirm your adjustments.
+                    </span></dfn>
+                </div>
               </div>
             </div>
           </div>

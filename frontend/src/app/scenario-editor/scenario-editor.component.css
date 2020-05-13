@@ -13,6 +13,10 @@
 	display: none;
 }
 
+.outdated {
+  background-color: #F9A7A7;
+}
+
 .def:hover span[rel=def] {
   font-size: small;
   color: white;
@@ -166,6 +170,7 @@
 
 .text-inline{
   font-weight:normal;
+  display: flex;
 }
 
 .uk-card-footer{
