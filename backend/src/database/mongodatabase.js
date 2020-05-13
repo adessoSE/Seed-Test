@@ -264,46 +264,18 @@ async function getUserData(userID) {
 
 
 
-//sets the "outdated" Flag
-async function updatedStepFlag(name, storyID) {
-  let myObjt
-  if (storyID == null) {
-    myObjt = {}
-  } else {
-    myObjt = { story_id: storyID }
-  }
-  try {
-    let db = await connectDb()
-    let collection = await selectStoriesCollection(db)
-    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].Outdated": false } }, { arrayFilters: [{ "elem.name": name }], upsert: true })
-    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].Outdated": false } }, { arrayFilters: [{ "elem.name": name }], upsert: true })
-    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].Outdated": false } }, { arrayFilters: [{ "elem.name": name }], upsert: true })
-    let result = await findStory(storyID, collection)
-    db.close()
-    return result
-  } catch (e) {
-    console.log("UPS!!!! FEHLER: " + e)
-  }
-}
 
 
 
-// //sets the "outdated" Flag for "mid" Stepdefinitons in the Stories Collection
-// async function midStepFlag(oldText) {
-//   try {
-//     let db = await connectDb()
-//     let collection = await selectStoriesCollection(db)
-//     await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].midOutdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-//     await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].midOutdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-//     await collection.updateMany({}, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].midOutdated": false } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
-//     db.close()
-//   } catch (e) {
-//     console.log("UPS!!!! FEHLER: " + e)
-//   }
-// }
+// /////////////////////////////////////////// API Methods end ////////////////////////////////////////
+// ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////////
+
+
+
+
 
 // if "storyID" Parameter is null: Updates "pre" Stepdefinitions in the "Stories" Collection and sets each step to outdated: false
-// else: Updates "pre" Stepdefinitions in the selected Story and sets each step to outdated: false
+// else: Updates "pre" Stepdefinitions in the selected Story and sets each step to outdated: true
 async function updatePreStepsInOneStory(oldText, newText, storyID) {
   let myObjt
   if (storyID == null) {
@@ -328,10 +300,8 @@ async function updatePreStepsInOneStory(oldText, newText, storyID) {
   }
 }
 
-// updatePreStepsInOneStory("I click the Button:", "I click the Button:")
-
 // if "storyID" Parameter is null: Updates "mid" Stepdefinitions in the "Stories" Collection and sets each step to outdated: false
-// else: Updates "mid" Stepdefinitions in the selected Story and sets each step to outdated: false
+// else: Updates "mid" Stepdefinitions in the selected Story and sets each step to outdated: true
 async function updateMidStepsInOneStory(oldText, newText, storyID) {
   let myObjt
   if (storyID == null) {
@@ -355,14 +325,6 @@ async function updateMidStepsInOneStory(oldText, newText, storyID) {
     console.log("UPS!!!! FEHLER: " + e)
   }
 }
-
-
-
-
-// /////////////////////////////////////////// API Methods end ////////////////////////////////////////
-// ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////
-
-
 
 // Creates Database Backupfile
 async function writeBackup() {

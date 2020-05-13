@@ -121,29 +121,5 @@ router.get('/user/:userID', async (req, res) => {
     handleError(res, error, error, 500);
   }
 });
-// router.post('/preStepDef/update/:oldText/:newText/:storyID', async (req, res) => {
-//   try {
-//     let updatedStory = await mongo.updatePreStepsInOneStory(parseString(req.params.oldText, 10), parseString(req.params.newText, 10), parseInt(req.params.storyID, 10))
-//     res.status(200).json(updatedStory);
-//   } catch (error) {
-//     handleError(res, error, error, 500);
-//   }
-// });
-// router.post('/midStepDef/update/:oldText/:newText/:storyID', async (req, res) => {
-//   try {
-//     let updatedStory = await mongo.updateMidStepsInOneStory(parseString(req.params.oldText, 10), parseString(req.params.newText, 10), parseInt(req.params.storyID, 10))
-//     res.status(200).json(updatedStory);
-//   } catch (error) {
-//     handleError(res, error, error, 500);
-//   }
-// });
-router.post('/stepDef/update/:name/:storyID', async (req, res) => {
-  try {
-    let updatedStory = await mongo.updateStepFlag(parseString(req.params.name, 10), parseString(req.params.storyID, 10))
-    res.status(200).json(updatedStory);
-  } catch (error) {
-    handleError(res, error, error, 500);
-  }
-});
 
 module.exports = router;
