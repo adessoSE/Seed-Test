@@ -28,7 +28,7 @@ function connectDb() {
 function selectStoriesCollection(db) {
   dbo = db.db('Seed');
   return new Promise((resolve, reject) => {
-    dbo.collection('ChrisPlayground', (err, collection) => {
+    dbo.collection('Stories', (err, collection) => {
       if (err) {
         reject(err);
       } else {
