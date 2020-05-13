@@ -149,22 +149,6 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public updatePreStepsInOneStory(oldText: string, newText: string, storyID: number): Observable<Story> {
-        this.apiServer = localStorage.getItem('url_backend');
-        return this.http
-            .get<any>(this.apiServer + '/mongo/preStepDef/update/' + oldText + '/' + newText +'/' + storyID, )
-            .pipe(tap(resp => {
-            }), catchError(this.handleStoryError));
-    }
-
-    public updateMidStepsInOneStory(oldText: string, newText: string, storyID: number): Observable<Story> {
-        this.apiServer = localStorage.getItem('url_backend');
-        return this.http
-            .get<any>(this.apiServer + '/mongo/preStepDef/update/' + oldText + '/' + newText +'/' + storyID, )
-            .pipe(tap(resp => {
-            }), catchError(this.handleStoryError));
-    }
-
     public addScenario(storyID: number): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
 
