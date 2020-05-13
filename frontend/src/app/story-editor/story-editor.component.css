@@ -12,7 +12,9 @@
   .emptyStories a {
     display: block;
   }
-
+  .outdated {
+    background-color: #F9A7A7;
+  }
   #storyHeader{
     font-size: 1.25rem;
     line-height: 1.4;
@@ -144,6 +146,7 @@
   
   .text-inline{
     font-weight:normal;
+    display: flex;
   }
   
   .uk-card-title {

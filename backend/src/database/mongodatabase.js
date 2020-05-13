@@ -485,6 +485,5 @@ module.exports = {
   createUser,
   deleteUser,
   updateUser,
-  getUserData,
-  updatedStepFlag,
+  getUserData
 };

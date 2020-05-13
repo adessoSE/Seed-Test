@@ -14,7 +14,7 @@
 }
 
 .outdated {
-  color: red;
+  background-color: #F9A7A7;
 }
 
 .def:hover span[rel=def] {
@@ -170,6 +170,7 @@
 
 .text-inline{
   font-weight:normal;
+  display: flex;
 }
 
 .uk-card-footer{

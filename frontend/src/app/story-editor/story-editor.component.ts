@@ -133,7 +133,14 @@ export class StoryEditorComponent implements OnInit {
   }
 
   updateBackground(storyID: number) {
-      
+
+    Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
+        this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
+            if(step.outdated){
+                step.outdated = false;
+            }
+        })
+    })
       this.apiService
           .updateBackground(storyID, this.selectedStory.background)
           .subscribe(resp => {
