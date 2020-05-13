@@ -62,7 +62,7 @@
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div class="text-inline getBackgroundList" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
+            <div class="text-inline getBackgroundList" [class.outdated]="currentStep.outdated" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
                 (click)="removeStepFromScenario(currentStep.stepType, j);">
