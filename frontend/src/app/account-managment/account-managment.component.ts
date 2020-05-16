@@ -15,6 +15,7 @@ export class AccountManagmentComponent implements OnInit {
     password: string;
     github: any;
     jira: any;
+    id: string;
 
     constructor(public apiService: ApiService, router: Router) {
         router.events.forEach((event) => {
@@ -25,7 +26,7 @@ export class AccountManagmentComponent implements OnInit {
     }
     login() {
         if(this.email) {
-            localStorage.setItem('email', this.email)
+            localStorage.setItem('userId', this.id)
             this.apiService.githubAuthentication();
         }
     }
@@ -38,6 +39,7 @@ export class AccountManagmentComponent implements OnInit {
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {
                 console.log(user);
+                this.id = user._id;
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];
                 }

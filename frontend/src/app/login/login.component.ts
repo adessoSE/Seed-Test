@@ -19,10 +19,10 @@ export class LoginComponent implements OnInit {
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.route.queryParams.subscribe((params) => {
             if (params.login) {
-                let email = localStorage.getItem('email');
-                localStorage.removeItem('email')
-                if (email){
-                   this.apiService.mergeAccountGithub(email, params.login, params.id).subscribe((resp) => {
+                let userId = localStorage.getItem('userId');
+                localStorage.removeItem('userId')
+                if (userId){
+                   this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
                        this.loginGithubToken(params.login, params.id);
                    });
                 } else {
@@ -117,6 +117,8 @@ export class LoginComponent implements OnInit {
     }
 
     selectRepository(userRepository: string) {
+        const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+        ref.href = 'https://github.com/' + userRepository;
         const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
         if (index < 0) {
             localStorage.setItem('repositoryType', 'github');

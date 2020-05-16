@@ -37,13 +37,13 @@ async function registerGithubUser(user){
   return result;
 }
 
-async function mergeGithub(email, login, id){
+async function mergeGithub(userId, login, id){
   console.log('login:', login, 'id:', id)
   let db = await connectDb()
   dbo = db.db('Seed');
   let collection = await dbo.collection('User')
   let githubAccount = await getUserByGithub(login, id)
-  let seedAccount = await getUserByEmail(email);
+  let seedAccount = await getUserById(userId);
   seedAccount.github = githubAccount.github;
   if(githubAccount.hasOwnProperty('jira') && !seedAccount.hasOwnProperty('jira') ){
     seedAccount.jira = githubAccount.jira;

@@ -67,9 +67,9 @@ export class ApiService {
           catchError(this.handleError));
     }
 
-    mergeAccountGithub(email: string, login: string, id: any) {
+    mergeAccountGithub(userId: string, login: string, id: any) {
         let str = this.apiServer + '/user/mergeGithub'
-        let obj = {email, login, id}
+        let obj = {userId, login, id}
 
         return this.http.post<any>(str, obj, this.getOptions())
         .pipe(tap(resp => {
@@ -152,6 +152,7 @@ export class ApiService {
 
     public getStories(repository: string): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
+        if(!repository) return null;
         return this.http
             .get<Story[]>(this.apiServer + '/github/stories/' + repository , this.getOptions())
             .pipe(tap(resp => {
@@ -209,10 +210,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public getUserData(): Observable<User[]> {
+    public getUserData(): Observable<User> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<User[]>(this.apiServer + '/mongo/user/', this.getOptions())
+            .get<User>(this.apiServer + '/mongo/user/', this.getOptions())
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
