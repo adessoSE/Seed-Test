@@ -18,7 +18,7 @@
 
     <!--center-->
     <div class="topnav-center">
-      <a routerLink="/" class="title">
+      <a routerLink="/main" class="title">
         <h4 id="seedTest">
           <img id="logo" src="assets/seed-test-logo1.png" alt="Seed-Test">
         </h4>
@@ -33,8 +33,7 @@
           <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
           <ul class="dropdown-list">
             <li *ngFor="let repository of repositories; let i = index" >
-              <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-               href="#">{{repository}}</a>
+              <a id="{{'repository_' + i}}" (click)="selectRepository(repository);">{{repository.value}}</a>
             </li>
           </ul>
         </div>

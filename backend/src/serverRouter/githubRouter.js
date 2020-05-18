@@ -77,34 +77,4 @@ router.delete('/disconnectGithub', (req, res) => {
 });
 
 
-// Gets all possible repositories from Github
-router.get('/repositories', (req, res) => {
-  let githubName;
-  let token;
-  if (req.user) {
-    if(req.user.github){
-      githubName = req.user.github.login;
-      token = req.user.github.githubToken;
-    } else {
-      res.status(200).json([])
-      return;
-      //throw new UserError('No Github')
-    }
-  }else {
-    githubName = process.env.TESTACCOUNT_NAME;
-    token = process.env.TESTACCOUNT_TOKEN;
-  }
- 
-  Promise.all([
-    helper.starredRepositories(githubName, token),
-    helper.ownRepositories(githubName, token),
-  ]).then((repos) => {
-    const merged = [].concat(...repos);
-    res.status(200).json(merged);
-  }).catch((reason) => {
-    res.status(400).json('Wrong Github name or Token');
-    console.log(`Get Repositories Error: ${reason}`);
-  });
-});
-
 module.exports = router;

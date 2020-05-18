@@ -46,13 +46,13 @@ router.post('/login', (req, res, next) => {
                     throw new UserError(err)
                 }else {
                     if(req.user.github && req.user.github.lastRepository){
+                        let repository = {value: req.user.github.lastRepository, source: 'github'}
                         let response = {
                             status: 'success',
                             message: 'repository',
-                            repository: req.user.github.lastRepository
+                            repository
                         };
                         res.json(response);
-    
                     } else {
                         res.json(user);
                     }
@@ -138,5 +138,36 @@ router.get('/logout', async (req, res) => {
     req.logout();
     res.json({status: 'success'})
 });
+
+router.get('/repositories', (req, res) => {
+    let githubName;
+    let token;
+    if (req.user) {
+      if(req.user.github){
+        githubName = req.user.github.login;
+        token = req.user.github.githubToken;
+      } else {
+        res.status(200).json([])
+        return;
+        //throw new UserError('No Github')
+      }
+    }else {
+      githubName = process.env.TESTACCOUNT_NAME;
+      token = process.env.TESTACCOUNT_TOKEN;
+    }
+   
+    Promise.all([
+      helper.jiraProjects(req.user),
+      helper.starredRepositories(githubName, token),
+      helper.ownRepositories(githubName, token),
+    ]).then((repos) => {
+      let merged = [].concat(...repos);
+      merged = new Set(merged);
+      res.status(200).json(Array.from(merged));
+    }).catch((reason) => {
+      res.status(400).json('Wrong Github name or Token');
+      console.log(`Get Repositories Error: ${reason}`);
+    });
+  });
 
 module.exports = router;

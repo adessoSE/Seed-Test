@@ -85,48 +85,6 @@ router.get('/issues/:projectKey', (req, res) => {
     res.sendStatus(401);
   }
 });
-// gets all project from user
-router.get('/projects', (req, res) => {
-  console.log('in jira projects')
-  if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined') {
-    console.log('in if')
-
-    const { Host } = req.user.jira;
-    const { AccountName } = req.user.jira;
-    const { Password } = req.user.jira;
-    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
-    const cookieJar = request.jar();
-    const options = {
-      method: 'GET',
-      url: `http://${Host}/rest/api/2/issue/createmeta`,
-      jar: cookieJar,
-      qs: {
-        type: 'page',
-        title: 'title',
-      },
-      headers: {
-        'cache-control': 'no-cache',
-        Authorization: `Basic ${auth}`,
-      },
-    };
-    request(options, (error) => {
-      if (error) {
-        res.status(500).json(error);
-        throw new Error(error);
-      }
-      request(options, (error2, response2, body) => {
-        if (error2) {
-          res.status(500).json(error);
-          throw new Error(error);
-        }
-        console.log(body);
-        res.status(200).json(body);
-      });
-    });
-  } else {
-    res.status(200).json([]);
-  }
-});
 
 router.post('/user/create/', (req, res) => {
   if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') {

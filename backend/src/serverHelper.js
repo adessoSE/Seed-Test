@@ -256,6 +256,48 @@ async function execReport(req, res, stories, mode, callback) {
   }
 }
 
+function jiraProjects(user){
+  return new Promise((resolve, reject) => {
+    if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
+      const { Host } = user.jira;
+      const { AccountName } = user.jira;
+      const { Password } = user.jira;
+      const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+      const cookieJar = request.jar();
+      const options = {
+        method: 'GET',
+        url: `http://${Host}/rest/api/2/issue/createmeta`,
+        jar: cookieJar,
+        qs: {
+          type: 'page',
+          title: 'title',
+        },
+        headers: {
+          'cache-control': 'no-cache',
+          Authorization: `Basic ${auth}`,
+        },
+      };
+      request(options, (error) => {
+        if (error) {
+          reject(error);
+        }
+        request(options, (error2, response2, body) => {
+          if (error2) {
+            reject(error);
+          }
+          body = body.map((value) => {
+            return {value, source: 'jira'}
+          })
+          console.log(body);
+          resolve(body)
+        });
+      });
+    } else {
+      resolve([])
+    }
+  });
+}
+
 
 function setOptions(reportTime) {
   const OSName = process.platform;
@@ -274,13 +316,16 @@ function execRepositoryRequests(link, user, password) {
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
-        const names = [];
+        let names = [];
         let index = 0;
         for (const repo of data) {
           const repoName = repo.full_name;
           names[index] = repoName;
           index++;
         }
+        names = names.map((value) => {
+          return {value, source: 'github'}
+        })
         resolve(names);
       } else if (this.readyState === 4) {
         reject(this.status);
@@ -405,6 +450,7 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 }
 
 module.exports = {
+  jiraProjects,
   getGithubStories,
   options,
   deleteHtmlReport,

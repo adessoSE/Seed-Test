@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
+import { RepositoryContainer } from '../model/RepositoryContainer';
+import { Router, ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -15,8 +17,20 @@ export class ParentComponent implements OnInit {
   selectedStory: Story;
   selectedScenario: Scenario;
   formtosubmit: [""];
+  repository: RepositoryContainer;
 
-  constructor(public apiService: ApiService) {
+  constructor(public apiService: ApiService, public route: ActivatedRoute) {
+    this.route.params.subscribe(params => {
+      console.log('params', params);
+        let value: string = params.value;
+        let source: string = params.source;
+        this.repository = {value, source};
+        if(this.apiService.urlReceived) {
+          this.loadStories();
+        }else {
+          this.apiService.getBackendInfo()
+        }
+    });
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -33,11 +47,9 @@ export class ParentComponent implements OnInit {
   }
 
   loadStories() {
-    const repository = localStorage.getItem('repository');
-    const repositorytype = localStorage.getItem('repositoryType');
-    if (repositorytype === 'github') {
+    if (this.repository.source === 'github') {
       this.apiService
-          .getStories(repository)
+          .getStories(this.repository)
           .subscribe((resp: Story[]) => {
             this.stories = resp;
           });

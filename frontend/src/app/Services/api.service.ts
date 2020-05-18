@@ -9,6 +9,7 @@ import { Scenario } from '../model/Scenario';
 import { Background } from '../model/Background';
 import { User } from '../model/User';
 import {CookieService} from 'ngx-cookie-service'
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Injectable({
     providedIn: 'root'
@@ -48,7 +49,7 @@ export class ApiService {
     public getRepositories(): Observable<string[]> {
         this.apiServer = localStorage.getItem('url_backend');
       
-        const str = this.apiServer + '/github/repositories'; 
+        const str = this.apiServer + '/user/repositories'; 
         
         return this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {
@@ -150,11 +151,10 @@ export class ApiService {
         }
     }
 
-    public getStories(repository: string): Observable<Story[]> {
+    public getStories(repository: RepositoryContainer): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
-        if(!repository) return null;
         return this.http
-            .get<Story[]>(this.apiServer + '/github/stories/' + repository , this.getOptions())
+            .get<Story[]>(this.apiServer + '/github/stories/' + repository.value, this.getOptions())
             .pipe(tap(resp => {
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));

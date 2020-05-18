@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Component({
     selector: 'app-login',
@@ -32,8 +33,6 @@ export class LoginComponent implements OnInit {
         })
     }
 
-    
-
     ngOnInit() {
     }
 
@@ -43,10 +42,9 @@ export class LoginComponent implements OnInit {
                 this.error = resp.message;
             } else if (resp.message === 'repository') {
                 let repository = resp.repository;
-                localStorage.setItem('repositoryType', 'github');
-                localStorage.setItem('repository', repository);
                 this.repositoriesLoading = false;
-                this.router.navigate(['/']);
+                let obj = {value: repository.value, source: repository.source}
+                this.router.navigate(['main', obj]);
             } else {
                 this.getRepositories()
             }
@@ -54,7 +52,6 @@ export class LoginComponent implements OnInit {
     }
 
     async login(form: NgForm) {
-        //localStorage.setItem('email', form.value.email)
         this.repositoriesLoading = true;
         this.error = undefined;
         let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
@@ -63,9 +60,8 @@ export class LoginComponent implements OnInit {
             this.error = response.message;
         } else if (response.message === 'repository') {
             let repository = response.repository;
-            localStorage.setItem('repositoryType', 'github');
-            localStorage.setItem('repository', repository);
-            this.router.navigate(['/']);
+            let obj = {value: repository.value, source: repository.source}
+            this.router.navigate(['main', obj]);
         } else {
             this.getRepositories()
         }
@@ -77,23 +73,14 @@ export class LoginComponent implements OnInit {
 
     getRepositories() {
         this.repositoriesLoading = true;
-        let tmp_repositories = [];
         this.apiService.getRepositories().subscribe((resp) => {
-            tmp_repositories = resp;
-            localStorage.setItem('githubCount', `${tmp_repositories.length}`);
-            this.apiService.getProjectsFromJira().subscribe((resp2) => {
-                this.repositoriesLoading = false;
-                this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
-                if(this.repositories.length <= 0){
-                    console.log('repositories empty')
-                    this.router.navigate(['/accountManagment'])
-                }
-                localStorage.setItem('jiraHost', this.testJiraHost);
-            }, (err) => {
-                this.repositoriesLoading = false;
-                this.error = err.error;
-                this.repositories = tmp_repositories;
-            });
+            console.log(resp)
+            this.repositories = resp;
+            this.repositoriesLoading = false;
+            if(this.repositories.length <= 0){
+                console.log('repositories empty')
+                this.router.navigate(['/accountManagment'])
+            }
         }, (err) => {
             this.error = err.error;
             this.repositoriesLoading = false;
@@ -116,18 +103,10 @@ export class LoginComponent implements OnInit {
         }
     }
 
-    selectRepository(userRepository: string) {
+    selectRepository(userRepository: RepositoryContainer) {
         const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-        ref.href = 'https://github.com/' + userRepository;
-        const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
-        if (index < 0) {
-            localStorage.setItem('repositoryType', 'github');
-        } else {
-            localStorage.setItem('repositoryType', 'jira');
-            localStorage.setItem('jiraKey', this.jirakeys[index]);
-        }
-        localStorage.setItem('repository', userRepository);
-        this.router.navigate(['/']);
+        ref.href = 'https://github.com/' + userRepository.value;
+        this.router.navigate(['main', userRepository]);
     }
 
     githubLogin() {

@@ -16,7 +16,7 @@ export const ROUTES = [
         component: AccountManagmentComponent
     },
     {
-        path: '',
+        path: 'main',
         component: ParentComponent,
         canActivate: [AuthGuard]
     },
