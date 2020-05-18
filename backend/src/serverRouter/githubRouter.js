@@ -28,9 +28,11 @@ router.get('/stories/:githubName?/:repository?', async (req, res) => {
   let githubName;
   let githubRepo;
   let token;
+  console.log(req.query)
+  let source = req.query.source;
   if(req.user){
-    githubName = req.params.githubName;
-    githubRepo = req.params.repository;
+    githubName = req.query.githubName;
+    githubRepo = req.query.repository;
     token = req.user.github.githubToken;
   }else{
     githubName = process.env.TESTACCOUNT_NAME;
