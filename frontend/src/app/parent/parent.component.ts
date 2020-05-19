@@ -17,20 +17,8 @@ export class ParentComponent implements OnInit {
   selectedStory: Story;
   selectedScenario: Scenario;
   formtosubmit: [""];
-  repository: RepositoryContainer;
 
-  constructor(public apiService: ApiService, public route: ActivatedRoute) {
-    this.route.params.subscribe(params => {
-      console.log('params', params);
-        let value: string = params.value;
-        let source: string = params.source;
-        this.repository = {value, source};
-        if(this.apiService.urlReceived) {
-          this.loadStories();
-        }else {
-          this.apiService.getBackendInfo()
-        }
-    });
+  constructor(public apiService: ApiService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -47,21 +35,14 @@ export class ParentComponent implements OnInit {
   }
 
   loadStories() {
-    if (this.repository.source === 'github') {
-      this.apiService
-          .getStories(this.repository)
-          .subscribe((resp: Story[]) => {
-            this.stories = resp;
-          });
-    } else {
-      this.apiService
-          .getIssuesFromJira(localStorage.getItem('jiraKey'))
-          .subscribe((resp: Story[]) => {
-            this.stories = resp;
-            console.log('Jira Response');
-            console.log(resp);
-          });
-    }
+    let value: string = localStorage.getItem('repository');
+    let source: string = localStorage.getItem('source');
+    let repository: RepositoryContainer = {value, source}
+    this.apiService
+      .getStories(repository)
+      .subscribe((resp: Story[]) => {
+        this.stories = resp;
+    });
   }
 
   setSelectedStory(story: Story){

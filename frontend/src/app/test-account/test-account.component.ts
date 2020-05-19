@@ -14,8 +14,8 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 })
 export class TestAccountComponent extends ParentComponent implements OnInit {
 
-  constructor(public apiService: ApiService, public route: ActivatedRoute) {
-    super(apiService, route);
+  constructor(public apiService: ApiService) {
+    super(apiService);
     this.loadStories()
   }
 

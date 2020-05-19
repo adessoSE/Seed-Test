@@ -170,4 +170,49 @@ router.get('/repositories', (req, res) => {
     });
   });
 
+
+// get stories from github
+router.get('/stories', async (req, res) => {
+    console.log(req.query)
+    let source = req.query.source;
+    if(source == 'github' || !source){
+        try{
+        let githubName;
+        let githubRepo;
+        let token;
+        if(req.user){
+            githubName = req.query.githubName;
+            githubRepo = req.query.repository;
+            token = req.user.github.githubToken;
+          }else{
+            githubName = process.env.TESTACCOUNT_NAME;
+            githubRepo = process.env.TESTACCOUNT_REPO;
+            token = process.env.TESTACCOUNT_TOKEN;
+        }
+        let stories = await helper.getGithubStories(githubName, githubRepo, token, res, req)
+        res.status(200).json(stories);
+        }catch(err){
+            if(reason instanceof GithubError){
+                res.status(401).send(error.message);
+              }
+              else {
+                res.status(503).send(error.message);
+            }
+        }
+    }else if(source == 'jira'){
+        try{
+            let projectKey = req.query.projectKey;
+            let stories = await helper.getJiraIssues(req.user, projectKey)
+            res.status(200).json(stories);
+        }catch(err){
+            if(reason instanceof GithubError){
+                res.status(401).send(error.message);
+              }
+              else {
+                res.status(503).send(error.message);
+              }
+        }
+    }
+  });
+
 module.exports = router;

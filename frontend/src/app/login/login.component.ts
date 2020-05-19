@@ -11,7 +11,7 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 })
 export class LoginComponent implements OnInit {
 
-    repositories: string[];
+    repositories: RepositoryContainer[];
     jirakeys: string[];
     error: string;
     private testJiraHost = '';
@@ -37,14 +37,12 @@ export class LoginComponent implements OnInit {
     }
 
     loginGithubToken(login: string, id: any){
+        let repository = localStorage.getItem('repository')
+        let source = localStorage.getItem('source')
         this.apiService.loginGithubToken(login, id).subscribe((resp) => {
             if (resp.status === 'error') {
-                this.error = resp.message;
-            } else if (resp.message === 'repository') {
-                let repository = resp.repository;
                 this.repositoriesLoading = false;
-                let obj = {value: repository.value, source: repository.source}
-                this.router.navigate(['main', obj]);
+                this.error = resp.message;
             } else {
                 this.getRepositories()
             }
@@ -55,13 +53,11 @@ export class LoginComponent implements OnInit {
         this.repositoriesLoading = true;
         this.error = undefined;
         let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
+        let repository = localStorage.getItem('repository')
+        let source = localStorage.getItem('source')
         if (response.status === 'error') {
             this.repositoriesLoading = false;
             this.error = response.message;
-        } else if (response.message === 'repository') {
-            let repository = response.repository;
-            let obj = {value: repository.value, source: repository.source}
-            this.router.navigate(['main', obj]);
         } else {
             this.getRepositories()
         }
@@ -72,15 +68,23 @@ export class LoginComponent implements OnInit {
     }
 
     getRepositories() {
+        let value = localStorage.getItem('repository')
+        let source = localStorage.getItem('source')
+        let repository: RepositoryContainer = {value, source}
         this.repositoriesLoading = true;
-        this.apiService.getRepositories().subscribe((resp) => {
+        this.apiService.getRepositories().subscribe((resp: RepositoryContainer[]) => {
             console.log(resp)
-            this.repositories = resp;
-            this.repositoriesLoading = false;
-            if(this.repositories.length <= 0){
+            if(resp.length <= 0){
                 console.log('repositories empty')
                 this.router.navigate(['/accountManagment'])
             }
+            resp.forEach((elem) => {
+                if(elem.value == repository.value && elem.source == repository.source){
+                    this.router.navigate(['']);
+                }
+            })
+            this.repositories = resp;
+            this.repositoriesLoading = false;
         }, (err) => {
             this.error = err.error;
             this.repositoriesLoading = false;
@@ -106,7 +110,9 @@ export class LoginComponent implements OnInit {
     selectRepository(userRepository: RepositoryContainer) {
         const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
         ref.href = 'https://github.com/' + userRepository.value;
-        this.router.navigate(['main', userRepository]);
+        localStorage.setItem('repository', userRepository.value)
+        localStorage.setItem('source', userRepository.source)
+        this.router.navigate(['']);
     }
 
     githubLogin() {

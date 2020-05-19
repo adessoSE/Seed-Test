@@ -23,34 +23,7 @@ router
    next();
   });
 
-// get stories from github
-router.get('/stories/:githubName?/:repository?', async (req, res) => {
-  let githubName;
-  let githubRepo;
-  let token;
-  console.log(req.query)
-  let source = req.query.source;
-  if(req.user){
-    githubName = req.query.githubName;
-    githubRepo = req.query.repository;
-    token = req.user.github.githubToken;
-  }else{
-    githubName = process.env.TESTACCOUNT_NAME;
-    githubRepo = process.env.TESTACCOUNT_REPO;
-    token = process.env.TESTACCOUNT_TOKEN;
-  }
-  try{
-    let results = await helper.getGithubStories(githubName, githubRepo, token, res, req)
-    if(results) res.status(200).json(results);
-  } catch(error){
-    if(error instanceof GithubError){
-      res.status(401).send(error.message);
-    }
-    else {
-      res.status(503).send(error.message);
-    }
-  }
-});
+
 
 // submits new StepType-Request as an Issue to our github
 router.post('/submitIssue/', (req, res) => {

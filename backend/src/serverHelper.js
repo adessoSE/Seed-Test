@@ -148,8 +148,6 @@ async function getGithubStories(githubName, githubRepo, token, res, req){
   const headers = {
     Authorization: `token ${token}`,
   };
-  let repository = `${githubName}/${githubRepo}`
-  //if(req.user) await mongo.setLastRepository(req.user._id, repository);
 
   let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
       if (response.status === 401) {
@@ -449,8 +447,68 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
   return story;
 }
 
+function getJiraIssues(user, projectKey){
+  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' || projectKey != 'null') {
+    const { Host } = user.jira;
+    const { AccountName } = user.jira;
+    const { Password } = user.jira;
+    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+    const cookieJar = request.jar();
+    const tmpStories = [];
+    const options = {
+      method: 'GET',
+      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+      jar: cookieJar,
+      qs: {
+        type: 'page',
+        title: 'title',
+      },
+      headers: {
+        'cache-control': 'no-cache',
+        Authorization: `Basic ${auth}`,
+      },
+    };
+    request(options, (error) => {
+      if (error) {
+        res.status(500).json(error);
+        throw new Error(error);
+      }
+      request(options, (error2, response2, body) => {
+        if (error2) {
+          res.status(500).json(error);
+          throw new Error(error);
+        }
+        const json = JSON.parse(body).issues;
+        for (const issue of json) {
+          const story = {
+            story_id: issue.id,
+            title: issue.fields.summary,
+            body: issue.fields.description,
+            state: issue.fields.status.name,
+            issue_number: issue.id,
+          };
+          if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+            story.assignee = issue.fields.assignee.name;
+            story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+          } else {
+            story.assignee = 'unassigned';
+            story.assignee_avatar_url = unassignedAvatarLink;
+          }
+          tmpStories.push(fuseGitWithDb(story, issue.id));
+        }
+        return Promise.all(tmpStories)
+      });
+    });
+  } else {
+    return new Promise((resolve, reject) => {
+      reject('No Jira')
+    })
+  }
+}
+
 module.exports = {
   jiraProjects,
+  getJiraIssues,
   getGithubStories,
   options,
   deleteHtmlReport,
