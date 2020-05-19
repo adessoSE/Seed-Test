@@ -19,27 +19,33 @@
                     </label>
                 </div>
             </div>
-            <div class="grid github" id="githubDiv" *ngIf="github!==null">
+            <div class="grid github" id="githubDiv" *ngIf="github">
                 <div class="uk-card-title"><span class="header">Github</span></div>
                 <div class="uk-form-horizontal">
                     <label>
-                        Github-Token
-                        <input [defaultValue]="github['githubToken']">
+                        Github-Account:
+                        <label>{{github['login']}}</label>
                     </label>
                 </div>
-                <div class="uk-form-horizontal">
-                    <label>
-                        Github-Name
-                        <input [defaultValue]="github['githubAccountName']">
-                    </label>
-                </div>
+                <a class="githubLoginContainer" (click)="disconnectGithub()">
+                    <div class="githubLogin" >
+                       <p>Disconnect Github</p>
+                    </div>
+                 </a>
             </div>
-            <div id="noGithubDiv" *ngIf="github===null">
-                <button (click)="login('Github')">Login to Github</button>
+            <div class="grid github" *ngIf="!github">
+                <div class="uk-card-title"><span class="header">Github</span></div>
+                <a class="githubLoginContainer" (click)="login()">
+                    <div class="githubLogin" >
+                       <img src ="../assets/github-logo.png" >
+                       <p>Connect Github</p>
+                    </div>
+                 </a>
             </div>
+
             <div class="grid jira">
                 <div class="uk-card-title"><span class="header">Jira</span></div>
-                <div id="jiraDiv" *ngIf="jira!==null">
+                <div id="jiraDiv" *ngIf="jira">
                     <div class="uk-form-horizontal">
                         <label>
                             Jira-Name
@@ -60,7 +66,7 @@
                     </div>
                 </div>
                 <div id="ChangeJiraDiv">
-                    <button class="std_button" id="change-jira" (click)="login('Jira')">Login to Jira</button>
+                    <button class="std_button" id="change-jira" (click)="jiraLogin('Jira')">Login to Jira</button>
                 </div>
             </div>
         </div>

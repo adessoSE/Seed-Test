@@ -11,10 +11,11 @@ import {LoginFormComponent} from '../login-form/login-form.component';
 export class AccountManagmentComponent implements OnInit {
     @ViewChild('loginForm') modalService: LoginFormComponent;
 
-    email = null;
-    password = null;
-    github = null;
-    jira = null;
+    email: string;
+    password: string;
+    github: any;
+    jira: any;
+    id: string;
 
     constructor(public apiService: ApiService, router: Router) {
         router.events.forEach((event) => {
@@ -23,7 +24,14 @@ export class AccountManagmentComponent implements OnInit {
             }
         });
     }
-    login(type) {
+    login() {
+        if(this.email) {
+            localStorage.setItem('userId', this.id)
+            this.apiService.githubAuthentication();
+        }
+    }
+
+    jiraLogin(type){
         this.modalService.open(type);
     }
     updateSite(report) {
@@ -31,6 +39,7 @@ export class AccountManagmentComponent implements OnInit {
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {
                 console.log(user);
+                this.id = user._id;
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];
                 }
@@ -51,4 +60,9 @@ export class AccountManagmentComponent implements OnInit {
     ngOnInit() {
     }
 
+    disconnectGithub(){
+        this.apiService.disconnectGithub().subscribe((resp) => {
+            window.location.reload();
+        });
+    }
 }

@@ -19,27 +19,42 @@ export class LoginComponent implements OnInit {
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.route.queryParams.subscribe((params) => {
             if (params.login) {
-                this.apiService.loginGihubToken(params.login, params.id).subscribe((resp) => {
-                    if (resp.status === 'error') {
-                        this.error = resp.message;
-                    } else if (resp.message === 'repository') {
-                        let repository = resp.repository;
-                        localStorage.setItem('repositoryType', 'github');
-                        localStorage.setItem('repository', repository);
-                        this.repositoriesLoading = false;
-                        this.router.navigate(['/']);
-                    } else {
-                        this.getRepositories()
-                    }
-                })
+                let userId = localStorage.getItem('userId');
+                localStorage.removeItem('userId')
+                if (userId){
+                   this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
+                       this.loginGithubToken(params.login, params.id);
+                   });
+                } else {
+                    this.loginGithubToken(params.login, params.id);
+                }
             }
         })
     }
 
+    
+
     ngOnInit() {
     }
 
+    loginGithubToken(login: string, id: any){
+        this.apiService.loginGithubToken(login, id).subscribe((resp) => {
+            if (resp.status === 'error') {
+                this.error = resp.message;
+            } else if (resp.message === 'repository') {
+                let repository = resp.repository;
+                localStorage.setItem('repositoryType', 'github');
+                localStorage.setItem('repository', repository);
+                this.repositoriesLoading = false;
+                this.router.navigate(['/']);
+            } else {
+                this.getRepositories()
+            }
+        })
+    }
+
     async login(form: NgForm) {
+        //localStorage.setItem('email', form.value.email)
         this.repositoriesLoading = true;
         this.error = undefined;
         let response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise()
@@ -69,6 +84,10 @@ export class LoginComponent implements OnInit {
             this.apiService.getProjectsFromJira().subscribe((resp2) => {
                 this.repositoriesLoading = false;
                 this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
+                if(this.repositories.length <= 0){
+                    console.log('repositories empty')
+                    this.router.navigate(['/accountManagment'])
+                }
                 localStorage.setItem('jiraHost', this.testJiraHost);
             }, (err) => {
                 this.repositoriesLoading = false;
@@ -82,18 +101,24 @@ export class LoginComponent implements OnInit {
     }
 
     filterProjects(resp) {
-        let projectNames = [];
-        let projectKeys = [];
-        JSON.parse(resp)['projects'].forEach(entry => {
-            projectNames = projectNames.concat(`jira/${entry['name']}`);
-            projectKeys = projectKeys.concat(`${entry['key']}`);
-        });
-        this.jirakeys = projectKeys;
-        console.log(this.jirakeys);
-        return projectNames;
+        try{
+            let projectNames = [];
+            let projectKeys = [];
+            JSON.parse(resp)['projects'].forEach(entry => {
+                projectNames = projectNames.concat(`jira/${entry['name']}`);
+                projectKeys = projectKeys.concat(`${entry['key']}`);
+            });
+            this.jirakeys = projectKeys;
+            console.log(this.jirakeys);
+            return projectNames;
+        }catch(error) {
+            return []
+        }
     }
 
     selectRepository(userRepository: string) {
+        const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+        ref.href = 'https://github.com/' + userRepository;
         const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
         if (index < 0) {
             localStorage.setItem('repositoryType', 'github');

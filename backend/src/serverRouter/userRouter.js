@@ -108,6 +108,17 @@ router.post('/githubRegister', async (req, res) => {
     }
 });
 
+router.post('/mergeGithub', async (req, res) => {
+    let {userId, login, id} = req.body;
+    id = parseInt(id);
+    try{
+        let user = await mongo.mergeGithub(userId, login, id)
+        res.json(user)
+    }catch(error){
+        res.sendStatus(400)
+    }
+});
+
 
 // registers user
 router.post('/register', async (req, res) => {

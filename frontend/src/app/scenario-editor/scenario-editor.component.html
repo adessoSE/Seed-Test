@@ -62,7 +62,10 @@
         </div>
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div class="text-inline getBackgroundList" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
+            <div class="text-inline" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag>
+              <div class="dragIconContainer" cdkDragHandle>
+                <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
+              </div>
               <button id="{{'scenario_' + i + '_delete_step_' + j}}" a
                 uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
                 (click)="removeStepFromScenario(currentStep.stepType, j);">
@@ -72,11 +75,11 @@
                 <input id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
                  type="text" value="{{currentStep.values[0]}}" on-change="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" />
                  {{currentStep.mid}}
-                <input id="{{'scenario_' + i + '_input_mid_' + j}}"#step_type_input2 *ngIf="currentStep.values[1] != null"
+                <input id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
                  type="text" value="{{currentStep.values[1]}}" on-change="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" />
               </p>
               {{currentStep.post}}
-              <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}"#step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
+              <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
                 type="text" value="{{value}}" on-change="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" />
             </div>
           </div>

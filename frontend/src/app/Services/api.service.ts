@@ -57,6 +57,27 @@ export class ApiService {
             catchError(this.handleError));
     } 
 
+    disconnectGithub(){
+        let str = this.apiServer + '/github/disconnectGithub'
+        
+        return this.http.delete<any>(str, this.getOptions())
+        .pipe(tap(resp => {
+          //this.getStoriesEvent.emit(resp);
+        }),
+          catchError(this.handleError));
+    }
+
+    mergeAccountGithub(userId: string, login: string, id: any) {
+        let str = this.apiServer + '/user/mergeGithub'
+        let obj = {userId, login, id}
+
+        return this.http.post<any>(str, obj, this.getOptions())
+        .pipe(tap(resp => {
+          //this.getStoriesEvent.emit(resp);
+        }),
+          catchError(this.handleError));
+    }
+
     public githubAuthentication() {
         let scope = 'repo'
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
@@ -64,7 +85,7 @@ export class ApiService {
         window.location.href = s;
     }
 
-    public loginGihubToken(login: string, id){
+    public loginGithubToken(login: string, id){
         const str = this.apiServer + '/user/githubLogin'
         let user = {login, id}
 
@@ -130,6 +151,7 @@ export class ApiService {
 
     public getStories(repository: string): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
+        if(!repository) return null;
         return this.http
             .get<Story[]>(this.apiServer + '/github/stories/' + repository , this.getOptions())
             .pipe(tap(resp => {
@@ -188,10 +210,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public getUserData(): Observable<User[]> {
+    public getUserData(): Observable<User> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<User[]>(this.apiServer + '/mongo/user/', this.getOptions())
+            .get<User>(this.apiServer + '/mongo/user/', this.getOptions())
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
