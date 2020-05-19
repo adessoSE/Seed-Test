@@ -3,9 +3,6 @@
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
     <h1 id="loginFont">Login</h1>
-    <p class="noAccount">No account? 
-      <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
-    </p>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <hr>
       <br>
@@ -25,6 +22,10 @@
     <br>
     <p>or</p>
     <hr>
+    <br>
+    <p class="noAccount">No account? 
+      <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
+    </p>
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
     <a class="githubLoginContainer" (click)="githubLogin();">
       <div class="githubLogin" >
