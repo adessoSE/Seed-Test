@@ -47,7 +47,9 @@
   }
   
   #story{
-    border: 1px solid #999;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+    border-bottom: 1px solid #999;
   }
 
   
@@ -221,10 +223,6 @@
     font-size: 17px;
   }
   
-  .padRight{
-    padding-right: 10px;
-  }
-  
   .marginLeft{
     margin-left: 40px;
     display:inline-block;
@@ -233,7 +231,6 @@
   span.notPassed{
     background-color: red;
   }
-
 
   span.passed{
     background-color: green;

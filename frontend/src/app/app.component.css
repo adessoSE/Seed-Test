@@ -145,8 +145,8 @@
   outline: none;  
 }
 
-.rightButton:hover {
-  color: #56595e;
+.rightButton:hover, .menuButton:hover {
+  color: rgb(121, 121, 121);
 }
 
 a:hover{
@@ -158,12 +158,14 @@ a:hover{
 }
 
 .menuButton{
+  color: white;
   outline: none;  
   font-style: inherit;
   padding: 13px 20px;
   border: 0px;
   background: #999;
   float: left;
+  transition: 0.3s;
 }
 
 .right-button:focus {outline:0 !important;}
@@ -175,15 +177,10 @@ a:hover{
   background-color: #f1647e;
 }
 
-.menuButton:hover{
-  color:#56595e
-}
-
 .menulist{
   list-style: none;
   background-color: #f8f8f8;
 }
-
 
 .menuSelection{
   font-size: 100%;
@@ -249,6 +246,15 @@ a:hover{
   margin-right: 10px;
   margin-left: 5px;
   outline: none;  
+}
+
+#githubHref{
+  color: white;
+  transition: 0.3s;
+}
+
+#githubHref:hover{
+  color: rgb(121, 121, 121);
 }
 
 @media screen and (max-width: 600px) {
