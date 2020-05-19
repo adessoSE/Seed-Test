@@ -296,6 +296,12 @@ function jiraProjects(user){
   });
 }
 
+function uniqueRepositories(repositories){
+  return repositories.filter((repo, index, self) =>
+      index === self.findIndex((t) => (
+        t.source === repo.source && t.value === repo.value
+      )));
+}
 
 function setOptions(reportTime) {
   const OSName = process.platform;
@@ -507,6 +513,7 @@ function getJiraIssues(user, projectKey){
 }
 
 module.exports = {
+  uniqueRepositories,
   jiraProjects,
   getJiraIssues,
   getGithubStories,

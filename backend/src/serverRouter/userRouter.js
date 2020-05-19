@@ -45,23 +45,15 @@ router.post('/login', (req, res, next) => {
                 if(err){
                     throw new UserError(err)
                 }else {
-                    if(req.user.github && req.user.github.lastRepository){
-                        let repository = {value: req.user.github.lastRepository, source: 'github'}
-                        let response = {
-                            status: 'success',
-                            message: 'repository',
-                            repository
-                        };
-                        res.json(response);
-                    } else {
-                        res.json(user);
-                    }
+                    res.json(user); 
                 }
             });
         })
         (req, res, next)
     }catch(error){
         if(error instanceof UserError){
+            res.status(401).json(error);
+        }else{
             res.status(401).json(error);
         }
     }
@@ -82,17 +74,7 @@ router.post('/githubLogin', (req, res) =>{
             if(err){
                 return res.json(err);
             }else {
-                if(req.user.github.lastRepository){
-                    let response = {
-                        status: 'success',
-                        message: 'repository',
-                        repository: req.user.github.lastRepository
-                    };
-                    res.json(response);
-
-                } else {
-                    res.json(user);
-                }
+                res.json(user);
             }
         });
     })(req,res);
@@ -146,10 +128,6 @@ router.get('/repositories', (req, res) => {
       if(req.user.github){
         githubName = req.user.github.login;
         token = req.user.github.githubToken;
-      } else {
-        res.status(200).json([])
-        return;
-        //throw new UserError('No Github')
       }
     }else {
       githubName = process.env.TESTACCOUNT_NAME;
@@ -162,8 +140,9 @@ router.get('/repositories', (req, res) => {
       helper.ownRepositories(githubName, token),
     ]).then((repos) => {
       let merged = [].concat(...repos);
-      merged = new Set(merged);
-      res.status(200).json(Array.from(merged));
+      //remove duplicates
+      merged = helper.uniqueRepositories(merged);
+      res.status(200).json(merged);
     }).catch((reason) => {
       res.status(400).json('Wrong Github name or Token');
       console.log(`Get Repositories Error: ${reason}`);

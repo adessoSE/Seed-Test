@@ -29,23 +29,32 @@ router
 router.post('/submitIssue/', (req, res) => {
   const { body } = req;
   const token = process.env.TESTACCOUNT_TOKEN;
-  fetch('https://api.github.com/repos/adessoAG/Seed-Test/issues', {
-    method: 'post',
-    body: JSON.stringify(body),
-    headers: { Authorization: `token ${token}` },
-  })
-    .then(response => response.json())
-    .then((json) => {
-      res.status(200).json(json);
-    });
+  try{
+    fetch('https://api.github.com/repos/adessoAG/Seed-Test/issues', {
+      method: 'post',
+      body: JSON.stringify(body),
+      headers: { Authorization: `token ${token}` },
+    })
+      .then(response => response.json())
+      .then((json) => {
+        res.status(200).json(json);
+      });
+  } catch(e){
+    res.status(400).json(e);
+  }
+  
 });
 
 router.delete('/disconnectGithub', (req, res) => {
   let user = req.user;
   if(user && user.github){
-    delete user.github;
-    let result = mongo.disconnectGithub(user);
-    res.status(200).json(result);
+    try{
+      delete user.github;
+      let result = mongo.disconnectGithub(user);
+      res.status(200).json(result);
+    } catch(e){
+      res.status(400).json(e);
+    }
   }else {
     res.sendStatus(400);
   }
