@@ -275,13 +275,15 @@ export class ApiService {
     // demands testing from the server
     public runTests(storyID: number, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
-
+        let value = localStorage.getItem('repository');
+        let source = localStorage.getItem('source');
+        let params = {value, source}
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, { responseType: 'text' });
+                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, { responseType: 'text', withCredentials: true, params});
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text' });
+            .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
     }
 
     isLoggedIn(): boolean {

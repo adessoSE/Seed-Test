@@ -375,6 +375,21 @@ function runReport(req, res, stories, mode) {
       })
 
       testStatus = testPassed(failed, passed);
+      if(req.query.source == 'github'){
+        let comment =  `# Test Result of ${scenario.name} ${reportTime}\n`;
+        comment = comment + 'Test passed: ' + testStatus + '\n';
+        comment = comment + 'Steps passed: '+ passed + '\n';
+        comment = comment + 'Steps failed: '+ failed + '\n';
+        comment = comment + 'Steps skiped: '+ skipped + '\n';
+        //comment = comment + 'Scenarios passed: '+ scenarioPassed + '\n';
+        //comment = comment + 'Scenarios failed: '+ passed + '\n';
+        //comment = comment + 'Scenarios skiped: '+ passed + '\n';
+
+        let githubValue = req.query.value.split('/')
+        let githubName = githubValue[0];
+        let githubRepo = githubValue[1];
+        postComment(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken)
+      }
 
       if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
@@ -402,6 +417,23 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
     story.scenarios[index] = scenario;
   }
   return story;
+}
+
+function postComment(storyID, comment, githubName, githubRepo, password){
+
+  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${storyID}/comments`
+
+  let body = { body: comment};
+
+  const request = new XMLHttpRequest();
+  request.open('POST', link, true, githubName, password);
+  request.send(JSON.stringify(body));
+  request.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+      console.log(data)
+    }
+  };
 }
 
 module.exports = {
