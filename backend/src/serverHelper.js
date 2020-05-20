@@ -348,7 +348,7 @@ function runReport(req, res, stories, mode) {
       let failed = 0;
       let skipped = 0;
       let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID)
-
+      let scenariosTested = {passed: 0, failed: 0}
       json[0].elements.forEach((d) => {
         let scenarioPassed = 0;
         let scenarioFailed = 0;
@@ -371,24 +371,22 @@ function runReport(req, res, stories, mode) {
               console.log('Status default: ' + s.result.status);
           }
         })
+        if(testPassed(scenarioFailed, scenarioPassed)){
+          scenariosTested.passed += 1;
+        } else {
+          scenariosTested.failed += 1;
+        }
         story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed), d.tags[0].name, story)
       })
 
       testStatus = testPassed(failed, passed);
       if(req.query.source == 'github'){
-        let comment =  `# Test Result of ${scenario.name} ${reportTime}\n`;
-        comment = comment + 'Test passed: ' + testStatus + '\n';
-        comment = comment + 'Steps passed: '+ passed + '\n';
-        comment = comment + 'Steps failed: '+ failed + '\n';
-        comment = comment + 'Steps skiped: '+ skipped + '\n';
-        //comment = comment + 'Scenarios passed: '+ scenarioPassed + '\n';
-        //comment = comment + 'Scenarios failed: '+ passed + '\n';
-        //comment = comment + 'Scenarios skiped: '+ passed + '\n';
-
+        let comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested, reportTime, story, scenario, mode);
         let githubValue = req.query.value.split('/')
         let githubName = githubValue[0];
         let githubRepo = githubValue[1];
-        postComment(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken)
+        postComment(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
+        addLabelToIssue(githubName, githubRepo, req.user.github.githubToken, story.issue_number, 'Seed-Test Test Fail :x:')
       }
 
       if (scenarioID && scenario) {
@@ -419,11 +417,47 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
   return story;
 }
 
-function postComment(storyID, comment, githubName, githubRepo, password){
+function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode){
+  let comment = '';
+  if(mode == 'scenario'){
+    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
+    comment = comment + '## Tested Scenario: "' + scenario.name + '"\n';
+    comment = comment + '### Test passed: ' + testStatus + '\n';
+    comment = comment + 'Steps passed: '+ stepsPassed + '\n';
+    comment = comment + 'Steps failed: '+ stepsFailed + '\n';
+    comment = comment + 'Steps skipped: '+ stepsSkipped + '\n';
+  } else{
+    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
+    comment = comment + '## Tested Story: "' + story.title + '"\n';
+    comment = comment + '### Test passed: ' + testStatus + '\n';
+    comment = comment + 'Scenarios passed: '+ scenariosTested.passed + '\n';
+    comment = comment + 'Scenarios failed: '+ scenariosTested.failed + '\n';
+  }
+  return comment;
+}
 
-  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${storyID}/comments`
+function postComment(issueNumber, comment, githubName, githubRepo, password){
+
+  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`
 
   let body = { body: comment};
+
+  const request = new XMLHttpRequest();
+  request.open('POST', link, true, githubName, password);
+  request.send(JSON.stringify(body));
+  request.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+      console.log(data)
+    }
+  };
+}
+
+function addLabelToIssue(githubName, githubRepo, password, issueNumber, label){
+
+  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`
+
+  let body = { labels: [label]};
 
   const request = new XMLHttpRequest();
   request.open('POST', link, true, githubName, password);
