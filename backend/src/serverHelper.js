@@ -386,7 +386,10 @@ function runReport(req, res, stories, mode) {
         let githubName = githubValue[0];
         let githubRepo = githubValue[1];
         postComment(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
-        addLabelToIssue(githubName, githubRepo, req.user.github.githubToken, story.issue_number, 'Seed-Test Test Fail :x:')
+
+        if(mode == 'feature'){
+          updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number)
+        }
       }
 
       if (scenarioID && scenario) {
@@ -399,6 +402,20 @@ function runReport(req, res, stories, mode) {
       }
     });
   });
+}
+
+function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumber){
+  let removeLabel;
+  let addedLabel;
+  if(testStatus){
+    removeLabel = 'Seed-Test Test Fail :x:'
+    addedLabel = 'Seed-Test Test Success :white_check_mark:'
+  }else {
+    removeLabel = 'Seed-Test Test Success :white_check_mark:'
+    addedLabel = 'Seed-Test Test Fail :x:'
+  }
+  removeLabelOfIssue(githubName, githubRepo, githubToken, issueNumber, removeLabel)
+  addLabelToIssue(githubName, githubRepo, githubToken, issueNumber, addedLabel)
 }
 
 function testPassed(failed, passed) {
@@ -423,15 +440,15 @@ function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, 
     comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
     comment = comment + '## Tested Scenario: "' + scenario.name + '"\n';
     comment = comment + '### Test passed: ' + testStatus + '\n';
-    comment = comment + 'Steps passed: '+ stepsPassed + '\n';
-    comment = comment + 'Steps failed: '+ stepsFailed + '\n';
-    comment = comment + 'Steps skipped: '+ stepsSkipped + '\n';
+    comment = comment + 'Steps passed: '+ stepsPassed + ' :white_check_mark:\n';
+    comment = comment + 'Steps failed: '+ stepsFailed + ' :x:\n';
+    comment = comment + 'Steps skipped: '+ stepsSkipped + ' :warning:\n';
   } else{
     comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
     comment = comment + '## Tested Story: "' + story.title + '"\n';
     comment = comment + '### Test passed: ' + testStatus + '\n';
-    comment = comment + 'Scenarios passed: '+ scenariosTested.passed + '\n';
-    comment = comment + 'Scenarios failed: '+ scenariosTested.failed + '\n';
+    comment = comment + 'Scenarios passed: '+ scenariosTested.passed + ' :x:\n';
+    comment = comment + 'Scenarios failed: '+ scenariosTested.failed + ' :white_check_mark:\n';
   }
   return comment;
 }
@@ -462,6 +479,22 @@ function addLabelToIssue(githubName, githubRepo, password, issueNumber, label){
   const request = new XMLHttpRequest();
   request.open('POST', link, true, githubName, password);
   request.send(JSON.stringify(body));
+  request.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+      console.log(data)
+    }
+  };
+}
+
+function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label){
+
+  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels/${label}`
+
+
+  const request = new XMLHttpRequest();
+  request.open('DELETE', link, true, githubName, password);
+  request.send();
   request.onreadystatechange = function () {
     if (this.readyState === 4 && this.status === 200) {
       const data = JSON.parse(request.responseText);
