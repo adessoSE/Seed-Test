@@ -28,4 +28,9 @@ router.get('/Scenario/:issueID/:scenarioID', (req, res) => {
   helper.runReport(req, res, stories, 'scenario');
 });
 
+router.get('/report/:reportName', (req, res) => {
+  let reportName = req.params.reportName;
+  helper.createReport(res, reportName);
+});
+
 module.exports = router;

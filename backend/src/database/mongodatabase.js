@@ -334,6 +334,33 @@ async function upsertEntry(storyID, updatedContent) {
   });
 }
 
+async function uploadReport(reportData) {
+  try{
+    let db = await connectDb()
+    dbo = db.db('Seed')
+    let collection = await dbo.collection('TestReport')
+    let result = await collection.insertOne(reportData);
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER", e)
+  }
+}
+
+async function getReport(reportName) {
+  try{
+    let report = {reportName}
+    let db = await connectDb()
+    dbo = db.db('Seed')
+    let collection = await dbo.collection('TestReport')
+    let result = await collection.findOne(report);
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER", e)
+  }
+}
+
 // create User in DB needs JsonObject User returns JsonObject(user)
 async function createUser(user) {
   try {
@@ -539,6 +566,8 @@ function installDatabase() {
 }
 
 module.exports = {
+  getReport,
+  uploadReport,
   disconnectGithub,
   mergeGithub,
   setLastRepository,

@@ -15,6 +15,7 @@ import {CookieService} from 'ngx-cookie-service'
 })
 
 export class ApiService {
+
     public apiServer: string = localStorage.getItem('url_backend');
     public token: string;
     public urlReceived = false;
@@ -31,6 +32,14 @@ export class ApiService {
 
     public getOptions() {
         return { withCredentials: true};
+    }
+
+    getReport(reportName: string) {
+        this.apiServer = localStorage.getItem('url_backend');
+        const str = this.apiServer + '/run/report/' + reportName;
+        return this.http.get(str,  { responseType: 'text', withCredentials: true})
+            .pipe(tap(resp => {}),
+            catchError(this.handleError));
     }
 
     public getProjectsFromJira() {

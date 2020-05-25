@@ -6,7 +6,7 @@ const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-
+const lodash = require('lodash')
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 const fetch = require('node-fetch');
@@ -225,7 +225,8 @@ function execReport2(req, res, stories, mode, story, callback) {
   const reportTime = Date.now();
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
-  const path3 = `features/reporting_${reportTime}.json`;
+  const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}`: `reporting_${reportTime}`;
+  const path3 =`features/${reportName}.json`;
 
   let cmd;
   if (mode === 'feature') {
@@ -238,12 +239,12 @@ function execReport2(req, res, stories, mode, story, callback) {
     if (error) {
       console.error(`exec error: ${error}`);
 
-      callback(reportTime, story, req.params.scenarioID);
+      callback(reportTime, story, req.params.scenarioID, reportName);
       return;
     }
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
-    callback(reportTime, story, req.params.scenarioID);
+    callback(reportTime, story, req.params.scenarioID, reportName);
   });
 }
 
@@ -257,12 +258,14 @@ async function execReport(req, res, stories, mode, callback) {
 }
 
 
-function setOptions(reportTime) {
+function setOptions(reportName) {
+  let myOptions = lodash.cloneDeep(options)
   const OSName = process.platform;
-  options.metadata.Platform = OSName;
-  options.name = 'Seed-Test Report';
-  options.jsonFile = `features/reporting_${reportTime}.json`;
-  options.output = `features/reporting_html_${reportTime}.html`;
+  myOptions.metadata.Platform = OSName;
+  myOptions.name = 'Seed-Test Report';
+  myOptions.jsonFile =`features/${reportName}.json`;
+  myOptions.output = `features/${reportName}.html`;
+  return myOptions
 }
 
 function execRepositoryRequests(link, user, password) {
@@ -334,16 +337,17 @@ function deleteHtmlReport(htmlReport) {
 
 
 function runReport(req, res, stories, mode) {
-  execReport(req, res, stories, mode, (reportTime, story, scenarioID) => {
-    setTimeout(deleteJsonReport, reportDeletionTime * 60000, `reporting_${reportTime}.json`);
-    setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
-    setOptions(reportTime);
-    reporter.generate(options);
-    res.sendFile(`/reporting_html_${reportTime}.html`, {root: rootPath});
+  execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
+    setTimeout(deleteJsonReport, reportDeletionTime * 60000, `${reportName}.json`);
+    setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `${reportName}.html`);
+    let reportOptions = setOptions(reportName);
+    reporter.generate(reportOptions);
+    res.sendFile(`/${reportName}.html`, {root: rootPath});
     //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
     let testStatus = false;
-    fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function (err, data) {
+    fs.readFile(`./features/${reportName}.json`, "utf8", function (err, data) {
       let json = JSON.parse(data)
+      uploadReport(reportName, reportTime, json, reportOptions);
       let passed = 0;
       let failed = 0;
       let skipped = 0;
@@ -381,7 +385,7 @@ function runReport(req, res, stories, mode) {
 
       testStatus = testPassed(failed, passed);
       if(req.query.source == 'github'){
-        let comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested, reportTime, story, scenario, mode);
+        let comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName);
         let githubValue = req.query.value.split('/')
         let githubName = githubValue[0];
         let githubRepo = githubValue[1];
@@ -422,6 +426,18 @@ function testPassed(failed, passed) {
   return failed <= 0 && passed >= 1;
 }
 
+async function uploadReport(reportName, reportTime, jsonReport, options){
+  let report = {reportTime, reportName, options, jsonReport: jsonReport}
+  let result = await mongo.uploadReport(report);
+}
+
+async function createReport(res, reportName){
+  let report = await mongo.getReport(reportName);
+  fs.writeFileSync(`./features/${reportName}.json`, JSON.stringify(report.jsonReport), (err) => { console.log('Error:', err)});
+  reporter.generate(report.options);
+  res.sendFile(`/${reportName}.html`, {root: rootPath});
+}
+
 
 function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
   let scenarioId = parseInt(scenarioTagName.split('_')[1]);
@@ -434,10 +450,11 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
   return story;
 }
 
-function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode){
+function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
   let comment = '';
   let testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
-
+  let frontendUrl = process.env.FRONTEND_URL;
+  let reportUrl = `${frontendUrl}/report/${reportName}`;
   if(mode == 'scenario'){
     comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
     comment = comment + '## Tested Scenario: "' + scenario.name + '"\n';
@@ -445,12 +462,14 @@ function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, 
     comment = comment + 'Steps passed: '+ stepsPassed + ' :white_check_mark:\n';
     comment = comment + 'Steps failed: '+ stepsFailed + ' :x:\n';
     comment = comment + 'Steps skipped: '+ stepsSkipped + ' :warning:\n';
+    comment = comment + 'Link to the official report: '+ `[Report](${reportUrl})`;
   } else{
     comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
     comment = comment + '## Tested Story: "' + story.title + '"\n';
     comment = comment + '### Test passed: ' + testStatus + '\n';
     comment = comment + 'Scenarios passed: '+ scenariosTested.passed + ' :x:\n';
     comment = comment + 'Scenarios failed: '+ scenariosTested.failed + ' :white_check_mark:\n';
+    comment = comment + 'Link to the official report: '+ `[Report](${reportUrl})`;
   }
   return comment;
 }
@@ -506,6 +525,7 @@ function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label
 }
 
 module.exports = {
+  createReport,
   getGithubStories,
   options,
   deleteHtmlReport,

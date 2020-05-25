@@ -32,6 +32,7 @@
     "imagesloaded": "^4.1.4",
     "jquery": "^3.4.1",
     "js": "^0.1.0",
+    "lodash": "^4.17.15",
     "lokijs": "^1.5.8",
     "masonry-layout": "^4.2.2",
     "mongodb": "^3.5.5",

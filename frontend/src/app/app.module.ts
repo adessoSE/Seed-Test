@@ -29,6 +29,7 @@ import { LoginFormComponent } from './login-form/login-form.component';
 import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
 import {MatProgressSpinnerModule} from '@angular/material';
+import { ReportComponent } from './report/report.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import {MatProgressSpinnerModule} from '@angular/material';
     StoryEditorComponent,
     AccountManagmentComponent,
     LoginFormComponent,
-    TestAccountComponent
+    TestAccountComponent,
+    ReportComponent
   ],
   imports: [
       NgbModule,
