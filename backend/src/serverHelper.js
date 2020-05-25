@@ -436,10 +436,12 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 
 function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode){
   let comment = '';
+  let testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
+
   if(mode == 'scenario'){
     comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
     comment = comment + '## Tested Scenario: "' + scenario.name + '"\n';
-    comment = comment + '### Test passed: ' + testStatus + '\n';
+    comment = comment + '### Test passed: ' + testStatus + testPassedIcon + '\n';
     comment = comment + 'Steps passed: '+ stepsPassed + ' :white_check_mark:\n';
     comment = comment + 'Steps failed: '+ stepsFailed + ' :x:\n';
     comment = comment + 'Steps skipped: '+ stepsSkipped + ' :warning:\n';
