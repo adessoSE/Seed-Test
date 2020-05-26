@@ -315,7 +315,7 @@ async function fuseGitWithDb(story, issueId) {
   return story
 }
 
-function deleteJsonReport(jsonReport) {
+function deleteReport(jsonReport) {
   const report = path.normalize(`${featuresPath}${jsonReport}`);
   fs.unlink(report, (err) => {
     if (err) console.log(err);
@@ -325,21 +325,11 @@ function deleteJsonReport(jsonReport) {
   });
 }
 
-function deleteHtmlReport(htmlReport) {
-  const report = path.normalize(`${featuresPath}${htmlReport}`);
-  fs.unlink(report, (err) => {
-    if (err) console.log(err);
-    else {
-      console.log(`${report} html deleted.`);
-    }
-  });
-}
-
 
 function runReport(req, res, stories, mode) {
   execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
-    setTimeout(deleteJsonReport, reportDeletionTime * 60000, `${reportName}.json`);
-    setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `${reportName}.html`);
+    setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+    setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
     let reportOptions = setOptions(reportName);
     reporter.generate(reportOptions);
     res.sendFile(`/${reportName}.html`, {root: rootPath});
@@ -435,6 +425,8 @@ async function createReport(res, reportName){
   let report = await mongo.getReport(reportName);
   fs.writeFileSync(`./features/${reportName}.json`, JSON.stringify(report.jsonReport), (err) => { console.log('Error:', err)});
   reporter.generate(report.options);
+  setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+  setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
   res.sendFile(`/${reportName}.html`, {root: rootPath});
 }
 

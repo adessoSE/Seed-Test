@@ -28,7 +28,7 @@ app.get('/callback', (req, res) => {
                 client_id: process.env.GITHUB_CLIENT_ID,
                 client_secret: process.env.GITHUB_CLIENT_SECRET,
                 code: code,
-                redirect_uri:'http://localhost:4200/callback'
+                redirect_uri:`${process.env.FRONTEND_URL}/callback`
             },
         }, function(err, response, body){
             const accessToken = body.split("&")[0].split("=")[1];

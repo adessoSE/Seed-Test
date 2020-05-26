@@ -14,7 +14,6 @@ const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
 const app = express();
-
 let stories = [];
 
 // Initialize the app.
@@ -34,7 +33,7 @@ function handleError(res, reason, statusMessage, code) {
  */
 app
   .use(cors({origin: [
-  'http://localhost:4200'
+    process.env.FRONTEND_URL
   ], credentials: true}))
   .use(flash())
   .use(session({
