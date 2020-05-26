@@ -36,10 +36,12 @@ export class ApiService {
 
     getReport(reportName: string) {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/run/report/' + reportName;
-        return this.http.get(str,  { responseType: 'text', withCredentials: true})
-            .pipe(tap(resp => {}),
-            catchError(this.handleError));
+        if(this.apiServer){
+            const str = this.apiServer + '/run/report/' + reportName;
+            return this.http.get(str,  { responseType: 'text', withCredentials: true})
+                .pipe(tap(resp => {}),
+                catchError(this.handleError));
+        }
     }
 
     public getProjectsFromJira() {
@@ -142,15 +144,16 @@ export class ApiService {
         return throwError(error);
     }
 
-    public getBackendInfo() {
+    public getBackendInfo(): Promise<any> {
         const url = localStorage.getItem('url_backend');
         const clientId = localStorage.getItem('clientId');
 
         if (url && url !== 'undefined' && clientId && clientId !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
+            return Promise.resolve(url);
         } else {
-            this.http.get<any>(window.location.origin + '/backendInfo', this.getOptions()).subscribe((backendInfo) => {
+           return this.http.get<any>(window.location.origin + '/backendInfo', this.getOptions()).toPromise().then((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
                 localStorage.setItem('clientId', backendInfo.clientId);
                 this.urlReceived = true;
@@ -161,7 +164,6 @@ export class ApiService {
 
     public getStories(repository: string): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
-        if(!repository) return null;
         return this.http
             .get<Story[]>(this.apiServer + '/github/stories/' + repository , this.getOptions())
             .pipe(tap(resp => {

@@ -34,8 +34,8 @@ export class ParentComponent implements OnInit {
 
   loadStories() {
     const repository = localStorage.getItem('repository');
-    const repositorytype = localStorage.getItem('repositoryType');
-    if (repositorytype === 'github') {
+    const source = localStorage.getItem('source');
+    if (source === 'github') {
       this.apiService
           .getStories(repository)
           .subscribe((resp: Story[]) => {

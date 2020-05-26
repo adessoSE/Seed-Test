@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
                 this.error = resp.message;
             } else if (resp.message === 'repository') {
                 let repository = resp.repository;
-                localStorage.setItem('repositoryType', 'github');
+                localStorage.setItem('source', 'github');
                 localStorage.setItem('repository', repository);
                 this.repositoriesLoading = false;
                 this.router.navigate(['/']);
@@ -63,7 +63,7 @@ export class LoginComponent implements OnInit {
             this.error = response.message;
         } else if (response.message === 'repository') {
             let repository = response.repository;
-            localStorage.setItem('repositoryType', 'github');
+            localStorage.setItem('source', 'github');
             localStorage.setItem('repository', repository);
             this.router.navigate(['/']);
         } else {
@@ -121,9 +121,9 @@ export class LoginComponent implements OnInit {
         ref.href = 'https://github.com/' + userRepository;
         const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
         if (index < 0) {
-            localStorage.setItem('repositoryType', 'github');
+            localStorage.setItem('source', 'github');
         } else {
-            localStorage.setItem('repositoryType', 'jira');
+            localStorage.setItem('source', 'jira');
             localStorage.setItem('jiraKey', this.jirakeys[index]);
         }
         localStorage.setItem('repository', userRepository);

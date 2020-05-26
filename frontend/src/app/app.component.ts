@@ -107,12 +107,12 @@ export class AppComponent implements OnInit {
 
     const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
     if (index < 0) {
-      localStorage.setItem('repositoryType', 'github');
+      localStorage.setItem('source', 'github');
       this.apiService.getStories(userRepository).subscribe(reps => {
       
       })
     } else {
-      localStorage.setItem('repositoryType', 'jira');
+      localStorage.setItem('source', 'jira');
       localStorage.setItem('jiraKey', this.jirakeys[index]);
       this.apiService.getIssuesFromJira(userRepository).subscribe(reps => {
         

@@ -14,16 +14,26 @@ export class ReportComponent implements OnInit {
   constructor(public apiService: ApiService, public route: ActivatedRoute) { 
     this.route.params.subscribe((params) => {
       if(params.reportName){
-        this.apiService.getReport(params.reportName).subscribe((resp) => {
-          const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-          this.reportReceived = true;
-          iframe.srcdoc = resp;
-        })
+        if(!localStorage.getItem('url_backend')){
+          this.apiService.getBackendInfo().then((value) => {
+            this.getReport(params.reportName);
+          })
+        }else {
+          this.getReport(params.reportName);
+        }
       }
     });
   }
 
   ngOnInit() {
+  }
+
+  getReport(reportName: string){
+    this.apiService.getReport(reportName).subscribe((resp) => {
+      const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+      this.reportReceived = true;
+      iframe.srcdoc = resp;
+    })
   }
 
 }

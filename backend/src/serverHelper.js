@@ -384,7 +384,7 @@ function runReport(req, res, stories, mode) {
       })
 
       testStatus = testPassed(failed, passed);
-      if(req.query.source == 'github'){
+      if(req.query.source == 'github' && req.user && req.user.github){
         let comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName);
         let githubValue = req.query.value.split('/')
         let githubName = githubValue[0];
