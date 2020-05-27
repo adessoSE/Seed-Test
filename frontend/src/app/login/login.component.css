@@ -24,6 +24,14 @@ h1{
     text-align: center;
 }
 
+.stayLoggedInContainer label{
+    margin-left: 5px;
+}
+
+.stayLoggedInContainer {
+    margin: 5px;
+}
+
 .repositories{
     grid-area: repositories;
     grid-row: 2 / 3;

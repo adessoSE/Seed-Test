@@ -17,6 +17,10 @@
       <br>
       <br>
       <!-- Button Login -->
+      <div class="stayLoggedInContainer">
+        <input type="checkbox" id="stayLoggedIn" name="stayLoggedIn" ngModel>
+        <label for="stayLoggedIn">Keep me signed in for 2 weeks</label>
+      </div>
       <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
     </form>
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->

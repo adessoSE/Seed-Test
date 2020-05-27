@@ -33,6 +33,7 @@ router
 
 // logges in user
 router.post('/login', (req, res, next) => {
+    if(req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
     try{
         passport.authenticate('normal-local', function(error, user, info){
             if(error){
@@ -52,7 +53,6 @@ router.post('/login', (req, res, next) => {
                             repository: req.user.github.lastRepository
                         };
                         res.json(response);
-    
                     } else {
                         res.json(user);
                     }
@@ -69,6 +69,7 @@ router.post('/login', (req, res, next) => {
 
 router.post('/githubLogin', (req, res) =>{
     console.log(req.body)
+    if(req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
     req.body.id = parseInt(req.body.id)
     passport.authenticate('github-local', function (error, user, info) {
         console.log('in authenticate: ' + JSON.stringify(info))
@@ -79,6 +80,7 @@ router.post('/githubLogin', (req, res) =>{
             return res.json(info);
         }
         req.logIn(user, async function(err){
+
             if(err){
                 return res.json(err);
             }else {

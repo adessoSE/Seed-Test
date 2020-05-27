@@ -107,14 +107,14 @@ export class ApiService {
             catchError(this.handleError));
     }
 
-    public loginUser(email: string, password: string): Observable<any> {
+    public loginUser(email: string, password: string, stayLoggedIn: boolean): Observable<any> {
         const str = this.apiServer + '/user/login'
         let user;
         if(!email && !password){
 
         }else {
             user = {
-                email, password
+                email, password, stayLoggedIn
             }
         }
 
