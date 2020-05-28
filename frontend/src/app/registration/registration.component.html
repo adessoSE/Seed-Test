@@ -2,31 +2,50 @@
     <div class="formular">
       <!-- Formular -->
       <h1 id="headerFont">Registration</h1>
-      <form #form="ngForm" novalidate (ngSubmit)="registerUser(form);">
+      <form [formGroup]="loginForm" (ngSubmit)="registerUser(form);">
         <hr>
-        <!-- Label1 -->
-        <label class="uk-form-label"></label>
-        <input id="email" type="email" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required>
+        <div class="formGroup">
+          <label class="uk-form-label"></label>
+          <input id="email" formControlName="email" type="text" name="email" placeholder="Email" #email ngModel class="uk-form-controls form-control" required>
+        </div>
+        <div class="errorMessages">
+          <ng-container *ngFor="let error of error_messages.email">
+            <div class="errorMessage" *ngIf="loginForm.get('email').hasError(error.type) && 
+            (loginForm.get('email').dirty || loginForm.get('email').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
+  
+        <div class="formGroup">
+          <label class="uk-form-label"></label>
+          <input id="password" formControlName="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls form-control" required>
+        </div>
+        <div class="errorMessages">
+          <ng-container *ngFor="let error of error_messages.password">
+            <div class="errorMessage" *ngIf="loginForm.get('password').hasError(error.type) && (loginForm.get('password').dirty || loginForm.get('password').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
+  
+        <div class="formGroup">
+          <label class="uk-form-label"></label>
+          <input #password ngModel class="form-control" formControlName="confirmpassword" type="password" placeholder="Confirm Password"/>
+        </div>
+        <div class="errorMessages">
+          <ng-container *ngFor="let error of error_messages.confirmpassword">
+            <div class="errorMessage" *ngIf="loginForm.get('confirmpassword').hasError(error.type) && (loginForm.get('confirmpassword').dirty || loginForm.get('confirmpassword').touched)">
+              {{ error.message }}
+            </div>
+          </ng-container>
+        </div>
         <br>
-        <!-- Label2 -->
-        <label class="uk-form-label"></label>
-        <br>
-        <input id="password" type="password" name="password" placeholder=" Password" #password ngModel class="uk-form-controls" required>
-        <!-- Label3
-        <label class="uk-form-label"></label>
-        <br>
-        <input type="password" placeholder="Password" class="uk-form-controls" required>
-        more Labels:
-        <label class="uk-form-label"></label>
-        <br>
-        <input type="text" placeholder="labelMore" class="uk-form-controls" required>
-        -->
-        <br>
-        <br>
-        <!-- Button Register -->
-        <button class="registerButton" type="submit" [disabled]="form.invalid">Register</button>
-        <br>
+        <button class="form-control btn registerButton" type="submit" [disabled]="!loginForm.valid">Register</button>
+        <hr>
+        <pre id="formErrorInfo">
+          Form Error - {{ loginForm.errors | json }}
+        </pre>
       </form>
-      <hr>
     </div>
   </div>

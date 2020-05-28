@@ -13,6 +13,24 @@
     padding: 80px 50px 20px;
 }
 
+.errorMessage {
+    color: red;
+  }
+
+input.ng-touched.ng-invalid {
+    border: 1px solid red;
+  }
+
+#formErrorInfo{
+    visibility: hidden;
+}
+
+.formGroup, .form-control {
+    margin: auto;
+    width: 60%;
+    padding: 10px;
+}
+
 #headerFont{
     color:#0099CC;
     font-size: 22pt;
@@ -21,6 +39,7 @@
 
 .registerButton{
     color:#ffffff;
+    width: 150px;
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
