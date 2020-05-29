@@ -30,6 +30,7 @@ import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
 import {MatProgressSpinnerModule} from '@angular/material';
 import { RegistrationComponent } from './registration/registration.component';
+import { ConfirmEqualValidatorDirective } from './directives/confirm-equal-validator.directive';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { RegistrationComponent } from './registration/registration.component';
     TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
+    ConfirmEqualValidatorDirective,
   ],
   imports: [
       NgbModule,

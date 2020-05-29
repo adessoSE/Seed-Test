@@ -2,50 +2,38 @@
     <div class="formular">
       <!-- Formular -->
       <h1 id="headerFont">Registration</h1>
-      <form [formGroup]="loginForm" (ngSubmit)="registerUser(form);">
+      <form #form="ngForm" novalidate (ngSubmit)="registerUser(form);">
         <hr>
-        <div class="formGroup">
           <label class="uk-form-label"></label>
-          <input id="email" formControlName="email" type="text" name="email" placeholder="Email" #email ngModel class="uk-form-controls form-control" required>
-        </div>
-        <div class="errorMessages">
-          <ng-container *ngFor="let error of error_messages.email">
-            <div class="errorMessage" *ngIf="loginForm.get('email').hasError(error.type) && 
-            (loginForm.get('email').dirty || loginForm.get('email').touched)">
-              {{ error.message }}
-            </div>
-          </ng-container>
-        </div>
-  
-        <div class="formGroup">
-          <label class="uk-form-label"></label>
-          <input id="password" formControlName="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls form-control" required>
-        </div>
-        <div class="errorMessages">
-          <ng-container *ngFor="let error of error_messages.password">
-            <div class="errorMessage" *ngIf="loginForm.get('password').hasError(error.type) && (loginForm.get('password').dirty || loginForm.get('password').touched)">
-              {{ error.message }}
-            </div>
-          </ng-container>
-        </div>
-  
-        <div class="formGroup">
-          <label class="uk-form-label"></label>
-          <input #password ngModel class="form-control" formControlName="confirmpassword" type="password" placeholder="Confirm Password"/>
-        </div>
-        <div class="errorMessages">
-          <ng-container *ngFor="let error of error_messages.confirmpassword">
-            <div class="errorMessage" *ngIf="loginForm.get('confirmpassword').hasError(error.type) && (loginForm.get('confirmpassword').dirty || loginForm.get('confirmpassword').touched)">
-              {{ error.message }}
-            </div>
-          </ng-container>
-        </div>
+          <input id="email" type="email" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required>
         <br>
-        <button class="form-control btn registerButton" type="submit" [disabled]="!loginForm.valid">Register</button>
+          <label class="uk-form-label"></label>
+          <input id="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls" required>
+       <br>
+        <button class="registerButton" type="submit" [disabled]="form.invalid">Register</button>
         <hr>
-        <pre id="formErrorInfo">
-          Form Error - {{ loginForm.errors | json }}
-        </pre>
+
+        <!--here-->
+        <div class="form-group" [class.has-error]="password.touched && password.invalid">
+          <label for="password" class="control-label">Password</label>
+          <input name="password" required type="text" class="form-control"
+            [(ngModel)]="employee.password" #password="ngModel">
+            <span class="help-block" *ngIf="password.touched && password.errors?.required">
+              Password is required.
+            </span>
+        </div>
+        <div class="form-group" [class.has-error]="confirmPassword.touched && confirmPassword.invalid">
+          <label for="confirmPassword" class="control-label">Confirm Password</label>
+          <input name="confirmPassword" appConfirmEqualValidator="password" required type="text" class="form-control"
+            [(ngModel)]="employee.confirmPassword" #confirmPassword="ngModel">
+            <span class="help-block" *ngIf="confirmPassword.touched && confirmPassword.errors?.required">
+              Confirm Password is required.
+            </span>
+            <span class="help-block" *ngIf="confirmPassword.touched && confirmPassword.errors?.notEqual && !confirmPassword.errors?.required">
+              Password and Confirm Password does not match.
+            </span>
+        </div>
       </form>
     </div>
   </div>
+    
