@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
+import { RepositoryContainer } from './model/RepositoryContainer';
 
 @Component({
   selector: 'app-root',
@@ -71,13 +72,6 @@ export class AppComponent implements OnInit {
     if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)) {
       this.apiService.getRepositories().subscribe((resp) => {
         tmp_repositories = resp;
-        localStorage.setItem('githubCount', `${tmp_repositories.length}`);
-        this.apiService.getProjectsFromJira().subscribe((resp2) => {
-          this.repositories = tmp_repositories.concat(this.filterProjects(resp2));
-        }, (err) => {
-          this.error = err.error;
-          this.repositories = tmp_repositories;
-        });
       }, (err) => {
         this.error = err.error;
       });
@@ -101,25 +95,17 @@ export class AppComponent implements OnInit {
   }
 
 
-  selectRepository(userRepository: string) {
+  selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository;
-
-    const index = this.repositories.findIndex(name => name === userRepository) - Number(localStorage.getItem('githubCount'));
-    if (index < 0) {
-      localStorage.setItem('source', 'github');
-      this.apiService.getStories(userRepository).subscribe(reps => {
-      
-      })
+    ref.href = 'https://github.com/' + userRepository.value;
+    localStorage.setItem('repository', userRepository.value)
+    localStorage.setItem('source', userRepository.source)
+    if(this.router.url !== '/'){
+      this.router.navigate(['']);
     } else {
-      localStorage.setItem('source', 'jira');
-      localStorage.setItem('jiraKey', this.jirakeys[index]);
-      this.apiService.getIssuesFromJira(userRepository).subscribe(reps => {
-        
-      })
+      this.apiService.getStories(userRepository).subscribe((resp) => {
+      });
     }
-    localStorage.setItem('repository', userRepository);
-    this.repository = userRepository;
   }
 
   manageAccount() {

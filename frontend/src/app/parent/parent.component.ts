@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
+import { RepositoryContainer } from '../model/RepositoryContainer';
+import { Router, ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -33,23 +35,14 @@ export class ParentComponent implements OnInit {
   }
 
   loadStories() {
-    const repository = localStorage.getItem('repository');
-    const source = localStorage.getItem('source');
-    if (source === 'github') {
-      this.apiService
-          .getStories(repository)
-          .subscribe((resp: Story[]) => {
-            this.stories = resp;
-          });
-    } else {
-      this.apiService
-          .getIssuesFromJira(localStorage.getItem('jiraKey'))
-          .subscribe((resp: Story[]) => {
-            this.stories = resp;
-            console.log('Jira Response');
-            console.log(resp);
-          });
-    }
+    let value: string = localStorage.getItem('repository');
+    let source: string = localStorage.getItem('source');
+    let repository: RepositoryContainer = {value, source}
+    this.apiService
+      .getStories(repository)
+      .subscribe((resp: Story[]) => {
+        this.stories = resp;
+    });
   }
 
   setSelectedStory(story: Story){

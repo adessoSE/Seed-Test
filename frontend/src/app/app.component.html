@@ -33,8 +33,7 @@
           <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
           <ul class="dropdown-list">
             <li *ngFor="let repository of repositories; let i = index" >
-              <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-               href="#">{{repository}}</a>
+              <a id="{{'repository_' + i}}" (click)="selectRepository(repository);">{{repository.value}}</a>
             </li>
           </ul>
         </div>

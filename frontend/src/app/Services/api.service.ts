@@ -9,6 +9,7 @@ import { Scenario } from '../model/Scenario';
 import { Background } from '../model/Background';
 import { User } from '../model/User';
 import {CookieService} from 'ngx-cookie-service'
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Injectable({
     providedIn: 'root'
@@ -62,12 +63,12 @@ export class ApiService {
                 catchError(this.handleError));
     }
 
-    public getRepositories(): Observable<string[]> {
+    public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
       
-        const str = this.apiServer + '/github/repositories'; 
+        const str = this.apiServer + '/user/repositories'; 
         
-        return this.http.get<string[]>(str, this.getOptions())
+        return this.http.get<RepositoryContainer[]>(str, this.getOptions())
           .pipe(tap(resp => {
             this.getRepositoriesEvent.emit(resp);
           }),
@@ -146,10 +147,18 @@ export class ApiService {
         }
     }
 
-    public getStories(repository: string): Observable<Story[]> {
+    public getStories(repository: RepositoryContainer): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
+        let params;
+        if(repository.source == 'github'){
+            let repo = repository.value.split('/');
+            params = { githubName: repo[0], repository: repo[1], source: repository.source}
+        }else if(repository.source == 'jira'){
+            params = {projectKey: repository.value, source: repository.source}
+        }
+
         return this.http
-            .get<Story[]>(this.apiServer + '/github/stories/' + repository , this.getOptions())
+            .get<Story[]>(this.apiServer + '/user/stories/', {params, withCredentials: true})
             .pipe(tap(resp => {
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));

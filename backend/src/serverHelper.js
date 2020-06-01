@@ -150,8 +150,6 @@ async function getGithubStories(githubName, githubRepo, token, res, req){
   const headers = {
     Authorization: `token ${token}`,
   };
-  let repository = `${githubName}/${githubRepo}`
-  //if(req.user) await mongo.setLastRepository(req.user._id, repository);
 
   let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
       if (response.status === 401) {
@@ -259,6 +257,56 @@ async function execReport(req, res, stories, mode, callback) {
   }
 }
 
+function jiraProjects(user){
+  return new Promise((resolve, reject) => {
+    if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
+      const { Host } = user.jira;
+      const { AccountName } = user.jira;
+      const { Password } = user.jira;
+      const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+      const cookieJar = request.jar();
+      const options = {
+        method: 'GET',
+        url: `http://${Host}/rest/api/2/issue/createmeta`,
+        jar: cookieJar,
+        qs: {
+          type: 'page',
+          title: 'title',
+        },
+        headers: {
+          'cache-control': 'no-cache',
+          Authorization: `Basic ${auth}`,
+        },
+      };
+      request(options, (error) => {
+        if (error) {
+          reject(error);
+        }
+        request(options, (error2, response2, body) => {
+          if (error2) {
+            reject(error);
+          }
+          body = body.map((value) => {
+            return {value, source: 'jira'}
+          })
+          console.log(body);
+          resolve(body)
+        });
+      });
+    } else {
+      console.log('jira in else resolve[]')
+      resolve([])
+    }
+  });
+}
+
+function uniqueRepositories(repositories){
+  return repositories.filter((repo, index, self) =>
+      index === self.findIndex((t) => (
+        t.source === repo.source && t.value === repo.value
+      )));
+}
+
 
 function setOptions(reportName) {
   let myOptions = lodash.cloneDeep(options)
@@ -279,13 +327,16 @@ function execRepositoryRequests(link, user, password) {
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
-        const names = [];
+        let names = [];
         let index = 0;
         for (const repo of data) {
           const repoName = repo.full_name;
           names[index] = repoName;
           index++;
         }
+        names = names.map((value) => {
+          return {value, source: 'github'}
+        })
         resolve(names);
       } else if (this.readyState === 4) {
         reject(this.status);
@@ -295,10 +346,12 @@ function execRepositoryRequests(link, user, password) {
 }
 
 function ownRepositories(githubName, token) {
+  if(!githubName && !token) return new Promise((resolve, reject) => resolve([]))
   return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token);
 }
 
 function starredRepositories(githubName, token) {
+  if(!githubName && !token) return new Promise((resolve, reject) => resolve([]))
   return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
 }
 
@@ -444,6 +497,65 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
   return story;
 }
 
+function getJiraIssues(user, projectKey){
+  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' || projectKey != 'null') {
+    const { Host } = user.jira;
+    const { AccountName } = user.jira;
+    const { Password } = user.jira;
+    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+    const cookieJar = request.jar();
+    const tmpStories = [];
+    const options = {
+      method: 'GET',
+      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+      jar: cookieJar,
+      qs: {
+        type: 'page',
+        title: 'title',
+      },
+      headers: {
+        'cache-control': 'no-cache',
+        Authorization: `Basic ${auth}`,
+      },
+    };
+    request(options, (error) => {
+      if (error) {
+        res.status(500).json(error);
+        throw new Error(error);
+      }
+      request(options, (error2, response2, body) => {
+        if (error2) {
+          res.status(500).json(error);
+          throw new Error(error);
+        }
+        const json = JSON.parse(body).issues;
+        for (const issue of json) {
+          const story = {
+            story_id: issue.id,
+            title: issue.fields.summary,
+            body: issue.fields.description,
+            state: issue.fields.status.name,
+            issue_number: issue.id,
+          };
+          if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+            story.assignee = issue.fields.assignee.name;
+            story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+          } else {
+            story.assignee = 'unassigned';
+            story.assignee_avatar_url = unassignedAvatarLink;
+          }
+          tmpStories.push(fuseGitWithDb(story, issue.id));
+        }
+        return Promise.all(tmpStories)
+      });
+    });
+  } else {
+    return new Promise((resolve, reject) => {
+      reject('No Jira')
+    })
+  }
+}
+
 function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
   let comment = '';
   let testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
@@ -556,6 +668,9 @@ const getGithubData = (res, req, accessToken) => {
 }
 
 module.exports = {
+  uniqueRepositories,
+  jiraProjects,
+  getJiraIssues,
   getGithubData,
   createReport,
   getGithubStories,

@@ -54,15 +54,6 @@ async function mergeGithub(userId, login, id){
   return result;
 }
 
-async function setLastRepository(userId, repository){
-  let db = await connectDb()
-  let dbo = await db.db('Seed')
-  let collection = await dbo.collection('User')
-  let result = await collection.updateOne({"_id" : ObjectId(userId)}, {$set: { 'github.lastRepository' : repository}})
-  db.close();
-  return result
-}
-
 async function getUserByEmail(email){
   let db = await connectDb()
   let dbo = await db.db('Seed')
@@ -570,7 +561,6 @@ module.exports = {
   uploadReport,
   disconnectGithub,
   mergeGithub,
-  setLastRepository,
   findOrRegister,
   getUserByGithub,
   updateStory,

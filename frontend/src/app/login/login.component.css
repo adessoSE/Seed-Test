@@ -51,11 +51,11 @@ h1{
     font-size: 20px;
 }
 
-.repoLink {
+a:not([href]):not([tabindex]).repoLink {
     color: grey;
 }
 
-.repoLink:hover{
+a:not([href]):not([tabindex]).repoLink:hover {
     color: #0099CC;
     text-decoration: none;
 }

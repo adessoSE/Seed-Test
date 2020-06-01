@@ -46,22 +46,15 @@ router.post('/login', (req, res, next) => {
                 if(err){
                     throw new UserError(err)
                 }else {
-                    if(req.user.github && req.user.github.lastRepository){
-                        let response = {
-                            status: 'success',
-                            message: 'repository',
-                            repository: req.user.github.lastRepository
-                        };
-                        res.json(response);
-                    } else {
-                        res.json(user);
-                    }
+                    res.json(user); 
                 }
             });
         })
         (req, res, next)
     }catch(error){
         if(error instanceof UserError){
+            res.status(401).json(error);
+        }else{
             res.status(401).json(error);
         }
     }
@@ -96,6 +89,79 @@ router.get('/logout', async (req, res) => {
     req.logout();
     res.json({status: 'success'})
 });
+
+router.get('/repositories', (req, res) => {
+    let githubName;
+    let token;
+    if (req.user) {
+      if(req.user.github){
+        githubName = req.user.github.login;
+        token = req.user.github.githubToken;
+      }
+    }else {
+      githubName = process.env.TESTACCOUNT_NAME;
+      token = process.env.TESTACCOUNT_TOKEN;
+    }
+   
+    Promise.all([
+      helper.jiraProjects(req.user),
+      helper.starredRepositories(githubName, token),
+      helper.ownRepositories(githubName, token),
+    ]).then((repos) => {
+      let merged = [].concat(...repos);
+      //remove duplicates
+      merged = helper.uniqueRepositories(merged);
+      res.status(200).json(merged);
+    }).catch((reason) => {
+      res.status(400).json('Wrong Github name or Token');
+      console.log(`Get Repositories Error: ${reason}`);
+    });
+  });
+
+
+// get stories from github
+router.get('/stories', async (req, res) => {
+    console.log(req.query)
+    let source = req.query.source;
+    if(source == 'github' || !source){
+        try{
+        let githubName;
+        let githubRepo;
+        let token;
+        if(req.user){
+            githubName = req.query.githubName;
+            githubRepo = req.query.repository;
+            token = req.user.github.githubToken;
+          }else{
+            githubName = process.env.TESTACCOUNT_NAME;
+            githubRepo = process.env.TESTACCOUNT_REPO;
+            token = process.env.TESTACCOUNT_TOKEN;
+        }
+        let stories = await helper.getGithubStories(githubName, githubRepo, token, res, req)
+        res.status(200).json(stories);
+        }catch(err){
+            if(reason instanceof GithubError){
+                res.status(401).send(error.message);
+              }
+              else {
+                res.status(503).send(error.message);
+            }
+        }
+    }else if(source == 'jira'){
+        try{
+            let projectKey = req.query.projectKey;
+            let stories = await helper.getJiraIssues(req.user, projectKey)
+            res.status(200).json(stories);
+        }catch(err){
+            if(reason instanceof GithubError){
+                res.status(401).send(error.message);
+              }
+              else {
+                res.status(503).send(error.message);
+              }
+        }
+    }
+  });
 
 
 router.post('/githubLogin', (req, res) =>{
