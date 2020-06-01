@@ -562,26 +562,15 @@ function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, 
   let frontendUrl = process.env.FRONTEND_URL;
   let reportUrl = `${frontendUrl}/report/${reportName}`;
   if(mode == 'scenario'){
-    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
-    comment = comment + '## Tested Scenario: "' + scenario.name + '"\n';
-    comment = comment + '### Test passed: ' + testStatus + testPassedIcon + '\n';
-    comment = comment + 'Steps passed: '+ stepsPassed + ' :white_check_mark:\n';
-    comment = comment + 'Steps failed: '+ stepsFailed + ' :x:\n';
-    comment = comment + 'Steps skipped: '+ stepsSkipped + ' :warning:\n';
-    comment = comment + 'Link to the official report: '+ `[Report](${reportUrl})`;
+    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
   } else{
-    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n`;
-    comment = comment + '## Tested Story: "' + story.title + '"\n';
-    comment = comment + '### Test passed: ' + testStatus + '\n';
-    comment = comment + 'Scenarios passed: '+ scenariosTested.passed + ' :x:\n';
-    comment = comment + 'Scenarios failed: '+ scenariosTested.failed + ' :white_check_mark:\n';
-    comment = comment + 'Link to the official report: '+ `[Report](${reportUrl})`;
+    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
   }
   return comment;
 }
 
 function postComment(issueNumber, comment, githubName, githubRepo, password){
-
+  console.log('postcoment')
   let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`
 
   let body = { body: comment};
@@ -592,7 +581,7 @@ function postComment(issueNumber, comment, githubName, githubRepo, password){
   request.onreadystatechange = function () {
     if (this.readyState === 4 && this.status === 200) {
       const data = JSON.parse(request.responseText);
-      console.log(data)
+      console.log('data', data)
     }
   };
 }
