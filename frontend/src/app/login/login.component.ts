@@ -18,16 +18,10 @@ export class LoginComponent implements OnInit {
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.route.queryParams.subscribe((params) => {
-            if (params.login) {
-                let userId = localStorage.getItem('userId');
-                localStorage.removeItem('userId')
-                if (userId){
-                   this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
-                       this.loginGithubToken(params.login, params.id);
-                   });
-                } else {
-                    this.loginGithubToken(params.login, params.id);
-                }
+            if (params.github == 'success' && this.apiService.isLoggedIn()) {
+                this.getRepositories()
+            }else {
+                this.error = 'A Login error occured. Please try it again';
             }
         })
     }
@@ -35,22 +29,6 @@ export class LoginComponent implements OnInit {
     
 
     ngOnInit() {
-    }
-
-    loginGithubToken(login: string, id: any){
-        this.apiService.loginGithubToken(login, id).subscribe((resp) => {
-            if (resp.status === 'error') {
-                this.error = resp.message;
-            } else if (resp.message === 'repository') {
-                let repository = resp.repository;
-                localStorage.setItem('source', 'github');
-                localStorage.setItem('repository', repository);
-                this.repositoriesLoading = false;
-                this.router.navigate(['/']);
-            } else {
-                this.getRepositories()
-            }
-        })
     }
 
     async login(form: NgForm) {
@@ -129,8 +107,9 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/']);
     }
 
-    githubLogin() {
+    githubLogin(){
+        this.error = undefined;
         this.repositoriesLoading = true;
-        this.apiService.githubAuthentication();
-    }
+        this.apiService.githubLogin()
+      }
 }

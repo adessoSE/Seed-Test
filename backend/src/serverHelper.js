@@ -1,6 +1,7 @@
 const {exec} = require('child_process');
 const fs = require('fs');
 const {XMLHttpRequest} = require('xmlhttprequest');
+const request = require('request')
 const path = require('path');
 const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
@@ -11,6 +12,7 @@ const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 const fetch = require('node-fetch');
 const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
+const passport = require('passport');
 
 // this is needed for the html report
 const options = {
@@ -516,7 +518,45 @@ function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label
   };
 }
 
+const getGithubData = (res, req, accessToken) => {
+  request(
+      {
+          uri: `https://api.github.com/user?access_token=${accessToken}`,
+          method:"GET",
+          headers: {
+              "User-Agent": "SampleOAuth",
+          }
+      }, 
+      async function(err, response, body){
+          req.body = await JSON.parse(body)
+          req.body.githubToken = accessToken;
+          try{
+            await mongo.findOrRegister(req.body)
+            
+            passport.authenticate('github-local', function (error, user, info) {
+                      console.log('in authenticate: ' + JSON.stringify(info))
+                      if(error){
+                        return res.redirect(process.env.FRONTEND_URL +'/login?github=error');
+                      } else if(!user){
+                          return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
+                      }
+                      req.logIn(user, async function(err){
+                          if(err){
+                              return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
+                          }else {
+                              return res.redirect(process.env.FRONTEND_URL + '/login?github=success');
+                          }
+                      });
+                  })(req,res);
+        }catch(error){
+            res.sendStatus(400)
+        }
+        }
+  )
+}
+
 module.exports = {
+  getGithubData,
   createReport,
   getGithubStories,
   options,

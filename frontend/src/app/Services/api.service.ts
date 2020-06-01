@@ -29,6 +29,12 @@ export class ApiService {
     constructor(private http: HttpClient, private cookieService: CookieService) {
     }
 
+    public githubLogin(){
+        let scope = 'repo'
+        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
+        let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
+        window.location.href = s;
+    }
 
     public getOptions() {
         return { withCredentials: true};
@@ -78,33 +84,11 @@ export class ApiService {
           catchError(this.handleError));
     }
 
-    mergeAccountGithub(userId: string, login: string, id: any) {
-        let str = this.apiServer + '/user/mergeGithub'
-        let obj = {userId, login, id}
-
-        return this.http.post<any>(str, obj, this.getOptions())
-        .pipe(tap(resp => {
-          //this.getStoriesEvent.emit(resp);
-        }),
-          catchError(this.handleError));
-    }
-
     public githubAuthentication() {
         let scope = 'repo'
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
         let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
         window.location.href = s;
-    }
-
-    public loginGithubToken(login: string, id){
-        const str = this.apiServer + '/user/githubLogin'
-        let user = {login, id}
-
-        return this.http.post<any>(str, user, this.getOptions())
-          .pipe(tap(resp => {
-            //this.getStoriesEvent.emit(resp);
-          }),
-            catchError(this.handleError));
     }
 
     public loginUser(email: string, password: string, stayLoggedIn: boolean): Observable<any> {

@@ -67,54 +67,10 @@ router.post('/login', (req, res, next) => {
     }
 });
 
-router.post('/githubLogin', (req, res) =>{
-    console.log(req.body)
-    if(req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
-    req.body.id = parseInt(req.body.id)
-    passport.authenticate('github-local', function (error, user, info) {
-        console.log('in authenticate: ' + JSON.stringify(info))
-        if(error){
-            return res.json(error);
-        } else if(!user){
-            info.status = 'error';
-            return res.json(info);
-        }
-        req.logIn(user, async function(err){
-
-            if(err){
-                return res.json(err);
-            }else {
-                if(req.user.github.lastRepository){
-                    let response = {
-                        status: 'success',
-                        message: 'repository',
-                        repository: req.user.github.lastRepository
-                    };
-                    res.json(response);
-
-                } else {
-                    res.json(user);
-                }
-            }
-        });
-    })(req,res);
-});
-
 router.post('/githubRegister', async (req, res) => {
     console.log('githubRegister:')
     try{
         let user = await mongo.findOrRegister(req.body)
-        res.json(user)
-    }catch(error){
-        res.sendStatus(400)
-    }
-});
-
-router.post('/mergeGithub', async (req, res) => {
-    let {userId, login, id} = req.body;
-    id = parseInt(id);
-    try{
-        let user = await mongo.mergeGithub(userId, login, id)
         res.json(user)
     }catch(error){
         res.sendStatus(400)
@@ -140,5 +96,42 @@ router.get('/logout', async (req, res) => {
     req.logout();
     res.json({status: 'success'})
 });
+
+
+router.post('/githubLogin', (req, res) =>{
+    let scope = 'repo'
+    const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
+    let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${process.env.GITHUB_CLIENT_ID}`;
+
+    request(
+        {
+            uri: s,
+        }, function(err, response, body){
+            res.send(body)
+        }
+    )
+
+});
+
+router.get('/callback', (req, res) =>{
+    let code = req.query.code;
+    const TOKEN_URL = 'https://github.com/login/oauth/access_token'
+      request(
+          {
+              uri: TOKEN_URL,
+              method: "POST",
+              form: {
+                  client_id: process.env.GITHUB_CLIENT_ID,
+                  client_secret: process.env.GITHUB_CLIENT_SECRET,
+                  code: code
+              },
+          }, function(err, response, body){
+              console.log('in callback response')
+              const accessToken = body.split("&")[0].split("=")[1];
+              helper.getGithubData(res, req, accessToken);
+          }
+      )
+  });
+
 
 module.exports = router;
