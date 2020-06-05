@@ -5,6 +5,15 @@
     background-color: white;
 }
 
+.form-group {
+    width: 650px;
+    padding-left: 430px;
+}
+
+.cross-validation-error input {
+    border-left: 5px solid red;
+  }
+
 .formular{
     grid-area: formular;
     grid-row: 1 / 2;

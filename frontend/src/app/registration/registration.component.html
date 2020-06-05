@@ -1,9 +1,7 @@
 <div class="grid">
-    <div class="formular">
-      <!-- Formular -->
-      <h1 id="headerFont">Registration</h1>
-      <form #form="ngForm" novalidate (ngSubmit)="registerUser(form);">
-        <hr>
+
+  <div class="formular container">
+<!--
           <label class="uk-form-label"></label>
           <input id="email" type="email" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required>
         <br>
@@ -12,28 +10,92 @@
        <br>
         <button class="registerButton" type="submit" [disabled]="form.invalid">Register</button>
         <hr>
-
-        <!--here-->
-        <div class="form-group" [class.has-error]="password.touched && password.invalid">
-          <label for="password" class="control-label">Password</label>
-          <input name="password" required type="text" class="form-control"
-            [(ngModel)]="employee.password" #password="ngModel">
-            <span class="help-block" *ngIf="password.touched && password.errors?.required">
-              Password is required.
-            </span>
-        </div>
-        <div class="form-group" [class.has-error]="confirmPassword.touched && confirmPassword.invalid">
-          <label for="confirmPassword" class="control-label">Confirm Password</label>
-          <input name="confirmPassword" appConfirmEqualValidator="password" required type="text" class="form-control"
-            [(ngModel)]="employee.confirmPassword" #confirmPassword="ngModel">
-            <span class="help-block" *ngIf="confirmPassword.touched && confirmPassword.errors?.required">
-              Confirm Password is required.
-            </span>
-            <span class="help-block" *ngIf="confirmPassword.touched && confirmPassword.errors?.notEqual && !confirmPassword.errors?.required">
-              Password and Confirm Password does not match.
-            </span>
-        </div>
       </form>
-    </div>
+    </div>-->
+    <h1 id="headerFont">Registration</h1>
+    <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(form);" appIdentityRevealed >
+      <hr>
+      <label class="uk-form-label"></label>
+      <input id="email" type="email" name="email" placeholder="Email" 
+                      #email ngModel class="uk-form-controls" required>
+
+      <div [hidden]="registrationForm.submitted">
+        <div class="cross-validation" [class.cross-validation-error]="registrationForm.errors?.identityRevealed && (registrationForm.touched || registrationForm.dirty)">
+          <div class="form-group">
+            <label for="password" class="uk-form-label"></label>
+            <input id="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls form-control"
+                  required minlength="4" appForbiddenName="bob"
+                  [(ngModel)]="user.password" #name="ngModel" required>
+  
+            <div *ngIf="password.invalid && (password.dirty || password.touched)"
+                class="alert alert-danger">
+  
+              <div *ngIf="password.errors.required">
+                Password is required.
+              </div>
+              <div *ngIf="password.errors.minlength">
+                Password must be at least 4 characters long.
+              </div>
+              <div *ngIf="password.errors.forbiddenPassword">
+                Password cannot be Bob.
+              </div>
+  
+            </div>
+          </div>
+  
+          <div class="form-group">
+            <label for="confirmPassword" class="uk-form-label"></label>
+                  <input id="confirmPassword" type="password" name="confirmPassword" placeholder="Confirm Password" 
+                  #confirmPassword ngModel class="uk-form-controls form-control"
+                        required minlength="4" appForbiddenName="bob"
+                        [(ngModel)]="user.ConfirmPassword" [ngModelOptions]="{ updateOn: 'blur' }" #name="ngModel" required appUniqueConfirmPassword>
+        
+  
+            <div *ngIf="confirmPassword.pending">Validating...</div>
+            <div *ngIf="confirmPassword.invalid" class="alert alert-danger alter-ego-errors">
+              <div *ngIf="confirmPassword.errors?.uniqueConfirmPassword">
+                Alter ego is already taken.
+              </div>
+            </div>
+          </div>
+  
+          <div *ngIf="registrationForm.errors?.identityRevealed && (registrationForm.touched || registrationForm.dirty)" class="cross-validation-error-message alert alert-danger">
+              Name cannot match alter ego.
+          </div>
+        </div>
+
+<!--
+        <div class="form-group">
+          <label for="power">user Power</label>
+          <select id="power" name="power" class="form-control"
+                  required [(ngModel)]="user.power" #power="ngModel" >
+            <option *ngFor="let p of powers" [value]="p">{{p}}</option>
+          </select>
+  
+          <div *ngIf="power.errors && power.touched" class="alert alert-danger">
+            <div *ngIf="power.errors.required">Power is required.</div>
+          </div>
+        </div>
+-->
+  
+        <button type="submit" class="btn btn-default"
+                [disabled]="registrationForm.invalid">Submit</button>
+        <button type="button" class="btn btn-default"
+                (click)="registrationForm.resetForm({})">Reset</button>
+      </div>
+  
+      <div class="submitted-message" *ngIf="registrationForm.submitted">
+        <p>You've submitted your user, {{ registrationForm.value.name }}!</p>
+        <button (click)="registrationForm.resetForm({})">Add new user</button>
+      </div>
+    </form>
+  </div>
+  
+  
+  <!-- 
+  Copyright Google LLC. All Rights Reserved.
+  Use of this source code is governed by an MIT-style license that
+  can be found in the LICENSE file at http://angular.io/license
+  -->
   </div>
     

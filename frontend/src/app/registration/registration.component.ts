@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
 
+
 @Component({
     selector: 'app-registration',
     templateUrl: './registration.component.html',
@@ -10,6 +11,10 @@ import { NgForm } from '@angular/forms';
 })
 
 export class RegistrationComponent implements OnInit {
+    powers = ['Really Smart', 'Super Flexible', 'Weather Changer'];
+
+    user = {name: 'Dr.', confirmPassword: 'Dr. What', power: this.powers[0]};
+    
     error: string;
 
     constructor(public apiService: ApiService, private router: Router) {
