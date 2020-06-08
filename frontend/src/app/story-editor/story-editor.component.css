@@ -22,12 +22,29 @@
       color: #999;
       cursor: help;
       position: relative;
+      top: -2px;
   }
   
   .def span[rel=def] {
       display: none;
   }
+
+  input[type="text"]{
+    margin: 1px;
+    padding: 1px;
+    border: none;
+    border-bottom: 1px solid #333;
+    position: relative;
+    top: -2px;
+    width: auto;
+    min-width: 5px;
+  }
   
+  .storyHeaderContainer{
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto;
+  }
+
   .def:hover span[rel=def] {
     font-size: small;
     color: white;

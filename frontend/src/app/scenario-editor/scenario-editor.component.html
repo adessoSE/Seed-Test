@@ -1,36 +1,43 @@
   <!--Scenario Header-->
   <div class="uk-card uk-card-default padding" id="scenario">
     <div class="title">
-      <span id="scenarioHeader">Scenario</span>
-        <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-            <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
-              It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
-              A scenario consists of individual steps:
-                   Given (precondition),
-                   When (action) and
-                   Then (desired result)
-                  </span></dfn>
-        <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
-        title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
-      <span *ngIf="this.selectedScenario" id="scenarioTitle">#{{selectedScenario.name | titlecase}}</span>
-      <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
-        title="Change Scenario Title" uk-toggle></button>
+      <div class="scenarioHeaderContainer">
+        <div>
+          <span id="scenarioHeader">Scenario</span>
+            <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
+                  It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
+                  A scenario consists of individual steps:
+                       Given (precondition),
+                       When (action) and
+                       Then (desired result)
+                      </span></dfn>
+        </div>
+        <div>
+          <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
+          title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
+          <span *ngIf="this.selectedScenario" id="scenarioTitle"># {{selectedScenario.name | titlecase}}</span>
+          <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
+          title="Change Scenario Title" uk-toggle></button>
+          <button id="scenario_shift_right" class="buttonGroup" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
+          title="Next Scenario" (click)="scenarioShiftRight();"></button>
+        </div>
+      </div>
       <div id="buttonGroupScenario" class="uk-align-right">
         <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory.story_id)">
           <em class="material-icons">add</em>
-        </button>
-        <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
-          class="buttonGroup iconButton" data-uk-tooltip title="Delete Scenario"
-          (click)="deleteScenario($event);">
-          <em class="material-icons">delete</em>
         </button>
         <button id="scenario_save" [class.disabled]="testRunning" [disabled]="testRunning" class="buttonGroup iconButton" data-uk-tooltip
           title="Save Scenario"
           (click)="updateScenario(selectedStory.story_id);">
           <em class="material-icons">save</em>
         </button>
-        <button id="scenario_shift_right" class="buttonGroup" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
-          title="Next Scenario" (click)="scenarioShiftRight();"></button>
+        <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+        class="buttonGroup iconButton" data-uk-tooltip title="Delete Scenario"
+        (click)="deleteScenario($event);">
+        <em class="material-icons">delete</em>
+      </button>
+
       </div>
     </div>
   

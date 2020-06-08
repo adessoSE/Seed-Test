@@ -18,7 +18,8 @@
   <div class="padRight" *ngIf="(showEditor === true)">
     <!--Story-->
     <div class="uk-card uk-card-default padding" id="story">
-      <div>
+      <div class="storyHeaderContainer">
+          <div>
             <span id="storyHeader">Story</span>
             <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
                 <span rel="def">A user story describes requirements for a software system.
@@ -27,6 +28,7 @@
                   The following template is recommended:
                   As a <...>, I want <...> so that <...>
                 </span></dfn>
+          </div>
         <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
       </div>
       <!--Description-->
@@ -64,16 +66,16 @@
                 </li>
               </ul>
             </div>
-            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
-              class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
-              (click)="deleteBackground($event);">
-              <em class="material-icons">delete</em>
-            </button>
             <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning" [disabled]="testRunning"
               title="Save Background" 
               (click)="updateBackground(selectedStory.story_id);">
               <em class="material-icons">save</em>
             </button>
+            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+              class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
+              (click)="deleteBackground($event);">
+            <em class="material-icons">delete</em>
+          </button>
           </div>
           <div class="uk-steps">
             <br>
