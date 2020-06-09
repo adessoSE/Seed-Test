@@ -11,10 +11,8 @@ import { NgForm } from '@angular/forms';
 })
 
 export class RegistrationComponent implements OnInit {
-    powers = ['Really Smart', 'Super Flexible', 'Weather Changer'];
 
-    user = {name: 'Dr.', confirmPassword: 'Dr. What', power: this.powers[0]};
-    
+    user = {};
     error: string;
 
     constructor(public apiService: ApiService, private router: Router) {

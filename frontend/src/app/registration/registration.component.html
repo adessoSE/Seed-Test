@@ -1,21 +1,22 @@
 <div class="grid">
   <div class="formular container">
-
     <h1 id="headerFont">Registration</h1>
-    <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(form);" appIdentityRevealed >
+    <!--Formular-->
+    <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(form);" appPasswordConfirmed >
       <hr>
+      <!--Input Email-->
       <label class="uk-form-label"></label>
       <input id="email" type="email" name="email" placeholder="Email" 
                       #email ngModel class="uk-form-controls" required>
-
+      <!--Cross Validation-->
       <div [hidden]="registrationForm.submitted">
-        <div class="cross-validation" [class.cross-validation-error]="registrationForm.errors?.identityRevealed && (registrationForm.touched || registrationForm.dirty)">
+        <div class="cross-validation" [class.cross-validation-error]="registrationForm.errors?.passwordConfirmed && (registrationForm.touched || registrationForm.dirty)">
           <div class="form-group">
+          <!--Input Password-->
             <label for="password" class="uk-form-label"></label>
             <input id="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls form-control"
-                  required minlength="8"
-                  [(ngModel)]="user.password" #name="ngModel" required>
-  
+                  required minlength="8" #name="ngModel" required>
+          <!--Check Password Requirements
             <div *ngIf="password.invalid && (password.dirty || password.touched)"
                 class="alert alert-danger">
   
@@ -25,38 +26,32 @@
               <div *ngIf="password.errors.minlength">
                 Password must be at least 8 characters long.
               </div>
-  
-            </div>
+            </div>-->
           </div>
-  
+          <!--Confirm Password-->
           <div class="form-group">
             <label for="confirmPassword" class="uk-form-label"></label>
-                  <input id="confirmPassword" type="password" name="confirmPassword" placeholder="Confirm Password" 
+                  <input id="confirmPassword" type="password" name="confirmPassword"  placeholder="Confirm Password" 
                   #confirmPassword ngModel class="uk-form-controls form-control"
-                        required minlength="4"
-                        [(ngModel)]="user.ConfirmPassword" [ngModelOptions]="{ updateOn: 'blur' }" #name="ngModel" required appUniqueConfirmPassword>
-  
+                      [ngModelOptions]="{ updateOn: 'blur' }" #name="ngModel" required >
+            <!--Validate CP-->
             <div *ngIf="confirmPassword.pending">Validating...</div>
-            <div *ngIf="confirmPassword.invalid" class="alert alert-danger alter-ego-errors">
-              <div *ngIf="confirmPassword.errors?.uniqueConfirmPassword">
-                Alter ego is already taken.
-              </div>
+            <div *ngIf="confirmPassword.invalid" class="alert alert-danger">
             </div>
           </div>
-  
-          <div *ngIf="registrationForm.errors?.identityRevealed && (registrationForm.touched || registrationForm.dirty)" class="cross-validation-error-message alert alert-danger">
+          <!--P and CP don't match-->
+          <div *ngIf="registrationForm.errors?.passwordConfirmed && (registrationForm.touched || registrationForm.dirty)" class="cross-validation-error-message alert alert-danger">
               Password and Confirm Password do not match.
           </div>
         </div>
         <button class="registerButton" type="submit" [disabled]="form.invalid">Register</button>
       </div>
-  
+      <!--Submitted Message-->
       <div class="submitted-message" *ngIf="registrationForm.submitted">
-        <p>You've submitted your user, {{ registrationForm.value.name }}!</p>
+        <p>You've submitted your user, {{ registrationForm.value.email }}!</p>
         <button (click)="registrationForm.resetForm({})">Add new user</button>
       </div>
     </form>
-
   </div>
 </div>
     
