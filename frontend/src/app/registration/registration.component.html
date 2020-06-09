@@ -24,7 +24,7 @@
           <div class="form-group">
             <label for="password" class="uk-form-label"></label>
             <input id="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls form-control"
-                  required minlength="4" appForbiddenName="bob"
+                  required minlength="8" appForbiddenName="bob"
                   [(ngModel)]="user.password" #name="ngModel" required>
   
             <div *ngIf="password.invalid && (password.dirty || password.touched)"
@@ -34,7 +34,7 @@
                 Password is required.
               </div>
               <div *ngIf="password.errors.minlength">
-                Password must be at least 4 characters long.
+                Password must be at least 8 characters long.
               </div>
               <div *ngIf="password.errors.forbiddenPassword">
                 Password cannot be Bob.
@@ -60,7 +60,7 @@
           </div>
   
           <div *ngIf="registrationForm.errors?.identityRevealed && (registrationForm.touched || registrationForm.dirty)" class="cross-validation-error-message alert alert-danger">
-              Name cannot match alter ego.
+              Password and Confirm Password do not match.
           </div>
         </div>
 

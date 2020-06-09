@@ -2,12 +2,12 @@
 import { Directive } from '@angular/core';
 import { AbstractControl, FormGroup, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 
-/** A user's name can't match the user's alter ego */
+/** A user's password can't match the user's confirmed password */
 export const identityRevealedValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {
-  const name = control.get('name');
+  const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
 
-  return name && confirmPassword && name.value === confirmPassword.value ? { 'identityRevealed': true } : null;
+  return password && confirmPassword && password.value !== confirmPassword.value ? { 'identityRevealed': true } : null;
 };
 
 @Directive({
