@@ -30,9 +30,7 @@ import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
 import {MatProgressSpinnerModule} from '@angular/material';
 import { RegistrationComponent } from './registration/registration.component';
-import { ForbiddenValidatorDirective } from './shared/forbidden-name.directive';
-import { IdentityRevealedValidatorDirective } from './shared/identity-revealed.directive';
-import { UniqueConfirmPasswordValidatorDirective } from './shared/alter-ego.directive';
+import { IdentityRevealedValidatorDirective } from './directives/identity-revealed.directive';
 
 @NgModule({
   declarations: [
@@ -56,9 +54,7 @@ import { UniqueConfirmPasswordValidatorDirective } from './shared/alter-ego.dire
     StoryEditorComponent,
     RegistrationComponent,
     RegistrationComponent,
-    ForbiddenValidatorDirective,
     IdentityRevealedValidatorDirective,
-    UniqueConfirmPasswordValidatorDirective,
   ],
   imports: [
       NgbModule,

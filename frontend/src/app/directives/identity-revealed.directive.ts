@@ -2,7 +2,7 @@
 import { Directive } from '@angular/core';
 import { AbstractControl, FormGroup, NG_VALIDATORS, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 
-/** A user's password can't match the user's confirmed password */
+/** A user's password has to match the user's confirmed password */
 export const identityRevealedValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');

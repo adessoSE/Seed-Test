@@ -1,17 +1,6 @@
 <div class="grid">
-
   <div class="formular container">
-<!--
-          <label class="uk-form-label"></label>
-          <input id="email" type="email" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required>
-        <br>
-          <label class="uk-form-label"></label>
-          <input id="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls" required>
-       <br>
-        <button class="registerButton" type="submit" [disabled]="form.invalid">Register</button>
-        <hr>
-      </form>
-    </div>-->
+
     <h1 id="headerFont">Registration</h1>
     <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(form);" appIdentityRevealed >
       <hr>
@@ -24,7 +13,7 @@
           <div class="form-group">
             <label for="password" class="uk-form-label"></label>
             <input id="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls form-control"
-                  required minlength="8" appForbiddenName="bob"
+                  required minlength="8"
                   [(ngModel)]="user.password" #name="ngModel" required>
   
             <div *ngIf="password.invalid && (password.dirty || password.touched)"
@@ -36,9 +25,6 @@
               <div *ngIf="password.errors.minlength">
                 Password must be at least 8 characters long.
               </div>
-              <div *ngIf="password.errors.forbiddenPassword">
-                Password cannot be Bob.
-              </div>
   
             </div>
           </div>
@@ -47,9 +33,8 @@
             <label for="confirmPassword" class="uk-form-label"></label>
                   <input id="confirmPassword" type="password" name="confirmPassword" placeholder="Confirm Password" 
                   #confirmPassword ngModel class="uk-form-controls form-control"
-                        required minlength="4" appForbiddenName="bob"
+                        required minlength="4"
                         [(ngModel)]="user.ConfirmPassword" [ngModelOptions]="{ updateOn: 'blur' }" #name="ngModel" required appUniqueConfirmPassword>
-        
   
             <div *ngIf="confirmPassword.pending">Validating...</div>
             <div *ngIf="confirmPassword.invalid" class="alert alert-danger alter-ego-errors">
@@ -63,25 +48,7 @@
               Password and Confirm Password do not match.
           </div>
         </div>
-
-<!--
-        <div class="form-group">
-          <label for="power">user Power</label>
-          <select id="power" name="power" class="form-control"
-                  required [(ngModel)]="user.power" #power="ngModel" >
-            <option *ngFor="let p of powers" [value]="p">{{p}}</option>
-          </select>
-  
-          <div *ngIf="power.errors && power.touched" class="alert alert-danger">
-            <div *ngIf="power.errors.required">Power is required.</div>
-          </div>
-        </div>
--->
-  
-        <button type="submit" class="btn btn-default"
-                [disabled]="registrationForm.invalid">Submit</button>
-        <button type="button" class="btn btn-default"
-                (click)="registrationForm.resetForm({})">Reset</button>
+        <button class="registerButton" type="submit" [disabled]="form.invalid">Register</button>
       </div>
   
       <div class="submitted-message" *ngIf="registrationForm.submitted">
@@ -89,13 +56,7 @@
         <button (click)="registrationForm.resetForm({})">Add new user</button>
       </div>
     </form>
+
   </div>
-  
-  
-  <!-- 
-  Copyright Google LLC. All Rights Reserved.
-  Use of this source code is governed by an MIT-style license that
-  can be found in the LICENSE file at http://angular.io/license
-  -->
-  </div>
+</div>
     
