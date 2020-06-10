@@ -150,16 +150,18 @@ export class ApiService {
     public getStories(repository: RepositoryContainer): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
         let params;
-        if(repository.source == 'github'){
+        if(repository.source === 'github'){
             let repo = repository.value.split('/');
             params = { githubName: repo[0], repository: repo[1], source: repository.source}
-        }else if(repository.source == 'jira'){
+        }else if(repository.source === 'jira'){
             params = {projectKey: repository.value, source: repository.source}
         }
 
         return this.http
             .get<Story[]>(this.apiServer + '/user/stories/', {params, withCredentials: true})
             .pipe(tap(resp => {
+                console.log('Resp');
+                console.log(resp);
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
     }

@@ -1,3 +1,5 @@
+const { GithubError, JiraError } = require( "../errors/CustomErrors");
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -12,6 +14,8 @@ const salt = bcrypt.genSaltSync(10);
 const mongo = require('../database/mongodatabase');
 const UserError = require('../errors/CustomErrors')
 const router = express.Router();
+
+const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 // router for all user requests
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub)
@@ -104,9 +108,9 @@ router.get('/repositories', (req, res) => {
     }
    
     Promise.all([
-      helper.jiraProjects(req.user),
       helper.starredRepositories(githubName, token),
       helper.ownRepositories(githubName, token),
+      helper.jiraProjects(req.user),
     ]).then((repos) => {
       let merged = [].concat(...repos);
       //remove duplicates
@@ -121,47 +125,129 @@ router.get('/repositories', (req, res) => {
 
 // get stories from github
 router.get('/stories', async (req, res) => {
-    console.log(req.query)
-    let source = req.query.source;
-    if(source == 'github' || !source){
-        try{
-        let githubName;
-        let githubRepo;
-        let token;
-        if(req.user){
-            githubName = req.query.githubName;
-            githubRepo = req.query.repository;
-            token = req.user.github.githubToken;
-          }else{
-            githubName = process.env.TESTACCOUNT_NAME;
-            githubRepo = process.env.TESTACCOUNT_REPO;
-            token = process.env.TESTACCOUNT_TOKEN;
+  const source = req.query.source;
+  if(source === 'github' || !source) {
+    try{
+      let githubName;
+      let githubRepo;
+      let token;
+    if(req.user){
+        githubName = req.query.githubName;
+        githubRepo = req.query.repository;
+        token = req.user.github.githubToken;
+      }else{
+        githubName = process.env.TESTACCOUNT_NAME;
+        githubRepo = process.env.TESTACCOUNT_REPO;
+        token = process.env.TESTACCOUNT_TOKEN;
+    }
+      const tmpStories = [];
+      // get Issues from GitHub .
+      const headers = {
+        Authorization: `token ${token}`,
+      };
+      let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
+      if (response.status === 401) {
+        throw new GithubError('Github Status 401')
+      }
+      if (response.status === 200) {
+        let json = await response.json();
+        for (const issue of json) {
+          // only relevant issues with label: "story"
+          const story = {
+            story_id: issue.id,
+            title: issue.title,
+            body: issue.body,
+            state: issue.state,
+            issue_number: issue.number,
+          };
+          if (issue.assignee !== null) { // skip in case of "unassigned"
+            story.assignee = issue.assignee.login;
+            story.assignee_avatar_url = issue.assignee.avatar_url;
+          } else {
+            story.assignee = 'unassigned';
+            story.assignee_avatar_url = unassignedAvatarLink;
+          }
+          console.log(story);
+          tmpStories.push(helper.fuseGitWithDb(story, issue.id));
         }
-        let stories = await helper.getGithubStories(githubName, githubRepo, token, res, req)
-        res.status(200).json(stories);
-        }catch(err){
-            if(reason instanceof GithubError){
-                res.status(401).send(error.message);
-              }
-              else {
-                res.status(503).send(error.message);
-            }
-        }
-    }else if(source == 'jira'){
-        try{
-            let projectKey = req.query.projectKey;
-            let stories = await helper.getJiraIssues(req.user, projectKey)
-            res.status(200).json(stories);
-        }catch(err){
-            if(reason instanceof GithubError){
-                res.status(401).send(error.message);
-              }
-              else {
-                res.status(503).send(error.message);
-              }
+      }
+      Promise.all(tmpStories).then((results) => {
+        res.status(200).json(results);
+        // let stories = results; // need this to clear promises from the Story List
+      }).catch((e) => {
+        console.log(e);
+      });
+    }catch(err){
+        if(err instanceof GithubError){
+            res.status(401).send(error.message);
+          }
+          else {
+            res.status(503).send(error.message);
         }
     }
-  });
+  } else if (source === 'jira') {
+    if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
+      const { Host } = req.user.jira;
+      const { AccountName } = req.user.jira;
+      const { Password } = req.user.jira;
+      const { projectKey } = req.query;
+      const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+      const cookieJar = request.jar();
+      const tmpStories = [];
+      const options = {
+        method: 'GET',
+        url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+        jar: cookieJar,
+        qs: {
+          type: 'page',
+          title: 'title',
+        },
+        headers: {
+          'cache-control': 'no-cache',
+          Authorization: `Basic ${auth}`,
+        },
+      };
+      request(options, (error) => {
+        if (error) {
+          res.status(500).json(error);
+          throw new Error(error);
+        }
+        request(options, (error2, response2, body) => {
+          if (error2) {
+            res.status(500).json(error);
+            throw new Error(error);
+          }
+          const json = JSON.parse(body).issues;
+          for (const issue of json) {
+            const story = {
+              story_id: issue.id,
+              title: issue.fields.summary,
+              body: issue.fields.description,
+              state: issue.fields.status.name,
+              issue_number: issue.id,
+            };
+            if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+              story.assignee = issue.fields.assignee.name;
+              story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+            } else {
+              story.assignee = 'unassigned';
+              story.assignee_avatar_url = unassignedAvatarLink;
+            }
+            tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+          }
+          Promise.all(tmpStories).then((results) => {
+            res.status(200).json(results);
+            // let stories = results; // need this to clear promises from the Story List
+          }).catch((e) => {
+            console.log(e);
+          });
+        });
+      });
+    } else {
+      res.sendStatus(401);
+    }
+  }
+});
 
 
 router.post('/githubLogin', (req, res) =>{
@@ -176,7 +262,6 @@ router.post('/githubLogin', (req, res) =>{
             res.send(body)
         }
     )
-
 });
 
 router.get('/callback', (req, res) =>{

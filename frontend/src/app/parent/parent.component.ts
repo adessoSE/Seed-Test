@@ -41,6 +41,8 @@ export class ParentComponent implements OnInit {
     this.apiService
       .getStories(repository)
       .subscribe((resp: Story[]) => {
+        console.log('Stories');
+        console.log(resp);
         this.stories = resp;
     });
   }
