@@ -12,7 +12,7 @@
                   <ul class="dropdown-list">
                    <li *ngFor="let repository of repositories; let i = index" >
                      <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-                      href="#">{{repository}}</a>
+                      href="#">{{repository.value}}</a>
                    </li>
                   </ul>
                 </div>
