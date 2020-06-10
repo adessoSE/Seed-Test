@@ -2,50 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const process = require('process');
+const passport = require('passport');
+const flash = require('express-flash');
+const session = require('express-session');
 const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
-const userRouter = require('./serverRouter/userRouter')
+const userRouter = require('./serverRouter/userRouter');
 
-const mongo = require('./database/mongodatabase');
-const bcrypt = require('bcrypt');
-const passport = require('passport');
-const flash = require('express-flash');
-const session = require('express-session');
 const app = express();
 
-let stories = [];
-
-// Initialize the app.
+// Initialize the app and open correct Port.
 const server = app.listen(process.env.PORT || 8080, () => {
   const { port } = server.address();
-  console.log('App now running on port', port);
+  console.log(`App now running on port: ${port}`);
 });
-
-// Handling response errors
-function handleError(res, reason, statusMessage, code) {
-  console.log(`ERROR: ${reason}`);
-  res.status(code || 500).json({ error: statusMessage });
-}
-
 /**
  * API Description
  */
 app
-  .use(cors({origin: [
-  'http://localhost:4200'
-  ], credentials: true}))
+  .use(cors({ origin: ['http://localhost:4200'], credentials: true }))
   .use(flash())
   .use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {httpOnly: false, 
-      maxAge: 864000000,
-      //secure: true,
-      //sameSite: true
-    },
+    cookie: { httpOnly: false, maxAge: 864000000 },
   }))
   .use(passport.initialize())
   .use(passport.session())

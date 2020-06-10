@@ -1,7 +1,9 @@
-const {exec} = require('child_process');
+const { exec } = require('child_process');
 const fs = require('fs');
-const {XMLHttpRequest} = require('xmlhttprequest');
+const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
+const request = require('request');
+const fetch = require('node-fetch');
 const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
@@ -9,7 +11,6 @@ const emptyBackground = require('./models/emptyBackground');
 
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
-const fetch = require('node-fetch');
 const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 
 // this is needed for the html report
@@ -254,12 +255,11 @@ async function execReport(req, res, stories, mode, callback) {
   }
 }
 
-function jiraProjects(user){
+function jiraProjects(user) {
   return new Promise((resolve, reject) => {
     if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
-      const { Host } = user.jira;
-      const { AccountName } = user.jira;
-      const { Password } = user.jira;
+      const { Host, AccountName, Password } = user.jira;
+      console.log(Host, AccountName, Password);
       const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
       const cookieJar = request.jar();
       const options = {
@@ -283,15 +283,20 @@ function jiraProjects(user){
           if (error2) {
             reject(error);
           }
-          body = body.map((value) => {
-            return {value, source: 'jira'}
-          })
-          console.log(body);
-          resolve(body)
+          console.log("body");
+          console.log(response2);
+          console.log("body");
+          const json = JSON.parse(body).projects;
+          let names = [];
+          for (const repo of json) {
+            names.push(repo.name);
+          }
+          names = names.map(value => ({ value, source: 'jira' }));
+          resolve(names);
         });
       });
     } else {
-      resolve([])
+      resolve([]);
     }
   });
 }
@@ -347,7 +352,7 @@ function starredRepositories(githubName, token) {
 }
 
 async function fuseGitWithDb(story, issueId) {
-  let result = await mongo.getOneStory(issueId)
+  let result = await mongo.getOneStory(issueId);
   if (result !== null) {
     story.scenarios = result.scenarios;
     story.background = result.background;
@@ -358,7 +363,7 @@ async function fuseGitWithDb(story, issueId) {
   }
   mongo.upsertEntry(story.story_id, story);
   writeFile('', story); // Create & Update Feature Files
-  return story
+  return story;
 }
 
 function deleteJsonReport(jsonReport) {
@@ -454,10 +459,10 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 }
 
 function getJiraIssues(user, projectKey){
-  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' || projectKey != 'null') {
-    const { Host } = user.jira;
-    const { AccountName } = user.jira;
-    const { Password } = user.jira;
+  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
+    const {Host} = user.jira;
+    const {AccountName} = user.jira;
+    const {Password} = user.jira;
     const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
     const cookieJar = request.jar();
     const tmpStories = [];
@@ -476,13 +481,11 @@ function getJiraIssues(user, projectKey){
     };
     request(options, (error) => {
       if (error) {
-        res.status(500).json(error);
-        throw new Error(error);
+        return error;
       }
       request(options, (error2, response2, body) => {
         if (error2) {
-          res.status(500).json(error);
-          throw new Error(error);
+          return error;
         }
         const json = JSON.parse(body).issues;
         for (const issue of json) {
@@ -502,13 +505,10 @@ function getJiraIssues(user, projectKey){
           }
           tmpStories.push(fuseGitWithDb(story, issue.id));
         }
-        return Promise.all(tmpStories)
+        console.log(tmpStories);
+        return tmpStories;
       });
     });
-  } else {
-    return new Promise((resolve, reject) => {
-      reject('No Jira')
-    })
   }
 }
 
