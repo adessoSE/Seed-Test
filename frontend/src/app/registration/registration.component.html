@@ -1,0 +1,29 @@
+<div class="grid">
+  <div class="formular container">
+    <h1 id="headerFont">Registration</h1>
+    <!--Formular-->
+    <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(registrationForm);" appPasswordConfirmed>
+      <hr>
+      <!--Input Email-->
+      <label class="uk-form-label"></label>
+      <input id="email" type="email" name="email" placeholder="Email" #email ngModel class="uk-form-controls" required><br><br>
+      <!--Cross Validation-->
+        <div class="cross-validation" [class.cross-validation-error]="registrationForm.errors?.passwordConfirmed">
+          <!--Input Password-->
+            <label for="password" class="uk-form-label"></label>
+            <input id="password" type="password" name="password" placeholder="Password" #password ngModel class="uk-form-controls"
+                  required minlength="3" #name="ngModel" required><br><br>
+          <!--Confirm Password-->
+            <label for="confirmPassword" class="uk-form-label"></label>
+                  <input id="confirmPassword" type="password" name="confirmPassword"  placeholder="Confirm Password" 
+                  #confirmPassword ngModel class="uk-form-controls" #name="ngModel" required><br><br>
+          <!--P and CP don't match-->
+          <div *ngIf="registrationForm.errors?.passwordConfirmed" class="cross-validation-error-message alert alert-danger">
+              Password and Confirm Password do not match.
+          </div>
+        </div>
+        <button class="registerButton" type="submit" [disabled]="registrationForm.invalid">Register</button>
+    </form>
+  </div>
+</div>
+    

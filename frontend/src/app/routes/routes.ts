@@ -5,6 +5,7 @@ import { AuthGuard } from '../guards/auth.guard';
 import { FeedbackComponent } from '../feedback/feedback.component';
 import { TermsComponent } from '../terms/terms.component';
 import { TestAccountComponent } from '../test-account/test-account.component';
+import { RegistrationComponent } from '../registration/registration.component';
 import { ReportComponent } from '../report/report.component';
 
 export const ROUTES = [
@@ -36,5 +37,9 @@ export const ROUTES = [
     {
         path: 'terms',
         component: TermsComponent
+    },
+    {
+        path: 'register',
+        component: RegistrationComponent
     }
 ];

@@ -1,0 +1,72 @@
+.grid{
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-areas: "formular";
+    background-color: white;
+}
+
+.form-group {
+    width: 650px;
+    padding-left: 430px;
+}
+
+.cross-validation-error input {
+    border-left: 5px solid red;
+  }
+
+.formular{
+    grid-area: formular;
+    grid-row: 1 / 2;
+    text-align: center;
+    background-color: white;
+    padding: 80px 50px 20px;
+}
+
+#headerFont{
+    color:#0099CC;
+    font-size: 22pt;
+    font-weight: bold;
+}
+
+.registerButton{
+    color:#ffffff;
+    width: 150px;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border: solid 1px #0099CC;
+    background: #0099CC;
+    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+}
+
+.registerButton:focus {outline:0 !important;}
+
+.registerButton:hover {
+    background: rgb(2, 111, 161);
+    }
+
+.registerButton:active {
+    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
+    }
+
+.uk-form-controls{
+    border-radius: 3px;
+    padding: 5px 5px 5px 5px;
+}
+
+/*
+.ng-valid[required], .ng-valid.required  {
+    border-left: 5px solid #42A948; 
+  }
+  
+  .ng-invalid:not(form)  {
+    border-left: 5px solid #a94442; 
+  }*/
+
+@media screen and (max-width: 600px) {
+    .grid{
+        display: grid;
+        grid-template-rows: auto;
+        grid-template-areas: "formular";
+    }
+}

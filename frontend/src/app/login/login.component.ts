@@ -95,6 +95,10 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['']);
     }
 
+    navToRegistration() {
+    this.router.navigate(['/register']);
+  }
+
     githubLogin(){
         this.error = undefined;
         this.repositoriesLoading = true;

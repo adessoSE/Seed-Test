@@ -30,6 +30,8 @@ import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
 import {MatProgressSpinnerModule} from '@angular/material';
 import { ReportComponent } from './report/report.component';
+import { RegistrationComponent } from './registration/registration.component';
+import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 
 @NgModule({
   declarations: [
@@ -47,10 +49,13 @@ import { ReportComponent } from './report/report.component';
     FeedbackComponent,
     TermsComponent,
     SubmitformComponent,
-    StoryEditorComponent,
     AccountManagmentComponent,
     LoginFormComponent,
     TestAccountComponent,
+    StoryEditorComponent,
+    RegistrationComponent,
+    RegistrationComponent,
+    PasswordConfirmedValidatorDirective,
     ReportComponent
   ],
   imports: [

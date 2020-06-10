@@ -102,7 +102,6 @@ export class ApiService {
                 email, password, stayLoggedIn
             }
         }
-
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
             //this.getStoriesEvent.emit(resp);
@@ -191,10 +190,11 @@ export class ApiService {
             }));
     }
 
-    public createUser(user: User): Observable<User> {
+    public registerUser(email:string, password:string): Observable<any> {
+        const user = {email, password};
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/user/add', user)
+            .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
