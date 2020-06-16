@@ -197,36 +197,39 @@ function replaceUser(newUser, collection) {
 }
 
 async function updateStory(gitID, updatedStuff) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await replace(gitID, updatedStuff, collection)
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // get One Story
 async function getOneStory(storyID) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyID, collection)
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close();
   }
 }
 
 // GET all  Steptypes
 async function showSteptypes() {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     dbo = db.db('Seed')
     let collection = await dbo.collection('stepTypes')
     let result = await collection.find({}).toArray()
@@ -234,14 +237,15 @@ async function showSteptypes() {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // Create Background
 async function createBackground(storyID) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyID, collection)
     const tmpBackground = emptyBackground();
@@ -251,14 +255,15 @@ async function createBackground(storyID) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // UPDATE Background
 async function updateBackground(storyID, updatedBackground) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyID, collection)
     story.background = updatedBackground;
@@ -267,14 +272,15 @@ async function updateBackground(storyID, updatedBackground) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // DELETE Background
 async function deleteBackground(storyID) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyID, collection)
     story.background = emptyBackground();
@@ -283,14 +289,15 @@ async function deleteBackground(storyID) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // CREATE Scenario
 async function createScenario(storyID) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyID, collection)
     const lastScenarioIndex = story.scenarios.length;
@@ -306,14 +313,15 @@ async function createScenario(storyID) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // DELETE Scenario
 async function deleteScenario(storyID, scenarioID) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyID, collection)
     for (let i = 0; i < story.scenarios.length; i++) {
@@ -327,14 +335,15 @@ async function deleteScenario(storyID, scenarioID) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // POST Scenario
 async function updateScenario(storyID, updatedScenario) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyID, collection)
     for (const scenario of story.scenarios) {
@@ -353,14 +362,15 @@ async function updateScenario(storyID, updatedScenario) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 async function upsertEntry(storyID, updatedContent) {
+  let db;
   try {
     const myObjt = { story_id: storyID };
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectStoriesCollection(db)
     collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
       returnOriginal: false,
@@ -369,13 +379,14 @@ async function upsertEntry(storyID, updatedContent) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 async function uploadReport(reportData) {
+  let db;
   try{
-    let db = await connectDb()
+    db = await connectDb()
     dbo = db.db('Seed')
     let collection = await dbo.collection('TestReport')
     let result = await collection.insertOne(reportData);
@@ -387,9 +398,10 @@ async function uploadReport(reportData) {
 }
 
 async function getReport(reportName) {
+  let db;
   try{
     let report = {reportName}
-    let db = await connectDb()
+    db = await connectDb()
     dbo = db.db('Seed')
     let collection = await dbo.collection('TestReport')
     let result = await collection.findOne(report);
@@ -402,8 +414,9 @@ async function getReport(reportName) {
 
 // create User in DB needs JsonObject User returns JsonObject(user)
 async function createUser(user) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectUsersCollection(db)
     let result = await collection.insertOne(user)
     console.log(result.ops[0])
@@ -411,46 +424,49 @@ async function createUser(user) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 // delete User in DB needs ID
 async function deleteUser(userID) {
+  let db;
   try {
     oId = ObjectId(userID)
     const myObjt = { _id: oId }
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectUsersCollection(db)
     await collection.deleteOne(myObjt)
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 // update a User in DB needs ID and JsonObject User returns altered JsonObject User
 async function updateUser(userID, updatedUser) {
+  let db;
   try {
     oId = ObjectId(userID)
     const myObjt = { _id: oId }
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectUsersCollection(db)
     let result = await collection.findOneAndReplace(myObjt, updatedUser, { returnOriginal: false })
     return result.value
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
 //get UserData needs ID returns JsonObject User
 async function getUserData(userID) {
+  let db;
   try {
     const oId = ObjectId(userID);
     const myObjt = { _id: oId };
-    let db = await connectDb();
+    db = await connectDb();
     let collection = await selectUsersCollection(db);
     let result = await collection.findOne(myObjt);
     db.close();
@@ -459,7 +475,7 @@ async function getUserData(userID) {
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {
-    db.close()
+    if(db) db.close()
   }
 }
 
