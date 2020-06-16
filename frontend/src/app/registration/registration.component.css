@@ -10,16 +10,25 @@
     padding-left: 430px;
 }
 
-.cross-validation-error input {
-    border-left: 5px solid red;
-  }
-
 .formular{
     grid-area: formular;
     grid-row: 1 / 2;
     text-align: center;
     background-color: white;
     padding: 80px 50px 20px;
+}
+
+.input{
+    width: 252px;
+}
+
+#infoIcon{
+    color: #999;
+    padding: 5px;
+  }
+
+#passwordLengthInfo{
+    font-size: small;
 }
 
 #headerFont{
@@ -54,14 +63,17 @@
     padding: 5px 5px 5px 5px;
 }
 
-/*
 .ng-valid[required], .ng-valid.required  {
-    border-left: 5px solid #42A948; 
+    border-left: 5px solid #53d35a; 
   }
   
-  .ng-invalid:not(form)  {
-    border-left: 5px solid #a94442; 
-  }*/
+.ng-invalid:not(form)  {
+    border-left: 5px solid #d15553; 
+  }
+
+.cross-validation-error input {
+    border-left: 5px solid #d15553;
+  }
 
 @media screen and (max-width: 600px) {
     .grid{
