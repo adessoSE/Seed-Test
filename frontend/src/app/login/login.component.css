@@ -1,8 +1,18 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+h1{
+    margin: 5px;
+}
+
 .grid{
     display: grid;
     grid-template-rows: auto;
     grid-template-areas: "formular" "repositories";
     background-color: white;
+    place-items: center;
 }
 
 .formular{
@@ -11,6 +21,15 @@
     text-align: center;
     background-color: white;
     padding: 80px 50px 20px;
+    text-align: center;
+}
+
+.stayLoggedInContainer label{
+    margin-left: 5px;
+}
+
+.stayLoggedInContainer {
+    margin: 5px;
 }
 
 .repositories{
@@ -32,11 +51,11 @@
     font-size: 20px;
 }
 
-.repoLink {
+a:not([href]):not([tabindex]).repoLink {
     color: grey;
 }
 
-.repoLink:hover{
+a:not([href]):not([tabindex]).repoLink:hover {
     color: #0099CC;
     text-decoration: none;
 }
@@ -58,8 +77,11 @@
     font-size: 15px;
     cursor: pointer;
     border: solid 1px #0099CC;
+    background: #0099CC;
     background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
 }
+
+.loginButton:focus {outline:0 !important;}
 
 .loginButton:hover {
     background: rgb(2, 111, 161);
@@ -69,9 +91,76 @@
     background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
     }
 
+.testAccount{
+    margin: 5px;
+    color:#ffffff;
+    padding: 5px 31px;
+    font-size: 15px;
+    cursor: pointer;
+    border: solid 1px #999;
+    background: #999;
+    background: -moz-linear-gradient(top,  #999,  rgb(117, 117, 117));
+}
+
+.testAccount:hover {
+    background: rgb(117, 117, 117);
+    }
+
+.testAccount:active {
+    background: -moz-linear-gradient(top,  rgb(117, 117, 117),  #999);
+    }
+    
+.testAccount:focus {outline:0 !important;}
+
+.noAccount{
+    font-size: 13px;
+    padding: 5px;
+}
+
+.githubLogin{
+    color: #fff;
+    padding: 5px 10px;
+    background-color: black;
+    border: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.githubLoginContainer{
+    margin: 10px;
+    display:inline-block;
+}
+
+.githubLogin img{
+    margin-right: 5px;
+    width: 17px;
+    height: 17px;
+}
+
 .uk-form-controls{
     border-radius: 3px;
     padding: 5px 5px 5px 5px;
+}
+
+#register{
+    font-size: 100%;
+    font-style: inherit;
+    border: 0px;
+    background-color: white;
+    color: #56595e;
+    outline: none; 
+    text-decoration: underline;
+}
+
+#register:hover{
+    color: #0099CC;
+  }
+  
+
+:host ::ng-deep .loadingSpinner circle{   
+    stroke: rgb(2, 111, 161);
 }
 
 @media screen and (max-width: 600px) {

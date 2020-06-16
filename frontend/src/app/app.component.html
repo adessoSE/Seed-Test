@@ -1,23 +1,37 @@
 <div class="grid">
   <div class="topnav">
-
     <!--left-->
-    <div class="topnav-left">
-      <a routerLink="/feedback">
-        <button class="left-button">Feedback</button>
-      </a>
-      <div class="dropdown">
-        <button class="left-button">Help</button>
-        <div class="dropdown-list">
-          <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
-          <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
-        </div>
+    <div class="uk-inline">
+      <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
+      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: click">
+        <ul class="menulist">
+          <li>
+            <div *ngIf="this.token || this.repositories" class="dropdown">
+              <button class="menuSelection" title="Select Repository">Repositories</button>
+                <div uk-dropdown="mode: click">
+                  <ul class="dropdown-list">
+                   <li *ngFor="let repository of repositories; let i = index" >
+                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
+                      href="#">{{repository.value}}</a>
+                   </li>
+                  </ul>
+                </div>
+            </div>
+          </li>
+          <li>
+            <button id="manageAccount" class="menuSelection" title="Account Settings" (click)="manageAccount();">Account Settings</button>
+          </li>
+          <li>
+            <button class="menuSelection"  id="logout" title="Logout" (click)="logout();">Logout</button>
+          </li>
+        </ul>
       </div>
-      <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
+      <p id="version">Version 1.1.0 Alpha</p>
     </div>
+    
 
     <!--center-->
-    <div class="topnav-center">
+    <div class="topnavCenter">
       <a routerLink="/" class="title">
         <h4 id="seedTest">
           <img id="logo" src="assets/seed-test-logo1.png" alt="Seed-Test">
@@ -25,19 +39,19 @@
       </a>
     </div>
     <!--right-->
-    <div class="topnav-right">
-        <p id="version">Version 1.0.1</p>
-      <div *ngIf="this.token || this.repository">
+    <div class="topnavRight">
+      <div>
+        <a routerLink="/feedback">
+          <button class="rightButton">Feedback</button>
+        </a>
         <div class="dropdown">
-          <button id="repositories" class="right-button" title="Select Repository">Repositories</button>
-          <ul class="dropdown-list">
-            <li *ngFor="let repository of repositories; let i = index" >
-              <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-               href="#">{{repository}}</a>
-            </li>
-          </ul>
+          <button class="rightButton">Help</button>
+            <div class="dropdown-list">
+              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
+              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
+            </div>
         </div>
-        <button id="logout" class="right-button" title="Logout" (click)="logout();">Logout</button>
+        <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
       </div>
     </div>
   </div>

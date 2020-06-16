@@ -2,112 +2,62 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const request = require('request');
-const process = require('process');
 const helper = require('../serverHelper');
 
 const router = express.Router();
-const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 // router for all jira requests
 router
   .use(cors())
   .use(bodyParser.json({ limit: '100kb' }))
   .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
+  .use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+    res.header('Access-Control-Allow-Credentials','true' );
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect");
+    next();
+  })
   .use((_, __, next) => {
     console.log('Time of jira request:', Date.now());
     next();
   });
-// Gets all possible issues from project
-router.get('/issues/:hostServer/:projectKey', (req, res) => {
-  const { hostServer } = req.params;
-  const { projectKey } = req.params;
-  const username = 'admin';
-  const password = 'admin';
-  const auth = Buffer.from(`${username}:${password}`).toString('base64');
-  const cookieJar = request.jar();
-  const tmpStories = [];
-  const options = {
-    method: 'GET',
-    url: `http://${hostServer}/jira/rest/api/2/search?jql=project=${projectKey}`,
-    jar: cookieJar,
-    qs: {
-      type: 'page',
-      title: 'title',
-    },
-    headers: {
-      'cache-control': 'no-cache',
-      Authorization: `Basic ${auth}`,
-    },
-  };
-  request(options, (error) => {
-    if (error) {
-      res.status(500).json(error);
-      throw new Error(error);
-    }
-    request(options, (error2, response2, body) => {
-      if (error2) {
-        res.status(500).json(error);
-        throw new Error(error);
+
+
+router.post('/user/create/', (req, res) => {
+  if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') {
+    const { jiraAccountName, jiraPassword, jiraHost } = req.body;
+    const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
+    const cookieJar = request.jar();
+    const options = {
+      method: 'GET',
+      url: `http://${jiraHost}/rest/api/2/issue/createmeta`,
+      jar: cookieJar,
+      qs: {
+        type: 'page',
+        title: 'title',
+      },
+      headers: {
+        'cache-control': 'no-cache',
+        Authorization: `Basic ${auth}`,
+      },
+    };
+    request(options, (error) => {
+      if (error) {
+        res.status(500);
+        console.error('Cant connect to Jira Server');
       }
-      const json = JSON.parse(body).issues;
-      for (const issue of json) {
-        const story = {
-          story_id: issue.id,
-          title: issue.fields.summary,
-          body: issue.fields.description,
-          state: issue.fields.status.name,
-          issue_number: issue.id,
-        };
-        if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-          story.assignee = issue.fields.assignee.name;
-          story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-        } else {
-          story.assignee = 'unassigned';
-          story.assignee_avatar_url = unassignedAvatarLink;
+      request(options, (error2) => {
+        if (error2) {
+          res.status(500);
+          console.error('Cant connect to Jira Server');
         }
-        tmpStories.push(helper.fuseGitWithDb(story, issue.id));
-      }
-      Promise.all(tmpStories).then((results) => {
-        res.status(200).json(results);
-        // let stories = results; // need this to clear promises from the Story List
-      }).catch((e) => {
-        console.log(e);
+        helper.updateJira(req.user._id, req.body).then((result) => {
+          res.status(200).json(result);
+        });
       });
     });
-  });
+  } else {
+    console.error('User doesnt exist.');
+    res.status(401).json('User doesnt exist.');
+  }
 });
-// gets all project from user
-router.get('/projects/:hostServer', (req, res) => {
-  const { hostServer } = req.params;
-  const username = 'admin';
-  const password = 'admin';
-  const auth = Buffer.from(`${username}:${password}`).toString('base64');
-  const cookieJar = request.jar();
-  const options = {
-    method: 'GET',
-    url: `http://${hostServer}/jira/rest/api/2/issue/createmeta`,
-    jar: cookieJar,
-    qs: {
-      type: 'page',
-      title: 'title',
-    },
-    headers: {
-      'cache-control': 'no-cache',
-      Authorization: `Basic ${auth}`,
-    },
-  };
-  request(options, (error) => {
-    if (error) {
-      res.status(500).json(error);
-      throw new Error(error);
-    }
-    request(options, (error2, response2, body) => {
-      if (error2) {
-        res.status(500).json(error);
-        throw new Error(error);
-      }
-      res.status(200).json(body);
-    });
-  });
-});
-
 module.exports = router;

@@ -24,6 +24,14 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
+import { AccountManagmentComponent } from './account-managment/account-managment.component';
+import { LoginFormComponent } from './login-form/login-form.component';
+import {CookieService } from 'ngx-cookie-service';
+import { TestAccountComponent } from './test-account/test-account.component'
+import {MatProgressSpinnerModule} from '@angular/material';
+import { ReportComponent } from './report/report.component';
+import { RegistrationComponent } from './registration/registration.component';
+import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 
 @NgModule({
   declarations: [
@@ -41,7 +49,14 @@ import { StoryEditorComponent } from './story-editor/story-editor.component';
     FeedbackComponent,
     TermsComponent,
     SubmitformComponent,
-    StoryEditorComponent
+    AccountManagmentComponent,
+    LoginFormComponent,
+    TestAccountComponent,
+    StoryEditorComponent,
+    RegistrationComponent,
+    RegistrationComponent,
+    PasswordConfirmedValidatorDirective,
+    ReportComponent
   ],
   imports: [
       NgbModule,
@@ -52,9 +67,10 @@ import { StoryEditorComponent } from './story-editor/story-editor.component';
     MatTableModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
-    DragDropModule
+    DragDropModule,
+    MatProgressSpinnerModule
   ],
-  providers: [ApiService, AuthGuard],
+  providers: [ApiService, AuthGuard, CookieService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

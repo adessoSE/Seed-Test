@@ -93,6 +93,11 @@ export class StoryEditorComponent implements OnInit {
         });
 }
 
+    inputSize(event){
+        let inputField = event.target;
+        inputField.style.width = (inputField.value.length) * 9 + "px";
+    }
+
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
     this.apiService

@@ -5,30 +5,53 @@
     <h1 id="loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <hr>
+      <br>
       <!-- Github Name -->
-      <label for="githubName" class="uk-form-label"></label>
-      <input id="githubName" type="text" name="githubName" placeholder=" Github Name" #githubName ngModel class="uk-form-controls" required>
+      <label for="email" class="uk-form-label" style="color: grey;"></label>
+      <input id="email" type="username" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
       <br>
       <!-- Token -->
-      <label for="token" class="uk-form-label"></label>
+      <label for="password" class="uk-form-label" style="color: grey;"></label>
       <br>
-      <input type="text" name="token" placeholder="Token" #token ngModel class="uk-form-controls" required>
+      <input id="password" type="password" name="password" placeholder=" Password" #password ngModel class="uk-form-controls" required>
       <br>
       <br>
       <!-- Button Login -->
-      <button class="loginButton" type="submit" [disabled]="form.invalid">Submit</button>
+      <div class="stayLoggedInContainer">
+        <input type="checkbox" id="stayLoggedIn" name="stayLoggedIn" ngModel>
+        <label for="stayLoggedIn">Keep me signed in for 2 weeks</label>
+      </div>
+      <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
     </form>
+    <br>
+    <p>or</p>
     <hr>
+    <br>
+    <p class="noAccount">No account? 
+      <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
+    </p>
+    <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
+    <a class="githubLoginContainer" (click)="githubLogin();">
+      <div class="githubLogin" >
+         <img src ="../assets/github-logo.png" >
+         <p>Login via Github</p>
+      </div>
+   </a>
+   <br>
     <!-- Button Login-TestAccount -->
-    <button class="loginButton" name="loginTest" type="button" (click)="loginTestAccount();">Test Account</button>
+    <button class="testAccount" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
+    <br>
   </div>
   <!-- Repositories -->
+  <div *ngIf="this.repositoriesLoading">
+    <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
+  </div>
   <div class="repositories" *ngIf="repositories">
     <div>
       <label class="selectRepository">Select Your Repository:</label>
       <ul class="uk-list">
         <li *ngFor="let repository of repositories; let i = index" >
-          <a class="repoLink" id="{{'repository_'+i}}" (click)="selectRepository(repository);" href="#">{{repository}}</a>
+          <a class="repoLink" id="{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
         </li>
       </ul>
     </div>

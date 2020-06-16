@@ -1,17 +1,106 @@
 /* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
+var ObjectId = require('mongodb').ObjectID;
 const fs = require('fs');
 const path = require('path');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 const stepTypes = require('./stepTypes.js');
-const { ObjectId } = require('mongodb').ObjectId;
+
 if (!process.env.NODE_ENV) {
   const dotenv = require('dotenv').config();
 }
 
 const uri = process.env.DATABASE_URI;
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
+
+
+async function registerUser(user){
+  let db = await connectDb()
+  dbo = db.db('Seed');
+  let collection = await dbo.collection('User')
+  let dbUser = await getUserByEmail(user.email);
+  let result;
+  if(dbUser !== null){
+    result = 'User already exists'
+  } else {
+   result = await collection.insertOne(user);
+  }
+  return result;
+}
+
+async function registerGithubUser(user){
+  let db = await connectDb()
+  dbo = db.db('Seed');
+  let collection = await dbo.collection('User')
+  let result = await collection.insertOne({github: user});
+  return result;
+}
+
+async function mergeGithub(userId, login, id){
+  console.log('login:', login, 'id:', id)
+  let db = await connectDb()
+  dbo = db.db('Seed');
+  let collection = await dbo.collection('User')
+  let githubAccount = await getUserByGithub(login, id)
+  let seedAccount = await getUserById(userId);
+  seedAccount.github = githubAccount.github;
+  if(githubAccount.hasOwnProperty('jira') && !seedAccount.hasOwnProperty('jira') ){
+    seedAccount.jira = githubAccount.jira;
+  }
+  let deletedGithub = await deleteUser(githubAccount._id);
+  let result = await replaceUser(seedAccount, collection)
+
+  return result;
+}
+
+async function getUserByEmail(email){
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let result = await collection.findOne({email: email})
+  db.close();
+  return result
+}
+
+async function getUserByGithub(login, id){
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let result = await collection.findOne({$and :[{'github.id': id}, {'github.login': login}]})
+  db.close();
+  return result
+}
+
+async function getUserById(id){
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let result = await collection.findOne({_id: ObjectId(id)})
+  console.log('getuserbyid: ' + id)
+  db.close();
+  return result
+}
+
+async function findOrRegister(user){
+  let result = await getUserByGithub(user.login, user.id)
+  if(!result) {
+    result = await registerGithubUser(user)
+  }else {
+    result = await updateGithubToken(result._id, user.githubToken)
+  }
+  //console.log('getuserbyid: ' + JSON.stringify(result))
+  return result
+}
+
+async function updateGithubToken(objId, updatedToken) {
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let user = await collection.updateOne({"_id" : ObjectId(objId)}, {$set: { 'github.githubToken' : updatedToken}})
+  db.close()
+  return user
+}
 
 function connectDb() {
   return new Promise((resolve, reject) => {
@@ -50,6 +139,16 @@ function selectUsersCollection(db) {
   })
 }
 
+
+async function updateStory(gitID, updatedStuff) {
+  let db = await connectDb()
+  let collection = await selectCollection(db)
+  let story = await replace(gitID, updatedStuff, collection)
+  db.close()
+  console.log('story: ' + JSON.stringify(story))
+  return story
+}
+
 function findStory(storyID, collection) {
   const myObjt = { story_id: storyID };
   return new Promise((resolve, reject) => {
@@ -67,6 +166,27 @@ function replace(storyID, story, collection) {
   const myObjt = { story_id: storyID };
   return new Promise((resolve, reject) => {
     collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result.value);
+      }
+    })
+  })
+}
+
+async function disconnectGithub(user){
+  let db = await connectDb()
+  let dbo = await db.db('Seed')
+  let collection = await dbo.collection('User')
+  let removedUser = await replaceUser(user, collection);
+  return removedUser;
+}
+
+function replaceUser(newUser, collection) {
+  const myObjt = { _id: ObjectId(newUser._id) }
+  return new Promise((resolve, reject) => {
+    collection.findOneAndReplace(myObjt, newUser, { returnOriginal: false }, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -253,6 +373,33 @@ async function upsertEntry(storyID, updatedContent) {
   }
 }
 
+async function uploadReport(reportData) {
+  try{
+    let db = await connectDb()
+    dbo = db.db('Seed')
+    let collection = await dbo.collection('TestReport')
+    let result = await collection.insertOne(reportData);
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER", e)
+  }
+}
+
+async function getReport(reportName) {
+  try{
+    let report = {reportName}
+    let db = await connectDb()
+    dbo = db.db('Seed')
+    let collection = await dbo.collection('TestReport')
+    let result = await collection.findOne(report);
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER", e)
+  }
+}
+
 // create User in DB needs JsonObject User returns JsonObject(user)
 async function createUser(user) {
   try {
@@ -301,11 +448,13 @@ async function updateUser(userID, updatedUser) {
 //get UserData needs ID returns JsonObject User
 async function getUserData(userID) {
   try {
-    oId = ObjectId(userID)
-    const myObjt = { _id: oId }
-    let db = await connectDb()
-    let collection = await selectUsersCollection(db)
-    let result = await collection.findOne(myObjt)
+    const oId = ObjectId(userID);
+    const myObjt = { _id: oId };
+    let db = await connectDb();
+    let collection = await selectUsersCollection(db);
+    let result = await collection.findOne(myObjt);
+    db.close();
+    console.log(result)
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
@@ -486,7 +635,6 @@ function update(storyID, updatedStuff) {
     dbo.collection(collection).updateOne({ story_id: storyID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
-      callback(res)
     });
   });
 }
@@ -537,6 +685,16 @@ function installDatabase() {
 }
 
 module.exports = {
+  getReport,
+  uploadReport,
+  disconnectGithub,
+  mergeGithub,
+  findOrRegister,
+  getUserByGithub,
+  updateStory,
+  getUserById,
+  registerUser,
+  getUserByEmail,
   showSteptypes,
   createBackground,
   deleteBackground,

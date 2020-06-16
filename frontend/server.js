@@ -1,4 +1,5 @@
 // Install express server
+const request = require('request')
 
 if(!process.env.NODE_ENV){
   const dotenv = require('dotenv').config();
@@ -6,7 +7,6 @@ if(!process.env.NODE_ENV){
 
 const express = require('express');
 const path = require('path');
-
 const app = express();
 const environment = '../frontend/src/environments/environment';
 
@@ -14,7 +14,7 @@ const environment = '../frontend/src/environments/environment';
 app.use(express.static(`${__dirname}/dist/cucumber-frontend`));
 
 app.get('/backendInfo', (req, res) => {
-  res.json({ url: process.env.API_SERVER });
+  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID});
 });
 
 app.get('/*', (req, res) => {
