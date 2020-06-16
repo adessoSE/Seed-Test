@@ -130,7 +130,6 @@ router.get('/user', async (req, res) => {
     }
   } else {
     console.log('Undefined');
-    console.log(req.user);
   }
 });
 

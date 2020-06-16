@@ -65,7 +65,6 @@ router.post('/login', (req, res, next) => {
 });
 
 router.post('/githubRegister', async (req, res) => {
-    console.log('githubRegister:')
     try{
         let user = await mongo.findOrRegister(req.body)
         res.json(user)
@@ -167,7 +166,6 @@ router.get('/stories', async (req, res) => {
             story.assignee = 'unassigned';
             story.assignee_avatar_url = unassignedAvatarLink;
           }
-          console.log(story);
           tmpStories.push(helper.fuseGitWithDb(story, issue.id));
         }
       }
@@ -277,7 +275,6 @@ router.get('/callback', (req, res) =>{
                   code: code
               },
           }, function(err, response, body){
-              console.log('in callback response')
               const accessToken = body.split("&")[0].split("=")[1];
               helper.getGithubData(res, req, accessToken);
           }

@@ -258,49 +258,50 @@ async function execReport(req, res, stories, mode, callback) {
 }
 
 function jiraProjects(user) {
-  return new Promise((resolve, reject) => {
-    if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
-      const { Host, AccountName, Password } = user.jira;
-      console.log(Host, AccountName, Password);
-      const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
-      const cookieJar = request.jar();
-      const options = {
-        method: 'GET',
-        url: `http://${Host}/rest/api/2/issue/createmeta`,
-        jar: cookieJar,
-        qs: {
-          type: 'page',
-          title: 'title',
-        },
-        headers: {
-          'cache-control': 'no-cache',
-          Authorization: `Basic ${auth}`,
-        },
-      };
-      request(options, (error) => {
-        if (error) {
-          reject(error);
-        }
-        request(options, (error2, response2, body) => {
-          if (error2) {
-            reject(error);
-          }
-          console.log("body");
-          console.log(response2);
-          console.log("body");
-          const json = JSON.parse(body).projects;
-          let names = [];
-          for (const repo of json) {
-            names.push(repo.name);
-          }
-          names = names.map(value => ({ value, source: 'jira' }));
-          resolve(names);
-        });
-      });
-    } else {
-      resolve([]);
-    }
-  });
+  return new Promise((resolve, reject) => {resolve([])})
+  //return new Promise((resolve, reject) => {
+  //  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
+  //    const { Host, AccountName, Password } = user.jira;
+  //    console.log(Host, AccountName, Password);
+  //    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+  //    const cookieJar = request.jar();
+  //    const options = {
+  //      method: 'GET',
+  //      url: `http://${Host}/rest/api/2/issue/createmeta`,
+  //      jar: cookieJar,
+  //      qs: {
+  //        type: 'page',
+  //        title: 'title',
+  //      },
+  //      headers: {
+  //        'cache-control': 'no-cache',
+  //        Authorization: `Basic ${auth}`,
+  //      },
+  //    };
+  //    request(options, (error) => {
+  //      if (error) {
+  //        reject(error);
+  //      }
+  //      request(options, (error2, response2, body) => {
+  //        if (error2) {
+  //          reject(error);
+  //        }
+  //        console.log("body");
+  //        console.log(response2);
+  //        console.log("body");
+  //        const json = JSON.parse(body).projects;
+  //        let names = [];
+  //        for (const repo of json) {
+  //          names.push(repo.name);
+  //        }
+  //        names = names.map(value => ({ value, source: 'jira' }));
+  //        resolve(names);
+  //      });
+  //    });
+  //  } else {
+  //    resolve([]);
+  //  }
+  //});
 }
 
 function uniqueRepositories(repositories){
@@ -547,7 +548,6 @@ function getJiraIssues(user, projectKey){
           }
           tmpStories.push(fuseGitWithDb(story, issue.id));
         }
-        console.log(tmpStories);
         return tmpStories;
       });
     });
@@ -568,7 +568,6 @@ function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, 
 }
 
 function postComment(issueNumber, comment, githubName, githubRepo, password){
-  console.log('postcoment')
   let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`
 
   let body = { body: comment};
@@ -579,7 +578,6 @@ function postComment(issueNumber, comment, githubName, githubRepo, password){
   request.onreadystatechange = function () {
     if (this.readyState === 4 && this.status === 200) {
       const data = JSON.parse(request.responseText);
-      console.log('data', data)
     }
   };
 }
@@ -596,7 +594,6 @@ function addLabelToIssue(githubName, githubRepo, password, issueNumber, label){
   request.onreadystatechange = function () {
     if (this.readyState === 4 && this.status === 200) {
       const data = JSON.parse(request.responseText);
-      console.log(data)
     }
   };
 }
@@ -612,7 +609,6 @@ function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label
   request.onreadystatechange = function () {
     if (this.readyState === 4 && this.status === 200) {
       const data = JSON.parse(request.responseText);
-      console.log(data)
     }
   };
 }
@@ -633,7 +629,6 @@ const getGithubData = (res, req, accessToken) => {
             await mongo.findOrRegister(req.body)
             
             passport.authenticate('github-local', function (error, user, info) {
-                      console.log('in authenticate: ' + JSON.stringify(info))
                       if(error){
                         return res.redirect(process.env.FRONTEND_URL +'/login?github=error');
                       } else if(!user){
