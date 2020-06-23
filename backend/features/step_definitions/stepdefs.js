@@ -22,12 +22,6 @@ Before(() => { // runs before each scenario
       .forBrowser('chrome')
       .setChromeOptions(chromeOptions)
       .build();
-  driver.get("https://www.google.com/");
-  // driver.get("https://etu.daisy.bva.bund.de/");
-  //
-  // driver.findElement(By.css(`input#anwendername`)).sendKeys("fa_wartung");
-  // driver.findElement(By.css(`input#passw`)).sendKeys("password");
-  // driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${"anmelden"}' or ` + `${'@*' + "='"}${"anmelden"}']`)), 3 * 1000).click();
 });
 
 // #################### GIVEN ########################################
