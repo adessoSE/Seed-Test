@@ -23,9 +23,12 @@ const server = app.listen(process.env.PORT || 8080, () => {
  * API Description
  */
 app
-  .use(cors({origin: [
+  .use(cors({
+    origin: [
     process.env.FRONTEND_URL
-  ], credentials: true}))
+  ], 
+  credentials: true
+  }))
   .use(flash())
   .use(session({
     secret: process.env.SESSION_SECRET,
@@ -35,7 +38,7 @@ app
       httpOnly: false, 
       //maxAge: 864000000,
       //secure: true,
-      sameSite: "lax"
+      //sameSite: "lax"
     },
   }))
   .use(passport.initialize())
