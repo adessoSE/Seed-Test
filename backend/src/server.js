@@ -31,10 +31,11 @@ app
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {httpOnly: false, 
+    cookie: {
+      httpOnly: false, 
       //maxAge: 864000000,
       //secure: true,
-      sameSite: true
+      sameSite: "lax"
     },
   }))
   .use(passport.initialize())
