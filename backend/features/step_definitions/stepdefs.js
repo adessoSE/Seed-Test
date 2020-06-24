@@ -11,15 +11,17 @@ const chrome = require('selenium-webdriver/chrome');
 setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
-chromeOptions.addArguments('-headless');
-chromeOptions.addArguments('--ignore-certificate-errors')
+// chromeOptions.addArguments('-headless');
+chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
-
 
 
 // Starts the driver / Browser
 Before(() => { // runs before each scenario
-  driver = new webdriver.Builder().forBrowser('chrome').setChromeOptions(chromeOptions).build();
+  driver = new webdriver.Builder()
+      .forBrowser('chrome')
+      .setChromeOptions(chromeOptions)
+      .build();
 });
 
 // #################### GIVEN ########################################
@@ -30,7 +32,7 @@ Given('As a {string}', async function (string) {
 Given('I am on the website: {string}', async (url) => {
   await driver.get(url);
   await driver.getCurrentUrl().then(async (currentUrl) => {
-    expect(currentUrl).to.equal(url, 'Error');
+    // expect(currentUrl).to.equal(url, 'Error');
   });
 });
 
@@ -39,7 +41,7 @@ Given('I am on the website: {string}', async (url) => {
 When('I go to the website: {string}', async (url) => {
   await driver.get(url);
   await driver.getCurrentUrl().then(async (currentUrl) => {
-    expect(currentUrl).to.equal(url, 'Error');
+     // expect(currentUrl).to.equal(url, 'Error');
   });
 });
 
@@ -55,6 +57,10 @@ When('I click the button: {string}', async (button) => {
     }
   });
 });
+
+// When('I click the button: {string}', async (button) => {
+//   driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${"anmelden"}' or ` + `${'@*' + "='"}${"anmelden"}']`)), 3 * 1000).click();
+// });
 
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async (value, label) => {
@@ -87,8 +93,8 @@ When('I hover over the element {string} and select the option {string}', async (
   await action2.move({ x: 0, y: 0, origin: selection }).click().perform();
 });
 
-When('I select from the {string} multiple selection, the values {string}{string}{string}', async () => {
-  // string, string2, string3, string4
+When('I select from the {string} multiple selection, the values {string}{string}{string}', async (button, string2, string3, string4) => {
+  await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
 });
 
 // ################### THEN ##########################################
@@ -139,5 +145,5 @@ After(async () => { // runs after each Scenario
   const condition = until.elementLocated(By.name('loader'));
   driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
   // driver.wait(1000);
-  driver.quit();
+  // driver.quit();
 });

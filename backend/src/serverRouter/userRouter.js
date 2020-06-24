@@ -50,7 +50,7 @@ router.post('/login', (req, res, next) => {
                 if(err){
                     throw new UserError(err)
                 }else {
-                    res.json(user); 
+                    res.json(user);
                 }
             });
         })
@@ -105,7 +105,7 @@ router.get('/repositories', (req, res) => {
       githubName = process.env.TESTACCOUNT_NAME;
       token = process.env.TESTACCOUNT_TOKEN;
     }
-   
+
     Promise.all([
       helper.starredRepositories(githubName, token),
       helper.ownRepositories(githubName, token),
@@ -250,7 +250,7 @@ router.get('/stories', async (req, res) => {
 
 router.post('/githubLogin', (req, res) =>{
     let scope = 'repo'
-    const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
+    const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
     let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${process.env.GITHUB_CLIENT_ID}`;
 
     request(
