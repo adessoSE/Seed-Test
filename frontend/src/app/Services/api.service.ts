@@ -48,19 +48,19 @@ export class ApiService {
 
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
-      
-        const str = this.apiServer + '/user/repositories'; 
-        
+
+        const str = this.apiServer + '/user/repositories';
+
         return this.http.get<RepositoryContainer[]>(str, this.getOptions())
           .pipe(tap(resp => {
             this.getRepositoriesEvent.emit(resp);
           }),
             catchError(this.handleError));
-    } 
+    }
 
     disconnectGithub(){
         let str = this.apiServer + '/github/disconnectGithub'
-        
+
         return this.http.delete<any>(str, this.getOptions())
         .pipe(tap(resp => {
           //this.getStoriesEvent.emit(resp);
@@ -81,7 +81,7 @@ export class ApiService {
 
     public githubAuthentication() {
         let scope = 'repo'
-        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
+        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
         let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
         window.location.href = s;
     }
@@ -98,7 +98,7 @@ export class ApiService {
     }
 
     public loginUser(email: string, password: string): Observable<any> {
-        const str = this.apiServer + '/user/login'
+        const str = this.apiServer + '/user/login';
         let user;
         if(!email && !password){
 
@@ -107,10 +107,9 @@ export class ApiService {
                 email, password
             }
         }
-
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
-            //this.getStoriesEvent.emit(resp);
+            console.log(resp);
           }),
             catchError(this.handleError));
     }
