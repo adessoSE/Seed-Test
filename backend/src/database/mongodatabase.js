@@ -89,7 +89,6 @@ async function findOrRegister(user){
   }else {
     result = await updateGithubToken(result._id, user.githubToken)
   }
-  //console.log('getuserbyid: ' + JSON.stringify(result))
   return result
 }
 
