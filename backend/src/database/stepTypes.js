@@ -83,6 +83,14 @@ function stepDefs() {
       mid: 'multiple selection, the values',
       values: ['', ''],
     },
+    {
+      id: '',
+      stepType: 'when',
+      type: 'Wait',
+      pre: 'The application should wait for',
+      mid: 'milliseconds',
+      values: ['', ''],
+    },
     // ################### THEN ##########################################
     {
       id: '',

@@ -58,9 +58,10 @@ When('I click the button: {string}', async (button) => {
   });
 });
 
-// When('I click the button: {string}', async (button) => {
-//   driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${"anmelden"}' or ` + `${'@*' + "='"}${"anmelden"}']`)), 3 * 1000).click();
-// });
+// selenium sleeps for a certain amount of time
+When('The site should wait for {string} milliseconds', async (ms) => {
+  await driver.sleep(parseInt(ms));
+});
 
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async (value, label) => {
@@ -144,6 +145,5 @@ After(async () => { // runs after each Scenario
   // https://github.com/SeleniumHQ/selenium/issues/5560
   const condition = until.elementLocated(By.name('loader'));
   driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-  // driver.wait(1000);
-  // driver.quit();
+  driver.quit();
 });

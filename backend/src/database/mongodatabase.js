@@ -490,7 +490,7 @@ async function getUserData(userID) {
 
 
 
-// Please keep in mind that when you change the stepDefs in the Database with this function, you also have to apply that change manualy in the stepdefs.js in features/step_definitions 
+// Please keep in mind that when you change the stepDefs in the Database with this function, you also have to apply that change manualy in the stepdefs.js in features/step_definitions
 // if "storyID" Parameter is null: Updates "pre" Stepdefinitions in the "Stories" Collection and sets each step to outdated: true
 // else: Updates "pre" Stepdefinitions in the selected Story and sets each step to outdated: true
 async function updatePreStepsInOneStory(oldText, newText, storyID) {
