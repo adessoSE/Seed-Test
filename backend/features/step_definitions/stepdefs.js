@@ -2,7 +2,7 @@ const {
   Given, When, Then, Before, After, setDefaultTimeout,
 } = require('cucumber');
 const webdriver = require('selenium-webdriver');
-const { By, until } = require('selenium-webdriver');
+const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
 const chrome = require('selenium-webdriver/chrome');
@@ -11,7 +11,7 @@ const chrome = require('selenium-webdriver/chrome');
 setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
-// chromeOptions.addArguments('-headless');
+chromeOptions.addArguments('-headless');
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
@@ -94,9 +94,23 @@ When('I hover over the element {string} and select the option {string}', async (
   await action2.move({ x: 0, y: 0, origin: selection }).click().perform();
 });
 
+
 When('I select from the {string} multiple selection, the values {string}{string}{string}', async (button, string2, string3, string4) => {
-  await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
+  // TODO
 });
+
+// Check the Checkbox with a specific name or id
+When('I check the box {string}', async (name) => {
+  // Some alternative Methods to check the Box:
+  // await driver.executeScript("arguments[0].submit;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
+  // await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
+  // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).submit();
+  // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
+
+  // this one works, even if the element is not clickable (due to other elements blocking it):
+  await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).sendKeys(Key.SPACE);
+});
+
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is suposed to be
