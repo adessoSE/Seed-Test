@@ -177,11 +177,8 @@ async function execReport(req, res, stories, mode, callback) {
 
 function jiraProjects(user) {
 	return new Promise((resolve) => {
-		if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
-			// const { Host, AccountName, Password } = user.jira;
-			const Host = 'jira.adesso.de';
-			const AccountName = 'elange';
-			const Password = 'TheFastest786';
+		if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
+			const { Host, AccountName, Password } = user.jira;
 			const auth = Buffer.from(`${AccountName}:${Password}`)
 				.toString('base64');
 			const cookieJar = request.jar();
@@ -265,11 +262,13 @@ function execRepositoryRequests(link, user, password) {
 }
 
 function ownRepositories(githubName, token) {
-	return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token);
+	if (githubName !== undefined || token !== undefined) return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token);
+	return new Promise((resolve) => { resolve([]); });
 }
 
 function starredRepositories(githubName, token) {
-	return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
+	if (githubName !== undefined || token !== undefined) return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
+	return new Promise((resolve) => { resolve([]); });
 }
 
 async function fuseGitWithDb(story, issueId) {
