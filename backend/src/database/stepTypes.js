@@ -78,10 +78,26 @@ function stepDefs() {
     {
       id: '',
       stepType: 'when',
-      type: 'Checkbox',
+      type: 'ListSelection',
       pre: 'I select from the',
       mid: 'multiple selection, the values',
       values: ['', ''],
+    },
+    {
+      id: '',
+      stepType: 'when',
+      type: 'Wait',
+      pre: 'The application should wait for',
+      mid: 'milliseconds',
+      values: [''],
+    },
+    {
+      id: '',
+      stepType: 'when',
+      type: 'Checkbox',
+      pre: 'I check the box',
+      mid: '',
+      values: [''],
     },
     // ################### THEN ##########################################
     {
