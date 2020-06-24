@@ -34,7 +34,7 @@ app
     cookie: {httpOnly: false, 
       //maxAge: 864000000,
       //secure: true,
-      //sameSite: true
+      sameSite: true
     },
   }))
   .use(passport.initialize())
