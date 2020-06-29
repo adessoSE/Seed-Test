@@ -17,7 +17,7 @@ To install and use the application localy, clone the repository.
 It is necessary to install [NodeJS](https://nodejs.org/en/).
 Install Angular 7:
 ```
-npm install -g @angular/cli 
+npm install -g @angular/cli@7.3.9 
 ```
 Then install all necessary node modules once in the backend and in the frontend folder:
 ```
