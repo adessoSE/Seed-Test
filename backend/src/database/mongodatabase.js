@@ -12,12 +12,13 @@ if (!process.env.NODE_ENV) {
 }
 
 const uri = process.env.DATABASE_URI;
+let db_name = 'Seed'
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 
 
 async function registerUser(user){
   let db = await connectDb()
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   let collection = await dbo.collection('User')
   let dbUser = await getUserByEmail(user.email);
   let result;
@@ -31,7 +32,7 @@ async function registerUser(user){
 
 async function registerGithubUser(user){
   let db = await connectDb()
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   let collection = await dbo.collection('User')
   let result = await collection.insertOne({github: user});
   return result;
@@ -40,7 +41,7 @@ async function registerGithubUser(user){
 async function mergeGithub(userId, login, id){
   console.log('login:', login, 'id:', id)
   let db = await connectDb()
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   let collection = await dbo.collection('User')
   let githubAccount = await getUserByGithub(login, id)
   let seedAccount = await getUserById(userId);
@@ -56,7 +57,7 @@ async function mergeGithub(userId, login, id){
 
 async function getUserByEmail(email){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let result = await collection.findOne({email: email})
   db.close();
@@ -65,7 +66,7 @@ async function getUserByEmail(email){
 
 async function getUserByGithub(login, id){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let result = await collection.findOne({$and :[{'github.id': id}, {'github.login': login}]})
   db.close();
@@ -74,7 +75,7 @@ async function getUserByGithub(login, id){
 
 async function getUserById(id){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let result = await collection.findOne({_id: ObjectId(id)})
   console.log('getuserbyid: ' + id)
@@ -95,7 +96,7 @@ async function findOrRegister(user){
 
 async function updateGithubToken(objId, updatedToken) {
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let user = await collection.updateOne({"_id" : ObjectId(objId)}, {$set: { 'github.githubToken' : updatedToken}})
   db.close()
@@ -115,7 +116,7 @@ function connectDb() {
 }
 
 function selectStoriesCollection(db) {
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   return new Promise((resolve, reject) => {
     dbo.collection('Stories', (err, collection) => {
       if (err) {
@@ -127,7 +128,7 @@ function selectStoriesCollection(db) {
   })
 }
 function selectUsersCollection(db) {
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   return new Promise((resolve, reject) => {
     dbo.collection('User', (err, collection) => {
       if (err) {
@@ -177,7 +178,7 @@ function replace(storyID, story, collection) {
 
 async function disconnectGithub(user){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let removedUser = await replaceUser(user, collection);
   return removedUser;
@@ -230,7 +231,7 @@ async function showSteptypes() {
   let db;
   try {
     db = await connectDb()
-    dbo = db.db('Seed')
+    dbo = db.db(db_name)
     let collection = await dbo.collection('stepTypes')
     let result = await collection.find({}).toArray()
     return result
@@ -387,7 +388,7 @@ async function uploadReport(reportData) {
   let db;
   try{
     db = await connectDb()
-    dbo = db.db('Seed')
+    dbo = db.db(db_name)
     let collection = await dbo.collection('TestReport')
     let result = await collection.insertOne(reportData);
     db.close();
@@ -402,7 +403,7 @@ async function getReport(reportName) {
   try{
     let report = {reportName}
     db = await connectDb()
-    dbo = db.db('Seed')
+    dbo = db.db(db_name)
     let collection = await dbo.collection('TestReport')
     let result = await collection.findOne(report);
     db.close();
@@ -582,7 +583,7 @@ async function createContent() {
 function getCollections() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.listCollections().toArray((error, result) => {
       if (error) throw error;
       console.log(`showMeCollections error: ${result}`);
@@ -596,7 +597,7 @@ function getCollections() {
 function makeCollection(name) {
   MongoClient.connect(uri, { useNewUrlParser: true }, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.createCollection(name, (error) => {
       if (error) throw error;
       console.log('Collection created!');
@@ -609,7 +610,7 @@ function makeCollection(name) {
 function insertOne(collection, content) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     const myObjt = content;
     dbo.collection(collection).insertOne(myObjt, (error) => {
       if (error) throw error;
@@ -633,7 +634,7 @@ async function getCollection() {
 function insertMore(name, content) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     const myObjt = content;
     dbo.collection(name).insertMany(myObjt, (error, res) => {
       if (error) throw error;
@@ -647,7 +648,7 @@ function insertMore(name, content) {
 function update(storyID, updatedStuff) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.collection(collection).updateOne({ story_id: storyID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
@@ -659,7 +660,7 @@ function update(storyID, updatedStuff) {
 function eraseAllStories() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.collection(collection).deleteOne({}, (error) => {
       if (error) throw error;
       db.close();
@@ -672,7 +673,7 @@ function eraseAllStories() {
 function showStory(storyID) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     const myObjt = { story_id: storyID };
     dbo.collection(collection).findOne(myObjt, (error, result) => {
       if (error) throw error;
@@ -686,7 +687,7 @@ function showStory(storyID) {
 function dropCollection() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.collection(collection).drop((error, delOK) => {
       if (error) throw error;
       if (delOK) console.log('Collection deleted');
@@ -696,7 +697,9 @@ function dropCollection() {
 }
 
 function installDatabase() {
-  makeCollection(collection);
+  makeCollection('stepTypes');
+  makeCollection('Stories');
+  makeCollection('User');
   insertMore('stepTypes', stepTypes());
 }
 
