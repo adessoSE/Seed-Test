@@ -116,7 +116,8 @@ router.get('/repositories', (req, res) => {
 	Promise.all([
 		helper.starredRepositories(githubName, token),
 		helper.ownRepositories(githubName, token),
-		helper.jiraProjects(req.user)
+		helper.jiraProjects(req.user),
+		helper.dbProjects(req.user)
 	])
 		.then((repos) => {
 			let merged = [].concat(...repos);
@@ -132,6 +133,7 @@ router.get('/repositories', (req, res) => {
 
 // get stories from github
 router.get('/stories', async (req, res) => {
+	console.log(req.query.source);
 	const { source } = req.query;
 	if (source === 'github' || !source) try {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
@@ -177,10 +179,7 @@ router.get('/stories', async (req, res) => {
 			});
 	} catch (err) {
 		res.status(503).send(err.message);
-	}
-
-	else
-	if (source === 'jira') if (typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
+	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		const { Host, AccountName, Password } = req.user.jira;
 		const { projectKey } = req.query;
 		const auth = Buffer.from(`${AccountName}:${Password}`)
@@ -234,9 +233,33 @@ router.get('/stories', async (req, res) => {
 					});
 			});
 		});
-	} else {
-		res.sendStatus(401);
-	}
+	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.name !== 'null') {
+		const tmpStories = [];
+		const { name } = req.query;
+		mongo.getOneRepository(name).then((body) => {
+			const json = body.issues;
+			console.log(json);
+			if (Object.keys(json).length > 0) for (const key of Object.keys(json)) {
+				const issue = json[key];
+				const story = {
+					story_id: issue.id,
+					title: issue.title,
+					body: issue.description,
+					state: issue.status,
+					issue_number: issue.id,
+					assignee: issue.assignee,
+					assignee_avatar_url: unassignedAvatarLink
+				};
+				tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+			}
+			console.log(tmpStories);
+			// let stories = results; // need this to clear promises from the Story List
+			Promise.all(tmpStories).then((results) => { res.status(200).json(results); })
+				.catch((e) => {
+					console.log(e);
+				});
+		});
+	} else res.sendStatus(401);
 });
 
 module.exports = router;

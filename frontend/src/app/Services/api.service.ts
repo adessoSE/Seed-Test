@@ -113,6 +113,25 @@ export class ApiService {
           }),
             catchError(this.handleError));
     }
+    public createRepository(email: string, name: string): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        console.log(this.apiServer);
+        const body = {'email' : email, 'name' : name};
+        return this.http
+            .post<any>(this.apiServer + '/mongo/createRepository/', body, this.getOptions())
+            .pipe(tap(resp => {
+            }));
+    }
+
+    public createStory(title: string, description: string, repository: string): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        console.log(this.apiServer);
+        const body = {'title' : title, 'description' : description, 'repo' : repository};
+        return this.http
+            .post<any>(this.apiServer + '/mongo/createStory/', body, this.getOptions())
+            .pipe(tap(resp => {
+            }));
+    }
 
     logoutUser(){
         let str = this.apiServer + '/user/logout'
@@ -150,14 +169,17 @@ export class ApiService {
         }
     }
 
+
     public getStories(repository: RepositoryContainer): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
         let params;
-        if(repository.source === 'github'){
-            let repo = repository.value.split('/');
-            params = { githubName: repo[0], repository: repo[1], source: repository.source}
-        }else if(repository.source === 'jira'){
-            params = {projectKey: repository.value, source: repository.source}
+        if (repository.source === 'github') {
+            const repo = repository.value.split('/');
+            params = { githubName: repo[0], repository: repo[1], source: repository.source};
+        } else if (repository.source === 'jira') {
+            params = {projectKey: repository.value, source: repository.source};
+        } else if (repository.source === 'db') {
+            params = {name: repository.value, source: repository.source};
         }
 
         return this.http

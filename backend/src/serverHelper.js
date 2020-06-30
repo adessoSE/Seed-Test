@@ -220,6 +220,29 @@ function jiraProjects(user) {
 	});
 }
 
+function dbProjects(user) {
+	return new Promise((resolve) => {
+		if (typeof user !== 'undefined') {
+			const { email } = user;
+			console.log(email);
+			mongo.getRepository(email).then((json) => {
+				let names = [];
+				console.log('MONGODB');
+				console.log(json);
+				if (Object.keys(json).length !== 0) {
+					for (const repo of json) names.push(repo.name);
+					names = names.map(value => ({
+						value,
+						source: 'db'
+					}));
+					resolve(names);
+				}
+				resolve([]);
+			});
+		} else resolve([]);
+	});
+}
+
 function uniqueRepositories(repositories) {
 	return repositories.filter((repo, index, self) => index === self.findIndex(t => (
 		t.source === repo.source && t.value === repo.value
@@ -385,5 +408,6 @@ module.exports = {
 	starredRepositories,
 	ownRepositories,
 	fuseGitWithDb,
-	updateJira
+	updateJira,
+	dbProjects
 };

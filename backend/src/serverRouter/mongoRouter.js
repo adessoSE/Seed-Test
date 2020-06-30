@@ -43,6 +43,30 @@ router.get('/stepTypes', async (_, res) => {
 	}
 });
 
+// create Repository in Database
+router.post('/createRepository', async (req, res) => {
+	console.log('Email:');
+	console.log(req.body.email);
+	console.log('Name');
+	console.log(req.body.name);
+	mongo.insertEntry(req.body.email, req.body.name);
+	res.status(200);
+});
+
+// create Repository in Database
+router.post('/createStory', async (req, res) => {
+	const issue = {
+		id: Math.floor(Math.random() * 10000),
+		title: req.body.title,
+		description: req.body.description,
+		status: 'open',
+		assignee: req.user.email
+	};
+	mongo.addIssue(issue, req.body.repo).then((body) => {
+		res.status(200).json(body);
+	});
+});
+
 // update background
 router.post('/background/update/:issueID', async (req, res) => {
 	try {
@@ -132,6 +156,7 @@ router.delete('/user/delete/:userID', async (req, res) => {
 		handleError(res, error, error, 500);
 	}
 });
+
 // get userObject
 router.get('/user', async (req, res) => {
 	if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') try {

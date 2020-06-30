@@ -112,7 +112,18 @@ function connectDb() {
     });
   });
 }
-
+function selectRepositoryCollection(db) {
+  dbo = db.db('Seed');
+  return new Promise((resolve, reject) => {
+    dbo.collection('Repositories', (err, collection) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(collection);
+      }
+    })
+  })
+}
 function selectStoriesCollection(db) {
   dbo = db.db('Seed');
   return new Promise((resolve, reject) => {
@@ -311,10 +322,67 @@ async function updateScenario(storyID, updatedScenario) {
   return result
 }
 
+//get UserData needs ID returns JsonObject User
+async function getRepository(userID) {
+  try {
+    const myObjt = { owner: userID };
+    let db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.find(myObjt).toArray();
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER" + e)
+  }
+}
+
+async function getOneRepository(name) {
+  try {
+    const myObjt = { name: name};
+    let db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.findOne(myObjt);
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER" + e)
+  }
+}
+
+async function insertEntry(email, name){
+  const myObjt = { 'name': name, 'owner': email, 'issues': { } };
+  let db = await connectDb();
+  let collection = await selectRepositoryCollection(db);
+  collection.insertOne(myObjt);
+}
+
+async function addIssue(issue, name){
+  try {
+    const myObjt = { name: name};
+    let db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.findOne(myObjt);
+    let issues = result.issues;
+    issues[issue.id] = issue;
+    result.issues = issues;
+    collection.findOneAndUpdate(myObjt, { $set: result }, {
+      returnOriginal: false,
+      upsert: true,
+    }, (error) => {
+      if (error) throw error;
+      db.close();
+    });
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER" + e)
+  }
+}
+
 async function upsertEntry(storyID, updatedContent) {
   const myObjt = { story_id: storyID };
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
+  let db = await connectDb();
+  let collection = await selectStoriesCollection(db);
   collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
     returnOriginal: false,
     upsert: true,
@@ -545,11 +613,15 @@ module.exports = {
   deleteScenario,
   updateScenario,
   getOneStory,
+  insertEntry,
   upsertEntry,
   installDatabase,
   updateStory,
   createUser,
   deleteUser,
   updateUser,
-  getUserData
+  getUserData,
+  getRepository,
+  getOneRepository,
+  addIssue
 };
