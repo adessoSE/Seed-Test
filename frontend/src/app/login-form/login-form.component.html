@@ -1,0 +1,44 @@
+<ng-template #content let-modal>
+    <div class="modal-header modal-xl">
+        <span id="modalHeader">Login</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body modal-xl">
+        <div class="uk-card-title" id="submitForm">
+            <div>
+                <form>
+                    <div id="jiraForm" *ngIf="type==='Jira'">
+                        <div class="padding_top uk-form-horizontal">
+                            <label class="padding_right">AccountName:</label>
+                            <input id="jiraAccountName">
+                        </div>
+                        <div class="padding_top uk-form-horizontal">
+                            <label class="padding_right">Password:</label>
+                            <input id="jiraPassword">
+                        </div>
+                        <div class="padding_top uk-form-horizontal">
+                            <label class="padding_right">Host-Name:</label>
+                            <input id="jiraHost">
+                        </div>
+                    </div>
+                    <div id="githubForm" *ngIf="type==='Github'">
+                        <div class="padding_top uk-form-horizontal">
+                            <label class="padding_right">Github-AccountName:</label>
+                            <input id="githubAccountName">
+                        </div>
+                        <div class="padding_top uk-form-horizontal">
+                            <label class="padding_right">Github-Token:</label>
+                            <input id="githubToken">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="uk-button" (click)="submit(); modal.close('Save click')">Submit
+        </button>
+    </div>
+</ng-template>

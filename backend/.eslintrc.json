@@ -5,7 +5,7 @@
         "es6": true
     },
     "extends": "airbnb-base",
-
+​
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
@@ -17,6 +17,20 @@
         "linebreak-style": "off",
         "no-plusplus": "off",
         "no-restricted-syntax": "off",
-        "no-console": "off"
+        "no-console": "off",
+        "indent": [2, "tab", { "SwitchCase": 1 }],
+        "space-infix-ops": ["error", { "int32Hint": false }],
+        "keyword-spacing": ["error", { "before": true }],
+        "prefer-arrow-callback": "error",
+        "line-comment-position": ["error", { "position": "above" }],
+        "newline-per-chained-call": ["error", { "ignoreChainWithDepth": 2 }],
+        "dot-location": ["error", "property"],
+        "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+        "curly": ["error", "multi"],
+        "no-multiple-empty-lines": "error",
+        "semi": "error",
+        "quotes": ["error", "single"],
+        "comma-dangle": ["error", "never"],
+        "no-duplicate-imports": "error"
     }
 }

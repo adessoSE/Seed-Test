@@ -1,14 +1,18 @@
-const {exec} = require('child_process');
+const { exec } = require('child_process');
 const fs = require('fs');
-const {XMLHttpRequest} = require('xmlhttprequest');
+const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
+const request = require('request');
+const fetch = require('node-fetch');
 const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-
+const lodash = require('lodash')
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
+const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
+const passport = require('passport');
 
 // this is needed for the html report
 const options = {
@@ -140,6 +144,40 @@ function getScenarioContent(scenarios, storyID) {
   return data;
 }
 
+async function getGithubStories(githubName, githubRepo, token, res, req){
+  const tmpStories = [];
+  // get Issues from GitHub .
+  const headers = {
+    Authorization: `token ${token}`,
+  };
+
+  let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
+      if (response.status === 401) {
+        throw new GithubError('Github Status 401')
+      }
+      if (response.status === 200) {
+        let json = await response.json();
+          for (const issue of json) {
+            // only relevant issues with label: "story"
+            const story = {
+              story_id: issue.id,
+              title: issue.title,
+              body: issue.body,
+              state: issue.state,
+              issue_number: issue.number,
+            };
+            if (issue.assignee !== null) { // skip in case of "unassigned"
+              story.assignee = issue.assignee.login;
+              story.assignee_avatar_url = issue.assignee.avatar_url;
+            } else {
+              story.assignee = 'unassigned';
+              story.assignee_avatar_url = unassignedAvatarLink;
+            }
+            tmpStories.push(fuseGitWithDb(story, issue.id));
+          }
+          return Promise.all(tmpStories);
+      }
+}
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
@@ -162,6 +200,18 @@ function writeFile(__dirname, selectedStory) {
   });
 }
 
+async function updateJira(UserID, request) {
+  const jira = {
+    AccountName: request.jiraAccountName,
+    Password: request.jiraPassword,
+    Host: request.jiraHost,
+  };
+  const user = await mongo.getUserData(UserID);
+  user.jira = jira;
+  await mongo.updateUser(UserID, user);
+  return 'Successful';
+}
+
 
 // Updates feature file based on story_id
 async function updateFeatureFile(issueID) {
@@ -175,7 +225,8 @@ function execReport2(req, res, stories, mode, story, callback) {
   const reportTime = Date.now();
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
-  const path3 = `features/reporting_${reportTime}.json`;
+  const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}`: `reporting_${reportTime}`;
+  const path3 =`features/${reportName}.json`;
 
   let cmd;
   if (mode === 'feature') {
@@ -188,27 +239,87 @@ function execReport2(req, res, stories, mode, story, callback) {
     if (error) {
       console.error(`exec error: ${error}`);
 
-      callback(reportTime, story, req.params.scenarioID);
+      callback(reportTime, story, req.params.scenarioID, reportName);
       return;
     }
     console.log(`stdout: ${stdout}`);
     console.log(`stderr: ${stderr}`);
-    callback(reportTime, story, req.params.scenarioID);
+    callback(reportTime, story, req.params.scenarioID, reportName);
   });
 }
 
 async function execReport(req, res, stories, mode, callback) {
-  let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
-  execReport2(req, res, stories, mode, result, callback)
+  try{
+    let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
+    execReport2(req, res, stories, mode, result, callback)
+  }catch(error){
+    res.status(501).send(error)
+  }
+}
+
+function jiraProjects(user) {
+  return new Promise((resolve, reject) => {resolve([])})
+  //return new Promise((resolve, reject) => {
+  //  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
+  //    const { Host, AccountName, Password } = user.jira;
+  //    console.log(Host, AccountName, Password);
+  //    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+  //    const cookieJar = request.jar();
+  //    const options = {
+  //      method: 'GET',
+  //      url: `http://${Host}/rest/api/2/issue/createmeta`,
+  //      jar: cookieJar,
+  //      qs: {
+  //        type: 'page',
+  //        title: 'title',
+  //      },
+  //      headers: {
+  //        'cache-control': 'no-cache',
+  //        Authorization: `Basic ${auth}`,
+  //      },
+  //    };
+  //    request(options, (error) => {
+  //      if (error) {
+  //        reject(error);
+  //      }
+  //      request(options, (error2, response2, body) => {
+  //        if (error2) {
+  //          reject(error);
+  //        }
+  //        console.log("body");
+  //        console.log(response2);
+  //        console.log("body");
+  //        const json = JSON.parse(body).projects;
+  //        let names = [];
+  //        for (const repo of json) {
+  //          names.push(repo.name);
+  //        }
+  //        names = names.map(value => ({ value, source: 'jira' }));
+  //        resolve(names);
+  //      });
+  //    });
+  //  } else {
+  //    resolve([]);
+  //  }
+  //});
+}
+
+function uniqueRepositories(repositories){
+  return repositories.filter((repo, index, self) =>
+      index === self.findIndex((t) => (
+        t.source === repo.source && t.value === repo.value
+      )));
 }
 
 
-function setOptions(reportTime) {
+function setOptions(reportName) {
+  let myOptions = lodash.cloneDeep(options)
   const OSName = process.platform;
-  options.metadata.Platform = OSName;
-  options.name = 'Seed-Test Report';
-  options.jsonFile = `features/reporting_${reportTime}.json`;
-  options.output = `features/reporting_html_${reportTime}.html`;
+  myOptions.metadata.Platform = OSName;
+  myOptions.name = 'Seed-Test Report';
+  myOptions.jsonFile =`features/${reportName}.json`;
+  myOptions.output = `features/${reportName}.html`;
+  return myOptions
 }
 
 function execRepositoryRequests(link, user, password) {
@@ -220,13 +331,16 @@ function execRepositoryRequests(link, user, password) {
     request.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(request.responseText);
-        const names = [];
+        let names = [];
         let index = 0;
         for (const repo of data) {
           const repoName = repo.full_name;
           names[index] = repoName;
           index++;
         }
+        names = names.map((value) => {
+          return {value, source: 'github'}
+        })
         resolve(names);
       } else if (this.readyState === 4) {
         reject(this.status);
@@ -235,16 +349,18 @@ function execRepositoryRequests(link, user, password) {
   });
 }
 
-function ownRepositories(token) {
-  return execRepositoryRequests('https://api.github.com/user/repos', 'account_name', token);
+function ownRepositories(githubName, token) {
+  if(!githubName && !token) return new Promise((resolve, reject) => resolve([]))
+  return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token);
 }
 
-function starredRepositories(user, token) {
-  return execRepositoryRequests(`https://api.github.com/users/${user}/starred`, user, token);
+function starredRepositories(githubName, token) {
+  if(!githubName && !token) return new Promise((resolve, reject) => resolve([]))
+  return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
 }
 
 async function fuseGitWithDb(story, issueId) {
-  let result = await mongo.getOneStory(issueId)
+  let result = await mongo.getOneStory(issueId);
   if (result !== null) {
     story.scenarios = result.scenarios;
     story.background = result.background;
@@ -255,10 +371,10 @@ async function fuseGitWithDb(story, issueId) {
   }
   mongo.upsertEntry(story.story_id, story);
   writeFile('', story); // Create & Update Feature Files
-  return story
+  return story;
 }
 
-function deleteJsonReport(jsonReport) {
+function deleteReport(jsonReport) {
   const report = path.normalize(`${featuresPath}${jsonReport}`);
   fs.unlink(report, (err) => {
     if (err) console.log(err);
@@ -268,33 +384,24 @@ function deleteJsonReport(jsonReport) {
   });
 }
 
-function deleteHtmlReport(htmlReport) {
-  const report = path.normalize(`${featuresPath}${htmlReport}`);
-  fs.unlink(report, (err) => {
-    if (err) console.log(err);
-    else {
-      console.log(`${report} html deleted.`);
-    }
-  });
-}
-
 
 function runReport(req, res, stories, mode) {
-  execReport(req, res, stories, mode, (reportTime, story, scenarioID) => {
-    setTimeout(deleteJsonReport, reportDeletionTime * 60000, `reporting_${reportTime}.json`);
-    setTimeout(deleteHtmlReport, reportDeletionTime * 60000, `reporting_html_${reportTime}.html`);
-    setOptions(reportTime);
-    reporter.generate(options);
-    res.sendFile(`/reporting_html_${reportTime}.html`, {root: rootPath});
+  execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
+    setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+    setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+    let reportOptions = setOptions(reportName);
+    reporter.generate(reportOptions);
+    res.sendFile(`/${reportName}.html`, {root: rootPath});
     //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
     let testStatus = false;
-    fs.readFile(`./features/reporting_${reportTime}.json`, "utf8", function (err, data) {
+    fs.readFile(`./features/${reportName}.json`, "utf8", function (err, data) {
       let json = JSON.parse(data)
+      uploadReport(reportName, reportTime, json, reportOptions);
       let passed = 0;
       let failed = 0;
       let skipped = 0;
       let scenario = story.scenarios.find((s) => s.scenario_id == scenarioID)
-
+      let scenariosTested = {passed: 0, failed: 0}
       json[0].elements.forEach((d) => {
         let scenarioPassed = 0;
         let scenarioFailed = 0;
@@ -317,10 +424,26 @@ function runReport(req, res, stories, mode) {
               console.log('Status default: ' + s.result.status);
           }
         })
+        if(testPassed(scenarioFailed, scenarioPassed)){
+          scenariosTested.passed += 1;
+        } else {
+          scenariosTested.failed += 1;
+        }
         story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed), d.tags[0].name, story)
       })
 
       testStatus = testPassed(failed, passed);
+      if(req.query.source == 'github' && req.user && req.user.github){
+        let comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName);
+        let githubValue = req.query.value.split('/')
+        let githubName = githubValue[0];
+        let githubRepo = githubValue[1];
+        postComment(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
+
+        if(mode == 'feature'){
+          updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number)
+        }
+      }
 
       if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
@@ -334,8 +457,36 @@ function runReport(req, res, stories, mode) {
   });
 }
 
+function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumber){
+  let removeLabel;
+  let addedLabel;
+  if(testStatus){
+    removeLabel = 'Seed-Test Test Fail :x:'
+    addedLabel = 'Seed-Test Test Success :white_check_mark:'
+  }else {
+    removeLabel = 'Seed-Test Test Success :white_check_mark:'
+    addedLabel = 'Seed-Test Test Fail :x:'
+  }
+  removeLabelOfIssue(githubName, githubRepo, githubToken, issueNumber, removeLabel)
+  addLabelToIssue(githubName, githubRepo, githubToken, issueNumber, addedLabel)
+}
+
 function testPassed(failed, passed) {
   return failed <= 0 && passed >= 1;
+}
+
+async function uploadReport(reportName, reportTime, jsonReport, options){
+  let report = {reportTime, reportName, options, jsonReport: jsonReport}
+  let result = await mongo.uploadReport(report);
+}
+
+async function createReport(res, reportName){
+  let report = await mongo.getReport(reportName);
+  fs.writeFileSync(`./features/${reportName}.json`, JSON.stringify(report.jsonReport), (err) => { console.log('Error:', err)});
+  reporter.generate(report.options);
+  setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+  setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+  res.sendFile(`/${reportName}.html`, {root: rootPath});
 }
 
 
@@ -350,10 +501,163 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
   return story;
 }
 
+function getJiraIssues(user, projectKey){
+  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
+    const {Host} = user.jira;
+    const {AccountName} = user.jira;
+    const {Password} = user.jira;
+    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+    const cookieJar = request.jar();
+    const tmpStories = [];
+    const options = {
+      method: 'GET',
+      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+      jar: cookieJar,
+      qs: {
+        type: 'page',
+        title: 'title',
+      },
+      headers: {
+        'cache-control': 'no-cache',
+        Authorization: `Basic ${auth}`,
+      },
+    };
+    request(options, (error) => {
+      if (error) {
+        return error;
+      }
+      request(options, (error2, response2, body) => {
+        if (error2) {
+          return error;
+        }
+        const json = JSON.parse(body).issues;
+        for (const issue of json) {
+          const story = {
+            story_id: issue.id,
+            title: issue.fields.summary,
+            body: issue.fields.description,
+            state: issue.fields.status.name,
+            issue_number: issue.id,
+          };
+          if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+            story.assignee = issue.fields.assignee.name;
+            story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+          } else {
+            story.assignee = 'unassigned';
+            story.assignee_avatar_url = unassignedAvatarLink;
+          }
+          tmpStories.push(fuseGitWithDb(story, issue.id));
+        }
+        return tmpStories;
+      });
+    });
+  }
+}
+
+function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
+  let comment = '';
+  let testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
+  let frontendUrl = process.env.FRONTEND_URL;
+  let reportUrl = `${frontendUrl}/report/${reportName}`;
+  if(mode == 'scenario'){
+    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
+  } else{
+    comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
+  }
+  return comment;
+}
+
+function postComment(issueNumber, comment, githubName, githubRepo, password){
+  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`
+
+  let body = { body: comment};
+
+  const request = new XMLHttpRequest();
+  request.open('POST', link, true, githubName, password);
+  request.send(JSON.stringify(body));
+  request.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+    }
+  };
+}
+
+function addLabelToIssue(githubName, githubRepo, password, issueNumber, label){
+
+  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`
+
+  let body = { labels: [label]};
+
+  const request = new XMLHttpRequest();
+  request.open('POST', link, true, githubName, password);
+  request.send(JSON.stringify(body));
+  request.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+    }
+  };
+}
+
+function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label){
+
+  let link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels/${label}`
+
+
+  const request = new XMLHttpRequest();
+  request.open('DELETE', link, true, githubName, password);
+  request.send();
+  request.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      const data = JSON.parse(request.responseText);
+    }
+  };
+}
+
+const getGithubData = (res, req, accessToken) => {
+  request(
+      {
+          uri: `https://api.github.com/user?access_token=${accessToken}`,
+          method:"GET",
+          headers: {
+              "User-Agent": "SampleOAuth",
+          }
+      }, 
+      async function(err, response, body){
+          req.body = await JSON.parse(body)
+          req.body.githubToken = accessToken;
+          try{
+            await mongo.findOrRegister(req.body)
+            
+            passport.authenticate('github-local', function (error, user, info) {
+                      if(error){
+                        return res.redirect(process.env.FRONTEND_URL +'/login?github=error');
+                      } else if(!user){
+                          return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
+                      }
+                      req.logIn(user, async function(err){
+                          if(err){
+                              return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
+                          }else {
+                              return res.redirect(process.env.FRONTEND_URL + '/login?github=success');
+                          }
+                      });
+                  })(req,res);
+        }catch(error){
+            res.sendStatus(400)
+        }
+        }
+  )
+}
+
 module.exports = {
+  uniqueRepositories,
+  jiraProjects,
+  getJiraIssues,
+  getGithubData,
+  createReport,
+  getGithubStories,
   options,
-  deleteHtmlReport,
-  deleteJsonReport,
+  deleteReport,
   execRepositoryRequests,
   setOptions,
   execReport,
@@ -371,4 +675,5 @@ module.exports = {
   starredRepositories,
   ownRepositories,
   fuseGitWithDb,
+  updateJira,
 };

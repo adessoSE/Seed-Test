@@ -19,7 +19,7 @@
 
 .router{
   grid-area: router;
-  background-color: white;
+  background-color: rgb(224, 224, 224);
 }
 
 
@@ -27,7 +27,7 @@
   background-color: #999;
   grid-area: topnav;
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
+  grid-template-columns: 3fr auto 1fr auto 3fr;
   grid-template-areas: 
   "left . center . right";
 }
@@ -38,7 +38,7 @@
   font-size: 17px;
 }
 
-.topnav-right{
+.topnavRight{
   grid-area: right;
   align-self: center;
   justify-self: right;
@@ -48,24 +48,19 @@
   align-content: center;
 }
 
-.topnav-left {
-  grid-area: left;
-  align-self: center;
-}
-
-.topnav-center{
+.topnavCenter{
   grid-area: center;
   align-self: center;
 }
 
-.topnav-right a{
+.topnavRight a{
   padding: 12px;
 }
 
 #version {
   color: #56595e;
   align-self: center;
-  margin-right: 5px;
+  padding: 13px;
 }
 
 .impressum, .terms {
@@ -139,18 +134,19 @@
   height: 40px;
 }
 
-.left-button {
+.rightButton {
   background-color: #999;
   color: white;
-  padding: 14px;
+  padding: 13px;
   font-size: 15px;
   border: none;
   cursor: pointer;
   transition: 0.3s;
+  outline: none;  
 }
 
-.left-button:hover {
-  color: #56595e;
+.rightButton:hover, .menuButton:hover {
+  color: rgb(121, 121, 121);
 }
 
 a:hover{
@@ -161,46 +157,50 @@ a:hover{
   height: 51px;
 }
 
-
-.right-button{
-  border: 1px solid transparent;
-  padding: 7px 12px;
-  margin: 5px;
-  cursor: pointer;
-  font: inherit;
-  vertical-align: middle;
-  text-align: center;
-  text-transform: uppercase;
+.menuButton{
+  color: white;
+  outline: none;  
+  font-style: inherit;
+  padding: 13px 20px;
+  border: 0px;
+  background: #999;
+  float: left;
+  transition: 0.3s;
 }
+
+.right-button:focus {outline:0 !important;}
 
 .right-button#logout{
   border: solid 1px #f07289;
   background: -moz-linear-gradient(top,  #f07289, #f0506e);
   color:#fff;
+  background-color: #f1647e;
 }
 
-.right-button#logout:hover {
-  background: #f0506e;
+.menulist{
+  list-style: none;
+  background-color: #f8f8f8;
 }
 
-.right-button#logout:active {
-  background: -moz-linear-gradient(top, #f0506e, #f07289);
-}
-
-.right-button#repositories{
+.menuSelection{
+  font-size: 100%;
+  font-style: inherit;
+  padding: 12px 16px;
+  border: 0px;
+  background-color: #f8f8f8;
   color: #56595e;
-  border: solid 1px #b6b6b6;
-  background: #ffffff;
-  background: -moz-linear-gradient(top,  #ffffff, #b6b6b6);
+  outline: none;  
 }
 
-.right-button#repositories:hover{
-  background: #b6b6b6;
+.menuSelection:hover{
+  color: #0099CC;
 }
 
-.right-button#repositories:active{
-  background: -moz-linear-gradient(top, #b6b6b6, #ffffff);
+.menuSelection#logout:hover{
+  color: #f0506e;
 }
+
+/*dropdown general*/
 
 .dropdown{
   position: relative;
@@ -214,6 +214,9 @@ a:hover{
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
   list-style-type: none;
+  overflow-y: auto;
+  max-height: 70%;
+  height: auto;
 }
 
 .dropdown-list a{
@@ -239,24 +242,39 @@ a:hover{
   display: block;
 }
 
+.repoButton{
+  margin-right: 10px;
+  margin-left: 5px;
+  outline: none;  
+}
+
+#githubHref{
+  color: white;
+  transition: 0.3s;
+}
+
+#githubHref:hover{
+  color: rgb(121, 121, 121);
+}
+
 @media screen and (max-width: 600px) {
-  .topnav a, .topnav-right {
+  .topnav a, .topnavRight {
     float: none;
     display: block;
   }
 
-  .topnav-center a {
+  .topnavCenter a {
     position: relative;
     top: 0;
     left: 0;
     transform: none;
   }
 
-  .topnav-right{
+  .topnavRight{
     text-align: center;
   }
 
-  .topnav-left{
+  .topnavRight{
     text-align: center;
   }
 }

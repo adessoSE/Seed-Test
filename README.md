@@ -13,12 +13,23 @@ We are greateful for any testing and feedback, so please help us by filling out 
 Please contact us via mail seed-test@adesso.de
 
 ## Installation
-To install and use the application localy, clone the repository.
 It is necessary to install [NodeJS](https://nodejs.org/en/).
-Install Angular 7:
+
+To install and use the application localy, clone the repository.
+Download the repository as a zip file.
+Create a folder somewhere and unzip the repository.
+Type this command in the folder path field to open a console:
 ```
-npm install -g @angular/cli@7.3.9 
+cmd
 ```
+Do this twice to open two separate console windows.
+
+Then navigate with one of the consoles to the backend and with the other to the frontend folder via this command:
+```
+cd backend
+cd frontend
+```
+
 Then install all necessary node modules once in the backend and in the frontend folder:
 ```
 npm install
@@ -26,12 +37,11 @@ npm install
 
 Create an `.env` file in the backend folder with following variables:
 ```
-DATABASE_URI= uri for the database connection
-REPORT_DELETION_TIME= minutes after which the generated reports are deleted (e.g. 5 for 5 minutes)
-TESTACCOUNT_NAME= name of the github test account (not needed for you if you do not use a test account)
-TESTACCOUNT_TOKEN= github token of the test account (not needed for you if you do not use a test account)
-PORT= port of the server
-Unassigned_AVATAR_URL=https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png  image of the user for unassigned issues
+DATABASE_URI
+REPORT_DELETION_TIME
+TESTACCOUNT_NAME
+TESTACCOUNT_TOKEN
+PORT
 ```
 
 Create an `.env` file in the frontend folder with following variables:
@@ -39,6 +49,7 @@ Create an `.env` file in the frontend folder with following variables:
 API_SERVER=http://localhost:8080/api
 ```
 
+For the frontend server, remember to change the link to the backend server in the api-service.ts file.
 To run the frontend server switch to the frontend folder and use this command:
 ```
 cd frontend
@@ -50,11 +61,18 @@ cd backend
 npm start
 ```
 
+Once everything is running, you can access the website by typing this into a browser window:
+```
+http://localhost:4200/login
+```
+
+
+
 ## Database
 Seed-Test uses a MongoDB. You can either create your own locally or in the cloud.
 For installation details check out our Check out the [Database Tutorial](https://github.com/adessoAG/Seed-Test/wiki/Database)
 
-Once you set up the database, insert the uri into the mongodatabase.js file in the backend folder.
+Once you set up the database, insert the uri into the .env file in the backend folder.
 Save it!
 
 Then you can set up the database through this command:

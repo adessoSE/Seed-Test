@@ -31,6 +31,7 @@
     cursor: help;
     position: relative;
     z-index: 2;
+    top: -2px;
   }
   
   .def span[rel=def] {

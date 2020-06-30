@@ -1,8 +1,12 @@
 import { LoginComponent } from '../login/login.component';
+import {AccountManagmentComponent} from '../account-managment/account-managment.component';
 import { ParentComponent } from '../parent/parent.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { FeedbackComponent } from '../feedback/feedback.component';
 import { TermsComponent } from '../terms/terms.component';
+import { TestAccountComponent } from '../test-account/test-account.component';
+import { RegistrationComponent } from '../registration/registration.component';
+import { ReportComponent } from '../report/report.component';
 
 export const ROUTES = [
     {
@@ -10,9 +14,21 @@ export const ROUTES = [
         component: LoginComponent
     },
     {
+        path: 'accountManagment',
+        component: AccountManagmentComponent
+    },
+    {
         path: '',
         component: ParentComponent,
         canActivate: [AuthGuard]
+    },
+    {
+        path: 'report/:reportName',
+        component: ReportComponent
+    },
+    {
+        path: 'testaccount',
+        component: TestAccountComponent
     },
     {
         path: 'feedback',
@@ -21,5 +37,9 @@ export const ROUTES = [
     {
         path: 'terms',
         component: TermsComponent
+    },
+    {
+        path: 'register',
+        component: RegistrationComponent
     }
 ];

@@ -80,7 +80,7 @@ describe('AppComponent', () => {
       localStorage.setItem('repository', repository);
 
       spyOn(component, 'getRepositories');
-      component.refreshLoginData();
+      //component.refreshLoginData();
 
       expect(component.getRepositories).toHaveBeenCalled();
       expect(component.token).toBe(token);
@@ -96,7 +96,7 @@ describe('AppComponent', () => {
       localStorage.setItem('repository', repository);
 
       spyOn(component, 'getRepositories');
-      component.refreshLoginData();
+      //component.refreshLoginData();
 
       expect(component.getRepositories).not.toHaveBeenCalled();
       expect(component.token).toBe(token);
