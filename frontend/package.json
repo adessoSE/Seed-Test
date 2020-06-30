@@ -33,7 +33,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "file-saver": "^2.0.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "ngx-cookie-service": "2.3.0",
     "ngx-take-until-destroy": "^5.4.0",
     "node-fetch": "^2.6.0",
