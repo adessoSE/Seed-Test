@@ -34,9 +34,6 @@ app
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      sameSite: "strict"
-    }
   }))
   .use(passport.initialize())
   .use(passport.session())
