@@ -23,7 +23,6 @@ const server = app.listen(process.env.PORT || 8080, () => {
  * API Description
  */
 app
-  //.set('trust proxy', 1) 
   .use(cors({
     origin: [
     process.env.FRONTEND_URL
@@ -35,6 +34,9 @@ app
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      sameSite: "strict"
+    }
   }))
   .use(passport.initialize())
   .use(passport.session())
