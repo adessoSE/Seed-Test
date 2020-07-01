@@ -38,7 +38,7 @@ app
       httpOnly: false, 
       //maxAge: 864000000,
       //secure: true,
-      //sameSite: "lax"
+      sameSite: "strict"
     },
   }))
   .use(passport.initialize())
