@@ -90,7 +90,7 @@ router.post('/register', async (req, res) => {
 //logout for user
 router.get('/logout', async (req, res) => {
     req.logout();
-    res.json({status: 'success'})
+    res.clearCookie('connect.sid', {path: '/'}).status(200).send('Ok.');
 });
 
 router.get('/repositories', (req, res) => {
