@@ -20,7 +20,8 @@ export class LoginComponent implements OnInit {
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
-            if (params.github == 'success' && this.apiService.isLoggedIn()) {
+            if (params.github == 'success') {
+                localStorage.setItem('login', 'true')
                 this.getRepositories()
             }else if(params.github == 'error'){
                 this.error = 'A Login error occured. Please try it again';
@@ -38,6 +39,7 @@ export class LoginComponent implements OnInit {
         if (response.status === 'error') {
             this.repositoriesLoading = false;
             this.error = response.message;
+
         } else {
             this.getRepositories()
         }
