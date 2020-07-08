@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
             this.repositoriesLoading = false;
             this.error = response.message;
         } else {
-            this.getRepositories()
+            this.getRepositories();
         }
     }
 
