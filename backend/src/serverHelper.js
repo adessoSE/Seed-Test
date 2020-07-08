@@ -605,7 +605,6 @@ module.exports = {
   getJiraIssues,
   getGithubData,
   createReport,
-  getGithubStories,
   options,
   deleteReport,
   execRepositoryRequests,
