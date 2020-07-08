@@ -65,8 +65,14 @@ When('The site should wait for {string} milliseconds', async (ms) => {
 
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async (value, label) => {
-  await driver.findElement(By.css(`input#${label}`)).clear();
-  await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
+  try {
+    await driver.findElement(By.css(`input#${label}`)).clear();
+    await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
+  }catch(e){
+    await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear()
+    await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+  }
+
 });
 
 When('I insert {string} into the field{string}', async (value, label) => {
@@ -80,7 +86,12 @@ When('I select {string} from the selection {string}', async (radioname, label) =
 
 // Select an Option from an dropdown-menue
 When('I select the option {string} from the drop-down-menue {string}', async (value, dropd) => {
-  await driver.wait(until.elementLocated(By.xpath(`//*[@id='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
+
+  try {
+    await driver.wait(until.elementLocated(By.xpath(`//*[@id='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
+  }catch(e){
+    await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::option[text()='${value}']`)).click();
+  }
 });
 
 // Hover over element and Select an Option
