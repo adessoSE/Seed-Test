@@ -18,17 +18,12 @@ export class LoginComponent implements OnInit {
     repositoriesLoading: boolean;
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
+        this.error = undefined;
         this.route.queryParams.subscribe((params) => {
-            if (params.login) {
-                let userId = localStorage.getItem('userId');
-                localStorage.removeItem('userId')
-                if (userId){
-                   this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
-                       this.loginGithubToken(params.login, params.id);
-                   });
-                } else {
-                    this.loginGithubToken(params.login, params.id);
-                }
+            if (params.github == 'success' && this.apiService.isLoggedIn()) {
+                this.getRepositories()
+            }else if(params.github == 'error'){
+                this.error = 'A Login error occured. Please try it again';
             }
         })
     }
@@ -36,30 +31,10 @@ export class LoginComponent implements OnInit {
     ngOnInit() {
     }
 
-    loginGithubToken(login: string, id: any){
-        let repository = localStorage.getItem('repository')
-        let source = localStorage.getItem('source')
-        this.apiService.loginGithubToken(login, id).subscribe((resp) => {
-            if (resp.status === 'error') {
-                this.repositoriesLoading = false;
-                this.error = resp.message;
-            } else {
-                this.getRepositories()
-            }
-        })
-    }
-
     async login(form: NgForm) {
         this.repositoriesLoading = true;
         this.error = undefined;
-        let response;
-        console.log('HELLOOOOOO');
-        try {
-            response = await this.apiService.loginUser(form.value.email, form.value.password).toPromise();
-        } catch (e) {
-            if (e.statusText === 'Unauthorized') { this.error = 'Wrong Username or Password'; } else { this.error = e.statusText; }
-            this.repositoriesLoading = false;
-        }
+        let response = await this.apiService.loginUser(form.value.email, form.value.password, form.value.stayLoggedIn).toPromise()
         if (response.status === 'error') {
             this.repositoriesLoading = false;
             this.error = response.message;
@@ -120,8 +95,13 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['']);
     }
 
-    githubLogin() {
+    navToRegistration() {
+    this.router.navigate(['/register']);
+  }
+
+    githubLogin(){
+        this.error = undefined;
         this.repositoriesLoading = true;
-        this.apiService.githubAuthentication();
-    }
+        this.apiService.githubLogin()
+      }
 }

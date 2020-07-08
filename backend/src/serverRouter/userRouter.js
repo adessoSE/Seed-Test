@@ -26,7 +26,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect');
 		next();
@@ -38,13 +38,31 @@ router
 
 // login user
 router.post('/login', (req, res, next) => {
-	passport.authenticate('normal-local', (error, user) => {
-		if (error) res.status(401).json(error);
-		req.logIn(user, async (err) => {
-			if (err) return res.status(401).json(err);
-			return res.json(user);
-		});
-	})(req, res, next);
+if(req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
+    try{
+        passport.authenticate('normal-local', function(error, user, info){
+            if(error){
+                throw new UserError(error)
+            }else if(!user){
+                info.status = 'error';
+                return res.json(info);
+            }
+            req.logIn(user, async function(err){
+                if(err){
+                    throw new UserError(err)
+                }else {
+                    res.json(user);
+                }
+            });
+        })
+        (req, res, next)
+    }catch(error){
+        if(error instanceof UserError){
+            res.status(401).json(error);
+        }else{
+            res.status(401).json(error);
+        }
+    }
 });
 
 // login github account
@@ -81,6 +99,7 @@ router.post('/mergeGithub', async (req, res) => {
 		res.sendStatus(400);
 	}
 });
+
 
 // registers user
 router.post('/register', async (req, res) => {
@@ -261,5 +280,40 @@ router.get('/stories', async (req, res) => {
 		});
 	} else res.sendStatus(401);
 });
+
+
+router.post('/githubLogin', (req, res) =>{
+    let scope = 'repo'
+    const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
+    let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${process.env.GITHUB_CLIENT_ID}`;
+
+    request(
+        {
+            uri: s,
+        }, function(err, response, body){
+            res.send(body)
+        }
+    )
+});
+
+router.get('/callback', (req, res) =>{
+    let code = req.query.code;
+    const TOKEN_URL = 'https://github.com/login/oauth/access_token'
+      request(
+          {
+              uri: TOKEN_URL,
+              method: "POST",
+              form: {
+                  client_id: process.env.GITHUB_CLIENT_ID,
+                  client_secret: process.env.GITHUB_CLIENT_SECRET,
+                  code: code
+              },
+          }, function(err, response, body){
+              const accessToken = body.split("&")[0].split("=")[1];
+              helper.getGithubData(res, req, accessToken);
+          }
+      )
+  });
+
 
 module.exports = router;

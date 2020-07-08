@@ -22,7 +22,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
 		next();
@@ -32,6 +32,7 @@ router
 		console.log('Time of mongoDB request:', Date.now());
 		next();
 	});
+
 // get steptypes from mongo
 router.get('/stepTypes', async (_, res) => {
 	try {
@@ -138,36 +139,36 @@ router.post('/user/add', async (req, res) => {
 });
 // update user
 router.post('/user/update/:userID', async (req, res) => {
-	try {
-		const user = req.body;
-		const updatedUser = await mongo.updateUser(parseInt(req.params.userID, 10), user);
-		res.status(200)
-			.json(updatedUser);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
+  try {
+    const user = req.body;
+    let updatedUser = await mongo.updateUser(parseString(req.params.userID, 10), user)
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    handleError(res, error, error, 500);
+  }
 });
 // delete user
 router.delete('/user/delete/:userID', async (req, res) => {
-	try {
-		await mongo.deleteUser(parseInt(req.params.userID, 10));
-		res.status(200);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
+  try {
+    await mongo.deleteUser(parseString(req.params.userID, 10))
+    res.status(200);
+  } catch (error) {
+    handleError(res, error, error, 500);
+  }
 });
 
 // get userObject
 router.get('/user', async (req, res) => {
-	if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') try {
-		const result = await mongo.getUserData(req.user._id);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	} else {
-		console.log('Undefined');
-		console.log(req.user);
-	}
+  if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') {
+    try {
+      const result = await mongo.getUserData(req.user._id);
+      res.status(200).json(result);
+    } catch (error) {
+      handleError(res, error, error, 500);
+    }
+  } else {
+    console.log('Undefined');
+  }
 });
 
 module.exports = router;

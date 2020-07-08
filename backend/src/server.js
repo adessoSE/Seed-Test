@@ -12,8 +12,9 @@ const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
 
 const app = express();
+let stories = [];
 
-// Initialize the app and open correct Port.
+// Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
 	const { port } = server.address();
 	console.log(`App now running on port: ${port}`);

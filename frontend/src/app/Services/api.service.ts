@@ -16,6 +16,7 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 })
 
 export class ApiService {
+
     public apiServer: string = localStorage.getItem('url_backend');
     public token: string;
     public urlReceived = false;
@@ -29,9 +30,25 @@ export class ApiService {
     constructor(private http: HttpClient, private cookieService: CookieService) {
     }
 
+    public githubLogin(){
+        let scope = 'repo'
+        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
+        let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
+        window.location.href = s;
+    }
 
     public getOptions() {
         return { withCredentials: true};
+    }
+
+    getReport(reportName: string) {
+        this.apiServer = localStorage.getItem('url_backend');
+        if(this.apiServer){
+            const str = this.apiServer + '/run/report/' + reportName;
+            return this.http.get(str,  { responseType: 'text', withCredentials: true})
+                .pipe(tap(resp => {}),
+                catchError(this.handleError));
+        }
     }
 
     public getProjectsFromJira() {
@@ -68,24 +85,13 @@ export class ApiService {
           catchError(this.handleError));
     }
 
-    mergeAccountGithub(userId: string, login: string, id: any) {
-        let str = this.apiServer + '/user/mergeGithub'
-        let obj = {userId, login, id}
-
-        return this.http.post<any>(str, obj, this.getOptions())
-        .pipe(tap(resp => {
-          //this.getStoriesEvent.emit(resp);
-        }),
-          catchError(this.handleError));
-    }
-
     public githubAuthentication() {
         let scope = 'repo'
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
         let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
         window.location.href = s;
     }
-
+  
     public loginGithubToken(login: string, id){
         const str = this.apiServer + '/user/githubLogin'
         let user = {login, id}
@@ -97,14 +103,15 @@ export class ApiService {
             catchError(this.handleError));
     }
 
-    public loginUser(email: string, password: string): Observable<any> {
-        const str = this.apiServer + '/user/login';
+    public loginUser(email: string, password: string, stayLoggedIn: boolean): Observable<any> {
+        const str = this.apiServer + '/user/login'
+
         let user;
         if(!email && !password){
 
         }else {
             user = {
-                email, password
+                email, password, stayLoggedIn
             }
         }
         return this.http.post<string[]>(str, user, this.getOptions())
@@ -152,15 +159,16 @@ export class ApiService {
         return throwError(error);
     }
 
-    public getBackendInfo() {
+    public getBackendInfo(): Promise<any> {
         const url = localStorage.getItem('url_backend');
         const clientId = localStorage.getItem('clientId');
 
         if (url && url !== 'undefined' && clientId && clientId !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
+            return Promise.resolve(url);
         } else {
-            this.http.get<any>(window.location.origin + '/backendInfo', this.getOptions()).subscribe((backendInfo) => {
+           return this.http.get<any>(window.location.origin + '/backendInfo', this.getOptions()).toPromise().then((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
                 localStorage.setItem('clientId', backendInfo.clientId);
                 this.urlReceived = true;
@@ -216,10 +224,11 @@ export class ApiService {
             }));
     }
 
-    public createUser(user: User): Observable<User> {
+    public registerUser(email:string, password:string): Observable<any> {
+        const user = {email, password};
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/user/add', user)
+            .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
@@ -306,13 +315,15 @@ export class ApiService {
     // demands testing from the server
     public runTests(storyID: number, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
-
+        let value = localStorage.getItem('repository');
+        let source = localStorage.getItem('source');
+        let params = {value, source}
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, { responseType: 'text' });
+                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, { responseType: 'text', withCredentials: true, params});
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text' });
+            .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
     }
 
     isLoggedIn(): boolean {

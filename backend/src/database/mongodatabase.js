@@ -12,12 +12,13 @@ if (!process.env.NODE_ENV) {
 }
 
 const uri = process.env.DATABASE_URI;
+let db_name = 'Seed'
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 
 
 async function registerUser(user){
   let db = await connectDb()
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   let collection = await dbo.collection('User')
   let dbUser = await getUserByEmail(user.email);
   let result;
@@ -31,7 +32,7 @@ async function registerUser(user){
 
 async function registerGithubUser(user){
   let db = await connectDb()
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   let collection = await dbo.collection('User')
   let result = await collection.insertOne({github: user});
   return result;
@@ -40,7 +41,7 @@ async function registerGithubUser(user){
 async function mergeGithub(userId, login, id){
   console.log('login:', login, 'id:', id)
   let db = await connectDb()
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   let collection = await dbo.collection('User')
   let githubAccount = await getUserByGithub(login, id)
   let seedAccount = await getUserById(userId);
@@ -56,7 +57,7 @@ async function mergeGithub(userId, login, id){
 
 async function getUserByEmail(email){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let result = await collection.findOne({email: email})
   db.close();
@@ -65,7 +66,7 @@ async function getUserByEmail(email){
 
 async function getUserByGithub(login, id){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let result = await collection.findOne({$and :[{'github.id': id}, {'github.login': login}]})
   db.close();
@@ -74,7 +75,7 @@ async function getUserByGithub(login, id){
 
 async function getUserById(id){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let result = await collection.findOne({_id: ObjectId(id)})
   console.log('getuserbyid: ' + id)
@@ -94,7 +95,7 @@ async function findOrRegister(user){
 
 async function updateGithubToken(objId, updatedToken) {
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let user = await collection.updateOne({"_id" : ObjectId(objId)}, {$set: { 'github.githubToken' : updatedToken}})
   db.close()
@@ -125,7 +126,7 @@ function selectRepositoryCollection(db) {
   })
 }
 function selectStoriesCollection(db) {
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   return new Promise((resolve, reject) => {
     dbo.collection('Stories', (err, collection) => {
       if (err) {
@@ -137,7 +138,7 @@ function selectStoriesCollection(db) {
   })
 }
 function selectUsersCollection(db) {
-  dbo = db.db('Seed');
+  dbo = db.db(db_name);
   return new Promise((resolve, reject) => {
     dbo.collection('User', (err, collection) => {
       if (err) {
@@ -187,7 +188,7 @@ function replace(storyID, story, collection) {
 
 async function disconnectGithub(user){
   let db = await connectDb()
-  let dbo = await db.db('Seed')
+  let dbo = await db.db(db_name)
   let collection = await dbo.collection('User')
   let removedUser = await replaceUser(user, collection);
   return removedUser;
@@ -207,119 +208,173 @@ function replaceUser(newUser, collection) {
 }
 
 async function updateStory(gitID, updatedStuff) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await replace(gitID, updatedStuff, collection)
-  db.close()
-  //console.log('story: ' + JSON.stringify(story))
-  return story
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await replace(gitID, updatedStuff, collection)
+    return story
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
+  }
 }
-
 
 // get One Story
 async function getOneStory(storyID) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await findStory(storyID, collection)
-  db.close()
-  return story
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyID, collection)
+    return story
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close();
+  }
 }
 
 // GET all  Steptypes
 async function showSteptypes() {
-  let db = await connectDb()
-  dbo = db.db('Seed')
-  let collection = await dbo.collection('stepTypes')
-  let result = await collection.find({}).toArray()
-  db.close();
-  return result
+  let db;
+  try {
+    db = await connectDb()
+    dbo = db.db(db_name)
+    let collection = await dbo.collection('stepTypes')
+    let result = await collection.find({}).toArray()
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
+  }
 }
 
 // Create Background
 async function createBackground(storyID) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await findStory(storyID, collection)
-  const tmpBackground = emptyBackground();
-  story.background = tmpBackground;
-  let result = await replace(storyID, story, collection)
-  db.close()
-  return result
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyID, collection)
+    const tmpBackground = emptyBackground();
+    story.background = tmpBackground;
+    let result = await replace(storyID, story, collection)
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
+  }
 }
 
 // UPDATE Background
 async function updateBackground(storyID, updatedBackground) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await findStory(storyID, collection)
-  story.background = updatedBackground;
-  let result = await replace(storyID, story, collection)
-  db.close()
-  return result
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyID, collection)
+    story.background = updatedBackground;
+    let result = await replace(storyID, story, collection)
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
+  }
 }
 
 // DELETE Background
 async function deleteBackground(storyID) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await findStory(storyID, collection)
-  story.background = emptyBackground();
-  let result = await replace(storyID, story, collection)
-  db.close()
-  return result
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyID, collection)
+    story.background = emptyBackground();
+    let result = await replace(storyID, story, collection)
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
+  }
 }
 
 // CREATE Scenario
 async function createScenario(storyID) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await findStory(storyID, collection)
-  const lastScenarioIndex = story.scenarios.length;
-  const tmpScenario = emptyScenario();
-  if (story.scenarios.length === 0) {
-    story.scenarios.push(tmpScenario);
-  } else {
-    tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-    story.scenarios.push(tmpScenario);
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyID, collection)
+    const lastScenarioIndex = story.scenarios.length;
+    const tmpScenario = emptyScenario();
+    if (story.scenarios.length === 0) {
+      story.scenarios.push(tmpScenario);
+    } else {
+      tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+      story.scenarios.push(tmpScenario);
+    }
+    await replace(storyID, story, collection)
+    return tmpScenario
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
   }
-  await replace(storyID, story, collection)
-  db.close()
-  return tmpScenario
 }
 
 // DELETE Scenario
 async function deleteScenario(storyID, scenarioID) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await findStory(storyID, collection)
-  for (let i = 0; i < story.scenarios.length; i++) {
-    if (story.scenarios[i].scenario_id === scenarioID) {
-      story.scenarios.splice(i, 1);
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyID, collection)
+    for (let i = 0; i < story.scenarios.length; i++) {
+      if (story.scenarios[i].scenario_id === scenarioID) {
+        story.scenarios.splice(i, 1);
+      }
     }
+    let result = await replace(storyID, story, collection)
+    db.close()
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
   }
-  let result = await replace(storyID, story, collection)
-  db.close()
-  return result
 }
 
 // POST Scenario
 async function updateScenario(storyID, updatedScenario) {
-  let db = await connectDb()
-  let collection = await selectStoriesCollection(db)
-  let story = await findStory(storyID, collection)
-  for (const scenario of story.scenarios) {
-    if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
-      story.scenarios.push(scenario);
-      break;
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyID, collection)
+    for (const scenario of story.scenarios) {
+      if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
+        story.scenarios.push(scenario);
+        break;
+      }
+      if (scenario.scenario_id === updatedScenario.scenario_id) {
+        story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
+        break;
+      }
     }
-    if (scenario.scenario_id === updatedScenario.scenario_id) {
-      story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
-      break;
-    }
+    let result = await replace(storyID, story, collection)
+    db.close()
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
   }
-  let result = await replace(storyID, story, collection)
-  db.close()
-  return result
 }
 
 //get UserData needs ID returns JsonObject User
@@ -380,78 +435,195 @@ async function addIssue(issue, name){
 }
 
 async function upsertEntry(storyID, updatedContent) {
-  const myObjt = { story_id: storyID };
-  let db = await connectDb();
-  let collection = await selectStoriesCollection(db);
-  collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
-    returnOriginal: false,
-    upsert: true,
-  }, (error) => {
-    if (error) throw error;
+  let db;
+  try {
+    const myObjt = { story_id: storyID };
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
+      returnOriginal: false,
+      upsert: true,
+    })
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
+  }
+}
+
+async function uploadReport(reportData) {
+  let db;
+  try{
+    db = await connectDb()
+    dbo = db.db(db_name)
+    let collection = await dbo.collection('TestReport')
+    let result = await collection.insertOne(reportData);
     db.close();
-  });
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER", e)
+  }
+}
+
+async function getReport(reportName) {
+  let db;
+  try{
+    let report = {reportName}
+    db = await connectDb()
+    dbo = db.db(db_name)
+    let collection = await dbo.collection('TestReport')
+    let result = await collection.findOne(report);
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER", e)
+  }
 }
 
 // create User in DB needs JsonObject User returns JsonObject(user)
 async function createUser(user) {
+  let db;
   try {
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectUsersCollection(db)
     let result = await collection.insertOne(user)
     console.log(result.ops[0])
-    db.close();
     return result
   } catch (e) {
-    console.log("UPS!!!! FEHLER" + e)
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
   }
 }
 
 // delete User in DB needs ID
 async function deleteUser(userID) {
+  let db;
   try {
     oId = ObjectId(userID)
     const myObjt = { _id: oId }
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectUsersCollection(db)
     await collection.deleteOne(myObjt)
-    db.close();
   } catch (e) {
-    console.log("UPS!!!! FEHLER" + e)
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
   }
 }
 // update a User in DB needs ID and JsonObject User returns altered JsonObject User
 async function updateUser(userID, updatedUser) {
+  let db;
   try {
     oId = ObjectId(userID)
     const myObjt = { _id: oId }
-    let db = await connectDb()
+    db = await connectDb()
     let collection = await selectUsersCollection(db)
     let result = await collection.findOneAndReplace(myObjt, updatedUser, { returnOriginal: false })
-    db.close()
     return result.value
   } catch (e) {
-    console.log("UPS!!!! FEHLER" + e)
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
   }
 }
 
 //get UserData needs ID returns JsonObject User
 async function getUserData(userID) {
+  let db;
   try {
     const oId = ObjectId(userID);
     const myObjt = { _id: oId };
-    let db = await connectDb();
+    db = await connectDb();
     let collection = await selectUsersCollection(db);
     let result = await collection.findOne(myObjt);
     db.close();
     console.log(result)
     return result
   } catch (e) {
-    console.log("UPS!!!! FEHLER" + e)
+    console.log("UPS!!!! FEHLER: " + e)
+  } finally {
+    if(db) db.close()
   }
 }
 
+
+
+
+
+
 // /////////////////////////////////////////// API Methods end ////////////////////////////////////////
-// ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////
+// ///////////////////////////////////////////    ADMIN    ////////////////////////////////////////////
+
+
+
+
+// Please keep in mind that when you change the stepDefs in the Database with this function, you also have to apply that change manualy in the stepdefs.js in features/step_definitions
+// if "storyID" Parameter is null: Updates "pre" Stepdefinitions in the "Stories" Collection and sets each step to outdated: true
+// else: Updates "pre" Stepdefinitions in the selected Story and sets each step to outdated: true
+async function updatePreStepsInOneStory(oldText, newText, storyID) {
+  let myObjt
+  if (storyID == null) {
+    myObjt = {}
+  } else {
+    myObjt = { story_id: storyID }
+  }
+  try {
+    let db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    await collection.updateMany(myObjt, { $set: { "background.stepDefinitions.when.$[elem].outdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": true } }, { arrayFilters: [{ "elem.pre": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "background.stepDefinitions.when.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].pre": newText } }, { arrayFilters: [{ "elem.pre": oldText }] })
+    db.close()
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  }
+}
+
+function fib(zahl) {
+  if (zahl = 0) {
+    return 0;
+  } if (zahl = 1) {
+    return 1;
+  } else {
+    return (zahl - 1) + (zahl - 2);
+  }
+}
+
+
+// Please keep in mind that when you change the stepDefs in the Database with this function, you also have to apply that change manualy in the stepdefs.js in features/step_definitions
+// if "storyID" Parameter is null: Updates "mid" Stepdefinitions in the "Stories" Collection and sets each step to outdated: true
+// else: Updates "mid" Stepdefinitions in the selected Story and sets each step to outdated: true
+async function updateMidStepsInOneStory(oldText, newText, storyID) {
+  let myObjt
+  if (storyID == null) {
+    myObjt = {}
+  } else {
+    myObjt = { story_id: storyID }
+  }
+  try {
+    let db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    await collection.updateMany(myObjt, { $set: { "background.stepDefinitions.when.$[elem].outdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].outdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].outdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].outdated": true } }, { arrayFilters: [{ "elem.mid": oldText }], upsert: true })
+    await collection.updateMany(myObjt, { $set: { "background.stepDefinitions.when.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.given.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.when.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    await collection.updateMany(myObjt, { $set: { "scenarios.$[].stepDefinitions.then.$[elem].mid": newText } }, { arrayFilters: [{ "elem.mid": oldText }] })
+    let result = await findStory(storyID, collection)
+    db.close()
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER: " + e)
+  }
+}
 
 // Creates Database Backupfile
 async function writeBackup() {
@@ -478,7 +650,7 @@ async function createContent() {
 function getCollections() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.listCollections().toArray((error, result) => {
       if (error) throw error;
       console.log(`showMeCollections error: ${result}`);
@@ -492,7 +664,7 @@ function getCollections() {
 function makeCollection(name) {
   MongoClient.connect(uri, { useNewUrlParser: true }, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.createCollection(name, (error) => {
       if (error) throw error;
       console.log('Collection created!');
@@ -505,7 +677,7 @@ function makeCollection(name) {
 function insertOne(collection, content) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     const myObjt = content;
     dbo.collection(collection).insertOne(myObjt, (error) => {
       if (error) throw error;
@@ -529,7 +701,7 @@ async function getCollection() {
 function insertMore(name, content) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     const myObjt = content;
     dbo.collection(name).insertMany(myObjt, (error, res) => {
       if (error) throw error;
@@ -543,7 +715,7 @@ function insertMore(name, content) {
 function update(storyID, updatedStuff) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.collection(collection).updateOne({ story_id: storyID }, { $set: updatedStuff }, (error, res) => {
       if (error) throw error;
       db.close();
@@ -555,7 +727,7 @@ function update(storyID, updatedStuff) {
 function eraseAllStories() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.collection(collection).deleteOne({}, (error) => {
       if (error) throw error;
       db.close();
@@ -568,7 +740,7 @@ function eraseAllStories() {
 function showStory(storyID) {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     const myObjt = { story_id: storyID };
     dbo.collection(collection).findOne(myObjt, (error, result) => {
       if (error) throw error;
@@ -582,7 +754,7 @@ function showStory(storyID) {
 function dropCollection() {
   MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
     if (err) throw err;
-    const dbo = db.db('Seed');
+    const dbo = db.db(db_name);
     dbo.collection(collection).drop((error, delOK) => {
       if (error) throw error;
       if (delOK) console.log('Collection deleted');
@@ -592,11 +764,15 @@ function dropCollection() {
 }
 
 function installDatabase() {
-  makeCollection(collection);
+  makeCollection('stepTypes');
+  makeCollection('Stories');
+  makeCollection('User');
   insertMore('stepTypes', stepTypes());
 }
 
 module.exports = {
+  getReport,
+  uploadReport,
   disconnectGithub,
   mergeGithub,
   findOrRegister,

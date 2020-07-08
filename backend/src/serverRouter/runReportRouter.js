@@ -12,11 +12,12 @@ router
 		next();
 	})
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
 		next();
 	});
+
 // run single Feature
 router.get('/Feature/:issueID', (req, res) => {
 	helper.runReport(req, res, stories, 'feature');
@@ -25,6 +26,11 @@ router.get('/Feature/:issueID', (req, res) => {
 // run single Scenario of a Feature
 router.get('/Scenario/:issueID/:scenarioID', (req, res) => {
 	helper.runReport(req, res, stories, 'scenario');
+});
+
+router.get('/report/:reportName', (req, res) => {
+  let reportName = req.params.reportName;
+  helper.createReport(res, reportName);
 });
 
 module.exports = router;

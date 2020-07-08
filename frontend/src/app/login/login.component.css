@@ -24,6 +24,14 @@ h1{
     text-align: center;
 }
 
+.stayLoggedInContainer label{
+    margin-left: 5px;
+}
+
+.stayLoggedInContainer {
+    margin: 5px;
+}
+
 .repositories{
     grid-area: repositories;
     grid-row: 2 / 3;
@@ -75,6 +83,40 @@ a:not([href]):not([tabindex]).repoLink:hover {
 
 .loginButton:focus {outline:0 !important;}
 
+.loginButton:hover {
+    background: rgb(2, 111, 161);
+    }
+
+.loginButton:active {
+    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
+    }
+
+.testAccount{
+    margin: 5px;
+    color:#ffffff;
+    padding: 5px 31px;
+    font-size: 15px;
+    cursor: pointer;
+    border: solid 1px #999;
+    background: #999;
+    background: -moz-linear-gradient(top,  #999,  rgb(117, 117, 117));
+}
+
+.testAccount:hover {
+    background: rgb(117, 117, 117);
+    }
+
+.testAccount:active {
+    background: -moz-linear-gradient(top,  rgb(117, 117, 117),  #999);
+    }
+    
+.testAccount:focus {outline:0 !important;}
+
+.noAccount{
+    font-size: 13px;
+    padding: 5px;
+}
+
 .githubLogin{
     color: #fff;
     padding: 5px 10px;
@@ -97,22 +139,25 @@ a:not([href]):not([tabindex]).repoLink:hover {
     height: 17px;
 }
 
-.loginButton:hover {
-    background: rgb(2, 111, 161);
-    }
-
-.loginButton:active {
-    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
-    }
-
 .uk-form-controls{
     border-radius: 3px;
     padding: 5px 5px 5px 5px;
 }
 
-#testAccountLogin {
-    margin: 5px;
+#register{
+    font-size: 100%;
+    font-style: inherit;
+    border: 0px;
+    background-color: white;
+    color: #56595e;
+    outline: none; 
+    text-decoration: underline;
 }
+
+#register:hover{
+    color: #0099CC;
+  }
+  
 
 :host ::ng-deep .loadingSpinner circle{   
     stroke: rgb(2, 111, 161);

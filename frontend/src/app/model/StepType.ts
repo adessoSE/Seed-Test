@@ -7,4 +7,5 @@ export interface StepType {
     stepType: string;
     type: string;
     values: string[];
+    outdated?: boolean;
 }

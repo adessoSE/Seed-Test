@@ -108,6 +108,14 @@ export class ScenarioEditorComponent implements OnInit {
             }
         }
 
+        Object.keys(this.selectedScenario.stepDefinitions).forEach((key, index) => {
+            this.selectedScenario.stepDefinitions[key].forEach((step: StepType) => {
+                if(step.outdated){
+                    step.outdated = false;
+                }
+            })
+        })
+
         if (undefined_steps.length != 0) {
             console.log("There are undefined steps here");
         }

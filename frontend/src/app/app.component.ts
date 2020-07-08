@@ -9,10 +9,10 @@ import { RepositoryContainer } from './model/RepositoryContainer';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  token: string;
+
   githubName: string;
   title = 'cucumber-frontend';
-  repositories: string[];
+  repositories: RepositoryContainer[];
   githubRepo: string[];
   jiraProject: string[];
   repository: string;
@@ -22,23 +22,8 @@ export class AppComponent implements OnInit {
   error: string;
 
   constructor(public apiService: ApiService, public router: Router) {
-    this.apiService.getProjectsEvent.subscribe((resp: string[]) => {
-      console.log('repositories Event');
-      this.jiraProject = this.filterProjects(resp);
-      if (typeof this.githubRepo !== 'undefined') {
-          this.repositories = this.githubRepo.concat(this.jiraProject);
-      } else {
-          this.repositories = this.jiraProject;
-      }
-    });
-    this.apiService.getRepositoriesEvent.subscribe((resp: string[]) => {
-      console.log('repositories Event');
-      this.githubRepo = resp;
-      if (typeof this.jiraProject !== 'undefined') {
-        this.repositories = this.githubRepo.concat(this.jiraProject);
-      } else {
-        this.repositories = this.githubRepo;
-      }
+    this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+      this.repositories = repositories;
     });
   }
 
@@ -68,10 +53,11 @@ export class AppComponent implements OnInit {
   }
 
   getRepositories() {
-    let tmp_repositories = [];
-    if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)) {
+    console.log('get Repositories')
+    if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length <= 0)) {
       this.apiService.getRepositories().subscribe((resp) => {
-        tmp_repositories = resp;
+        this.repositories = resp;
+        console.log('repositories',this.repositories)
       }, (err) => {
         this.error = err.error;
       });

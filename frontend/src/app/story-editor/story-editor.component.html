@@ -25,10 +25,11 @@
 </div>
 
 <div *ngIf="stories">
-  <div class="padRight" *ngIf="(showEditor === true)">
+  <div *ngIf="(showEditor === true)">
     <!--Story-->
     <div class="uk-card uk-card-default padding" id="story">
-      <div>
+      <div class="storyHeaderContainer">
+          <div>
             <span id="storyHeader">Story</span>
             <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
                 <span rel="def">A user story describes requirements for a software system.
@@ -37,6 +38,7 @@
                   The following template is recommended:
                   As a <...>, I want <...> so that <...>
                 </span></dfn>
+          </div>
         <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
       </div>
       <!--Description-->
@@ -74,16 +76,16 @@
                 </li>
               </ul>
             </div>
-            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
-              class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
-              (click)="deleteBackground($event);">
-              <em class="material-icons">delete</em>
-            </button>
             <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning" [disabled]="testRunning"
               title="Save Background"
               (click)="updateBackground(selectedStory.story_id);">
               <em class="material-icons">save</em>
             </button>
+            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+              class="buttonGroup iconButton" data-uk-tooltip title="Delete Background"
+              (click)="deleteBackground($event);">
+            <em class="material-icons">delete</em>
+          </button>
           </div>
           <div class="uk-steps">
             <br>
@@ -107,6 +109,12 @@
                 {{currentStep.post}}
                 <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
                 type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j , n + 2)" />
+                <div *ngIf="currentStep.outdated">
+                  <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                    <span rel="def">
+                      This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the background to confirm your adjustments.
+                    </span></dfn>
+                </div>
               </div>
             </div>
           </div>
@@ -115,7 +123,7 @@
         <!--Buttons Run Story-->
         <div class="uk-card-footer">
             <div class="uk-button-group uk-align-right">
-              <span class="lastTestText">Result of the last test:  </span>
+              <span class="lastTestText">Latest execution:  </span>
               <span class="dot" [class.notPassed]="!selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined" [class.passed]="selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined"></span>
               <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(selectedStory.story_id, null)">Run Story</button>
               <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
@@ -134,7 +142,7 @@
       <!--Buttons Run Szenario-->
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-          <span class="lastTestText">Result of the last test:</span>
+          <span class="lastTestText">Latest execution:</span>
             <span class="dot"  [class.notPassed]="!selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined" [class.passed]="selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined"></span>
          <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedStory.story_id, this.selectedScenario.scenario_id);">
             Run Scenario</button>
