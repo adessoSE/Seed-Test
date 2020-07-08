@@ -90,7 +90,8 @@ When('I select the option {string} from the drop-down-menue {string}', async (va
   try {
     await driver.wait(until.elementLocated(By.xpath(`//*[@id='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
   }catch(e){
-    await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::option[text()='${value}']`)).click();
+    await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::button[@type='button']`)).click();
+    await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`)).click();
   }
 });
 
