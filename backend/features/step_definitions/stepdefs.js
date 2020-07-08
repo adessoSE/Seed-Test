@@ -120,7 +120,12 @@ When('I check the box {string}', async (name) => {
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 
   // this one works, even if the element is not clickable (due to other elements blocking it):
-  await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).sendKeys(Key.SPACE);
+  try{
+    await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).sendKeys(Key.SPACE);
+  } catch (e){
+    await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${name}' or ` + `${'@*' + "='"}${name}']`)), 3 * 1000).click();
+    //await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+  }
 });
 
 
