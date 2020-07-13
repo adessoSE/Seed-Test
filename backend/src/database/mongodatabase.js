@@ -619,6 +619,18 @@ function insertOne(collection, content) {
   });
 }
 
+// x=   {
+//   "id": "0",
+//   "stepType": "when",
+//   "type": "Switch Tab",
+//   "pre": "I switch to the next tab",
+//   "mid": "",
+//   "values": [
+//     ""
+//   ]
+// },
+// insertOne("stepTypes", x);
+
 // show content of a specific collection
 async function getCollection() {
   let db = await connectDb()

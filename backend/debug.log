@@ -18,3 +18,16 @@
 [0623/122728.868:ERROR:exception_snapshot_win.cc(98)] thread ID 25336 not found in process
 [0623/122728.900:ERROR:process_reader_win.cc(123)] NtOpenThread: {Zugriff verweigert} Ein Prozess hat einen Zugriff auf ein Objekt angefordert, aber ihm wurden nicht die Rechte für den Zugriff erteilt. (0xc0000022)
 [0623/122728.900:ERROR:exception_snapshot_win.cc(98)] thread ID 24372 not found in process
+[0709/130517.596:ERROR:process_reader_win.cc(123)] NtOpenThread: {Zugriff verweigert} Ein Prozess hat einen Zugriff auf ein Objekt angefordert, aber ihm wurden nicht die Rechte für den Zugriff erteilt. (0xc0000022)
+[0709/130517.598:ERROR:exception_snapshot_win.cc(98)] thread ID 55388 not found in process
+[0709/130517.625:ERROR:process_reader_win.cc(123)] NtOpenThread: {Zugriff verweigert} Ein Prozess hat einen Zugriff auf ein Objekt angefordert, aber ihm wurden nicht die Rechte für den Zugriff erteilt. (0xc0000022)
+[0709/130517.625:ERROR:exception_snapshot_win.cc(98)] thread ID 45144 not found in process
+[0710/163026.354:ERROR:prune_crash_reports.cc(35)] PruneCrashReportDatabase: Failed to get pending reports
+[0713/124841.351:ERROR:process_reader_win.cc(123)] NtOpenThread: {Zugriff verweigert} Ein Prozess hat einen Zugriff auf ein Objekt angefordert, aber ihm wurden nicht die Rechte für den Zugriff erteilt. (0xc0000022)
+[0713/124841.352:ERROR:exception_snapshot_win.cc(98)] thread ID 66148 not found in process
+[0713/124841.382:ERROR:process_reader_win.cc(123)] NtOpenThread: {Zugriff verweigert} Ein Prozess hat einen Zugriff auf ein Objekt angefordert, aber ihm wurden nicht die Rechte für den Zugriff erteilt. (0xc0000022)
+[0713/124841.382:ERROR:exception_snapshot_win.cc(98)] thread ID 64152 not found in process
+[0713/131803.338:ERROR:process_reader_win.cc(123)] NtOpenThread: {Zugriff verweigert} Ein Prozess hat einen Zugriff auf ein Objekt angefordert, aber ihm wurden nicht die Rechte für den Zugriff erteilt. (0xc0000022)
+[0713/131803.339:ERROR:exception_snapshot_win.cc(98)] thread ID 35444 not found in process
+[0713/131803.360:ERROR:process_reader_win.cc(123)] NtOpenThread: {Zugriff verweigert} Ein Prozess hat einen Zugriff auf ein Objekt angefordert, aber ihm wurden nicht die Rechte für den Zugriff erteilt. (0xc0000022)
+[0713/131803.361:ERROR:exception_snapshot_win.cc(98)] thread ID 66244 not found in process
