@@ -11,7 +11,9 @@ const chrome = require('selenium-webdriver/chrome');
 setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
-// chromeOptions.addArguments('--headless');
+if (process.env.NODE_ENV){
+  chromeOptions.addArguments('--headless');
+}
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
@@ -46,7 +48,7 @@ When('I go to the website: {string}', async (url) => {
 });
 
 // clicks a button if found in html code with xpath,
-// timeouts if not found after 3 sek, waits for next page to be loaded
+// timeouts if not found after 3 sec, waits for next page to be loaded
 When('I click the button: {string}', async (button) => {
   await driver.getCurrentUrl().then(async (currentUrl) => {
     if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase().match(/^run[ _](story|scenario)$/) !== null) {
@@ -106,17 +108,14 @@ When('I hover over the element {string} and select the option {string}', async (
   try {
     const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
     await action2.move({origin: selection}).perform();
-    console.log("TRY")
   }
   catch(e){
     const selection = await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3* 1000);
     // const selection = await driver.wait(until.elementLocated(By.xpath(`//a[@href='${option}']`)), 3 * 1000);
     // const selection = await driver.wait(until.findElement(By.linkText(option)), 3 * 1000);
-    await console.log(selection);
     await action2.move({origin: selection}).click().perform();
     // await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3 * 1000).click();
     // await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath((`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`))));
-    console.log("CATCH")
   }
 });
 
@@ -127,7 +126,7 @@ When('I select from the {string} multiple selection, the values {string}{string}
 
 // Check the Checkbox with a specific name or id
 When('I check the box {string}', async (name) => {
-  // Some alternative Methods to check the Box:
+  // Some alternative methods to "check the box":
   // await driver.executeScript("arguments[0].submit;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
   // await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).submit();
@@ -195,5 +194,7 @@ After(async () => { // runs after each Scenario
   // https://github.com/SeleniumHQ/selenium/issues/5560
   const condition = until.elementLocated(By.name('loader'));
   driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-  // driver.quit();
+  if (process.env.NODE_ENV){
+    driver.quit();
+  }
 });
