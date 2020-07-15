@@ -9,13 +9,7 @@
                 <div class="uk-form-horizontal">
                     <label>
                         E-Mail
-                        <input [defaultValue]="email">
-                    </label>
-                </div>
-                <div class="uk-form-horizontal">
-                    <label>
-                        Password
-                        <input [defaultValue]="password">
+                        <input id="email_field" [defaultValue]="email">
                     </label>
                 </div>
             </div>
@@ -70,7 +64,20 @@
                 </div>
             </div>
         </div>
-
+        <div class="underlying_grid">
+            <div class="grid github" id="database">
+                <div class="uk-card-title"><span class="header">Database Repository</span></div>
+                <div class="uk-form-horizontal">
+                    <label>
+                        Name of Repository
+                        <input id="repo_name" defaultValue="YourRepoName">
+                    </label>
+                </div>
+                <div class="uk-form-horizontal">
+                    <button class="std_button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
 <app-login-form #loginForm (mongoUpdate)="updateSite($event);"></app-login-form>

@@ -3,7 +3,6 @@ const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const request = require('request');
-const fetch = require('node-fetch');
 const reporter = require('cucumber-html-reporter');
 const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
@@ -11,214 +10,142 @@ const emptyBackground = require('./models/emptyBackground');
 const lodash = require('lodash')
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
+
 const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 const passport = require('passport');
 
+
 // this is needed for the html report
 const options = {
-  theme: 'bootstrap',
-  jsonFile: 'features/reporting.json',
-  output: 'features/reporting_html.html',
-  reportSuiteAsScenarios: true,
-  launchReport: false,
-  metadata: {
-    'App Version': '0.3.2',
-    'Test Environment': 'STAGING',
-    GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
-    Parallel: 'Scenarios',
-    Executed: 'Remote',
-  },
+	theme: 'bootstrap',
+	jsonFile: 'features/reporting.json',
+	output: 'features/reporting_html.html',
+	reportSuiteAsScenarios: true,
+	launchReport: false,
+	metadata: {
+		'App Version': '0.3.2',
+		'Test Environment': 'STAGING',
+		GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
+		Parallel: 'Scenarios',
+		Executed: 'Remote'
+	}
 };
 
 // Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 
-
-// only displays mid text and additional space if length not null
-// function midNotEmpty(values) {
-//  console.log('midNotEmpty: ' + JSON.stringify(values))
-//  if (values.length === 0) {
-//    return '';
-//  }
-//  return `${values} `;
-// }
-
 // adds content of each values to output
 function getValues(values) {
-  // TODO: TESTING HERE: excluding the first value
-  let data = '';
-  for (let i = 1; i < values.length; i++) {
-    data += `"${values[i]}"`;
-  }
-  return data;
+	// TODO: TESTING HERE: excluding the first value
+	let data = '';
+	for (let i = 1; i < values.length; i++) data += `"${values[i]}"`;
+	return data;
 }
 
 // Content in Background for FeatureFile
 function getBackgroundSteps(steps) {
-  let data = '';
-  for (let i = 0; i < steps.length; i++) {
-    if (i === 0) {
-      data += 'When ';
-    } else {
-      data += 'And ';
-    }
-    if (steps[i].values[0] != null) {
-      data += `${steps[i].pre} "${steps[i].values[0]}" ${steps[i].mid}${getValues(steps[i].values)} \n`;
-    } else {
-      data += `${steps[i].pre} ${steps[i].mid}${getValues(steps[i].values)} \n`;
-    }
-  }
-  data += '\n';
-  return data;
+	let data = '';
+	for (let i = 0; i < steps.length; i++) {
+		if (i === 0) data += 'When ';
+		else data += 'And ';
+		if (steps[i].values[0] != null) data += `${steps[i].pre} "${steps[i].values[0]}" ${steps[i].mid}${getValues(steps[i].values)} \n`;
+		else data += `${steps[i].pre} ${steps[i].mid}${getValues(steps[i].values)} \n`;
+	}
+	data += '\n';
+	return data;
 }
 
 // Building Background-Content
 function getBackgroundContent(background) {
-  let data = 'Background: \n\n';
-  // get stepDefinitions
-  data += getBackgroundSteps(background.stepDefinitions.when);
-  return data;
+	let data = 'Background: \n\n';
+	// get stepDefinitions
+	data += getBackgroundSteps(background.stepDefinitions.when);
+	return data;
 }
 
 // First letter in string to upper case
 function jsUcfirst(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+	return string.charAt(0)
+		.toUpperCase() + string.slice(1);
 }
 
 // Building feature file step-content
 function getSteps(steps, stepType) {
-  let data = '';
-  for (const step of steps) {
-    data += `${jsUcfirst(stepType)} `;
-    // TODO: If Given contains Background (Background>0): Add Background (method)
-    if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-      data += `${step.pre} "${step.values[0]}" ${step.mid}${getValues(step.values)} \n`;
-    } else if ((step.values[0]) === 'User') {
-      data += `${step.pre} "${step.values[0]}"\n`;
-    } else {
-      data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
-    }
-  }
-  return data;
+	let data = '';
+	for (const step of steps) {
+		data += `${jsUcfirst(stepType)} `;
+		// TODO: If Given contains Background (Background>0): Add Background (method)
+		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} "${step.values[0]}" ${step.mid}${getValues(step.values)} \n`;
+		else if ((step.values[0]) === 'User') data += `${step.pre} "${step.values[0]}"\n`;
+		else data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
+	}
+	return data;
 }
 
 // adds content of each values to output
 function getExamples(steps) {
-  let data = 'Examples:';
-  for (let i = 0; i < steps.length; i++) {
-    data += '\n | ';
-    for (let k = 0; k < steps[i].values.length; k++) {
-      data += `${steps[i].values[k]} | `;
-    }
-  }
-  return `${data}\n`;
+	let data = 'Examples:';
+	for (let i = 0; i < steps.length; i++) {
+		data += '\n | ';
+		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
+	}
+	return `${data}\n`;
 }
 
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
-  let data = '';
-  for (const scenario of scenarios) {
-    // console.log(`Scenario ID: ${scenario.scenario_id}`);
-    data += `@${storyID}_${scenario.scenario_id}\n`;
-    // if there are examples
-    if ((scenario.stepDefinitions.example.length) > 0) {
-      data += `Scenario Outline: ${scenario.name}\n\n`;
-    } else {
-      data += `Scenario: ${scenario.name}\n\n`;
-    }
-    // Get Stepdefinitions
-    if (scenario.stepDefinitions.given !== undefined) {
-      data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
-    }
-    if (scenario.stepDefinitions.when !== undefined) {
-      data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
-    }
-    if (scenario.stepDefinitions.then !== undefined) {
-      data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
-    }
-
-    if ((scenario.stepDefinitions.example.length) > 0) {
-      data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
-    }
-  }
-  return data;
-}
-
-async function getGithubStories(githubName, githubRepo, token, res, req){
-  const tmpStories = [];
-  // get Issues from GitHub .
-  const headers = {
-    Authorization: `token ${token}`,
-  };
-
-  let response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers })
-      if (response.status === 401) {
-        throw new GithubError('Github Status 401')
-      }
-      if (response.status === 200) {
-        let json = await response.json();
-          for (const issue of json) {
-            // only relevant issues with label: "story"
-            const story = {
-              story_id: issue.id,
-              title: issue.title,
-              body: issue.body,
-              state: issue.state,
-              issue_number: issue.number,
-            };
-            if (issue.assignee !== null) { // skip in case of "unassigned"
-              story.assignee = issue.assignee.login;
-              story.assignee_avatar_url = issue.assignee.avatar_url;
-            } else {
-              story.assignee = 'unassigned';
-              story.assignee_avatar_url = unassignedAvatarLink;
-            }
-            tmpStories.push(fuseGitWithDb(story, issue.id));
-          }
-          return Promise.all(tmpStories);
-      }
+	let data = '';
+	for (const scenario of scenarios) {
+		// console.log(`Scenario ID: ${scenario.scenario_id}`);
+		data += `@${storyID}_${scenario.scenario_id}\n`;
+		// if there are examples
+		if ((scenario.stepDefinitions.example.length) > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
+		else data += `Scenario: ${scenario.name}\n\n`;
+		// Get Stepdefinitions
+		if (scenario.stepDefinitions.given !== undefined) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
+		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
+		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
+		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
+	}
+	return data;
 }
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
-  let data = `Feature: ${story.title}\n\n`;
+	let data = `Feature: ${story.title}\n\n`;
 
-  // Get background
-  if (story.background != null) {
-    data += getBackgroundContent(story.background);
-  }
-  // Get scenarios
-  data += getScenarioContent(story.scenarios, story.story_id);
-  return data;
+	// Get background
+	if (story.background != null) data += getBackgroundContent(story.background);
+
+	// Get scenarios
+	data += getScenarioContent(story.scenarios, story.story_id);
+	return data;
 }
 
 // Creates feature file
 function writeFile(__dirname, selectedStory) {
-  fs.writeFile(path.join(__dirname, 'features',
-    `${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
-    if (err) throw err;
-  });
+	fs.writeFile(path.join(__dirname, 'features',
+		`${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
+		if (err) throw err;
+	});
 }
 
-async function updateJira(UserID, request) {
-  const jira = {
-    AccountName: request.jiraAccountName,
-    Password: request.jiraPassword,
-    Host: request.jiraHost,
-  };
-  const user = await mongo.getUserData(UserID);
-  user.jira = jira;
-  await mongo.updateUser(UserID, user);
-  return 'Successful';
+async function updateJira(UserID, req) {
+	const jira = {
+		AccountName: req.jiraAccountName,
+		Password: req.jiraPassword,
+		Host: req.jiraHost
+	};
+	const user = await mongo.getUserData(UserID);
+	user.jira = jira;
+	await mongo.updateUser(UserID, user);
+	return 'Successful';
 }
-
 
 // Updates feature file based on story_id
 async function updateFeatureFile(issueID) {
-  let result = await mongo.getOneStory(issueID)
-  if (result != null) {
-    writeFile('', result);
-  }
+	const result = await mongo.getOneStory(issueID);
+	if (result != null) writeFile('', result);
 }
 
 function execReport2(req, res, stories, mode, story, callback) {
@@ -249,66 +176,87 @@ function execReport2(req, res, stories, mode, story, callback) {
 }
 
 async function execReport(req, res, stories, mode, callback) {
-  try{
-    let result = await mongo.getOneStory(parseInt(req.params.issueID, 10))
-    execReport2(req, res, stories, mode, result, callback)
-  }catch(error){
-    res.status(501).send(error)
-  }
+	try {
+		const result = await mongo.getOneStory(parseInt(req.params.issueID, 10));
+		execReport2(req, res, stories, mode, result, callback);
+	} catch (error) {
+		res.status(501)
+			.send(error);
+	}
 }
 
 function jiraProjects(user) {
-  return new Promise((resolve, reject) => {resolve([])})
-  //return new Promise((resolve, reject) => {
-  //  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined') {
-  //    const { Host, AccountName, Password } = user.jira;
-  //    console.log(Host, AccountName, Password);
-  //    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
-  //    const cookieJar = request.jar();
-  //    const options = {
-  //      method: 'GET',
-  //      url: `http://${Host}/rest/api/2/issue/createmeta`,
-  //      jar: cookieJar,
-  //      qs: {
-  //        type: 'page',
-  //        title: 'title',
-  //      },
-  //      headers: {
-  //        'cache-control': 'no-cache',
-  //        Authorization: `Basic ${auth}`,
-  //      },
-  //    };
-  //    request(options, (error) => {
-  //      if (error) {
-  //        reject(error);
-  //      }
-  //      request(options, (error2, response2, body) => {
-  //        if (error2) {
-  //          reject(error);
-  //        }
-  //        console.log("body");
-  //        console.log(response2);
-  //        console.log("body");
-  //        const json = JSON.parse(body).projects;
-  //        let names = [];
-  //        for (const repo of json) {
-  //          names.push(repo.name);
-  //        }
-  //        names = names.map(value => ({ value, source: 'jira' }));
-  //        resolve(names);
-  //      });
-  //    });
-  //  } else {
-  //    resolve([]);
-  //  }
-  //});
+	return new Promise((resolve) => {
+		if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
+			const { Host, AccountName, Password } = user.jira;
+			const auth = Buffer.from(`${AccountName}:${Password}`)
+				.toString('base64');
+			const cookieJar = request.jar();
+			const reqoptions = {
+				method: 'GET',
+				url: `http://${Host}/rest/api/2/issue/createmeta`,
+				jar: cookieJar,
+				qs: {
+					type: 'page',
+					title: 'title'
+				},
+				headers: {
+					'cache-control': 'no-cache',
+					Authorization: `Basic ${auth}`
+				}
+			};
+			request(reqoptions, () => {
+				request(reqoptions, (error2, response2, body) => {
+					let json = '';
+					try {
+						json = JSON.parse(body).projects;
+					} catch (e) {
+						console.warn('Jira Request did not work');
+						json = {};
+					}
+					let names = [];
+					if (Object.keys(json).length !== 0) {
+						for (const repo of json) names.push(repo.name);
+						names = names.map(value => ({
+							value,
+							source: 'jira'
+						}));
+						resolve(names);
+					}
+					resolve([]);
+				});
+			});
+		} else resolve([]);
+	});
 }
 
-function uniqueRepositories(repositories){
-  return repositories.filter((repo, index, self) =>
-      index === self.findIndex((t) => (
-        t.source === repo.source && t.value === repo.value
-      )));
+function dbProjects(user) {
+	return new Promise((resolve) => {
+		if (typeof user !== 'undefined') {
+			const { email } = user;
+			console.log(email);
+			mongo.getRepository(email).then((json) => {
+				let names = [];
+				console.log('MONGODB');
+				console.log(json);
+				if (Object.keys(json).length !== 0) {
+					for (const repo of json) names.push(repo.name);
+					names = names.map(value => ({
+						value,
+						source: 'db'
+					}));
+					resolve(names);
+				}
+				resolve([]);
+			});
+		} else resolve([]);
+	});
+}
+
+function uniqueRepositories(repositories) {
+	return repositories.filter((repo, index, self) => index === self.findIndex(t => (
+		t.source === repo.source && t.value === repo.value
+	)));
 }
 
 
@@ -323,30 +271,30 @@ function setOptions(reportName) {
 }
 
 function execRepositoryRequests(link, user, password) {
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    // get Issues from GitHub
-    request.open('GET', link, true, user, password);
-    request.send();
-    request.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        const data = JSON.parse(request.responseText);
-        let names = [];
-        let index = 0;
-        for (const repo of data) {
-          const repoName = repo.full_name;
-          names[index] = repoName;
-          index++;
-        }
-        names = names.map((value) => {
-          return {value, source: 'github'}
-        })
-        resolve(names);
-      } else if (this.readyState === 4) {
-        reject(this.status);
-      }
-    };
-  });
+	return new Promise((resolve, reject) => {
+		const xmlrequest = new XMLHttpRequest();
+		// get Issues from GitHub
+		xmlrequest.open('GET', link, true, user, password);
+		xmlrequest.send();
+		xmlrequest.onreadystatechange = function () {
+			if (this.readyState === 4 && this.status === 200) {
+				const data = JSON.parse(xmlrequest.responseText);
+				let names = [];
+				let index = 0;
+				for (const repo of data) {
+					const repoName = repo.full_name;
+					names[index] = repoName;
+					index++;
+				}
+				names = names.map(value => ({
+					value,
+					source: 'github'
+				}));
+				resolve(names);
+			} else
+			if (this.readyState === 4) reject(this.status);
+		};
+	});
 }
 
 function ownRepositories(githubName, token) {
@@ -360,19 +308,21 @@ function starredRepositories(githubName, token) {
 }
 
 async function fuseGitWithDb(story, issueId) {
-  let result = await mongo.getOneStory(issueId);
-  if (result !== null) {
-    story.scenarios = result.scenarios;
-    story.background = result.background;
-    story.lastTestPassed = result.lastTestPassed;
-  } else {
-    story.scenarios = [emptyScenario()];
-    story.background = emptyBackground();
-  }
-  mongo.upsertEntry(story.story_id, story);
-  writeFile('', story); // Create & Update Feature Files
-  return story;
+	const result = await mongo.getOneStory(issueId);
+	if (result !== null) {
+		story.scenarios = result.scenarios;
+		story.background = result.background;
+		story.lastTestPassed = result.lastTestPassed;
+	} else {
+		story.scenarios = [emptyScenario()];
+		story.background = emptyBackground();
+	}
+	mongo.upsertEntry(story.story_id, story);
+	// Create & Update Feature Files
+	writeFile('', story);
+	return story;
 }
+
 
 function deleteReport(jsonReport) {
   const report = path.normalize(`${featuresPath}${jsonReport}`);
@@ -472,8 +422,9 @@ function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumbe
 }
 
 function testPassed(failed, passed) {
-  return failed <= 0 && passed >= 1;
+	return failed <= 0 && passed >= 1;
 }
+
 
 async function uploadReport(reportName, reportTime, jsonReport, options){
   let report = {reportTime, reportName, options, jsonReport: jsonReport}
@@ -489,16 +440,15 @@ async function createReport(res, reportName){
   res.sendFile(`/${reportName}.html`, {root: rootPath});
 }
 
-
 function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
-  let scenarioId = parseInt(scenarioTagName.split('_')[1]);
-  let scenario = story.scenarios.find(scenario => scenario.scenario_id === scenarioId);
-  if (scenario) {
-    let index = story.scenarios.indexOf(scenario);
-    scenario.lastTestPassed = testPassed;
-    story.scenarios[index] = scenario;
-  }
-  return story;
+	const scenarioId = parseInt(scenarioTagName.split('_')[1], 10);
+	const scenario = story.scenarios.find(scenario => scenario.scenario_id === scenarioId);
+	if (scenario) {
+		const index = story.scenarios.indexOf(scenario);
+		scenario.lastTestPassed = testPassed;
+		story.scenarios[index] = scenario;
+	}
+	return story;
 }
 
 function getJiraIssues(user, projectKey){
@@ -655,7 +605,6 @@ module.exports = {
   getJiraIssues,
   getGithubData,
   createReport,
-  getGithubStories,
   options,
   deleteReport,
   execRepositoryRequests,
@@ -676,4 +625,17 @@ module.exports = {
   ownRepositories,
   fuseGitWithDb,
   updateJira,
+	getExamples,
+	getSteps,
+	jsUcfirst,
+	getBackgroundContent,
+	getBackgroundSteps,
+	getValues,
+	updateFeatureFile,
+	runReport,
+	starredRepositories,
+	ownRepositories,
+	fuseGitWithDb,
+	updateJira,
+	dbProjects
 };

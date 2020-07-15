@@ -28,5 +28,14 @@
         </div>
       </li>
     </ul>
+    <div *ngIf="db">
+      <label>
+        Title <input id="storytitle">
+      </label>
+      <label>
+        Description <input id="storydescription">
+      </label>
+      <button type="button" class="uk-button" (click)="createnewStory()">Create new Story</button>
+    </div>
   </div>
 </div>

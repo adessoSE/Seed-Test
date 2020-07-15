@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
             this.error = response.message;
 
         } else {
-            this.getRepositories()
+            this.getRepositories();
         }
     }
 
