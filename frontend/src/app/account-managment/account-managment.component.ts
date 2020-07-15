@@ -27,7 +27,7 @@ export class AccountManagmentComponent implements OnInit {
     login() {
         if (this.email) {
             localStorage.setItem('userId', this.id);
-            this.apiService.githubAuthentication();
+            this.apiService.githubLogin();
         }
     }
     createRepo() {

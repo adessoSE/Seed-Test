@@ -588,7 +588,7 @@ const getGithubData = (res, req, accessToken) => {
                           if(err){
                               return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                           }else {
-                              return res.redirect(process.env.FRONTEND_URL + '/login?github=success');
+                              return res.redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
                           }
                       });
                   })(req,res);

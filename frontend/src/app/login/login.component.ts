@@ -23,6 +23,13 @@ export class LoginComponent implements OnInit {
             if (params.github == 'success') {
                 localStorage.setItem('login', 'true')
                 this.getRepositories()
+                let userId = localStorage.getItem('userId');
+                localStorage.removeItem('userId');
+                if(userId){
+                    this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
+                        this.loginGithubToken(params.login, params.id);
+                    })
+                }
             }else if(params.github == 'error'){
                 this.error = 'A Login error occured. Please try it again';
             }
@@ -30,6 +37,22 @@ export class LoginComponent implements OnInit {
     }
 
     ngOnInit() {
+    }
+
+    loginGithubToken(login: string, id: any){
+        this.apiService.loginGithubToken(login, id).subscribe((resp) => {
+            if (resp.status === 'error') {
+                this.error = resp.message;
+            } else if (resp.message === 'repository') {
+                let repository = resp.repository;
+                localStorage.setItem('repositoryType', 'github');
+                localStorage.setItem('repository', repository);
+                this.repositoriesLoading = false;
+                this.router.navigate(['/']);
+            } else {
+                this.getRepositories()
+            }
+        })
     }
 
     async login(form: NgForm) {
