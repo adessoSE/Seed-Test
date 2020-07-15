@@ -31,6 +31,7 @@
         "semi": "error",
         "quotes": ["error", "single"],
         "comma-dangle": ["error", "never"],
-        "no-duplicate-imports": "error"
+        "no-duplicate-imports": "error",
+        "no-tabs": ["error", { "allowIndentationTabs": true }]
     }
 }

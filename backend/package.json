@@ -30,7 +30,7 @@
     "file-saver": "^2.0.2",
     "geckodriver": "^1.19.1",
     "imagesloaded": "^4.1.4",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "js": "^0.1.0",
     "lodash": "^4.17.15",
     "lokijs": "^1.5.8",
