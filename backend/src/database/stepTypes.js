@@ -9,7 +9,7 @@ function stepDefs() {
       ""
     ]
   },{
-  
+
     "id": 0,
     "stepType": "when",
     "type": "HoverOverAndSelect",
@@ -175,10 +175,22 @@ function stepDefs() {
     "stepType": "then",
     "type": "Empty Textbox",
     "pre": "So I can see the text in the textbox:",
+    "mid": "",
     "values": [
       ""
     ]
-  },{
+  },
+  {
+    "id": "0",
+    "stepType": "when",
+    "type": "Switch Tab",
+    "pre": "I switch to the next tab",
+    "mid": "",
+    "values": [
+      ""
+    ]
+  },
+    {
     "id": "",
     "stepType": "when",
     "type": "Checkbox",

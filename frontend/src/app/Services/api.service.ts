@@ -8,7 +8,6 @@ import { StepType } from '../model/StepType';
 import { Scenario } from '../model/Scenario';
 import { Background } from '../model/Background';
 import { User } from '../model/User';
-import {CookieService} from 'ngx-cookie-service'
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Injectable({
@@ -27,7 +26,7 @@ export class ApiService {
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
     public user;
-    constructor(private http: HttpClient, private cookieService: CookieService) {
+    constructor(private http: HttpClient) {
     }
 
     public githubLogin(){
@@ -142,9 +141,9 @@ export class ApiService {
 
     logoutUser(){
         let str = this.apiServer + '/user/logout'
+        localStorage.removeItem('login')
        return  this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {
-            this.cookieService.delete('connect.sid');
           }),
             catchError(this.handleError));
     }
@@ -327,7 +326,9 @@ export class ApiService {
     }
 
     isLoggedIn(): boolean {
-        if (this.cookieService.check('connect.sid')) return true;
-        return false;
+        //if (this.cookieService.check('connect.sid')) return true;
+        //return false;
+        if (localStorage.getItem('login')) return true;
+        return false
     }
 }
