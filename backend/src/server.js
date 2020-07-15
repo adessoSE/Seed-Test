@@ -23,38 +23,33 @@ const server = app.listen(process.env.PORT || 8080, () => {
  * API Description
  */
 app
-	.use(cors({
-		origin: [process.env.FRONTEND_URL],
-		credentials: true
-	}))
-	.use(flash())
-	.use(session({
-		secret: process.env.SESSION_SECRET,
-		resave: false,
-		saveUninitialized: false,
-		cookie: {
-			httpOnly: false,
-			maxAge: 864000000
-		}
-	}))
-	.use(passport.initialize())
-	.use(passport.session())
-	.use(bodyParser.json({ limit: '100kb' }))
-	.use(bodyParser.urlencoded({
-		limit: '100kb',
-		extended: true
-	}))
-	.use((_, __, next) => {
-		console.log('Time:', Date.now());
-		next();
-	})
-	.use('/api/run', runReportRouter)
-	.use('/api/github', githubRouter)
-	.use('/api/mongo', mongoRouter)
-	.use('/api/jira', jiraRouter)
-	.use('/api/user', userRouter)
-	.get('/api', (_, res) => {
-		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
-	});
+  .use(cors({
+    origin: [
+    process.env.FRONTEND_URL
+  ], 
+  credentials: true
+  }))
+  .use(flash())
+  .use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  }))
+  .use(passport.initialize())
+  .use(passport.session())
+  .use(bodyParser.json({ limit: '100kb' }))
+  .use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
+  .use((_, __, next) => {
+    console.log('Time:', Date.now());
+    next();
+  })
+  .use('/api/run', runReportRouter)
+  .use('/api/github', githubRouter)
+  .use('/api/mongo', mongoRouter)
+  .use('/api/jira', jiraRouter)
+  .use('/api/user', userRouter)
+  .get('/api', (_, res) => {
+    res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
+  });
 
 module.exports = { app };

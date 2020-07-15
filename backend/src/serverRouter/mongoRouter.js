@@ -159,7 +159,7 @@ router.delete('/user/delete/:userID', async (req, res) => {
 
 // get userObject
 router.get('/user', async (req, res) => {
-  if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') {
+  if (req.user) {
     try {
       const result = await mongo.getUserData(req.user._id);
       res.status(200).json(result);
@@ -167,7 +167,7 @@ router.get('/user', async (req, res) => {
       handleError(res, error, error, 500);
     }
   } else {
-    console.log('Undefined');
+	res.sendStatus(400);
   }
 });
 

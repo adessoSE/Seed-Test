@@ -83,13 +83,6 @@ export class ApiService {
         }),
           catchError(this.handleError));
     }
-
-    public githubAuthentication() {
-        let scope = 'repo'
-        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
-        let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
-        window.location.href = s;
-    }
   
     public loginGithubToken(login: string, id){
         const str = this.apiServer + '/user/githubLogin'
@@ -115,10 +108,12 @@ export class ApiService {
         }
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
-            console.log(resp);
+            localStorage.setItem('login', 'true')
+            //this.getStoriesEvent.emit(resp);
           }),
             catchError(this.handleError));
     }
+
     public createRepository(email: string, name: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         console.log(this.apiServer);
@@ -247,6 +242,17 @@ export class ApiService {
             .delete<any>(this.apiServer + '/mongo/user/delete/' + userID)
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
+    }
+
+    public mergeAccountGithub(userId: string, login: string, id: any) {
+        let str = this.apiServer + '/user/mergeGithub'
+        let obj = {userId, login, id}
+
+        return this.http.post<any>(str, obj, this.getOptions())
+        .pipe(tap(resp => {
+          //this.getStoriesEvent.emit(resp);
+        }),
+          catchError(this.handleError));
     }
 
     public getUserData(): Observable<User> {

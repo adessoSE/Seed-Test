@@ -93,8 +93,11 @@ router.post('/mergeGithub', async (req, res) => {
 	const { userId, login } = req.body;
 	const id = parseInt(req.body.id, 10);
 	try {
-		const user = await mongo.mergeGithub(userId, login, id);
-		res.json(user);
+		const mergedUser = await mongo.mergeGithub(userId, login, id);
+		req.logIn(mergedUser, function(err) {
+			if (err) return res.sendStatus(400)
+			res.send(200)
+		})
 	} catch (error) {
 		res.sendStatus(400);
 	}
@@ -114,8 +117,9 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout();
-	res.json({ status: 'success' });
+    req.logout();
+    res.clearCookie('connect.sid', {path: '/'});
+    res.status(200).send({status: 'success'});
 });
 
 // get repositories from all sources(Github,Jira)
@@ -281,21 +285,6 @@ router.get('/stories', async (req, res) => {
 	} else res.sendStatus(401);
 });
 
-
-router.post('/githubLogin', (req, res) =>{
-    let scope = 'repo'
-    const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
-    let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${process.env.GITHUB_CLIENT_ID}`;
-
-    request(
-        {
-            uri: s,
-        }, function(err, response, body){
-            res.send(body)
-        }
-    )
-});
-
 router.get('/callback', (req, res) =>{
     let code = req.query.code;
     const TOKEN_URL = 'https://github.com/login/oauth/access_token'
@@ -313,7 +302,7 @@ router.get('/callback', (req, res) =>{
               helper.getGithubData(res, req, accessToken);
           }
       )
-  });
+});
 
 
 module.exports = router;
