@@ -105,18 +105,19 @@ When('I hover over the element {string} and select the option {string}', async (
 
   await driver.sleep(5000);
   const action2 = driver.actions({ bridge: true }); // second action needed?
-  try {
-    const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
-    await action2.move({origin: selection}).perform();
-  }
-  catch(e){
-    const selection = await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3* 1000);
-    // const selection = await driver.wait(until.elementLocated(By.xpath(`//a[@href='${option}']`)), 3 * 1000);
-    // const selection = await driver.wait(until.findElement(By.linkText(option)), 3 * 1000);
-    await action2.move({origin: selection}).click().perform();
-    // await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3 * 1000).click();
-    // await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath((`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`))));
-  }
+  // try {
+  //   const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
+     const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
+     await action2.move({origin: selection}).click().perform();
+  // }
+  // catch(e){
+  //   const selection = await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3* 1000);
+  //   // const selection = await driver.wait(until.elementLocated(By.xpath(`//a[@href='${option}']`)), 3 * 1000);
+  //   // const selection = await driver.wait(until.findElement(By.linkText(option)), 3 * 1000);
+  //   await action2.move({origin: selection}).click().perform();
+  //   // await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3 * 1000).click();
+  //   // await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath((`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`))));
+  // }
 });
 
 
