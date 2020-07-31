@@ -25,13 +25,20 @@ export class AccountManagmentComponent implements OnInit {
         });
     }
     login() {
-        if(this.email) {
-            localStorage.setItem('userId', this.id)
-            this.apiService.githubAuthentication();
+        if (this.email) {
+            localStorage.setItem('userId', this.id);
+            this.apiService.githubLogin();
         }
     }
+    createRepo() {
+        const name = (document.getElementById('repo_name') as HTMLInputElement).value;
+        const email = (document.getElementById('email_field') as HTMLInputElement).value;
+        this.apiService.createRepository(email, name).subscribe(resp => {
+            console.log(resp);
+        });
+    }
 
-    jiraLogin(type){
+    jiraLogin(type) {
         this.modalService.open(type);
     }
     updateSite(report) {
@@ -60,7 +67,7 @@ export class AccountManagmentComponent implements OnInit {
     ngOnInit() {
     }
 
-    disconnectGithub(){
+    disconnectGithub() {
         this.apiService.disconnectGithub().subscribe((resp) => {
             window.location.reload();
         });

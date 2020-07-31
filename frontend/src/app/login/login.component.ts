@@ -20,8 +20,16 @@ export class LoginComponent implements OnInit {
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
-            if (params.github == 'success' && this.apiService.isLoggedIn()) {
+            if (params.github == 'success') {
+                localStorage.setItem('login', 'true')
                 this.getRepositories()
+                let userId = localStorage.getItem('userId');
+                localStorage.removeItem('userId');
+                if(userId){
+                    this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
+                        this.loginGithubToken(params.login, params.id);
+                    })
+                }
             }else if(params.github == 'error'){
                 this.error = 'A Login error occured. Please try it again';
             }
@@ -31,6 +39,22 @@ export class LoginComponent implements OnInit {
     ngOnInit() {
     }
 
+    loginGithubToken(login: string, id: any){
+        this.apiService.loginGithubToken(login, id).subscribe((resp) => {
+            if (resp.status === 'error') {
+                this.error = resp.message;
+            } else if (resp.message === 'repository') {
+                let repository = resp.repository;
+                localStorage.setItem('repositoryType', 'github');
+                localStorage.setItem('repository', repository);
+                this.repositoriesLoading = false;
+                this.router.navigate(['/']);
+            } else {
+                this.getRepositories()
+            }
+        })
+    }
+
     async login(form: NgForm) {
         this.repositoriesLoading = true;
         this.error = undefined;
@@ -38,8 +62,9 @@ export class LoginComponent implements OnInit {
         if (response.status === 'error') {
             this.repositoriesLoading = false;
             this.error = response.message;
+
         } else {
-            this.getRepositories()
+            this.getRepositories();
         }
     }
 

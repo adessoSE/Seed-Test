@@ -8,7 +8,6 @@ import { StepType } from '../model/StepType';
 import { Scenario } from '../model/Scenario';
 import { Background } from '../model/Background';
 import { User } from '../model/User';
-import {CookieService} from 'ngx-cookie-service'
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Injectable({
@@ -27,7 +26,7 @@ export class ApiService {
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
     public user;
-    constructor(private http: HttpClient, private cookieService: CookieService) {
+    constructor(private http: HttpClient) {
     }
 
     public githubLogin(){
@@ -65,35 +64,40 @@ export class ApiService {
 
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
-      
-        const str = this.apiServer + '/user/repositories'; 
-        
+
+        const str = this.apiServer + '/user/repositories';
+
         return this.http.get<RepositoryContainer[]>(str, this.getOptions())
           .pipe(tap(resp => {
             this.getRepositoriesEvent.emit(resp);
           }),
             catchError(this.handleError));
-    } 
+    }
 
     disconnectGithub(){
         let str = this.apiServer + '/github/disconnectGithub'
-        
+
         return this.http.delete<any>(str, this.getOptions())
         .pipe(tap(resp => {
           //this.getStoriesEvent.emit(resp);
         }),
           catchError(this.handleError));
     }
+  
+    public loginGithubToken(login: string, id){
+        const str = this.apiServer + '/user/githubLogin'
+        let user = {login, id}
 
-    public githubAuthentication() {
-        let scope = 'repo'
-        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
-        let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
-        window.location.href = s;
+        return this.http.post<any>(str, user, this.getOptions())
+          .pipe(tap(resp => {
+            //this.getStoriesEvent.emit(resp);
+          }),
+            catchError(this.handleError));
     }
 
     public loginUser(email: string, password: string, stayLoggedIn: boolean): Observable<any> {
         const str = this.apiServer + '/user/login'
+
         let user;
         if(!email && !password){
 
@@ -104,16 +108,37 @@ export class ApiService {
         }
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
+            localStorage.setItem('login', 'true')
             //this.getStoriesEvent.emit(resp);
           }),
             catchError(this.handleError));
     }
 
+    public createRepository(email: string, name: string): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        console.log(this.apiServer);
+        const body = {'email' : email, 'name' : name};
+        return this.http
+            .post<any>(this.apiServer + '/mongo/createRepository/', body, this.getOptions())
+            .pipe(tap(resp => {
+            }));
+    }
+
+    public createStory(title: string, description: string, repository: string): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        console.log(this.apiServer);
+        const body = {'title' : title, 'description' : description, 'repo' : repository};
+        return this.http
+            .post<any>(this.apiServer + '/mongo/createStory/', body, this.getOptions())
+            .pipe(tap(resp => {
+            }));
+    }
+
     logoutUser(){
         let str = this.apiServer + '/user/logout'
+        localStorage.removeItem('login')
        return  this.http.get<string[]>(str, this.getOptions())
           .pipe(tap(resp => {
-            this.cookieService.delete('connect.sid');
           }),
             catchError(this.handleError));
     }
@@ -146,14 +171,17 @@ export class ApiService {
         }
     }
 
+
     public getStories(repository: RepositoryContainer): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
         let params;
-        if(repository.source === 'github'){
-            let repo = repository.value.split('/');
-            params = { githubName: repo[0], repository: repo[1], source: repository.source}
-        }else if(repository.source === 'jira'){
-            params = {projectKey: repository.value, source: repository.source}
+        if (repository.source === 'github') {
+            const repo = repository.value.split('/');
+            params = { githubName: repo[0], repository: repo[1], source: repository.source};
+        } else if (repository.source === 'jira') {
+            params = {projectKey: repository.value, source: repository.source};
+        } else if (repository.source === 'db') {
+            params = {name: repository.value, source: repository.source};
         }
 
         return this.http
@@ -214,6 +242,17 @@ export class ApiService {
             .delete<any>(this.apiServer + '/mongo/user/delete/' + userID)
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
+    }
+
+    public mergeAccountGithub(userId: string, login: string, id: any) {
+        let str = this.apiServer + '/user/mergeGithub'
+        let obj = {userId, login, id}
+
+        return this.http.post<any>(str, obj, this.getOptions())
+        .pipe(tap(resp => {
+          //this.getStoriesEvent.emit(resp);
+        }),
+          catchError(this.handleError));
     }
 
     public getUserData(): Observable<User> {
@@ -293,7 +332,9 @@ export class ApiService {
     }
 
     isLoggedIn(): boolean {
-        if (this.cookieService.check('connect.sid')) return true;
-        return false;
+        //if (this.cookieService.check('connect.sid')) return true;
+        //return false;
+        if (localStorage.getItem('login')) return true;
+        return false
     }
 }

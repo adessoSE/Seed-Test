@@ -1,11 +1,21 @@
 <br>
 <div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1>No Stories Yet In This Repository</h1>
+  <div *ngIf="!db">
   <p>Find out how to create stories</p>
   <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
   <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
+  </div>
+  <div *ngIf="db">
+    <label>
+      Title <input id="storytitle">
+    </label>
+    <label>
+      Description <input id="storydescription">
+    </label>
+    <button type="button" class="uk-button" (click)="createnewStory()">Create new Story</button>
+  </div>
 </div>
-
 <div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
   <h1>Loading Stories ...</h1>
 </div>
@@ -67,7 +77,7 @@
               </ul>
             </div>
             <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning" [disabled]="testRunning"
-              title="Save Background" 
+              title="Save Background"
               (click)="updateBackground(selectedStory.story_id);">
               <em class="material-icons">save</em>
             </button>
@@ -99,6 +109,12 @@
                 {{currentStep.post}}
                 <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
                 type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j , n + 2)" />
+                <div *ngIf="currentStep.outdated">
+                  <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                    <span rel="def">
+                      This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the background to confirm your adjustments.
+                    </span></dfn>
+                </div>
               </div>
             </div>
           </div>
@@ -118,7 +134,7 @@
                 uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
             </div>
           </div>
-      
+
       <!--Scenario Header-->
 
   <app-scenario-editor (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
@@ -144,7 +160,7 @@
            Loading . . .
           </div>
         </div>
-      
+
         <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
           <div id="report-header" class="uk-card-header">
             <h3 class="title">Test Results</h3>

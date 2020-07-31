@@ -8,6 +8,7 @@ import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
+import { RepositoryContainer} from '../model/RepositoryContainer';
 
 const emptyBackground = {name, stepDefinitions: {when: []}};
 
@@ -34,7 +35,8 @@ export class StoryEditorComponent implements OnInit {
   htmlReport;
   storiesLoaded = false;
   storiesError = false;
-  newStepName= 'New Step';
+  db = false;
+  newStepName = 'New Step';
 
   @ViewChild('exampleChildView') exampleChild;
 
@@ -46,6 +48,7 @@ export class StoryEditorComponent implements OnInit {
           this.storiesError = false;
           this.showEditor = false;
           this.setStories(stories);
+          this.db = localStorage.getItem('source') === 'db' ;
       });
       this.apiService.storiesErrorEvent.subscribe(errorCode => {
           this.storiesError = true;
@@ -91,7 +94,24 @@ export class StoryEditorComponent implements OnInit {
         .subscribe((resp: StepType[]) => {
             this.originalStepTypes = resp;
         });
-}
+    }
+
+    createnewStory() {
+      const title = (document.getElementById('storytitle') as HTMLInputElement).value;
+      const description = (document.getElementById('storydescription') as HTMLInputElement).value;
+      const value = localStorage.getItem('repository');
+      const source = 'db';
+      const repositorycontainer: RepositoryContainer = {value, source};
+      this.apiService.createStory(title, description, value).subscribe(resp => {
+          console.log(resp);
+          this.apiService.getStories(repositorycontainer).subscribe((resp: Story[]) => {
+              console.log('Stories');
+              console.log(resp);
+              this.stories = resp;
+          });
+      });
+    }
+
 
     inputSize(event){
         let inputField = event.target;
@@ -104,7 +124,7 @@ export class StoryEditorComponent implements OnInit {
         .deleteScenario(this.selectedStory.story_id, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
-        })
+        });
   }
 
   scenarioDeleted(){
@@ -138,7 +158,13 @@ export class StoryEditorComponent implements OnInit {
   }
 
   updateBackground(storyID: number) {
-      
+    Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
+        this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
+            if(step.outdated){
+                step.outdated = false;
+            }
+        })
+    })
       this.apiService
           .updateBackground(storyID, this.selectedStory.background)
           .subscribe(resp => {

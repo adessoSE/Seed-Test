@@ -2,6 +2,7 @@ import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
+import {RepositoryContainer} from "../model/RepositoryContainer";
 
 @Component({
   selector: 'app-stories-bar',
@@ -13,6 +14,7 @@ export class StoriesBarComponent implements OnInit {
   stories: Story[];
   selectedStory: Story;
   selectedScenario: Scenario;
+  db = false;
 
   @Output()
   storyChosen: EventEmitter<any> = new EventEmitter();
@@ -22,6 +24,7 @@ export class StoriesBarComponent implements OnInit {
   constructor(public apiService: ApiService) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.stories = stories;
+      this.db = localStorage.getItem('source') === 'db' ;
     } );
   }
 
@@ -38,6 +41,22 @@ export class StoriesBarComponent implements OnInit {
   selectScenario(storyID, scenario: Scenario) {
     this.selectedScenario = scenario;
     this.scenarioChosen.emit(scenario);
+  }
+
+  createnewStory() {
+    const title = (document.getElementById('storytitle') as HTMLInputElement).value;
+    const description = (document.getElementById('storydescription') as HTMLInputElement).value;
+    const value = localStorage.getItem('repository');
+    const source = 'db';
+    const repositorycontainer: RepositoryContainer = {value, source};
+    this.apiService.createStory(title, description, value).subscribe(resp => {
+      console.log(resp);
+      this.apiService.getStories(repositorycontainer).subscribe((resp: Story[]) => {
+        console.log('Stories');
+        console.log(resp);
+        this.stories = resp;
+      });
+    });
   }
 
 

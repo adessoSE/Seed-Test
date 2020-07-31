@@ -9,7 +9,7 @@ import { RepositoryContainer } from './model/RepositoryContainer';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  token: string;
+
   githubName: string;
   title = 'cucumber-frontend';
   repositories: RepositoryContainer[];
@@ -22,7 +22,9 @@ export class AppComponent implements OnInit {
   error: string;
 
   constructor(public apiService: ApiService, public router: Router) {
-
+    this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+      this.repositories = repositories;
+    });
   }
 
   ngOnInit() {
@@ -51,9 +53,11 @@ export class AppComponent implements OnInit {
   }
 
   getRepositories() {
-    if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length > 0)) {
+    console.log('get Repositories')
+    if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length <= 0)) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
+        console.log('repositories',this.repositories)
       }, (err) => {
         this.error = err.error;
       });
@@ -97,7 +101,7 @@ export class AppComponent implements OnInit {
   logout() {
     this.repositories = undefined;
     this.apiService.logoutUser().subscribe(resp => {
-      this.router.navigate(['/login']);
     });
+    this.router.navigate(['/login']);
   }
 }

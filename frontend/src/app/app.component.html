@@ -6,7 +6,7 @@
       <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: click">
         <ul class="menulist">
           <li>
-            <div *ngIf="this.token || this.repositories" class="dropdown">
+            <div *ngIf="this.repositories" class="dropdown">
               <button class="menuSelection" title="Select Repository">Repositories</button>
                 <div uk-dropdown="mode: click">
                   <ul class="dropdown-list">
