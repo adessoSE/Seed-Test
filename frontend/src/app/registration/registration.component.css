@@ -1,25 +1,27 @@
 .grid{
     display: grid;
-    grid-template-rows: auto;
+    grid-template-rows: 1;
+    grid-template-columns: 3;
     grid-template-areas: "formular";
     background-color: white;
 }
 
-.form-group {
-    width: 650px;
-    padding-left: 430px;
-}
-
-.cross-validation-error input {
-    border-left: 5px solid red;
-  }
-
 .formular{
     grid-area: formular;
-    grid-row: 1 / 2;
+    grid-column: 2;
     text-align: center;
+    width: 500px;
     background-color: white;
-    padding: 80px 50px 20px;
+    padding: 80px 50px;
+}
+
+#infoIcon{
+    color: #999;
+    padding: 5px;
+  }
+
+#passwordLengthInfo{
+    font-size: small;
 }
 
 #headerFont{
@@ -54,14 +56,22 @@
     padding: 5px 5px 5px 5px;
 }
 
-/*
 .ng-valid[required], .ng-valid.required  {
-    border-left: 5px solid #42A948; 
+    border-left: 5px solid #53d35a; 
   }
   
-  .ng-invalid:not(form)  {
-    border-left: 5px solid #a94442; 
-  }*/
+.ng-invalid:not(form)  {
+    border-left: 5px solid #0099CC; 
+  }
+
+.cross-validation-error input {
+    border-left: 5px solid #d15553;
+  }
+
+#email, #confirmPassword{
+    margin: 25px;
+}
+
 
 @media screen and (max-width: 600px) {
     .grid{
