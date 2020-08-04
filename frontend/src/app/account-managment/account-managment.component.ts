@@ -38,8 +38,8 @@ export class AccountManagmentComponent implements OnInit {
         });
     }
 
-    jiraLogin(type) {
-        this.modalService.open(type);
+    jiraLogin() {
+        this.modalService.open('Jira');
     }
     updateSite(report) {
         console.log(report);

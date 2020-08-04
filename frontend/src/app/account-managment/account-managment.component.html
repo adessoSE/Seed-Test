@@ -49,18 +49,18 @@
                     <div class="uk-form-horizontal">
                         <label>
                             Jira-Password
-                            <input [defaultValue]="jira['Password']">
+                            <input id="jira_password" type="password" name="jira_password" placeholder=" Password">
                         </label>
                     </div>
                     <div class="uk-form-horizontal">
                         <label>
-                            Jira-Host
+                            Jira-Server
                             <input [defaultValue]="jira['Host']">
                         </label>
                     </div>
                 </div>
                 <div id="ChangeJiraDiv">
-                    <button class="std_button" id="change-jira" (click)="jiraLogin('Jira')">Login to Jira</button>
+                    <button class="std_button" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
                 </div>
             </div>
         </div>

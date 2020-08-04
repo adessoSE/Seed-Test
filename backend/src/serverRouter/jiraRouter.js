@@ -29,10 +29,9 @@ router.post('/user/create/', (req, res) => {
 		const { jiraAccountName, jiraPassword, jiraHost } = req.body;
 		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
 			.toString('base64');
-		const cookieJar = request.jar();
-		const options = {
+		const options =  {
 			method: 'GET',
-			url: `http://${jiraHost}/rest/api/2/issue/createmeta`,
+			url: `http://${jiraHost}/rest/auth/1/session`,
 			jar: cookieJar,
 			qs: {
 				type: 'page',
@@ -43,21 +42,14 @@ router.post('/user/create/', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		request(options, (error) => {
+		request(options, (error, response) => {
 			if (error) {
-				res.status(500);
+				response.status(500);
 				console.error('Cant connect to Jira Server');
-			} else request(options, (error2) => {
-				if (error2) {
-					res.status(500);
-					console.error('Cant connect to Jira Server');
-				}
-				helper.updateJira(req.user._id, req.body)
-					.then((result) => {
-						res.status(200)
-							.json(result);
-					});
-			});
+			} else {
+				console.log(response.headers["set-cookie"]);
+				res.body = response.headers["set-cookie"]
+			}
 		});
 	} else {
 		console.error('User doesnt exist.');
@@ -65,4 +57,53 @@ router.post('/user/create/', (req, res) => {
 			.json('User doesnt exist.');
 	}
 });
+
+router.post('/login', (req, res) => {
+	if (typeof req.body.jiraAccountName !== 'undefined') {
+		const {jiraAccountName, jiraPassword, jiraServer} = req.body;
+		// console.log(jiraAccountName, jiraPassword, jiraServer);
+		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
+			.toString('base64');
+		const cookieJar = request.jar();
+		const options =  {
+			method: 'GET',
+			url: `http://${jiraServer}/rest/auth/1/session`,
+			jar: cookieJar,
+			qs: {
+				type: 'page',
+				title: 'title'
+			},
+			headers: {
+				'cache-control': 'no-cache',
+				Authorization: `Basic ${auth}`
+			}
+		};
+		request(options, (error, response) => {
+			if (error) {
+				res.status(500);
+				console.error('Cant connect to Jira Server');
+			} else {
+				if (response.headers["set-cookie"] !== undefined){
+					console.log(response.headers["set-cookie"]);
+					// req.user.JiraSession = response.headers["set-cookie"][0];
+					res.status(200)
+						.json(response.headers["set-cookie"][0]);
+
+				} else{
+					res.status(401);
+					console.log("Jira-Login failed")
+				}
+			}
+		});
+	} else {
+		res.status(500);
+		console.log("No Jira Account sent")
+	}
+});
+
+// Test JiraLogin with:
+// this.apiService.JiraLogin("", "", "jira.adesso.de").subscribe((resp) => {
+// 	localStorage.setItem('JiraSession', resp.toString());
+// });
+
 module.exports = router;

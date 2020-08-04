@@ -31,7 +31,7 @@ export class ApiService {
 
     public githubLogin(){
         let scope = 'repo'
-        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'; 
+        const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
         let s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
         window.location.href = s;
     }
@@ -42,7 +42,7 @@ export class ApiService {
 
     getReport(reportName: string) {
         this.apiServer = localStorage.getItem('url_backend');
-        if(this.apiServer){
+        if (this.apiServer) {
             const str = this.apiServer + '/run/report/' + reportName;
             return this.http.get(str,  { responseType: 'text', withCredentials: true})
                 .pipe(tap(resp => {}),
@@ -65,7 +65,7 @@ export class ApiService {
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
 
-        const str = this.apiServer + '/user/repositories';
+        const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, this.getOptions())
           .pipe(tap(resp => {
@@ -83,7 +83,7 @@ export class ApiService {
         }),
           catchError(this.handleError));
     }
-  
+
     public loginGithubToken(login: string, id){
         const str = this.apiServer + '/user/githubLogin'
         let user = {login, id}
@@ -96,22 +96,34 @@ export class ApiService {
     }
 
     public loginUser(email: string, password: string, stayLoggedIn: boolean): Observable<any> {
-        const str = this.apiServer + '/user/login'
-
+        const str = this.apiServer + '/user/login';
         let user;
-        if(!email && !password){
-
-        }else {
+        if (!email && !password) {
+        } else {
             user = {
                 email, password, stayLoggedIn
-            }
+            };
         }
         return this.http.post<string[]>(str, user, this.getOptions())
           .pipe(tap(resp => {
-            localStorage.setItem('login', 'true')
+            localStorage.setItem('login', 'true');
             //this.getStoriesEvent.emit(resp);
           }),
             catchError(this.handleError));
+    }
+
+    public JiraLogin(jiraName: string, jiraPassword: string, jiraServer: string) {
+        console.log("Trying to connect to Jira");
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {  'jiraAccountName': jiraName,
+                            'jiraPassword': jiraPassword,
+                            'jiraServer': jiraServer};
+        return this.http.post(this.apiServer + '/jira/login', body, this.getOptions())
+            .pipe(tap(resp => {
+                console.log("hier ist die Response:")
+                console.log(resp);
+                localStorage.setItem('JiraSession', resp.toString());
+            }));
     }
 
     public createRepository(email: string, name: string): Observable<any> {
@@ -134,10 +146,10 @@ export class ApiService {
             }));
     }
 
-    logoutUser(){
-        let str = this.apiServer + '/user/logout'
-        localStorage.removeItem('login')
-       return  this.http.get<string[]>(str, this.getOptions())
+    logoutUser() {
+        let url = this.apiServer + '/user/logout'
+        localStorage.removeItem('login');
+        return  this.http.get<string[]>(url, this.getOptions())
           .pipe(tap(resp => {
           }),
             catchError(this.handleError));
@@ -207,7 +219,10 @@ export class ApiService {
     public createJiraAccount(request) {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/jira/user/create/', request, this.getOptions());
+            .post<any>(this.apiServer + '/jira/user/create/', request, this.getOptions())
+            .pipe(tap(resp => {
+                console.log(resp.body);
+            }));
     }
 
     public getStepTypes(): Observable<StepType[]> {
@@ -334,7 +349,7 @@ export class ApiService {
     isLoggedIn(): boolean {
         //if (this.cookieService.check('connect.sid')) return true;
         //return false;
-        if (localStorage.getItem('login')) return true;
-        return false
+        if (localStorage.getItem('login')) { return true; }
+        return false;
     }
 }

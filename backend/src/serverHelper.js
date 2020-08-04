@@ -571,13 +571,13 @@ const getGithubData = (res, req, accessToken) => {
           headers: {
               "User-Agent": "SampleOAuth",
           }
-      }, 
+      },
       async function(err, response, body){
           req.body = await JSON.parse(body)
           req.body.githubToken = accessToken;
           try{
             await mongo.findOrRegister(req.body)
-            
+
             passport.authenticate('github-local', function (error, user, info) {
                       if(error){
                         return res.redirect(process.env.FRONTEND_URL +'/login?github=error');

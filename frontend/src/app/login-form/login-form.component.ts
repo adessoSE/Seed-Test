@@ -27,11 +27,11 @@ export class LoginFormComponent {
     submit() {
         if (this.type === 'Jira') {
             const jiraAccountName = (document.getElementById('jiraAccountName') as HTMLInputElement).value;
-            const jiraPassword = (document.getElementById('jiraPassword') as HTMLInputElement).value;
+            const jira_password = (document.getElementById('jira_password') as HTMLInputElement).value;
             const jiraHost = (document.getElementById('jiraHost') as HTMLInputElement).value;
             const request = {
                 'jiraAccountName': jiraAccountName,
-                'jiraPassword': jiraPassword,
+                'jira_password': jira_password,
                 'jiraHost': jiraHost,
             };
             this.apiService.createJiraAccount(request).subscribe(response => {
