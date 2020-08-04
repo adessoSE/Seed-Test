@@ -202,7 +202,7 @@ router.get('/stories', async (req, res) => {
 	} catch (err) {
 		res.status(503).send(err.message);
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
-		const { Host, AccountName, Password } = req.user.jira;
+		let { Host, AccountName, Password } = req.user.jira;
 		Password = helper.decryptPassword(Password)
 		const { projectKey } = req.query;
 		const auth = Buffer.from(`${AccountName}:${Password}`)

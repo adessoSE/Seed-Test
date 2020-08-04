@@ -193,7 +193,7 @@ async function execReport(req, res, stories, mode, callback) {
 function jiraProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
-      const { Host, AccountName, Password } = user.jira;
+      let { Host, AccountName, Password } = user.jira;
       Password = decryptPassword(Password)
 			const auth = Buffer.from(`${AccountName}:${Password}`)
 				.toString('base64');
@@ -217,7 +217,7 @@ function jiraProjects(user) {
 					try {
 						json = JSON.parse(body).projects;
 					} catch (e) {
-						console.warn('Jira Request did not work');
+						console.warn('Jira Request did not work', e);
 						json = {};
 					}
 					let names = [];
@@ -615,21 +615,9 @@ function encriptPassword(text){
 
 function decryptPassword(encrypted){
 	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
-	let decrypted = '';
-	let chunk = ''
-	decipher.on('readable', ()=> {
-		while (null !== (chunk = decipher.read())){
-			decrypted += chunk.toString('utf8');
-		}
-	})
-
-	decipher.on('end', () => {
-    return decrypted
-	})
-
-	decipher.write(encrypted, 'hex')
-	decipher.end();
-
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted
 };
 
 
