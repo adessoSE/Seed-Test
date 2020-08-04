@@ -10,9 +10,13 @@ const emptyBackground = require('./models/emptyBackground');
 const lodash = require('lodash')
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
-
+const crypto = require('crypto');
 const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 const passport = require('passport');
+
+const cryptoAlgorithm = 'aes-192-cbc'
+const key = crypto.scryptSync(process.env.JIRA_SECRET, 'salt', 24)
+const iv = Buffer.alloc(16,0);
 
 
 // this is needed for the html report
@@ -131,9 +135,10 @@ function writeFile(__dirname, selectedStory) {
 }
 
 async function updateJira(UserID, req) {
+  password = encriptPassword(req.jiraPassword)
 	const jira = {
 		AccountName: req.jiraAccountName,
-		Password: req.jiraPassword,
+		Password: password,
 		Host: req.jiraHost
 	};
 	const user = await mongo.getUserData(UserID);
@@ -188,7 +193,8 @@ async function execReport(req, res, stories, mode, callback) {
 function jiraProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
-			const { Host, AccountName, Password } = user.jira;
+      const { Host, AccountName, Password } = user.jira;
+      Password = decryptPassword(Password)
 			const auth = Buffer.from(`${AccountName}:${Password}`)
 				.toString('base64');
 			const cookieJar = request.jar();
@@ -599,12 +605,42 @@ const getGithubData = (res, req, accessToken) => {
   )
 }
 
+function encriptPassword(text){
+	const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
+	let encrypted = cipher.update(text, 'utf8', 'hex');
+	encrypted += cipher.final('hex');
+	return encrypted
+};
+
+
+function decryptPassword(encrypted){
+	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
+	let decrypted = '';
+	let chunk = ''
+	decipher.on('readable', ()=> {
+		while (null !== (chunk = decipher.read())){
+			decrypted += chunk.toString('utf8');
+		}
+	})
+
+	decipher.on('end', () => {
+    return decrypted
+	})
+
+	decipher.write(encrypted, 'hex')
+	decipher.end();
+
+};
+
+
 module.exports = {
   uniqueRepositories,
   jiraProjects,
   getJiraIssues,
   getGithubData,
   createReport,
+  decryptPassword,
+  encriptPassword,
   options,
   deleteReport,
   execRepositoryRequests,

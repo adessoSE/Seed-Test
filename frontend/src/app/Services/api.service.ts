@@ -112,7 +112,7 @@ export class ApiService {
             catchError(this.handleError));
     }
 
-    public JiraLogin(jiraName: string, jiraPassword: string, jiraServer: string) {
+    public jiraLogin(jiraName: string, jiraPassword: string, jiraServer: string) {
         console.log("Trying to connect to Jira");
         this.apiServer = localStorage.getItem('url_backend');
         const body = {  'jiraAccountName': jiraName,

@@ -31,7 +31,7 @@ export class LoginFormComponent {
             const jiraHost = (document.getElementById('jiraHost') as HTMLInputElement).value;
             const request = {
                 'jiraAccountName': jiraAccountName,
-                'jira_password': jira_password,
+                'jiraPassword': jira_password,
                 'jiraHost': jiraHost,
             };
             this.apiService.createJiraAccount(request).subscribe(response => {

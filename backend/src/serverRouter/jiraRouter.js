@@ -29,6 +29,7 @@ router.post('/user/create/', (req, res) => {
 		const { jiraAccountName, jiraPassword, jiraHost } = req.body;
 		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
 			.toString('base64');
+		const cookieJar = request.jar();
 		const options =  {
 			method: 'GET',
 			url: `http://${jiraHost}/rest/auth/1/session`,
@@ -42,14 +43,22 @@ router.post('/user/create/', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		request(options, (error, response) => {
+		request(options, (error) => {
 			if (error) {
-				response.status(500);
+				res.status(500);
 				console.error('Cant connect to Jira Server');
-			} else {
-				console.log(response.headers["set-cookie"]);
-				res.body = response.headers["set-cookie"]
-			}
+			} else request(options, (error2) => {
+				if (error2) {
+					res.status(500);
+					console.error('Cant connect to Jira Server');
+				}
+				console.log('req.body', req.body)
+				helper.updateJira(req.user._id, req.body)
+					.then((result) => {
+						res.status(200)
+							.json(result);
+					});
+			});
 		});
 	} else {
 		console.error('User doesnt exist.');
@@ -102,7 +111,7 @@ router.post('/login', (req, res) => {
 });
 
 // Test JiraLogin with:
-// this.apiService.JiraLogin("", "", "jira.adesso.de").subscribe((resp) => {
+// this.apiService.jiraLogin("", "", "jira.adesso.de").subscribe((resp) => {
 // 	localStorage.setItem('JiraSession', resp.toString());
 // });
 

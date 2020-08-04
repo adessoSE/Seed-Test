@@ -9,7 +9,6 @@ const bcrypt = require('bcrypt');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
-
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
@@ -204,6 +203,7 @@ router.get('/stories', async (req, res) => {
 		res.status(503).send(err.message);
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		const { Host, AccountName, Password } = req.user.jira;
+		Password = helper.decryptPassword(Password)
 		const { projectKey } = req.query;
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
