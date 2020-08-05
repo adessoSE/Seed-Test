@@ -52,7 +52,6 @@ router.post('/user/create/', (req, res) => {
 					res.status(500);
 					console.error('Cant connect to Jira Server');
 				}
-				console.log('req.body', req.body)
 				helper.updateJira(req.user._id, req.body)
 					.then((result) => {
 						res.status(200)

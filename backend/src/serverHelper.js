@@ -127,9 +127,9 @@ function getFeatureContent(story) {
 }
 
 // Creates feature file
-function writeFile(__dirname, selectedStory) {
-	fs.writeFile(path.join(__dirname, 'features',
-		`${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
+function writeFile(dir, selectedStory) {
+	fs.writeFile(path.join(__dirname, '../features',
+		`${cleanFileName(selectedStory.title)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
 }
@@ -156,7 +156,7 @@ async function updateFeatureFile(issueID) {
 function execReport2(req, res, stories, mode, story, callback) {
   const reportTime = Date.now();
   const path1 = 'node_modules/.bin/cucumber-js';
-  const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
+  const path2 = `features/${cleanFileName(story.title)}.feature`;
   const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}`: `reporting_${reportTime}`;
   const path3 =`features/${reportName}.json`;
 
@@ -240,11 +240,8 @@ function dbProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined') {
 			const { email } = user;
-			console.log(email);
 			mongo.getRepository(email).then((json) => {
 				let names = [];
-				console.log('MONGODB');
-				console.log(json);
 				if (Object.keys(json).length !== 0) {
 					for (const repo of json) names.push(repo.name);
 					names = names.map(value => ({
@@ -314,7 +311,7 @@ function starredRepositories(githubName, token) {
 }
 
 async function fuseGitWithDb(story, issueId) {
-	const result = await mongo.getOneStory(issueId);
+	const result = await mongo.getOneStory(parseInt(issueId));
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -322,7 +319,9 @@ async function fuseGitWithDb(story, issueId) {
 	} else {
 		story.scenarios = [emptyScenario()];
 		story.background = emptyBackground();
-	}
+  }
+  story.story_id = parseInt(story.story_id)
+  story.issue_number = parseInt(story.issue_number)
 	mongo.upsertEntry(story.story_id, story);
 	// Create & Update Feature Files
 	writeFile('', story);
@@ -621,6 +620,11 @@ function decryptPassword(encrypted){
 };
 
 
+function cleanFileName(filename){
+  return filename.replace(/[^a-z0-9]/gi, '_')
+}
+
+
 module.exports = {
   uniqueRepositories,
   jiraProjects,
@@ -629,6 +633,7 @@ module.exports = {
   createReport,
   decryptPassword,
   encriptPassword,
+  cleanFileName,
   options,
   deleteReport,
   execRepositoryRequests,
@@ -636,16 +641,7 @@ module.exports = {
   execReport,
   getFeatureContent,
   getScenarioContent,
-  getExamples,
-  getSteps,
-  jsUcfirst,
-  getBackgroundContent,
-  getBackgroundSteps,
-  getValues,
   writeFile,
-  updateFeatureFile,
-  runReport,
-  starredRepositories,
   ownRepositories,
   fuseGitWithDb,
   updateJira,
@@ -658,8 +654,5 @@ module.exports = {
 	updateFeatureFile,
 	runReport,
 	starredRepositories,
-	ownRepositories,
-	fuseGitWithDb,
-	updateJira,
 	dbProjects
 };

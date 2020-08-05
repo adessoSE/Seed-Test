@@ -78,7 +78,6 @@ router.post('/githubLogin', (req, res) => {
 
 // register github account
 router.post('/githubRegister', async (req, res) => {
-	console.log('githubRegister:');
 	try {
 		const user = await mongo.findOrRegister(req.body);
 		res.json(user);
@@ -155,7 +154,6 @@ router.get('/repositories', (req, res) => {
 
 // get stories from github
 router.get('/stories', async (req, res) => {
-	console.log(req.query.source);
 	const { source } = req.query;
 	if (source === 'github' || !source) try {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
@@ -213,10 +211,10 @@ router.get('/stories', async (req, res) => {
 			method: 'GET',
 			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
 			jar: cookieJar,
-			qs: {
-				type: 'page',
-				title: 'title'
-			},
+			//qs: {
+			//	type: 'page',
+			//	title: 'title'
+			//},
 			headers: {
 				'cache-control': 'no-cache',
 				Authorization: `Basic ${auth}`
@@ -225,7 +223,7 @@ router.get('/stories', async (req, res) => {
 		request(options, (error) => {
 			if (error) res.status(500).json(error);
 			else request(options, (error2, response2, body) => {
-				if (error2) res.status(500).json(error);
+				if (error2) res.status(500).json(error2);
 				const json = JSON.parse(body).issues;
 				for (const issue of json) {
 					const story = {
@@ -261,7 +259,6 @@ router.get('/stories', async (req, res) => {
 		const { name } = req.query;
 		mongo.getOneRepository(name).then((body) => {
 			const json = body.issues;
-			console.log(json);
 			if (Object.keys(json).length > 0) for (const key of Object.keys(json)) {
 				const issue = json[key];
 				const story = {
@@ -275,7 +272,6 @@ router.get('/stories', async (req, res) => {
 				};
 				tmpStories.push(helper.fuseGitWithDb(story, issue.id));
 			}
-			console.log(tmpStories);
 			// let stories = results; // need this to clear promises from the Story List
 			Promise.all(tmpStories).then((results) => { res.status(200).json(results); })
 				.catch((e) => {
