@@ -1,32 +1,40 @@
-.grid {
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+.grid{
     display: grid;
-    grid-template-columns: 100%;
     grid-template-rows: auto;
-    grid-template-areas: "storyHeader" "storyList";
-    margin-top: 24px;
-    border: 1px solid #999;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 24px;
-    box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
+    grid-template-areas: "test acc" "github" "jira" "database rep";
     background-color: white;
+    place-items: center;
 }
 
-.header{
-    grid-area: storyHeader;
+.formular{
+    grid-area: formular;
+    grid-row: 1 / 2;
+    text-align: center;
+    background-color: white;
+    padding: 80px 50px 20px;
+    text-align: center;
+}
+
+h1{
+    margin-top: 50px;
+    color:#0099CC;
+    font-size: 22pt;
+    font-weight: bold;
+}
+
+h2{
+    margin-top: 20px;
     color: #999;
-    float: left;
-    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
 }
 
-#infoIcon{
-    grid-area: storyHeader;
-    color: #999;
-    padding-top: 3px;
-    margin-left: 7px;
-}
-
-.githubLogin{
+.githubButton{
     color: #fff;
     padding: 5px 10px;
     background-color: black;
@@ -37,67 +45,36 @@
     align-items: center;
 }
 
-.githubLoginContainer{
+.button{
     margin: 10px;
-    display:inline-block;
+    color:#ffffff;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border: solid 1px #0099CC;
+    background: #0099CC;
+    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
 }
 
-.githubLogin img{
-    margin-right: 5px;
-    width: 17px;
-    height: 17px;
-}
+.button:focus {outline:0 !important;}
 
-.underlying_grid{
-    background-color: rgb(224, 224, 224);
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto;
-    grid-template-areas:
-            "seedTest github jira";
-    grid-column-gap: 10px;
-    padding-bottom: 10px;
-    height: 100%;
-}
+.button:hover {
+    background: rgb(2, 111, 161);
+    }
 
-.jira{
-    grid-area: jira;
-}
+.button:active {
+    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
+    }
 
-.github{
-    grid-area: github;
+.uk-form-controls{
+    border-radius: 3px;
+    padding: 5px 5px 5px 5px;
 }
-
-.seedTest{
-    grid-area: seedTest;
-}
-
 
 @media screen and (max-width: 600px) {
     .grid{
         display: grid;
-        grid-template-columns: 94%;
-        grid-template-rows: auto auto;
-        grid-template-areas:
-                "seedTest"
-                "github"
-                "jira";
-        justify-content: center;
+        grid-template-rows: auto;
+        grid-template-areas: "test acc" "github" "jira" "database rep";
     }
-}
-
-
-.std_button{
-    color: white;
-    border: solid 1px #b6b6b6;
-    background: #0071b9;
-    background: -moz-linear-gradient(top,  #0071b9, #0b93e9);
-}
-
-.std_button:hover{
-    background: #0b93e9;
-}
-
-.std_button:active{
-    background: -moz-linear-gradient(top, #0b93e9, #0071b9);
 }

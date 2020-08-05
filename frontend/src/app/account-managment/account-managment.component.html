@@ -1,11 +1,11 @@
-<h1>
-    Account Settings
-</h1>
-<div>
+
+<div class="grid">
     <form>
         <div class="underlying_grid">
             <div class="grid seedTest" id="seedTestDiv">
-                <div class="uk-card-title"><span class="header">Seed-Test Account</span></div>
+                <h1>Account Settings</h1>
+                
+                    <h2>Seed-Test Account</h2>
                 <div class="uk-form-horizontal">
                     <label>
                         E-Mail
@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="grid github" id="githubDiv" *ngIf="github">
-                <div class="uk-card-title"><span class="header">Github</span></div>
+                <h2>Github</h2>
                 <div class="uk-form-horizontal">
                     <label>
                         Github-Account:
@@ -22,13 +22,13 @@
                     </label>
                 </div>
                 <a class="githubLoginContainer" (click)="disconnectGithub()">
-                    <div class="githubLogin" >
+                    <div class="githubButton" >
                        <p>Disconnect Github</p>
                     </div>
                  </a>
             </div>
             <div class="grid github" *ngIf="!github">
-                <div class="uk-card-title"><span class="header">Github</span></div>
+                <h2>Github</h2>
                 <a class="githubLoginContainer" (click)="login()">
                     <div class="githubLogin" >
                        <img src ="../assets/github-logo.png" >
@@ -38,7 +38,7 @@
             </div>
 
             <div class="grid jira">
-                <div class="uk-card-title"><span class="header">Jira</span></div>
+                <h2>Jira</h2>
                 <div id="jiraDiv" *ngIf="jira">
                     <div class="uk-form-horizontal">
                         <label>
@@ -60,13 +60,13 @@
                     </div>
                 </div>
                 <div id="ChangeJiraDiv">
-                    <button class="std_button" id="change-jira" (click)="jiraLogin('Jira')">Login to Jira</button>
+                    <button class="button" id="change-jira" (click)="jiraLogin('Jira')">Login to Jira</button>
                 </div>
             </div>
         </div>
         <div class="underlying_grid">
             <div class="grid github" id="database">
-                <div class="uk-card-title"><span class="header">Database Repository</span></div>
+                <h2>Database Repository</h2>
                 <div class="uk-form-horizontal">
                     <label>
                         Name of Repository
@@ -74,7 +74,7 @@
                     </label>
                 </div>
                 <div class="uk-form-horizontal">
-                    <button class="std_button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
+                    <button class="button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
                 </div>
             </div>
         </div>
