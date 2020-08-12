@@ -57,7 +57,7 @@ export class AppComponent implements OnInit {
     if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length <= 0)) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
-        console.log('repositories',this.repositories)
+        console.log('repositories', this.repositories);
       }, (err) => {
         this.error = err.error;
       });

@@ -19,6 +19,7 @@
     "chart.js": "^2.9.3",
     "core-js": "^2.6.11",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "cucumber": "^5.1.0",
     "cucumber-html-reporter": "^5.1.0",
     "ejs": "^2.7.4",

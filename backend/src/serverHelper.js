@@ -10,9 +10,13 @@ const emptyBackground = require('./models/emptyBackground');
 const lodash = require('lodash')
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
-
+const crypto = require('crypto');
 const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 const passport = require('passport');
+
+const cryptoAlgorithm = 'aes-192-cbc'
+const key = crypto.scryptSync(process.env.JIRA_SECRET, 'salt', 24)
+const iv = Buffer.alloc(16,0);
 
 
 // this is needed for the html report
@@ -123,17 +127,18 @@ function getFeatureContent(story) {
 }
 
 // Creates feature file
-function writeFile(__dirname, selectedStory) {
-	fs.writeFile(path.join(__dirname, 'features',
-		`${selectedStory.title.replace(/ /g, '_')}.feature`), getFeatureContent(selectedStory), (err) => {
+function writeFile(dir, selectedStory) {
+	fs.writeFile(path.join(__dirname, '../features',
+		`${cleanFileName(selectedStory.title)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
 }
 
 async function updateJira(UserID, req) {
+  password = encriptPassword(req.jiraPassword)
 	const jira = {
 		AccountName: req.jiraAccountName,
-		Password: req.jiraPassword,
+		Password: password,
 		Host: req.jiraHost
 	};
 	const user = await mongo.getUserData(UserID);
@@ -151,7 +156,7 @@ async function updateFeatureFile(issueID) {
 function execReport2(req, res, stories, mode, story, callback) {
   const reportTime = Date.now();
   const path1 = 'node_modules/.bin/cucumber-js';
-  const path2 = `features/${story.title.replace(/ /g, '_')}.feature`;
+  const path2 = `features/${cleanFileName(story.title)}.feature`;
   const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}`: `reporting_${reportTime}`;
   const path3 =`features/${reportName}.json`;
 
@@ -188,7 +193,8 @@ async function execReport(req, res, stories, mode, callback) {
 function jiraProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
-			const { Host, AccountName, Password } = user.jira;
+      let { Host, AccountName, Password } = user.jira;
+      Password = decryptPassword(Password)
 			const auth = Buffer.from(`${AccountName}:${Password}`)
 				.toString('base64');
 			const cookieJar = request.jar();
@@ -211,12 +217,14 @@ function jiraProjects(user) {
 					try {
 						json = JSON.parse(body).projects;
 					} catch (e) {
-						console.warn('Jira Request did not work');
+						console.warn('Jira Request did not work', e);
 						json = {};
 					}
 					let names = [];
 					if (Object.keys(json).length !== 0) {
-						for (const repo of json) names.push(repo.name);
+						for (const repo of json) {
+						    names.push(repo.name);
+                        }
 						names = names.map(value => ({
 							value,
 							source: 'jira'
@@ -234,11 +242,8 @@ function dbProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined') {
 			const { email } = user;
-			console.log(email);
 			mongo.getRepository(email).then((json) => {
 				let names = [];
-				console.log('MONGODB');
-				console.log(json);
 				if (Object.keys(json).length !== 0) {
 					for (const repo of json) names.push(repo.name);
 					names = names.map(value => ({
@@ -307,8 +312,8 @@ function starredRepositories(githubName, token) {
   return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
 }
 
-async function fuseGitWithDb(story, issueId) {
-	const result = await mongo.getOneStory(issueId);
+async function fuseStoriesWithDb(story, issueId) {
+	const result = await mongo.getOneStory(parseInt(issueId));
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -316,7 +321,11 @@ async function fuseGitWithDb(story, issueId) {
 	} else {
 		story.scenarios = [emptyScenario()];
 		story.background = emptyBackground();
-	}
+  }
+  story.story_id = parseInt(story.story_id);
+    if (story.repo_type !== "jira") {
+        story.issue_number = parseInt(story.issue_number);
+    }
 	mongo.upsertEntry(story.story_id, story);
 	// Create & Update Feature Files
 	writeFile('', story);
@@ -482,21 +491,24 @@ function getJiraIssues(user, projectKey){
         }
         const json = JSON.parse(body).issues;
         for (const issue of json) {
-          const story = {
-            story_id: issue.id,
-            title: issue.fields.summary,
-            body: issue.fields.description,
-            state: issue.fields.status.name,
-            issue_number: issue.id,
-          };
-          if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-            story.assignee = issue.fields.assignee.name;
-            story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-          } else {
-            story.assignee = 'unassigned';
-            story.assignee_avatar_url = unassignedAvatarLink;
-          }
-          tmpStories.push(fuseGitWithDb(story, issue.id));
+            if (issue.fields.labels.includes("Seed-Test")){
+                const story = {
+                    story_id: issue.id,
+                    title: issue.fields.summary,
+                    body: issue.fields.description,
+                    state: issue.fields.status.name,
+                    issue_number: issue.key,
+                };
+                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+                    story.assignee = issue.fields.assignee.name;
+                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+                } else {
+                    story.assignee = 'unassigned';
+                    story.assignee_avatar_url = unassignedAvatarLink;
+                }
+                console.log(story)
+                tmpStories.push(fuseStoriesWithDb(story, issue.id));
+            }
         }
         return tmpStories;
       });
@@ -571,13 +583,13 @@ const getGithubData = (res, req, accessToken) => {
           headers: {
               "User-Agent": "SampleOAuth",
           }
-      }, 
+      },
       async function(err, response, body){
           req.body = await JSON.parse(body)
           req.body.githubToken = accessToken;
           try{
             await mongo.findOrRegister(req.body)
-            
+
             passport.authenticate('github-local', function (error, user, info) {
                       if(error){
                         return res.redirect(process.env.FRONTEND_URL +'/login?github=error');
@@ -599,12 +611,36 @@ const getGithubData = (res, req, accessToken) => {
   )
 }
 
+function encriptPassword(text){
+	const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
+	let encrypted = cipher.update(text, 'utf8', 'hex');
+	encrypted += cipher.final('hex');
+	return encrypted
+};
+
+
+function decryptPassword(encrypted){
+	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted
+};
+
+
+function cleanFileName(filename){
+  return filename.replace(/[^a-z0-9]/gi, '_')
+}
+
+
 module.exports = {
   uniqueRepositories,
   jiraProjects,
   getJiraIssues,
   getGithubData,
   createReport,
+  decryptPassword,
+  encriptPassword,
+  cleanFileName,
   options,
   deleteReport,
   execRepositoryRequests,
@@ -612,18 +648,9 @@ module.exports = {
   execReport,
   getFeatureContent,
   getScenarioContent,
-  getExamples,
-  getSteps,
-  jsUcfirst,
-  getBackgroundContent,
-  getBackgroundSteps,
-  getValues,
   writeFile,
-  updateFeatureFile,
-  runReport,
-  starredRepositories,
   ownRepositories,
-  fuseGitWithDb,
+  fuseStoriesWithDb,
   updateJira,
 	getExamples,
 	getSteps,
@@ -634,8 +661,5 @@ module.exports = {
 	updateFeatureFile,
 	runReport,
 	starredRepositories,
-	ownRepositories,
-	fuseGitWithDb,
-	updateJira,
 	dbProjects
 };

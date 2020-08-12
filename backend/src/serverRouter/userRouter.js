@@ -9,7 +9,6 @@ const bcrypt = require('bcrypt');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
-
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
@@ -79,7 +78,6 @@ router.post('/githubLogin', (req, res) => {
 
 // register github account
 router.post('/githubRegister', async (req, res) => {
-	console.log('githubRegister:');
 	try {
 		const user = await mongo.findOrRegister(req.body);
 		res.json(user);
@@ -156,7 +154,6 @@ router.get('/repositories', (req, res) => {
 
 // get stories from github
 router.get('/stories', async (req, res) => {
-	console.log(req.query.source);
 	const { source } = req.query;
 	if (source === 'github' || !source) try {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
@@ -178,24 +175,23 @@ router.get('/stories', async (req, res) => {
 					title: issue.title,
 					body: issue.body,
 					state: issue.state,
-					issue_number: issue.number
+					issue_number: issue.number,
+					repo_type: "github"
 				};
-				if (issue.assignee !== null) {
-					// skip in case of "unassigned"
+				if (issue.assignee !== null) { // skip in case of "unassigned"
 					story.assignee = issue.assignee.login;
 					story.assignee_avatar_url = issue.assignee.avatar_url;
 				} else {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = unassignedAvatarLink;
 				}
-				tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 			}
 		}
 		Promise.all(tmpStories)
 			.then((results) => {
 				res.status(200)
 					.json(results);
-				// let stories = results; // need this to clear promises from the Story List
 			})
 			.catch((e) => {
 				console.log(e);
@@ -203,7 +199,8 @@ router.get('/stories', async (req, res) => {
 	} catch (err) {
 		res.status(503).send(err.message);
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
-		const { Host, AccountName, Password } = req.user.jira;
+		let { Host, AccountName, Password } = req.user.jira;
+		Password = helper.decryptPassword(Password)
 		const { projectKey } = req.query;
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
@@ -213,55 +210,54 @@ router.get('/stories', async (req, res) => {
 			method: 'GET',
 			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
 			jar: cookieJar,
-			qs: {
-				type: 'page',
-				title: 'title'
-			},
 			headers: {
 				'cache-control': 'no-cache',
 				Authorization: `Basic ${auth}`
 			}
 		};
-		request(options, (error) => {
-			if (error) res.status(500).json(error);
-			else request(options, (error2, response2, body) => {
-				if (error2) res.status(500).json(error);
+		request(options, (error2, response2, body) => {
+			if (error2) {
+				res.status(500).json(error2);
+			}
+			else {
 				const json = JSON.parse(body).issues;
 				for (const issue of json) {
-					const story = {
-						story_id: issue.id,
-						title: issue.fields.summary,
-						body: issue.fields.description,
-						state: issue.fields.status.name,
-						issue_number: issue.id
-					};
-					if (issue.fields.assignee !== null) {
-						// skip in case of "unassigned"
-						story.assignee = issue.fields.assignee.name;
-						story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-					} else {
-						story.assignee = 'unassigned';
-						story.assignee_avatar_url = unassignedAvatarLink;
+					if (issue.fields.labels.includes("Seed-Test")) {
+						const story = {
+							story_id: issue.id,
+							title: issue.fields.summary,
+							body: issue.fields.description,
+							state: issue.fields.status.name,
+							issue_number: issue.key,
+							repo_type: "jira"
+						};
+						if (issue.fields.assignee !== null) {
+							// skip in case of "unassigned"
+							story.assignee = issue.fields.assignee.name;
+							story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
+						} else {
+							story.assignee = 'unassigned';
+							story.assignee_avatar_url = unassignedAvatarLink;
+						}
+						console.log(story);
+						tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 					}
-					tmpStories.push(helper.fuseGitWithDb(story, issue.id));
-				}
-				Promise.all(tmpStories)
-					.then((results) => {
-						res.status(200)
-							.json(results);
-						// let stories = results; // need this to clear promises from the Story List
-					})
-					.catch((e) => {
-						console.log(e);
-					});
-			});
+			}
+			Promise.all(tmpStories)
+				.then((results) => {
+					res.status(200)
+						.json(results);
+				})
+				.catch((e) => {
+					console.log(e);
+				});
+			}
 		});
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.name !== 'null') {
 		const tmpStories = [];
 		const { name } = req.query;
 		mongo.getOneRepository(name).then((body) => {
 			const json = body.issues;
-			console.log(json);
 			if (Object.keys(json).length > 0) for (const key of Object.keys(json)) {
 				const issue = json[key];
 				const story = {
@@ -271,11 +267,11 @@ router.get('/stories', async (req, res) => {
 					state: issue.status,
 					issue_number: issue.id,
 					assignee: issue.assignee,
-					assignee_avatar_url: unassignedAvatarLink
+					assignee_avatar_url: unassignedAvatarLink,
+					repo_type: "db_"
 				};
-				tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 			}
-			console.log(tmpStories);
 			// let stories = results; // need this to clear promises from the Story List
 			Promise.all(tmpStories).then((results) => { res.status(200).json(results); })
 				.catch((e) => {
@@ -303,6 +299,5 @@ router.get('/callback', (req, res) =>{
           }
       )
 });
-
 
 module.exports = router;
