@@ -11,7 +11,7 @@ const chrome = require('selenium-webdriver/chrome');
 setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
-if (process.env.NODE_ENV){
+if (process.env.NODE_ENV) {
   chromeOptions.addArguments('--headless');
 }
 chromeOptions.addArguments('--ignore-certificate-errors');
@@ -21,9 +21,9 @@ chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 // Starts the driver / Browser
 Before(() => { // runs before each scenario
   driver = new webdriver.Builder()
-      .forBrowser('chrome')
-      .setChromeOptions(chromeOptions)
-      .build();
+    .forBrowser('chrome')
+    .setChromeOptions(chromeOptions)
+    .build();
 });
 
 // #################### GIVEN ########################################
@@ -43,7 +43,7 @@ Given('I am on the website: {string}', async (url) => {
 When('I go to the website: {string}', async (url) => {
   await driver.get(url);
   await driver.getCurrentUrl().then(async (currentUrl) => {
-     // expect(currentUrl).to.equal(url, 'Error');
+    // expect(currentUrl).to.equal(url, 'Error');
   });
 });
 
@@ -68,17 +68,15 @@ When('The site should wait for {string} milliseconds', async (ms) => {
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async (value, label) => {
   try {
-    await driver.findElement(By.css(`input#${label}`)).clear();
-    await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
-  }catch(e){
-    await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear()
-    await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+    // await driver.findElement(By.css(`input#${label}`)).clear();
+    // await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
+    await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
+    await driver.findElement(By.xpath(`//input[@id='${label}']`)).sendKeys(value);
+  } catch (e) {
+     await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear()
+     await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+
   }
-
-});
-
-When('I insert {string} into the field{string}', async (value, label) => {
-  await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
 });
 
 // "Radio"
@@ -91,7 +89,7 @@ When('I select the option {string} from the drop-down-menue {string}', async (va
 
   try {
     await driver.wait(until.elementLocated(By.xpath(`//*[@id='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
-  }catch(e){
+  } catch (e) {
     await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::button[@type='button']`)).click();
     await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`)).click();
   }
@@ -103,21 +101,17 @@ When('I hover over the element {string} and select the option {string}', async (
   const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), 3 * 1000);
   await action.move({ x: 0, y: 0, origin: link }).perform();
 
-  await driver.sleep(5000);
+  await driver.sleep(2000);
   const action2 = driver.actions({ bridge: true }); // second action needed?
-  // try {
-  //   const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
-     const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
-     await action2.move({origin: selection}).click().perform();
-  // }
-  // catch(e){
-  //   const selection = await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3* 1000);
-  //   // const selection = await driver.wait(until.elementLocated(By.xpath(`//a[@href='${option}']`)), 3 * 1000);
-  //   // const selection = await driver.wait(until.findElement(By.linkText(option)), 3 * 1000);
-  //   await action2.move({origin: selection}).click().perform();
-  //   // await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`)), 3 * 1000).click();
-  //   // await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath((`${'//*[text()' + "='"}${option}' or ` + `${'@*' + "='"}${option}']`))));
-  // }
+  try {
+    const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
+    await action2.move({ origin: selection }).click().perform();
+
+  }
+  catch (e) {
+    const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
+    await action2.move({ origin: selection }).click().perform();
+  }
 });
 
 
@@ -134,9 +128,9 @@ When('I check the box {string}', async (name) => {
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 
   // this one works, even if the element is not clickable (due to other elements blocking it):
-  try{
-    await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).sendKeys(Key.SPACE);
-  } catch (e){
+  try {
+    await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="' + name + '"]'))).sendKeys(Key.SPACE);
+  } catch (e) {
     await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${name}' or ` + `${'@*' + "='"}${name}']`)), 3 * 1000).click();
     //await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
   }
@@ -195,7 +189,7 @@ After(async () => { // runs after each Scenario
   // https://github.com/SeleniumHQ/selenium/issues/5560
   const condition = until.elementLocated(By.name('loader'));
   driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-  if (process.env.NODE_ENV){
+  if (process.env.NODE_ENV) {
     driver.quit();
   }
 });
