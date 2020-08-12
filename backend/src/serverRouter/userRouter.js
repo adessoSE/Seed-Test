@@ -175,24 +175,23 @@ router.get('/stories', async (req, res) => {
 					title: issue.title,
 					body: issue.body,
 					state: issue.state,
-					issue_number: issue.number
+					issue_number: issue.number,
+					repo_type: "github"
 				};
-				if (issue.assignee !== null) {
-					// skip in case of "unassigned"
+				if (issue.assignee !== null) { // skip in case of "unassigned"
 					story.assignee = issue.assignee.login;
 					story.assignee_avatar_url = issue.assignee.avatar_url;
 				} else {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = unassignedAvatarLink;
 				}
-				tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 			}
 		}
 		Promise.all(tmpStories)
 			.then((results) => {
 				res.status(200)
 					.json(results);
-				// let stories = results; // need this to clear promises from the Story List
 			})
 			.catch((e) => {
 				console.log(e);
@@ -211,48 +210,49 @@ router.get('/stories', async (req, res) => {
 			method: 'GET',
 			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
 			jar: cookieJar,
-			//qs: {
-			//	type: 'page',
-			//	title: 'title'
-			//},
 			headers: {
 				'cache-control': 'no-cache',
 				Authorization: `Basic ${auth}`
 			}
 		};
-		request(options, (error) => {
-			if (error) res.status(500).json(error);
-			else request(options, (error2, response2, body) => {
-				if (error2) res.status(500).json(error2);
-				const json = JSON.parse(body).issues;
-				for (const issue of json) {
+		request(options, (error2, response2, body) => {
+			if (error2) {
+				res.status(500).json(error2);
+			}
+			else { // request(options, (error2, response2, body) =>
+			if (error2) res.status(500).json(error2);
+			const json = JSON.parse(body).issues;
+			for (const issue of json) {
+				if (issue.fields.labels.includes("Seed-Test")) {
 					const story = {
 						story_id: issue.id,
 						title: issue.fields.summary,
 						body: issue.fields.description,
 						state: issue.fields.status.name,
-						issue_number: issue.id
+						issue_number: issue.key,
+						repo_type: "jira"
 					};
 					if (issue.fields.assignee !== null) {
 						// skip in case of "unassigned"
 						story.assignee = issue.fields.assignee.name;
-						story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+						story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
 					} else {
 						story.assignee = 'unassigned';
 						story.assignee_avatar_url = unassignedAvatarLink;
 					}
-					tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+					console.log(story);
+					tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 				}
-				Promise.all(tmpStories)
-					.then((results) => {
-						res.status(200)
-							.json(results);
-						// let stories = results; // need this to clear promises from the Story List
-					})
-					.catch((e) => {
-						console.log(e);
-					});
-			});
+			}
+			Promise.all(tmpStories)
+				.then((results) => {
+					res.status(200)
+						.json(results);
+				})
+				.catch((e) => {
+					console.log(e);
+				});
+			}
 		});
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.name !== 'null') {
 		const tmpStories = [];
@@ -268,9 +268,10 @@ router.get('/stories', async (req, res) => {
 					state: issue.status,
 					issue_number: issue.id,
 					assignee: issue.assignee,
-					assignee_avatar_url: unassignedAvatarLink
+					assignee_avatar_url: unassignedAvatarLink,
+					repo_type: "db_"
 				};
-				tmpStories.push(helper.fuseGitWithDb(story, issue.id));
+				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 			}
 			// let stories = results; // need this to clear promises from the Story List
 			Promise.all(tmpStories).then((results) => { res.status(200).json(results); })
@@ -299,6 +300,5 @@ router.get('/callback', (req, res) =>{
           }
       )
 });
-
 
 module.exports = router;

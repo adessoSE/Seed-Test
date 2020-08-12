@@ -222,7 +222,9 @@ function jiraProjects(user) {
 					}
 					let names = [];
 					if (Object.keys(json).length !== 0) {
-						for (const repo of json) names.push(repo.name);
+						for (const repo of json) {
+						    names.push(repo.name);
+                        }
 						names = names.map(value => ({
 							value,
 							source: 'jira'
@@ -310,7 +312,7 @@ function starredRepositories(githubName, token) {
   return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
 }
 
-async function fuseGitWithDb(story, issueId) {
+async function fuseStoriesWithDb(story, issueId) {
 	const result = await mongo.getOneStory(parseInt(issueId));
 	if (result !== null) {
 		story.scenarios = result.scenarios;
@@ -320,8 +322,10 @@ async function fuseGitWithDb(story, issueId) {
 		story.scenarios = [emptyScenario()];
 		story.background = emptyBackground();
   }
-  story.story_id = parseInt(story.story_id)
-  story.issue_number = parseInt(story.issue_number)
+  story.story_id = parseInt(story.story_id);
+    if (story.repo_type !== "jira") {
+        story.issue_number = parseInt(story.issue_number);
+    }
 	mongo.upsertEntry(story.story_id, story);
 	// Create & Update Feature Files
 	writeFile('', story);
@@ -487,21 +491,24 @@ function getJiraIssues(user, projectKey){
         }
         const json = JSON.parse(body).issues;
         for (const issue of json) {
-          const story = {
-            story_id: issue.id,
-            title: issue.fields.summary,
-            body: issue.fields.description,
-            state: issue.fields.status.name,
-            issue_number: issue.id,
-          };
-          if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-            story.assignee = issue.fields.assignee.name;
-            story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-          } else {
-            story.assignee = 'unassigned';
-            story.assignee_avatar_url = unassignedAvatarLink;
-          }
-          tmpStories.push(fuseGitWithDb(story, issue.id));
+            if (issue.fields.labels.includes("Seed-Test")){
+                const story = {
+                    story_id: issue.id,
+                    title: issue.fields.summary,
+                    body: issue.fields.description,
+                    state: issue.fields.status.name,
+                    issue_number: issue.key,
+                };
+                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+                    story.assignee = issue.fields.assignee.name;
+                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+                } else {
+                    story.assignee = 'unassigned';
+                    story.assignee_avatar_url = unassignedAvatarLink;
+                }
+                console.log(story)
+                tmpStories.push(fuseStoriesWithDb(story, issue.id));
+            }
         }
         return tmpStories;
       });
@@ -643,7 +650,7 @@ module.exports = {
   getScenarioContent,
   writeFile,
   ownRepositories,
-  fuseGitWithDb,
+  fuseStoriesWithDb,
   updateJira,
 	getExamples,
 	getSteps,

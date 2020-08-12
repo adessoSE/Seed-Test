@@ -109,9 +109,4 @@ router.post('/login', (req, res) => {
 	}
 });
 
-// Test JiraLogin with:
-// this.apiService.jiraLogin("", "", "jira.adesso.de").subscribe((resp) => {
-// 	localStorage.setItem('JiraSession', resp.toString());
-// });
-
 module.exports = router;
