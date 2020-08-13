@@ -35,18 +35,23 @@ h1{
 .repositories{
     grid-area: repositories;
     grid-row: 2 / 3;
-    width: 300px;
+    width: 400px;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 80px;
-    padding: 30px;
+    padding: 15px;
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
 }
+.repo_img{
+    margin-left: 5px;
+    margin-right: 5px;
+    max-height: 18px;
+}
 
 .selectRepository{
-    font-weight: bold; 
+    font-weight: bold;
     color: grey;
     font-size: 20px;
 }
@@ -109,7 +114,7 @@ a:not([href]):not([tabindex]).repoLink:hover {
 .testAccount:active {
     background: -moz-linear-gradient(top,  rgb(117, 117, 117),  #999);
     }
-    
+
 .testAccount:focus {outline:0 !important;}
 
 .noAccount{
@@ -150,16 +155,16 @@ a:not([href]):not([tabindex]).repoLink:hover {
     border: 0px;
     background-color: white;
     color: #56595e;
-    outline: none; 
+    outline: none;
     text-decoration: underline;
 }
 
 #register:hover{
     color: #0099CC;
   }
-  
 
-:host ::ng-deep .loadingSpinner circle{   
+
+:host ::ng-deep .loadingSpinner circle{
     stroke: rgb(2, 111, 161);
 }
 
