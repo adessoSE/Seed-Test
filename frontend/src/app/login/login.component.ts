@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
     async login(form: NgForm) {
         this.repositoriesLoading = true;
         this.error = undefined;
-        let response = await this.apiService.loginUser(form.value.email, form.value.password, form.value.stayLoggedIn).toPromise()
+        const response = await this.apiService.loginUser(form.value.email, form.value.password, form.value.stayLoggedIn).toPromise()
         if (response.status === 'error') {
             this.repositoriesLoading = false;
             this.error = response.message;
@@ -124,9 +124,9 @@ export class LoginComponent implements OnInit {
     this.router.navigate(['/register']);
   }
 
-    githubLogin(){
+    githubLogin() {
         this.error = undefined;
         this.repositoriesLoading = true;
-        this.apiService.githubLogin()
+        this.apiService.githubLogin();
       }
 }

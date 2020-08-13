@@ -10,7 +10,10 @@
               <button class="menuSelection" title="Select Repository">Repositories</button>
                 <div uk-dropdown="mode: click">
                   <ul class="dropdown-list">
-                   <li *ngFor="let repository of repositories; let i = index" >
+                   <li *ngFor="let repository of repositories; let i = index" class="list-item">
+                     <img class="repo_img"*ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
+                     <img class="repo_img"*ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
+                     <img class="repo_img"*ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
                      <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
                       href="#">{{repository.value}}</a>
                    </li>
@@ -26,9 +29,9 @@
           </li>
         </ul>
       </div>
-      <p id="version">Version 1.1.0 Alpha</p>
+      <p id="version">Version 1.2.0</p>
     </div>
-    
+
 
     <!--center-->
     <div class="topnavCenter">

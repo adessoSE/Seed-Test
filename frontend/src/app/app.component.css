@@ -12,7 +12,7 @@
   "topnav"
   "router"
   "footer";
-  
+
   /*Below provides sticky footer*/
   min-height: 100vh;
 }
@@ -28,7 +28,7 @@
   grid-area: topnav;
   display: grid;
   grid-template-columns: 3fr auto 1fr auto 3fr;
-  grid-template-areas: 
+  grid-template-areas:
   "left . center . right";
 }
 
@@ -78,7 +78,7 @@
   background-color: #999;
   grid-template-rows: auto auto;
   grid-template-columns: 1fr auto 1fr;
-  grid-template-areas: 
+  grid-template-areas:
   ". footerCenter adessoLogo"
   "expendable expendable expendable";
   justify-items: center;
@@ -142,7 +142,7 @@
   border: none;
   cursor: pointer;
   transition: 0.3s;
-  outline: none;  
+  outline: none;
 }
 
 .rightButton:hover, .menuButton:hover {
@@ -159,7 +159,7 @@ a:hover{
 
 .menuButton{
   color: white;
-  outline: none;  
+  outline: none;
   font-style: inherit;
   padding: 13px 20px;
   border: 0px;
@@ -189,7 +189,7 @@ a:hover{
   border: 0px;
   background-color: #f8f8f8;
   color: #56595e;
-  outline: none;  
+  outline: none;
 }
 
 .menuSelection:hover{
@@ -242,10 +242,20 @@ a:hover{
   display: block;
 }
 
+.list-item{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.repo_img{
+  margin-left: 10px;
+  margin-right: 5px;
+  max-height: 20px;
+}
 .repoButton{
   margin-right: 10px;
   margin-left: 5px;
-  outline: none;  
+  outline: none;
 }
 
 #githubHref{

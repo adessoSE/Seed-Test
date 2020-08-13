@@ -1,93 +1,86 @@
 
-<div class="grid">
-    <form>
-        <div class="underlying_grid">
-            <div><h1>Account Settings</h1></div>
-            <br>
-            <hr>
-            <div class="grid seedTest" id="seedTestDiv">
-                    <h2>Seed-Test Account</h2>
-                    <div class="uk-form-horizontal">
-                        <label>E-Mail
-                        <br>
-                        <input id="email_field" [defaultValue]="email">
-                        </label>
-                    </div>
+<div><h1>Account Settings</h1></div>
+<hr>
+<div class="grid-container">
+    <div class="grid_seedTest">
+            <h2>Seed-Test Account</h2>
+            <div class="uk-form-horizontal">
+                <label>E-Mail
+                <input id="email_field" [defaultValue]="email">
+                </label>
             </div>
-            <br>
-            <hr>
-            <div class="grid github" id="githubDiv" *ngIf="github">
-                <h2>Github</h2>
-                <div class="uk-form-horizontal">
-                    <label>
-                        Github-Account:
-                        <label id="gitacc">{{github['login']}}</label>
-                    </label>
-                </div>
-                <br>
-                <hr>
-                <a class="githubLoginContainer" (click)="disconnectGithub()">
-                    <div class="githubButton" >
-                       <p>Disconnect Github</p>
-                    </div>
-                 </a>
-            </div>
-            <div class="grid github" *ngIf="!github">
-                <h2>Github</h2>
-                <a class="githubLoginContainer" (click)="login()">
-                    <div class="githubLogin" >
-                       <img src ="../assets/github-logo.png" >
-                       <p>Connect Github</p>
-                    </div>
-                 </a>
-            </div>
-            <br>
-            <hr>
-            <div class="grid jira">
-                <h2>Jira</h2>
-                <div id="jiraDiv" *ngIf="jira">
-                    <div class="uk-form-horizontal">
-                        <label>
-                            Jira-Name<br>
-                            <input [defaultValue]="jira['AccountName']">
-                        </label>
-                    </div>
-                    <div class="uk-form-horizontal">
-                        <label>
-                            Jira-Password
-                            <input id="jira_password" type="password" name="jira_password" placeholder=" Password">
-                        </label>
-                    </div>
-                    <div class="uk-form-horizontal">
-                        <label>
-                            Jira-Server
-                            Jira-Host<br>
-                            <input [defaultValue]="jira['Host']">
-                        </label>
-                    </div>
-                </div>
-                <div id="ChangeJiraDiv">
-                    <button class="button" id="change-jira" (click)="jiraLogin('Jira')">Login to Jira</button>
-                </div>
-            </div>
+    </div>
+    <div class="grid_db">
+        <h2>Custom Repositories</h2>
+        <div>Create a Repository:</div>
+        <div class="uk-form-horizontal">
+            <label>
+                Name of Repository
+                <input id="repo_name" defaultValue="YourRepoName">
+            </label>
+        </div>
+        <div class="uk-form-horizontal">
+            <button class="button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
+        </div>
+    </div>
+    <hr>
+    <div class="grid_github" *ngIf="github">
+        <h2>Github</h2>
+        <div class="uk-form-horizontal">
+            <label>
+                Github-Account:
+                <label id="gitacc">{{github['login']}}</label>
+            </label>
         </div>
         <br>
         <hr>
-            <div class="grid github" id="database">
-                <h2>Database Repository</h2>
-                <div class="uk-form-horizontal">
-                    <label>
-                        Name of Repository<br>
-                        <input id="repo_name" defaultValue="YourRepoName">
-                    </label>
-                </div>
-                <div class="uk-form-horizontal">
-                    <button class="button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
-                </div>
+        <div class="githubLoginContainer" (click)="disconnectGithub()">
+            <div>
+                <button class="githubButton">
+                    <img src ="../assets/github-logo.png">
+                    <p>Disconnect Github</p>
+                </button>
             </div>
-            <br>
-            <hr>
-            <br>
-    </form>
+         </div>
+    </div>
+    <div class="grid_github" *ngIf="!github">
+        <h2>Github</h2>
+        <div class="githubLoginContainer" >
+            <button class="githubButton" (click)="login()">
+               <img src ="../assets/github-logo.png">
+               <p>Connect Github</p>
+            </button>
+         </div>
+    </div>
+    <br>
+    <hr>
+    <div class="grid_jira">
+        <h2>Jira</h2>
+        <div id="jiraDiv" *ngIf="jira">
+            <div class="uk-form-horizontal">
+                <label>
+                    Jira-Name
+                    <input [defaultValue]="jira['AccountName']">
+                </label>
+            </div>
+            <!--<div class="uk-form-horizontal">-->
+                <!--<label>-->
+                    <!--Jira-Password-->
+                    <!--<input id="jira_password" type="password" name="jira_password" placeholder=" Password">-->
+                <!--</label>-->
+            <!--</div>-->
+            <div class="uk-form-horizontal">
+                <label>
+                    Jira-Server
+                    <input [defaultValue]="jira['Host']">
+                </label>
+            </div>
+        </div>
+        <div id="ChangeJiraDiv">
+            <button class="button" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
+        </div>
+    </div>
+    <hr>
 </div>
+
 <app-login-form #loginForm (mongoUpdate)="updateSite($event);"></app-login-form>
