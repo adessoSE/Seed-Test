@@ -77,6 +77,8 @@ export class LoginComponent implements OnInit {
         let source = localStorage.getItem('source')
         let repository: RepositoryContainer = {value, source}
         this.repositoriesLoading = true;
+        const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner');
+        loadingSpinner.scrollIntoView();
         this.apiService.getRepositories().subscribe((resp: RepositoryContainer[]) => {
             console.log(resp)
             if(resp.length <= 0){
@@ -90,6 +92,13 @@ export class LoginComponent implements OnInit {
             })
             this.repositories = resp;
             this.repositoriesLoading = false;
+            setTimeout(() => {
+                const repositoriesList: HTMLElement = document.getElementById('repositoriesList');
+                if (repositoriesList){
+                    repositoriesList.scrollIntoView();
+                }
+            }, 500)
+
         }, (err) => {
             this.error = err.error;
             this.repositoriesLoading = false;

@@ -43,11 +43,11 @@
     <br>
   </div>
   <!-- Repositories -->
-  <div *ngIf="this.repositoriesLoading">
+  <div id="loadingSpinner" *ngIf="this.repositoriesLoading">
     <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
   </div>
   <div class="repositories" *ngIf="repositories">
-    <div>
+    <div id="repositoriesList">
       <label class="selectRepository">Select Your Repository:</label>
       <br>
       <ul class="uk-list">
