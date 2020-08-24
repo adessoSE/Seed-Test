@@ -78,7 +78,9 @@ export class LoginComponent implements OnInit {
         let repository: RepositoryContainer = {value, source}
         this.repositoriesLoading = true;
         const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner');
-        loadingSpinner.scrollIntoView();
+        if (loadingSpinner){
+            loadingSpinner.scrollIntoView();
+        }
         this.apiService.getRepositories().subscribe((resp: RepositoryContainer[]) => {
             console.log(resp)
             if(resp.length <= 0){
