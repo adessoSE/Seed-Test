@@ -73,9 +73,13 @@ When('I insert {string} into the field {string}', async (value, label) => {
     await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
     await driver.findElement(By.xpath(`//input[@id='${label}']`)).sendKeys(value);
   } catch (e) {
-     await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear()
-     await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
-
+    try {
+      await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
+      await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+    } catch (e){
+      await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear()
+      await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+    }
   }
 });
 
