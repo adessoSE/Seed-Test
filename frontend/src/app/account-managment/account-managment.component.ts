@@ -36,6 +36,8 @@ export class AccountManagmentComponent implements OnInit {
             const email = (document.getElementById('email_field') as HTMLInputElement).value;
             this.apiService.createRepository(email, name).subscribe(resp => {
                 console.log(resp);
+                this.apiService.getRepositories().subscribe(res => {
+                })
             });
         }
     }

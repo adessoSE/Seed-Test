@@ -52,6 +52,7 @@ router.post('/createRepository', async (req, res) => {
 	console.log(req.body.name);
 	mongo.insertEntry(req.body.email, req.body.name);
 	res.status(200);
+	res.status(200).json('');
 });
 
 // create Repository in Database
