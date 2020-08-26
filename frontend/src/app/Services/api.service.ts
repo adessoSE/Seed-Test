@@ -129,10 +129,10 @@ export class ApiService {
             }));
     }
 
-    public createRepository(email: string, name: string): Observable<any> {
+    public createRepository(name: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         console.log(this.apiServer);
-        const body = {'email' : email, 'name' : name};
+        const body = {'name' : name};
         return this.http
             .post<any>(this.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
             .pipe(tap(resp => {
