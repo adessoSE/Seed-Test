@@ -32,10 +32,12 @@ export class AccountManagmentComponent implements OnInit {
     }
     createRepo() {
         const name = (document.getElementById('repo_name') as HTMLInputElement).value;
-        const email = (document.getElementById('email_field') as HTMLInputElement).value;
-        this.apiService.createRepository(email, name).subscribe(resp => {
-            console.log(resp);
-        });
+        if (!this.isEmptyOrSpaces(name)){
+            const email = (document.getElementById('email_field') as HTMLInputElement).value;
+            this.apiService.createRepository(email, name).subscribe(resp => {
+                console.log(resp);
+            });
+        }
     }
 
     jiraLogin() {
@@ -71,5 +73,9 @@ export class AccountManagmentComponent implements OnInit {
         this.apiService.disconnectGithub().subscribe((resp) => {
             window.location.reload();
         });
+    }
+
+    isEmptyOrSpaces(str: string){
+        return str === null || str.match(/^ *$/) !== null;
     }
 }
