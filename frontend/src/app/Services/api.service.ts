@@ -288,7 +288,7 @@ export class ApiService {
     public updateBackground(storyID: number, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
+            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
             }));
