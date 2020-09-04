@@ -14,7 +14,7 @@ const environment = '../frontend/src/environments/environment';
 app.use(express.static(`${__dirname}/dist/cucumber-frontend`));
 
 app.get('/backendInfo', (req, res) => {
-  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID});
+  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID, url_daisy: process.env.API_SERVER_DAISY, clientId_daisy: process.env.GITHUB_CLIENT_ID_DAISY});
 });
 
 app.get('/*', (req, res) => {

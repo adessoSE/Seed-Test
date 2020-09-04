@@ -80,6 +80,19 @@ export class AppComponent implements OnInit {
   }
   }
 
+  onLocal(){
+    this.apiService.changeDaisy().subscribe((resp) => {
+      let url_backend = localStorage.getItem('url_backend')
+      let clientId = localStorage.getItem('clientId')
+      let url_backend_daisy = localStorage.getItem('url_backend_daisy')
+      let clientId_daisy = localStorage.getItem('clientId_daisy')
+      localStorage.setItem('url_backend', url_backend_daisy);
+      localStorage.setItem('clientId', clientId_daisy);
+      localStorage.setItem('url_backend_daisy', url_backend);
+      localStorage.setItem('clientId_daisy', clientId);
+    })
+  }
+
 
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;

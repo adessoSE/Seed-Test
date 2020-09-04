@@ -27,6 +27,11 @@ export class ApiService {
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
     public user;
+    public local:boolean = false;
+    public clientId:string;
+    public url:string;
+    public clientId_daisy:string;
+    public url_daisy:string;
 
     public static getOptions() {
         return { withCredentials: true};
@@ -88,6 +93,7 @@ export class ApiService {
     }
 
     public loginGithubToken(login: string, id) {
+        this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/githubLogin';
         const user = {login, id};
 
@@ -99,6 +105,7 @@ export class ApiService {
     }
 
     public loginUser(email: string, password: string, stayLoggedIn: boolean): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/login';
         let user;
         if (!email && !password) {
@@ -175,6 +182,10 @@ export class ApiService {
            return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
                 localStorage.setItem('clientId', backendInfo.clientId);
+                localStorage.setItem('url_backend_daisy', backendInfo.url_daisy);
+                localStorage.setItem('clientId_daisy', backendInfo.clientId_daisy);
+                this.url = backendInfo.url;
+                this.clientId = backendInfo.clientId;
                 this.urlReceived = true;
                 this.getBackendUrlEvent.emit();
             });
@@ -342,6 +353,11 @@ export class ApiService {
         }
         return this.http
             .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
+    }
+
+    public changeDaisy(){
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http.get(this.apiServer + '/user/daisy')
     }
 
     isLoggedIn(): boolean {
