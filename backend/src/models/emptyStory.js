@@ -1,11 +1,10 @@
+const emptyBackground = require('./models/emptyBackground');
+
+
 function emptyStory() {
   return {
     story_id: '',
-    background: {
-      stepDefinitions: {
-        when: [],
-      },
-    },
+    background: emptyBackground(),
     scenarios: [
       {
         scenario_id: 1,

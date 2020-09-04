@@ -215,44 +215,52 @@ router.get('/stories', async (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		request(options, (error2, response2, body) => {
-			if (error2) {
-				res.status(500).json(error2);
-			}
-			else {
-				const json = JSON.parse(body).issues;
-				for (const issue of json) {
-					if (issue.fields.labels.includes("Seed-Test")) {
-						const story = {
-							story_id: issue.id,
-							title: issue.fields.summary,
-							body: issue.fields.description,
-							state: issue.fields.status.name,
-							issue_number: issue.key,
-							repo_type: "jira"
-						};
-						if (issue.fields.assignee !== null) {
-							// skip in case of "unassigned"
-							story.assignee = issue.fields.assignee.name;
-							story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
-						} else {
-							story.assignee = 'unassigned';
-							story.assignee_avatar_url = unassignedAvatarLink;
+		try{
+			request(options, (error2, response2, body) => {
+				if (error2) {
+					res.status(500).json(error2);
+				}
+				else {
+					try{
+						const json = JSON.parse(body).issues;
+						for (const issue of json) {
+							if (issue.fields.labels.includes("Seed-Test")) {
+								const story = {
+									story_id: issue.id,
+									title: issue.fields.summary,
+									body: issue.fields.description,
+									state: issue.fields.status.name,
+									issue_number: issue.key,
+									repo_type: "jira"
+								};
+								if (issue.fields.assignee !== null) {
+									// skip in case of "unassigned"
+									story.assignee = issue.fields.assignee.name;
+									story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
+								} else {
+									story.assignee = 'unassigned';
+									story.assignee_avatar_url = unassignedAvatarLink;
+								}
+								console.log(story);
+								tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
+							}
 						}
-						console.log(story);
-						tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
+					}catch(e){
+						console.log('Jira Error 2:', e)
 					}
-			}
-			Promise.all(tmpStories)
-				.then((results) => {
-					res.status(200)
-						.json(results);
-				})
-				.catch((e) => {
-					console.log(e);
-				});
-			}
-		});
+				Promise.all(tmpStories)
+					.then((results) => {
+						res.status(200)
+							.json(results);
+					})
+					.catch((e) => {
+						console.log(e);
+					});
+				}
+			});
+		}catch(e){
+			console.log('Jira Error:', e);
+		}
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.name !== 'null') {
 		const tmpStories = [];
 		const { name } = req.query;

@@ -9,9 +9,9 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { RepositoryContainer} from '../model/RepositoryContainer';
+import { Background } from '../model/Background';
 
-const emptyBackground = {name, stepDefinitions: {when: []}};
-
+const emptyBackground:Background = {name, stepDefinitions: {when: []}};
 
 @Component({
   selector: 'app-story-editor',

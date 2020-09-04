@@ -129,10 +129,10 @@ export class ApiService {
             }));
     }
 
-    public createRepository(email: string, name: string): Observable<any> {
+    public createRepository(name: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         console.log(this.apiServer);
-        const body = {'email' : email, 'name' : name};
+        const body = {'name' : name};
         return this.http
             .post<any>(this.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
             .pipe(tap(resp => {
@@ -288,7 +288,7 @@ export class ApiService {
     public updateBackground(storyID: number, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
+            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
             }));

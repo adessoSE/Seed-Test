@@ -242,7 +242,8 @@ function dbProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined') {
 			const { email } = user;
-			mongo.getRepository(email).then((json) => {
+      const userId  = user._id;
+			mongo.getRepository(userId).then((json) => {
 				let names = [];
 				if (Object.keys(json).length !== 0) {
 					for (const repo of json) names.push(repo.name);
