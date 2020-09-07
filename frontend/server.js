@@ -8,17 +8,18 @@ if(!process.env.NODE_ENV){
 const express = require('express');
 const path = require('path');
 const app = express();
+const ngPath = path.join(__dirname, 'dist/cucumber-frontend');
 const environment = '../frontend/src/environments/environment';
 
 // Serve only the static files form the dist directory
-app.use(express.static(`${__dirname}/dist/cucumber-frontend`));
+app.use(express.static(ngPath));
 
 app.get('/backendInfo', (req, res) => {
   res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID, url_daisy: process.env.API_SERVER_DAISY, clientId_daisy: process.env.GITHUB_CLIENT_ID_DAISY});
 });
 
 app.get('/*', (req, res) => {
-  res.sendFile(path.join(`${__dirname}/dist/cucumber-frontend/index.html`));
+  res.sendFile(path.join(ngPath, 'index.html'));
 });
 
 // Start the app by listening on the default Heroku port
