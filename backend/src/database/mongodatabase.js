@@ -631,7 +631,7 @@ async function writeBackup() {
     if (err) throw err;
   });
 }
-
+writeBackup()
 async function createContent() {
   let collection = await getCollection()
   let data = '[\n'

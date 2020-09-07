@@ -179,6 +179,13 @@ export class ApiService {
                 this.getBackendUrlEvent.emit();
             });
         }
+//        else {
+//            localStorage.setItem('url_backend', 'localhost:8080/api');
+//            localStorage.setItem('clientId', '4245497c22440ac8eb7a');
+//            this.urlReceived = true;
+//            this.getBackendUrlEvent.emit();
+//
+//    }
     }
 
 
