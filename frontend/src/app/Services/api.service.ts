@@ -28,10 +28,6 @@ export class ApiService {
     public getProjectsEvent = new EventEmitter();
     public user;
     public local:boolean = false;
-    public clientId:string;
-    public url:string;
-    public clientId_daisy:string;
-    public url_daisy:string;
 
     public static getOptions() {
         return { withCredentials: true};
@@ -180,13 +176,12 @@ export class ApiService {
             return Promise.resolve(url);
         } else {
            return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
-                localStorage.setItem('url_backend', backendInfo.url);
-                localStorage.setItem('clientId', backendInfo.clientId);
+                localStorage.setItem('url_backend', backendInfo.url_daisy);
+                localStorage.setItem('clientId', backendInfo.clientId_daisy);
+                localStorage.setItem('clientId_local', backendInfo.clientId);
+                localStorage.setItem('url_backend_local', backendInfo.url);
                 localStorage.setItem('url_backend_daisy', backendInfo.url_daisy);
                 localStorage.setItem('clientId_daisy', backendInfo.clientId_daisy);
-                this.url = backendInfo.url;
-                this.clientId = backendInfo.clientId;
-                this.urlReceived = true;
                 this.getBackendUrlEvent.emit();
             });
         }

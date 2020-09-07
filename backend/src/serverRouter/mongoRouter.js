@@ -22,7 +22,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', [process.env.FRONTEND_URL, process.env.FRONTEND_URL_DAISY]);
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
 		next();

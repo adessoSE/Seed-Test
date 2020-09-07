@@ -25,7 +25,7 @@ const server = app.listen(process.env.PORT || 8080, () => {
 app
   .use(cors({
     origin: [
-    process.env.FRONTEND_URL, process.env.FRONTEND_URL_DAISY
+    process.env.FRONTEND_URL
   ], 
   credentials: true
   }))

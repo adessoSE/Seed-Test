@@ -17,10 +17,6 @@ const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
 
-let github_client_id = process.env.GITHUB_CLIENT_ID
-let github_client_secret = process.env.GITHUB_CLIENT_SECRET
-let frontend_url = process.env.FRONTEND_URL
-let changed = false
 
 router
 	.use(cors())
@@ -30,7 +26,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', frontend_url);
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect');
 		next();
@@ -303,8 +299,8 @@ router.get('/callback', (req, res) =>{
               uri: TOKEN_URL,
               method: "POST",
               form: {
-                  client_id: github_client_id,
-                  client_secret: github_client_secret,
+                  client_id: process.env.GITHUB_CLIENT_ID,
+                  client_secret: process.env.GITHUB_CLIENT_SECRET,
                   code: code
               },
           }, function(err, response, body){
@@ -312,32 +308,6 @@ router.get('/callback', (req, res) =>{
               helper.getGithubData(res, req, accessToken);
           }
       )
-});
-
-router.get('/daisy', (req, res) =>{
-	console.log('pre:', mongo.url)
-	console.log('pre:', github_client_id)
-	console.log('pre:', github_client_secret)
-	console.log('pre:', frontend_url)
-	if (!changed){
-		mongo.url = process.env.DATABASE_URI_DAISY
-		github_client_id = process.env.GITHUB_CLIENT_ID_DAISY
-		github_client_secret = process.env.GITHUB_CLIENT_SECRET_DAISY
-		frontend_url = process.env.FRONTEND_URL_DAISY
-	}else{
-		mongo.url = process.env.DATABASE_URI
-		github_client_id = process.env.GITHUB_CLIENT_ID
-		github_client_secret = process.env.GITHUB_CLIENT_SECRET
-		frontend_url = process.env.FRONTEND_URL
-	}
-
-	console.log('post:', mongo.url)
-	console.log('post:', github_client_id)
-	console.log('post:', github_client_secret)
-	console.log('post:', frontend_url)
-	res.status(200).json('')
-	//res.sendStatus(200)
-
 });
 
 module.exports = router;
