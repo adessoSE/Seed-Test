@@ -44,8 +44,8 @@
     <!--right-->
     <div class="topnavRight">
       <div>
-        <button *ngIf="this.apiService.local" class="rightButton" (click)="onLocal()">Local</button>
-        <button *ngIf="!this.apiService.local" class="rightButton" (click)="onLocal()">Remote</button>
+        <button *ngIf="this.apiService.local" class="rightButton" (click)="onLocal()">Currently: Local</button>
+        <button *ngIf="!this.apiService.local" class="rightButton" (click)="onLocal()">Currently: Remote</button>
         <a routerLink="/feedback">
           <button class="rightButton">Feedback</button>
         </a>
