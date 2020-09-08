@@ -94,6 +94,4 @@ start.bat
 update.bat
 
 
-local_backend.sh
-
-remote_backend.sh
+*.sh

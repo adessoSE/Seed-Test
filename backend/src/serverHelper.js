@@ -591,22 +591,22 @@ const getGithubData = (res, req, accessToken) => {
           try{
             await mongo.findOrRegister(req.body)
             passport.authenticate('github-local', function (error, user, info) {
-			console.log('in getGithubData3')
                       if(error){
-                        return res.redirect('https://ad-daisy-seed01.test-server.ag/login?github=error');
+                        return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                       } else if(!user){
-                          return res.redirect('https://ad-daisy-seed01.test-server.ag/login?github=error');
+                          return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                       }
                       req.logIn(user, async function(err){
                           if(err){
-                              return res.redirect('https://ad-daisy-seed01.test-server.ag/login?github=error');
+                              return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                           }else {
-                              res.status(301).redirect('https://ad-daisy-seed01.test-server.ag/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
+                              res.status(301).redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
                           }
 				
                       });
                   })(req,res);
         }catch(error){
+            console.log('getGithubData error:', error)
             res.sendStatus(400)
         }
         }

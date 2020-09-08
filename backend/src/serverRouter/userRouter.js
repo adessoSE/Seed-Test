@@ -95,7 +95,7 @@ router.post('/mergeGithub', async (req, res) => {
 		const mergedUser = await mongo.mergeGithub(userId, login, id);
 		req.logIn(mergedUser, function(err) {
 			if (err) return res.sendStatus(400)
-			res.send(200)
+			res.sendStatus(200)
 		})
 	} catch (error) {
 		res.sendStatus(400);
