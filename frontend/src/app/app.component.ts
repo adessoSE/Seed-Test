@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
     }
-    this.apiService.local = localStorage.getItem('clientId') === localStorage.getItem('clientId_local')
+    //this.apiService.local = localStorage.getItem('clientId') === localStorage.getItem('clientId_local')
   }
 
   openTerms(){

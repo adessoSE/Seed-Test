@@ -173,6 +173,7 @@ export class ApiService {
         if (url && url !== 'undefined' && clientId && clientId !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
+            this.local = localStorage.getItem('clientId') === localStorage.getItem('clientId_local')
             return Promise.resolve(url);
         } else {
            return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
@@ -182,6 +183,7 @@ export class ApiService {
                 localStorage.setItem('url_backend_local', backendInfo.url);
                 localStorage.setItem('url_backend_daisy', backendInfo.url_daisy);
                 localStorage.setItem('clientId_daisy', backendInfo.clientId_daisy);
+                this.local = false
                 this.getBackendUrlEvent.emit();
             });
         }
