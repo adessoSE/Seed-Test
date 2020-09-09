@@ -105,6 +105,31 @@ label{
     padding: 5px 5px 5px 5px;
 }
 
+
+.repositories{
+    width: 400px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 80px;
+    margin-top: 80px;
+    padding: 15px;
+    background-color:rgb(224, 224, 224);
+    border: 1px solid #999;
+}
+
+.selectRepository{
+    font-weight: bold;
+    color: grey;
+    font-size: 20px;
+}
+
+.repo_img{
+    margin-left: 5px;
+    margin-right: 5px;
+    max-height: 18px;
+}
+
 @media screen and (max-width: 600px) {
     .grid{
         display: grid;
