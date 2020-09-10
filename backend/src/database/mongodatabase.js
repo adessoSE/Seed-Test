@@ -686,16 +686,16 @@ function insertOne(collection, content) {
   });
 }
 
-// x=   {
-//   "id": "0",
+// x=     {
+//   "id": "",
 //   "stepType": "when",
-//   "type": "Switch Tab",
-//   "pre": "I switch to the next tab",
-//   "mid": "",
+//   "type": "Switch X Tabs",
+//   "pre": "I switch",
+//   "mid": "tabs to the right",
 //   "values": [
 //     ""
 //   ]
-// },
+// }
 // insertOne("stepTypes", x);
 
 // show content of a specific collection

@@ -190,16 +190,26 @@ function stepDefs() {
       ""
     ]
   },
-    {
+  {
     "id": "",
     "stepType": "when",
     "type": "Checkbox",
-    "pre": "I check the box",
-    "mid": "",
+    "pre": "I switch",
+    "mid": "tabs to the right",
     "values": [
       ""
     ]
-  }];
+  },
+    {
+      "id": "",
+      "stepType": "when",
+      "type": "Checkbox",
+      "pre": "I check the box",
+      "mid": "",
+      "values": [
+        ""
+      ]
+    }];
 }
 
 module.exports = stepDefs;

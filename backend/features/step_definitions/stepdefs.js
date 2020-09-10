@@ -144,6 +144,17 @@ When('I check the box {string}', async (name) => {
 When('I switch to the next tab', async () => {
   let tabs = await driver.getAllWindowHandles();
   await driver.switchTo().window(tabs[1]);
+
+});
+
+When('I switch {string} tabs to the right', async (number_of_tabs) => {
+  const originalWindow = await driver.getWindowHandle();
+  console.log("original window: " + originalWindow);
+  const windows = await driver.getAllWindowHandles();
+  console.log("number of windows" + windows.length);
+  await driver.switchTo().window(windows[number_of_tabs]);
+  const new_tab = await driver.getWindowHandle();
+  console.log("switched " + number_of_tabs + " tabs to windows nr.: " + new_tab);
 });
 
 // ################### THEN ##########################################
