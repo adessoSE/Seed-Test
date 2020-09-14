@@ -181,35 +181,43 @@ function stepDefs() {
     ]
   },
   {
+    "id": "",
+    "stepType": "when",
+    "type": "Checkbox",
+    "pre": "I check the box",
+    "mid": "",
+    "values": [
+      ""
+    ]
+  },
+  { // TODO: delete this following step (also in DB), once every branch has the changes
     "id": "0",
     "stepType": "when",
     "type": "Switch Tab",
     "pre": "I switch to the next tab",
     "mid": "",
     "values": [
-      ""
     ]
+  },
+{
+    "id": "",
+      "stepType": "when",
+      "type": "Switch to newest Tab",
+      "pre": "Switch to the newly opened tab",
+      "mid": "",
+      "values": [
+  ]
   },
   {
     "id": "",
     "stepType": "when",
-    "type": "Checkbox",
-    "pre": "I switch",
-    "mid": "tabs to the right",
+    "type": "Switch to Tab Nr. X",
+    "pre": "Switch to the tab number",
+    "mid": "",
     "values": [
-      ""
-    ]
-  },
-    {
-      "id": "",
-      "stepType": "when",
-      "type": "Checkbox",
-      "pre": "I check the box",
-      "mid": "",
-      "values": [
         ""
-      ]
-    }];
+    ]
+  }];
 }
 
 module.exports = stepDefs;

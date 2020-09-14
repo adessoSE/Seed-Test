@@ -89,7 +89,8 @@ backend/features/reporting_*.json
 backend/features/reporting_html*.html
 
 # Batches for install, update and start
-install.bat
-start.bat
-update.bat
+*.bat
+*.sh
 
+# local testing for step-definition development
+backend/features/step_definitions/testing.js

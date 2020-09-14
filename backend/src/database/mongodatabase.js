@@ -686,16 +686,32 @@ function insertOne(collection, content) {
   });
 }
 
-// x=     {
-//   "id": "",
+// x= {
+//   "id": "0",
 //   "stepType": "when",
-//   "type": "Switch X Tabs",
-//   "pre": "I switch",
-//   "mid": "tabs to the right",
+//   "type": "Switch Tab",
+//   "pre": "I switch to the next tab",
+//   "mid": "",
 //   "values": [
-//     ""
 //   ]
-// }
+// };
+// x = {
+//   "id": "",
+//       "stepType": "when",
+//       "type": "Switch to newest Tab",
+//       "pre": "Switch to the newly opened tab",
+//       "mid": "",
+//       "values": [
+//   ]};
+// x= {
+//   "id": "",
+//     "stepType": "when",
+//     "type": "Switch to Tab Nr. X",
+//     "pre": "Switch to the tab number",
+//     "mid": "",
+//     "values": [
+//   ""
+// ]};
 // insertOne("stepTypes", x);
 
 // show content of a specific collection

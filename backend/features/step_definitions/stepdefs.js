@@ -140,21 +140,27 @@ When('I check the box {string}', async (name) => {
   }
 });
 
+// TODO: delete this following step (also in DB), once every branch has the changes
+When('I switch to the next tab', async () => { // deprecated
+    let tabs = await driver.getAllWindowHandles();
+    await driver.switchTo().window(tabs[1]);
+  });
 
-When('I switch to the next tab', async () => {
+When('Switch to the newly opened tab', async () => {
   let tabs = await driver.getAllWindowHandles();
   await driver.switchTo().window(tabs[1]);
-
 });
 
-When('I switch {string} tabs to the right', async (number_of_tabs) => {
-  const originalWindow = await driver.getWindowHandle();
-  console.log("original window: " + originalWindow);
-  const windows = await driver.getAllWindowHandles();
-  console.log("number of windows" + windows.length);
-  await driver.switchTo().window(windows[number_of_tabs]);
-  const new_tab = await driver.getWindowHandle();
-  console.log("switched " + number_of_tabs + " tabs to windows nr.: " + new_tab);
+When('Switch to the tab number {string}', async (number_of_tabs) => {
+  const chrome_tabs = await driver.getAllWindowHandles();
+  const len = chrome_tabs.length;
+  if (parseInt(number_of_tabs) === 1){
+    console.log("switchTo: 1st tab");
+    await driver.switchTo().window(chrome_tabs[0]);
+  } else {
+    const tab = len - (parseInt(number_of_tabs) - 1);
+    await driver.switchTo().window(chrome_tabs[tab]);
+  }
 });
 
 // ################### THEN ##########################################
