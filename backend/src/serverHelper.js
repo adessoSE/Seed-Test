@@ -11,7 +11,6 @@ const lodash = require('lodash')
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 const crypto = require('crypto');
-const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 const passport = require('passport');
 
 const cryptoAlgorithm = 'aes-192-cbc'
@@ -505,7 +504,7 @@ function getJiraIssues(user, projectKey){
                     story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
                 } else {
                     story.assignee = 'unassigned';
-                    story.assignee_avatar_url = unassignedAvatarLink;
+                    story.assignee_avatar_url = null;
                 }
                 console.log(story)
                 tmpStories.push(fuseStoriesWithDb(story, issue.id));

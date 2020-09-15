@@ -12,7 +12,6 @@ const mongo = require('../database/mongodatabase');
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
-const unassignedAvatarLink = process.env.Unassigned_AVATAR_URL;
 // router for all user requests
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
@@ -183,7 +182,7 @@ router.get('/stories', async (req, res) => {
 					story.assignee_avatar_url = issue.assignee.avatar_url;
 				} else {
 					story.assignee = 'unassigned';
-					story.assignee_avatar_url = unassignedAvatarLink;
+					story.assignee_avatar_url = null;
 				}
 				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 			}
@@ -239,7 +238,7 @@ router.get('/stories', async (req, res) => {
 									story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
 								} else {
 									story.assignee = 'unassigned';
-									story.assignee_avatar_url = unassignedAvatarLink;
+									story.assignee_avatar_url = null;
 								}
 								console.log(story);
 								tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
@@ -275,7 +274,7 @@ router.get('/stories', async (req, res) => {
 					state: issue.status,
 					issue_number: issue.id,
 					assignee: issue.assignee,
-					assignee_avatar_url: unassignedAvatarLink,
+					assignee_avatar_url: null,
 					repo_type: "db_"
 				};
 				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
