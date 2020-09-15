@@ -109,7 +109,7 @@ export class ApiService {
         }
         return this.http.post<string[]>(str, user, ApiService.getOptions())
           .pipe(tap(resp => {
-            localStorage.setItem('login', 'true');
+
             // this.getStoriesEvent.emit(resp);
           }),
             catchError(ApiService.handleError));

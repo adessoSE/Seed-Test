@@ -62,8 +62,8 @@ export class LoginComponent implements OnInit {
         if (response.status === 'error') {
             this.repositoriesLoading = false;
             this.error = response.message;
-
         } else {
+            localStorage.setItem('login', 'true');
             this.getRepositories();
         }
     }
