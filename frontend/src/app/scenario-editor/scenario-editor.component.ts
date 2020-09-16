@@ -8,7 +8,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { SubmitformComponent } from '../submitform/submitform.component';
-
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-scenario-editor',
@@ -30,6 +30,7 @@ export class ScenarioEditorComponent implements OnInit {
     @ViewChild('submitForm') modalService: SubmitformComponent;
     constructor(
         public apiService: ApiService,
+        private toastr: ToastrService
     ) { }
 
     ngOnInit() {
@@ -94,8 +95,9 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
 
-
     updateScenario(storyID: number) {
+
+
         let steps = this.selectedScenario.stepDefinitions["given"];
         steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
         steps = steps.concat(this.selectedScenario.stepDefinitions["then"]);
@@ -124,6 +126,9 @@ export class ScenarioEditorComponent implements OnInit {
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
             .subscribe(resp => {
+                this.toastr.success('successfully saved', 'Scenario', {
+                    timeOut: 3000,
+                })
             });
     }
 

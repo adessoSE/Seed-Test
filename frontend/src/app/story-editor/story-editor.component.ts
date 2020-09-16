@@ -10,6 +10,7 @@ import { StepType } from '../model/StepType';
 import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { RepositoryContainer} from '../model/RepositoryContainer';
 import { Background } from '../model/Background';
+import { ToastrService } from 'ngx-toastr';
 
 const emptyBackground:Background = {name, stepDefinitions: {when: []}};
 
@@ -42,6 +43,7 @@ export class StoryEditorComponent implements OnInit {
 
   constructor(
       public apiService: ApiService,
+      private toastr: ToastrService
   ) {
       this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
           this.storiesLoaded = true;
@@ -168,6 +170,9 @@ export class StoryEditorComponent implements OnInit {
       this.apiService
           .updateBackground(storyID, this.selectedStory.background)
           .subscribe(resp => {
+            this.toastr.success('successfully saved', 'Background', {
+                timeOut: 3000,
+            })
           });
   }
 

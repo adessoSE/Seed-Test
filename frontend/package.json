@@ -36,6 +36,7 @@
     "jquery": "^3.5.0",
     "ngx-cookie-service": "2.3.0",
     "ngx-take-until-destroy": "^5.4.0",
+    "ngx-toastr": "10.1.0",
     "node-fetch": "^2.6.0",
     "node-sass": "^4.13.1",
     "request": "^2.88.2",
