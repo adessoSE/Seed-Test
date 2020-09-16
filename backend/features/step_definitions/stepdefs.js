@@ -178,13 +178,17 @@ Then('So I can see the text {string} in the textbox: {string}', async (string, l
     expect(string).to.equal(resp, 'Error');
   });
 });
-
 // Search if a is text in html code
 Then('So I can see the text: {string}', async (string) => {
+  await driver.sleep(2000);
+  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
   await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
-    const text = await body.getText().then(bodytext => bodytext);
-    expect(text.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
-  });
+    const css_body = await body.getText().then(bodytext => bodytext);
+    const inner_html_body = await driver.executeScript("return document.documentElement.innerHTML");
+    const outer_html_body = await driver.executeScript("return document.documentElement.outerHTML");
+    const body_all = css_body + inner_html_body + outer_html_body;
+    expect(body_all.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
+  })
 });
 
 // Search a textfield in the html code and assert if it's empty
