@@ -44,11 +44,33 @@ h1{
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
 }
+
 .repo_img{
     margin-left: 5px;
     margin-right: 5px;
     max-height: 18px;
 }
+
+#instructionFont{
+    color:#0099CC;
+    font-size: 15pt;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.instructionText{
+    width: 500px;
+}
+
+.expand{
+    text-align: center;
+}
+
+.expand:hover {
+    background-color: lightgrey;
+    transition: 0.3s;
+    cursor: pointer;
+  }
 
 .selectRepository{
     font-weight: bold;
@@ -67,6 +89,13 @@ a:not([href]):not([tabindex]).repoLink:hover {
 
 .wrongLogin{
     background-color: rgb(228, 92, 92);
+    text-align: center;
+}
+
+#startFont{
+    color:#0099CC;
+    font-size: 15pt;
+    font-weight: bold;
     text-align: center;
 }
 
@@ -149,7 +178,7 @@ a:not([href]):not([tabindex]).repoLink:hover {
     padding: 5px 5px 5px 5px;
 }
 
-#register{
+.register{
     font-size: 100%;
     font-style: inherit;
     border: 0px;
@@ -159,7 +188,39 @@ a:not([href]):not([tabindex]).repoLink:hover {
     text-decoration: underline;
 }
 
-#register:hover{
+.noAccountText{
+    font-style: inherit;
+    border: 0px;
+    background-color: white;
+    color:#0099CC;
+    font-size: 10pt;
+    font-weight: bold;
+    outline: none;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/*
+.register{
+    width: 400px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 80px;
+    padding: 15px;
+    background-color:rgb(224, 224, 224);
+    border: 1px solid #999;
+}*/
+
+#noAccountDiv{
+    margin-top: 30px;
+    border-top: 0.25px solid #999;
+    border-left: 0.25px solid #999;
+    border-right: 0.25px solid #999;
+    border-bottom: 0.25px solid #999;
+  }
+
+.register:hover{
     color: #0099CC;
   }
 
