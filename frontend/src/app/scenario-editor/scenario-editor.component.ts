@@ -34,6 +34,11 @@ export class ScenarioEditorComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.apiService.runSaveOptionEvent.subscribe(option => {
+            if (option == 'saveRun'){
+                this.saveRunOption();
+            }
+        })
     }
 
     @Input() originalStepTypes: StepType[];
@@ -68,6 +73,11 @@ export class ScenarioEditorComponent implements OnInit {
     @Output()
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
+    saveRunOption(){
+        this.updateScenario(this.selectedScenario.scenario_id)
+        this.apiService.runSaveOption('run')
+    }
+
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
@@ -96,8 +106,6 @@ export class ScenarioEditorComponent implements OnInit {
 
 
     updateScenario(storyID: number) {
-
-
         let steps = this.selectedScenario.stepDefinitions["given"];
         steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
         steps = steps.concat(this.selectedScenario.stepDefinitions["then"]);
@@ -125,10 +133,9 @@ export class ScenarioEditorComponent implements OnInit {
 
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
-            .subscribe(resp => {
-                this.toastr.success('successfully saved', 'Scenario', {
-                    timeOut: 3000,
-                })
+            .subscribe(_resp => {
+                this.toastr.success('successfully saved', 'Scenario')
+
             });
     }
 

@@ -34,6 +34,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {RunTestToast} from './custom-toast'
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     RegistrationComponent,
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
-    ReportComponent
+    ReportComponent,
+    RunTestToast
   ],
   imports: [
       NgbModule,
@@ -72,8 +74,11 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
     FormsModule,
     DragDropModule,
     MatProgressSpinnerModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot({
+      timeOut: 3000
+    })
   ],
+  entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

@@ -26,10 +26,16 @@ export class ApiService {
     public getBackendUrlEvent = new EventEmitter();
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
+    public runSaveOptionEvent = new EventEmitter();
     public user;
+
 
     public static getOptions() {
         return { withCredentials: true};
+    }
+    
+    public runSaveOption(option: String){
+        this.runSaveOptionEvent.emit(option)
     }
 
     static handleError(error: HttpErrorResponse) {

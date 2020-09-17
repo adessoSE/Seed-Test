@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import {LoginFormComponent} from '../login-form/login-form.component';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-account-managment',
@@ -20,7 +21,7 @@ export class AccountManagmentComponent implements OnInit {
     id: string;
     router: any;
 
-    constructor(public apiService: ApiService, router: Router) {
+    constructor(public apiService: ApiService, router: Router, private toastr: ToastrService) {
         router.events.forEach((event) => {
             if (event instanceof NavigationEnd && router.url === '/accountManagment') {
                 this.updateSite('Successful');
@@ -41,6 +42,7 @@ export class AccountManagmentComponent implements OnInit {
         if (!this.isEmptyOrSpaces(name)){
             this.apiService.createRepository(name).subscribe(resp => {
                 console.log(resp);
+                this.toastr.info('', 'Repository created')
                 this.apiService.getRepositories().subscribe(res => {
                 })
             });

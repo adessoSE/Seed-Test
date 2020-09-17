@@ -11,6 +11,7 @@ import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { RepositoryContainer} from '../model/RepositoryContainer';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
+import { RunTestToast } from '../custom-toast';
 
 const emptyBackground:Background = {name, stepDefinitions: {when: []}};
 
@@ -38,6 +39,10 @@ export class StoryEditorComponent implements OnInit {
   storiesError = false;
   db = false;
   newStepName = 'New Step';
+  storySaved = false;
+
+  currentTestStoryId: number;
+  currentTestScenarioId: number;
 
   @ViewChild('exampleChildView') exampleChild;
 
@@ -67,7 +72,21 @@ export class StoryEditorComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.apiService.runSaveOptionEvent.subscribe(option => {
+        if(option == "run"){
+            this.runOption();
+        }
+    })
   }
+
+  runOption(){
+      console.log('running')
+      this.storySaved = true;
+      this.runTests(this.currentTestStoryId, this.currentTestScenarioId)
+      this.storySaved = false;
+  }
+
+
 
   setStories(stories: Story[]) {
       this.stories = stories;
@@ -88,6 +107,8 @@ export class StoryEditorComponent implements OnInit {
       this.selectedStory = story;
       this.showEditor = true;
   }
+
+  @Input() 
 
 
   loadStepTypes() {
@@ -126,6 +147,7 @@ export class StoryEditorComponent implements OnInit {
         .deleteScenario(this.selectedStory.story_id, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
+            this.toastr.error('', 'Scenario deleted')
         });
   }
 
@@ -143,6 +165,7 @@ export class StoryEditorComponent implements OnInit {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
            this.storiesBar.selectScenario(null, resp)
+           this.toastr.info('', 'Senario added')
         });
   }
 
@@ -170,9 +193,7 @@ export class StoryEditorComponent implements OnInit {
       this.apiService
           .updateBackground(storyID, this.selectedStory.background)
           .subscribe(resp => {
-            this.toastr.success('successfully saved', 'Background', {
-                timeOut: 3000,
-            })
+            this.toastr.success('successfully saved', 'Background')
           });
   }
 
@@ -297,24 +318,34 @@ export class StoryEditorComponent implements OnInit {
 
   // Make the API Request to run the tests and display the results as a chart
   runTests(story_id: number, scenario_id: number) {
-    let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
-    this.testRunning = true;
-    const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-    const loadingScreen: HTMLElement = document.getElementById('loading');
-    loadingScreen.scrollIntoView();
-    this.apiService
-        .runTests(story_id, scenario_id)
-        .subscribe(resp => {
-            iframe.srcdoc = resp;
-            // console.log("This is the response: " + resp);
-            this.htmlReport = resp;
-            this.testDone = true;
-            this.showResults = true;
-            this.testRunning = false;
-            setTimeout(function () {
-                iframe.scrollIntoView();
-            }, 10);
-        });
+      console.log(this.storySaved)
+      if(this.storySaved){
+          //let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
+          this.testRunning = true;
+          const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+          const loadingScreen: HTMLElement = document.getElementById('loading');
+          loadingScreen.scrollIntoView();
+          this.apiService
+              .runTests(story_id, scenario_id)
+              .subscribe(resp => {
+                  iframe.srcdoc = resp;
+                  // console.log("This is the response: " + resp);
+                  this.htmlReport = resp;
+                  this.testDone = true;
+                  this.showResults = true;
+                  this.testRunning = false;
+                  setTimeout(function () {
+                      iframe.scrollIntoView();
+                  }, 10);
+                  this.toastr.info('', 'Test is done')
+              });
+      }else{
+          this.currentTestScenarioId = scenario_id;
+          this.currentTestStoryId = story_id;
+          this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
+              toastComponent: RunTestToast
+          })
+      }
   }
 
   downloadFile() {
