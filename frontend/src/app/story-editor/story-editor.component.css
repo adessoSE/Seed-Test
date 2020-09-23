@@ -124,6 +124,16 @@
     color: #0099CC;
     border-radius: 10%;
   }
+
+  .iconButton_unsaved em{
+    vertical-align:middle;
+    color: red;
+    border-radius: 10%;
+    border: none;
+    background-color: #ffffff;
+    padding: 0px;
+    border-radius: 10%;
+  }
   
   .iconButton em:active {
     background-color: #0099CC;

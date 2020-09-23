@@ -28,6 +28,7 @@ export class ScenarioEditorComponent implements OnInit {
     
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
+    
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
@@ -48,6 +49,7 @@ export class ScenarioEditorComponent implements OnInit {
     @Input()
     removeRowIndex(index: number) {
         this.removeStepFromScenario('example', index);
+        this.selectedScenario.saved = false;
     }
 
     @Input()
@@ -82,6 +84,7 @@ export class ScenarioEditorComponent implements OnInit {
         /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
         /*}*/
+        this.selectedScenario.saved = false;
     }
 
     getStepsList(stepDefs: StepDefinition, i: number) {
@@ -106,6 +109,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
     updateScenario(storyID: number) {
+        delete this.selectedScenario.saved;
         let steps = this.selectedScenario.stepDefinitions["given"];
         steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
         steps = steps.concat(this.selectedScenario.stepDefinitions["then"]);
@@ -169,6 +173,7 @@ export class ScenarioEditorComponent implements OnInit {
                     break;
             }
         }
+        this.selectedScenario.saved = false;
     }
 
     addExampleStep(step: StepType){
@@ -181,6 +186,7 @@ export class ScenarioEditorComponent implements OnInit {
             }
             this.exampleChild.updateTable();
         }  
+        this.selectedScenario.saved = false;
     }
 
     createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground, stepType?: string): StepType{
@@ -235,6 +241,7 @@ export class ScenarioEditorComponent implements OnInit {
                 this.exampleChild.updateTable();
                 break;
         }
+        this.selectedScenario.saved = false;
     }
 
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
@@ -253,6 +260,7 @@ export class ScenarioEditorComponent implements OnInit {
                 this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
                 break;
         }
+        this.selectedScenario.saved = false;
     }
 
 
@@ -356,6 +364,7 @@ export class ScenarioEditorComponent implements OnInit {
         if (name) {
             this.selectedScenario.name = name;
         }
+        this.selectedScenario.saved = false;
     }
 
     selectScenario(scenario: Scenario) {

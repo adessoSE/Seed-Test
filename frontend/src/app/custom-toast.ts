@@ -125,13 +125,14 @@ import { ApiService } from './Services/api.service';
         console.log('Run Test')
         event.stopPropagation();
         this.apiService.runSaveOption('run')
-        this.toastPackage.triggerAction();
+        this.remove();
+
     }
 
     saveAndRunTest(event: Event){
         console.log('Save and Run Test')
         event.stopPropagation();
         this.apiService.runSaveOption('saveRun')
-        this.toastPackage.triggerAction();
+        this.remove();
     }
   }

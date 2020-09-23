@@ -39,12 +39,12 @@ export class StoryEditorComponent implements OnInit {
   storiesError = false;
   db = false;
   newStepName = 'New Step';
-  storySaved = false;
-
+  runUnsaved = false;
   currentTestStoryId: number;
   currentTestScenarioId: number;
 
   @ViewChild('exampleChildView') exampleChild;
+  @ViewChild('scenarioChild') scenarioChild;
 
   constructor(
       public apiService: ApiService,
@@ -74,16 +74,24 @@ export class StoryEditorComponent implements OnInit {
   ngOnInit() {
     this.apiService.runSaveOptionEvent.subscribe(option => {
         if(option == "run"){
+            this.runUnsaved = true;
             this.runOption();
+        }
+        if(option == "saveRun"){
+            this.updateBackground(this.selectedStory.story_id)
         }
     })
   }
 
   runOption(){
       console.log('running')
-      this.storySaved = true;
-      this.runTests(this.currentTestStoryId, this.currentTestScenarioId)
-      this.storySaved = false;
+      let tmpScenarioSaved = this.scenarioChild.scenarioSaved;
+      let tmpBackgroundSaved = this.selectedStory.background.saved;
+      this.scenarioChild.scenarioSaved = true;
+      this.selectedStory.background.saved = true;
+      this.runTests(this.currentTestStoryId, this.currentTestScenarioId);
+      this.scenarioChild.scenarioSaved = tmpScenarioSaved;
+      this.selectedStory.background.saved = tmpBackgroundSaved;
   }
 
 
@@ -109,7 +117,6 @@ export class StoryEditorComponent implements OnInit {
   }
 
   @Input() 
-
 
   loadStepTypes() {
     this.apiService
@@ -171,6 +178,7 @@ export class StoryEditorComponent implements OnInit {
 
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
       moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
+      this.selectedStory.background.saved = false;
   }
 
   getBackgroundList(stepDefinitions: StepDefinitionBackground) {
@@ -183,6 +191,8 @@ export class StoryEditorComponent implements OnInit {
   }
 
   updateBackground(storyID: number) {
+    delete this.selectedStory.background.saved;
+
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
         this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
             if(step.outdated){
@@ -208,6 +218,7 @@ export class StoryEditorComponent implements OnInit {
   backgroundDeleted(){
       this.showBackground = false;
       this.selectedStory.background = emptyBackground;
+      this.selectedStory.background.saved = false;
   }
 
   openDescription() {
@@ -262,10 +273,12 @@ export class StoryEditorComponent implements OnInit {
 
   removeStepFromBackground(event, index: number) {
       this.selectedStory.background.stepDefinitions.when.splice(index, 1);
+      this.selectedStory.background.saved = false;
   }
 
   addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
       this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+      this.selectedStory.background.saved = false;
   }
 
   selectScenario(scenario: Scenario) {
@@ -318,8 +331,8 @@ export class StoryEditorComponent implements OnInit {
 
   // Make the API Request to run the tests and display the results as a chart
   runTests(story_id: number, scenario_id: number) {
-      console.log(this.storySaved)
-      if(this.storySaved){
+      console.log('scneario', this.scenarioChild.selectedScenario.saved, 'background', this.selectedStory.background.saved)
+      if(this.runUnsaved ||((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved))){
           //let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
           this.testRunning = true;
           const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
@@ -338,6 +351,7 @@ export class StoryEditorComponent implements OnInit {
                       iframe.scrollIntoView();
                   }, 10);
                   this.toastr.info('', 'Test is done')
+                  this.runUnsaved = false;
               });
       }else{
           this.currentTestScenarioId = scenario_id;
