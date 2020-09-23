@@ -33,36 +33,47 @@ export class LoginComponent implements OnInit {
             }else if(params.github == 'error'){
                 this.error = 'A Login error occured. Please try it again';
             } else if (params.code){
-                const TOKEN_URL = 'https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token'
-                let data = new FormData()
-                data.append('client_id', '')
-                data.append('client_secret', '')
-                data.append('code', params.code)
-                console.log('code',params.code)
-                fetch(TOKEN_URL,
-                    {
-                        method: "POST",
-                        mode: "cors",
-                        body: data,
-                        headers:{
-                            'Access-Control-Allow-Origin': '*'
-                        }
-                    }).then((resp) => {
-                        console.log(resp)
-                        //console.log(resp.json())
-                        return resp.json()
-                        //let reader = resp.body.getReader()
-                        //
-                        //return reader.read()
-                        //console.log(resp.body.getReader)
-                        //return resp.body.json()
-                        //console.log(await )
-                        //const accessToken = resp.split("&")[0].split("=")[1];
-                        //this.getGithubData(accessToken);
-                    }  
-                  ).then((r) => {
-                      console.log('r',r)
-                  })
+                this.apiService.githubCallback(params.code).subscribe(resp => {
+                    console.log('code resp:', resp)
+                    localStorage.setItem('login', 'true')
+                    this.getRepositories()
+                    let userId = localStorage.getItem('userId');
+                    localStorage.removeItem('userId');
+                    if(userId){
+                        this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
+                            this.loginGithubToken(params.login, params.id);
+                        })
+                    }
+                
+                
+                })
+                
+                //const TOKEN_URL = 'https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token'
+                //console.log('code',params.code)
+                //fetch(TOKEN_URL,
+                //    {
+                //        method: "POST",
+                //        mode: "cors",
+                //        body: data,
+                //        headers:{
+                //            'Access-Control-Allow-Origin': '*'
+                //        }
+                //    }).then((resp) => {
+                //        console.log(resp)
+                //        //console.log(resp.json())
+                //        return resp.json()
+                //        //let reader = resp.body.getReader()
+                //        //
+                //        //return reader.read()
+                //        //console.log(resp.body.getReader)
+                //        //return resp.body.json()
+                //        //console.log(await )
+                //        //const accessToken = resp.split("&")[0].split("=")[1];
+                //        //this.getGithubData(accessToken);
+                //    }  
+                //  ).then((r) => {
+                //      console.log('r',r)
+                //  })
                 }
         })
     }

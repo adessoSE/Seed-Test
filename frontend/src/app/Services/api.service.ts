@@ -45,6 +45,14 @@ export class ApiService {
         window.location.href = s;
     }
 
+    githubCallback(code: string){
+        this.apiServer = localStorage.getItem('url_backend');
+        const str = this.apiServer + '/user/callback?code=' + code;
+        return this.http.get(str,  { responseType: 'text', withCredentials: true})
+            .pipe(tap(resp => {}),
+            catchError(ApiService.handleError));
+    }
+
     getReport(reportName: string) {
         this.apiServer = localStorage.getItem('url_backend');
         if (this.apiServer) {
