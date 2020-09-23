@@ -10,7 +10,8 @@ h1{
 .grid{
     display: grid;
     grid-template-rows: auto;
-    grid-template-areas: "formular" "repositories";
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-areas: "howToStart" "formular" "repositories";
     background-color: white;
     place-items: center;
 }
@@ -18,23 +19,17 @@ h1{
 .formular{
     grid-area: formular;
     grid-row: 1 / 2;
+    grid-column: 3 / 4;
     text-align: center;
     background-color: white;
     padding: 80px 50px 20px;
     text-align: center;
 }
 
-.stayLoggedInContainer label{
-    margin-left: 5px;
-}
-
-.stayLoggedInContainer {
-    margin: 5px;
-}
-
 .repositories{
     grid-area: repositories;
     grid-row: 2 / 3;
+    grid-column: 3 / 4;
     width: 400px;
     text-align: center;
     margin-left: auto;
@@ -43,6 +38,25 @@ h1{
     padding: 15px;
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
+}
+
+.howToStart {
+    grid-area: howToStart;
+    grid-row: 1 / 2;
+    grid-column: 2 / 3;
+    text-align: center;
+    background-color: white;
+    padding: 80px 50px 20px;
+    text-align: center;
+
+}
+
+.stayLoggedInContainer label{
+    margin-left: 5px;
+}
+
+.stayLoggedInContainer {
+    margin: 5px;
 }
 
 .repo_img{
@@ -188,16 +202,14 @@ a:not([href]):not([tabindex]).repoLink:hover {
     text-decoration: underline;
 }
 
-.noAccountText{
+.registerButton{
     font-style: inherit;
     border: 0px;
-    background-color: white;
+    background-color: rgb(247, 247, 247);
     color:#0099CC;
     font-size: 10pt;
     font-weight: bold;
     outline: none;
-    padding-left: 5px;
-    padding-right: 5px;
 }
 
 /*
@@ -218,12 +230,18 @@ a:not([href]):not([tabindex]).repoLink:hover {
     border-left: 0.25px solid #999;
     border-right: 0.25px solid #999;
     border-bottom: 0.25px solid #999;
+    padding: 10px;
+    background-color: rgb(247, 247, 247);
   }
 
 .register:hover{
     color: #0099CC;
   }
 
+#loadingSpinner{
+    margin-left:36%;
+    margin-right:34%;
+}
 
 :host ::ng-deep .loadingSpinner circle{
     stroke: rgb(2, 111, 161);
