@@ -2,6 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import {LoginFormComponent} from '../login-form/login-form.component';
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Component({
     selector: 'app-account-managment',
@@ -11,11 +12,13 @@ import {LoginFormComponent} from '../login-form/login-form.component';
 export class AccountManagmentComponent implements OnInit {
     @ViewChild('loginForm') modalService: LoginFormComponent;
 
+    repositories: RepositoryContainer[];
     email: string;
     password: string;
     github: any;
     jira: any;
     id: string;
+    router: any;
 
     constructor(public apiService: ApiService, router: Router) {
         router.events.forEach((event) => {
@@ -23,6 +26,9 @@ export class AccountManagmentComponent implements OnInit {
                 this.updateSite('Successful');
             }
         });
+        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+            this.repositories = repositories;
+          });
     }
     login() {
         if (this.email) {
@@ -79,4 +85,18 @@ export class AccountManagmentComponent implements OnInit {
     isEmptyOrSpaces(str: string){
         return str === null || str.match(/^ *$/) !== null;
     }
+
+    
+  selectRepository(userRepository: RepositoryContainer) {
+    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+    ref.href = 'https://github.com/' + userRepository.value;
+    localStorage.setItem('repository', userRepository.value)
+    localStorage.setItem('source', userRepository.source)
+    if(this.router.url !== '/'){
+      this.router.navigate(['']);
+    } else {
+      this.apiService.getStories(userRepository).subscribe((resp) => {
+      });
+    }
+  }
 }
