@@ -600,7 +600,13 @@ const getGithubData = (res, req, accessToken) => {
                           if(err){
                               return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                           }else {
-                              res.status(301).redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
+                            //console.log(req.header('Referer'))
+                            //res.redirect(req.header('Referer') + ':443')
+                            res.redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
+                            
+                            //res.redirect('ad-daisy-seed01.test-server.ag' + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
+
+                            //res.redirect('../..');
                           }
 				
                       });

@@ -96,3 +96,7 @@ update.bat
 
 *.sh
 *.ps1
+
+# Website Deployment with IIS
+**/web.config
+/website
