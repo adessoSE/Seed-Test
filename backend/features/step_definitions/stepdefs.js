@@ -51,6 +51,7 @@ When('I go to the website: {string}', async (url) => {
 // timeouts if not found after 3 sec, waits for next page to be loaded
 When('I click the button: {string}', async (button) => {
   await driver.getCurrentUrl().then(async (currentUrl) => {
+    // prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
     if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase().match(/^run[ _](story|scenario)$/) !== null) {
       throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
     } else {
@@ -173,7 +174,9 @@ Then('So I will be navigated to the website: {string}', async (url) => {
 
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async (string, label) => {
-  await driver.wait(until.elementLocated(By.xpath(`${"//*[@*'='"}${label}']`)), 3 * 1000).then(async (link) => {
+  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+  await driver.wait(until.elementLocated(By.xpath(`${'//*[@*="'}${label}"]`)), 3 * 1000).then(async (link) => {
+    // `${'//*[text()' + "='"}${button}' or ` + `${'@*'='}${button}']`
     const resp = await link.getText().then(text => text);
     expect(string).to.equal(resp, 'Error');
   });
@@ -193,7 +196,7 @@ Then('So I can see the text: {string}', async (string) => {
 
 // Search a textfield in the html code and assert if it's empty
 Then('So I can´t see text in the textbox: {string}', async (label) => {
-  await driver.wait(until.elementLocated(By.xpath(`${"//*[@*'='"}${label}']`)), 3 * 1000).then(async (link) => {
+  await driver.wait(until.elementLocated(By.xpath(`${'//*[@*="'}${label}"]`)), 3 * 1000).then(async (link) => {
     const resp = await link.getText().then(text => text);
     expect('').to.equal(resp, 'Error');
   });
