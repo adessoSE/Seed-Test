@@ -1,5 +1,5 @@
 import { LoginComponent } from '../login/login.component';
-import {AccountManagmentComponent} from '../account-managment/account-managment.component';
+import {AccountManagementComponent} from '../account-management/account-management.component';
 import { ParentComponent } from '../parent/parent.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { FeedbackComponent } from '../feedback/feedback.component';
@@ -14,8 +14,8 @@ export const ROUTES = [
         component: LoginComponent
     },
     {
-        path: 'accountManagment',
-        component: AccountManagmentComponent
+        path: 'accountManagement',
+        component: AccountManagementComponent
     },
     {
         path: '',

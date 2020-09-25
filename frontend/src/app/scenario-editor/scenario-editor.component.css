@@ -1,4 +1,4 @@
-* {
+management* {
   padding: 0px;
   margin: 0px;
 }
@@ -183,8 +183,8 @@ input[type="text"]{
 
 .uk-nav > li > .dropdownStep {
   color:#0099CC;
-}  
-  
+}
+
 .uk-nav > li > span:hover {
     color: gray;
 }

@@ -85,7 +85,7 @@ export class LoginComponent implements OnInit {
             console.log(resp)
             if(resp.length <= 0){
                 console.log('repositories empty')
-                this.router.navigate(['/accountManagment'])
+                this.router.navigate(['/accountManagement'])
             }
             resp.forEach((elem) => {
                 if(elem.value == repository.value && elem.source == repository.source){

@@ -5,11 +5,11 @@ import {LoginFormComponent} from '../login-form/login-form.component';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Component({
-    selector: 'app-account-managment',
-    templateUrl: './account-managment.component.html',
-    styleUrls: ['./account-managment.component.css']
+    selector: 'app-account-management',
+    templateUrl: './account-management.component.html',
+    styleUrls: ['./account-management.component.css']
 })
-export class AccountManagmentComponent implements OnInit {
+export class AccountManagementComponent implements OnInit {
     @ViewChild('loginForm') modalService: LoginFormComponent;
 
     repositories: RepositoryContainer[];
@@ -22,7 +22,7 @@ export class AccountManagmentComponent implements OnInit {
 
     constructor(public apiService: ApiService, router: Router) {
         router.events.forEach((event) => {
-            if (event instanceof NavigationEnd && router.url === '/accountManagment') {
+            if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful');
             }
         });
@@ -86,7 +86,7 @@ export class AccountManagmentComponent implements OnInit {
         return str === null || str.match(/^ *$/) !== null;
     }
 
-    
+
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
     ref.href = 'https://github.com/' + userRepository.value;

@@ -95,7 +95,7 @@ export class AppComponent implements OnInit {
   }
 
   manageAccount() {
-    this.router.navigate(['/accountManagment']);
+    this.router.navigate(['/accountManagement']);
   }
 
   logout() {

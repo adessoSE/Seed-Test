@@ -24,7 +24,7 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
-import { AccountManagmentComponent } from './account-managment/account-managment.component';
+import { AccountManagementComponent } from './account-management/account-management.component';
 import { LoginFormComponent } from './login-form/login-form.component';
 import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
@@ -49,7 +49,7 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
     FeedbackComponent,
     TermsComponent,
     SubmitformComponent,
-    AccountManagmentComponent,
+    AccountManagementComponent,
     LoginFormComponent,
     TestAccountComponent,
     StoryEditorComponent,
