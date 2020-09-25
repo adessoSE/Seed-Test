@@ -48,6 +48,7 @@ h1{
     background-color: white;
     padding: 80px 50px 20px;
     text-align: center;
+    font-size: small;
 
 }
 
@@ -69,7 +70,6 @@ h1{
     color:#0099CC;
     font-size: 15pt;
     font-weight: bold;
-    text-decoration: underline;
 }
 
 .instructionText{
@@ -206,6 +206,16 @@ a:not([href]):not([tabindex]).repoLink:hover {
     font-style: inherit;
     border: 0px;
     background-color: rgb(247, 247, 247);
+    color:#0099CC;
+    font-size: 10pt;
+    font-weight: bold;
+    outline: none;
+}
+
+.linkButton{
+    font-style: inherit;
+    border: 0px;
+    background-color: rgb(255, 255, 255);
     color:#0099CC;
     font-size: 10pt;
     font-weight: bold;
