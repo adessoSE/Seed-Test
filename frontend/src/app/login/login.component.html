@@ -7,27 +7,26 @@
         <button id="instruction_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Instruction" *ngIf="showInstruction"></button>
       </div>
       <div class="uk-text-secondary instructionText" *ngIf="showInstruction">
-        Welcome to seed-test! <br>
-        If you don't have an account with us yet, you have two possibilities to change this:
-        <br>
-        1. Register _here_ and log in with your created account data via the login on the right. 
-        You will be forwarded directly to the account settings where you can<br> 
-        - create new projects (repositories)<br>
-        - or link your account to Github or Jira to load existing projects. <br><br>
+        <h3>Welcome to seed-test!</h3>
+        <p>If you don't have an account, you have two possibilities to change this:</p><br>
+        <h5><b>1. No requirements</b></h5>
+        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data via the login on the right. 
+          You will be forwarded directly to the account settings where you can create new projects (repositories) or connect your account to Github or Jira to load existing projects.
+          You can edit the settings and connections at any time using the menu > Account Settings. 
+        </p>
 
-        You can edit the settings and connections at any time under menu > Account Settings. 
         <br><br>
-        2. quick start (Github account required)<br> 
-        If you already have a Github account, you can connect directly via the Github login. 
-        With this option you can access your github projects directly as repositories in our application. 
-        Afterwards you can change the settings and connections at any time using the 
-        menu > Account Settings. 
-
-        <br>
-        If you have any questions, feel free to contact us at any time: seed-test@adesso.de
-        For a first practical overview, please <button class="registerButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
-        <br>
-        You can find a detailed tutorial <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
+        <h5><b>2. Github account required</b></h5>
+        <p>If you already have a Github account, you can connect directly via the Github login. 
+        With this option you can access your github projects directly as repositories. 
+        You can change the settings and connections at any time using the menu > Account Settings.
+        Additionally you can connect to Jira or create new projects (repositories) directly using the account settings.</p>
+        <br><br>
+        <p>If you have any questions, feel free to contact us at any time: seed-test@adesso.de</p>
+        <p>For a first practical overview <button class="linkButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo!</button></p>
+          
+        <p>You can find a detailed tutorial <a class="linkButton" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
+        </p>
       </div>
     </div>
   </div>
