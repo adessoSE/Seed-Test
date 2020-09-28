@@ -121,7 +121,7 @@ function getFeatureContent(story) {
 	if (story.background != null) data += getBackgroundContent(story.background);
 
 	// Get scenarios
-	data += getScenarioContent(story.scenarios, story.story_id);
+	data += getScenarioContent(story.scenarios, story._id);
 	return data;
 }
 
@@ -146,7 +146,7 @@ async function updateJira(UserID, req) {
 	return 'Successful';
 }
 
-// Updates feature file based on story_id
+// Updates feature file based on _id
 async function updateFeatureFile(issueID) {
 	const result = await mongo.getOneStory(issueID);
 	if (result != null) writeFile('', result);
@@ -326,8 +326,11 @@ async function fuseStoriesWithDb(story, issueId) {
     if (story.repo_type !== "jira") {
         story.issue_number = parseInt(story.issue_number);
     }
-  let finalStory = await mongo.upsertEntry(story.story_id, story);
+  let finalStory = await mongo.upsertEntry(story.story_id, story); // TODO
   story._id = finalStory.value._id
+  console.log('story',story)
+  console.log('finalStory',finalStory.value)
+
 	// Create & Update Feature Files
 	writeFile('', story);
 	return story;
@@ -407,11 +410,11 @@ function runReport(req, res, stories, mode) {
 
       if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
-        mongo.updateScenario(story.story_id, scenario, (result) => {
+        mongo.updateScenario(story._id, scenario, (result) => {
         })
       } else if (!scenarioID) {
         story.lastTestPassed = testStatus;
-        mongo.updateStory(story.story_id, story)
+        mongo.updateStory(story._id, story)
       }
     });
   });

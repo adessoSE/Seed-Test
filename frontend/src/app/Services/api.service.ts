@@ -275,7 +275,7 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public addScenario(storyID: number): Observable<Scenario> {
+    public addScenario(storyID: any): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -285,7 +285,7 @@ export class ApiService {
             }));
     }
 
-    public updateBackground(storyID: number, background: Background): Observable<Background> {
+    public updateBackground(storyID: any, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .post<Background>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
@@ -300,7 +300,7 @@ export class ApiService {
             .post<any>(this.apiServer + '/github/submitIssue/', obj, ApiService.getOptions());
     }
 
-    public updateScenario(storyID: number, scenario: Scenario): Observable<Story> {
+    public updateScenario(storyID: any, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -310,7 +310,7 @@ export class ApiService {
             }));
     }
 
-    public deleteBackground(storyID: number): Observable<any> {
+    public deleteBackground(storyID: any): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -320,7 +320,7 @@ export class ApiService {
             }));
     }
 
-    public deleteScenario(storyID: number, scenario: Scenario): Observable<Story> {
+    public deleteScenario(storyID: any, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
@@ -330,7 +330,7 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: number, scenarioID: number) {
+    public runTests(storyID: any, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
         const value = localStorage.getItem('repository');
         const source = localStorage.getItem('source');

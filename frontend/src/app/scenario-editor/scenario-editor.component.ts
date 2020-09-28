@@ -95,7 +95,7 @@ export class ScenarioEditorComponent implements OnInit {
 
 
 
-    updateScenario(storyID: number) {
+    updateScenario(storyID: any) {
         let steps = this.selectedScenario.stepDefinitions["given"];
         steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
         steps = steps.concat(this.selectedScenario.stepDefinitions["then"]);
@@ -120,14 +120,14 @@ export class ScenarioEditorComponent implements OnInit {
             console.log("There are undefined steps here");
         }
         this.selectedScenario.lastTestPassed = null;
-
+        console.log("storyID", storyID, this.selectedStory)
         this.apiService
             .updateScenario(storyID, this.selectedScenario)
             .subscribe(resp => {
             });
     }
 
-    addScenarioToStory(storyID: number) {
+    addScenarioToStory(storyID: any) {
         this.addScenarioEvent.emit(storyID);
     }
 
@@ -135,7 +135,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.deleteScenarioEvent.emit(this.selectedScenario);
     }
 
-    addStepToScenario(storyID: number, step) {
+    addStepToScenario(storyID: any, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if(newStep['type'] === this.newStepName){
             this.modalService.open(newStep['stepType']);
@@ -376,8 +376,8 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    runTestScenario(storyId: number, scenarioId: number){
-        this.runTestScenarioEvent.emit({storyId, scenarioId})
+    runTestScenario(storyID: any, scenarioId: number){
+        this.runTestScenarioEvent.emit({storyID, scenarioId})
     }
 
     undefined_definition(definition){

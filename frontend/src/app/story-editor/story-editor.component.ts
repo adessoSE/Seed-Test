@@ -121,7 +121,7 @@ export class StoryEditorComponent implements OnInit {
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
     this.apiService
-        .deleteScenario(this.selectedStory.story_id, scenario)
+        .deleteScenario(this.selectedStory._id, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
         });
@@ -135,7 +135,7 @@ export class StoryEditorComponent implements OnInit {
     this.showEditor = false;
   }
 
-  addScenario(storyID: number){
+  addScenario(storyID: string){
     this.apiService.addScenario(storyID)
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
@@ -157,7 +157,7 @@ export class StoryEditorComponent implements OnInit {
       this.selectedStory.background.name = name;
   }
 
-  updateBackground(storyID: number) {
+  updateBackground(storyID: string) {
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
         this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
             if(step.outdated){
@@ -173,7 +173,7 @@ export class StoryEditorComponent implements OnInit {
 
   deleteBackground() {
       this.apiService
-          .deleteBackground(this.selectedStory.story_id)
+          .deleteBackground(this.selectedStory._id)
           .subscribe(resp => {
               this.backgroundDeleted();
           });
@@ -192,7 +192,7 @@ export class StoryEditorComponent implements OnInit {
       this.showBackground = !this.showBackground;
   }
 
-  addStepToBackground(storyID: number, step: StepType) {
+  addStepToBackground(storyID: string, step: StepType) {
       const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions)
       if (newStep.stepType == 'when') {
           this.selectedStory.background.stepDefinitions.when.push(newStep);
@@ -291,14 +291,14 @@ export class StoryEditorComponent implements OnInit {
 
 
   // Make the API Request to run the tests and display the results as a chart
-  runTests(story_id: number, scenario_id: number) {
+  runTests(_id: string, scenario_id: number) {
     let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
     this.testRunning = true;
     const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
     const loadingScreen: HTMLElement = document.getElementById('loading');
     loadingScreen.scrollIntoView();
     this.apiService
-        .runTests(story_id, scenario_id)
+        .runTests(_id, scenario_id)
         .subscribe(resp => {
             iframe.srcdoc = resp;
             // console.log("This is the response: " + resp);
