@@ -100,3 +100,4 @@ update.bat
 # Website Deployment with IIS
 **/web.config
 /website
+*.bat
