@@ -2,6 +2,7 @@ import {Scenario} from './Scenario';
 import { Background } from './Background';
 
 export interface Story {
+    _id: any;
     issue_number: number;
     story_id: number;
     background: Background;

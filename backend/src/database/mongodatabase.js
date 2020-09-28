@@ -440,10 +440,11 @@ async function upsertEntry(story_id, updatedContent) {
     const myObjt = { story_id: story_id };
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
+    let result =  await collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
       returnOriginal: false,
       upsert: true,
     })
+    return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
   } finally {

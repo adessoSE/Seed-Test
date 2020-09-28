@@ -326,7 +326,8 @@ async function fuseStoriesWithDb(story, issueId) {
     if (story.repo_type !== "jira") {
         story.issue_number = parseInt(story.issue_number);
     }
-	mongo.upsertEntry(story.story_id, story);
+  let finalStory = await mongo.upsertEntry(story.story_id, story);
+  story._id = finalStory.value._id
 	// Create & Update Feature Files
 	writeFile('', story);
 	return story;
