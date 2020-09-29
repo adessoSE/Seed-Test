@@ -18,9 +18,8 @@ export class AccountManagmentComponent implements OnInit {
     github: any;
     jira: any;
     id: string;
-    router: any;
 
-    constructor(public apiService: ApiService, router: Router) {
+    constructor(public apiService: ApiService, public router: Router) {
         router.events.forEach((event) => {
             if (event instanceof NavigationEnd && router.url === '/accountManagment') {
                 this.updateSite('Successful');
@@ -86,17 +85,11 @@ export class AccountManagmentComponent implements OnInit {
         return str === null || str.match(/^ *$/) !== null;
     }
 
-    
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
     ref.href = 'https://github.com/' + userRepository.value;
     localStorage.setItem('repository', userRepository.value)
     localStorage.setItem('source', userRepository.source)
-    if(this.router.url !== '/'){
-      this.router.navigate(['']);
-    } else {
-      this.apiService.getStories(userRepository).subscribe((resp) => {
-      });
-    }
-  }
+    this.router.navigate(['']);
+}
 }
