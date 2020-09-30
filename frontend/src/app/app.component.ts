@@ -32,6 +32,7 @@ export class AppComponent implements OnInit {
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
     }
+    //this.apiService.local = localStorage.getItem('clientId') === localStorage.getItem('clientId_local')
   }
 
   openTerms(){
@@ -78,6 +79,22 @@ export class AppComponent implements OnInit {
   }catch(error) {
       return []
   }
+  }
+
+  onLocal(){
+    if(this.apiService.local){
+      let url_backend_daisy = localStorage.getItem('url_backend_daisy')
+      let clientId_daisy = localStorage.getItem('clientId_daisy')
+      localStorage.setItem('url_backend', url_backend_daisy);
+      localStorage.setItem('clientId', clientId_daisy);
+      this.apiService.local = false;
+    }else{
+      let url_backend = localStorage.getItem('url_backend_local')
+      let clientId = localStorage.getItem('clientId_local')
+      localStorage.setItem('url_backend', url_backend);
+      localStorage.setItem('clientId', clientId);
+      this.apiService.local = true;
+    }
   }
 
 

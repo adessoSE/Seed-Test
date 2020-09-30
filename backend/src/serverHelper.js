@@ -589,10 +589,9 @@ const getGithubData = (res, req, accessToken) => {
           req.body.githubToken = accessToken;
           try{
             await mongo.findOrRegister(req.body)
-
             passport.authenticate('github-local', function (error, user, info) {
                       if(error){
-                        return res.redirect(process.env.FRONTEND_URL +'/login?github=error');
+                        return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                       } else if(!user){
                           return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                       }
@@ -600,11 +599,14 @@ const getGithubData = (res, req, accessToken) => {
                           if(err){
                               return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
                           }else {
-                              return res.redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
+                              //res.status(301).redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
+                              res.json({login: user.github.login, id: user.github.id})
                           }
+				
                       });
                   })(req,res);
         }catch(error){
+            console.log('getGithubData error:', error)
             res.sendStatus(400)
         }
         }

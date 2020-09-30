@@ -16,6 +16,7 @@ const salt = bcrypt.genSaltSync(10);
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
 
+
 router
 	.use(cors())
 	.use(bodyParser.json({ limit: '100kb' }))
@@ -93,7 +94,7 @@ router.post('/mergeGithub', async (req, res) => {
 		const mergedUser = await mongo.mergeGithub(userId, login, id);
 		req.logIn(mergedUser, function(err) {
 			if (err) return res.sendStatus(400)
-			res.send(200)
+			res.sendStatus(200)
 		})
 	} catch (error) {
 		res.sendStatus(400);
@@ -289,6 +290,7 @@ router.get('/stories', async (req, res) => {
 });
 
 router.get('/callback', (req, res) =>{
+	console.log('callback')
     let code = req.query.code;
     const TOKEN_URL = 'https://github.com/login/oauth/access_token'
       request(
