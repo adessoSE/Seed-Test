@@ -1,27 +1,16 @@
 <div class="grid">
-  <div class="header">
-    <p>For a first practical overview 
-    <button class="demoButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo!</button>
-    </p>
-  </div>
   <div class="howToStart">
-    <div (click)="openInstruction();">
-      <div class="expand" id="instructionFont">
-        How to start
-        <button id="instruction_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Instruction" *ngIf="!showInstruction"></button>
-        <button id="instruction_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Instruction" *ngIf="showInstruction"></button>
-      </div>
-      <div class="uk-text-secondary instructionText" *ngIf="showInstruction">
+      <div class="uk-text-secondary instructionText">
         <h3>Welcome to seed-test!</h3>
         <p>If you don't have an account, you have two possibilities to change this:</p><br>
-        <h5><b>1. No requirements</b></h5>
+        <h6><b>1. No requirements</b></h6>
         <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data via the login on the right. 
           You will be forwarded directly to the account settings where you can create new projects (repositories) or connect your account to Github or Jira to load existing projects.
           You can edit the settings and connections at any time using the menu > Account Settings. 
         </p>
 
         <br><br>
-        <h5><b>2. Github account required</b></h5>
+        <h6><b>2. Github account required</b></h6>
         <p>If you already have a Github account, you can connect directly via the Github login. 
         With this option you can access your github projects directly as repositories. 
         You can change the settings and connections at any time using the menu > Account Settings.
@@ -33,7 +22,6 @@
         </p>
       </div>
     </div>
-  </div>
   <div class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
@@ -83,8 +71,11 @@
     <button class="testAccount" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
     <br>
     -->
-    <span class="noAccount">No account?</span>
+    <span class="noAccount">No account? <br> 
     <button class="registerButton" title="register" (click)="navToRegistration();">Register</button>
+    or
+    <button class="registerButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
+    </span>
     <br>
 
    </div>

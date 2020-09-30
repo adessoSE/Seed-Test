@@ -11,20 +11,9 @@ h1{
     display: grid;
     grid-template-rows: auto;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-areas: "header" "howToStart" "formular" "repositories";
+    grid-template-areas: "howToStart" "formular" "repositories";
     background-color: white;
     place-items: center;
-}
-
-.header{
-    grid-area: header;
-    grid-row: 1 / 2;
-    grid-column: 1 / 5;
-    padding: 15px;
-    width: 100%;
-    text-align: center;
-    font-size: small;
-    background-color: rgba(0, 153, 204, 0.3);
 }
 
 .formular{
@@ -84,7 +73,9 @@ h1{
 }
 
 .instructionText{
-    width: 500px;
+    width: 300px;
+    border: solid 1px #999;
+    padding: 20px;
 }
 
 .expand{
