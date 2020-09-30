@@ -28,7 +28,7 @@ export class ApiService {
     public getProjectsEvent = new EventEmitter();
     public runSaveOptionEvent = new EventEmitter();
     public user;
-    public local:boolean = false;
+    //public local:boolean = false;
 
 
     public static getOptions() {
@@ -187,27 +187,15 @@ export class ApiService {
         if (url && url !== 'undefined' && clientId && clientId !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
-            this.local = localStorage.getItem('clientId') === localStorage.getItem('clientId_local')
             return Promise.resolve(url);
         } else {
            return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
-                localStorage.setItem('url_backend', backendInfo.url_daisy);
-                localStorage.setItem('clientId', backendInfo.clientId_daisy);
-                localStorage.setItem('clientId_local', backendInfo.clientId);
-                localStorage.setItem('url_backend_local', backendInfo.url);
-                localStorage.setItem('url_backend_daisy', backendInfo.url_daisy);
-                localStorage.setItem('clientId_daisy', backendInfo.clientId_daisy);
-                this.local = false
+                localStorage.setItem('url_backend', backendInfo.url);
+                localStorage.setItem('clientId', backendInfo.clientId);
+
                 this.getBackendUrlEvent.emit();
             });
         }
-//        else {
-//            localStorage.setItem('url_backend', 'localhost:8080/api');
-//            localStorage.setItem('clientId', '4245497c22440ac8eb7a');
-//            this.urlReceived = true;
-//            this.getBackendUrlEvent.emit();
-//
-//    }
     }
 
 
@@ -373,10 +361,10 @@ export class ApiService {
             .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
     }
 
-    public changeDaisy(){
-        this.apiServer = localStorage.getItem('url_backend');
-        return this.http.get(this.apiServer + '/user/daisy')
-    }
+    //public changeDaisy(){
+    //    this.apiServer = localStorage.getItem('url_backend');
+    //    return this.http.get(this.apiServer + '/user/daisy')
+    //}
 
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;

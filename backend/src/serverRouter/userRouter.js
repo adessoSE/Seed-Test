@@ -290,7 +290,6 @@ router.get('/stories', async (req, res) => {
 });
 
 router.get('/callback', (req, res) =>{
-	console.log('callback')
     let code = req.query.code;
     const TOKEN_URL = 'https://github.com/login/oauth/access_token'
       request(

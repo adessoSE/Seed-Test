@@ -44,37 +44,8 @@ export class LoginComponent implements OnInit {
                             this.loginGithubToken(params.login, params.id);
                         })
                     }
-                
-                
                 })
-                
-                //const TOKEN_URL = 'https://cors-anywhere.herokuapp.com/https://github.com/login/oauth/access_token'
-                //console.log('code',params.code)
-                //fetch(TOKEN_URL,
-                //    {
-                //        method: "POST",
-                //        mode: "cors",
-                //        body: data,
-                //        headers:{
-                //            'Access-Control-Allow-Origin': '*'
-                //        }
-                //    }).then((resp) => {
-                //        console.log(resp)
-                //        //console.log(resp.json())
-                //        return resp.json()
-                //        //let reader = resp.body.getReader()
-                //        //
-                //        //return reader.read()
-                //        //console.log(resp.body.getReader)
-                //        //return resp.body.json()
-                //        //console.log(await )
-                //        //const accessToken = resp.split("&")[0].split("=")[1];
-                //        //this.getGithubData(accessToken);
-                //    }  
-                //  ).then((r) => {
-                //      console.log('r',r)
-                //  })
-                }
+            }
         })
     }
 
@@ -86,9 +57,7 @@ export class LoginComponent implements OnInit {
                     "User-Agent": "SampleOAuth",
                 }
             }).then(async function (resp) {
-                console.log(resp)
-                //let body = await JSON.parse(resp)
-                
+                //console.log(resp)
             })
                 
       }
