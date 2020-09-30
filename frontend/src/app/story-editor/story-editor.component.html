@@ -76,8 +76,8 @@
                 </li>
               </ul>
             </div>
-            <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning" [disabled]="testRunning"
-              title="Save Background"
+            <button class="buttonGroup iconButton" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+              title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
               (click)="updateBackground(selectedStory.story_id);">
               <em class="material-icons">save</em>
             </button>
@@ -137,7 +137,7 @@
 
       <!--Scenario Header-->
 
-  <app-scenario-editor (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
+  <app-scenario-editor #scenarioChild (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
 
       <!--Buttons Run Szenario-->
       <div class="uk-card-footer">

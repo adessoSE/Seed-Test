@@ -155,9 +155,20 @@ input[type="text"]{
 
 .iconButton em{
   vertical-align:middle;
-  color: #0099CC;
+  color:  #0099CC;
   border-radius: 10%;
 }
+
+.iconButton_unsaved em{
+  vertical-align:middle;
+  color: red;
+  border-radius: 10%;
+  border: none;
+  background-color: #ffffff;
+  padding: 0px;
+  border-radius: 10%;
+}
+
 
 .iconButton em:active {
   background-color: #0099CC;
@@ -228,4 +239,8 @@ table {
 .comment > textarea {
   width: 60%;
   height: 50px;
+}
+
+.scenario_unsaved {
+  color: red;
 }

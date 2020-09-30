@@ -7,4 +7,5 @@ export interface Scenario {
     stepDefinitions: StepDefinition;
     comment: string;
     lastTestPassed?: boolean;
+    saved?: boolean;
 }
