@@ -27,8 +27,8 @@
         <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory.story_id)">
           <em class="material-icons">add</em>
         </button>
-        <button id="scenario_save" [class.disabled]="testRunning" [disabled]="testRunning" class="buttonGroup iconButton" data-uk-tooltip
-          title="Save Scenario"
+        <button id="scenario_save" [class.disabled]="testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined" [disabled]="testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined" class="buttonGroup iconButton" data-uk-tooltip
+          title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
           (click)="updateScenario(selectedStory.story_id);">
           <em class="material-icons">save</em>
         </button>
