@@ -2,22 +2,22 @@
   <div class="howToStart">
       <div class="uk-text-secondary instructionText">
         <h3>Welcome to seed-test!</h3>
-        <p>If you don't have an account, you have two possibilities to change this:</p><br>
-        <h6><b>1. No requirements</b></h6>
-        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data via the login on the right. 
-          You will be forwarded directly to the account settings where you can create new projects (repositories) or connect your account to Github or Jira to load existing projects.
-          You can edit the settings and connections at any time using the menu > Account Settings. 
+        <p id="info">If you don't have an account, you have two possibilities to change this:</p><br>
+        <h6 class="req"><b>1. No requirements</b></h6>
+        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data. 
+          You will be forwarded to the account settings where you can create new projects (repositories) or connect your account to Github or Jira to load existing projects.
         </p>
-
-        <br><br>
-        <h6><b>2. Github account required</b></h6>
-        <p>If you already have a Github account, you can connect directly via the Github login. 
-        With this option you can access your github projects directly as repositories. 
-        You can change the settings and connections at any time using the menu > Account Settings.
-        Additionally you can connect to Jira or create new projects (repositories) directly using the account settings.</p>
-        <br><br>
-        <p>If you have any questions, feel free to contact us at any time: seed-test@adesso.de</p>
-          
+        <br>
+        <h6 class="req"><b>2. Github account required</b></h6>
+        <p>If you already have a Github account, you can connect directly via the Github login and access your github projects directly as repositories. 
+        Additionally you can connect to Jira or create new projects (repositories) using the account settings.
+        </p>
+        <br>
+        <p><i>The settings and connections can be edited using the account settings via the menu.</i></p>
+        <br>
+        <hr>
+        <p>If you have questions, feel free to contact us: seed-test@adesso.de</p>
+        <br>
         <p>You can find a detailed tutorial <a class="linkButton" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
         </p>
       </div>
@@ -65,12 +65,6 @@
    </a>
    <br>
    <div class="uk-card default" id="noAccountDiv">
-    <!--<p class="noAccount">No account?
-      <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
-    </p>
-    <button class="testAccount" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
-    <br>
-    -->
     <span class="noAccount">No account? <br> 
     <button class="registerButton" title="register" (click)="navToRegistration();">Register</button>
     or

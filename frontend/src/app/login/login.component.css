@@ -46,7 +46,7 @@ h1{
     grid-row: 2 / 3;
     grid-column: 2 / 3;
     background-color: white;
-    padding: 60px 50px 20px;
+    padding: 50px 10px 50px;
     text-align: center;
     font-size: small;
 
@@ -73,9 +73,18 @@ h1{
 }
 
 .instructionText{
-    width: 300px;
-    border: solid 1px #999;
-    padding: 20px;
+    width: 350px;
+    border: double 5px #999;
+    padding: 30px;
+}
+
+.req{
+    text-decoration: underline;
+}
+
+#info{
+    color: #0099CC;
+    font-weight: bold;
 }
 
 .expand{
