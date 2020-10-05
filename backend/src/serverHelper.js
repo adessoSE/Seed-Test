@@ -576,6 +576,7 @@ function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label
 }
 
 const getGithubData = (res, req, accessToken) => {
+  console.log('accessToken', accessToken)
   request(
     {
         uri: `https://api.github.com/user`,
@@ -588,6 +589,7 @@ const getGithubData = (res, req, accessToken) => {
     async function(err, response, body){
         req.body = await JSON.parse(body)
         req.body.githubToken = accessToken;
+        console.log('body', body)
         try{
           await mongo.findOrRegister(req.body)
           passport.authenticate('github-local', function (error, user, info) {
