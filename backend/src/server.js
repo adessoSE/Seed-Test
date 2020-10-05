@@ -35,7 +35,7 @@ app
     resave: false,
     saveUninitialized: false,
     cookie: {
-      sameSite: "strict"
+      secure: true,
     }
   }))
   .use(passport.initialize())
