@@ -51,7 +51,7 @@ export class ApiService {
         window.location.href = s;
     }
 
-    githubCallback(code: string){
+    githubCallback(code: string): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/callback?code=' + code;
         return this.http.get(str,  { responseType: 'text', withCredentials: true})
