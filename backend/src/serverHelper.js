@@ -601,7 +601,8 @@ const getGithubData = (res, req, accessToken) => {
                             console.log('login')
                             res.json({error: 'Login Error'})
                         }else {
-                            res.json({login: user.github.login, id: user.github.id})
+                          res.redirect(process.env.FRONTEND_URL + '/login?github=success')
+                          //res.json({login: user.github.login, id: user.github.id})
                         }
 			
                     });
