@@ -34,15 +34,19 @@ export class LoginComponent implements OnInit {
                 this.error = 'A Login error occured. Please try it again';
             } else if (params.code){
                 this.apiService.githubCallback(params.code).subscribe(resp => {
-                    console.log('code resp:', resp)
-                    localStorage.setItem('login', 'true')
-                    this.getRepositories()
-                    let userId = localStorage.getItem('userId');
-                    localStorage.removeItem('userId');
-                    if(userId){
-                        this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
-                            this.loginGithubToken(params.login, params.id);
-                        })
+                    if (resp.error){
+                        this.error = resp.error
+                    }else{
+                        console.log('code resp:', resp)
+                        localStorage.setItem('login', 'true')
+                        this.getRepositories()
+                        let userId = localStorage.getItem('userId');
+                        localStorage.removeItem('userId');
+                        if(userId){
+                            this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
+                                this.loginGithubToken(params.login, params.id);
+                            })
+                        }
                     }
                 })
             }

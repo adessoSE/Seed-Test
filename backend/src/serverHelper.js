@@ -577,39 +577,40 @@ function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label
 
 const getGithubData = (res, req, accessToken) => {
   request(
-      {
-          uri: `https://api.github.com/user?access_token=${accessToken}`,
-          method:"GET",
-          headers: {
-              "User-Agent": "SampleOAuth",
-          }
-      },
-      async function(err, response, body){
-          req.body = await JSON.parse(body)
-          req.body.githubToken = accessToken;
-          try{
-            await mongo.findOrRegister(req.body)
-            passport.authenticate('github-local', function (error, user, info) {
-                      if(error){
-                        return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
-                      } else if(!user){
-                          return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
-                      }
-                      req.logIn(user, async function(err){
-                          if(err){
-                              return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
-                          }else {
-                              //res.status(301).redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
-                              res.json({login: user.github.login, id: user.github.id})
-                          }
-				
-                      });
-                  })(req,res);
-        }catch(error){
-            console.log('getGithubData error:', error)
-            res.sendStatus(400)
+    {
+        uri: `https://api.github.com/user`,
+        method:"GET",
+        headers: {
+            "User-Agent": "SampleOAuth",
+            //"Authorization": `Token ${accessToken}`
         }
-        }
+    },
+    async function(err, response, body){
+        req.body = await JSON.parse(body)
+        req.body.githubToken = accessToken;
+        try{
+          await mongo.findOrRegister(req.body)
+          passport.authenticate('github-local', function (error, user, info) {
+                    if(error){
+                      res.json({error: 'Authentication Error'})
+                    } else if(!user){
+                      res.json({error: 'Authentication Error'})
+                    }
+                    req.logIn(user, async function(err){
+                        if(err){
+                            console.log('login')
+                            res.json({error: 'Login Error'})
+                        }else {
+                            res.json({login: user.github.login, id: user.github.id})
+                        }
+			
+                    });
+                })(req,res);
+      }catch(error){
+          console.log('getGithubData error:', error)
+          res.sendStatus(400)
+      }
+    }
   )
 }
 
