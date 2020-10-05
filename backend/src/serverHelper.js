@@ -582,7 +582,7 @@ const getGithubData = (res, req, accessToken) => {
         method:"GET",
         headers: {
             "User-Agent": "SampleOAuth",
-            //"Authorization": `Token ${accessToken}`
+            "Authorization": `Token ${accessToken}`
         }
     },
     async function(err, response, body){
