@@ -579,7 +579,7 @@ const getGithubData = (res, req, accessToken) => {
   console.log('accessToken', accessToken)
   request(
     {
-        uri: `https://api.github.com/user`,
+        uri: `https://api.github.com/user?access_token=${accessToken}`,
         method:"GET",
         headers: {
             "User-Agent": "SampleOAuth",
