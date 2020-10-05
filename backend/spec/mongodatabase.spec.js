@@ -146,7 +146,7 @@ describe('Mongodatabase', () => {
 
   describe('updateBackground', () => {
     const storyId = 386696070;
-    let backgroundBefore = '';
+    let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } };
     beforeEach((done) => {
       mongo.getOneStory(storyId, (result) => {
         backgroundBefore = result.background;
@@ -178,7 +178,7 @@ describe('Mongodatabase', () => {
 
   describe('deleteBackground', () => {
     const storyId = 386697647;
-    let backgroundBefore = '';
+    let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } };;
     beforeEach((done) => {
       mongo.getOneStory(storyId, (result) => {
         backgroundBefore = result.background;

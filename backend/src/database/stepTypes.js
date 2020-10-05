@@ -9,7 +9,7 @@ function stepDefs() {
       ""
     ]
   },{
-  
+
     "id": 0,
     "stepType": "when",
     "type": "HoverOverAndSelect",
@@ -175,10 +175,12 @@ function stepDefs() {
     "stepType": "then",
     "type": "Empty Textbox",
     "pre": "So I can see the text in the textbox:",
+    "mid": "",
     "values": [
       ""
     ]
-  },{
+  },
+  {
     "id": "",
     "stepType": "when",
     "type": "Checkbox",
@@ -186,6 +188,34 @@ function stepDefs() {
     "mid": "",
     "values": [
       ""
+    ]
+  },
+  { // TODO: delete this following step (also in DB), once every branch has the changes
+    "id": "0",
+    "stepType": "when",
+    "type": "Switch Tab",
+    "pre": "I switch to the next tab",
+    "mid": "",
+    "values": [
+    ]
+  },
+{
+    "id": "",
+      "stepType": "when",
+      "type": "Switch to newest Tab",
+      "pre": "Switch to the newly opened tab",
+      "mid": "",
+      "values": [
+  ]
+  },
+  {
+    "id": "",
+    "stepType": "when",
+    "type": "Switch to Tab Nr. X",
+    "pre": "Switch to the tab number",
+    "mid": "",
+    "values": [
+        ""
     ]
   }];
 }

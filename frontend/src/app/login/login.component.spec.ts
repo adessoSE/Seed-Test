@@ -16,7 +16,7 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({ 
+    TestBed.configureTestingModule({
       imports: [FormsModule, HttpClientTestingModule, RouterTestingModule],
       declarations: [ LoginComponent ]
     })
@@ -34,11 +34,11 @@ describe('LoginComponent', () => {
   });
 
   it('should set localStorage item Repository', fakeAsync(() => {
-    let testRepo = 'TestRepo';
+    const testRepo = 'TestRepo';
     const injector = getTestBed();
-    const router = injector.get(Router); 
+    const router = injector.get(Router);
     component.selectRepository(testRepo)
-    
+
     expect(localStorage.getItem('repository')).toBe(testRepo);
     expect(router.url).toEqual('/');
   }));
@@ -46,8 +46,8 @@ describe('LoginComponent', () => {
   describe('loginTestAccount', () => {
 
     it('should set items for token and githubName', () => {
-      let repositories = ["adessoAG/Seed-Test","adessoCucumber/Cucumber","adessoCucumber/TestRepo"];
-      let token = 'undefined';
+      const repositories = ['adessoAG/Seed-Test','adessoCucumber/Cucumber','adessoCucumber/TestRepo'];
+      const token = 'undefined';
       spyOn(component.apiService, 'getRepositories').and.returnValue(of(repositories));
       component.loginTestAccount();
       expect(localStorage.getItem('githubName')).toBe(testAccountName);
@@ -61,10 +61,10 @@ describe('LoginComponent', () => {
   describe('login', () => {
 
     it('should set items for token and githubName', () => {
-      let repositories = ["adessoAG/Seed-Test","adessoCucumber/Cucumber","adessoCucumber/TestRepo"];
-      let token = 'undefined';
+      const repositories = ['adessoAG/Seed-Test', 'adessoCucumber/Cucumber', 'adessoCucumber/TestRepo'];
+      const token = 'undefined';
       spyOn(component.apiService, 'getRepositories').and.returnValue(of(repositories));
-      let form = new NgForm(null, null);
+      const form = new NgForm(null, null);
       form.value.token = token;
       form.value.githubName = testAccountName;
 

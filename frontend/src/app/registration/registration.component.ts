@@ -23,7 +23,6 @@ export class RegistrationComponent implements OnInit {
     }
 
     async registerUser(form: NgForm){
-        console.log(form.value.email, form.value.password);
         this.error = undefined;
         let response = await this.apiService.registerUser(form.value.email, form.value.password).toPromise()
         if (response.status === 'error') {

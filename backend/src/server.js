@@ -16,8 +16,8 @@ let stories = [];
 
 // Initialize the app.
 const server = app.listen(process.env.PORT || 8080, () => {
-  const { port } = server.address();
-  console.log(`App now running on port: ${port}`);
+	const { port } = server.address();
+	console.log(`App now running on port: ${port}`);
 });
 /**
  * API Description
@@ -34,12 +34,6 @@ app
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      httpOnly: false, 
-      //maxAge: 864000000,
-      //secure: true,
-      //sameSite: "lax"
-    },
   }))
   .use(passport.initialize())
   .use(passport.session())
@@ -56,6 +50,5 @@ app
   .use('/api/user', userRouter)
   .get('/api', (_, res) => {
     res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
-  });
-
+  })
 module.exports = { app };

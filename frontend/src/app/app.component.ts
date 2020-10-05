@@ -32,6 +32,7 @@ export class AppComponent implements OnInit {
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
     }
+    //this.apiService.local = localStorage.getItem('clientId') === localStorage.getItem('clientId_local')
   }
 
   openTerms(){
@@ -53,11 +54,11 @@ export class AppComponent implements OnInit {
   }
 
   getRepositories() {
-    console.log('get Repositories')
+    console.log('get Repositories');
     if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length <= 0)) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
-        console.log('repositories',this.repositories)
+        console.log('repositories', this.repositories);
       }, (err) => {
         this.error = err.error;
       });
@@ -75,11 +76,10 @@ export class AppComponent implements OnInit {
       this.jirakeys = projectKeys;
       console.log(this.jirakeys);
       return projectNames;
-  }catch(error) {
+    }catch(error) {
       return []
+    }
   }
-  }
-
 
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
@@ -95,13 +95,13 @@ export class AppComponent implements OnInit {
   }
 
   manageAccount() {
-    this.router.navigate(['/accountManagment']);
+    this.router.navigate(['/accountManagement']);
   }
 
   logout() {
     this.repositories = undefined;
     this.apiService.logoutUser().subscribe(resp => {
-      this.router.navigate(['/login']);
     });
+    this.router.navigate(['/login']);
   }
 }

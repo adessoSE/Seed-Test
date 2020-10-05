@@ -24,7 +24,7 @@ import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
 import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
-import { AccountManagmentComponent } from './account-managment/account-managment.component';
+import { AccountManagementComponent } from './account-management/account-management.component';
 import { LoginFormComponent } from './login-form/login-form.component';
 import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
@@ -32,6 +32,9 @@ import {MatProgressSpinnerModule} from '@angular/material';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
+import { ToastrModule } from "ngx-toastr";
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {RunTestToast} from './custom-toast'
 
 @NgModule({
   declarations: [
@@ -49,18 +52,20 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
     FeedbackComponent,
     TermsComponent,
     SubmitformComponent,
-    AccountManagmentComponent,
+    AccountManagementComponent,
     LoginFormComponent,
     TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
-    ReportComponent
+    ReportComponent,
+    RunTestToast
   ],
   imports: [
       NgbModule,
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -68,8 +73,12 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
     RouterModule.forRoot(ROUTES),
     FormsModule,
     DragDropModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    ToastrModule.forRoot({
+      timeOut: 3000
+    })
   ],
+  entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

@@ -1,4 +1,4 @@
-const mongodatabase = require('./mongodatabase');
+const mongodb = require('./mongoDB_admin');
 
 
-mongodatabase.installDatabase();
+mongodb.installDatabase();

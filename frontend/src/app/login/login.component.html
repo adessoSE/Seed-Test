@@ -17,17 +17,17 @@
       <br>
       <br>
       <!-- Button Login -->
-      <div class="stayLoggedInContainer">
+      <!--<div class="stayLoggedInContainer">
         <input type="checkbox" id="stayLoggedIn" name="stayLoggedIn" ngModel>
         <label for="stayLoggedIn">Keep me signed in for 2 weeks</label>
-      </div>
+      </div>-->
       <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
     </form>
     <br>
     <p>or</p>
     <hr>
     <br>
-    <p class="noAccount">No account? 
+    <p class="noAccount">No account?
       <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
     </p>
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
@@ -43,14 +43,18 @@
     <br>
   </div>
   <!-- Repositories -->
-  <div *ngIf="this.repositoriesLoading">
+  <div id="loadingSpinner" *ngIf="this.repositoriesLoading">
     <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
   </div>
   <div class="repositories" *ngIf="repositories">
-    <div>
+    <div id="repositoriesList">
       <label class="selectRepository">Select Your Repository:</label>
+      <br>
       <ul class="uk-list">
         <li *ngFor="let repository of repositories; let i = index" >
+          <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
+          <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
+          <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
           <a class="repoLink" id="{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
         </li>
       </ul>
