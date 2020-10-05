@@ -608,7 +608,7 @@ const getGithubData = (res, req, accessToken) => {
                           res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
 		                      res.header('Access-Control-Allow-Credentials', 'true');
 		                      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-                          res.redirect(process.env.FRONTEND_URL + '/login?github=success')
+                          //res.redirect(process.env.FRONTEND_URL + '/login?github=success')
                           res.json({login: user.github.login, id: user.github.id})
                         }
 			
