@@ -35,9 +35,9 @@ app
     resave: false,
     saveUninitialized: false,
     cookie: {
-      //secure: true,
+      secure: true,
       cors: true,
-      sameSite: "lax"
+      sameSite: "none"
     }
   }))
   .use(passport.initialize())
