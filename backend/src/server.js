@@ -22,6 +22,7 @@ const server = app.listen(process.env.PORT || 8080, () => {
 /**
  * API Description
  */
+app.enable('trust proxy');
 app
   .use(cors({
     origin: [
@@ -34,8 +35,9 @@ app
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
-      secure: "auto",
+      secure: true,
       //cors: true,
       sameSite: "none"
     }
