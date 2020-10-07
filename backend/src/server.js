@@ -35,7 +35,8 @@ app
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
+      //secure: true,
+      sameSite: "lax"
     }
   }))
   .use(passport.initialize())
