@@ -35,7 +35,7 @@ app
     resave: false,
     saveUninitialized: false,
     cookie: {
-      //secure: true,
+      secure: "auto",
       //cors: true,
       sameSite: "none"
     }
