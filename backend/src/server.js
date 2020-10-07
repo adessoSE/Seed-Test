@@ -24,7 +24,6 @@ const server = app.listen(process.env.PORT || 8080, () => {
  */
 
 if (process.env.NODE_ENV) {
-  app.enable('trust proxy');
   app
   .use(flash())
   .use(session({
@@ -34,7 +33,6 @@ if (process.env.NODE_ENV) {
     proxy: true,
     cookie: {
       secure: true,
-      //cors: true,
       sameSite: "none"
     }
   }))
