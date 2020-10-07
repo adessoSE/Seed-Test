@@ -36,6 +36,7 @@ app
     saveUninitialized: false,
     cookie: {
       //secure: true,
+      cors: true,
       sameSite: "lax"
     }
   }))
