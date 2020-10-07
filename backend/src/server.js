@@ -22,19 +22,38 @@ const server = app.listen(process.env.PORT || 8080, () => {
 /**
  * API Description
  */
-app
-  .use(cors({
-    origin: [
-    process.env.FRONTEND_URL
-  ], 
-  credentials: true
-  }))
+
+if (process.env.NODE_ENV) {
+  app
   .use(flash())
   .use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      secure: true,
+      sameSite: "none"
+    }
   }))
+} else {
+app
+  .use(flash())
+  .use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+  }))
+}
+app
+.use(cors({
+  origin: [
+  process.env.FRONTEND_URL
+], 
+credentials: true
+}))
+app
   .use(passport.initialize())
   .use(passport.session())
   .use(bodyParser.json({ limit: '100kb' }))
