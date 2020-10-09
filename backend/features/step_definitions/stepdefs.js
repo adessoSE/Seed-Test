@@ -132,13 +132,16 @@ When('I check the box {string}', async (name) => {
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).submit();
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 
-  // this one works, even if the element is not clickable (due to other elements blocking it):
-  try {
-    await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="' + name + '"]'))).sendKeys(Key.SPACE);
+  try { // this one works, even if the element is not clickable (due to other elements blocking it):
+    await driver.findElement(By.xpath('//*[@type="checkbox" and @*="' + name + '"]')).sendKeys(Key.SPACE);
   } catch (e) {
-    await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${name}' or ` + `${'@*' + "='"}${name}']`)), 3 * 1000).click();
-    //await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
-  }
+    try{ // this one works, for a text label next to the actual checkbox
+    await driver.findElement(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)).click();
+        } catch (e){ // default
+      await driver.findElement(By.xpath('//*[contains(text()"' + name  + ' "}or @*="'+name+'"')).click();
+      }
+    }
+  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
