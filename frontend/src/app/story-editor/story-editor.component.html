@@ -61,7 +61,7 @@
         <div *ngIf="showBackground">
         <!--Buttons-->
           <div class="marginLeft">
-            <input id="background_name" #backgroundName type="text" value="{{selectedStory.background.name}}" on-change="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
+            <input id="background_name" #backgroundName type="text" value="{{selectedStory.background.name}}" on-input="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
           </div>
           <div class="backgroundButtons">
             <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
@@ -101,14 +101,14 @@
                 {{j+1}}. {{currentStep.pre}}
                 <p style="display:inline" *ngIf="currentStep.values.length > 0">
                   <input id="{{'background_step_input_pre' + j}}" #step_type_input
-                    type="text" value="{{currentStep.values[0]}}" on-change="addToValuesBackground(step_type_input.value,j,0)" />
+                    type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" />
                     {{currentStep.mid}}
                   <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
-                    type="text" value="{{currentStep.values[1]}}" on-change="addToValuesBackground(step_type_input.value,j,1)" />
+                    type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" />
                 </p>
                 {{currentStep.post}}
                 <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
-                type="text" value="{{value}}" on-change="addToValuesBackground(step_type_input.value,j , n + 2)" />
+                type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
                 <div *ngIf="currentStep.outdated">
                   <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
                     <span rel="def">
