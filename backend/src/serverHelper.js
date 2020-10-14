@@ -576,7 +576,6 @@ function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label
 }
 
 const getGithubData = (res, req, accessToken) => {
-  console.log('accessToken', accessToken)
   request(
     {
         uri: `https://api.github.com/user?access_token=${accessToken}`,
@@ -589,10 +588,8 @@ const getGithubData = (res, req, accessToken) => {
     async function(err, response, body){
         req.body = await JSON.parse(body)
         req.body.githubToken = accessToken;
-        console.log('body', body)
         try{
           await mongo.findOrRegister(req.body)
-          console.log('after find or register')
           passport.authenticate('github-local', function (error, user, info) {
                     if(error){
                       res.json({error: 'Authentication Error'})
@@ -604,11 +601,9 @@ const getGithubData = (res, req, accessToken) => {
                             console.log('login')
                             res.json({error: 'Login Error'})
                         }else {
-                          console.log('redirect', process.env.FRONTEND_URL + '/login?github=success')
                           res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
 		                      res.header('Access-Control-Allow-Credentials', 'true');
 		                      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-                          //res.redirect(process.env.FRONTEND_URL + '/login?github=success')
                           res.json({login: user.github.login, id: user.github.id})
                         }
 			

@@ -14,7 +14,7 @@
 							{{element[column]}}
 							</ng-template>
 							<ng-template  editMode >
-								<input on-change="inputChange()" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
+								<input on-input="inputChange()" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
 							</ng-template>
 					</editable> 
 			</td>

@@ -132,13 +132,16 @@ When('I check the box {string}', async (name) => {
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).submit();
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 
-  // this one works, even if the element is not clickable (due to other elements blocking it):
-  try {
-    await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="' + name + '"]'))).sendKeys(Key.SPACE);
+  try { // this one works, even if the element is not clickable (due to other elements blocking it):
+    await driver.findElement(By.xpath('//*[@type="checkbox" and @*="' + name + '"]')).sendKeys(Key.SPACE);
   } catch (e) {
-    await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${name}' or ` + `${'@*' + "='"}${name}']`)), 3 * 1000).click();
-    //await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
-  }
+    try{ // this one works, for a text label next to the actual checkbox
+    await driver.findElement(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)).click();
+        } catch (e){ // default
+      await driver.findElement(By.xpath('//*[contains(text()"' + name  + ' "}or @*="'+name+'"')).click();
+      }
+    }
+  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
@@ -204,10 +207,15 @@ Then('So I can´t see text in the textbox: {string}', async (label) => {
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async (string) => {
+  await driver.sleep(2000);
+  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
   await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
-    const text = await body.getText().then(bodytext => bodytext);
-    expect(text.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
-  });
+    const css_body = await body.getText().then(bodytext => bodytext);
+    const inner_html_body = await driver.executeScript("return document.documentElement.innerHTML");
+    const outer_html_body = await driver.executeScript("return document.documentElement.outerHTML");
+    const body_all = css_body + inner_html_body + outer_html_body;
+    expect(body_all.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
+  })
 });
 
 
