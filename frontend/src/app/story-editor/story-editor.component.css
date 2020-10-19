@@ -19,6 +19,22 @@
     font-size: 1.25rem;
     line-height: 1.4;
   }
+
+  
+  #noStoriesHeader{
+    padding: 20px;
+  }
+
+  .material-icons{
+    padding: 5px;
+    width: 100px;
+    height: 100px;
+    font-size: 60px;
+  }
+
+  .tutorial{
+    color: #0099CC;
+  }
   
   .def {
       color: #999;
