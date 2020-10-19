@@ -1,12 +1,18 @@
 <br>
 <div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
-  <h1>No Stories Yet In This Repository</h1>
+  <h1 id="noStoriesHeader">No Stories Yet In This Repository</h1>
   <div *ngIf="!db">
-  <p>Find out how to create stories</p>
-  <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
-  <a rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
+  <p>Find out how to create stories:</p>
+  <a class="tutorial" rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
+  <a class="tutorial" rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
+  <br>
+  <span>Info: When using a DB repository new stories can be created within our application. Create a DB repository using the account settings.
+  </span>
   </div>
   <div *ngIf="db">
+    <span class="material-icons">
+    subdirectory_arrow_left
+    </span>
     <label>
       Title <input id="storytitle">
     </label>
