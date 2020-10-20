@@ -18,7 +18,7 @@ export class LoginFormComponent {
     }
 
     open(type) {
-        this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title'});
+        this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
         this.type = type;
         document.getElementById('modalHeader').innerHTML = `Login to ${type}`;
     }

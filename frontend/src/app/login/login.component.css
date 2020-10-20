@@ -10,18 +10,46 @@ h1{
 .grid{
     display: grid;
     grid-template-rows: auto;
-    grid-template-areas: "formular" "repositories";
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-areas: "howToStart" "formular" "repositories";
     background-color: white;
     place-items: center;
 }
 
 .formular{
     grid-area: formular;
-    grid-row: 1 / 2;
+    grid-row: 2 / 3;
+    grid-column: 3 / 4;
     text-align: center;
     background-color: white;
     padding: 80px 50px 20px;
+    margin-bottom: 80px;
     text-align: center;
+}
+
+.repositories{
+    grid-area: repositories;
+    grid-row: 3 / 4;
+    grid-column: 3 / 4;
+    width: 400px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 80px;
+    padding: 15px;
+    background-color:rgb(224, 224, 224);
+    border: 1px solid #999;
+}
+
+.howToStart {
+    grid-area: howToStart;
+    grid-row: 2 / 3;
+    grid-column: 2 / 3;
+    background-color: white;
+    padding: 50px 10px 50px;
+    text-align: center;
+    font-size: small;
+
 }
 
 .stayLoggedInContainer label{
@@ -32,23 +60,42 @@ h1{
     margin: 5px;
 }
 
-.repositories{
-    grid-area: repositories;
-    grid-row: 2 / 3;
-    width: 400px;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 80px;
-    padding: 15px;
-    background-color:rgb(224, 224, 224);
-    border: 1px solid #999;
-}
 .repo_img{
     margin-left: 5px;
     margin-right: 5px;
     max-height: 18px;
 }
+
+#instructionFont{
+    color:#0099CC;
+    font-size: 15pt;
+    font-weight: bold;
+}
+
+.instructionText{
+    width: 350px;
+    border: double 5px #999;
+    padding: 30px;
+}
+
+.req{
+    text-decoration: underline;
+}
+
+#info{
+    color: #0099CC;
+    font-weight: bold;
+}
+
+.expand{
+    text-align: center;
+}
+
+.expand:hover {
+    background-color: lightgrey;
+    transition: 0.3s;
+    cursor: pointer;
+  }
 
 .selectRepository{
     font-weight: bold;
@@ -67,6 +114,13 @@ a:not([href]):not([tabindex]).repoLink:hover {
 
 .wrongLogin{
     background-color: rgb(228, 92, 92);
+    text-align: center;
+}
+
+#startFont{
+    color:#0099CC;
+    font-size: 15pt;
+    font-weight: bold;
     text-align: center;
 }
 
@@ -149,7 +203,7 @@ a:not([href]):not([tabindex]).repoLink:hover {
     padding: 5px 5px 5px 5px;
 }
 
-#register{
+.register{
     font-size: 100%;
     font-style: inherit;
     border: 0px;
@@ -159,10 +213,67 @@ a:not([href]):not([tabindex]).repoLink:hover {
     text-decoration: underline;
 }
 
-#register:hover{
+.registerButton{
+    font-style: inherit;
+    border: 0px;
+    background-color: rgb(247, 247, 247);
+    color:#0099CC;
+    font-size: 10pt;
+    font-weight: bold;
+    outline: none;
+}
+
+.linkButton{
+    font-style: inherit;
+    border: 0px;
+    background-color: rgb(255, 255, 255);
+    color:#0099CC;
+    font-size: 10pt;
+    font-weight: bold;
+    outline: none;
+}
+
+.demoButton{
+    font-style: inherit;
+    border: 0px;
+    background-color: rgba(0, 153, 204, 0.001);
+    color:#000000;
+    font-size: 10pt;
+    font-weight: bold;
+    outline: none;
+    text-decoration: underline;
+}
+
+/*
+.register{
+    width: 400px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 80px;
+    padding: 15px;
+    background-color:rgb(224, 224, 224);
+    border: 1px solid #999;
+}*/
+
+#noAccountDiv{
+    margin-top: 30px;
+    border-top: 0.25px solid #999;
+    border-left: 0.25px solid #999;
+    border-right: 0.25px solid #999;
+    border-bottom: 0.25px solid #999;
+    padding: 10px;
+    background-color: rgb(247, 247, 247);
+  }
+
+.register:hover{
     color: #0099CC;
   }
 
+#loadingSpinner{
+    margin-left:36%;
+    margin-right:34%;
+}
 
 :host ::ng-deep .loadingSpinner circle{
     stroke: rgb(2, 111, 161);

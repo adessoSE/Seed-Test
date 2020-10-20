@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
     error: string;
     private testJiraHost = '';
     repositoriesLoading: boolean;
+    showInstruction = false;
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;
@@ -170,4 +171,8 @@ export class LoginComponent implements OnInit {
         this.repositoriesLoading = true;
         this.apiService.githubLogin();
       }
+
+    openInstruction() {
+        this.showInstruction = !this.showInstruction;
+    }
 }
