@@ -9,6 +9,20 @@
                 <input id="email_field" [defaultValue]="email">
                 </label>
             </div>
+            <br><br>
+            <div>
+                <!--<h2>Custom Repositories</h2>-->
+                <div>Create a Repository:</div>
+                <div class="uk-form-horizontal">
+                    <label>
+                        Name of Repository
+                        <input id="repo_name" defaultValue="YourRepoName">
+                    </label>
+                </div>
+                <div class="uk-form-horizontal">
+                    <button class="button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
+                </div>
+            </div>
     </div>
     <div class="grid_db">
         <h2>Custom Repositories</h2>
@@ -39,7 +53,6 @@
             </div>
         </div>
          <!------------------------------------->
-    </div>
     <hr>
     <div class="grid_github" *ngIf="github">
         <h2>Github</h2>
@@ -68,6 +81,7 @@
                <p>Connect Github</p>
             </button>
          </div>
+    </div>
          <!------------------Repositories GITHUB------------------->
          <div class="repositories" *ngIf="repositories">
             <div id="GitHubRepositoriesList">
@@ -85,7 +99,6 @@
             </div>
         </div>
          <!------------------------------------->
-    </div>
     <br>
     <hr>
     <div class="grid_jira">
@@ -113,6 +126,7 @@
         <div id="ChangeJiraDiv">
             <button class="button" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
         </div>
+    </div>
          <!------------------Repositories JIRA------------------->
          <div class="repositories" *ngIf="repositories">
             <div id="JiraRepositoriesList">
@@ -130,7 +144,6 @@
             </div>
         </div>
          <!------------------------------------->
-    </div>
     <hr>
 </div>
 

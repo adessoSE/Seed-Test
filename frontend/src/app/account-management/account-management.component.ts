@@ -19,7 +19,6 @@ export class AccountManagementComponent implements OnInit {
     github: any;
     jira: any;
     id: string;
-    router: any;
 
     constructor(public apiService: ApiService, router: Router, private toastr: ToastrService) {
         router.events.forEach((event) => {
@@ -94,11 +93,6 @@ export class AccountManagementComponent implements OnInit {
     ref.href = 'https://github.com/' + userRepository.value;
     localStorage.setItem('repository', userRepository.value)
     localStorage.setItem('source', userRepository.source)
-    if(this.router.url !== '/'){
-      this.router.navigate(['']);
-    } else {
-      this.apiService.getStories(userRepository).subscribe((resp) => {
-      });
-    }
-  }
+    this.router.navigate(['']);
+}
 }
