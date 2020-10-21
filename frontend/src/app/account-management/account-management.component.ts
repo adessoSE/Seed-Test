@@ -19,6 +19,7 @@ export class AccountManagementComponent implements OnInit {
     github: any;
     jira: any;
     id: string;
+    router: any;
 
     constructor(public apiService: ApiService, router: Router, private toastr: ToastrService) {
         router.events.forEach((event) => {
