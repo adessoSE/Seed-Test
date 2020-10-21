@@ -17,7 +17,7 @@
 }
 
 .grid_customRepos {
-    grid-row: 3 / 4;
+    grid-row: 2 / 3;
     grid-column: 1 / 2;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .grid_githubRepos {
-    grid-row: 3 / 4;
+    grid-row: 2 / 3;
     grid-column: 2 / 3;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .grid_jiraRepos {
-    grid-row: 3 / 4;
+    grid-row: 2 / 3;
     grid-column: 3 / 4;
 }
 
