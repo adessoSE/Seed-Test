@@ -2,6 +2,20 @@
    margin: 0;
    padding: 0;
  }
+
+ .arrowLeft{
+   width: 130px;
+   float: left;
+   margin-right: 5px;
+ }
+
+ #firstStoryText{
+   padding-top: 30px;
+   padding-left: 130px;
+   width: 250px;
+   text-align: center;
+  }
+
   .emptyStories{
     color: #999;
     padding: 10px;
@@ -33,10 +47,6 @@
 
   #noStoriesHeader{
     padding-bottom: 5px;
-  }
-
-  #firstStoryText{
-    text-align: center;
   }
 
   .firstStoryDiv{
@@ -164,7 +174,7 @@
   }
   
   .iconButton em:active {
-    background-color: #0099CC;
+    background-color: rgb(0, 153, 204);
     color: #ffffff;
   }
 
