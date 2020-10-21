@@ -2,12 +2,21 @@
 <div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1 id="noStoriesHeader">No Stories Yet In This Repository</h1>
   <div *ngIf="!db">
-  <p>Find out how to create stories:</p>
-  <a class="tutorial" rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a>
-  <a class="tutorial" rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a>
-  <br>
-  <span>Info: When using a DB repository new stories can be created within our application. Create a DB repository using the account settings.
-  </span>
+    <div class="tutorialDiv uk-card uk-card-default">
+      <h4>Find out how to create stories:</h4>
+      <div>
+        <ul id="infoList">
+          <li><a class="tutorial" rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial" target="_blank">Tutorial in German</a></li>
+          <li><a class="tutorial" rel="noopener noreferrer" href="https://github.com/adessoCucumber/Cucumber/wiki/Tutorial_eng" target="_blank">Tutorial in English</a></li>
+        </ul>
+      </div>
+      <div id="infoDiv">
+        <img id="infoImg" src="assets/aha-icon.png">
+        <p id=infoText>When using a custom repository new stories can be created within our application.
+          Create a custom repository using the account settings.
+        </p>
+      </div>
+    </div>
   </div>
   <div *ngIf="db">
     <div><img class="arrowLeft" src="assets/arrowLeft.png" alt=""></div>
