@@ -9,17 +9,11 @@
   <span>Info: When using a DB repository new stories can be created within our application. Create a DB repository using the account settings.
   </span>
   </div>
-  <div *ngIf="db">
+  <div class="firstStoryDiv uk-card uk-card-default" *ngIf="db">
+    <p id="firstStoryText">Create your first story now</p>
     <span class="material-icons">
     subdirectory_arrow_left
     </span>
-    <label>
-      Title <input id="storytitle">
-    </label>
-    <label>
-      Description <input id="storydescription">
-    </label>
-    <button type="button" class="uk-button" (click)="createnewStory()">Create new Story</button>
   </div>
 </div>
 <div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">

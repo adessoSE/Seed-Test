@@ -4,6 +4,7 @@
  }
   .emptyStories{
     color: #999;
+    padding: 10px;
   }
   .emptyStories h1{
     color: #999;
@@ -20,13 +21,7 @@
     line-height: 1.4;
   }
 
-  
-  #noStoriesHeader{
-    padding: 20px;
-  }
-
   .material-icons{
-    padding: 5px;
     width: 100px;
     height: 100px;
     font-size: 60px;
@@ -35,7 +30,24 @@
   .tutorial{
     color: #0099CC;
   }
-  
+
+  #noStoriesHeader{
+    padding-bottom: 5px;
+  }
+
+  #firstStoryText{
+    text-align: center;
+  }
+
+  .firstStoryDiv{
+    margin-top: 7px;
+    padding: 6px;
+    height: 95px;
+    width: 220px;
+    color: white;
+    background-color: rgba(153, 153, 153, 0.726);
+  }
+
   .def {
       color: #999;
       cursor: help;
