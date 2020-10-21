@@ -1,16 +1,14 @@
-
 <div><h1>Account Settings</h1></div>
 <hr>
 <div class="grid-container">
     <div class="grid_seedTest">
-            <h2>Seed-Test Account</h2>
-            <div class="uk-form-horizontal">
-                <label>E-Mail
-                <input id="email_field" [defaultValue]="email">
-                </label>
-            </div>
-    </div>
-    <div class="grid_db">
+        <h2>Seed-Test Account</h2>
+        <div class="uk-form-horizontal">
+            <label>E-Mail
+            <input id="email_field" [defaultValue]="email">
+            </label>
+        </div>
+        <br><br>
         <h2>Custom Repositories</h2>
         <div>Create a Repository:</div>
         <div class="uk-form-horizontal">
@@ -22,8 +20,9 @@
         <div class="uk-form-horizontal">
             <button class="button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
         </div>
+    </div>
          <!------------------Repositories DB------------------->
-         <div class="repositories" *ngIf="repositories">
+         <div class=" grid_customRepos repositories" *ngIf="repositories">
             <div id="DBRepositoriesList">
               <label class="selectRepository">Database Repositories:</label>
               <ul class="uk-list">
@@ -39,7 +38,6 @@
             </div>
         </div>
          <!------------------------------------->
-    </div>
     <hr>
     <div class="grid_github" *ngIf="github">
         <h2>Github</h2>
@@ -68,8 +66,9 @@
                <p>Connect Github</p>
             </button>
          </div>
+    </div>
          <!------------------Repositories GITHUB------------------->
-         <div class="repositories" *ngIf="repositories">
+         <div class="grid_githubRepos repositories" *ngIf="repositories">
             <div id="GitHubRepositoriesList">
               <label class="selectRepository">Github Repositories:</label>
               <ul class="uk-list">
@@ -85,7 +84,6 @@
             </div>
         </div>
          <!------------------------------------->
-    </div>
     <br>
     <hr>
     <div class="grid_jira">
@@ -113,8 +111,9 @@
         <div id="ChangeJiraDiv">
             <button class="button" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
         </div>
+    </div>
          <!------------------Repositories JIRA------------------->
-         <div class="repositories" *ngIf="repositories">
+         <div class="grid_jiraRepos repositories" *ngIf="repositories">
             <div id="JiraRepositoriesList">
               <label class="selectRepository">Jira Repositories:</label>
               <ul class="uk-list">
@@ -130,7 +129,6 @@
             </div>
         </div>
          <!------------------------------------->
-    </div>
     <hr>
 </div>
 

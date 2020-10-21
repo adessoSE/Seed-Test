@@ -94,11 +94,6 @@ export class AccountManagementComponent implements OnInit {
     ref.href = 'https://github.com/' + userRepository.value;
     localStorage.setItem('repository', userRepository.value)
     localStorage.setItem('source', userRepository.source)
-    if(this.router.url !== '/'){
-      this.router.navigate(['']);
-    } else {
-      this.apiService.getStories(userRepository).subscribe((resp) => {
-      });
-    }
-  }
+    this.router.navigate(['']);
+}
 }
