@@ -8,39 +8,54 @@
     grid-template-rows: auto;
     grid-template-columns: 1fr 1fr 1fr;
     grid-column-gap: 20px;
+    background-color: rgb(224,224,224);
+    padding-bottom: 100px;
+}
+
+.uk-form-horizontal{
+    padding-top: 10px;
+}
+
+.header{
+    grid-row: 1 / 2;
+    grid-column: 2 / 3;
+    padding-bottom: 20px;
 }
 
 .grid_seedTest{
-    grid-row: 1 / 2;
+    grid-row: 2 / 3;
     grid-column: 1 / 2;
     text-align: center;
+    margin-top: 10px;
 }
 
 .grid_customRepos {
-    grid-row: 2 / 3;
+    grid-row: 3 / 4;
     grid-column: 1 / 2;
 }
 
 .grid_github{
-    grid-row: 1 / 2;
+    grid-row: 2 / 3;
     grid-column: 2 / 3;
     text-align: center;
     align-items: center;
+    margin-top: 10px;
 }
 
 .grid_githubRepos {
-    grid-row: 2 / 3;
+    grid-row: 3 / 4;
     grid-column: 2 / 3;
 }
 
 .grid_jira{
-    grid-row: 1 / 2;
+    grid-row: 2 / 3;
     grid-column: 3 / 4;
     text-align: center;
+    margin-top: 10px;
 }
 
 .grid_jiraRepos {
-    grid-row: 2 / 3;
+    grid-row: 3 / 4;
     grid-column: 3 / 4;
 }
 
@@ -122,23 +137,32 @@ label{
     padding: 5px 5px 5px 5px;
 }
 
+.uk-card{
+    border: 1px solid grey;
+}
+
+.uk-card-header{
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
 
 .repositories{
-    width: 400px;
+    width: 300px;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 80px;
-    margin-top: 80px;
+    margin-bottom: 60px;
+    margin-top: 60px;
     padding: 15px;
-    background-color:rgb(224, 224, 224);
-    border: 1px solid #999;
+    background-color:rgb(255, 255, 255);
+    border-top: 1px solid #999;
 }
 
 .selectRepository{
     font-weight: bold;
     color: grey;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .repo_img{
