@@ -10,16 +10,8 @@
                 <input id="email_field" [defaultValue]="email">
             </label>
         </div>
-        <br><br>
-        <!--<h2>Custom Repositories</h2>-->
-        <b>Create a repository:</b>
         <div class="uk-form-horizontal">
-            <label>
-                <input id="repo_name" defaultValue="YourRepoName" placeholder=" Name of Repository">
-            </label>
-        </div>
-        <div class="uk-form-horizontal">
-            <button class="button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
+            <button class="button" id="create_db_repo" (click)="newRepository()">Create Repository</button>
         </div>
     <!------------------Repositories DB------------------->
     <div class="grid_customRepos repositories" *ngIf="repositories">

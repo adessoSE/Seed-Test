@@ -13,13 +13,17 @@
     border: 1px solid #999;
 }
 
-.uk-form-horizontal{
-    padding-top: 10px;
-}
-
 .header{
     grid-row: 1 / 2;
     grid-column: 2 / 3;
+}
+
+#create_db_repo{
+    margin-top: 40px;
+}
+
+#email_field{
+    margin-top: 8px;
 }
 
 .grid_seedTest{
