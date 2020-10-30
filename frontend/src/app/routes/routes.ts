@@ -7,6 +7,7 @@ import { TermsComponent } from '../terms/terms.component';
 import { TestAccountComponent } from '../test-account/test-account.component';
 import { RegistrationComponent } from '../registration/registration.component';
 import { ReportComponent } from '../report/report.component';
+import { ResetPasswordComponent } from '../reset-password/reset-password.component';
 
 export const ROUTES = [
     {
@@ -41,5 +42,10 @@ export const ROUTES = [
     {
         path: 'register',
         component: RegistrationComponent
-    }
+    },
+
+    {
+        path: 'resetPassword',
+        component: ResetPasswordComponent
+    },
 ];

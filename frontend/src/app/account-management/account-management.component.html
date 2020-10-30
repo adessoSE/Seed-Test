@@ -6,7 +6,7 @@
             <h2>Seed-Test Account</h2>
             <div class="uk-form-horizontal">
                 <label>E-Mail
-                <input id="email_field" [defaultValue]="email">
+                <input id="email_field" defaultValue="email">
                 </label>
             </div>
     </div>
@@ -22,6 +22,22 @@
         <div class="uk-form-horizontal">
             <button class="button" id="create_db_repo" (click)="createRepo()">Create Repository</button>
         </div>
+<!------------------Account Löschen / Pop up ngif sicher löschen??? Password statt mail abfragen------------------>
+<div class="grid_eraseAccount">
+    <h2>Erase Account</h2>
+    <div>You can erase your account and all connected repositories here: </div>
+    <div class="uk-form-horizontal">
+       <label>
+           E-Mail 
+       <input id="email_field" defaultValue="email" placeholder="Email*">
+       </label>
+    </div>
+    <div class="uk-form-horizontal">
+    <button class="button" id="create_db_repo" (click)="createRepo()">Erase Account</button>
+    </div>
+
+
+
          <!------------------Repositories DB------------------->
          <div class="repositories" *ngIf="repositories">
             <div id="DBRepositoriesList">
