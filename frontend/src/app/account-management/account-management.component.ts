@@ -37,21 +37,15 @@ export class AccountManagementComponent implements OnInit {
             this.apiService.githubLogin();
         }
     }
-    createRepo() {
-        const name = (document.getElementById('repo_name') as HTMLInputElement).value;
-        if (!this.isEmptyOrSpaces(name)){
-            this.apiService.createRepository(name).subscribe(resp => {
-                console.log(resp);
-                this.toastr.info('', 'Repository created')
-                this.apiService.getRepositories().subscribe(res => {
-                })
-            });
-        }
+    
+    newRepository() {
+        this.modalService.openCreateRepo();
     }
 
     jiraLogin() {
         this.modalService.open('Jira');
     }
+
     updateSite(report) {
         console.log(report);
         if (report === 'Successful') {
@@ -94,11 +88,6 @@ export class AccountManagementComponent implements OnInit {
     ref.href = 'https://github.com/' + userRepository.value;
     localStorage.setItem('repository', userRepository.value)
     localStorage.setItem('source', userRepository.source)
-    if(this.router.url !== '/'){
-      this.router.navigate(['']);
-    } else {
-      this.apiService.getStories(userRepository).subscribe((resp) => {
-      });
-    }
-  }
+    this.router.navigate(['']);
+}
 }
