@@ -12,8 +12,9 @@ setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
 //if (process.env.NODE_ENV) {
-//  chromeOptions.addArguments('--headless');
+ // chromeOptions.addArguments('--headless');
 //}
+chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
