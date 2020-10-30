@@ -14,7 +14,7 @@ const chromeOptions = new chrome.Options();
 //if (process.env.NODE_ENV) {
  // chromeOptions.addArguments('--headless');
 //}
-chromeOptions.add_argument('--disable-dev-shm-usage') 
+chromeOptions.addArgument('--disable-dev-shm-usage') 
 //chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
