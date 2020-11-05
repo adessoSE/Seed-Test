@@ -1,49 +1,43 @@
 <div class="grid-container uk-card uk-card-default">
     <div class="header">
-    <h1 class="uk-card-header">Account Settings</h1>
+        <h1 class="uk-card-header">Account Settings</h1>
     </div>
     <div class="grid_seedTest uk-card uk-card-default">
         <h2 class="uk-card-header">Seed-Test Account</h2>
-        <b>Email:</b>
-        <div class="uk-form-horizontal">
-            <label>
-                <input id="email_field" [defaultValue]="email">
-            </label>
+        <div *ngIf="email">
+            <b>Email: </b>
+            <label class="active">{{email}}</label>
+            <p><button class="button" (click)="newRepository()">Create Repository</button></p>
         </div>
-        <div class="uk-form-horizontal">
-            <button class="button" id="create_db_repo" (click)="newRepository()">Create Repository</button>
+        <div *ngIf="!email">
+            <label id="noEmail">- no email deposited -</label>
+            <p><button class="button" title="register" (click)="navToRegistration();">Register</button></p>
         </div>
-    <!------------------Repositories DB------------------->
-    <div class="grid_customRepos repositories" *ngIf="repositories">
-        <div id="DBRepositoriesList">
-        <label class="selectRepository">Database Repositories:</label>
-        <ul class="uk-list">
-            <ng-container *ngFor="let repository of repositories; let i = index">
-            <li *ngIf="this.apiService.isCustomRepo(repository)">
-            <div>
-            <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
-            <a class="repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+        <!------------------Repositories DB------------------->
+        <div class="grid_customRepos repositories" *ngIf="repositories">
+            <div id="DBRepositoriesList">
+                <label class="selectRepository">Database Repositories:</label>
+                <ul class="uk-list">
+                    <ng-container *ngFor="let repository of repositories; let i = index">
+                        <li *ngIf="this.apiService.isCustomRepo(repository)">
+                            <div>
+                                <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
+                                <a class="repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                            </div>
+                        </li>
+                    </ng-container>
+                </ul>
             </div>
-            </li>
-            </ng-container>
-        </ul>
         </div>
+        <!------------------------------------->
     </div>
-    <!------------------------------------->
-</div>
-    <hr>
     <div class="grid_github uk-card uk-card-default">
         <h2 class="uk-card-header">Github</h2>
         <div *ngIf="github">
-            <b>Github-Account:</b>
-            <div class="uk-form-horizontal">
-                <label>
-                    <label id="gitacc">{{github['login']}}</label>
-                </label>
-            </div>
-            <br>
-            <div class="githubLoginContainer" (click)="disconnectGithub()">
-                <div>
+            <b>Github-Account: </b>
+            <label class="active">{{github['login']}}</label>
+            <div>
+                <div class="githubLoginContainer" (click)="disconnectGithub()">
                     <button class="githubButton" >
                         <img src ="../assets/github-logo.png" >
                         <p> Disconnect Github</p>
@@ -51,77 +45,66 @@
                 </div>
             </div>
         </div>
-    <div class="grid_github" *ngIf="!github">
-        <div class="githubLoginContainer" (click)="login()">
-            <button class="githubButton">
-               <img src ="../assets/github-logo.png">
-               <p>Connect Github</p>
-            </button>
-         </div>
-        </div>
-    <!------------------Repositories GITHUB------------------->
-    <div class="grid_githubRepos repositories" *ngIf="repositories">
-        <div id="GitHubRepositoriesList">
-        <label class="selectRepository">Github Repositories:</label>
-        <ul class="uk-list">
-            <ng-container *ngFor="let repository of repositories; let i = index">
-            <li *ngIf="this.apiService.isGithubRepo(repository)">
-            <div>
-                <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
-            <a class="repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+        <div class="grid_github" *ngIf="!github">
+            <div class="githubLoginContainer" (click)="login()">
+                <button class="githubButton">
+                    <img src ="../assets/github-logo.png">
+                    <p>Connect Github</p>
+                </button>
             </div>
-            </li>
-            </ng-container>
-        </ul>
         </div>
+        <!------------------Repositories GITHUB------------------->
+        <div class="grid_githubRepos repositories" *ngIf="repositories">
+            <div id="GitHubRepositoriesList">
+                <label class="selectRepository">Github Repositories:</label>
+                <ul class="uk-list">
+                    <ng-container *ngFor="let repository of repositories; let i = index">
+                        <li *ngIf="this.apiService.isGithubRepo(repository)">
+                            <div>
+                                <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
+                                <a class="repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                            </div>
+                        </li>
+                    </ng-container>
+                </ul>
+            </div>
+        </div>
+        <!------------------------------------->
     </div>
-    <!------------------------------------->
-</div>
-    <br>
-    <hr>
     <div class="grid_jira uk-card uk-card-default">
         <h2 class="uk-card-header">Jira</h2>
-        <div id="jiraDiv" *ngIf="jira">
-            <div class="uk-form-horizontal">
-                <label>
-                    Jira-Name
-                    <input [defaultValue]="jira['AccountName']">
-                </label>
+        <div>
+            <div id="jiraDiv" *ngIf="jira">
+                <div class="uk-form-horizontal">
+                    <b>Jira-Name: </b>
+                    <label class="active">{{jira['AccountName']}}</label>
+                </div>
+                <div class="uk-form-horizontal">
+                    <b>Jira-Server: </b>
+                    <label class="active">{{jira['Host']}}</label>
+                </div>
             </div>
-            <!--<div class="uk-form-horizontal">-->
-                <!--<label>-->
-                    <!--Jira-Password-->
-                    <!--<input id="jira_password" type="password" name="jira_password" placeholder=" Password">-->
-                <!--</label>-->
-            <!--</div>-->
-            <div class="uk-form-horizontal">
-                <label>
-                    Jira-Server
-                    <input [defaultValue]="jira['Host']">
-                </label>
+            <div id="ChangeJiraDiv">
+                <button class="button" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
+            </div>
+        </div>  
+        <!------------------Repositories JIRA------------------->
+        <div class="grid_jiraRepos repositories" *ngIf="repositories">
+            <div id="JiraRepositoriesList">
+                <label class="selectRepository">Jira Repositories:</label>
+                <ul class="uk-list">
+                    <ng-container *ngFor="let repository of repositories; let i = index">
+                        <li *ngIf="this.apiService.isJiraRepo(repository)">
+                            <div>
+                                <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
+                                <a class="repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                            </div>
+                        </li>
+                    </ng-container>
+                </ul>
             </div>
         </div>
-        <div id="ChangeJiraDiv">
-            <button class="button" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
-        </div>
-    <!------------------Repositories JIRA------------------->
-    <div class="grid_jiraRepos repositories" *ngIf="repositories">
-        <div id="JiraRepositoriesList">
-        <label class="selectRepository">Jira Repositories:</label>
-        <ul class="uk-list">
-            <ng-container *ngFor="let repository of repositories; let i = index">
-            <li *ngIf="this.apiService.isJiraRepo(repository)">
-            <div>
-                <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
-            <a class="repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-            </div>
-            </li>
-            </ng-container>
-        </ul>
-        </div>
+        <!------------------------------------->
     </div>
-    <!------------------------------------->
-</div>
-    <hr>
 </div>
 <app-login-form #loginForm (mongoUpdate)="updateSite($event);"></app-login-form>

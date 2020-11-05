@@ -19,9 +19,8 @@ export class AccountManagementComponent implements OnInit {
     github: any;
     jira: any;
     id: string;
-    router: any;
 
-    constructor(public apiService: ApiService, router: Router, private toastr: ToastrService) {
+    constructor(public apiService: ApiService, public router: Router, private toastr: ToastrService) {
         router.events.forEach((event) => {
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful');
@@ -82,6 +81,9 @@ export class AccountManagementComponent implements OnInit {
         return str === null || str.match(/^ *$/) !== null;
     }
 
+    navToRegistration() {
+        this.router.navigate(['/register']);
+      }
 
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
