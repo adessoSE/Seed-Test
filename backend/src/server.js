@@ -10,6 +10,8 @@ const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
+const MongoStore = require('connect-mongo')(session);
+const mongo = require('./database/mongodatabase');
 
 const app = express();
 let stories = [];
@@ -27,6 +29,11 @@ if (process.env.NODE_ENV) {
   app
   .use(flash())
   .use(session({
+    store: new MongoStore({ 
+      url: process.env.DATABASE_URI,
+      dbName: 'Seed',
+      collection: 'Sessions'
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
