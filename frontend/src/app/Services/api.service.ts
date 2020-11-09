@@ -292,20 +292,20 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public addScenario(storyID: any): Observable<Scenario> {
+    public addScenario(storyID: any, storyType: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID+ '/' + storyType, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
 
-    public updateBackground(storyID: any, background: Background): Observable<Background> {
+    public updateBackground(storyID: any, storyType: string, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
+            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storyType, background, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
             }));
@@ -317,30 +317,30 @@ export class ApiService {
             .post<any>(this.apiServer + '/github/submitIssue/', obj, ApiService.getOptions());
     }
 
-    public updateScenario(storyID: any, scenario: Scenario): Observable<Story> {
+    public updateScenario(storyID: any, storyType: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID, scenario, ApiService.getOptions())
+            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storyType, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
             }));
     }
 
-    public deleteBackground(storyID: any): Observable<any> {
+    public deleteBackground(storyID: any, storyType: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID, ApiService.getOptions() )
+            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID + '/' + storyType, ApiService.getOptions() )
             .pipe(tap(resp => {
                 //  console.log('Delete background for story ' + storyID )
             }));
     }
 
-    public deleteScenario(storyID: any, scenario: Scenario): Observable<Story> {
+    public deleteScenario(storyID: any, storyType: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
+            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + storyType + '/' + scenario.scenario_id , ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
             }));

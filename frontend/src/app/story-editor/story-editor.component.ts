@@ -40,7 +40,7 @@ export class StoryEditorComponent implements OnInit {
   db = false;
   newStepName = 'New Step';
   runUnsaved = false;
-  currentTestStoryId: number;
+  currentTestStoryId: string;
   currentTestScenarioId: number;
 
   @ViewChild('exampleChildView') exampleChild;
@@ -78,7 +78,7 @@ export class StoryEditorComponent implements OnInit {
             this.runOption();
         }
         if(option == "saveRun"){
-            this.updateBackground(this.selectedStory.story_id)
+            this.updateBackground()
         }
     })
   }
@@ -151,7 +151,7 @@ export class StoryEditorComponent implements OnInit {
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
     this.apiService
-        .deleteScenario(this.selectedStory._id, scenario)
+        .deleteScenario(this.selectedStory.story_id, this.selectedStory.storyType, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
             this.toastr.error('', 'Scenario deleted')
@@ -166,8 +166,8 @@ export class StoryEditorComponent implements OnInit {
     this.showEditor = false;
   }
 
-  addScenario(storyID: string){
-    this.apiService.addScenario(storyID)
+  addScenario(){
+    this.apiService.addScenario(this.selectedStory.story_id, this.selectedStory.storyType)
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
@@ -190,7 +190,7 @@ export class StoryEditorComponent implements OnInit {
       this.selectedStory.background.name = name;
   }
 
-  updateBackground(storyID: number) {
+  updateBackground() {
     delete this.selectedStory.background.saved;
 
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
@@ -201,7 +201,7 @@ export class StoryEditorComponent implements OnInit {
         })
     })
       this.apiService
-          .updateBackground(storyID, this.selectedStory.background)
+          .updateBackground(this.selectedStory.story_id, this.selectedStory.storyType, this.selectedStory.background)
           .subscribe(resp => {
             this.toastr.success('successfully saved', 'Background')
           });
@@ -209,7 +209,7 @@ export class StoryEditorComponent implements OnInit {
 
   deleteBackground() {
       this.apiService
-          .deleteBackground(this.selectedStory._id)
+          .deleteBackground(this.selectedStory.story_id, this.selectedStory.storyType)
           .subscribe(resp => {
               this.backgroundDeleted();
           });

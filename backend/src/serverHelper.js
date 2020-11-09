@@ -147,8 +147,8 @@ async function updateJira(UserID, req) {
 }
 
 // Updates feature file based on _id
-async function updateFeatureFile(issueID) {
-	const result = await mongo.getOneStory(issueID);
+async function updateFeatureFile(issueID, storyType) {
+	const result = await mongo.getOneStory(issueID, storyType);
 	if (result != null) writeFile('', result);
 }
 
@@ -313,7 +313,7 @@ function starredRepositories(githubName, token) {
 }
 
 async function fuseStoriesWithDb(story, issueId) {
-	const result = await mongo.getOneStory(parseInt(issueId));
+  const result = await mongo.getOneStory(parseInt(issueId), story.storyType);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -326,10 +326,10 @@ async function fuseStoriesWithDb(story, issueId) {
     if (story.repo_type !== "jira") {
         story.issue_number = parseInt(story.issue_number);
     }
-  let finalStory = await mongo.upsertEntry(story.story_id, story); // TODO
+  let finalStory = await mongo.upsertEntry(story.story_id, story, story.storyType); // TODO
   story._id = finalStory.value._id
   console.log('story',story)
-  console.log('finalStory',finalStory.value)
+  //console.log('finalStory',finalStory.value)
 
 	// Create & Update Feature Files
 	writeFile('', story);
@@ -410,11 +410,11 @@ function runReport(req, res, stories, mode) {
 
       if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
-        mongo.updateScenario(story._id, scenario, (result) => {
+        mongo.updateScenario(story.storyId, story.storyType, scenario, (result) => {
         })
       } else if (!scenarioID) {
         story.lastTestPassed = testStatus;
-        mongo.updateStory(story._id, story)
+        mongo.updateStory(story)
       }
     });
   });
@@ -464,61 +464,61 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 	return story;
 }
 
-function getJiraIssues(user, projectKey){
-  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
-    const {Host} = user.jira;
-    const {AccountName} = user.jira;
-    const {Password} = user.jira;
-    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
-    const cookieJar = request.jar();
-    const tmpStories = [];
-    const options = {
-      method: 'GET',
-      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
-      jar: cookieJar,
-      qs: {
-        type: 'page',
-        title: 'title',
-      },
-      headers: {
-        'cache-control': 'no-cache',
-        Authorization: `Basic ${auth}`,
-      },
-    };
-    request(options, (error) => {
-      if (error) {
-        return error;
-      }
-      request(options, (error2, response2, body) => {
-        if (error2) {
-          return error;
-        }
-        const json = JSON.parse(body).issues;
-        for (const issue of json) {
-            if (issue.fields.labels.includes("Seed-Test")){
-                const story = {
-                    story_id: issue.id,
-                    title: issue.fields.summary,
-                    body: issue.fields.description,
-                    state: issue.fields.status.name,
-                    issue_number: issue.key,
-                };
-                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-                    story.assignee = issue.fields.assignee.name;
-                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-                } else {
-                    story.assignee = 'unassigned';
-                    story.assignee_avatar_url = null;
-                }
-                console.log(story)
-                tmpStories.push(fuseStoriesWithDb(story, issue.id));
-            }
-        }
-        return tmpStories;
-      });
-    });
-  }
-}
+//function getJiraIssues(user, projectKey){
+//  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
+//    const {Host} = user.jira;
+//    const {AccountName} = user.jira;
+//    const {Password} = user.jira;
+//    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+//    const cookieJar = request.jar();
+//    const tmpStories = [];
+//    const options = {
+//      method: 'GET',
+//      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+//      jar: cookieJar,
+//      qs: {
+//        type: 'page',
+//        title: 'title',
+//      },
+//      headers: {
+//        'cache-control': 'no-cache',
+//        Authorization: `Basic ${auth}`,
+//      },
+//    };
+//    request(options, (error) => {
+//      if (error) {
+//        return error;
+//      }
+//      request(options, (error2, response2, body) => {
+//        if (error2) {
+//          return error;
+//        }
+//        const json = JSON.parse(body).issues;
+//        for (const issue of json) {
+//            if (issue.fields.labels.includes("Seed-Test")){
+//                const story = {
+//                    story_id: issue.id,
+//                    title: issue.fields.summary,
+//                    body: issue.fields.description,
+//                    state: issue.fields.status.name,
+//                    issue_number: issue.key,
+//                    storyType = 'jira'
+//                };
+//                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+//                    story.assignee = issue.fields.assignee.name;
+//                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+//                } else {
+//                    story.assignee = 'unassigned';
+//                    story.assignee_avatar_url = null;
+//                }
+//                tmpStories.push(fuseStoriesWithDb(story, issue.id));
+//            }
+//        }
+//        return tmpStories;
+//      });
+//    });
+//  }
+//}
 
 function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
   let comment = '';
@@ -645,7 +645,7 @@ function cleanFileName(filename){
 module.exports = {
   uniqueRepositories,
   jiraProjects,
-  getJiraIssues,
+  //getJiraIssues,
   getGithubData,
   createReport,
   decryptPassword,
