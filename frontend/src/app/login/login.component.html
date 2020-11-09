@@ -2,15 +2,15 @@
   <div class="howToStart">
       <div class="uk-text-secondary instructionText">
         <h3>Welcome to seed-test!</h3>
-        <p id="info">If you don't have an account, you have two possibilities to change this:</p><br>
-        <h6 class="req"><b>1. No requirements</b></h6>
-        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data. 
-          You will be forwarded to the account settings where you can create new projects (repositories) or connect your account to Github or Jira to load existing projects.
+        <p id="info">If you don't have an account yet, you have two options to log in and start testing:</p><br>
+        <h6 class="req"><b>1. Create a seed-test account<br>(no requirements)</b></h6>
+        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data.
+          You will be forwarded to the account settings where you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
         </p>
         <br>
-        <h6 class="req"><b>2. Github account required</b></h6>
-        <p>If you already have a Github account, you can connect directly via the Github login and access your github projects directly as repositories. 
-        Additionally you can connect to Jira or create new projects (repositories) using the account settings.
+        <h6 class="req"><b>2. Login via GitHub Account<br>(GitHub Account required)</b></h6>
+        <p>If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.
+        Additionally you can connect to Jira or create new seed-test projects (repositories) using the account settings.
         </p>
         <br>
         <p><i>The settings and connections can be edited using the account settings via the menu.</i></p>
@@ -60,15 +60,16 @@
     <a class="githubLoginContainer" (click)="githubLogin();">
       <div class="githubLogin" >
          <img src ="../assets/github-logo.png" >
-         <p>Login via Github</p>
+         <p>Login via GitHub</p>
       </div>
    </a>
    <br>
    <div class="uk-card default" id="noAccountDiv">
-    <span class="noAccount">No account? <br> 
+    <span class="noAccount">No account yet? <br>
     <button class="registerButton" title="register" (click)="navToRegistration();">Register</button>
     or
     <button class="registerButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
+       (no account required)
     </span>
     <br>
 

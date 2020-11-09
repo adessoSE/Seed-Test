@@ -17,6 +17,7 @@
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "chart.js": "^2.9.3",
+    "connect-mongo": "^3.2.0",
     "core-js": "^2.6.11",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

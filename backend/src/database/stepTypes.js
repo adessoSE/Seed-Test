@@ -118,6 +118,15 @@ function stepDefs() {
     ]
   },{
     "id": 0,
+    "stepType": "when",
+    "type": "Dropdown via Xpath",
+    "pre": "I select the option",
+    "mid": "",
+    "values": [
+      ""
+    ]
+  },{
+    "id": 0,
     "stepType": "then",
     "type": "Not this Text",
     "pre": "So I can't see the text:",
