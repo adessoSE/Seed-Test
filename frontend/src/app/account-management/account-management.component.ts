@@ -30,6 +30,8 @@ export class AccountManagementComponent implements OnInit {
             this.repositories = repositories;
           });
     }
+
+    
     login() {
         if (this.email) {
             localStorage.setItem('userId', this.id);
@@ -44,7 +46,13 @@ export class AccountManagementComponent implements OnInit {
     jiraLogin() {
         this.modalService.open('Jira');
     }
-
+ 
+     eraseAccount() {
+        this.modalService.eraseAccount();
+    }
+    
+    
+    
     updateSite(report) {
         console.log(report);
         if (report === 'Successful') {
@@ -67,6 +75,8 @@ export class AccountManagementComponent implements OnInit {
             });
         }
     }
+
+   
 
     ngOnInit() {
     }
