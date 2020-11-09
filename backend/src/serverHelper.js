@@ -41,7 +41,7 @@ const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 function getValues(values) {
 	// TODO: TESTING HERE: excluding the first value
 	let data = '';
-	for (let i = 1; i < values.length; i++) data += `"${values[i]}"`;
+  for (let i = 1; i < values.length; i++) data += `'${values[i]}'`;
 	return data;
 }
 
@@ -51,7 +51,7 @@ function getBackgroundSteps(steps) {
 	for (let i = 0; i < steps.length; i++) {
 		if (i === 0) data += 'When ';
 		else data += 'And ';
-		if (steps[i].values[0] != null) data += `${steps[i].pre} "${steps[i].values[0]}" ${steps[i].mid}${getValues(steps[i].values)} \n`;
+		if (steps[i].values[0] != null) data += `${steps[i].pre} '${steps[i].values[0]}' ${steps[i].mid}${getValues(steps[i].values)} \n`;
 		else data += `${steps[i].pre} ${steps[i].mid}${getValues(steps[i].values)} \n`;
 	}
 	data += '\n';
@@ -78,10 +78,10 @@ function getSteps(steps, stepType) {
 	for (const step of steps) {
 		data += `${jsUcfirst(stepType)} `;
 		// TODO: If Given contains Background (Background>0): Add Background (method)
-		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} "${step.values[0]}" ${step.mid}${getValues(step.values)} \n`;
-		else if ((step.values[0]) === 'User') data += `${step.pre} "${step.values[0]}"\n`;
+		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
+		else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'\n`;
 		else data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
-	}
+  }
 	return data;
 }
 
