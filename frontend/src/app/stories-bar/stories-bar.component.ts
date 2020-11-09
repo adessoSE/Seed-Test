@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import {RepositoryContainer} from "../model/RepositoryContainer";
+import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-stories-bar',
@@ -11,6 +12,7 @@ import {RepositoryContainer} from "../model/RepositoryContainer";
 })
 export class StoriesBarComponent implements OnInit {
 
+  closeResult = '';
   stories: Story[];
   selectedStory: Story;
   selectedScenario: Scenario;
@@ -21,12 +23,32 @@ export class StoriesBarComponent implements OnInit {
   @Output()
   scenarioChosen: EventEmitter<any> = new EventEmitter();
 
-  constructor(public apiService: ApiService) {
+  constructor(public apiService: ApiService, private modalService: NgbModal) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.stories = stories;
       this.db = localStorage.getItem('source') === 'db' ;
     } );
   }
+    
+  /* modal mask start */
+  open(content) {
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'sm' }).result.then((result) => {
+      this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+    });
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
+  }
+  /* modal mask end */
 
   ngOnInit() {
   }

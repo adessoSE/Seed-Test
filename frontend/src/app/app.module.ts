@@ -32,6 +32,9 @@ import {MatProgressSpinnerModule} from '@angular/material';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
+import { ToastrModule } from "ngx-toastr";
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {RunTestToast} from './custom-toast'
 
 @NgModule({
   declarations: [
@@ -56,11 +59,13 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
     RegistrationComponent,
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
-    ReportComponent
+    ReportComponent,
+    RunTestToast
   ],
   imports: [
       NgbModule,
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -68,8 +73,12 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
     RouterModule.forRoot(ROUTES),
     FormsModule,
     DragDropModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    ToastrModule.forRoot({
+      timeOut: 3000
+    })
   ],
+  entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

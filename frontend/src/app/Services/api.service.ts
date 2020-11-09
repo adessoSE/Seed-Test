@@ -26,10 +26,17 @@ export class ApiService {
     public getBackendUrlEvent = new EventEmitter();
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
+    public runSaveOptionEvent = new EventEmitter();
     public user;
+    //public local:boolean = false;
+
 
     public static getOptions() {
         return { withCredentials: true};
+    }
+    
+    public runSaveOption(option: String){
+        this.runSaveOptionEvent.emit(option)
     }
 
     static handleError(error: HttpErrorResponse) {
@@ -42,6 +49,14 @@ export class ApiService {
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
         const s = `${AUTHORIZE_URL}?scope=${scope}&client_id=${localStorage.getItem('clientId')}`;
         window.location.href = s;
+    }
+
+    githubCallback(code: string): Observable<any>{
+        this.apiServer = localStorage.getItem('url_backend');
+        const str = this.apiServer + '/user/callback?code=' + code;
+        return this.http.get(str,  { responseType: 'text', withCredentials: true})
+            .pipe(tap(resp => {}),
+            catchError(ApiService.handleError));
     }
 
     getReport(reportName: string) {
@@ -88,6 +103,7 @@ export class ApiService {
     }
 
     public loginGithubToken(login: string, id) {
+        this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/githubLogin';
         const user = {login, id};
 
@@ -99,6 +115,7 @@ export class ApiService {
     }
 
     public loginUser(email: string, password: string, stayLoggedIn: boolean): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/login';
         let user;
         if (!email && !password) {
@@ -175,7 +192,7 @@ export class ApiService {
            return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
                 localStorage.setItem('clientId', backendInfo.clientId);
-                this.urlReceived = true;
+
                 this.getBackendUrlEvent.emit();
             });
         }
@@ -343,6 +360,11 @@ export class ApiService {
         return this.http
             .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
     }
+
+    //public changeDaisy(){
+    //    this.apiServer = localStorage.getItem('url_backend');
+    //    return this.http.get(this.apiServer + '/user/daisy')
+    //}
 
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;

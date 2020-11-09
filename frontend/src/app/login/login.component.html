@@ -1,9 +1,33 @@
 <div class="grid">
+  <div class="howToStart">
+      <div class="uk-text-secondary instructionText">
+        <h3>Welcome to seed-test!</h3>
+        <p id="info">If you don't have an account yet, you have two options to log in and start testing:</p><br>
+        <h6 class="req"><b>1. Create a seed-test account<br>(no requirements)</b></h6>
+        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data.
+          You will be forwarded to the account settings where you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
+        </p>
+        <br>
+        <h6 class="req"><b>2. Login via GitHub Account<br>(GitHub Account required)</b></h6>
+        <p>If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.
+        Additionally you can connect to Jira or create new seed-test projects (repositories) using the account settings.
+        </p>
+        <br>
+        <p><i>The settings and connections can be edited using the account settings via the menu.</i></p>
+        <br>
+        <hr>
+        <p>If you have questions, feel free to contact us: seed-test@adesso.de</p>
+        <br>
+        <p>You can find a detailed tutorial <a class="linkButton" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
+        </p>
+      </div>
+    </div>
   <div class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
     <h1 id="loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
+      <br>
       <hr>
       <br>
       <!-- Github Name -->
@@ -22,30 +46,36 @@
         <label for="stayLoggedIn">Keep me signed in for 2 weeks</label>
       </div>-->
       <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
+      <div id="loadingSpinner" *ngIf="this.repositoriesLoading">
+        <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
+      </div>
     </form>
     <br>
     <p>or</p>
     <hr>
-    <br>
-    <p class="noAccount">No account?
+    <!--<p class="noAccount">No account?
       <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
-    </p>
+    </p>-->
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
     <a class="githubLoginContainer" (click)="githubLogin();">
       <div class="githubLogin" >
          <img src ="../assets/github-logo.png" >
-         <p>Login via Github</p>
+         <p>Login via GitHub</p>
       </div>
    </a>
    <br>
-    <!-- Button Login-TestAccount -->
-    <button class="testAccount" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
+   <div class="uk-card default" id="noAccountDiv">
+    <span class="noAccount">No account yet? <br>
+    <button class="registerButton" title="register" (click)="navToRegistration();">Register</button>
+    or
+    <button class="registerButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
+       (no account required)
+    </span>
     <br>
+
+   </div>
   </div>
   <!-- Repositories -->
-  <div id="loadingSpinner" *ngIf="this.repositoriesLoading">
-    <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
-  </div>
   <div class="repositories" *ngIf="repositories">
     <div id="repositoriesList">
       <label class="selectRepository">Select Your Repository:</label>

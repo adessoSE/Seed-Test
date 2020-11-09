@@ -36,6 +36,10 @@ export class ExampleTableComponent implements OnInit {
     }
   }
 
+  inputChange(){
+    this.selectedScenario.saved = false;
+  }
+
   initializeTableControls() {
     this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
 

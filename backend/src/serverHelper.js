@@ -41,7 +41,7 @@ const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 function getValues(values) {
 	// TODO: TESTING HERE: excluding the first value
 	let data = '';
-	for (let i = 1; i < values.length; i++) data += `"${values[i]}"`;
+  for (let i = 1; i < values.length; i++) data += `'${values[i]}'`;
 	return data;
 }
 
@@ -51,7 +51,7 @@ function getBackgroundSteps(steps) {
 	for (let i = 0; i < steps.length; i++) {
 		if (i === 0) data += 'When ';
 		else data += 'And ';
-		if (steps[i].values[0] != null) data += `${steps[i].pre} "${steps[i].values[0]}" ${steps[i].mid}${getValues(steps[i].values)} \n`;
+		if (steps[i].values[0] != null) data += `${steps[i].pre} '${steps[i].values[0]}' ${steps[i].mid}${getValues(steps[i].values)} \n`;
 		else data += `${steps[i].pre} ${steps[i].mid}${getValues(steps[i].values)} \n`;
 	}
 	data += '\n';
@@ -78,10 +78,10 @@ function getSteps(steps, stepType) {
 	for (const step of steps) {
 		data += `${jsUcfirst(stepType)} `;
 		// TODO: If Given contains Background (Background>0): Add Background (method)
-		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} "${step.values[0]}" ${step.mid}${getValues(step.values)} \n`;
-		else if ((step.values[0]) === 'User') data += `${step.pre} "${step.values[0]}"\n`;
+		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
+		else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'\n`;
 		else data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
-	}
+  }
 	return data;
 }
 
@@ -581,37 +581,43 @@ function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label
 
 const getGithubData = (res, req, accessToken) => {
   request(
-      {
-          uri: `https://api.github.com/user?access_token=${accessToken}`,
-          method:"GET",
-          headers: {
-              "User-Agent": "SampleOAuth",
-          }
-      },
-      async function(err, response, body){
-          req.body = await JSON.parse(body)
-          req.body.githubToken = accessToken;
-          try{
-            await mongo.findOrRegister(req.body)
-
-            passport.authenticate('github-local', function (error, user, info) {
-                      if(error){
-                        return res.redirect(process.env.FRONTEND_URL +'/login?github=error');
-                      } else if(!user){
-                          return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
-                      }
-                      req.logIn(user, async function(err){
-                          if(err){
-                              return res.redirect(process.env.FRONTEND_URL + '/login?github=error');
-                          }else {
-                              return res.redirect(process.env.FRONTEND_URL + '/login?github=success' + '&login='+ user.github.login + '&id=' + user.github.id);
-                          }
-                      });
-                  })(req,res);
-        }catch(error){
-            res.sendStatus(400)
+    {
+        uri: `https://api.github.com/user?access_token=${accessToken}`,
+        method:"GET",
+        headers: {
+            "User-Agent": "SampleOAuth",
+            "Authorization": `Token ${accessToken}`
         }
-        }
+    },
+    async function(err, response, body){
+        req.body = await JSON.parse(body)
+        req.body.githubToken = accessToken;
+        try{
+          await mongo.findOrRegister(req.body)
+          passport.authenticate('github-local', function (error, user, info) {
+                    if(error){
+                      res.json({error: 'Authentication Error'})
+                    } else if(!user){
+                      res.json({error: 'Authentication Error'})
+                    }
+                    req.logIn(user, async function(err){
+                        if(err){
+                            console.log('login')
+                            res.json({error: 'Login Error'})
+                        }else {
+                          res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
+		                      res.header('Access-Control-Allow-Credentials', 'true');
+		                      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
+                          res.json({login: user.github.login, id: user.github.id})
+                        }
+			
+                    });
+                })(req,res);
+      }catch(error){
+          console.log('getGithubData error:', error)
+          res.sendStatus(400)
+      }
+    }
   )
 }
 

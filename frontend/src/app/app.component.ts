@@ -32,6 +32,7 @@ export class AppComponent implements OnInit {
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo()
     }
+    //this.apiService.local = localStorage.getItem('clientId') === localStorage.getItem('clientId_local')
   }
 
   openTerms(){
@@ -75,11 +76,10 @@ export class AppComponent implements OnInit {
       this.jirakeys = projectKeys;
       console.log(this.jirakeys);
       return projectNames;
-  }catch(error) {
+    }catch(error) {
       return []
+    }
   }
-  }
-
 
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;

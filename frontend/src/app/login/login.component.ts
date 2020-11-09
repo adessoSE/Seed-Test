@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
     error: string;
     private testJiraHost = '';
     repositoriesLoading: boolean;
+    showInstruction = false;
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;
@@ -32,9 +33,39 @@ export class LoginComponent implements OnInit {
                 }
             }else if(params.github == 'error'){
                 this.error = 'A Login error occured. Please try it again';
+            } else if (params.code){
+                this.apiService.githubCallback(params.code).subscribe(resp => {
+                    if (resp.error){
+                        this.error = resp.error
+                    }else{
+                        console.log('code resp:', resp)
+                        localStorage.setItem('login', 'true')
+                        this.getRepositories()
+                        let userId = localStorage.getItem('userId');
+                        localStorage.removeItem('userId');
+                        if(userId){
+                            this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
+                                this.loginGithubToken(params.login, params.id);
+                            })
+                        }
+                    }
+                })
             }
         })
     }
+
+    getGithubData (accessToken){
+        fetch(`https://api.github.com/user?access_token=${accessToken}`,
+            {
+                method:"GET",
+                headers: {
+                    "User-Agent": "SampleOAuth",
+                }
+            }).then(async function (resp) {
+                //console.log(resp)
+            })
+                
+      }
 
     ngOnInit() {
     }
@@ -140,4 +171,8 @@ export class LoginComponent implements OnInit {
         this.repositoriesLoading = true;
         this.apiService.githubLogin();
       }
+
+    openInstruction() {
+        this.showInstruction = !this.showInstruction;
+    }
 }
