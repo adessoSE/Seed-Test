@@ -180,10 +180,12 @@ function findStory(storyId, storyType, collection) {
 
 
 function replace(story, collection) {
+
   const myObjt = { 
-    story_id: story.storyId,
+    story_id: story.story_id,
     storyType: story.storyType,
     };
+  console.log('replace:', myObjt)
   return new Promise((resolve, reject) => {
     collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
       if (err) {
@@ -344,7 +346,6 @@ async function deleteScenario(storyId, storyType, scenarioID) {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyId, storyType, collection)
-    console.log('story', story, storyId, storyType)
     for (let i = 0; i < story.scenarios.length; i++) {
       if (story.scenarios[i].scenario_id === scenarioID) {
         story.scenarios.splice(i, 1);
@@ -378,6 +379,8 @@ async function updateScenario(storyId, storyType, updatedScenario) {
       }
     }
     let result = await replace(story, collection)
+    console.log('update:', story, result)
+
     db.close()
     return result
   } catch (e) {

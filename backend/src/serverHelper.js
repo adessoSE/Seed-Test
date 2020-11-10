@@ -158,13 +158,14 @@ function execReport2(req, res, stories, mode, story, callback) {
   const path2 = `features/${cleanFileName(story.title)}.feature`;
   const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}`: `reporting_${reportTime}`;
   const path3 =`features/${reportName}.json`;
-
+  console.log('exec 1', path1, path2, path3)
   let cmd;
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
   } else {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)}`;
   }
+
   console.log(`Executing: ${cmd}`);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
@@ -181,10 +182,10 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 async function execReport(req, res, stories, mode, callback) {
 	try {
-		const result = await mongo.getOneStory(parseInt(req.params.issueID, 10));
+    const result = await mongo.getOneStory(parseInt(req.params.issueID, 10), req.params.storyType);
 		execReport2(req, res, stories, mode, result, callback);
 	} catch (error) {
-		res.status(501)
+		res.status(404)
 			.send(error);
 	}
 }
@@ -328,7 +329,6 @@ async function fuseStoriesWithDb(story, issueId) {
     }
   let finalStory = await mongo.upsertEntry(story.story_id, story, story.storyType); // TODO
   story._id = finalStory.value._id
-  console.log('story',story)
   //console.log('finalStory',finalStory.value)
 
 	// Create & Update Feature Files
@@ -354,11 +354,14 @@ function runReport(req, res, stories, mode) {
     setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
     let reportOptions = setOptions(reportName);
     reporter.generate(reportOptions);
+    console.log('reportName:', reportName)
     res.sendFile(`/${reportName}.html`, {root: rootPath});
     //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
     let testStatus = false;
     fs.readFile(`./features/${reportName}.json`, "utf8", function (err, data) {
       let json = JSON.parse(data)
+      console.log('err', err)
+      console.log('data:', data)
       uploadReport(reportName, reportTime, json, reportOptions);
       let passed = 0;
       let failed = 0;

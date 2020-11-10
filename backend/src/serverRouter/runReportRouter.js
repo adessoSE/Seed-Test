@@ -9,6 +9,7 @@ router
 	.use(cors())
 	.use((_, __, next) => {
 		console.log('Time of submitted Run:', Date.now());
+		console.log('url',_.originalUrl)
 		next();
 	})
 	.use((req, res, next) => {
@@ -24,7 +25,7 @@ router.get('/Feature/:issueID', (req, res) => {
 });
 
 // run single Scenario of a Feature
-router.get('/Scenario/:issueID/:scenarioID', (req, res) => {
+router.get('/Scenario/:issueID/:storyType/:scenarioID', (req, res) => {
 	helper.runReport(req, res, stories, 'scenario');
 });
 

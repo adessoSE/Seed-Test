@@ -106,7 +106,7 @@ router.post('/scenario/update/:issueID/:storyType', async (req, res) => {
 	try {
 		const scenario = req.body;
 		const updatedStory = await mongo.updateScenario(parseInt(req.params.issueID, 10), req.params.storyType, scenario);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10));
+		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storyType);
 		res.status(200)
 			.json(updatedStory);
 	} catch (error) {

@@ -89,7 +89,7 @@ export class StoryEditorComponent implements OnInit {
       let tmpBackgroundSaved = this.selectedStory.background.saved;
       this.scenarioChild.scenarioSaved = true;
       this.selectedStory.background.saved = true;
-      this.runTests(this.currentTestStoryId, this.currentTestScenarioId);
+      this.runTests(this.currentTestScenarioId);
       this.scenarioChild.scenarioSaved = tmpScenarioSaved;
       this.selectedStory.background.saved = tmpBackgroundSaved;
   }
@@ -330,14 +330,14 @@ export class StoryEditorComponent implements OnInit {
 
 
   // Make the API Request to run the tests and display the results as a chart
-  runTests(_id: string, scenario_id: number) {
+  runTests(scenario_id) {
     let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
     this.testRunning = true;
     const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
     const loadingScreen: HTMLElement = document.getElementById('loading');
     loadingScreen.scrollIntoView();
     this.apiService
-        .runTests(_id, scenario_id)
+        .runTests(this.selectedStory.story_id, this.selectedStory.storyType, scenario_id)
         .subscribe(resp => {
             iframe.srcdoc = resp;
             // console.log("This is the response: " + resp);

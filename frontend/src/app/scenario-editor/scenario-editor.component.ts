@@ -396,8 +396,8 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    runTestScenario(storyID: any, scenarioId: number){
-        this.runTestScenarioEvent.emit({storyID, scenarioId})
+    runTestScenario(scenarioId: number){
+        this.runTestScenarioEvent.emit({scenarioId})
     }
 
     undefined_definition(definition){

@@ -347,14 +347,14 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: any, scenarioID: number) {
+    public runTests(storyID: any, storyType:string, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
         const value = localStorage.getItem('repository');
         const source = localStorage.getItem('source');
         const params = {value, source};
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, {
+                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + storyType + '/' + scenarioID, {
                     responseType: 'text', withCredentials: true, params});
         }
         return this.http
@@ -365,7 +365,7 @@ export class ApiService {
     //    this.apiServer = localStorage.getItem('url_backend');
     //    return this.http.get(this.apiServer + '/user/daisy')
     //}
-
+    
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;
         // return false;
