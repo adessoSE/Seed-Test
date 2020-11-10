@@ -34,13 +34,6 @@
         <!-----------------Erase your Account-------------->
         <div class="grid_eraseAccount repositories" *ngIf="login === true"></div>
             <h2 class="uk-card-header">Erase your Account </h2>
-            <b>Email:</b>
-            <div class="uk-form-horizontal">
-                <label>
-                     <input id="email_field" [defaultValue]="email" placeholder="E-Mail*">
-                </label>
-            </div>
-            <br>
             <div class="uk-form-horizontal">
                 <button class="button" id="erase_Account" (click)="eraseAccount()">Erase Seed-Account</button>
             </div>
