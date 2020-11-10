@@ -27,6 +27,7 @@
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
     "@ng-bootstrap/ng-bootstrap": "^3.0.0",
+    "@ngbmodule/material-carousel": "^0.7.1",
     "angular": "^1.8.0",
     "core-js": "^2.6.11",
     "cors": "^2.8.5",

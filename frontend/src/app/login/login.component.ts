@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { MatCarousel, MatCarouselComponent } from '@ngbmodule/material-carousel';
 
 @Component({
     selector: 'app-login',

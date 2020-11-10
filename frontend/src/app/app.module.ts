@@ -34,6 +34,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { MatCarouselModule } from '@ngbmodule/material-carousel';
 import {RunTestToast} from './custom-toast'
 
 @NgModule({
@@ -74,6 +75,7 @@ import {RunTestToast} from './custom-toast'
     FormsModule,
     DragDropModule,
     MatProgressSpinnerModule,
+    MatCarouselModule.forRoot(),
     ToastrModule.forRoot({
       timeOut: 3000
     })
