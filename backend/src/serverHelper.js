@@ -121,7 +121,7 @@ function getFeatureContent(story) {
 	if (story.background != null) data += getBackgroundContent(story.background);
 
 	// Get scenarios
-	data += getScenarioContent(story.scenarios, story._id);
+	data += getScenarioContent(story.scenarios, story.story_id);
 	return data;
 }
 
@@ -158,7 +158,6 @@ function execReport2(req, res, stories, mode, story, callback) {
   const path2 = `features/${cleanFileName(story.title)}.feature`;
   const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}`: `reporting_${reportTime}`;
   const path3 =`features/${reportName}.json`;
-  console.log('exec 1', path1, path2, path3)
   let cmd;
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
@@ -329,7 +328,6 @@ async function fuseStoriesWithDb(story, issueId) {
     }
   let finalStory = await mongo.upsertEntry(story.story_id, story, story.storyType); // TODO
   story._id = finalStory.value._id
-  //console.log('finalStory',finalStory.value)
 
 	// Create & Update Feature Files
 	writeFile('', story);
@@ -354,14 +352,11 @@ function runReport(req, res, stories, mode) {
     setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
     let reportOptions = setOptions(reportName);
     reporter.generate(reportOptions);
-    console.log('reportName:', reportName)
     res.sendFile(`/${reportName}.html`, {root: rootPath});
     //const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
     let testStatus = false;
     fs.readFile(`./features/${reportName}.json`, "utf8", function (err, data) {
       let json = JSON.parse(data)
-      console.log('err', err)
-      console.log('data:', data)
       uploadReport(reportName, reportTime, json, reportOptions);
       let passed = 0;
       let failed = 0;
@@ -413,7 +408,7 @@ function runReport(req, res, stories, mode) {
 
       if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
-        mongo.updateScenario(story.storyId, story.storyType, scenario, (result) => {
+        mongo.updateScenario(story.story_id, story.storyType, scenario, (result) => {
         })
       } else if (!scenarioID) {
         story.lastTestPassed = testStatus;

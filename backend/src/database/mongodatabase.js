@@ -185,7 +185,6 @@ function replace(story, collection) {
     story_id: story.story_id,
     storyType: story.storyType,
     };
-  console.log('replace:', myObjt)
   return new Promise((resolve, reject) => {
     collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
       if (err) {
@@ -379,8 +378,6 @@ async function updateScenario(storyId, storyType, updatedScenario) {
       }
     }
     let result = await replace(story, collection)
-    console.log('update:', story, result)
-
     db.close()
     return result
   } catch (e) {
