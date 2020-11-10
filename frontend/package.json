@@ -39,7 +39,7 @@
     "ngx-take-until-destroy": "^5.4.0",
     "ngx-toastr": "13.1.0",
     "node-fetch": "^2.6.1",
-    "node-sass": "^5.0.0",
+    "node-sass": "^4.14.1",
     "request": "^2.88.2",
     "set-value": "3.0.2",
     "uikit": "^3.5.9",
