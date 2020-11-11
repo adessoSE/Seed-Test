@@ -65,11 +65,11 @@ router.post('/createStory', async (req, res) => {
 });
 
 // update background
-router.post('/background/update/:issueID/:storyType', async (req, res) => {
+router.post('/background/update/:issueID/:storySource', async (req, res) => {
 	try {
 		const background = req.body;
-		const result = await mongo.updateBackground(parseInt(req.params.issueID, 10), req.params.storyType, background);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storyType);
+		const result = await mongo.updateBackground(parseInt(req.params.issueID, 10), req.params.storySource, background);
+		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
 		res.status(200)
 			.json(result);
 	} catch (error) {
@@ -77,11 +77,11 @@ router.post('/background/update/:issueID/:storyType', async (req, res) => {
 	}
 });
 // delete background
-//TODO storyType aus dem Frontend mitsenden
-router.delete('/background/delete/:issueID/:storyType', async (req, res) => {
+//TODO storySource aus dem Frontend mitsenden
+router.delete('/background/delete/:issueID/:storySource', async (req, res) => {
 	try {
-		await mongo.deleteBackground(parseInt(req.params.issueID, 10), req.params.storyType);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storyType);
+		await mongo.deleteBackground(parseInt(req.params.issueID, 10), req.params.storySource);
+		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
 		res.status(200)
 			.json({});
 	} catch (error) {
@@ -89,11 +89,11 @@ router.delete('/background/delete/:issueID/:storyType', async (req, res) => {
 	}
 });
 // create scenario
-// TODO: add storyType parameter in frontend
-router.get('/scenario/add/:issueID/:storyType', async (req, res) => {
+// TODO: add storySource parameter in frontend
+router.get('/scenario/add/:issueID/:storySource', async (req, res) => {
 	try {
-		const scenario = await mongo.createScenario(parseInt(req.params.issueID, 10), req.params.storyType);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storyType);
+		const scenario = await mongo.createScenario(parseInt(req.params.issueID, 10), req.params.storySource);
+		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
 		res.status(200)
 			.json(scenario);
 	} catch (error) {
@@ -101,12 +101,12 @@ router.get('/scenario/add/:issueID/:storyType', async (req, res) => {
 	}
 });
 // update scenario
-// TODO: add storyType parameter in frontend
-router.post('/scenario/update/:issueID/:storyType', async (req, res) => {
+// TODO: add storySource parameter in frontend
+router.post('/scenario/update/:issueID/:storySource', async (req, res) => {
 	try {
 		const scenario = req.body;
-		const updatedStory = await mongo.updateScenario(parseInt(req.params.issueID, 10), req.params.storyType, scenario);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storyType);
+		const updatedStory = await mongo.updateScenario(parseInt(req.params.issueID, 10), req.params.storySource, scenario);
+		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
 		res.status(200)
 			.json(updatedStory);
 	} catch (error) {
@@ -114,12 +114,12 @@ router.post('/scenario/update/:issueID/:storyType', async (req, res) => {
 	}
 });
 // delete scenario
-// TODO: add storyType parameter in frontend
-router.delete('/scenario/delete/:issueID/:storyType/:scenarioID', async (req, res) => {
+// TODO: add storySource parameter in frontend
+router.delete('/scenario/delete/:issueID/:storySource/:scenarioID', async (req, res) => {
 	try {
 		await mongo
-			.deleteScenario(parseInt(req.params.issueID, 10), req.params.storyType, parseInt(req.params.scenarioID, 10));
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storyType);
+			.deleteScenario(parseInt(req.params.issueID, 10), req.params.storySource, parseInt(req.params.scenarioID, 10));
+		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
 		res.status(200)
 			.json({});
 	} catch (error) {

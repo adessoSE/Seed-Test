@@ -135,7 +135,7 @@ export class ScenarioEditorComponent implements OnInit {
         }
         this.selectedScenario.lastTestPassed = null;
         this.apiService
-            .updateScenario(this.selectedStory.story_id, this.selectedStory.storyType, this.selectedScenario)
+            .updateScenario(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Scenario')
 

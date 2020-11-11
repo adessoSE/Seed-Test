@@ -147,8 +147,8 @@ async function updateJira(UserID, req) {
 }
 
 // Updates feature file based on _id
-async function updateFeatureFile(issueID, storyType) {
-	const result = await mongo.getOneStory(issueID, storyType);
+async function updateFeatureFile(issueID, storySource) {
+	const result = await mongo.getOneStory(issueID, storySource);
 	if (result != null) writeFile('', result);
 }
 
@@ -181,7 +181,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 async function execReport(req, res, stories, mode, callback) {
 	try {
-    const result = await mongo.getOneStory(parseInt(req.params.issueID, 10), req.params.storyType);
+    const result = await mongo.getOneStory(parseInt(req.params.issueID, 10), req.params.storySource);
 		execReport2(req, res, stories, mode, result, callback);
 	} catch (error) {
 		res.status(404)
@@ -313,7 +313,7 @@ function starredRepositories(githubName, token) {
 }
 
 async function fuseStoriesWithDb(story, issueId) {
-  const result = await mongo.getOneStory(parseInt(issueId), story.storyType);
+  const result = await mongo.getOneStory(parseInt(issueId), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -326,7 +326,7 @@ async function fuseStoriesWithDb(story, issueId) {
     if (story.repo_type !== "jira") {
         story.issue_number = parseInt(story.issue_number);
     }
-  let finalStory = await mongo.upsertEntry(story.story_id, story, story.storyType); // TODO
+  let finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource); // TODO
   story._id = finalStory.value._id
 
 	// Create & Update Feature Files
@@ -408,7 +408,7 @@ function runReport(req, res, stories, mode) {
 
       if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
-        mongo.updateScenario(story.story_id, story.storyType, scenario, (result) => {
+        mongo.updateScenario(story.story_id, story.storySource, scenario, (result) => {
         })
       } else if (!scenarioID) {
         story.lastTestPassed = testStatus;
@@ -500,7 +500,7 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 //                    body: issue.fields.description,
 //                    state: issue.fields.status.name,
 //                    issue_number: issue.key,
-//                    storyType = 'jira'
+//                    storySource = 'jira'
 //                };
 //                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
 //                    story.assignee = issue.fields.assignee.name;

@@ -176,7 +176,7 @@ router.get('/stories', async (req, res) => {
 					body: issue.body,
 					state: issue.state,
 					issue_number: issue.number,
-					storyType: 'github'
+					storySource: 'github'
 				};
 				if (issue.assignee !== null) { // skip in case of "unassigned"
 					story.assignee = issue.assignee.login;
@@ -231,7 +231,7 @@ router.get('/stories', async (req, res) => {
 									body: issue.fields.description,
 									state: issue.fields.status.name,
 									issue_number: issue.key,
-									storyType: 'jira'
+									storySource: 'jira'
 								};
 								if (issue.fields.assignee !== null) {
 									// skip in case of "unassigned"
@@ -276,7 +276,7 @@ router.get('/stories', async (req, res) => {
 					issue_number: issue.id,
 					assignee: issue.assignee,
 					assignee_avatar_url: null,
-					storyType: "db"
+					storySource: "db"
 				};
 				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 			}

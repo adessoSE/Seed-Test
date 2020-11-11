@@ -5,7 +5,7 @@ export interface Story {
     _id: any;
     issue_number: number;
     story_id: number;
-    storyType: string;
+    storySource: string;
     background: Background;
     scenarios: Scenario[];
     title: string;

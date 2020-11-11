@@ -151,7 +151,7 @@ export class StoryEditorComponent implements OnInit {
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
     this.apiService
-        .deleteScenario(this.selectedStory.story_id, this.selectedStory.storyType, scenario)
+        .deleteScenario(this.selectedStory.story_id, this.selectedStory.storySource, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
             this.toastr.error('', 'Scenario deleted')
@@ -167,7 +167,7 @@ export class StoryEditorComponent implements OnInit {
   }
 
   addScenario(){
-    this.apiService.addScenario(this.selectedStory.story_id, this.selectedStory.storyType)
+    this.apiService.addScenario(this.selectedStory.story_id, this.selectedStory.storySource)
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
@@ -201,7 +201,7 @@ export class StoryEditorComponent implements OnInit {
         })
     })
       this.apiService
-          .updateBackground(this.selectedStory.story_id, this.selectedStory.storyType, this.selectedStory.background)
+          .updateBackground(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedStory.background)
           .subscribe(resp => {
             this.toastr.success('successfully saved', 'Background')
           });
@@ -209,7 +209,7 @@ export class StoryEditorComponent implements OnInit {
 
   deleteBackground() {
       this.apiService
-          .deleteBackground(this.selectedStory.story_id, this.selectedStory.storyType)
+          .deleteBackground(this.selectedStory.story_id, this.selectedStory.storySource)
           .subscribe(resp => {
               this.backgroundDeleted();
           });
@@ -337,7 +337,7 @@ export class StoryEditorComponent implements OnInit {
     const loadingScreen: HTMLElement = document.getElementById('loading');
     loadingScreen.scrollIntoView();
     this.apiService
-        .runTests(this.selectedStory.story_id, this.selectedStory.storyType, scenario_id)
+        .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
         .subscribe(resp => {
             iframe.srcdoc = resp;
             // console.log("This is the response: " + resp);
