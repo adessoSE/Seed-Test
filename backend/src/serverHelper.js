@@ -323,7 +323,7 @@ async function fuseStoriesWithDb(story, issueId) {
 		story.background = emptyBackground();
   }
   story.story_id = parseInt(story.story_id);
-    if (story.repo_type !== "jira") {
+    if (story.storySource !== "jira") {
         story.issue_number = parseInt(story.issue_number);
     }
   let finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource); // TODO

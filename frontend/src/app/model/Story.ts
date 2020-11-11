@@ -3,7 +3,7 @@ import { Background } from './Background';
 
 export interface Story {
     _id: any;
-    issue_number: number;
+    issue_number: any;
     story_id: number;
     storySource: string;
     background: Background;

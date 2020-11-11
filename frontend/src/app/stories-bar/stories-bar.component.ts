@@ -56,7 +56,11 @@ export class StoriesBarComponent implements OnInit {
 
   getSortedStories() {
     if (this.stories) {
-      return this.stories.sort(function(a, b) { return a.issue_number - b.issue_number; });
+      return this.stories.sort(function(a, b) { 
+        if(a.issue_number < b.issue_number) { return -1; }
+        if(a.issue_number > b.issue_number) { return 1; }
+        return 0;
+      });
     }
   }
 

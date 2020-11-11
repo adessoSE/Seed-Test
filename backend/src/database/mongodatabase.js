@@ -428,6 +428,15 @@ async function addIssue(issue, name){
     let collection = await selectRepositoryCollection(db);
     let result = await collection.findOne(myObjt);
     let issues = result.issues;
+    let highest = 0
+    if (issues.length > 0){
+      issues.forEach((issue) => {
+        if(issue.id > highest){
+          highest = issue.id;
+        }
+      })
+    }
+    issue.id = highest + 1;
     issues[issue.id] = issue;
     result.issues = issues;
     collection.findOneAndUpdate(myObjt, { $set: result }, {
