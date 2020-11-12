@@ -76,7 +76,7 @@ export class ScenarioEditorComponent implements OnInit {
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
     saveRunOption(){
-        this.updateScenario(this.selectedScenario.scenario_id)
+        this.updateScenario()
         this.apiService.runSaveOption('run')
     }
 
@@ -108,7 +108,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
 
-    updateScenario(storyID: number) {
+    updateScenario() {
         delete this.selectedScenario.saved;
         let steps = this.selectedScenario.stepDefinitions["given"];
         steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
@@ -134,16 +134,15 @@ export class ScenarioEditorComponent implements OnInit {
             console.log("There are undefined steps here");
         }
         this.selectedScenario.lastTestPassed = null;
-
         this.apiService
-            .updateScenario(storyID, this.selectedScenario)
+            .updateScenario(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Scenario')
 
             });
     }
 
-    addScenarioToStory(storyID: number) {
+    addScenarioToStory(storyID: any) {
         this.addScenarioEvent.emit(storyID);
     }
 
@@ -151,7 +150,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.deleteScenarioEvent.emit(this.selectedScenario);
     }
 
-    addStepToScenario(storyID: number, step) {
+    addStepToScenario(storyID: any, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if(newStep['type'] === this.newStepName){
             this.modalService.open(newStep['stepType']);
@@ -397,8 +396,8 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    runTestScenario(storyId: number, scenarioId: number){
-        this.runTestScenarioEvent.emit({storyId, scenarioId})
+    runTestScenario(scenarioId: number){
+        this.runTestScenarioEvent.emit({scenarioId})
     }
 
     undefined_definition(definition){
