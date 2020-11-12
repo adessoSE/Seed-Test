@@ -241,7 +241,6 @@ router.get('/stories', async (req, res) => {
 									story.assignee = 'unassigned';
 									story.assignee_avatar_url = null;
 								}
-								console.log(story);
 								tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 							}
 						}

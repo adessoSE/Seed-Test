@@ -41,7 +41,6 @@ async function registerGithubUser(user){
 }
 
 async function mergeGithub(userId, login, id){
-  console.log('login:', login, 'id:', id)
   let db = await connectDb()
   let dbo = db.db(dbName);
   let collection = await dbo.collection(userCollection)
@@ -80,7 +79,6 @@ async function getUserById(id){
   let dbo = await db.db(dbName)
   let collection = await dbo.collection(userCollection)
   let result = await collection.findOne({_id: ObjectId(id)})
-  console.log('getuserbyid: ' + id)
   db.close();
   return result
 }
@@ -151,16 +149,6 @@ function selectUsersCollection(db) {
     })
   })
 }
-
-// TODO: delete this? , because there is another "upadateStory"
-//async function updateStory(_id, updatedStuff) {
-//  let db = await connectDb()
-//  let collection = await selectCollection(db)
-//  let story = await replace(updatedStuff, collection)
-//  db.close()
-//  console.log('story: ' + JSON.stringify(story))
-//  return story
-//}
 
 function findStory(storyId, storySource, collection) {
   const myObjt = { 
@@ -238,6 +226,11 @@ async function getOneStory(storyId, storySource) {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyId, storySource, collection)
+    
+    // TODO remove later when all used stories have the tag storySource
+    if(!story){
+      story = await findStory(storyId, undefined, collection)
+    }
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
@@ -464,8 +457,16 @@ async function upsertEntry(storyId, updatedContent, storySource) {
     let collection = await selectStoriesCollection(db)
     let result =  await collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
       returnOriginal: false,
-      upsert: true,
+      upsert: false,
     })
+    // TODO remove later when all used stories have the tag storySource
+    if(!result.value){
+      myObjt.storySource = undefined;
+      result = await collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
+        returnOriginal: false,
+        upsert: true,
+      })
+    }
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)
@@ -561,7 +562,6 @@ async function getUserData(userID) {
     let collection = await selectUsersCollection(db);
     let result = await collection.findOne(myObjt);
     db.close();
-    console.log(result)
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER: " + e)

@@ -326,7 +326,7 @@ async function fuseStoriesWithDb(story, issueId) {
     if (story.storySource !== "jira") {
         story.issue_number = parseInt(story.issue_number);
     }
-  let finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource); // TODO
+  let finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
   story._id = finalStory.value._id
 
 	// Create & Update Feature Files
@@ -600,7 +600,6 @@ const getGithubData = (res, req, accessToken) => {
                     }
                     req.logIn(user, async function(err){
                         if(err){
-                            console.log('login')
                             res.json({error: 'Login Error'})
                         }else {
                           res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );

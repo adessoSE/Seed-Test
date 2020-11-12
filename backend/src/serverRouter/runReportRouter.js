@@ -9,7 +9,6 @@ router
 	.use(cors())
 	.use((_, __, next) => {
 		console.log('Time of submitted Run:', Date.now());
-		console.log('url',_.originalUrl)
 		next();
 	})
 	.use((req, res, next) => {
