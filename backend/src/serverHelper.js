@@ -49,6 +49,7 @@ function getValues(values) {
 function getBackgroundSteps(steps) {
 	let data = '';
 	for (let i = 0; i < steps.length; i++) {
+    if(steps[i].deactivated) continue;
 		if (i === 0) data += 'When ';
 		else data += 'And ';
 		if (steps[i].values[0] != null) data += `${steps[i].pre} '${steps[i].values[0]}' ${steps[i].mid}${getValues(steps[i].values)} \n`;
@@ -76,6 +77,7 @@ function jsUcfirst(string) {
 function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
+    if(step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		// TODO: If Given contains Background (Background>0): Add Background (method)
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;

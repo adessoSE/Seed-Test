@@ -20,16 +20,21 @@
     line-height: 1.4;
   }
 
+  .disabledDeactivateButton{
+    color: #0099CC;
+  }
+  
+  .disabled input{
+    color: gray;
+    border-bottom: 1px solid gray;
+  }
+
+  .stepDeactivated{
+    margin-left: 20px;
+  }
   
   #noStoriesHeader{
     padding: 20px;
-  }
-
-  .material-icons{
-    padding: 5px;
-    width: 100px;
-    height: 100px;
-    font-size: 60px;
   }
 
   .tutorial{

@@ -150,6 +150,7 @@ export class ScenarioEditorComponent implements OnInit {
         this.deleteScenarioEvent.emit(this.selectedScenario);
     }
 
+
     addStepToScenario(storyID: any, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if(newStep['type'] === this.newStepName){
@@ -224,22 +225,18 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
+    deactivateStep(stepStepType: string, index: number){
+        this.selectedScenario.stepDefinitions[stepStepType][index].deactivated = !this.selectedScenario.stepDefinitions[stepStepType][index].deactivated
+        this.selectedScenario.saved = false;
+    }
+
+
     removeStepFromScenario(stepStepType: string, index: number) {
-        switch (stepStepType) {
-            case 'given':
-                this.selectedScenario.stepDefinitions.given.splice(index, 1);
-                break;
-            case 'when':
-                this.selectedScenario.stepDefinitions.when.splice(index, 1);
-                break;
-            case 'then':
-                this.selectedScenario.stepDefinitions.then.splice(index, 1);
-                break;
-            case 'example':
-                this.selectedScenario.stepDefinitions.example.splice(index, 1);
-                this.exampleChild.updateTable();
-                break;
+        this.selectedScenario.stepDefinitions[stepStepType].splice(index, 1)
+        if(stepStepType === 'example'){
+            this.exampleChild.updateTable();
         }
+        
         this.selectedScenario.saved = false;
     }
 

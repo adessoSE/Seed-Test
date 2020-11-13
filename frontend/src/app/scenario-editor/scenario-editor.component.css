@@ -169,6 +169,14 @@ input[type="text"]{
   border-radius: 10%;
 }
 
+.disabledDeactivateButton{
+  color: #0099CC;
+}
+
+.disabled input{
+  color: gray;
+  border-bottom: 1px solid gray;
+}
 
 .iconButton em:active {
   background-color: #0099CC;
@@ -216,6 +224,10 @@ input[type="text"]{
 .disabled em{
   color: gray !important;
   background: white !important;
+}
+
+.stepDeactivated{
+  margin-left: 20px;
 }
 
 .uk-card-footer{

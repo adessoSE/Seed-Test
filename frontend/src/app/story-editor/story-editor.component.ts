@@ -126,6 +126,11 @@ export class StoryEditorComponent implements OnInit {
         });
     }
 
+    deactivateStep(stepStepType: string, index: number){
+        this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated = !this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated
+        this.selectedStory.background.saved = false;
+    }
+
     createnewStory() {
       const title = (document.getElementById('storytitle') as HTMLInputElement).value;
       const description = (document.getElementById('storydescription') as HTMLInputElement).value;
@@ -234,6 +239,7 @@ export class StoryEditorComponent implements OnInit {
       if (newStep.stepType == 'when') {
           this.selectedStory.background.stepDefinitions.when.push(newStep);
       }
+      this.selectedStory.background.saved = false;
   }
 
   createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{

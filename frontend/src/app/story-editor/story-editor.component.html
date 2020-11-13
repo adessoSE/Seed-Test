@@ -96,30 +96,37 @@
           <div class="uk-steps">
             <br>
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
-              <div class="text-inline" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
-                <div class="dragIconContainer" cdkDragHandle>
-                  <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
-                </div>
-                <button id="{{'background_remove_step' + j}}" a
-                  uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
-                  (click)="removeStepFromBackground($event, j);">
-                </button>
-                {{j+1}}. {{currentStep.pre}}
-                <p style="display:inline" *ngIf="currentStep.values.length > 0">
-                  <input id="{{'background_step_input_pre' + j}}" #step_type_input
-                    type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" />
-                    {{currentStep.mid}}
-                  <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
-                    type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" />
-                </p>
-                {{currentStep.post}}
-                <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
-                type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
-                <div *ngIf="currentStep.outdated">
-                  <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-                    <span rel="def">
-                      This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the background to confirm your adjustments.
-                    </span></dfn>
+              <div *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
+                <div class="text-inline" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
+                  <div class="dragIconContainer" cdkDragHandle  [class.stepDeactivated]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
+                    <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
+                  </div>
+                  <button id="{{'background_remove_step' + j}}" a
+                    uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
+                    (click)="removeStepFromBackground($event, j);">
+                  </button>
+                  <button id="{{'background_' + i + '_deactivate_step_' + j}}" a
+                  [class.disabledDeactivateButton]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated"
+                  uk-icon="icon: ban" class="uk-text" uk-tooltip title="Deactivate Step"
+                  (click)="deactivateStep(currentStep.stepType, j);">
+                  </button>
+                  {{j+1}}. {{currentStep.pre}}
+                  <p style="display:inline" *ngIf="currentStep.values.length > 0">
+                    <input id="{{'background_step_input_pre' + j}}" #step_type_input
+                      type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" />
+                      {{currentStep.mid}}
+                    <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
+                      type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" />
+                  </p>
+                  {{currentStep.post}}
+                  <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
+                  type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
+                  <div *ngIf="currentStep.outdated">
+                    <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                      <span rel="def">
+                        This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the background to confirm your adjustments.
+                      </span></dfn>
+                  </div>
                 </div>
               </div>
             </div>
