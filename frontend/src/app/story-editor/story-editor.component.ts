@@ -334,7 +334,6 @@ export class StoryEditorComponent implements OnInit {
       return undefined_list;
   }
 
-
   // Make the API Request to run the tests and display the results as a chart
   runTests(scenario_id) {
     let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);

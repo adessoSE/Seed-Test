@@ -19,7 +19,7 @@ router
 	});
 
 // run single Feature
-router.get('/Feature/:issueID', (req, res) => {
+router.get('/Feature/:issueID/:storySource', (req, res) => {
 	helper.runReport(req, res, stories, 'feature');
 });
 
