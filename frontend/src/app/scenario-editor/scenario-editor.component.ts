@@ -36,7 +36,7 @@ export class ScenarioEditorComponent implements OnInit {
 
     ngOnInit() {
         this.apiService.runSaveOptionEvent.subscribe(option => {
-            if (option == 'saveRun'){
+            if (option == 'saveScenario'){
                 this.saveRunOption();
             }
         })
@@ -75,8 +75,8 @@ export class ScenarioEditorComponent implements OnInit {
     @Output()
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
-    saveRunOption(){
-        this.updateScenario()
+    async saveRunOption(){
+        await this.updateScenario()
         this.apiService.runSaveOption('run')
     }
 
@@ -134,12 +134,12 @@ export class ScenarioEditorComponent implements OnInit {
             console.log("There are undefined steps here");
         }
         this.selectedScenario.lastTestPassed = null;
-        this.apiService
+        return new Promise((resolve, reject) => {this.apiService
             .updateScenario(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Scenario')
-
-            });
+                resolve()
+            });})
     }
 
     addScenarioToStory(storyID: any) {
@@ -436,5 +436,9 @@ export class ScenarioEditorComponent implements OnInit {
             temp[key] = this.clone(obj[key]);
         }
         return temp;
+    }
+
+    scenarioSaved(){
+        return this.testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined
     }
 }  

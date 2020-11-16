@@ -40,7 +40,7 @@ export class StoryEditorComponent implements OnInit {
   db = false;
   newStepName = 'New Step';
   runUnsaved = false;
-  currentTestStoryId: string;
+  currentTestStoryId: number;
   currentTestScenarioId: number;
 
   @ViewChild('exampleChildView') exampleChild;
@@ -209,6 +209,7 @@ export class StoryEditorComponent implements OnInit {
           .updateBackground(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedStory.background)
           .subscribe(resp => {
             this.toastr.success('successfully saved', 'Background')
+            this.apiService.runSaveOption('saveScenario')
           });
   }
 
@@ -336,24 +337,33 @@ export class StoryEditorComponent implements OnInit {
 
   // Make the API Request to run the tests and display the results as a chart
   runTests(scenario_id) {
-    let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
-    this.testRunning = true;
-    const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-    const loadingScreen: HTMLElement = document.getElementById('loading');
-    loadingScreen.scrollIntoView();
-    this.apiService
-        .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
-        .subscribe(resp => {
-            iframe.srcdoc = resp;
-            // console.log("This is the response: " + resp);
-            this.htmlReport = resp;
-            this.testDone = true;
-            this.showResults = true;
-            this.testRunning = false;
-            setTimeout(function () {
-                iframe.scrollIntoView();
-            }, 10);
-        });
+    if(this.storySaved()){
+        this.testRunning = true;
+        const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+        const loadingScreen: HTMLElement = document.getElementById('loading');
+        loadingScreen.scrollIntoView();
+        this.apiService
+            .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
+            .subscribe(resp => {
+                iframe.srcdoc = resp;
+                // console.log("This is the response: " + resp);
+                this.htmlReport = resp;
+                this.testDone = true;
+                this.showResults = true;
+                this.testRunning = false;
+                setTimeout(function () {
+                    iframe.scrollIntoView();
+                }, 10);
+                this.toastr.info('', 'Test is done')
+                this.runUnsaved = false;
+            });
+    }else{
+        this.currentTestScenarioId = scenario_id;
+        this.currentTestStoryId = this.selectedStory.story_id;
+        this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
+            toastComponent: RunTestToast
+        })
+    }        
   }
 
   downloadFile() {
@@ -379,5 +389,8 @@ export class StoryEditorComponent implements OnInit {
       return temp;
   }
 
+  storySaved(){
+    return this.runUnsaved ||((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved))
+  }
 
 }
