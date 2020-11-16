@@ -105,6 +105,27 @@ input[type="text"]{
   border:2px solid rgb(255, 255, 255);
 }
 
+.checkbox{
+  margin: 0px 3px;
+}
+
+.checkbox:hover{
+  cursor: pointer;
+}
+
+.actionButton{
+  margin: 0px 10px;
+
+}
+
+.actionBarContainer{
+  margin: 5px 0px;
+  margin-left: 20px;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+}
+
 .uk-button-icon{
   padding-left:0;
   padding-right:0;

@@ -25,6 +25,7 @@ export class ScenarioEditorComponent implements OnInit {
     arrowRight = true;
     uncutInputs: string[] = [];
     newStepName= 'New Step';
+    activeActionBar = false;
     
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
@@ -48,7 +49,7 @@ export class ScenarioEditorComponent implements OnInit {
 
     @Input()
     removeRowIndex(index: number) {
-        this.removeStepFromScenario('example', index);
+        this.removeStepFromScenario();
         this.selectedScenario.saved = false;
     }
 
@@ -225,17 +226,51 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
-    deactivateStep(stepStepType: string, index: number){
-        this.selectedScenario.stepDefinitions[stepStepType][index].deactivated = !this.selectedScenario.stepDefinitions[stepStepType][index].deactivated
+    deactivateStep(){
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            for(let s in this.selectedScenario.stepDefinitions[prop]){
+                if(this.selectedScenario.stepDefinitions[prop][s].checked){
+                    this.selectedScenario.stepDefinitions[prop][s].deactivated = !this.selectedScenario.stepDefinitions[prop][s].deactivated
+                }
+            }
+        }
         this.selectedScenario.saved = false;
     }
 
 
-    removeStepFromScenario(stepStepType: string, index: number) {
-        this.selectedScenario.stepDefinitions[stepStepType].splice(index, 1)
-        if(stepStepType === 'example'){
-            this.exampleChild.updateTable();
+    checkStep(event, step){
+        let checkCount = 0
+        if(step.checked){
+            for (let prop in this.selectedScenario.stepDefinitions) {
+                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    if(this.selectedScenario.stepDefinitions[prop][i].checked){
+                        checkCount++;
+                    }
+                }
+            }
+            if(checkCount <= 1){
+                this.activeActionBar = false;
+            }
+        }else{
+            this.activeActionBar = true;
         }
+        step.checked = !step.checked;
+    }
+
+    removeStepFromScenario() {
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                if(this.selectedScenario.stepDefinitions[prop][i].checked){
+                    this.selectedScenario.stepDefinitions[prop].splice(i, 1)
+                }
+            }
+        }
+
+
+        //this.selectedScenario.stepDefinitions[stepStepType].splice(index, 1)
+        //if(stepStepType === 'example'){
+        //    this.exampleChild.updateTable();
+        //}
         
         this.selectedScenario.saved = false;
     }
