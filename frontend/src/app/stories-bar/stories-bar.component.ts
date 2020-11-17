@@ -56,7 +56,11 @@ export class StoriesBarComponent implements OnInit {
 
   getSortedStories() {
     if (this.stories) {
-      return this.stories.sort(function(a, b) { return a.issue_number - b.issue_number; });
+      return this.stories.sort(function(a, b) { 
+        if(a.issue_number < b.issue_number) { return -1; }
+        if(a.issue_number > b.issue_number) { return 1; }
+        return 0;
+      });
     }
   }
 
@@ -87,7 +91,7 @@ export class StoriesBarComponent implements OnInit {
     this.storyChosen.emit(story);
     const storyIndex = this.stories.indexOf(this.selectedStory);
     if (this.stories[storyIndex].scenarios[0]) {
-      this.selectScenario(this.selectedStory.story_id, this.stories[storyIndex].scenarios[0]);
+      this.selectScenario(this.selectedStory._id, this.stories[storyIndex].scenarios[0]);
     }
   }
 }

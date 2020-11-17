@@ -178,7 +178,7 @@ async function backupScenarios() {
                 for (y of backup) {
                     if (y.story_id === x.story_id) {
                         console.log("Updating Story: " + x.story_id);
-                        await mongo.updateStory(x.story_id, y);
+                        await mongo.updateStory(y);
                         console.log("Replaced Story: " + x.story_id)
                     }
                 }

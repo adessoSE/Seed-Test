@@ -292,20 +292,20 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public addScenario(storyID: number): Observable<Scenario> {
+    public addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID+ '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
 
-    public updateBackground(storyID: number, background: Background): Observable<Background> {
+    public updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
+            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
             }));
@@ -317,44 +317,44 @@ export class ApiService {
             .post<any>(this.apiServer + '/github/submitIssue/', obj, ApiService.getOptions());
     }
 
-    public updateScenario(storyID: number, scenario: Scenario): Observable<Story> {
+    public updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID, scenario, ApiService.getOptions())
+            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storySource, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
             }));
     }
 
-    public deleteBackground(storyID: number): Observable<any> {
+    public deleteBackground(storyID: any, storySource: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID, ApiService.getOptions() )
+            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID + '/' + storySource, ApiService.getOptions() )
             .pipe(tap(resp => {
                 //  console.log('Delete background for story ' + storyID )
             }));
     }
 
-    public deleteScenario(storyID: number, scenario: Scenario): Observable<Story> {
+    public deleteScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
+            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
             }));
     }
 
     // demands testing from the server
-    public runTests(storyID: number, scenarioID: number) {
+    public runTests(storyID: any, storySource:string, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
         const value = localStorage.getItem('repository');
         const source = localStorage.getItem('source');
         const params = {value, source};
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, {
+                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, {
                     responseType: 'text', withCredentials: true, params});
         }
         return this.http
@@ -365,7 +365,7 @@ export class ApiService {
     //    this.apiServer = localStorage.getItem('url_backend');
     //    return this.http.get(this.apiServer + '/user/daisy')
     //}
-
+    
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;
         // return false;
