@@ -54,6 +54,12 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     @Input()
+    checkRowIndex(index: number) {
+        this.checkStep(null, this.selectedScenario.stepDefinitions.example[index])
+        //this.selectedScenario.stepDefinitions.example[index].checked = !this.selectedScenario.stepDefinitions.example[index].checked
+    }
+
+    @Input()
     set newlySelectedStory(story: Story) {
         this.selectedStory = story;
     }
@@ -262,16 +268,13 @@ export class ScenarioEditorComponent implements OnInit {
             for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
                 if(this.selectedScenario.stepDefinitions[prop][i].checked){
                     this.selectedScenario.stepDefinitions[prop].splice(i, 1)
+                    if(prop === 'example'){
+                        this.exampleChild.updateTable();
+                    }
                 }
+
             }
         }
-
-
-        //this.selectedScenario.stepDefinitions[stepStepType].splice(index, 1)
-        //if(stepStepType === 'example'){
-        //    this.exampleChild.updateTable();
-        //}
-        
         this.selectedScenario.saved = false;
     }
 

@@ -88,15 +88,6 @@
                 <div class="dragIconContainer" cdkDragHandle [class.stepDeactivated]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                   <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
                 </div>
-                <!--<button id="{{'scenario_' + i + '_delete_step_' + j}}" a
-                  uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Step"
-                  (click)="removeStepFromScenario(currentStep.stepType, j);">
-                </button>
-                <button id="{{'scenario_' + i + '_deactivate_step_' + j}}" a
-                [class.disabledDeactivateButton]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated"
-                  uk-icon="icon: ban" class="uk-text" uk-tooltip title="Deactivate Step"
-                  (click)="deactivateStep(currentStep.stepType, j);">
-                </button>-->
                 <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep)">
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
                 <p style="display:inline" *ngIf="currentStep.values.length > 0">
@@ -125,7 +116,7 @@
           Example (Cases)
         </ng-template>
         <ng-template #exampleCondition>
-          <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
+          <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
         </ng-template>
       </div>
       <br>

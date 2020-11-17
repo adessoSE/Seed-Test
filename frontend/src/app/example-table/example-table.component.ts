@@ -16,7 +16,7 @@ export class ExampleTableComponent implements OnInit {
   exampleThere: boolean = false;
 
   @Output()
-  removeRowIndex: EventEmitter<number> = new EventEmitter();
+  checkRowIndex: EventEmitter<number> = new EventEmitter();
 
   constructor() {}
 
@@ -92,7 +92,8 @@ export class ExampleTableComponent implements OnInit {
     }
   }
 
-  removeRow(rowIndex: number) {
-    this.removeRowIndex.emit(rowIndex + 1 );
+  checkExample(event, column, rowIndex){
+    this.checkRowIndex.emit(rowIndex + 1)
   }
+
 }
