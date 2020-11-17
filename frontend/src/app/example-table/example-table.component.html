@@ -7,7 +7,7 @@
 	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" matColumnDef={{column}}> 
 			<th class="headerRow" mat-header-cell *matHeaderCellDef scope="col"> {{column}}</th>
 			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
-				<input *ngIf="first" type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, column, rowIndex)">
+				<input *ngIf="first" type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, column, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
 				<editable  (update)="updateField(columnIndex, rowIndex, column)">
 						<ng-template viewMode>
 						{{element[column]}}

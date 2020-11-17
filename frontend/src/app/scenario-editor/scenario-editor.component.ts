@@ -243,6 +243,13 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.saved = false;
     }
 
+    checkAllSteps(event){
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i])
+            }
+        }
+    }
 
     checkStep(event, step){
         let checkCount = 0
