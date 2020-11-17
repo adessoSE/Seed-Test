@@ -24,12 +24,12 @@
         </div>
       </div>
       <div id="buttonGroupScenario" class="uk-align-right">
-        <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory.story_id)">
+        <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
           <em class="material-icons">add</em>
         </button>
         <button id="scenario_save" [class.disabled]="testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined" [disabled]="testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined" class="buttonGroup iconButton" data-uk-tooltip
           title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
-          (click)="updateScenario(selectedStory.story_id);">
+          (click)="updateScenario();">
           <em class="material-icons">save</em>
         </button>
         <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
@@ -55,7 +55,7 @@
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory.story_id,step);">
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
               {{step.type}}</span>
               </li>
             </ul>
@@ -63,7 +63,7 @@
           <div *ngIf="sd == 'example'">
             <div *ngFor="let step of originalStepTypes; let j = index;" >
               <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
-              class="addStepButtons" (click)="addStepToScenario(selectedStory.story_id,step);" title="Add New Variable" uk-tooltip></button>
+              class="addStepButtons" (click)="addStepToScenario(selectedStory._id,step);" title="Add New Variable" uk-tooltip></button>
             </div>
           </div>
         </div>
