@@ -183,7 +183,6 @@ export class StoryEditorComponent implements OnInit {
 
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
       moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
-      this.selectedStory.background.saved = false;
   }
 
   getBackgroundList(stepDefinitions: StepDefinitionBackground) {

@@ -112,6 +112,10 @@
     text-transform: uppercase;
   }
 
+  .material-icons{
+    font-size: 24px;
+  }
+
   .uk-card-footer{
     padding: 15px 0px;
   }
