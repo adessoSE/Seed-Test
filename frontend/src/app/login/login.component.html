@@ -1,9 +1,18 @@
 <div class="grid">
   <div class="howToStart">
-    <mat-carousel>
-      <mat-carousel-slide>
-      </mat-carousel-slide>
-    </mat-carousel>
+    <h3>Carousel Slider</h3>
+  <mat-carousel
+  timings="200ms ease-in"
+  [autoplay]="true"
+  interval="60"
+  color="white">
+  <mat-carousel-slide
+    *ngFor="let slide of slides; let i = index"
+    [image]="slide.image"
+    [hideOverlay]="false"
+  ></mat-carousel-slide>
+</mat-carousel>
+<!--
       <div class="uk-text-secondary instructionText">
         <h3>Welcome to seed-test!</h3>
         <p id="info">If you don't have an account yet, you have two options to log in and start testing:</p><br>
@@ -24,7 +33,7 @@
         <br>
         <p>You can find a detailed tutorial <a class="linkButton" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
         </p>
-      </div>
+      </div>-->
     </div>
   <div class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
