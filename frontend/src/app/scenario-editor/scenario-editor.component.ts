@@ -25,8 +25,8 @@ export class ScenarioEditorComponent implements OnInit {
     arrowRight = true;
     uncutInputs: string[] = [];
     newStepName= 'New Step';
-    activeActionBar = false;
-    
+    activeActionBar: boolean = false;
+    allChecked: boolean = false;
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
     
@@ -244,10 +244,23 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     checkAllSteps(event){
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i])
+        if(this.allChecked){
+            for (let prop in this.selectedScenario.stepDefinitions) {
+                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.selectedScenario.stepDefinitions[prop][i].checked = false;
+                }
             }
+            this.activeActionBar = false;
+            this.allChecked = false;
+        }else{
+            for (let prop in this.selectedScenario.stepDefinitions) {
+                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.selectedScenario.stepDefinitions[prop][i].checked = true;
+                }
+            }
+            this.activeActionBar = true;
+            this.allChecked = true;
+
         }
     }
 

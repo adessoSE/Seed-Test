@@ -191,6 +191,7 @@
   .disabled {
     color: gray !important;
     background: white !important;
+    font-style: italic;
   }
   
   .disabled em{
@@ -214,6 +215,7 @@
     align-content: center;
     font-weight: normal;
     justify-self: start;
+    color: #333;
   }
   
   .text-inline > button{
@@ -302,4 +304,24 @@
 
   .lastTestText {
     margin-right: 10px;
+  }
+
+  .checkbox{
+    margin: 0px 3px;
+  }
+  
+  .checkbox:hover{
+    cursor: pointer;
+  }
+  
+  .actionButton{
+    margin: 0px 10px;
+  
+  }
+  
+  .actionBarContainer{
+    margin: 5px 0px;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
   }

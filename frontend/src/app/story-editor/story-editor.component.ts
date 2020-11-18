@@ -42,6 +42,8 @@ export class StoryEditorComponent implements OnInit {
   runUnsaved = false;
   currentTestStoryId: number;
   currentTestScenarioId: number;
+  activeActionBar: boolean = false;
+  allChecked: boolean = false;
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
@@ -126,8 +128,68 @@ export class StoryEditorComponent implements OnInit {
         });
     }
 
-    deactivateStep(stepStepType: string, index: number){
-        this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated = !this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated
+    checkAllSteps(){
+        if(this.allChecked){
+            for (let prop in this.selectedStory.background.stepDefinitions) {
+                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.selectedStory.background.stepDefinitions[prop][i].checked = false;
+                }
+            }
+            this.activeActionBar = false;
+            this.allChecked = false;
+        }else{
+            for (let prop in this.selectedStory.background.stepDefinitions) {
+                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.selectedStory.background.stepDefinitions[prop][i].checked = true;
+                }
+            }
+            this.activeActionBar = true;
+            this.allChecked = true;
+
+        }
+        
+    }
+
+    checkStep($event, step){
+        let checkCount = 0
+        if(step.checked){
+            for (let prop in this.selectedStory.background.stepDefinitions) {
+                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    if(this.selectedStory.background.stepDefinitions[prop][i].checked){
+                        checkCount++;
+                    }
+                }
+            }
+            if(checkCount <= 1){
+                this.activeActionBar = false;
+            }
+        }else{
+            this.activeActionBar = true;
+        }
+        step.checked = !step.checked;
+    }
+
+    removeStepFromBackground() {
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                if(this.selectedStory.background.stepDefinitions[prop][i].checked){
+                    this.selectedStory.background.stepDefinitions[prop].splice(i, 1)
+                }
+            }
+        }
+        this.selectedStory.background.saved = false;
+    }
+
+    deactivateStep(){
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            for(let s in this.selectedStory.background.stepDefinitions[prop]){
+                if(this.selectedStory.background.stepDefinitions[prop][s].checked){
+                    this.selectedStory.background.stepDefinitions[prop][s].deactivated = !this.selectedStory.background.stepDefinitions[prop][s].deactivated
+                }
+            }
+    }
+
+        //this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated = !this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated
         this.selectedStory.background.saved = false;
     }
 
@@ -277,10 +339,6 @@ export class StoryEditorComponent implements OnInit {
       }
   }
 
-  removeStepFromBackground(event, index: number) {
-      this.selectedStory.background.stepDefinitions.when.splice(index, 1);
-      this.selectedStory.background.saved = false;
-  }
 
   addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
       this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
