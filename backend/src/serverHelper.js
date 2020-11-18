@@ -146,9 +146,9 @@ async function updateJira(UserID, req) {
 	return 'Successful';
 }
 
-// Updates feature file based on story_id
-async function updateFeatureFile(issueID) {
-	const result = await mongo.getOneStory(issueID);
+// Updates feature file based on _id
+async function updateFeatureFile(issueID, storySource) {
+	const result = await mongo.getOneStory(issueID, storySource);
 	if (result != null) writeFile('', result);
 }
 
@@ -158,13 +158,13 @@ function execReport2(req, res, stories, mode, story, callback) {
   const path2 = `features/${cleanFileName(story.title)}.feature`;
   const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}`: `reporting_${reportTime}`;
   const path3 =`features/${reportName}.json`;
-
   let cmd;
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
   } else {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)}`;
   }
+
   console.log(`Executing: ${cmd}`);
   exec(cmd, (error, stdout, stderr) => {
     if (error) {
@@ -181,10 +181,10 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 async function execReport(req, res, stories, mode, callback) {
 	try {
-		const result = await mongo.getOneStory(parseInt(req.params.issueID, 10));
+    const result = await mongo.getOneStory(parseInt(req.params.issueID, 10), req.params.storySource);
 		execReport2(req, res, stories, mode, result, callback);
 	} catch (error) {
-		res.status(501)
+		res.status(404)
 			.send(error);
 	}
 }
@@ -313,7 +313,7 @@ function starredRepositories(githubName, token) {
 }
 
 async function fuseStoriesWithDb(story, issueId) {
-	const result = await mongo.getOneStory(parseInt(issueId));
+  const result = await mongo.getOneStory(parseInt(issueId), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -323,10 +323,12 @@ async function fuseStoriesWithDb(story, issueId) {
 		story.background = emptyBackground();
   }
   story.story_id = parseInt(story.story_id);
-    if (story.repo_type !== "jira") {
+    if (story.storySource !== "jira") {
         story.issue_number = parseInt(story.issue_number);
     }
-	mongo.upsertEntry(story.story_id, story);
+  let finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
+  story._id = finalStory.value._id
+
 	// Create & Update Feature Files
 	writeFile('', story);
 	return story;
@@ -406,11 +408,11 @@ function runReport(req, res, stories, mode) {
 
       if (scenarioID && scenario) {
         scenario.lastTestPassed = testStatus;
-        mongo.updateScenario(story.story_id, scenario, (result) => {
+        mongo.updateScenario(story.story_id, story.storySource, scenario, (result) => {
         })
       } else if (!scenarioID) {
         story.lastTestPassed = testStatus;
-        mongo.updateStory(story.story_id, story)
+        mongo.updateStory(story)
       }
     });
   });
@@ -460,61 +462,61 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 	return story;
 }
 
-function getJiraIssues(user, projectKey){
-  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
-    const {Host} = user.jira;
-    const {AccountName} = user.jira;
-    const {Password} = user.jira;
-    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
-    const cookieJar = request.jar();
-    const tmpStories = [];
-    const options = {
-      method: 'GET',
-      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
-      jar: cookieJar,
-      qs: {
-        type: 'page',
-        title: 'title',
-      },
-      headers: {
-        'cache-control': 'no-cache',
-        Authorization: `Basic ${auth}`,
-      },
-    };
-    request(options, (error) => {
-      if (error) {
-        return error;
-      }
-      request(options, (error2, response2, body) => {
-        if (error2) {
-          return error;
-        }
-        const json = JSON.parse(body).issues;
-        for (const issue of json) {
-            if (issue.fields.labels.includes("Seed-Test")){
-                const story = {
-                    story_id: issue.id,
-                    title: issue.fields.summary,
-                    body: issue.fields.description,
-                    state: issue.fields.status.name,
-                    issue_number: issue.key,
-                };
-                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-                    story.assignee = issue.fields.assignee.name;
-                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-                } else {
-                    story.assignee = 'unassigned';
-                    story.assignee_avatar_url = null;
-                }
-                console.log(story)
-                tmpStories.push(fuseStoriesWithDb(story, issue.id));
-            }
-        }
-        return tmpStories;
-      });
-    });
-  }
-}
+//function getJiraIssues(user, projectKey){
+//  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
+//    const {Host} = user.jira;
+//    const {AccountName} = user.jira;
+//    const {Password} = user.jira;
+//    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
+//    const cookieJar = request.jar();
+//    const tmpStories = [];
+//    const options = {
+//      method: 'GET',
+//      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+//      jar: cookieJar,
+//      qs: {
+//        type: 'page',
+//        title: 'title',
+//      },
+//      headers: {
+//        'cache-control': 'no-cache',
+//        Authorization: `Basic ${auth}`,
+//      },
+//    };
+//    request(options, (error) => {
+//      if (error) {
+//        return error;
+//      }
+//      request(options, (error2, response2, body) => {
+//        if (error2) {
+//          return error;
+//        }
+//        const json = JSON.parse(body).issues;
+//        for (const issue of json) {
+//            if (issue.fields.labels.includes("Seed-Test")){
+//                const story = {
+//                    story_id: issue.id,
+//                    title: issue.fields.summary,
+//                    body: issue.fields.description,
+//                    state: issue.fields.status.name,
+//                    issue_number: issue.key,
+//                    storySource = 'jira'
+//                };
+//                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
+//                    story.assignee = issue.fields.assignee.name;
+//                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
+//                } else {
+//                    story.assignee = 'unassigned';
+//                    story.assignee_avatar_url = null;
+//                }
+//                tmpStories.push(fuseStoriesWithDb(story, issue.id));
+//            }
+//        }
+//        return tmpStories;
+//      });
+//    });
+//  }
+//}
 
 function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
   let comment = '';
@@ -598,7 +600,6 @@ const getGithubData = (res, req, accessToken) => {
                     }
                     req.logIn(user, async function(err){
                         if(err){
-                            console.log('login')
                             res.json({error: 'Login Error'})
                         }else {
                           res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
@@ -641,7 +642,7 @@ function cleanFileName(filename){
 module.exports = {
   uniqueRepositories,
   jiraProjects,
-  getJiraIssues,
+  //getJiraIssues,
   getGithubData,
   createReport,
   decryptPassword,
