@@ -7,7 +7,11 @@
         <div *ngIf="email">
             <b>Email: </b>
             <label class="active">{{email}}</label>
-            <p><button class="button" (click)="newRepository()">Create Repository</button></p>
+            <br><br>
+            <hr>
+            <br><br>
+            <p>Need a new custom repository?</p>
+            <p><button class="button" (click)="newRepository()">Create Custom Repository</button></p>
         </div>
         <div *ngIf="!email">
             <label id="noEmail">- no email deposited -</label>

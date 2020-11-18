@@ -128,7 +128,7 @@ label{
 
 
 .button{
-    margin-top: 30px;
+    margin-top: 10px;
     margin-bottom: 10px;
     color:#ffffff;
     padding: 5px 10px;
@@ -152,6 +152,10 @@ label{
 .uk-form-controls{
     border-radius: 3px;
     padding: 5px 5px 5px 5px;
+}
+
+#change-jira{
+    margin-top: 30px;
 }
 
 .uk-card{
