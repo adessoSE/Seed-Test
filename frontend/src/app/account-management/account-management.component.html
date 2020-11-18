@@ -6,11 +6,9 @@
         <h2 class="uk-card-header">Seed-Test Account</h2>
         <div *ngIf="email">
             <b>Email: </b>
-            <label class="active">{{email}}</label>
-            <br><br>
+            <label id="emailLabel" class="active">{{email}}</label>
             <hr>
-            <br><br>
-            <p>Need a new custom repository?</p>
+            <p id="needCustomRepo">Need a new custom repository?</p>
             <p><button class="button" (click)="newRepository()">Create Custom Repository</button></p>
         </div>
         <div *ngIf="!email">
