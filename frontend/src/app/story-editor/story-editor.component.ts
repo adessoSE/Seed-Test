@@ -196,6 +196,8 @@ export class StoryEditorComponent implements OnInit {
             }
         }
         this.selectedStory.background.saved = false;
+        this.allChecked = false;
+        this.activeActionBar = false;
     }
 
     deactivateStep(){

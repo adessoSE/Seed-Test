@@ -27,7 +27,9 @@ export class ScenarioEditorComponent implements OnInit {
     newStepName= 'New Step';
     activeActionBar: boolean = false;
     allChecked: boolean = false;
-    
+    activeExampleActionBar: boolean = false;
+    allExampleChecked: boolean = false;
+
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
     
@@ -56,7 +58,7 @@ export class ScenarioEditorComponent implements OnInit {
 
     @Input()
     checkRowIndex(index: number) {
-        this.checkStep(null, this.selectedScenario.stepDefinitions.example[index], null)
+        this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[index], null)
     }
 
     @Input()
@@ -234,10 +236,21 @@ export class ScenarioEditorComponent implements OnInit {
 
     deactivateStep(){
         for (let prop in this.selectedScenario.stepDefinitions) {
-            for(let s in this.selectedScenario.stepDefinitions[prop]){
-                if(this.selectedScenario.stepDefinitions[prop][s].checked){
-                    this.selectedScenario.stepDefinitions[prop][s].deactivated = !this.selectedScenario.stepDefinitions[prop][s].deactivated
+            if(prop !== 'example'){
+                for(let s in this.selectedScenario.stepDefinitions[prop]){
+                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
+                        this.selectedScenario.stepDefinitions[prop][s].deactivated = !this.selectedScenario.stepDefinitions[prop][s].deactivated
+                    }
                 }
+            }
+        }
+        this.selectedScenario.saved = false;
+    }
+
+    deactivateExampleStep(){
+        for(let s in this.selectedScenario.stepDefinitions.example){
+            if(this.selectedScenario.stepDefinitions.example[s].checked){
+                this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated
             }
         }
         this.selectedScenario.saved = false;
@@ -251,20 +264,45 @@ export class ScenarioEditorComponent implements OnInit {
         }
         if(this.allChecked){
             for (let prop in this.selectedScenario.stepDefinitions) {
-                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], true)
+                if(prop !== 'example'){
+                    for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                        this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], true)
+                    }
                 }
             }
             this.activeActionBar = true;
             this.allChecked = true;
         }else{
             for (let prop in this.selectedScenario.stepDefinitions) {
-                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], false)
+                if(prop !== 'example'){
+                    for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                        this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], false)
+                    }
                 }
             }
             this.activeActionBar = false;
             this.allChecked = false;
+        }
+    }
+
+    checkAllExampleSteps(event, checkValue: boolean){
+        if(checkValue!= null){
+            this.allExampleChecked = checkValue;
+        }else{
+            this.allExampleChecked = !this.allExampleChecked;
+        }
+        if(this.allExampleChecked){
+            for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+                this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[i], true)
+            }
+            this.activeExampleActionBar = true;
+            this.allExampleChecked = true;
+        }else{
+            for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+                this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[i], false)
+            }
+            this.activeExampleActionBar = false;
+            this.allExampleChecked = false;
         }
     }
 
@@ -278,10 +316,12 @@ export class ScenarioEditorComponent implements OnInit {
         let stepCount = 0;
         
         for (let prop in this.selectedScenario.stepDefinitions) {
-            for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                stepCount++;
-                if(this.selectedScenario.stepDefinitions[prop][i].checked){
-                    checkCount++;
+            if(prop !== 'example'){
+                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    stepCount++;
+                    if(this.selectedScenario.stepDefinitions[prop][i].checked){
+                        checkCount++;
+                    }
                 }
             }
         }
@@ -298,19 +338,60 @@ export class ScenarioEditorComponent implements OnInit {
         }
     }
 
+    checkExampleStep($event, step, checkValue: boolean){
+        if(checkValue != null){
+            step.checked = checkValue;
+        }else{
+            step.checked = !step.checked;
+        }
+        let checkCount = 0;
+        let stepCount = 0;
+        
+        for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+            stepCount++;
+            if(this.selectedScenario.stepDefinitions.example[i].checked){
+                checkCount++;
+            }
+        }
+
+        if(checkCount >= stepCount - 1){
+            this.allExampleChecked = true;
+        }else{
+            this.allExampleChecked = false;
+        }
+        if(checkCount <= 0){
+            this.allExampleChecked = false;
+            this.activeExampleActionBar = false;
+        }else{
+            this.activeExampleActionBar = true
+        }
+    }
+
     removeStepFromScenario() {
         for (let prop in this.selectedScenario.stepDefinitions) {
-            for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                if(this.selectedScenario.stepDefinitions[prop][i].checked){
-                    this.selectedScenario.stepDefinitions[prop].splice(i, 1)
-                    if(prop === 'example'){
-                        this.exampleChild.updateTable();
+            if(prop !== 'example'){
+                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    if(this.selectedScenario.stepDefinitions[prop][i].checked){
+                        this.selectedScenario.stepDefinitions[prop].splice(i, 1)
                     }
                 }
-
             }
         }
         this.selectedScenario.saved = false;
+        this.allChecked = false;
+        this.activeActionBar = false;
+    }
+
+    removeStepFromExample(){
+        for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 1; i--) {
+            if(this.selectedScenario.stepDefinitions.example[i].checked){
+                this.selectedScenario.stepDefinitions.example.splice(i, 1)
+                this.exampleChild.updateTable();
+            }
+        }
+        this.selectedScenario.saved = false;
+        this.allExampleChecked = false;
+        this.activeExampleActionBar = false;
     }
 
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {

@@ -118,6 +118,20 @@
           Example (Cases)
         </ng-template>
         <ng-template #exampleCondition>
+          <!--Action bar-->
+          <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="actionBarContainer">
+            <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked">
+            <div *ngIf="this.activeExampleActionBar">
+              <button id="{{'scenario_' + i + '_example_delete_step_'}}" a
+                          uk-icon="icon: minus-circle" class="actionButton uk-text-danger" uk-tooltip title="Delete Step"
+                          (click)="removeStepFromExample();">
+              </button>
+              <button id="{{'scenario_' + i + '_example_deactivate_step_'}}" a
+                uk-icon="icon: ban" class="actionButton uk-text" uk-tooltip title="Deactivate Step"
+                (click)="deactivateExampleStep();">
+              </button>
+            </div>
+          </div>
           <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
         </ng-template>
       </div>

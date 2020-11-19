@@ -9,4 +9,5 @@ export interface StepType {
     values: string[];
     outdated?: boolean;
     checked?: boolean;
+    deactivated?: boolean;
 }
