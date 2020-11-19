@@ -73,7 +73,7 @@
           </div>
     <!--Action bar-->
     <div class="actionBarContainer">
-      <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event)">
+      <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked">
       <div *ngIf="this.activeActionBar">
         <button id="{{'background' + '_delete_step_'}}" a
                     uk-icon="icon: minus-circle" class="actionButton uk-text-danger" uk-tooltip title="Delete Step"
@@ -117,7 +117,7 @@
                   <div class="dragIconContainer" cdkDragHandle  [class.stepDeactivated]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
                     <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
                   </div>
-                  <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep)" [checked]="currentStep.checked">
+                  <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
                   <!--<button id="{{'background_remove_step' + j}}" a
                     uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
                     (click)="removeStepFromBackground($event, j);">

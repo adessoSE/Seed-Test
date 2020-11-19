@@ -110,12 +110,16 @@ export class StoryEditorComponent implements OnInit {
       if (this.selectedStory) {
           this.selectScenario(scenario);
       }
+      this.activeActionBar = false;
+      this.allChecked = false;
   }
 
   @Input()
   set newSelectedStory(story: Story) {
       this.selectedStory = story;
       this.showEditor = true;
+      this.activeActionBar = false;
+      this.allChecked =false;
   }
 
   @Input() 
@@ -128,29 +132,37 @@ export class StoryEditorComponent implements OnInit {
         });
     }
 
-    checkAllSteps(){
+    checkAllSteps(event, checkValue: boolean){
+        if(checkValue!= null){
+            this.allChecked = checkValue;
+        }else{
+            this.allChecked = !this.allChecked;
+        }
         if(this.allChecked){
             for (let prop in this.selectedStory.background.stepDefinitions) {
                 for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.selectedStory.background.stepDefinitions[prop][i].checked = false;
-                }
-            }
-            this.activeActionBar = false;
-            this.allChecked = false;
-        }else{
-            for (let prop in this.selectedStory.background.stepDefinitions) {
-                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.selectedStory.background.stepDefinitions[prop][i].checked = true;
+                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], true)
                 }
             }
             this.activeActionBar = true;
             this.allChecked = true;
-
+        }else{
+            for (let prop in this.selectedStory.background.stepDefinitions) {
+                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], false)
+                }
+            }
+            this.activeActionBar = false;
+            this.allChecked = false;
         }
-        
     }
 
-    checkStep($event, step){
+    checkStep($event, step, checkValue: boolean){
+        if(checkValue != null){
+            step.checked = checkValue;
+        }else{
+            step.checked = !step.checked;
+        }
         let checkCount = 0
         if(step.checked){
             for (let prop in this.selectedStory.background.stepDefinitions) {
@@ -166,7 +178,6 @@ export class StoryEditorComponent implements OnInit {
         }else{
             this.activeActionBar = true;
         }
-        step.checked = !step.checked;
     }
 
     removeStepFromBackground() {
