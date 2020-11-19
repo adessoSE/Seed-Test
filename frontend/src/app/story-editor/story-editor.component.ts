@@ -163,20 +163,27 @@ export class StoryEditorComponent implements OnInit {
         }else{
             step.checked = !step.checked;
         }
-        let checkCount = 0
-        if(step.checked){
-            for (let prop in this.selectedStory.background.stepDefinitions) {
-                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    if(this.selectedStory.background.stepDefinitions[prop][i].checked){
-                        checkCount++;
-                    }
+        let checkCount = 0;
+        let stepCount = 0;
+        
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                stepCount++;
+                if(this.selectedStory.background.stepDefinitions[prop][i].checked){
+                    checkCount++;
                 }
             }
-            if(checkCount <= 1){
-                this.activeActionBar = false;
-            }
+        }
+        if(checkCount >= stepCount){
+            this.allChecked = true;
         }else{
-            this.activeActionBar = true;
+            this.allChecked = false;
+        }
+        if(checkCount <= 0){
+            this.allChecked = false;
+            this.activeActionBar = false;
+        }else{
+            this.activeActionBar = true
         }
     }
 

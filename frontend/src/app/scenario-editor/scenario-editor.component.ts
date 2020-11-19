@@ -27,6 +27,7 @@ export class ScenarioEditorComponent implements OnInit {
     newStepName= 'New Step';
     activeActionBar: boolean = false;
     allChecked: boolean = false;
+    
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
     
@@ -55,8 +56,7 @@ export class ScenarioEditorComponent implements OnInit {
 
     @Input()
     checkRowIndex(index: number) {
-        this.checkStep(null, this.selectedScenario.stepDefinitions.example[index])
-        //this.selectedScenario.stepDefinitions.example[index].checked = !this.selectedScenario.stepDefinitions.example[index].checked
+        this.checkStep(null, this.selectedScenario.stepDefinitions.example[index], null)
     }
 
     @Input()
@@ -243,44 +243,59 @@ export class ScenarioEditorComponent implements OnInit {
         this.selectedScenario.saved = false;
     }
 
-    checkAllSteps(event){
+    checkAllSteps(event, checkValue: boolean){
+        if(checkValue!= null){
+            this.allChecked = checkValue;
+        }else{
+            this.allChecked = !this.allChecked;
+        }
         if(this.allChecked){
             for (let prop in this.selectedScenario.stepDefinitions) {
                 for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.selectedScenario.stepDefinitions[prop][i].checked = false;
-                }
-            }
-            this.activeActionBar = false;
-            this.allChecked = false;
-        }else{
-            for (let prop in this.selectedScenario.stepDefinitions) {
-                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.selectedScenario.stepDefinitions[prop][i].checked = true;
+                    this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], true)
                 }
             }
             this.activeActionBar = true;
             this.allChecked = true;
-
+        }else{
+            for (let prop in this.selectedScenario.stepDefinitions) {
+                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], false)
+                }
+            }
+            this.activeActionBar = false;
+            this.allChecked = false;
         }
     }
 
-    checkStep(event, step){
-        let checkCount = 0
-        if(step.checked){
-            for (let prop in this.selectedScenario.stepDefinitions) {
-                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    if(this.selectedScenario.stepDefinitions[prop][i].checked){
-                        checkCount++;
-                    }
+    checkStep($event, step, checkValue: boolean){
+        if(checkValue != null){
+            step.checked = checkValue;
+        }else{
+            step.checked = !step.checked;
+        }
+        let checkCount = 0;
+        let stepCount = 0;
+        
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                stepCount++;
+                if(this.selectedScenario.stepDefinitions[prop][i].checked){
+                    checkCount++;
                 }
             }
-            if(checkCount <= 1){
-                this.activeActionBar = false;
-            }
-        }else{
-            this.activeActionBar = true;
         }
-        step.checked = !step.checked;
+        if(checkCount >= stepCount){
+            this.allChecked = true;
+        }else{
+            this.allChecked = false;
+        }
+        if(checkCount <= 0){
+            this.allChecked = false;
+            this.activeActionBar = false;
+        }else{
+            this.activeActionBar = true
+        }
     }
 
     removeStepFromScenario() {
