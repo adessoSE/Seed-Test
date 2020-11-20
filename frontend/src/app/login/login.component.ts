@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
     repositoriesLoading: boolean;
     showInstruction = false;
     slides = [
-        {'image': '/assets/aha-icon.png'}, 
+        {'image': '/assets//example.png'}, 
         {'image': '/assets/arrowLeft.png'},
         {'image': '/assets/icon.png'},
         {'image': '/assets/dragIcon.png'},
