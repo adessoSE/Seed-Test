@@ -1,10 +1,11 @@
 <div class="grid">
   <div class="howToStart">
-    <h3>Carousel Slider</h3>
   <mat-carousel
   timings="200ms ease-in"
   [autoplay]="true"
-  interval="60"
+  [hideArrows]="false"
+  interval="1000"
+  proportion="100"
   color="white">
   <mat-carousel-slide
     *ngFor="let slide of slides; let i = index"

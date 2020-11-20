@@ -18,7 +18,13 @@ export class LoginComponent implements OnInit {
     private testJiraHost = '';
     repositoriesLoading: boolean;
     showInstruction = false;
-    slides = [{'image': '/assets/aha-icon.png'}, {'image': '/assets/arrowLeft.png'}];
+    slides = [
+        {'image': '/assets/aha-icon.png'}, 
+        {'image': '/assets/arrowLeft.png'},
+        {'image': '/assets/icon.png'},
+        {'image': '/assets/dragIcon.png'},
+        {'image': '/assets/adesso-logo.png'}
+    ];
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;

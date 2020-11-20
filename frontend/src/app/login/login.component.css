@@ -22,8 +22,9 @@ h1{
     grid-column: 3 / 4;
     text-align: center;
     background-color: white;
-    padding: 80px 50px 20px;
-    margin-bottom: 80px;
+    margin-top: 80px;
+    margin-right: 280px;
+    margin-bottom: 100px;
     text-align: center;
 }
 
@@ -46,10 +47,13 @@ h1{
     grid-row: 2 / 3;
     grid-column: 2 / 3;
     background-color: white;
-    padding: 50px 10px 50px;
     text-align: center;
     font-size: small;
-
+    margin-top: 80px;
+    margin-bottom: 80px;
+    margin-right: 110px;
+    width: 500px; 
+    height: 500px;
 }
 
 .stayLoggedInContainer label{
