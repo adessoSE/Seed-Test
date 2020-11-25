@@ -20,10 +20,10 @@ export class LoginComponent implements OnInit {
     showInstruction = false;
     slides = [
         {'image': '/assets//example.png'}, 
-        {'image': '/assets/arrowLeft.png'},
+        /*{'image': '/assets/arrowLeft.png'},
         {'image': '/assets/icon.png'},
         {'image': '/assets/dragIcon.png'},
-        {'image': '/assets/adesso-logo.png'}
+        {'image': '/assets/adesso-logo.png'}*/
     ];
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
