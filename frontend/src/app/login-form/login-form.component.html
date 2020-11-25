@@ -67,7 +67,7 @@
 <!---Modal for Erase Account------>
 <ng-template #content4 let-modal>
     <div class="modal-header">
-        <h4 class="modal-title">Erase Account</h4>
+        <h4 class="modal-title">Delete My Account</h4>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -90,7 +90,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="button" (click)="eraseAccount(); modal.close('Save click')">Erase my Account
+        <button type="button" class="buttonRed" (click)="eraseAccount(); modal.close('Save click')">Delete my Account
         </button>
     </div>
 </ng-template>

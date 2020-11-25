@@ -146,6 +146,18 @@ label{
     background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
 }
 
+.buttonRed{
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color:#ffffff;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    border: solid 1px #810625;
+    background: #cc002cbe;
+    background: -moz-linear-gradient(top,  #b30522,  rgb(121, 4, 39));
+}
+
 .button:focus {outline:0 !important;}
 
 .button:hover {
