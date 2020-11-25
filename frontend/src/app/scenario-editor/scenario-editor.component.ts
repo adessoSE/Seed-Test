@@ -118,6 +118,10 @@ export class ScenarioEditorComponent implements OnInit {
 
 
     updateScenario() {
+        this.allChecked = false;
+        this.allExampleChecked = false;
+        this.activeActionBar = false;
+
         delete this.selectedScenario.saved;
         let steps = this.selectedScenario.stepDefinitions["given"];
         steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
@@ -133,6 +137,7 @@ export class ScenarioEditorComponent implements OnInit {
 
         Object.keys(this.selectedScenario.stepDefinitions).forEach((key, index) => {
             this.selectedScenario.stepDefinitions[key].forEach((step: StepType) => {
+                delete step.checked;
                 if(step.outdated){
                     step.outdated = false;
                 }

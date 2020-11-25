@@ -114,8 +114,21 @@ input[type="text"]{
 }
 
 .actionButton{
-  margin: 0px 10px;
+  margin-left: 10px;
+  height: 24px;
+  border: none;
+  background:white;
+  transform: translate(0px, -3px);
+}
 
+.deactivateStepButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+.actionButton > em{
+  padding: 0px;
+  margin: 0px;
 }
 
 .actionBarContainer{
@@ -124,11 +137,17 @@ input[type="text"]{
   padding: 10px 15px;
   border-bottom: 1px solid #e5e5e5;
   display: flex;
+  height: 40px;
 }
 
 .uk-button-icon{
   padding-left:0;
   padding-right:0;
+}
+
+.scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
 }
 
 .button {
@@ -204,8 +223,6 @@ input[type="text"]{
   color: #ffffff;
 }
 
-
-
 .buttonGroup{
   text-align: center;
   margin-left: 10px;
@@ -248,10 +265,6 @@ input[type="text"]{
   background: white !important;
 }
 
-.stepDeactivated{
-  margin-left: 20px;
-}
-
 .uk-card-footer{
   padding-bottom: 0;
 }
@@ -277,4 +290,8 @@ table {
 
 .scenario_unsaved {
   color: red;
+}
+
+.actionButton.uk-text-danger.uk-icon > svg{
+  width: 15px;
 }

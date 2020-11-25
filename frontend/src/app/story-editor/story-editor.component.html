@@ -114,7 +114,7 @@
             <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
               <div *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
                 <div class="text-inline" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
-                  <div class="dragIconContainer" cdkDragHandle  [class.stepDeactivated]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
+                  <div class="dragIconContainer" cdkDragHandle>
                     <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
                   </div>
                   <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">

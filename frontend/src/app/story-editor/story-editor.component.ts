@@ -44,6 +44,7 @@ export class StoryEditorComponent implements OnInit {
   currentTestScenarioId: number;
   activeActionBar: boolean = false;
   allChecked: boolean = false;
+  saveBackgroundAndRun: boolean = false;
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
@@ -80,6 +81,7 @@ export class StoryEditorComponent implements OnInit {
             this.runOption();
         }
         if(option == "saveRun"){
+            this.saveBackgroundAndRun = true;
             this.updateBackground()
         }
     })
@@ -278,9 +280,12 @@ export class StoryEditorComponent implements OnInit {
 
   updateBackground() {
     delete this.selectedStory.background.saved;
-
+    this.allChecked = false;
+    this.activeActionBar = false;
+    
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
         this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
+            delete step.checked;
             if(step.outdated){
                 step.outdated = false;
             }
@@ -290,7 +295,10 @@ export class StoryEditorComponent implements OnInit {
           .updateBackground(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedStory.background)
           .subscribe(resp => {
             this.toastr.success('successfully saved', 'Background')
-            this.apiService.runSaveOption('saveScenario')
+            if(this.saveBackgroundAndRun){
+                this.apiService.runSaveOption('saveScenario')
+                this.saveBackgroundAndRun = false;
+            }
           });
   }
 
