@@ -14,33 +14,25 @@
                       </span></dfn>
         </div>
         <div>
-          <button id="scenario_shift_left" *ngIf="!arrowLeft"  uk-icon="icon: arrow-left" data-uk-tooltip
-          title="Previous Scenario" (click)="scenarioShiftLeft();"></button>
+          <button id="scenario_shift_left" class="scenarioTitle" *ngIf="!arrowLeft" data-uk-tooltip
+          title="Previous Scenario" (click)="scenarioShiftLeft();">
+          <em class="material-icons">keyboard_arrow_left</em>
+        </button>
           <span *ngIf="this.selectedScenario" id="scenarioTitle"># {{selectedScenario.name | titlecase}}</span>
-          <button id="scenario_change_title" href="#changeScenario" uk-icon="icon: pencil" data-uk-tooltip
-          title="Change Scenario Title" uk-toggle></button>
-          <button id="scenario_shift_right" class="buttonGroup" *ngIf="!arrowRight" uk-icon="icon: arrow-right" data-uk-tooltip
-          title="Next Scenario" (click)="scenarioShiftRight();"></button>
+          <button id="scenario_change_title" class="scenarioTitle" href="#changeScenario" data-uk-tooltip
+          title="Change Scenario Title" uk-toggle>
+          <em class="material-icons">edit</em>
+        </button>
+          <button id="scenario_shift_right" class="scenarioTitle" *ngIf="!arrowRight" data-uk-tooltip
+          title="Next Scenario" (click)="scenarioShiftRight();">
+          <em class="material-icons">keyboard_arrow_right</em>
+        </button>
         </div>
-      </div>
-      <div id="buttonGroupScenario" class="uk-align-right">
-        <button id="new_scenario" class="buttonGroup iconButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
-          <em class="material-icons">add</em>
-        </button>
-        <button id="scenario_save" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="buttonGroup iconButton" data-uk-tooltip
-          title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
-          (click)="updateScenario();">
-          <em class="material-icons">save</em>
-        </button>
-        <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
-        class="buttonGroup iconButton" data-uk-tooltip title="Delete Scenario"
-        (click)="deleteScenario($event);">
-        <em class="material-icons">delete</em>
-      </button>
       </div>
     </div>
     <!--Action bar-->
-    <div class="actionBarContainer">
+  <div class="scenarioBarContainer">
+    <div class="actionBarButtonGroup">
       <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked">
       <div *ngIf="this.activeActionBar">
         <button id="{{'scenario_' + i + '_delete_step_'}}" a
@@ -55,6 +47,22 @@
         </button>
       </div>
     </div>
+    <div class="scenarioButtonGroup">
+      <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
+        <em class="material-icons">add</em>
+      </button>
+      <button id="scenario_save" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioButton" data-uk-tooltip
+        title="Save Scenario" [ngClass]="{'scenarioButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
+        (click)="updateScenario();">
+        <em class="material-icons">save</em>
+      </button>
+      <button id="scenario_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+      class="scenarioButton" data-uk-tooltip title="Delete Scenario"
+      (click)="deleteScenario($event);">
+      <em class="material-icons">delete</em>
+    </button>
+    </div>
+  </div>
     <!--Steps-->
     <div class="uk-card-title padding">
       <div *ngIf="this.selectedScenario">

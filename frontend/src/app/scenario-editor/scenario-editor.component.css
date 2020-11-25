@@ -96,9 +96,7 @@ input[type="text"]{
   margin-right: 5px;
 }
 
-#buttonGroupScenario{
-  margin-right: 20px;
-}
+
 
 .uk-button-group{
   border-radius:4px;
@@ -113,42 +111,62 @@ input[type="text"]{
   cursor: pointer;
 }
 
-.actionButton{
-  margin-left: 10px;
-  height: 24px;
-  border: none;
-  background:white;
-  transform: translate(0px, -3px);
-}
+
+
+
 
 .deactivateStepButton > em{
   color: #333;
   font-size: 22px;
 }
 
-.actionButton > em{
-  padding: 0px;
-  margin: 0px;
+.scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
 }
 
-.actionBarContainer{
-  margin: 5px 0px;
-  margin-left: 20px;
+.scenarioBarContainer button{
+  border: none;
+  background: white;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+.scenarioBarContainer > div {
+  margin-top: 5px;
+  margin-bottom: 5px;
   padding: 10px 15px;
-  border-bottom: 1px solid #e5e5e5;
   display: flex;
   height: 40px;
 }
 
-.uk-button-icon{
-  padding-left:0;
-  padding-right:0;
+.actionBarButtonGroup{
+  margin-left: 20px;
 }
 
-.scenarioBarContainer{
-  display: flex;
-  justify-content: space-between;
+.scenarioButton {
+  margin-right: 10px;
 }
+
+.actionButton{
+  margin-left: 10px;
+}
+
+.scenarioButton em{
+  color:  #0099CC;
+}
+
+.scenarioButton em:active {
+  background-color: #0099CC;
+  color: #ffffff;
+}
+
+
+
+
+
 
 .button {
   margin-right: 3px;
@@ -178,28 +196,24 @@ input[type="text"]{
   padding-right: 20px;
 }
 
-#scenario_shift_left{
-  color: #0099CC;
-}
-
-#scenario_change_title{
-  color: #0099CC;
-}
-
-.iconButton {
+.scenarioTitle{
+  background: white;
   border: none;
-  background-color: #ffffff;
-  padding: 0px;
-  border-radius: 10%;
 }
 
-.iconButton em{
-  vertical-align:middle;
+.scenarioTitle > em{
   color:  #0099CC;
-  border-radius: 10%;
+  font-size: 20px;
+  transform: translate(0px, 3px)
 }
 
-.iconButton_unsaved em{
+#scenario_change_title > em {
+  font-size: 20px;
+  margin: 0px 5px;
+}
+
+
+.scenarioButton_unsaved em{
   vertical-align:middle;
   color: red;
   border-radius: 10%;
@@ -216,17 +230,6 @@ input[type="text"]{
 .disabled input{
   color: gray;
   border-bottom: 1px solid gray;
-}
-
-.iconButton em:active {
-  background-color: #0099CC;
-  color: #ffffff;
-}
-
-.buttonGroup{
-  text-align: center;
-  margin-left: 10px;
-  color: #0099CC;
 }
 
 .uk-dropdown{
@@ -290,8 +293,4 @@ table {
 
 .scenario_unsaved {
   color: red;
-}
-
-.actionButton.uk-text-danger.uk-icon > svg{
-  width: 15px;
 }
