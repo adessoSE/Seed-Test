@@ -45,9 +45,17 @@
           (click)="deactivateStep();">
           <em class="material-icons">do_not_touch</em>
         </button>
+        <button id="{{'scenario_' + i + '_addBlock_step_'}}" a
+        class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
+        (click)="saveBlock();">
+        <em class="material-icons">queue</em>
+      </button>
       </div>
     </div>
     <div class="scenarioButtonGroup">
+      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock(selectedStory._id)">
+        <em class="material-icons">playlist_add</em>
+      </button>
       <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
         <em class="material-icons">add</em>
       </button>

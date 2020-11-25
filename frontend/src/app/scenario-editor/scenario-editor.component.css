@@ -124,11 +124,12 @@ input[type="text"]{
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
 }
 
 .scenarioBarContainer button{
   border: none;
-  background: white;
+  background: #f8f8f8;
   transform: translate(0px, -3px);
   height: 24px;
   border-radius: 10%;
@@ -265,7 +266,7 @@ input[type="text"]{
 
 .disabled em{
   color: gray !important;
-  background: white !important;
+  background: #f8f8f8 !important;
 }
 
 .uk-card-footer{
