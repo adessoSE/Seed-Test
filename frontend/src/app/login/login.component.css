@@ -23,7 +23,7 @@ h1{
     text-align: center;
     background-color: white;
     margin-top: 80px;
-    margin-right: 100px;
+    margin-right: 50px;
     margin-bottom: 100px;
     text-align: center;
     border: 1px solid grey;
@@ -53,15 +53,15 @@ h1{
     text-align: center;
     font-size: small;
     margin-top: 80px;
-    margin-bottom: 130px;
-    margin-right: 150px;
+    margin-bottom: 180px;
+    margin-right: 280px;
     width: 630px;
     height: 500px;
     position: relative;
 }
 
 #bild{
-    width: 110%;
+    width: 130%;
     position: absolute;
     z-index: 1;
     filter:alpha(opacity=9);
