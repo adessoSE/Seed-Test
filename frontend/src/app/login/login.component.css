@@ -271,7 +271,7 @@ a:not([href]):not([tabindex]).repoLink:hover {
   }
 
 #loadingSpinner{
-    margin-left: 37%;
+    margin-left: 40%;
 }
 
 :host ::ng-deep .loadingSpinner circle{

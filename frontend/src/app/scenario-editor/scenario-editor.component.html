@@ -101,6 +101,10 @@
         <br>
         <ng-template #exampleTitle>
           Example (Cases)
+          <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+            <span rel="def">Example allows you to define different variables for previously defined steps,
+              for example to test several user names in the same step. 
+                  </span></dfn>
         </ng-template>
         <ng-template #exampleCondition>
           <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (removeRowIndex)="removeRowIndex($event);"></app-example-table>
