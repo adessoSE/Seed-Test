@@ -60,6 +60,14 @@ h1{
     position: relative;
 }
 
+.slides{
+    background-color: white;
+    height: 100%;
+    text-align: center;
+    margin: auto;
+    padding: 70px;
+}
+
 #bild{
     width: 130%;
     position: absolute;
@@ -83,8 +91,9 @@ h1{
 
 .mat{
     width: 650px;
-    padding-top: 50px;
-    padding-left: 45px;
+    /*padding-top: 50px;
+    padding-left: 45px;*/
+    border: 10px solid #999;
 }
 
 .stayLoggedInContainer label{

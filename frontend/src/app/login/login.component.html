@@ -1,13 +1,47 @@
 <div class="grid">
   <div class="howToStart">
-    <div id="bild"><img src="/assets/icon-computer.png"></div>
-    <div class="mat"> <mat-carousel
+    <!--<div id="bild"><img src="/assets/icon-computer.png"></div>-->
+    <div class="mat"><mat-carousel
           timings="200ms ease-in"
           [autoplay]="true"
-          [hideArrows]="true"
-          interval="9000"
+          [hideArrows]="false"
+          [loop]="true"
+          interval="3000"
           proportion="50"
           color="white">
+          <mat-carousel-slide>
+            <div class="slides">
+              <h3>Welcome to seed-test!</h3>
+              <p id="info">If you don't have an account yet, you have two options to log in and start testing..</p><br>
+            </div>
+            </mat-carousel-slide>
+          <mat-carousel-slide>
+            <div class="slides">
+              <h6 class="req"><b>1. Create a seed-test account<br>(no requirements)</b></h6>
+              <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data.
+                You will be forwarded to the account settings where you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
+              </p>
+              <br>
+              <i>The settings and connections can be edited using the account settings via the menu.</i>
+            </div>
+            </mat-carousel-slide>
+          <mat-carousel-slide>
+            <div class="slides">
+              <h6 class="req"><b>2. Login via GitHub Account<br>(GitHub Account required)</b></h6>
+              <p>If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.
+              Additionally you can connect to Jira or create new seed-test projects (repositories) using the account settings.
+              </p>
+              <br>
+              <i>The settings and connections can be edited using the account settings via the menu.</i>
+            </div>
+          </mat-carousel-slide>
+          <mat-carousel-slide>
+            <div class="slides">
+              <p>If you have questions, feel free to contact us: seed-test@adesso.de</p>
+              <br>
+              <p>You can find a detailed tutorial <a class="linkButton" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
+              </div>
+            </mat-carousel-slide>
         <mat-carousel-slide
           *ngFor="let slide of slides; let i = index"
           [image]="slide.image"

@@ -19,11 +19,9 @@ export class LoginComponent implements OnInit {
     repositoriesLoading: boolean;
     showInstruction = false;
     slides = [
-        {'image': '/assets//example.png'}, 
-        /*{'image': '/assets/arrowLeft.png'},
-        {'image': '/assets/icon.png'},
-        {'image': '/assets/dragIcon.png'},
-        {'image': '/assets/adesso-logo.png'}*/
+        {'image': '/assets//slide1.png'}, 
+        {'image': '/assets/slide2.png'},
+        {'image': '/assets/slide3.png'}
     ];
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
