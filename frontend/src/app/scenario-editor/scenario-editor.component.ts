@@ -460,7 +460,7 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
-        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && !input.startsWith('<') && !input.endsWith('>')
+        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && (!input.startsWith('<') || !input.endsWith('>'))
     }
 
     inputHasExample(input: string): boolean{
