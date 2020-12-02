@@ -321,3 +321,63 @@
     border-bottom: 1px solid #e5e5e5;
     display: flex;
   }
+
+
+
+  
+.deactivateStepButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+.scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+}
+
+.exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+.scenarioBarContainer button,
+.exampleBarContainer button{
+  border: none;
+  background: #f8f8f8;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+.scenarioBarContainer > div,
+.exampleBarContainer{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px 15px;
+  display: flex;
+  height: 40px;
+}
+
+.actionBarButtonGroup{
+  margin-left: 20px;
+}
+
+.scenarioButton {
+  margin-right: 10px;
+}
+
+.actionButton{
+  margin-left: 10px;
+}
+
+.scenarioButton em{
+  color:  #0099CC;
+}
+
+.scenarioButton em:active {
+  background-color: #0099CC;
+  color: #ffffff;
+}
