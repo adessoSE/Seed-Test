@@ -146,14 +146,8 @@
     border-radius: 10%;
   }
 
-  .iconButton_unsaved em{
-    vertical-align:middle;
+  #saveButton.iconButton_unsaved em{
     color: red;
-    border-radius: 10%;
-    border: none;
-    background-color: #ffffff;
-    padding: 0px;
-    border-radius: 10%;
   }
   
   .iconButton em:active {
@@ -190,9 +184,9 @@
     font-style: italic;
   }
   
-  .disabled em{
+  .scenarioBarContainer .disabled em{
     color: gray !important;
-    background: white !important;
+    background: #f8f8f8 !important;
   }
   
   .dragIconContainer{
@@ -200,9 +194,11 @@
     cursor: move;
   }
   
-  .dragIcon{
-    position: relative;
-    top: -2px;
+  em.dragIcon{
+    font-size: 18px;
+    color: black;
+    background-color: white;
+    margin-top:3px
   }
   
   .text-inline{
@@ -303,16 +299,13 @@
   }
 
   .checkbox{
-    margin: 0px 3px;
+    margin-right: 5px;
+    margin-bottom: 1.5px;
+    margin-left: 3px
   }
   
   .checkbox:hover{
     cursor: pointer;
-  }
-  
-  .actionButton{
-    margin: 0px 10px;
-  
   }
   
   .actionBarContainer{
@@ -325,10 +318,6 @@
 
 
   
-.deactivateStepButton > em{
-  color: #333;
-  font-size: 22px;
-}
 
 .scenarioBarContainer{
   display: flex;
@@ -362,11 +351,16 @@
 }
 
 .actionBarButtonGroup{
-  margin-left: 20px;
+  margin-left: 3px;
 }
 
 .scenarioButton {
   margin-right: 10px;
+}
+
+.actionButton > em{
+  color: #333;
+  font-size: 22px;
 }
 
 .actionButton{

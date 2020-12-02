@@ -35,21 +35,21 @@
     <div class="actionBarButtonGroup">
       <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps">
       <div *ngIf="this.activeActionBar">
-        <button id="{{'scenario_' + i + '_delete_step_'}}" a
-                    class="actionButton" uk-tooltip title="Delete Step"
-                    (click)="removeStepFromScenario();">
-                    <em class="material-icons">remove_circle_outline</em>
+        <button id="{{'scenario_' + i + '_addBlock_step_'}}" a
+        class="actionButton" uk-tooltip title="Save Steps as Block"
+        (click)="saveBlock();">
+          <em class="material-icons">queue</em>
         </button>
         <button id="{{'scenario_' + i + '_deactivate_step_'}}" a
-          class="actionButton deactivateStepButton" uk-tooltip title="Deactivate Step"
+          class="actionButton" uk-tooltip title="Deactivate Step"
           (click)="deactivateStep();">
           <em class="material-icons">do_not_touch</em>
         </button>
-        <button id="{{'scenario_' + i + '_addBlock_step_'}}" a
-        class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
-        (click)="saveBlock();">
-        <em class="material-icons">queue</em>
-      </button>
+        <button id="{{'scenario_' + i + '_delete_step_'}}" a
+        class="actionButton" uk-tooltip title="Delete Step"
+        (click)="removeStepFromScenario();">
+          <em class="material-icons">delete</em>
+        </button>
       </div>
     </div>
     <div class="scenarioButtonGroup">
@@ -105,7 +105,7 @@
             <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag >
               <div class="text-inline" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                 <div class="dragIconContainer" cdkDragHandle >
-                  <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
+                  <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
                 <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
@@ -139,21 +139,21 @@
           <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="exampleBarContainer">
             <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
             <div *ngIf="this.activeExampleActionBar">
-              <button id="{{'scenario_' + i + '_example_delete_step_'}}" a
-                          class="actionButton" uk-tooltip title="Delete Step"
-                          (click)="removeStepFromExample();">
-                          <em class="material-icons">remove_circle_outline</em>
+              <button id="{{'scenario_' + i + '_example_addBlock_step_'}}" a
+              class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
+              (click)="saveExampleBlock($event);">
+                <em class="material-icons">queue</em>
               </button>
               <button id="{{'scenario_' + i + '_example_deactivate_step_'}}" a
                 class="actionButton deactivateStepButton" uk-tooltip title="Deactivate Step"
                 (click)="deactivateExampleStep();">
                 <em class="material-icons">do_not_touch</em>
               </button>
-              <button id="{{'scenario_' + i + '_example_addBlock_step_'}}" a
-              class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
-              (click)="saveExampleBlock($event);">
-              <em class="material-icons">queue</em>
-            </button>
+              <button id="{{'scenario_' + i + '_example_delete_step_'}}" a
+              class="actionButton" uk-tooltip title="Delete Step"
+              (click)="removeStepFromExample();">
+                <em class="material-icons">delete</em>
+              </button>
             </div>
           </div>
           <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>

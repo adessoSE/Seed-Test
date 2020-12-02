@@ -76,69 +76,63 @@
         <div class="actionBarButtonGroup">
           <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps"/>
           <div *ngIf="this.activeActionBar">
-            <button id="{{'background' + '_delete_step_'}}" a
-                       class="actionButton" uk-tooltip title="Delete Step"
-                      (click)="removeStepFromBackground();">
-                      <em class="material-icons">remove_circle_outline</em>
-            </button>
-            <button id="{{'background' + '_deactivate_step_'}}" a
-             class="actionButton deactivateStepButton" uk-tooltip title="Deactivate Step"
-            (click)="deactivateStep();">
-              <em class="material-icons">do_not_touch</em>
-            </button>
             <button id="{{'background_' + i + '_addBlock_step_'}}" a
-            class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
+            class="actionButton" uk-tooltip title="Save Steps as Block"
             (click)="saveBlock();">
               <em class="material-icons">queue</em>
             </button>
+            <button id="{{'background' + '_deactivate_step_'}}" a
+             class="actionButton" uk-tooltip title="Deactivate Step"
+            (click)="deactivateStep();">
+              <em class="material-icons">do_not_touch</em>
+            </button>
+            <button id="{{'background' + '_delete_step_'}}" a
+            class="actionButton" uk-tooltip title="Delete Step"
+           (click)="removeStepFromBackground();">
+              <em class="material-icons">delete</em>
+            </button>
           </div>
+        </div>
+        <div class="scenarioButtonGroup">
+          <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock(selectedStory._id)">
+            <em class="material-icons">playlist_add</em>
+          </button>
+          <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
+          class="scenarioButton" title="Add New Step" uk-tooltip>
+            <em class="material-icons">add_circle_outline</em>
+          </button>
+          <div uk-dropdown="pos: left-bottom">
+            <ul class="uk-nav uk-dropdown-nav">
+              <li *ngFor="let step of originalStepTypes; let i = index" >
+                <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
+                  {{step.type}}</span>
+              </li>
+            </ul>
+          </div>
+          <button id="saveButton" class="scenarioButton" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+          title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
+          (click)="updateBackground();">
+            <em class="material-icons">save</em>
+          </button>
+          <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+          class="scenarioButton" data-uk-tooltip title="Delete Background"
+          (click)="deleteBackground($event);">
+          <em class="material-icons">delete</em>
+          </button>
         </div>
       </div>
 
-      <div class="scenarioButtonGroup">
-        <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock(selectedStory._id)">
-          <em class="material-icons">playlist_add</em>
-        </button>
-        <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
-        class="scenarioButton" title="Add New Step" uk-tooltip uk-icon="icon: plus-circle">
-        </button>
-        <button class="scenarioButton" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-        title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
-        (click)="updateBackground();">
-          <em class="material-icons">save</em>
-        </button>
-        <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
-        class="scenarioButton" data-uk-tooltip title="Delete Background"
-        (click)="deleteBackground($event);">
-        <em class="material-icons">delete</em>
-        </button>
-      </div>
-      <div uk-dropdown="pos: left-bottom">
-        <ul class="uk-nav uk-dropdown-nav">
-          <li *ngFor="let step of originalStepTypes; let i = index" >
-            <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
-              {{step.type}}</span>
-          </li>
-        </ul>
-      </div>
+
+
       <div class="uk-steps">
         <br>
         <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
           <div *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
             <div class="text-inline" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
               <div class="dragIconContainer" cdkDragHandle>
-                <img class="dragIcon" src="../assets/dragIcon.png" alt="drag">
+                <em class="material-icons dragIcon">drag_indicator</em>
               </div>
               <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
-              <!--<button id="{{'background_remove_step' + j}}" a
-                uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete step"
-                (click)="removeStepFromBackground($event, j);">
-              </button>
-              <button id="{{'background_' + i + '_deactivate_step_' + j}}" a
-              [class.disabledDeactivateButton]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated"
-              uk-icon="icon: ban" class="uk-text" uk-tooltip title="Deactivate Step"
-              (click)="deactivateStep(currentStep.stepType, j);">
-              </button>-->
               {{j+1}}. {{currentStep.pre}}
               <p style="display:inline" *ngIf="currentStep.values.length > 0">
                 <input id="{{'background_step_input_pre' + j}}" #step_type_input

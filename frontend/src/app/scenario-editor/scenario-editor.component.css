@@ -35,9 +35,11 @@ input[type="text"]{
   cursor: move;
 }
 
-.dragIcon{
-  position: relative;
-  top: -2px;
+em.dragIcon{
+  font-size: 18px;
+  color: black;
+  background-color: white;
+  margin-top:3px
 }
 
 .text-inline{
@@ -104,27 +106,28 @@ input[type="text"]{
 }
 
 .checkbox{
-  margin: 0px 3px;
+  margin-right: 5px;
+  margin-bottom: 1.5px;
+  margin-left: 3px
 }
 
 .checkbox:hover{
   cursor: pointer;
 }
 
-
-
-
-
-.deactivateStepButton > em{
-  color: #333;
-  font-size: 22px;
+#checkbox_all_example{
+  margin-left: 10px;
 }
 
+#checkbox_all{
+  margin-left: 6px;
+}
 .scenarioBarContainer{
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
+  margin: 0px 20px;
 }
 
 .exampleBarContainer{
@@ -151,16 +154,17 @@ input[type="text"]{
   height: 40px;
 }
 
-.actionBarButtonGroup{
-  margin-left: 20px;
-}
-
 .scenarioButton {
   margin-right: 10px;
 }
 
 .actionButton{
   margin-left: 10px;
+}
+
+.actionButton > em{
+  color: #333;
+  font-size: 22px;
 }
 
 .scenarioButton em{
@@ -171,7 +175,6 @@ input[type="text"]{
   background-color: #0099CC;
   color: #ffffff;
 }
-
 
 
 
@@ -266,7 +269,7 @@ input[type="text"]{
   font-style: italic;
 }
 
-.disabled em{
+.scenarioBarContainer .disabled em{
   color: gray !important;
   background: #f8f8f8 !important;
 }
