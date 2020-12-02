@@ -64,8 +64,9 @@
         <div class="expand" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
           <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">
-              A background allows you to add a common context to multiple scenarios in the same feature. 
-              This can contain one or more steps that are performed before each scenario. 
+              You can use the background to set actions, which will be carried out before testing the whole story. 
+              This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios. 
+              In short: A background allows to set Given-Steps used for all scenarios.
             </span></dfn>
           <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
           <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
