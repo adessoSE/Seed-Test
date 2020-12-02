@@ -127,7 +127,14 @@ input[type="text"]{
   background-color: #f8f8f8;
 }
 
-.scenarioBarContainer button{
+.exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+.scenarioBarContainer button,
+.exampleBarContainer button{
   border: none;
   background: #f8f8f8;
   transform: translate(0px, -3px);
@@ -135,7 +142,8 @@ input[type="text"]{
   border-radius: 10%;
 }
 
-.scenarioBarContainer > div {
+.scenarioBarContainer > div,
+.exampleBarContainer{
   margin-top: 5px;
   margin-bottom: 5px;
   padding: 10px 15px;
@@ -215,13 +223,7 @@ input[type="text"]{
 
 
 .scenarioButton_unsaved em{
-  vertical-align:middle;
   color: red;
-  border-radius: 10%;
-  border: none;
-  background-color: #ffffff;
-  padding: 0px;
-  border-radius: 10%;
 }
 
 .disabledDeactivateButton{

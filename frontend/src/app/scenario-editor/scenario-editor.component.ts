@@ -68,6 +68,11 @@ export class ScenarioEditorComponent implements OnInit {
 
     @Input()
     set newlySelectedScenario(scenario: Scenario) {
+        if(this.selectedScenario){
+            this.checkAllExampleSteps(null, false);
+            this.checkAllSteps(null, false);
+        }
+
         this.selectedScenario = scenario;
         if (this.selectedStory) {
            this.selectScenario(scenario);
@@ -288,6 +293,14 @@ export class ScenarioEditorComponent implements OnInit {
             this.activeActionBar = false;
             this.allChecked = false;
         }
+    }
+
+    saveBlock(event){
+        console.log('save Block')
+    }
+
+    saveExampleBlock(event){
+        console.log('save example Block')
     }
 
     checkAllExampleSteps(event, checkValue: boolean){
