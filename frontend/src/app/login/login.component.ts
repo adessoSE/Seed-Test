@@ -18,11 +18,12 @@ export class LoginComponent implements OnInit {
     private testJiraHost = '';
     repositoriesLoading: boolean;
     showInstruction = false;
-    slides = [
-        {'image': '/assets//slide1.png'}, 
-        {'image': '/assets/slide2.png'},
-        {'image': '/assets/slide3.png'}
-    ];
+    slide1 = [{'image1': '/assets//slide1.png'}];
+    slide2 = [{'image2': '/assets//slide2.png'}];
+    slide3 = [{'image3': '/assets//slide3.png'}];
+    slide4 = [{'image4': '/assets//slide4.png'}];
+    slide5 = [{'image5': '/assets//slide5.png'}];
+    slide6 = [{'image6': '/assets//slide6.png'}];
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;

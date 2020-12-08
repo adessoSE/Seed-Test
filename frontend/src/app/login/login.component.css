@@ -23,8 +23,8 @@ h1{
     text-align: center;
     background-color: white;
     margin-top: 80px;
-    margin-right: 50px;
-    margin-bottom: 100px;
+    margin-right: 100px;
+    margin-bottom: 50px;
     text-align: center;
     border: 1px solid grey;
     padding: 40px;
@@ -36,8 +36,7 @@ h1{
     grid-column: 3 / 4;
     width: 400px;
     text-align: center;
-    margin-left: auto;
-    margin-right: auto;
+    margin-right: 100px;
     margin-bottom: 80px;
     padding: 15px;
     background-color:rgb(224, 224, 224);
@@ -54,8 +53,9 @@ h1{
     font-size: small;
     margin-top: 80px;
     margin-bottom: 180px;
-    margin-right: 280px;
-    width: 630px;
+    margin-right: 150px;
+    margin-left: 100px;
+    width: 830px;
     height: 500px;
     position: relative;
 }
@@ -66,6 +66,10 @@ h1{
     text-align: center;
     margin: auto;
     padding: 70px;
+}
+
+.carousel-indicators{
+    padding-right: 100px;
 }
 
 #bild{
@@ -85,15 +89,21 @@ h1{
 .mat-carousel{
     z-index: auto;
     position: absolute;
-    width: 100px; 
+    width: 200px; 
     height: 100px;
 }
 
 .mat{
-    width: 650px;
-    /*padding-top: 50px;
-    padding-left: 45px;*/
+    width: 850px;
+    margin-top: 70px;
     border: 10px solid #999;
+}
+
+.slideDescription{
+    margin-top: 330px;
+    background-color:rgba(153, 153, 153, 0.459);
+    height: 100px;
+    padding: 10px;
 }
 
 .stayLoggedInContainer label{
@@ -315,8 +325,7 @@ a:not([href]):not([tabindex]).repoLink:hover {
   }
 
 #loadingSpinner{
-    margin-left:36%;
-    margin-right:34%;
+    margin-left:38%;
 }
 
 :host ::ng-deep .loadingSpinner circle{
