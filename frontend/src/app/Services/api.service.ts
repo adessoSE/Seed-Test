@@ -34,7 +34,7 @@ export class ApiService {
     public static getOptions() {
         return { withCredentials: true};
     }
-    
+
     public runSaveOption(option: String){
         this.runSaveOptionEvent.emit(option)
     }
@@ -347,7 +347,7 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: any, storySource:string, scenarioID: number) {
+    public runTests(storyID: any, storySource: string, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
         const value = localStorage.getItem('repository');
         const source = localStorage.getItem('source');
@@ -361,11 +361,11 @@ export class ApiService {
             .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
     }
 
-    //public changeDaisy(){
+    // public changeDaisy(){
     //    this.apiServer = localStorage.getItem('url_backend');
     //    return this.http.get(this.apiServer + '/user/daisy')
-    //}
-    
+    // }
+
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;
         // return false;
