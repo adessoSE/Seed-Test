@@ -139,7 +139,7 @@ em.dragIcon{
 .scenarioBarContainer button,
 .exampleBarContainer button{
   border: none;
-  background: #f8f8f8;
+  background: none;
   transform: translate(0px, -3px);
   height: 24px;
   border-radius: 10%;
@@ -299,4 +299,22 @@ table {
 
 .scenario_unsaved {
   color: red;
+}
+
+.stepsListContainer{
+  display: flex;
+  justify-content: space-between;
+}
+
+.stepsListContainer em{
+  color: #0099CC;
+}
+
+.stepsListContainer .disabled em{
+  color: gray;
+}
+
+.stepsListContainer button{
+  border: none;
+  background: none;
 }

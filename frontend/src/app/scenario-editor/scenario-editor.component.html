@@ -74,15 +74,17 @@
     <!--Steps-->
     <div class="uk-card-title padding">
       <div *ngIf="this.selectedScenario">
-      <div *ngFor="let sd of getKeysList(this.selectedScenario.stepDefinitions);let i = index;">
-        <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
-        <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
-        <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
-        <div *ngIf="sd == 'example'; then exampleTitle"></div>
-
-        <div class="uk-float-right">
-          <button *ngIf="sd != 'example'" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
-            class="addStepButtons" title="Add New Step" uk-tooltip></button>
+      <div *ngFor="let sd of getKeysList(this.selectedScenario.stepDefinitions);let i = index;" >
+        <div class="stepsListContainer">
+          <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
+          <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
+          <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
+          <div *ngIf="sd == 'example'; then exampleTitle"></div>
+  
+          <button *ngIf="sd != 'example'" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
+          class="addStepButtons" title="Add New Step" uk-tooltip>
+            <em class="material-icons">add_circle_outline</em>
+          </button>
           <div uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
@@ -93,13 +95,13 @@
           </div>
           <div *ngIf="sd == 'example'">
             <div *ngFor="let step of originalStepTypes; let j = index;" >
-              <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" uk-icon="icon: plus-circle"
-              class="addStepButtons" (click)="addStepToScenario(selectedStory._id,step);" title="Add New Variable" uk-tooltip></button>
+              <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
+              class="addStepButtons" (click)="addStepToScenario(selectedStory._id,step);" title="Add New Variable" uk-tooltip>
+                <em class="material-icons">add_circle_outline</em>
+              </button>
             </div>
           </div>
         </div>
-
-
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
             <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag >
