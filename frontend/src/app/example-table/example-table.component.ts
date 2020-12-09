@@ -42,7 +42,7 @@ export class ExampleTableComponent implements OnInit {
 
   initializeTableControls() {
     this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
-
+    console.log(this.displayedColumns)
     const formArray: FormGroup[] = [];
     for (let i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++) {
       let toGroups = new FormGroup({},{updateOn: 'blur'});

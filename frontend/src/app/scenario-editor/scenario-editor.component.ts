@@ -9,6 +9,8 @@ import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { SubmitformComponent } from '../submitform/submitform.component';
 import { ToastrService } from 'ngx-toastr';
+import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
+import { Block } from '../model/Block';
 
 @Component({
     selector: 'app-scenario-editor',
@@ -32,6 +34,8 @@ export class ScenarioEditorComponent implements OnInit {
 
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
+    @ViewChild('saveBlockForm') saveBlockFormService: SaveBlockFormComponent;
+
     
     constructor(
         public apiService: ApiService,
@@ -296,7 +300,19 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     saveBlock(event){
-        console.log('save Block')
+        let saveBlock: any = {given: [], when: [], then: []};
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            if(prop !== 'example'){
+                for(let s in this.selectedScenario.stepDefinitions[prop]){
+                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
+                        saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+                    }
+                }
+            }
+        }
+        console.log(saveBlock)
+        let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
+        this.saveBlockFormService.open(block);
     }
 
     saveExampleBlock(event){
