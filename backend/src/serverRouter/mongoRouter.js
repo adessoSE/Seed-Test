@@ -171,4 +171,24 @@ router.get('/user', async (req, res) => {
   }
 });
 
+//save custom Blocks
+router.post('/saveBlock', async (req, res) => {
+    try {
+      const result = await mongo.saveBlock(req);
+      res.status(200).json(result);
+    } catch (error) {
+      handleError(res, error, error, 500);
+    }
+});
+
+//get custom Blocks
+router.get('/getBlocks', async (req, res) => {
+    try {
+      const result = await mongo.getBlocks(req.id);
+      res.status(200).json(result);
+    } catch (error) {
+      handleError(res, error, error, 500);
+    }
+});
+
 module.exports = router;
