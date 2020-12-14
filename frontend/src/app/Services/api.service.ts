@@ -349,16 +349,14 @@ export class ApiService {
     // demands testing from the server
     public runTests(storyID: any, storySource:string, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
-        const value = localStorage.getItem('repository');
-        const source = localStorage.getItem('source');
-        const params = {value, source};
+        
         if (scenarioID) {
             return this.http
                 .get(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, {
-                    responseType: 'text', withCredentials: true, params});
+                    responseType: 'text', withCredentials: true});
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
+            .get(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, { responseType: 'text', withCredentials: true});
     }
 
     //public changeDaisy(){

@@ -10,6 +10,11 @@ table {
 
 }
 
+.deactivated{
+  color: gray;
+  font-style: italic;
+}
+
 .valueRow{
   font-weight: normal;
 }
