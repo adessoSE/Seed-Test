@@ -139,66 +139,86 @@ router.post('/user/add', async (req, res) => {
 });
 // update user
 router.post('/user/update/:userID', async (req, res) => {
-  try {
-    const user = req.body;
-    let updatedUser = await mongo.updateUser(parseString(req.params.userID, 10), user)
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    handleError(res, error, error, 500);
-  }
+	try {
+		const user = req.body;
+		let updatedUser = await mongo.updateUser(parseString(req.params.userID, 10), user)
+		res.status(200).json(updatedUser);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
 });
 // delete user
 router.delete('/user/delete/:userID', async (req, res) => {
-  try {
-    await mongo.deleteUser(parseString(req.params.userID, 10))
-    res.status(200);
-  } catch (error) {
-    handleError(res, error, error, 500);
-  }
+	try {
+		await mongo.deleteUser(parseString(req.params.userID, 10))
+		res.status(200);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
 });
 
 // get userObject
 router.get('/user', async (req, res) => {
-  if (req.user) {
-    try {
-      const result = await mongo.getUserData(req.user._id);
-      res.status(200).json(result);
-    } catch (error) {
-      handleError(res, error, error, 500);
-    }
-  } else {
-	res.sendStatus(400);
-  }
+	if (req.user) {
+		try {
+			const result = await mongo.getUserData(req.user._id);
+			res.status(200).json(result);
+		} catch (error) {
+			handleError(res, error, error, 500);
+		}
+	} else {
+		res.sendStatus(400);
+	}
 });
 
 //save custom Blocks
 router.post('/saveBlock', async (req, res) => {
-    try {
-      const result = await mongo.saveBlock(req);
-      res.status(200).json(result);
-    } catch (error) {
-      handleError(res, error, error, 500);
-    }
+	try {
+		let body = req.body
+		const result = await mongo.saveBlock(body);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
 });
 
 //update custom Blocks
 router.post('/updateBlock/:name', async (req, res) => {
-    try {
-      const result = await mongo.updateBlock(req.params.name, req.body);
-      res.status(200).json(result);
-    } catch (error) {
-      handleError(res, error, error, 500);
-    }
+	try {
+		const result = await mongo.updateBlock(req.params.name, req.body);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
 });
 
-//get custom Blocks
+//get custom Blocks by ownerId
 router.get('/getBlocksById', async (req, res) => {
-    try {
-      const result = await mongo.getBlocksById(req.id);
-      res.status(200).json(result);
-    } catch (error) {
-      handleError(res, error, error, 500);
-    }
+	try {
+		const result = await mongo.getBlocksById(req.body.id);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/getBlocks', async (req, res) => {
+	try {
+		const result = await mongo.getBlocks();
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+//delete a CustomBlock needs the name of the block
+router.get('/deleteBlock', async (req, res) => {
+	try {
+		const result = await mongo.deleteBlock(req.body.name);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
 });
 
 module.exports = router;

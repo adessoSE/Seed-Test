@@ -9,6 +9,7 @@ function emptyBlock() {
                 then: [],
             },
         ],
-    },
-  }
-module.exports = emptyStory;
+    }
+}
+
+module.exports = emptyBlock;
