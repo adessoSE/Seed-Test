@@ -673,7 +673,6 @@ async function getUserData(userID) {
     db = await connectDb();
     let collection = await selectUsersCollection(db);
     let result = await collection.findOne(myObjt);
-    db.close();
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLERin getUserData: " + e)
@@ -696,7 +695,22 @@ async function saveBlock(block) {
   }
 }
 
-async function getBlocks(id) {
+async function updateBlock(name, updatedBlock) {
+  let db;
+  const myObjt = { name: name };
+  try {
+    db = await connectDb()
+    let dbo = db.db(dbName);
+    let collection = await dbo.collection(CustomBlocksCollection)
+    await collection.findOneAndReplace(myObjt, updatedBlock, { returnOriginal: false })
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in updateBlock: " + e)
+  } finally {
+    if (db) db.close()
+  }
+}
+//get all Blocks for designated Id need objectId returns Array with all found CustomBlocks
+async function getBlocksById(id) {
   let db;
   try {
     db = await connectDb()
@@ -705,12 +719,41 @@ async function getBlocks(id) {
     let result = await collection.find({}, { projection: { owner: id } }).toArray()
     return result
   } catch (e) {
+    console.log("UPS!!!! FEHLER in getBlocksById: " + e)
+  } finally {
+    if (db) db.close()
+  }
+}
+//get all Blocks returns Array with all existing CustomBlocks
+async function getBlocks() {
+  let db;
+  try {
+    db = await connectDb()
+    let dbo = db.db(dbName);
+    let collection = await dbo.collection(CustomBlocksCollection)
+    let result = await collection.find({}).toArray()
+    return result
+  } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
   } finally {
     if (db) db.close()
   }
 }
-
+//deletes the CustomBlock with the given Name, need the name
+async function deleteBlock(name) {
+  let db;
+  try {
+    const myObjt = { name: name }
+    db = await connectDb()
+    let dbo = db.db(dbName);
+    let collection =  await dbo.collection(CustomBlocksCollection)
+    await collection.deleteOne(myObjt)
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in deleteBlock: " + e)
+  } finally {
+    if (db) db.close()
+  }
+}
 
 
 module.exports = {
@@ -748,5 +791,8 @@ module.exports = {
   deleteRequest,
   getResetRequestByEmail,
   saveBlock,
+  updateBlock,
+  getBlocksById,
   getBlocks,
+  deleteBlock,
 };

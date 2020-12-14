@@ -181,10 +181,20 @@ router.post('/saveBlock', async (req, res) => {
     }
 });
 
-//get custom Blocks
-router.get('/getBlocks', async (req, res) => {
+//update custom Blocks
+router.post('/updateBlock/:name', async (req, res) => {
     try {
-      const result = await mongo.getBlocks(req.id);
+      const result = await mongo.updateBlock(req.params.name, req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      handleError(res, error, error, 500);
+    }
+});
+
+//get custom Blocks
+router.get('/getBlocksById', async (req, res) => {
+    try {
+      const result = await mongo.getBlocksById(req.id);
       res.status(200).json(result);
     } catch (error) {
       handleError(res, error, error, 500);
