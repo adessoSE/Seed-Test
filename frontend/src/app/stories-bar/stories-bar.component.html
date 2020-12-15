@@ -13,10 +13,19 @@
     <hr>
     <ul uk-accordion>
       <li *ngFor="let s of getSortedStories(); let i = index ">
-        <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
-          <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
-            {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
-          </a>
+          <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
+            <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
+              {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
+            </a>
+         <!--- To Do
+          <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
+          <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+          
+          <div *ngIf="shortenTitle({{s.title}}); else elseBlock">{{s.issue_number}}. {{s.title | slice:0:15 | titlecase }} ...true.</div>
+          <ng-template #elseBlock> {{s.issue_number}}. {{s.title | titlecase }}...false</ng-template>
+        </a>
+      -->
+      
           <span class="github-avatar">
             <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px">
             <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px">

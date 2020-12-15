@@ -1,13 +1,15 @@
 <div class="grid-container uk-card uk-card-default">
-    <div class="header">
-        <h1 class="uk-card-header">Account Settings</h1>
+     <div class="header">
+       <h1 class="uk-card-header">Account Settings</h1>
+     <!---Create Repo -->
     </div>
     <div class="grid_seedTest uk-card uk-card-default">
         <h2 class="uk-card-header">Seed-Test Account</h2>
-        <div *ngIf="email">
-            <b>Email: </b>
-            <label class="active">{{email}}</label>
-            <p><button class="button" (click)="newRepository()">Create Repository</button></p>
+        <b>Email:</b>
+        <div class="uk-form-horizontal">
+            <label>
+                <input id="email_field" [defaultValue]="email" placeholder="E-Mail*">
+            </label>
         </div>
         <div *ngIf="!email">
             <label id="noEmail">- no email deposited -</label>
@@ -29,8 +31,15 @@
                 </ul>
             </div>
         </div>
-        <!------------------------------------->
-    </div>
+        <!-----------------Erase your Account-------------->
+        <div class="grid_eraseAccount repositories" *ngIf="login === true"></div>
+            <h2 class="uk-card-header">Delete Seed-Test Account </h2>
+            <div class="uk-form-horizontal">
+                <button class="buttonRed" id="erase_Account" (click)="eraseAccount()">Delete Seed-Test Account</button>
+            </div>
+         </div>
+    <!------------------------------------->
+    <hr>
     <div class="grid_github uk-card uk-card-default">
         <h2 class="uk-card-header">Github</h2>
         <div *ngIf="github">
@@ -69,8 +78,8 @@
                 </ul>
             </div>
         </div>
-        <!------------------------------------->
-    </div>
+    </div> 
+    <!------------------------------------->
     <div class="grid_jira uk-card uk-card-default">
         <h2 class="uk-card-header">Jira</h2>
         <div>

@@ -64,4 +64,33 @@
         </button>
     </div>
 </ng-template>
-
+<!---Modal for Erase Account------>
+<ng-template #content4 let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Delete My Account</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div id="submitForm">
+            <div>
+                <form>
+                    <div class="form-group">
+                        <p style="font-size:16px;">Are you sure that you want to erase your Seed-Test Account?</p>
+                        <p style="font-size:16px;">This will also erase all of your saved repositories.</p>
+                        <p style="font-size:16px;">If you wish to erase your Seed-Account and connected data, please verify with your password:</p>
+                        <br>
+                        <label>
+                            <input id="Password" defaultValue="YourPassword" placeholder="Your Password*">
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="buttonRed" (click)="eraseAccount(); modal.close('Save click')">Delete my Account
+        </button>
+    </div>
+</ng-template>

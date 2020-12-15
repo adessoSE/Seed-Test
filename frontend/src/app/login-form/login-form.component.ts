@@ -14,6 +14,8 @@ export class LoginFormComponent {
 
     @ViewChild('content') content: any;
     @ViewChild('content2') content2: any;
+    @ViewChild('content3') content3: any;
+    @ViewChild('content4') content4: any;
     type: string;
 
     constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
@@ -29,6 +31,10 @@ export class LoginFormComponent {
         this.modalService.open(this.content2, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
     }
 
+    eraseAccount() {
+        this.modalService.open(this.content4, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
+    }
+s
     submitRepo(){
         const name = (document.getElementById('repo_name') as HTMLInputElement).value;
         if (!this.isEmptyOrSpaces(name)){

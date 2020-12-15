@@ -34,7 +34,9 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {RunTestToast} from './custom-toast'
+import {RunTestToast} from './custom-toast';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component'
 
 @NgModule({
   declarations: [
@@ -60,7 +62,9 @@ import {RunTestToast} from './custom-toast'
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
     ReportComponent,
-    RunTestToast
+    RunTestToast,
+    ResetPasswordComponent,
+    ConfirmResetPasswordComponent
   ],
   imports: [
       NgbModule,
