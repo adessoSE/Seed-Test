@@ -24,7 +24,7 @@ h1{
     background-color: white;
     margin-top: 80px;
     margin-right: 100px;
-    margin-bottom: 50px;
+    margin-bottom: 100px;
     text-align: center;
     padding: 40px;
 }
@@ -59,7 +59,7 @@ h1{
     position: relative;
 }
 
-.slides{
+.welcomeSlide{
     background-color: white;
     height: 100%;
     text-align: center;
@@ -67,8 +67,8 @@ h1{
     padding: 70px;
 }
 
-.carousel-indicators{
-    padding-right: 100px;
+.welcomeSlide h1{
+    margin-bottom: 50px;
 }
 
 #bild{
@@ -100,7 +100,8 @@ h1{
 
 .slideDescription{
     margin-top: 330px;
-    background-color:rgba(153, 153, 153, 0.459);
+    background-color: #999;
+    color: white;
     height: 100px;
     padding: 10px;
 }
