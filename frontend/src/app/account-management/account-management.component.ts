@@ -19,7 +19,6 @@ export class AccountManagementComponent implements OnInit {
     github: any;
     jira: any;
     id: string;
-    reload: any;
 
     constructor(public apiService: ApiService, public router: Router, private toastr: ToastrService) {
         router.events.forEach((event) => {
@@ -68,13 +67,6 @@ export class AccountManagementComponent implements OnInit {
             });
         }
     }
-
-    reloadPage() {
-        location.reload(true);
-        setTimeout("reloadPage()", 1000);
-        }
-
-        
 
     ngOnInit() {
     }
