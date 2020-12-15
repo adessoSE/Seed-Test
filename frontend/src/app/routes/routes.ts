@@ -8,6 +8,7 @@ import { TestAccountComponent } from '../test-account/test-account.component';
 import { RegistrationComponent } from '../registration/registration.component';
 import { ReportComponent } from '../report/report.component';
 import { ResetPasswordComponent } from '../reset-password/reset-password.component';
+import { ConfirmResetPasswordComponent }  from '../confirm-reset-password/confirm-reset-password.component';
 
 export const ROUTES = [
     {
@@ -45,7 +46,12 @@ export const ROUTES = [
     },
 
     {
-        path: 'resetPassword',
+        path: 'resetpassword',
         component: ResetPasswordComponent
+    },
+
+    {
+        path: 'resetpasswordconfirm',
+        component: ConfirmResetPasswordComponent
     },
 ];

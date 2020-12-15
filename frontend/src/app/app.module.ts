@@ -35,7 +35,8 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RunTestToast} from './custom-toast';
-import { ResetPasswordComponent } from './reset-password/reset-password.component'
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component'
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    ConfirmResetPasswordComponent
   ],
   imports: [
       NgbModule,

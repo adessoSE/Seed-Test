@@ -165,6 +165,32 @@ export class ApiService {
             .pipe(tap(resp => {
             }));
     }
+    
+/*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
+
+  public requestReset(email: string): Observable <any> {   
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {'email' : email};   
+        return this.http
+            .post<any>(this.apiServer + 'user/resetpassword/', body, ApiService.getOptions())
+            .pipe(tap(resp => {
+            }));
+  }
+
+  public confirmReset(id: string, password: string): Observable <any> {   
+   console.log (id);
+   console.log (password)
+    this.apiServer = localStorage.getItem('url_backend');
+    const body = {'id' : id, 'password' : password};   
+    return this.http
+        .post<any>(this.apiServer + 'user/reset/', body, ApiService.getOptions())
+        .pipe(tap(resp => {
+        }));
+}
+
+
+
+  
 
     logoutUser() {
         const url = this.apiServer + '/user/logout';
