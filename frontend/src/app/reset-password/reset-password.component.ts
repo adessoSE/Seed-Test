@@ -26,27 +26,14 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit() {
   }
 
-  
-
   navToConfirmReset() {
     this.router.navigate(['/resetpasswordconfirm']);
- }
+  };
  
 
-  async resetUserPassword(form: NgForm){
-    this.error = undefined;
+  requestReset(form : NgForm) {
+    this.apiService.requestReset(form.value.email).toPromise
+  };
 
-
-
-   
-    /* REWRITE
-    let response = await this.apiService.resetUserPassword(form.value.email. erased).toPromise()
-    if (response.status === 'error') {
-        this.error = response.message;
-    } else {
-        this.router.navigate(["/"]);
-    } */
-
-  }
 
 }
