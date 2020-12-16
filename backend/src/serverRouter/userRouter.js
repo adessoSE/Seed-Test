@@ -40,7 +40,6 @@ router
 //checks if a reset request already exists if true it delets the old request. Checks if an Account with this email exists, if true creates a request and saves it.
 //also sends an email via nodemailer with resetlink to the given emailadress.
 router.post("/resetpassword", async (req, res) => {
-	console.log("Die Email im Backend:" + req.body.email)
 	let checkRequest = await mongo.getResetRequestByEmail(req.body.email)
 	if (checkRequest) {
 		mongo.deleteRequest(req.body.email)
