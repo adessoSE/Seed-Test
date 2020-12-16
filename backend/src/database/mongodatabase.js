@@ -631,21 +631,29 @@ async function createUser(user) {
 }
 
 // delete User in DB needs ID
-async function deleteUser(userID) {
+async function deleteUser(userID, storyId, source) {
   let db;
   try {
     oId = ObjectId(userID)
     const myObjt = { _id: oId }
     db = await connectDb()
-    let collection = await selectUsersCollection(db)
-    await collection.deleteOne(myObjt)
-    deleteRepositorys(userID)
+    let collection = await selectUsersCollection(db);
+    let collection2 = await selectRepositoryCollection(db);
+    let collection3 = await selectStoriesCollection(db);
+    let resultUser = await collection.deleteOne(myObjt);
+    let resultRepo = await collection2.deleteMany({owner: oId});
+    let resultScenario = await collection3.deleteMany({story_id: storyId, storySource: source});
+    let result = resultUser + resultRepo + resultScenario
+    console.log(result)
+    return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteUser: " + e)
   } finally {
     if (db) db.close()
   }
 }
+
+
 
 // update a User in DB needs ID and JsonObject User returns altered JsonObject User
 async function updateUser(userID, updatedUser) {
@@ -710,13 +718,14 @@ async function updateBlock(name, updatedBlock) {
   }
 }
 //get all Blocks for designated Id need objectId returns Array with all found CustomBlocks
-async function getBlocksById(id) {
+async function getBlocksById(id, repo) {
+  //todo ObjectID
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({owner: id}).toArray()
+    let result = await collection.find({owner: id, repo: repo}).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocksById: " + e)
@@ -725,13 +734,13 @@ async function getBlocksById(id) {
   }
 }
 //get all Blocks returns Array with all existing CustomBlocks
-async function getBlocks() {
+async function getBlocks(repo) {
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({}).toArray()
+    let result = await collection.find({repo: repo}).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
