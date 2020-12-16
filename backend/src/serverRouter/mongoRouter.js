@@ -195,7 +195,7 @@ router.post('/updateBlock/:name', async (req, res) => {
 //get custom Blocks by ownerId
 router.get('/getBlocksById', async (req, res) => {
 	try {
-		const result = await mongo.getBlocksById(req.body.id);
+		const result = await mongo.getBlocksById(req.body.id, req.body.repo);
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -204,7 +204,7 @@ router.get('/getBlocksById', async (req, res) => {
 
 router.get('/getBlocks', async (req, res) => {
 	try {
-		const result = await mongo.getBlocks();
+		const result = await mongo.getBlocks(req.body.repo);
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);
