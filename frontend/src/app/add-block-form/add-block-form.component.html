@@ -1,0 +1,20 @@
+<ng-template #content let-modal>
+  <div class="headTitle">
+      <span id="modalHeader">Add Block</span>
+      <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+          <span rel="def">Add a saved Block. These Steps will get appended to the steps of this story.
+                </span></dfn>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+      </button>
+  </div>
+  <div class="modal-body modal-xl">
+      <div class="uk-card-title" id="submitForm">
+        
+      </div>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="uk-button" (click)="submit(); modal.close('Save click')">Add
+      </button>
+  </div>
+</ng-template>

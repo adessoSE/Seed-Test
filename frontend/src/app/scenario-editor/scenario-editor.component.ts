@@ -11,6 +11,7 @@ import { SubmitformComponent } from '../submitform/submitform.component';
 import { ToastrService } from 'ngx-toastr';
 import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
 import { Block } from '../model/Block';
+import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
 
 @Component({
     selector: 'app-scenario-editor',
@@ -35,6 +36,7 @@ export class ScenarioEditorComponent implements OnInit {
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
     @ViewChild('saveBlockForm') saveBlockFormService: SaveBlockFormComponent;
+    @ViewChild('addBlockForm') addBlockFormService: AddBlockFormComponent;
 
     
     constructor(
@@ -297,6 +299,11 @@ export class ScenarioEditorComponent implements OnInit {
             this.activeActionBar = false;
             this.allChecked = false;
         }
+    }
+
+    addBlock(event){
+        console.log('add Block')
+        this.addBlockFormService.open();
     }
 
     saveBlock(event){

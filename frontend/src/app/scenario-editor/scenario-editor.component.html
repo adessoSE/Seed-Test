@@ -53,7 +53,7 @@
       </div>
     </div>
     <div class="scenarioButtonGroup">
-      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock(selectedStory._id)">
+      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock()">
         <em class="material-icons">playlist_add</em>
       </button>
       <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
@@ -173,6 +173,7 @@
 
 <app-submitform #submitForm></app-submitform>
 <app-save-block-form #saveBlockForm></app-save-block-form>
+<app-add-block-form #addBlockForm></app-add-block-form>
 
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin padding">

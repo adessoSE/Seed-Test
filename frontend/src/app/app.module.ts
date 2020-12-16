@@ -35,7 +35,8 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RunTestToast} from './custom-toast';
-import { SaveBlockFormComponent } from './save-block-form/save-block-form.component'
+import { SaveBlockFormComponent } from './save-block-form/save-block-form.component';
+import { AddBlockFormComponent } from './add-block-form/add-block-form.component'
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import { SaveBlockFormComponent } from './save-block-form/save-block-form.compon
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
-    SaveBlockFormComponent
+    SaveBlockFormComponent,
+    AddBlockFormComponent
   ],
   imports: [
       NgbModule,
