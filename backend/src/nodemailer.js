@@ -5,8 +5,8 @@ async function sendResetLink(email, id){
         host: 'smtp.web.de',
         port: 587,
         auth: {
-            user: '',
-            pass: ''
+            user: 'c-niebergall@web.de',
+            pass: 'wdactl2218'
         }
     });
 

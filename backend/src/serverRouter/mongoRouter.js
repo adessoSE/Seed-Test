@@ -150,7 +150,7 @@ router.post('/user/update/:userID', async (req, res) => {
 // delete user
 router.delete('/user/delete/:userID', async (req, res) => {
 	try {
-		await mongo.deleteUser(parseString(req.params.userID, 10))
+		await mongo.deleteUser(req.body.id)
 		res.status(200);
 	} catch (error) {
 		handleError(res, error, error, 500);
