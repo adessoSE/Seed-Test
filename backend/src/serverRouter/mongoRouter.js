@@ -176,9 +176,13 @@ router.get('/user', async (req, res) => {
 router.post('/saveBlock', async (req, res) => {
 	try {
 		let body = req.body
-		body.owner = ObjectID(req.user._id)
-		const result = await mongo.saveBlock(body);
-		res.status(200).json(result);
+		if (!req.user){
+			res.sendStatus(401)
+		}else{
+			body.owner = ObjectID(req.user._id)
+			const result = await mongo.saveBlock(body);
+			res.status(200).json(result);
+		}
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}

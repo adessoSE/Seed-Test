@@ -315,7 +315,18 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     saveExampleBlock(event){
-        console.log('save example Block')
+        let saveBlock: any = {example: []};
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            if(prop == 'example'){
+                for(let s in this.selectedScenario.stepDefinitions[prop]){
+                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
+                        saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+                    }
+                }
+            }
+        }
+        let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
+        this.saveBlockFormService.open(block);
     }
 
     checkAllExampleSteps(event, checkValue: boolean){

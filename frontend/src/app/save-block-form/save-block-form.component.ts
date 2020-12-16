@@ -16,10 +16,7 @@ export class SaveBlockFormComponent {
   block: Block;
   displayedColumns: string[] = ['stepType', 'pre'];
   stepList = [];
-  data = [{id:2,mid:"",pre:"I am on the website1:",stepType:"given",type:"Website",values:[""],deactivated:false, checked:true},
-  {id:2,mid:"",pre:"I am on the website2:",stepType:"given",type:"Website",values:[""],deactivated:false, checked:true},
-  {id:2,mid:"",pre:"I am on the website3:",stepType:"given",type:"Website",values:[""],deactivated:false, checked:true}]
-  
+
   constructor(private modalService: NgbModal, public apiService: ApiService) {
   }
 
@@ -43,11 +40,9 @@ export class SaveBlockFormComponent {
 
   submit() {
       for (let prop in this.block.stepDefinitions) {
-        if(prop !== 'example'){
-            for(let s in this.block.stepDefinitions[prop]){
-                if(this.block.stepDefinitions[prop][s].checked){
-                  this.block.stepDefinitions[prop][s].checked = false
-                }
+        for(let s in this.block.stepDefinitions[prop]){
+            if(this.block.stepDefinitions[prop][s].checked){
+              this.block.stepDefinitions[prop][s].checked = false
             }
         }
       }

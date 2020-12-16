@@ -12,6 +12,8 @@ import { RepositoryContainer} from '../model/RepositoryContainer';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../custom-toast';
+import { Block } from '../model/Block';
+import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
 
 const emptyBackground:Background = {name, stepDefinitions: {when: []}};
 
@@ -48,6 +50,7 @@ export class StoryEditorComponent implements OnInit {
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
+  @ViewChild('saveBlockForm') saveBlockFormService: SaveBlockFormComponent;
 
   constructor(
       public apiService: ApiService,
@@ -419,6 +422,20 @@ export class StoryEditorComponent implements OnInit {
       }
       return undefined_list;
   }
+
+  saveBlockBackground(event){
+    let saveBlock: any = {when: []};
+    for (let prop in this.selectedStory.background.stepDefinitions) {
+        for(let s in this.selectedStory.background.stepDefinitions[prop]){
+           if(this.selectedStory.background.stepDefinitions[prop][s].checked){
+               saveBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s])
+           }
+        }
+    }
+    
+    let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
+    this.saveBlockFormService.open(block);
+}
 
   // Make the API Request to run the tests and display the results as a chart
   runTests(scenario_id) {

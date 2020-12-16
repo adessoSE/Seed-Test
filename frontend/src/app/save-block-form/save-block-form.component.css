@@ -138,7 +138,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 .tableContainer{
     max-height: 600px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .headTitle{
@@ -150,6 +150,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 @media screen and (max-width: 1300px) {
     .tableContainer{
         max-height: 300px;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
   }
