@@ -32,7 +32,8 @@ export class ResetPasswordComponent implements OnInit {
  
 
   requestReset(form : NgForm) {
-    this.apiService.requestReset(form.value.email).toPromise
+    this.apiService.requestReset(form.value.email).toPromise()
+    console.log("Die EMail:"  + form.value.email)
   };
 
 
