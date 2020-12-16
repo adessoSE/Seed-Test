@@ -710,13 +710,14 @@ async function updateBlock(name, updatedBlock) {
   }
 }
 //get all Blocks for designated Id need objectId returns Array with all found CustomBlocks
-async function getBlocksById(id) {
+async function getBlocksById(id, repo) {
+  //todo ObjectID
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({owner: id}).toArray()
+    let result = await collection.find({owner: id}, {repo: repo}).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocksById: " + e)
@@ -725,13 +726,13 @@ async function getBlocksById(id) {
   }
 }
 //get all Blocks returns Array with all existing CustomBlocks
-async function getBlocks() {
+async function getBlocks(repo) {
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({}).toArray()
+    let result = await collection.find({repo: repo}).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
