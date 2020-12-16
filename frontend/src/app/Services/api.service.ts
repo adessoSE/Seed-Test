@@ -172,18 +172,16 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'email' : email};   
         return this.http
-            .post<any>(this.apiServer + 'user/resetpassword/', body, ApiService.getOptions())
+            .post<any>(this.apiServer + 'user/resetpassword/', body)
             .pipe(tap(resp => {
             }));
   }
 
-  public confirmReset(id: string, password: string): Observable <any> {   
-   console.log (id);
-   console.log (password)
+  public confirmReset(uuid: string, password: string): Observable <any> {   
     this.apiServer = localStorage.getItem('url_backend');
-    const body = {'id' : id, 'password' : password};   
+    const body = {'id' : uuid, 'password' : password};   
     return this.http
-        .post<any>(this.apiServer + 'user/reset/', body, ApiService.getOptions())
+        .post<any>(this.apiServer + 'user/reset/', body)
         .pipe(tap(resp => {
         }));
 }
