@@ -8,6 +8,7 @@ import {Scenario} from '../model/Scenario';
 import {Background} from '../model/Background';
 import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
+import { Block } from '../model/Block';
 
 @Injectable({
     providedIn: 'root'
@@ -164,6 +165,13 @@ export class ApiService {
             .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
             .pipe(tap(resp => {
             }));
+    }
+
+    public saveBlock(block: Block){
+        return this.http
+        .post<any>(this.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
+        .pipe(tap(resp => {
+        }));
     }
 
     logoutUser() {

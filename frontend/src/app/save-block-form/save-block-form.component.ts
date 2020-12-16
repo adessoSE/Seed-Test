@@ -12,6 +12,7 @@ import { ApiService } from '../Services/api.service';
 export class SaveBlockFormComponent {
 
   @ViewChild('content') content: any;
+
   block: Block;
   displayedColumns: string[] = ['stepType', 'pre'];
   stepList = [];
@@ -41,31 +42,25 @@ export class SaveBlockFormComponent {
 
 
   submit() {
-      let title = (document.getElementById('label_form') as HTMLInputElement).value;
-      if (title.length === 0) {
-          title = (document.getElementById('label_form') as HTMLInputElement).placeholder;
+      for (let prop in this.block.stepDefinitions) {
+        if(prop !== 'example'){
+            for(let s in this.block.stepDefinitions[prop]){
+                if(this.block.stepDefinitions[prop][s].checked){
+                  this.block.stepDefinitions[prop][s].checked = false
+                }
+            }
+        }
       }
-      const type = 'Type: '.concat((document.getElementById('type_form') as HTMLSelectElement).value , '\n');
-      const description = 'Description: '.concat((document.getElementById('description_form') as HTMLTextAreaElement).value, '\n');
-      const email = 'E-Mail: '.concat((document.getElementById('email_form') as HTMLInputElement).value , '\n');
-      const body = type.concat(description, email);
-      const obj = {
-          'title': title,
-          'body': body,
-          'assignees': [
-              'adessoCucumber'
-          ],
-          'milestone': null,
-          'labels': [
-              'generated',
-              'ToDo'
-          ]
-      };
 
-      this.apiService.submitGithub(obj).subscribe((resp) => {
+      let title = (document.getElementById('blockNameInput') as HTMLInputElement).value
+      if (title.length === 0) {
+          title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
+      }
+      this.block.name = title
+
+      this.apiService.saveBlock(this.block).subscribe((resp) => {
           console.log(resp);
       });
-
   }
 
 }

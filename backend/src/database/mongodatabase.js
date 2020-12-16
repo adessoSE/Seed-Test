@@ -688,6 +688,7 @@ async function saveBlock(block) {
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
     let result = await collection.insertOne(block)
+    return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in saveBlock: " + e)
   } finally {

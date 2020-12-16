@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
+const { ObjectID } = require('mongodb');
 
 const router = express.Router();
 
@@ -175,6 +176,7 @@ router.get('/user', async (req, res) => {
 router.post('/saveBlock', async (req, res) => {
 	try {
 		let body = req.body
+		body.owner = ObjectID(req.user._id)
 		const result = await mongo.saveBlock(body);
 		res.status(200).json(result);
 	} catch (error) {

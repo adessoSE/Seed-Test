@@ -16,9 +16,9 @@
       <div class="uk-card-title" id="submitForm">
         <div class="blockNameContainer">
           <span class="blockNameHeader">Name</span>
-          <input class="blockNameInput" placeholder="Name of Block">
+          <input id="blockNameInput" class="blockNameInput" placeholder="Name of Block">
         </div>
-        <div>
+        <div class="tableContainer">
           <span class="blockNameHeader">Selected Steps</span>
           <table mat-table [dataSource]="stepList" class="mat-elevation-z8">
             <ng-container matColumnDef="stepType">

@@ -310,7 +310,6 @@ export class ScenarioEditorComponent implements OnInit {
                 }
             }
         }
-        console.log(saveBlock)
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
         this.saveBlockFormService.open(block);
     }
