@@ -22,7 +22,7 @@ export class ConfirmResetPasswordComponent implements OnInit {
   }
 
   confirmReset(form : NgForm) {
-  this.apiService.confirmReset(form.value.uuid, form.value.password).toPromise
+  this.apiService.confirmReset(form.value.uuid, form.value.password).toPromise()
   };
 
 }

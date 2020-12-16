@@ -172,7 +172,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'email' : email};   
         return this.http
-            .post<any>(this.apiServer + 'user/resetpassword/', body)
+            .post<any>(this.apiServer + '/user/resetpassword/', body)
             .pipe(tap(resp => {
             }));
   }
@@ -181,7 +181,7 @@ export class ApiService {
     this.apiServer = localStorage.getItem('url_backend');
     const body = {'id' : uuid, 'password' : password};   
     return this.http
-        .post<any>(this.apiServer + 'user/reset/', body)
+        .post<any>(this.apiServer + '/user/reset/', body)
         .pipe(tap(resp => {
         }));
 }
