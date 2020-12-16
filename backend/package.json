@@ -40,6 +40,7 @@
     "mongodb": "^3.5.6",
     "node-fetch": "^2.6.1",
     "node-sass": "^4.13.1",
+    "nodemailer": "^6.4.16",
     "npm": "^6.14.6",
     "npm-run": "^5.0.1",
     "passport": "^0.4.1",
@@ -50,6 +51,7 @@
     "selenium-webdriver": "^4.0.0-alpha.7",
     "uikit": "^3.3.7",
     "underscore": "^1.9.2",
+    "uuid": "^8.3.1",
     "xmlhttprequest": "^1.8.0",
     "zlib": "^1.0.5"
   },
