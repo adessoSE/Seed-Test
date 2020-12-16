@@ -61,7 +61,7 @@
 
 #modalHeader{
     color: #999;
-    float: left;
+    float: center;
     font-size: 20px;
 }
 
@@ -137,6 +137,19 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 }
 
 .tableContainer{
-    max-height: 300px;
+    max-height: 600px;
     overflow-y: scroll;
 }
+
+.headTitle{
+    padding: 1rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    text-align: center;
+}
+
+@media screen and (max-width: 1300px) {
+    .tableContainer{
+        max-height: 300px;
+        overflow-y: scroll;
+    }
+  }

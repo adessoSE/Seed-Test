@@ -57,7 +57,8 @@ export class SaveBlockFormComponent {
           title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
       }
       this.block.name = title
-
+      this.block.repository = localStorage.getItem('repository')
+      this.block.source = localStorage.getItem('source')
       this.apiService.saveBlock(this.block).subscribe((resp) => {
           console.log(resp);
       });

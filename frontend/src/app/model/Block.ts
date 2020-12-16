@@ -5,4 +5,6 @@ export interface Block {
     owner?: any;
     name?: string;
     stepDefinitions: StepDefinition;
+    repository?: string;
+    source?: string;
 }
