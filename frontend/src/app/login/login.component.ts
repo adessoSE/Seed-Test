@@ -23,7 +23,6 @@ export class LoginComponent implements OnInit {
     slide3 = [{'image3': '/assets//slide3.png'}];
     slide4 = [{'image4': '/assets//slide4.png'}];
     slide5 = [{'image5': '/assets//slide5.png'}];
-    slide6 = [{'image6': '/assets//slide6.png'}];
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;

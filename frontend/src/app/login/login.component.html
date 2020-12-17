@@ -1,6 +1,7 @@
 <div class="grid">
   <div class="howToStart">
-    <div class="mat"><mat-carousel
+    <div class="mat">
+      <mat-carousel
           timings="200ms ease-in"
           [autoplay]="true"
           [hideArrows]="false"
@@ -9,62 +10,50 @@
           interval="3000"
           proportion="50"
           color="white">
-          <mat-carousel-slide>
+        <mat-carousel-slide>
             <div class="welcomeSlide">
               <h1>Welcome to seed-test!</h1>
               <h4 id="info">HOW TO START</h4>
               <img id="arrowRight" src ="../assets/arrow.png" >
             </div>
-            </mat-carousel-slide>
-            <mat-carousel-slide
+        </mat-carousel-slide>
+        <mat-carousel-slide
             *ngFor="let slide of slide1;"
             [image]="slide.image1"
-            [hideOverlay]="true">  
-            <div>
+            [hideOverlay]="true"> 
               <p class="slideDescription">
                 To log in to Seed-Test you either need a Seed-Test account or you can log in with your Github account.
                 To create a Seed-Test account, click on "Register".
-                If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.
-                </p>
-            </div>
-          </mat-carousel-slide>
+                If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.</p>
+        </mat-carousel-slide>
         <mat-carousel-slide
-          *ngFor="let slide of slide2;"
-          [image]="slide.image2"
-          [hideOverlay]="true">  
-          <div>
-            <p class="slideDescription">As soon as you logged in successfully you can select the repository/project you want to use from the appearing list.</p>
-          </div>
+            *ngFor="let slide of slide2;"
+            [image]="slide.image2"
+            [hideOverlay]="true">
+              <p class="slideDescription">As soon as you logged in successfully you can select the repository/project you want to use from the appearing list.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
           *ngFor="let slide of slide3;"
           [image]="slide.image3"
-          [hideOverlay]="true">  
-          <div>
+          [hideOverlay]="true">
             <p class="slideDescription">Via the account settings you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
-              Alternatively, you can also create a custom repository, for what you do not need a Github or Jira account.
-            </p>
-          </div>
+              Alternatively, you can also create a custom repository, for what you do not need a Github or Jira account.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
           *ngFor="let slide of slide4;"
           [image]="slide.image4"
-          [hideOverlay]="true">  
-          <div>
+          [hideOverlay]="true">
             <p class="slideDescription">The settings and connections can be edited using the account settings via the menu. You can also change the repository here.</p>
-          </div>
         </mat-carousel-slide>
         <mat-carousel-slide
           *ngFor="let slide of slide5;"
           [image]="slide.image5"
-          [hideOverlay]="true">  
-          <div>
+          [hideOverlay]="true">
             <p class="slideDescription">In our tutorial we explain in detail how to create stories, perform tests and how to use the other features in our application. </p>
-          </div>
         </mat-carousel-slide>
       </mat-carousel>
     </div>
-    </div>
+  </div>
   <div class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
