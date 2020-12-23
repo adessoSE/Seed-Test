@@ -726,13 +726,13 @@ async function getBlocksById(id) {
   }
 }
 //get all Blocks returns Array with all existing CustomBlocks
-async function getBlocks() {
+async function getBlocks(userId) {
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({}).toArray()
+    let result = await collection.find({owner: userId}).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)

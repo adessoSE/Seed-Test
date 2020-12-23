@@ -15,6 +15,7 @@ import { Block } from '../model/Block';
 })
 
 export class ApiService {
+
     constructor(private http: HttpClient) {
     }
 
@@ -28,6 +29,7 @@ export class ApiService {
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
     public runSaveOptionEvent = new EventEmitter();
+    public addBlockToScenarioEvent = new EventEmitter();
     public user;
     //public local:boolean = false;
 
@@ -45,6 +47,16 @@ export class ApiService {
         return throwError(error);
     }
 
+    getBlocks() {
+        const str = this.apiServer + '/mongo/getBlocks';
+        return this.http.get<Block[]>(str,  ApiService.getOptions())
+        .pipe(tap(resp => {}),
+        catchError(ApiService.handleError));
+      }
+
+    addBlockToScenario(block: Block, correspondingComponent: string){
+        this.addBlockToScenarioEvent.emit([correspondingComponent, block])
+    }
     public githubLogin() {
         const scope = 'repo';
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';

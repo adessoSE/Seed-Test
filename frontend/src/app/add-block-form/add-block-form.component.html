@@ -8,13 +8,34 @@
           <span aria-hidden="true">&times;</span>
       </button>
   </div>
-  <div class="modal-body modal-xl">
-      <div class="uk-card-title" id="submitForm">
-        
+  <div class="dividerContainer">
+      <div class="savedBlocksContainer">
+        <p>Saved Blocks</p>
+        <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="change($event)" name="folderss">
+            <mat-list-option *ngFor="let block of blocks" [value]="block">
+              <h4 mat-line>{{block.name}}</h4>
+            </mat-list-option>
+        </mat-selection-list>
+      </div>
+      <div class="previewContainer">
+        <p *ngIf="selectedBlock == undefined">Preview:</p>
+        <p *ngIf="selectedBlock != undefined">Preview: {{selectedBlock.name}}</p>
+        <table mat-table [dataSource]="stepList" class="mat-elevation-z8">
+            <ng-container matColumnDef="stepType">
+              <th mat-header-cell *matHeaderCellDef> Steptype </th>
+              <td mat-cell *matCellDef="let element"> {{element.stepType}} </td>
+            </ng-container>
+            <ng-container matColumnDef="pre">
+              <th mat-header-cell *matHeaderCellDef> Step </th>
+              <td mat-cell *matCellDef="let element"> {{element.pre}} {{ element.values[0] }} {{element.mid}} {{ element.values[1]}} {{ element.values[2]}} {{ element.values[3]}}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
       </div>
   </div>
   <div class="modal-footer">
-      <button type="button" class="uk-button" (click)="submit(); modal.close('Save click')">Add
+      <button type="button" class="uk-button" (click)="submit(); modal.close('Save click')">Add to Scenario
       </button>
   </div>
 </ng-template>

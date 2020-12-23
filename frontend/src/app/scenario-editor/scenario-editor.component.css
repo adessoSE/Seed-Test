@@ -267,6 +267,7 @@ em.dragIcon{
   color: gray !important;
   background: white !important;
   font-style: italic;
+  text-decoration: line-through;
 }
 
 .scenarioBarContainer .disabled em{

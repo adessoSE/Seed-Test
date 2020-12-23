@@ -210,8 +210,12 @@ router.get('/getBlocksById', async (req, res) => {
 
 router.get('/getBlocks', async (req, res) => {
 	try {
-		const result = await mongo.getBlocks();
-		res.status(200).json(result);
+		//if (!req.user){
+		//	res.sendStatus(401)
+		//}else{
+			const result = await mongo.getBlocks(req.user._id);
+			res.status(200).json(result);
+		//}
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}

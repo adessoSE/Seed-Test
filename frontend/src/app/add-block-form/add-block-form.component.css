@@ -136,7 +136,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     padding: 10px;
 }
 
-.tableContainer{
+.dividerContainer{
     max-height: 600px;
     overflow-y: auto;
 }
@@ -147,8 +147,24 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     text-align: center;
 }
 
+.dividerContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.savedBlocksContainer, .previewContainer{
+    border: 1px solid #e0e0e0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+::ng-deep.mat-pseudo-checkbox{
+    display: none !important;
+}
+
 @media screen and (max-width: 1300px) {
-    .tableContainer{
+    .dividerContainer{
         max-height: 300px;
         overflow-y: auto;
     }

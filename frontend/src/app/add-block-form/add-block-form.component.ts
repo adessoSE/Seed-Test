@@ -3,58 +3,57 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '../model/Block';
 import { StepType } from '../model/StepType';
 import { ApiService } from '../Services/api.service';
+import {MatListModule, MatSelectionList, MatSelectionListChange} from '@angular/material/list'; 
 
 @Component({
   selector: 'app-add-block-form',
   templateUrl: './add-block-form.component.html',
   styleUrls: ['./add-block-form.component.css']
 })
+
 export class AddBlockFormComponent {
 
   
   @ViewChild('content') content: any;
 
-  block: Block;
+  blocks: Block[];
+  stepList: any;
+  selectedBlockList: Block[]; 
+  selectedBlock: Block;
   displayedColumns: string[] = ['stepType', 'pre'];
-  stepList = [];
-
+  correspondingComponent: string;
   constructor(private modalService: NgbModal, public apiService: ApiService) {
+
   }
 
-  open() {
-      this.createStepList()
-      this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title'});
+  open(correspondingComponent) {
+    this.getAllBlocks()
+    this.correspondingComponent = correspondingComponent;
+    this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title'});
+
   }
 
-  createStepList(){
+  getAllBlocks(){
+    this.apiService.getBlocks().subscribe((resp) => {
+      this.blocks = resp
+    });
+  }
+
+  change(event){
+    this.selectedBlock = this.selectedBlockList[0]
+    this.selectedBlockList = []
+
     this.stepList = []
-    Object.keys(this.block.stepDefinitions).forEach((key, index) => {
-      this.block.stepDefinitions[key].forEach((step: StepType) => {
+    Object.keys(this.selectedBlock.stepDefinitions).forEach((key, index) => {
+      this.selectedBlock.stepDefinitions[key].forEach((step: StepType) => {
         this.stepList.push(step)
       })
-  })
+    })
   }
 
 
   submit() {
-      for (let prop in this.block.stepDefinitions) {
-        for(let s in this.block.stepDefinitions[prop]){
-            if(this.block.stepDefinitions[prop][s].checked){
-              this.block.stepDefinitions[prop][s].checked = false
-            }
-        }
-      }
-
-      let title = (document.getElementById('blockNameInput') as HTMLInputElement).value
-      if (title.length === 0) {
-          title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
-      }
-      this.block.name = title
-      this.block.repository = localStorage.getItem('repository')
-      this.block.source = localStorage.getItem('source')
-      //this.apiService.saveBlock(this.block).subscribe((resp) => {
-      //    console.log(resp);
-      //});
+    this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent)
   }
 
 }

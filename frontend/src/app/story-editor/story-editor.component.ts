@@ -14,8 +14,9 @@ import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../custom-toast';
 import { Block } from '../model/Block';
 import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
+import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
 
-const emptyBackground:Background = {name, stepDefinitions: {when: []}};
+const emptyBackground:Background = {stepDefinitions: {when: []}};
 
 @Component({
   selector: 'app-story-editor',
@@ -51,6 +52,7 @@ export class StoryEditorComponent implements OnInit {
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
   @ViewChild('saveBlockForm') saveBlockFormService: SaveBlockFormComponent;
+  @ViewChild('addBlockForm') addBlockFormService: AddBlockFormComponent;
 
   constructor(
       public apiService: ApiService,
@@ -88,8 +90,24 @@ export class StoryEditorComponent implements OnInit {
             this.updateBackground()
         }
     })
-  }
 
+    this.apiService.addBlockToScenarioEvent.subscribe(block => {
+        if(block[0] == 'background'){
+            block = block[1]
+            Object.keys(block.stepDefinitions).forEach((key, index) => {
+                if(key == 'when'){
+                    block.stepDefinitions[key].forEach((step: StepType) => {
+                      this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                    })
+                }
+            })
+              this.selectedStory.background.saved = false;
+        }
+    })
+  }
+  addBlock(event){
+    this.addBlockFormService.open('background');
+    }
   runOption(){
       console.log('running')
       let tmpScenarioSaved = this.scenarioChild.scenarioSaved;
@@ -258,6 +276,9 @@ export class StoryEditorComponent implements OnInit {
     this.showEditor = false;
   }
 
+  addBlockToBackground(){
+
+  }
   addScenario(){
     this.apiService.addScenario(this.selectedStory.story_id, this.selectedStory.storySource)
         .subscribe((resp: Scenario) => {
