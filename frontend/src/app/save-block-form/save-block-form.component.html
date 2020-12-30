@@ -30,9 +30,9 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
         </div>
-        <div *ngIf="exampleBlock">
-            <input type="checkbox" (change)="exampleCheck($event)">
-            <label>Should the corresponding steps be added to the block?</label>
+        <div class="exampleCheckboxContainer" *ngIf="exampleBlock">
+            <input class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck($event)">
+            <label class="exampleCheckboxLabel" (click)="exampleCheck($event)">Examples only?</label>
         </div>
       </div>
   </div>

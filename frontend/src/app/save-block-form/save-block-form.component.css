@@ -147,7 +147,15 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     text-align: center;
 }
 
-@media screen and (max-width: 1300px) {
+.exampleCheckboxContainer{
+    padding-top: 5px;
+}
+
+.exampleCheckbox{
+    margin-right: 5px;
+}
+
+@media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;
         overflow-y: auto;

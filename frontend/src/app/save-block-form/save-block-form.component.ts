@@ -17,19 +17,18 @@ export class SaveBlockFormComponent {
   displayedColumns: string[] = ['stepType', 'pre'];
   stepList = [];
   exampleBlock = false;
-
+  exampleChecked = false;
+  stepListComplete = [];
   constructor(private modalService: NgbModal, public apiService: ApiService) {
   }
 
   open(block: Block) {
       this.block = block;
-      if(block.stepDefinitions.example.length > 0){
+      if(block.stepDefinitions.example){
         this.exampleBlock = true;
       }
       this.createStepList()
       this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title'});
-      //const id = 'type_form_' + block.name;
-      //(document.getElementById(id) as HTMLOptionElement).selected = true;
   }
 
   createStepList(){
@@ -42,9 +41,15 @@ export class SaveBlockFormComponent {
   }
 
   exampleCheck(event){
-    this.stepList = this.stepList.filter(step => {
-      step.stepType == 'example';
-    })
+    this.exampleChecked = !this.exampleChecked;
+    if(this.exampleChecked){
+      this.stepListComplete = JSON.parse(JSON.stringify(this.stepList))
+      this.stepList = this.stepList.filter(step => {
+        return step.stepType == "example";
+      })
+    }else {
+      this.stepList = JSON.parse(JSON.stringify(this.stepListComplete))
+    }
   }
 
   submit() {

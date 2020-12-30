@@ -347,18 +347,26 @@ export class ScenarioEditorComponent implements OnInit {
     }
 
     saveExampleBlock(event){
-        let saveBlock: any = {example: []};
+        let saveBlock: any = {given:[], when: [], then: [], example: []};
         for (let prop in this.selectedScenario.stepDefinitions) {
-            if(prop == 'example'){
-                for(let s in this.selectedScenario.stepDefinitions[prop]){
-                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
-                        saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
-                    }
+            for(let s in this.selectedScenario.stepDefinitions[prop]){
+                if((prop == 'example' && this.selectedScenario.stepDefinitions[prop][s].checked) || this.includesExampleStep(this.selectedScenario.stepDefinitions[prop][s])){
+                    saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
                 }
             }
         }
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
         this.saveBlockFormService.open(block);
+    }
+
+    includesExampleStep(step: StepType){
+        let includesExample = false;
+        step.values.forEach(element => {
+            if (element[0] == '<' && element[element.length -1] == '>') {
+                includesExample = true;
+            }
+        });
+        return includesExample;
     }
 
     checkAllExampleSteps(event, checkValue: boolean){
