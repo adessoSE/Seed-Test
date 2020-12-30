@@ -13,7 +13,7 @@ import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../custom-toast';
 
-const emptyBackground:Background = {name, stepDefinitions: {when: []}};
+const emptyBackground:Background = {stepDefinitions: {when: []}};
 
 @Component({
   selector: 'app-story-editor',
