@@ -54,8 +54,23 @@ export class ScenarioEditorComponent implements OnInit {
             if(block[0] == 'scenario'){
                 block = block[1]
                 Object.keys(block.stepDefinitions).forEach((key, index) => {
-                    block.stepDefinitions[key].forEach((step: StepType) => {
-                      this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                    block.stepDefinitions[key].forEach((step: StepType, j) => {
+                        if (key == 'example'){
+                            if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))){
+                                this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                            }
+                            if (j == 0){
+                                step.values.forEach(el => {
+                                    let s = '<' + el + '>'
+                                    if(!this.uncutInputs.includes(s)){
+                                        this.uncutInputs.push(s)
+                                    }
+                                })
+                            }
+                            this.exampleChild.updateTable();
+                        }else{
+                            this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                        }
                     })
                 })
                   this.selectedScenario.saved = false;
@@ -354,6 +369,7 @@ export class ScenarioEditorComponent implements OnInit {
         }
         if(this.allExampleChecked){
             for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+                if(i == 0) continue;
                 this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[i], true)
             }
             this.activeExampleActionBar = true;
@@ -498,7 +514,9 @@ export class ScenarioEditorComponent implements OnInit {
         }
         if(!this.selectedScenario.stepDefinitions.example || this.selectedScenario.stepDefinitions.example.length <= 0){
             let table = document.getElementsByClassName('mat-table')[0];
-            table.classList.remove('mat-elevation-z8')
+            if (table){
+                table.classList.remove('mat-elevation-z8')
+            }
         }
     }
 

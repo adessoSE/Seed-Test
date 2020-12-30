@@ -30,6 +30,10 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
           </table>
         </div>
+        <div *ngIf="exampleBlock">
+            <input type="checkbox" (change)="exampleCheck($event)">
+            <label>Should the corresponding steps be added to the block?</label>
+        </div>
       </div>
   </div>
   <div class="modal-footer">

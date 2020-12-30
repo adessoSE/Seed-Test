@@ -16,12 +16,16 @@ export class SaveBlockFormComponent {
   block: Block;
   displayedColumns: string[] = ['stepType', 'pre'];
   stepList = [];
+  exampleBlock = false;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {
   }
 
   open(block: Block) {
       this.block = block;
+      if(block.stepDefinitions.example.length > 0){
+        this.exampleBlock = true;
+      }
       this.createStepList()
       this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title'});
       //const id = 'type_form_' + block.name;
@@ -34,9 +38,14 @@ export class SaveBlockFormComponent {
       this.block.stepDefinitions[key].forEach((step: StepType) => {
         this.stepList.push(step)
       })
-  })
+    })
   }
 
+  exampleCheck(event){
+    this.stepList = this.stepList.filter(step => {
+      step.stepType == 'example';
+    })
+  }
 
   submit() {
       for (let prop in this.block.stepDefinitions) {

@@ -120,7 +120,6 @@ export class StoryEditorComponent implements OnInit {
   }
 
 
-
   setStories(stories: Story[]) {
       this.stories = stories;
   }

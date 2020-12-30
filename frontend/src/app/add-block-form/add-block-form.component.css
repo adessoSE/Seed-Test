@@ -163,7 +163,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     display: none !important;
 }
 
-@media screen and (max-width: 1300px) {
+@media screen and (max-height: 800px) {
     .dividerContainer{
         max-height: 300px;
         overflow-y: auto;
