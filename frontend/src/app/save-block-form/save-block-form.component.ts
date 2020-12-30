@@ -23,8 +23,10 @@ export class SaveBlockFormComponent {
   }
 
   open(block: Block) {
+      this.exampleBlock = false;
+      this.exampleChecked = false;
       this.block = block;
-      if(block.stepDefinitions.example){
+      if(block.stepDefinitions.example && block.stepDefinitions.example.length > 0){
         this.exampleBlock = true;
       }
       this.createStepList()
