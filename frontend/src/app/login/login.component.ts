@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { MatCarousel, MatCarouselComponent } from '@ngbmodule/material-carousel';
 
 @Component({
     selector: 'app-login',
@@ -17,6 +18,11 @@ export class LoginComponent implements OnInit {
     private testJiraHost = '';
     repositoriesLoading: boolean;
     showInstruction = false;
+    slide1 = [{'image1': '/assets//slide1.png'}];
+    slide2 = [{'image2': '/assets//slide2.png'}];
+    slide3 = [{'image3': '/assets//slide3.png'}];
+    slide4 = [{'image4': '/assets//slide4.png'}];
+    slide5 = [{'image5': '/assets//slide5.png'}];
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;
