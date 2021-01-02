@@ -4,7 +4,7 @@
       <div class="scenarioHeaderContainer">
         <div>
           <span id="scenarioHeader">Scenario</span>
-            <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+            <dfn class="def"><span id="infoIconScenario" uk-icon="info"></span>
                 <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
                   It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
                   A scenario consists of individual steps:
@@ -79,13 +79,21 @@
           <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
           <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
           <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
-          <div *ngIf="sd == 'example'; then exampleTitle"></div>
-  
+          <div *ngIf="sd == 'example'"> Example (Cases)
+            <!--<dfn *ngIf="sd == 'example'" class="def"><span id="infoIcon" uk-icon="info"></span>
+              <span rel="def">
+                For using examples, you have to create placeholders in your Given/When/Then-Steps. 
+                You can assign values to the placeholders, which will be used instead of them. 
+                You can assign more than one value. If there is more than one value assigned, 
+                the whole test will be run as often as there is a value that hasn't been used once. 
+                Each test case created by this will be carried out individually and independent.
+              </span></dfn>-->
+          </div>
           <button *ngIf="sd != 'example'" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
           class="addStepButtons" title="Add New Step" uk-tooltip>
             <em class="material-icons">add_circle_outline</em>
           </button>
-          <div uk-dropdown>
+          <div *ngIf="sd != 'example'" uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let j = index;" >
                 <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
@@ -133,9 +141,6 @@
           <br>
         </div>
         <br>
-        <ng-template #exampleTitle>
-          Example (Cases)
-        </ng-template>
         <ng-template #exampleCondition>
           <!--Action bar-->
           <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="exampleBarContainer">

@@ -157,6 +157,24 @@ label{
     background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
     }
 
+.backButton{
+    background: none;
+    width: 50px;
+    height: 50px;
+    margin-top: 30px;
+    margin-left: 20px;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+}
+
+.backButton:focus {outline:0 !important;}
+
+
+#backImage{
+    width: 40px;
+}
+
 .uk-form-controls{
     border-radius: 3px;
     padding: 5px 5px 5px 5px;
