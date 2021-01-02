@@ -35,9 +35,11 @@ input[type="text"]{
   cursor: move;
 }
 
-.dragIcon{
-  position: relative;
-  top: -2px;
+em.dragIcon{
+  font-size: 18px;
+  color: black;
+  background-color: white;
+  margin-top:3px
 }
 
 .text-inline{
@@ -96,19 +98,87 @@ input[type="text"]{
   margin-right: 5px;
 }
 
-#buttonGroupScenario{
-  margin-right: 20px;
-}
+
 
 .uk-button-group{
   border-radius:4px;
   border:2px solid rgb(255, 255, 255);
 }
 
-.uk-button-icon{
-  padding-left:0;
-  padding-right:0;
+.checkbox{
+  margin-right: 5px;
+  margin-bottom: 1.5px;
+  margin-left: 3px
 }
+
+.checkbox:hover{
+  cursor: pointer;
+}
+
+#checkbox_all_example{
+  margin-left: 10px;
+}
+
+#checkbox_all{
+  margin-left: 6px;
+}
+.scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  margin: 0px 20px;
+}
+
+.exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+.scenarioBarContainer button,
+.exampleBarContainer button{
+  border: none;
+  background: none;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+.scenarioBarContainer > div,
+.exampleBarContainer{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px 15px;
+  display: flex;
+  height: 40px;
+}
+
+.scenarioButton {
+  margin-right: 10px;
+}
+
+.actionButton{
+  margin-left: 10px;
+}
+
+.actionButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+.scenarioButton em{
+  color:  #0099CC;
+}
+
+.scenarioButton em:active {
+  background-color: #0099CC;
+  color: #ffffff;
+}
+
+
+
+
 
 .button {
   margin-right: 3px;
@@ -138,49 +208,34 @@ input[type="text"]{
   padding-right: 20px;
 }
 
-#scenario_shift_left{
-  color: #0099CC;
-}
-
-#scenario_change_title{
-  color: #0099CC;
-}
-
-.iconButton {
+.scenarioTitle{
+  background: white;
   border: none;
-  background-color: #ffffff;
-  padding: 0px;
-  border-radius: 10%;
 }
 
-.iconButton em{
-  vertical-align:middle;
+.scenarioTitle > em{
   color:  #0099CC;
-  border-radius: 10%;
+  font-size: 20px;
+  transform: translate(0px, 3px)
 }
 
-.iconButton_unsaved em{
-  vertical-align:middle;
+#scenario_change_title > em {
+  font-size: 20px;
+  margin: 0px 5px;
+}
+
+
+.scenarioButton_unsaved em{
   color: red;
-  border-radius: 10%;
-  border: none;
-  background-color: #ffffff;
-  padding: 0px;
-  border-radius: 10%;
 }
 
-
-.iconButton em:active {
-  background-color: #0099CC;
-  color: #ffffff;
-}
-
-
-
-.buttonGroup{
-  text-align: center;
-  margin-left: 10px;
+.disabledDeactivateButton{
   color: #0099CC;
+}
+
+.disabled input{
+  color: gray;
+  border-bottom: 1px solid gray;
 }
 
 .uk-dropdown{
@@ -211,11 +266,12 @@ input[type="text"]{
 .disabled {
   color: gray !important;
   background: white !important;
+  font-style: italic;
 }
 
-.disabled em{
+.scenarioBarContainer .disabled em{
   color: gray !important;
-  background: white !important;
+  background: #f8f8f8 !important;
 }
 
 .uk-card-footer{
@@ -243,4 +299,22 @@ table {
 
 .scenario_unsaved {
   color: red;
+}
+
+.stepsListContainer{
+  display: flex;
+  justify-content: space-between;
+}
+
+.stepsListContainer em{
+  color: #0099CC;
+}
+
+.stepsListContainer .disabled em{
+  color: gray;
+}
+
+.stepsListContainer button{
+  border: none;
+  background: none;
 }

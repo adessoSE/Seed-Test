@@ -14,7 +14,7 @@ const chromeOptions = new chrome.Options();
 //if (process.env.NODE_ENV) {
  // chromeOptions.addArguments('--headless');
 //}
-chromeOptions.addArguments('--disable-dev-shm-usage') 
+chromeOptions.addArguments('--disable-dev-shm-usage')
 //chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
@@ -78,19 +78,29 @@ When('I insert {string} into the field {string}', async (value, label) => {
   try {
     // await driver.findElement(By.css(`input#${label}`)).clear();
     // await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
-    await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
+    await driver.findElement(By.xpath(`//input[@id='${label}']`)).clear();
     await driver.findElement(By.xpath(`//input[@id='${label}']`)).sendKeys(value);
   } catch (e) {
     try {
-      await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
-      await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+      await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).clear();
+      await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).sendKeys(value);
     } catch (e) {
       try {
-        await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear()
-        await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+        await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
+        await driver.findElement(By.xpath(`//*[@id='${label}']`)).sendKeys(value);
       } catch (e) {
-        await driver.findElement(By.xpath(`${label}`)).clear();
-        await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+        try {
+          await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
+          await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+        } catch (e) {
+          try {
+            await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
+            await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+          } catch (e) {
+            await driver.findElement(By.xpath(`${label}`)).clear();
+            await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+          }
+        }
       }
     }
   }

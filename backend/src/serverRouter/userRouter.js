@@ -6,9 +6,11 @@ const fetch = require('node-fetch');
 const request = require('request');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
+const { v1: uuidv1 } = require('uuid');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
+const nodeMail = require('../nodemailer')
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
@@ -35,33 +37,75 @@ router
 		next();
 	});
 
+//checks if a reset request already exists if true it delets the old request. Checks if an Account with this email exists, if true creates a request and saves it.
+//also sends an email via nodemailer with resetlink to the given emailadress.
+router.post("/resetpassword", async (req, res) => {
+	let checkRequest = await mongo.getResetRequestByEmail(req.body.email)
+	if (checkRequest) {
+		mongo.deleteRequest(req.body.email)
+	}
+	const thisUser = await mongo.getUserByEmail(req.body.email);
+	//TODO if (!user)
+	if (thisUser) {
+		try {
+			const id = uuidv1();
+			const request = {
+				"createdAt": new Date(),
+				"uuid": id,
+				"email": thisUser.email,
+			};
+			mongo.createResetRequest(request);
+			nodeMail.sendResetLink(thisUser.email, id);
+			res.status(200).json();
+		} catch (error) {
+			res.status(401).json(error);
+		}
+	}
+});
+
+//checks if requests exist if true, gets the according Account and changes the password
+router.post("/reset", async (req, res) => {
+	const thisRequest = await mongo.getResetRequest(req.body.uuid);
+	if (thisRequest) {
+		const user = await mongo.getUserByEmail(thisRequest.email);
+		user.password = req.body.password;
+		req.body.password = bcrypt.hashSync(req.body.password, salt);
+		user.password = req.body.password;
+		await mongo.updateUser(user._id, user);
+		mongo.deleteRequest(user.email)
+		res.status(204).json();
+	} else {
+		res.status(404).json();
+	}
+});
+
 // login user
 router.post('/login', (req, res, next) => {
-if(req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
-    try{
-        passport.authenticate('normal-local', function(error, user, info){
-            if(error){
-                throw new UserError(error)
-            }else if(!user){
-                info.status = 'error';
-                return res.json(info);
-            }
-            req.logIn(user, async function(err){
-                if(err){
-                    throw new UserError(err)
-                }else {
-                    res.json(user);
-                }
-            });
-        })
-        (req, res, next)
-    }catch(error){
-        if(error instanceof UserError){
-            res.status(401).json(error);
-        }else{
-            res.status(401).json(error);
-        }
-    }
+	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
+	try {
+		passport.authenticate('normal-local', function (error, user, info) {
+			if (error) {
+				throw new UserError(error)
+			} else if (!user) {
+				info.status = 'error';
+				return res.json(info);
+			}
+			req.logIn(user, async function (err) {
+				if (err) {
+					throw new UserError(err)
+				} else {
+					res.json(user);
+				}
+			});
+		})
+			(req, res, next)
+	} catch (error) {
+		if (error instanceof UserError) {
+			res.status(401).json(error);
+		} else {
+			res.status(401).json(error);
+		}
+	}
 });
 
 // login github account
@@ -92,7 +136,7 @@ router.post('/mergeGithub', async (req, res) => {
 	const id = parseInt(req.body.id, 10);
 	try {
 		const mergedUser = await mongo.mergeGithub(userId, login, id);
-		req.logIn(mergedUser, function(err) {
+		req.logIn(mergedUser, function (err) {
 			if (err) return res.sendStatus(400)
 			res.sendStatus(200)
 		})
@@ -115,9 +159,9 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-    req.logout();
-    res.clearCookie('connect.sid', {path: '/'});
-    res.status(200).send({status: 'success'});
+	req.logout();
+	res.clearCookie('connect.sid', { path: '/' });
+	res.status(200).send({ status: 'success' });
 });
 
 // get repositories from all sources(Github,Jira)
@@ -215,13 +259,13 @@ router.get('/stories', async (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		try{
+		try {
 			request(options, (error2, response2, body) => {
 				if (error2) {
 					res.status(500).json(error2);
 				}
 				else {
-					try{
+					try {
 						const json = JSON.parse(body).issues;
 						for (const issue of json) {
 							if (issue.fields.labels.includes("Seed-Test")) {
@@ -244,20 +288,20 @@ router.get('/stories', async (req, res) => {
 								tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
 							}
 						}
-					}catch(e){
+					} catch (e) {
 						console.log('Jira Error 2:', e)
 					}
-				Promise.all(tmpStories)
-					.then((results) => {
-						res.status(200)
-							.json(results);
-					})
-					.catch((e) => {
-						console.log(e);
-					});
+					Promise.all(tmpStories)
+						.then((results) => {
+							res.status(200)
+								.json(results);
+						})
+						.catch((e) => {
+							console.log(e);
+						});
 				}
 			});
-		}catch(e){
+		} catch (e) {
 			console.log('Jira Error:', e);
 		}
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.name !== 'null') {
@@ -288,23 +332,23 @@ router.get('/stories', async (req, res) => {
 	} else res.sendStatus(401);
 });
 
-router.get('/callback', (req, res) =>{
-    let code = req.query.code;
-    const TOKEN_URL = 'https://github.com/login/oauth/access_token'
-      request(
-          {
-              uri: TOKEN_URL,
-              method: "POST",
-              form: {
-                  client_id: process.env.GITHUB_CLIENT_ID,
-                  client_secret: process.env.GITHUB_CLIENT_SECRET,
-                  code: code
-              },
-          }, function(err, response, body){
-              const accessToken = body.split("&")[0].split("=")[1];
-              helper.getGithubData(res, req, accessToken);
-          }
-      )
+router.get('/callback', (req, res) => {
+	let code = req.query.code;
+	const TOKEN_URL = 'https://github.com/login/oauth/access_token'
+	request(
+		{
+			uri: TOKEN_URL,
+			method: "POST",
+			form: {
+				client_id: process.env.GITHUB_CLIENT_ID,
+				client_secret: process.env.GITHUB_CLIENT_SECRET,
+				code: code
+			},
+		}, function (err, response, body) {
+			const accessToken = body.split("&")[0].split("=")[1];
+			helper.getGithubData(res, req, accessToken);
+		}
+	)
 });
 
 module.exports = router;

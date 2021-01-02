@@ -13,7 +13,7 @@ import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../custom-toast';
 
-const emptyBackground:Background = {name, stepDefinitions: {when: []}};
+const emptyBackground:Background = {stepDefinitions: {when: []}};
 
 @Component({
   selector: 'app-story-editor',
@@ -40,8 +40,11 @@ export class StoryEditorComponent implements OnInit {
   db = false;
   newStepName = 'New Step';
   runUnsaved = false;
-  currentTestStoryId: string;
+  currentTestStoryId: number;
   currentTestScenarioId: number;
+  activeActionBar: boolean = false;
+  allChecked: boolean = false;
+  saveBackgroundAndRun: boolean = false;
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
@@ -78,6 +81,7 @@ export class StoryEditorComponent implements OnInit {
             this.runOption();
         }
         if(option == "saveRun"){
+            this.saveBackgroundAndRun = true;
             this.updateBackground()
         }
     })
@@ -108,12 +112,16 @@ export class StoryEditorComponent implements OnInit {
       if (this.selectedStory) {
           this.selectScenario(scenario);
       }
+      this.activeActionBar = false;
+      this.allChecked = false;
   }
 
   @Input()
   set newSelectedStory(story: Story) {
       this.selectedStory = story;
       this.showEditor = true;
+      this.activeActionBar = false;
+      this.allChecked =false;
   }
 
   @Input() 
@@ -124,6 +132,87 @@ export class StoryEditorComponent implements OnInit {
         .subscribe((resp: StepType[]) => {
             this.originalStepTypes = resp;
         });
+    }
+
+    checkAllSteps(event, checkValue: boolean){
+        if(checkValue!= null){
+            this.allChecked = checkValue;
+        }else{
+            this.allChecked = !this.allChecked;
+        }
+        if(this.allChecked){
+            for (let prop in this.selectedStory.background.stepDefinitions) {
+                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], true)
+                }
+            }
+            this.activeActionBar = true;
+            this.allChecked = true;
+        }else{
+            for (let prop in this.selectedStory.background.stepDefinitions) {
+                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], false)
+                }
+            }
+            this.activeActionBar = false;
+            this.allChecked = false;
+        }
+    }
+
+    checkStep($event, step, checkValue: boolean){
+        if(checkValue != null){
+            step.checked = checkValue;
+        }else{
+            step.checked = !step.checked;
+        }
+        let checkCount = 0;
+        let stepCount = 0;
+        
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                stepCount++;
+                if(this.selectedStory.background.stepDefinitions[prop][i].checked){
+                    checkCount++;
+                }
+            }
+        }
+        if(checkCount >= stepCount){
+            this.allChecked = true;
+        }else{
+            this.allChecked = false;
+        }
+        if(checkCount <= 0){
+            this.allChecked = false;
+            this.activeActionBar = false;
+        }else{
+            this.activeActionBar = true
+        }
+    }
+
+    removeStepFromBackground() {
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                if(this.selectedStory.background.stepDefinitions[prop][i].checked){
+                    this.selectedStory.background.stepDefinitions[prop].splice(i, 1)
+                }
+            }
+        }
+        this.selectedStory.background.saved = false;
+        this.allChecked = false;
+        this.activeActionBar = false;
+    }
+
+    deactivateStep(){
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            for(let s in this.selectedStory.background.stepDefinitions[prop]){
+                if(this.selectedStory.background.stepDefinitions[prop][s].checked){
+                    this.selectedStory.background.stepDefinitions[prop][s].deactivated = !this.selectedStory.background.stepDefinitions[prop][s].deactivated
+                }
+            }
+    }
+
+        //this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated = !this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated
+        this.selectedStory.background.saved = false;
     }
 
     createnewStory() {
@@ -178,7 +267,6 @@ export class StoryEditorComponent implements OnInit {
 
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
       moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
-      this.selectedStory.background.saved = false;
   }
 
   getBackgroundList(stepDefinitions: StepDefinitionBackground) {
@@ -192,9 +280,12 @@ export class StoryEditorComponent implements OnInit {
 
   updateBackground() {
     delete this.selectedStory.background.saved;
-
+    this.allChecked = false;
+    this.activeActionBar = false;
+    
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
         this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
+            delete step.checked;
             if(step.outdated){
                 step.outdated = false;
             }
@@ -204,6 +295,10 @@ export class StoryEditorComponent implements OnInit {
           .updateBackground(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedStory.background)
           .subscribe(resp => {
             this.toastr.success('successfully saved', 'Background')
+            if(this.saveBackgroundAndRun){
+                this.apiService.runSaveOption('saveScenario')
+                this.saveBackgroundAndRun = false;
+            }
           });
   }
 
@@ -234,6 +329,7 @@ export class StoryEditorComponent implements OnInit {
       if (newStep.stepType == 'when') {
           this.selectedStory.background.stepDefinitions.when.push(newStep);
       }
+      this.selectedStory.background.saved = false;
   }
 
   createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{
@@ -271,10 +367,6 @@ export class StoryEditorComponent implements OnInit {
       }
   }
 
-  removeStepFromBackground(event, index: number) {
-      this.selectedStory.background.stepDefinitions.when.splice(index, 1);
-      this.selectedStory.background.saved = false;
-  }
 
   addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
       this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
@@ -328,27 +420,35 @@ export class StoryEditorComponent implements OnInit {
       return undefined_list;
   }
 
-
   // Make the API Request to run the tests and display the results as a chart
   runTests(scenario_id) {
-    let undefined_list = this.undefined_definition(this.selectedScenario["stepDefinitions"]);
-    this.testRunning = true;
-    const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-    const loadingScreen: HTMLElement = document.getElementById('loading');
-    loadingScreen.scrollIntoView();
-    this.apiService
-        .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
-        .subscribe(resp => {
-            iframe.srcdoc = resp;
-            // console.log("This is the response: " + resp);
-            this.htmlReport = resp;
-            this.testDone = true;
-            this.showResults = true;
-            this.testRunning = false;
-            setTimeout(function () {
-                iframe.scrollIntoView();
-            }, 10);
-        });
+    if(this.storySaved()){
+        this.testRunning = true;
+        const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+        const loadingScreen: HTMLElement = document.getElementById('loading');
+        loadingScreen.scrollIntoView();
+        this.apiService
+            .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
+            .subscribe(resp => {
+                iframe.srcdoc = resp;
+                // console.log("This is the response: " + resp);
+                this.htmlReport = resp;
+                this.testDone = true;
+                this.showResults = true;
+                this.testRunning = false;
+                setTimeout(function () {
+                    iframe.scrollIntoView();
+                }, 10);
+                this.toastr.info('', 'Test is done')
+                this.runUnsaved = false;
+            });
+    }else{
+        this.currentTestScenarioId = scenario_id;
+        this.currentTestStoryId = this.selectedStory.story_id;
+        this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
+            toastComponent: RunTestToast
+        })
+    }        
   }
 
   downloadFile() {
@@ -374,5 +474,8 @@ export class StoryEditorComponent implements OnInit {
       return temp;
   }
 
+  storySaved(){
+    return this.runUnsaved ||((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved))
+  }
 
 }
