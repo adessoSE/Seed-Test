@@ -153,7 +153,7 @@ export class ScenarioEditorComponent implements OnInit {
             console.log("There are undefined steps here");
         }
         this.selectedScenario.lastTestPassed = null;
-        return new Promise((resolve, reject) => {this.apiService
+        return new Promise<void>((resolve, reject) => {this.apiService
             .updateScenario(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Scenario')
