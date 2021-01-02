@@ -80,14 +80,14 @@
           <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
           <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
           <div *ngIf="sd == 'example'"> Example (Cases)
-            <dfn *ngIf="sd == 'example'" class="def"><span id="infoIcon" uk-icon="info"></span>
+            <!--<dfn *ngIf="sd == 'example'" class="def"><span id="infoIcon" uk-icon="info"></span>
               <span rel="def">
                 For using examples, you have to create placeholders in your Given/When/Then-Steps. 
                 You can assign values to the placeholders, which will be used instead of them. 
                 You can assign more than one value. If there is more than one value assigned, 
                 the whole test will be run as often as there is a value that hasn't been used once. 
                 Each test case created by this will be carried out individually and independent.
-              </span></dfn>
+              </span></dfn>-->
           </div>
           <button *ngIf="sd != 'example'" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
           class="addStepButtons" title="Add New Step" uk-tooltip>
