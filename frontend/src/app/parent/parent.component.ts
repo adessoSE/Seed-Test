@@ -3,7 +3,6 @@ import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { Router, ActivatedRoute } from '@angular/router';
 
 
 @Component({

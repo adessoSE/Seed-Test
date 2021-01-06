@@ -1,4 +1,11 @@
 <div class="grid-container uk-card uk-card-default">
+    <div (click)="login()">
+        <a routerLink="/" class="title">
+            <button class="backButton" title="Back to Repository">
+                <img id="backImage" src ="../assets/left.png">
+            </button>
+        </a>
+    </div>
     <div class="header">
         <h1 class="uk-card-header">Account Settings</h1>
     </div>
@@ -6,8 +13,10 @@
         <h2 class="uk-card-header">Seed-Test Account</h2>
         <div *ngIf="email">
             <b>Email: </b>
-            <label class="active">{{email}}</label>
-            <p><button class="button" (click)="newRepository()">Create Repository</button></p>
+            <label id="emailLabel" class="active">{{email}}</label>
+            <hr>
+            <p id="needCustomRepo">Need a new custom repository?</p>
+            <p><button class="button" (click)="newRepository()">Create Custom Repository</button></p>
         </div>
         <div *ngIf="!email">
             <label id="noEmail">- no email deposited -</label>

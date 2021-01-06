@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '../model/Block';
 import { StepType } from '../model/StepType';
-import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 import { ApiService } from '../Services/api.service';
 
 @Component({

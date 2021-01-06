@@ -257,7 +257,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/jira/user/create/', request, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log(resp.body);
+                //console.log(resp.body);
             }));
     }
 

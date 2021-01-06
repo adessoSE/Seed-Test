@@ -1,9 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '../model/Block';
 import { StepType } from '../model/StepType';
 import { ApiService } from '../Services/api.service';
-import {MatListModule, MatSelectionList, MatSelectionListChange} from '@angular/material/list'; 
 
 @Component({
   selector: 'app-add-block-form',
