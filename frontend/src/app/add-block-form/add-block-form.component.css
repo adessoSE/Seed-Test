@@ -82,6 +82,10 @@
     padding-right: 10px;
 }
 
+.disabled {
+    background: gray !important;
+  }
+
 .uk-button{
     color:#ffffff;
     padding: 0px 10px;

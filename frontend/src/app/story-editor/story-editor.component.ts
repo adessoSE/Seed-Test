@@ -144,9 +144,7 @@ export class StoryEditorComponent implements OnInit {
       this.allChecked =false;
   }
 
-  @Input() 
-
-  loadStepTypes() {
+    loadStepTypes() {
     this.apiService
         .getStepTypes()
         .subscribe((resp: StepType[]) => {
@@ -443,50 +441,68 @@ export class StoryEditorComponent implements OnInit {
       return undefined_list;
   }
 
-  saveBlockBackground(event){
-    let saveBlock: any = {when: []};
-    for (let prop in this.selectedStory.background.stepDefinitions) {
-        for(let s in this.selectedStory.background.stepDefinitions[prop]){
-           if(this.selectedStory.background.stepDefinitions[prop][s].checked){
-               saveBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s])
-           }
+    saveBlockBackground(event){
+        let saveBlock: any = {when: []};
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            for(let s in this.selectedStory.background.stepDefinitions[prop]){
+               if(this.selectedStory.background.stepDefinitions[prop][s].checked){
+                   saveBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s])
+               }
+            }
         }
-    }
-    
-    let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-    this.saveBlockFormService.open(block);
-}
 
-  // Make the API Request to run the tests and display the results as a chart
-  runTests(scenario_id) {
-    if(this.storySaved()){
-        this.testRunning = true;
-        const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-        const loadingScreen: HTMLElement = document.getElementById('loading');
-        loadingScreen.scrollIntoView();
-        this.apiService
-            .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
-            .subscribe(resp => {
-                iframe.srcdoc = resp;
-                // console.log("This is the response: " + resp);
-                this.htmlReport = resp;
-                this.testDone = true;
-                this.showResults = true;
-                this.testRunning = false;
-                setTimeout(function () {
-                    iframe.scrollIntoView();
-                }, 10);
-                this.toastr.info('', 'Test is done')
-                this.runUnsaved = false;
-            });
-    }else{
-        this.currentTestScenarioId = scenario_id;
-        this.currentTestStoryId = this.selectedStory.story_id;
-        this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
-            toastComponent: RunTestToast
-        })
-    }        
-  }
+        let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
+        this.saveBlockFormService.open(block);
+    }
+
+    copyBlock(event){
+        let copyBlock: any = {given: [], when: [], then: [], example:[]};
+        for (let prop in this.selectedStory.background.stepDefinitions) {
+            if(prop !== 'example'){
+                for(let s in this.selectedStory.background.stepDefinitions[prop]){
+                    if(this.selectedStory.background.stepDefinitions[prop][s].checked){
+                        this.selectedStory.background.stepDefinitions[prop][s].checked = false
+                        copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s])
+                    }
+                }
+            }
+        }
+        let block: Block = {stepDefinitions: copyBlock}
+        localStorage.setItem('copiedBlock', JSON.stringify(block))
+        this.allChecked = false;
+    }
+
+
+    // Make the API Request to run the tests and display the results as a chart
+    runTests(scenario_id) {
+        if(this.storySaved()){
+            this.testRunning = true;
+            const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+            const loadingScreen: HTMLElement = document.getElementById('loading');
+            loadingScreen.scrollIntoView();
+            this.apiService
+                .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
+                .subscribe(resp => {
+                    iframe.srcdoc = resp;
+                    // console.log("This is the response: " + resp);
+                    this.htmlReport = resp;
+                    this.testDone = true;
+                    this.showResults = true;
+                    this.testRunning = false;
+                    setTimeout(function () {
+                        iframe.scrollIntoView();
+                    }, 10);
+                    this.toastr.info('', 'Test is done')
+                    this.runUnsaved = false;
+                });
+        }else{
+            this.currentTestScenarioId = scenario_id;
+            this.currentTestStoryId = this.selectedStory.story_id;
+            this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
+                toastComponent: RunTestToast
+            })
+        }        
+    }
 
   downloadFile() {
       const blob = new Blob([this.htmlReport], {type: 'text/html'});

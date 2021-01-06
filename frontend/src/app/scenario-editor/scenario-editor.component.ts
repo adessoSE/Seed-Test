@@ -346,6 +346,40 @@ export class ScenarioEditorComponent implements OnInit {
         this.saveBlockFormService.open(block);
     }
 
+    copyBlock(event){
+        let copyBlock: any = {given: [], when: [], then: [], example:[]};
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            if(prop !== 'example'){
+                for(let s in this.selectedScenario.stepDefinitions[prop]){
+                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
+                        this.selectedScenario.stepDefinitions[prop][s].checked = false
+                        copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+                    }
+                }
+            }
+        }
+        let block: Block = {stepDefinitions: copyBlock}
+        localStorage.setItem('copiedBlock', JSON.stringify(block))
+        this.allChecked = false;
+    }
+
+    copyBlockExample(event){
+        let copyBlock: any = {given: [], when: [], then: [], example:[]};
+        for (let prop in this.selectedScenario.stepDefinitions) {
+            if(prop == 'example'){
+                for(let s in this.selectedScenario.stepDefinitions[prop]){
+                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
+                        this.selectedScenario.stepDefinitions[prop][s].checked = false
+                        copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+                    }
+                }
+            }
+        }
+        let block: Block = {stepDefinitions: copyBlock};
+        localStorage.setItem('copiedBlock', JSON.stringify(block));
+        this.allExampleChecked = false;
+    }
+
     saveExampleBlock(event){
         let saveBlock: any = {given:[], when: [], then: [], example: []};
         for (let prop in this.selectedScenario.stepDefinitions) {

@@ -57,6 +57,7 @@ export class ApiService {
     addBlockToScenario(block: Block, correspondingComponent: string){
         this.addBlockToScenarioEvent.emit([correspondingComponent, block])
     }
+    
     public githubLogin() {
         const scope = 'repo';
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';

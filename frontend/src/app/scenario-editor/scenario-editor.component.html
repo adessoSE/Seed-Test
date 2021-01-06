@@ -50,6 +50,11 @@
         (click)="removeStepFromScenario();">
           <em class="material-icons">delete</em>
         </button>
+        <button id="{{'scenario_' + i + '_copy_step_'}}" a
+        class="actionButton" uk-tooltip title="Copy Step"
+        (click)="copyBlock();">
+          <em class="material-icons">content_copy</em>
+        </button>
       </div>
     </div>
     <div class="scenarioButtonGroup">
@@ -155,6 +160,11 @@
               class="actionButton" uk-tooltip title="Delete Step"
               (click)="removeStepFromExample();">
                 <em class="material-icons">delete</em>
+              </button>
+              <button id="{{'scenario_' + i + '_example_copy_step_'}}" a
+              class="actionButton" uk-tooltip title="Copy Step"
+              (click)="copyBlockExample();">
+                <em class="material-icons">content_copy</em>
               </button>
             </div>
           </div>

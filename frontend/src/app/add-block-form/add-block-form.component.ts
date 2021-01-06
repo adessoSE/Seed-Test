@@ -22,6 +22,7 @@ export class AddBlockFormComponent {
   selectedBlock: Block;
   displayedColumns: string[] = ['stepType', 'pre'];
   correspondingComponent: string;
+  clipboardBlock: Block;
   constructor(private modalService: NgbModal, public apiService: ApiService) {
 
   }
@@ -30,7 +31,7 @@ export class AddBlockFormComponent {
     this.getAllBlocks()
     this.correspondingComponent = correspondingComponent;
     this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title'});
-
+    this.clipboardBlock = JSON.parse(localStorage.getItem('copiedBlock'))
   }
 
   getAllBlocks(){
@@ -51,6 +52,11 @@ export class AddBlockFormComponent {
     })
   }
 
+  copiedBlock() {
+    if (this.clipboardBlock){
+      this.apiService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent)
+    }
+  }
 
   submit() {
     this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent)
