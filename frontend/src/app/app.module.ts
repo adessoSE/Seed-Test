@@ -11,7 +11,8 @@ import {ParentComponent} from './parent/parent.component';
 import {LoginComponent} from './login/login.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AuthGuard} from './guards/auth.guard';
-//import {MatListModule, MatTableModule} from '@angular/material';
+import {MatTableModule} from '@angular/material/table';
+import {MatListModule} from '@angular/material/list'
 import {ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
@@ -74,8 +75,8 @@ import {RunTestToast} from './custom-toast'
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    //MatTableModule,
-    //MatListModule,
+    MatTableModule,
+    MatListModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
     DragDropModule,
