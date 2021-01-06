@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
 import { Block } from '../model/Block';
 import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
+import { runInThisContext } from 'vm';
 
 @Component({
     selector: 'app-scenario-editor',
@@ -343,7 +344,7 @@ export class ScenarioEditorComponent implements OnInit {
             }
         }
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.saveBlockFormService.open(block);
+        this.saveBlockFormService.open(block, this);
     }
 
     copyBlock(event){
@@ -389,8 +390,8 @@ export class ScenarioEditorComponent implements OnInit {
                 }
             }
         }
-        let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.saveBlockFormService.open(block);
+        let block: Block = {stepDefinitions: saveBlock}
+        this.saveBlockFormService.open(block, this);
     }
 
     includesExampleStep(step: StepType){

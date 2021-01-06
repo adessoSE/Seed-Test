@@ -452,7 +452,7 @@ export class StoryEditorComponent implements OnInit {
         }
 
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.saveBlockFormService.open(block);
+        this.saveBlockFormService.open(block, this);
     }
 
     copyBlock(event){

@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Block } from '../model/Block';
 import { StepType } from '../model/StepType';
+import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 import { ApiService } from '../Services/api.service';
 
 @Component({
@@ -19,13 +20,15 @@ export class SaveBlockFormComponent {
   exampleBlock = false;
   exampleChecked = false;
   stepListComplete = [];
+  parentComponent;
   constructor(private modalService: NgbModal, public apiService: ApiService) {
   }
 
-  open(block: Block) {
+  open(block: Block, comp) {
       this.exampleBlock = false;
       this.exampleChecked = false;
       this.block = block;
+      this.parentComponent = comp;
       if(block.stepDefinitions.example && block.stepDefinitions.example.length > 0){
         this.exampleBlock = true;
       }
@@ -55,14 +58,11 @@ export class SaveBlockFormComponent {
   }
 
   submit() {
-      for (let prop in this.block.stepDefinitions) {
-        for(let s in this.block.stepDefinitions[prop]){
-            if(this.block.stepDefinitions[prop][s].checked){
-              this.block.stepDefinitions[prop][s].checked = false
-            }
-        }
+      if(this.exampleBlock){
+        this.parentComponent.checkAllExampleSteps(null, false)
+      }else {
+        this.parentComponent.checkAllSteps(null, false)
       }
-
       let title = (document.getElementById('blockNameInput') as HTMLInputElement).value
       if (title.length === 0) {
           title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
