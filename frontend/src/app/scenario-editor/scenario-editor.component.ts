@@ -12,7 +12,6 @@ import { ToastrService } from 'ngx-toastr';
 import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
 import { Block } from '../model/Block';
 import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
-import { runInThisContext } from 'vm';
 
 @Component({
     selector: 'app-scenario-editor',
