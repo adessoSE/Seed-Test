@@ -10,7 +10,7 @@
   </div>
   <div class="dividerContainer">
       <div class="savedBlocksContainer">
-        <p>Saved Blocks</p>
+        <p class="subHeader">Saved Blocks</p>
         <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="change($event)" name="folderss">
             <mat-list-option *ngFor="let block of blocks" [value]="block">
               <h4 mat-line>{{block.name}}</h4>
@@ -18,8 +18,8 @@
         </mat-selection-list>
       </div>
       <div class="previewContainer">
-        <p *ngIf="selectedBlock == undefined">Preview:</p>
-        <p *ngIf="selectedBlock != undefined">Preview: {{selectedBlock.name}}</p>
+        <p class="subHeader" *ngIf="selectedBlock == undefined">Preview:</p>
+        <p class="subHeader" *ngIf="selectedBlock != undefined">Preview: {{selectedBlock.name}}</p>
         <table mat-table [dataSource]="stepList" class="mat-elevation-z8">
             <ng-container matColumnDef="stepType">
               <th mat-header-cell *matHeaderCellDef> Steptype </th>

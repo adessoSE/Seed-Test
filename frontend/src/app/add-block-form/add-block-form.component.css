@@ -69,6 +69,15 @@
     color: #999;
 }
 
+::ng-deep .modal-dialog{
+    max-width: 800px;
+}
+
+.subHeader{
+    color: #999;
+    margin-left: 5px;
+}
+
 #description_form{
     width: 100%;
     height: 8em;

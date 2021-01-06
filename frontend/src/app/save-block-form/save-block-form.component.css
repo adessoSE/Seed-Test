@@ -82,6 +82,10 @@
     padding-right: 10px;
 }
 
+::ng-deep .modal-dialog{
+    max-width: 800px;
+}
+
 .uk-button{
     color:#ffffff;
     padding: 0px 10px;
