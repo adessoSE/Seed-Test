@@ -106,6 +106,9 @@
           </div>
         </div>
         <div class="scenarioButtonGroup">
+          <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
+              <em class="material-icons">copy_all</em>
+          </button>
           <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock(selectedStory._id)">
             <em class="material-icons">playlist_add</em>
           </button>
