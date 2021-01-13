@@ -85,7 +85,7 @@
           <div *ngIf="this.activeActionBar">
             <button id="{{'background_' + i + '_addBlock_step_'}}" a
             class="actionButton" uk-tooltip title="Save Steps as Block"
-            (click)="saveBlock();">
+            (click)="saveBlockBackground($event);">
               <em class="material-icons">queue</em>
             </button>
             <button id="{{'background' + '_deactivate_step_'}}" a
@@ -97,6 +97,11 @@
             class="actionButton" uk-tooltip title="Delete Step"
            (click)="removeStepFromBackground();">
               <em class="material-icons">delete</em>
+            </button>
+            <button id="{{'background_' + i + '_copy_step_'}}" a
+            class="actionButton" uk-tooltip title="Copy Step"
+            (click)="copyBlock();">
+              <em class="material-icons">content_copy</em>
             </button>
           </div>
         </div>
@@ -180,6 +185,8 @@
     <!--Scenario Header-->
 
     <app-scenario-editor #scenarioChild (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
+    <app-save-block-form #saveBlockForm></app-save-block-form>
+    <app-add-block-form #addBlockForm></app-add-block-form>
 
       <!--Buttons Run Scenario-->
       <div class="uk-card-footer">

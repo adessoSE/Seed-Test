@@ -12,6 +12,7 @@ import {LoginComponent} from './login/login.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AuthGuard} from './guards/auth.guard';
 import {MatTableModule} from '@angular/material/table';
+import {MatListModule} from '@angular/material/list'
 import {ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
@@ -34,6 +35,8 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { SaveBlockFormComponent } from './save-block-form/save-block-form.component';
+import { AddBlockFormComponent } from './add-block-form/add-block-form.component'
 import { MatCarouselModule } from '@ngbmodule/material-carousel';
 import {RunTestToast} from './custom-toast'
 
@@ -61,7 +64,9 @@ import {RunTestToast} from './custom-toast'
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
     ReportComponent,
-    RunTestToast
+    RunTestToast,
+    SaveBlockFormComponent,
+    AddBlockFormComponent
   ],
   imports: [
       NgbModule,
@@ -71,6 +76,7 @@ import {RunTestToast} from './custom-toast'
     ReactiveFormsModule,
     HttpClientModule,
     MatTableModule,
+    MatListModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
     DragDropModule,

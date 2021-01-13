@@ -8,12 +8,14 @@ import {Scenario} from '../model/Scenario';
 import {Background} from '../model/Background';
 import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
+import { Block } from '../model/Block';
 
 @Injectable({
     providedIn: 'root'
 })
 
 export class ApiService {
+
     constructor(private http: HttpClient) {
     }
 
@@ -27,6 +29,7 @@ export class ApiService {
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
     public runSaveOptionEvent = new EventEmitter();
+    public addBlockToScenarioEvent = new EventEmitter();
     public user;
     //public local:boolean = false;
 
@@ -44,6 +47,17 @@ export class ApiService {
         return throwError(error);
     }
 
+    getBlocks() {
+        const str = this.apiServer + '/mongo/getBlocks';
+        return this.http.get<Block[]>(str,  ApiService.getOptions())
+        .pipe(tap(resp => {}),
+        catchError(ApiService.handleError));
+      }
+
+    addBlockToScenario(block: Block, correspondingComponent: string){
+        this.addBlockToScenarioEvent.emit([correspondingComponent, block])
+    }
+    
     public githubLogin() {
         const scope = 'repo';
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
@@ -166,6 +180,13 @@ export class ApiService {
             }));
     }
 
+    public saveBlock(block: Block){
+        return this.http
+        .post<any>(this.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
+        .pipe(tap(resp => {
+        }));
+    }
+
     logoutUser() {
         const url = this.apiServer + '/user/logout';
         localStorage.removeItem('login');
@@ -236,7 +257,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/jira/user/create/', request, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log(resp.body);
+                //console.log(resp.body);
             }));
     }
 

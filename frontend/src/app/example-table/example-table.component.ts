@@ -27,13 +27,7 @@ export class ExampleTableComponent implements OnInit {
   @Input()
   set newSelectedScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
-    if (this.selectedScenario.stepDefinitions.example.length > 0) {
-      this.initializeTable();
-      this.initializeTableControls();
-      this.exampleThere = true;
-    } else {
-      this.exampleThere = false;
-    }
+    this.updateTable();
   }
 
   inputChange(){
@@ -41,8 +35,13 @@ export class ExampleTableComponent implements OnInit {
   }
 
   initializeTableControls() {
+    //let seen = new Set<string>();
+    //this.selectedScenario.stepDefinitions.example[0].values.filter(item => {
+    //    let k = item;
+    //    return seen.has(k) ? false : seen.add(k);
+    //});
+    //this.selectedScenario.stepDefinitions.example[0].values = Array.from(seen);
     this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
-
     const formArray: FormGroup[] = [];
     for (let i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++) {
       let toGroups = new FormGroup({},{updateOn: 'blur'});

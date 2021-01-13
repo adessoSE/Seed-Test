@@ -696,6 +696,7 @@ async function saveBlock(block) {
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
     let result = await collection.insertOne(block)
+    return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in saveBlock: " + e)
   } finally {
@@ -734,13 +735,13 @@ async function getBlocksById(id, repo) {
   }
 }
 //get all Blocks returns Array with all existing CustomBlocks
-async function getBlocks(repo) {
+async function getBlocks(userId) {
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({repo: repo}).toArray()
+    let result = await collection.find({owner: userId}).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
