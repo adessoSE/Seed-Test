@@ -468,7 +468,7 @@ export class StoryEditorComponent implements OnInit {
             }
         }
         let block: Block = {stepDefinitions: copyBlock}
-        localStorage.setItem('copiedBlock', JSON.stringify(block))
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
     }
 

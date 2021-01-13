@@ -30,7 +30,7 @@ export class AddBlockFormComponent {
     this.getAllBlocks()
     this.correspondingComponent = correspondingComponent;
     this.modalService.open(this.content, {ariaLabelledBy: 'modal-basic-title'});
-    this.clipboardBlock = JSON.parse(localStorage.getItem('copiedBlock'))
+    this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
   }
 
   getAllBlocks(){

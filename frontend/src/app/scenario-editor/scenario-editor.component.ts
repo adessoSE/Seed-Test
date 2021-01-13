@@ -359,7 +359,7 @@ export class ScenarioEditorComponent implements OnInit {
             }
         }
         let block: Block = {stepDefinitions: copyBlock}
-        localStorage.setItem('copiedBlock', JSON.stringify(block))
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
     }
 
@@ -376,7 +376,7 @@ export class ScenarioEditorComponent implements OnInit {
             }
         }
         let block: Block = {stepDefinitions: copyBlock};
-        localStorage.setItem('copiedBlock', JSON.stringify(block));
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block));
         this.allExampleChecked = false;
     }
 
