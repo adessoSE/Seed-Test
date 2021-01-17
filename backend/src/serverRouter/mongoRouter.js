@@ -50,7 +50,7 @@ router.post('/createRepository', async (req, res) => {
 	res.status(200).json('');
 });
 
-// create Repository in Database
+// create Story in Database
 router.post('/createStory', async (req, res) => {
 	const issue = {
 		id: Math.floor(Math.random() * 10000),

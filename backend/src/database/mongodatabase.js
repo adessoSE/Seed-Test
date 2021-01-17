@@ -174,7 +174,7 @@ function selectUsersCollection(db) {
 
 function findStory(storyId, storySource, collection) {
 	const myObjt = {
-		story_id: storyId,
+		_id: ObjectId(storyId),
 		storySource
 	};
 	return new Promise((resolve, reject) => {
@@ -188,7 +188,7 @@ function findStory(storyId, storySource, collection) {
 
 function replace(story, collection) {
 	const myObjt = {
-		story_id: story.story_id,
+		_id: ObjectId(story.story_id),
 		storySource: story.storySource
 	};
 	return new Promise((resolve, reject) => {
@@ -377,23 +377,23 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 	}
 }
 
-// get UserData needs ID returns JsonObject User
+//finds all owned repositories of one user
 async function getRepository(userID) {
 	try {
-		const myObjt = { owner: userID };
+		const myObjt = { owner: ObjectId(userID) };
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.find(myObjt).toArray();
 		db.close();
 		return result;
 	} catch (e) {
-		console.log(`UPS!!!! FEHLER${e}`);
+		console.log(`UPS!!!! FEHLER: ${e}`);
 	}
 }
 
-async function getOneRepository(name) {
+async function getOneRepository(id, name) {
 	try {
-		const myObjt = { name };
+		const myObjt = { name: name, owner: ObjectId(id) };
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne(myObjt);
@@ -404,16 +404,16 @@ async function getOneRepository(name) {
 	}
 }
 
-async function insertEntry(email, name) {
-	const myObjt = { name, owner: email, issues: { } };
+async function insertEntry(name, id) {
+	const myObjt = { name, owner: ObjectId(id), issues: { } };
 	const db = await connectDb();
 	const collection = await selectRepositoryCollection(db);
 	collection.insertOne(myObjt);
 }
 
-async function addIssue(issue, name) {
+async function addIssue(issue, name, id) {
 	try {
-		const myObjt = { name };
+		const myObjt = { name, owner: ObjectId(id)};
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne(myObjt);
