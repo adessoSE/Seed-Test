@@ -10,6 +10,8 @@ const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
+const MongoStore = require('connect-mongo')(session);
+const mongo = require('./database/mongodatabase');
 
 const app = express();
 let stories = [];
@@ -22,19 +24,43 @@ const server = app.listen(process.env.PORT || 8080, () => {
 /**
  * API Description
  */
-app
-  .use(cors({
-    origin: [
-    process.env.FRONTEND_URL
-  ], 
-  credentials: true
+
+if (process.env.NODE_ENV) {
+  app
+  .use(flash())
+  .use(session({
+    store: new MongoStore({ 
+      url: process.env.DATABASE_URI,
+      dbName: 'Seed',
+      collection: 'Sessions'
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      secure: true,
+      sameSite: "none"
+    }
   }))
+} else {
+app
   .use(flash())
   .use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
   }))
+}
+app
+.use(cors({
+  origin: [
+  process.env.FRONTEND_URL
+], 
+credentials: true
+}))
+app
   .use(passport.initialize())
   .use(passport.session())
   .use(bodyParser.json({ limit: '100kb' }))

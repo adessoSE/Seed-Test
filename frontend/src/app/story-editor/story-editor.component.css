@@ -2,8 +2,23 @@
    margin: 0;
    padding: 0;
  }
+
+ .arrowLeft{
+   width: 130px;
+   float: left;
+   margin-right: 5px;
+ }
+
+ #firstStoryText{
+   padding-top: 30px;
+   padding-left: 130px;
+   width: 250px;
+   text-align: center;
+  }
+
   .emptyStories{
     color: #999;
+    padding: 10px;
   }
   .emptyStories h1{
     color: #999;
@@ -19,7 +34,74 @@
     font-size: 1.25rem;
     line-height: 1.4;
   }
+
+  .disabledDeactivateButton{
+    color: #0099CC;
+  }
   
+  .disabled input{
+    color: gray;
+    border-bottom: 1px solid gray;
+  }
+
+  #noStoriesHeader{
+    padding: 20px;
+  }
+
+  .tutorial{
+    color: #0099CC;
+  }
+
+  .tutorialDiv{
+    width: 550px; 
+    background-color: rgba(153, 153, 153, 0.342);
+    padding: 20px;
+    margin: 20px;
+  }
+
+  #infoImg{
+    margin-top: 10px;
+    margin-right: 20px;
+    width: 50px;
+    color: #999;
+    float: left;
+  }
+
+  #infoDiv{
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+  }
+
+  #infoText{
+    font-size: 15px;
+  }
+
+  #infoList{
+    padding-left: 10px;
+    color: #0099CC;
+    list-style-type: none;
+  }
+
+  .tutorialDiv h4{
+    padding-bottom: 5px;
+  }
+  
+
+  #noStoriesHeader{
+    padding-bottom: 5px;
+  }
+
+  .firstStoryDiv{
+    margin-top: 7px;
+    padding: 6px;
+    height: 95px;
+    width: 220px;
+    color: white;
+    background-color: rgba(153, 153, 153, 0.726);
+  }
+
   .def {
       color: #999;
       cursor: help;
@@ -81,14 +163,17 @@
   .button {
     margin-right: 3px;
     color:#ffffff;
-    padding: 0px 10px;
+    padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
     border: solid 1px #0099CC;
     background: #0099CC;
     background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
-    line-height: 38px;
-    text-transform: uppercase;
+    line-height: 25px;
+  }
+
+  .material-icons{
+    font-size: 24px;
   }
 
   .uk-card-footer{
@@ -102,7 +187,9 @@
   .button:active {
     background: -moz-linear-gradient(top,  rgb(2, 111, 161), #0099CC);
   }
-  
+
+  .button:focus {outline:0 !important;}
+
   .uk-button-group{
     border-radius:4px;
     border:2px solid rgb(255, 255, 255);
@@ -125,18 +212,12 @@
     border-radius: 10%;
   }
 
-  .iconButton_unsaved em{
-    vertical-align:middle;
+  #saveButton.iconButton_unsaved em{
     color: red;
-    border-radius: 10%;
-    border: none;
-    background-color: #ffffff;
-    padding: 0px;
-    border-radius: 10%;
   }
   
   .iconButton em:active {
-    background-color: #0099CC;
+    background-color: rgb(0, 153, 204);
     color: #ffffff;
   }
 
@@ -166,11 +247,12 @@
   .disabled {
     color: gray !important;
     background: white !important;
+    font-style: italic;
   }
   
-  .disabled em{
+  .scenarioBarContainer .disabled em{
     color: gray !important;
-    background: white !important;
+    background: #f8f8f8 !important;
   }
   
   .dragIconContainer{
@@ -178,9 +260,11 @@
     cursor: move;
   }
   
-  .dragIcon{
-    position: relative;
-    top: -2px;
+  em.dragIcon{
+    font-size: 18px;
+    color: black;
+    background-color: white;
+    margin-top:3px
   }
   
   .text-inline{
@@ -189,6 +273,7 @@
     align-content: center;
     font-weight: normal;
     justify-self: start;
+    color: #333;
   }
   
   .text-inline > button{
@@ -278,3 +363,81 @@
   .lastTestText {
     margin-right: 10px;
   }
+
+  .checkbox{
+    margin-right: 5px;
+    margin-bottom: 1.5px;
+    margin-left: 3px
+  }
+  
+  .checkbox:hover{
+    cursor: pointer;
+  }
+  
+  .actionBarContainer{
+    margin: 5px 0px;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+  }
+
+
+
+  
+
+.scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+}
+
+.exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+.scenarioBarContainer button,
+.exampleBarContainer button{
+  border: none;
+  background: #f8f8f8;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+.scenarioBarContainer > div,
+.exampleBarContainer{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px 15px;
+  display: flex;
+  height: 40px;
+}
+
+.actionBarButtonGroup{
+  margin-left: 3px;
+}
+
+.scenarioButton {
+  margin-right: 10px;
+}
+
+.actionButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+.actionButton{
+  margin-left: 10px;
+}
+
+.scenarioButton em{
+  color:  #0099CC;
+}
+
+.scenarioButton em:active {
+  background-color: #0099CC;
+  color: #ffffff;
+}

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ParentComponent } from '../parent/parent.component';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
-import { ActivatedRoute } from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
 

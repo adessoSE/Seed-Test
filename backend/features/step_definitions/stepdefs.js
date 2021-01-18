@@ -11,9 +11,11 @@ const chrome = require('selenium-webdriver/chrome');
 setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
-if (process.env.NODE_ENV) {
-  chromeOptions.addArguments('--headless');
-}
+//if (process.env.NODE_ENV) {
+ // chromeOptions.addArguments('--headless');
+//}
+chromeOptions.addArguments('--disable-dev-shm-usage')
+//chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
@@ -55,8 +57,13 @@ When('I click the button: {string}', async (button) => {
     if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase().match(/^run[ _](story|scenario)$/) !== null) {
       throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
     } else {
-      await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
-      await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+      try {
+        await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
+        await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+      } catch (e) {
+        await driver.findElement(By.xpath(`${button}`)).click();
+      }
+
     }
   });
 });
@@ -71,15 +78,30 @@ When('I insert {string} into the field {string}', async (value, label) => {
   try {
     // await driver.findElement(By.css(`input#${label}`)).clear();
     // await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
-    await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
+    await driver.findElement(By.xpath(`//input[@id='${label}']`)).clear();
     await driver.findElement(By.xpath(`//input[@id='${label}']`)).sendKeys(value);
   } catch (e) {
     try {
-      await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
-      await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
-    } catch (e){
-      await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear()
-      await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+      await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).clear();
+      await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).sendKeys(value);
+    } catch (e) {
+      try {
+        await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
+        await driver.findElement(By.xpath(`//*[@id='${label}']`)).sendKeys(value);
+      } catch (e) {
+        try {
+          await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
+          await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+        } catch (e) {
+          try {
+            await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
+            await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+          } catch (e) {
+            await driver.findElement(By.xpath(`${label}`)).clear();
+            await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+          }
+        }
+      }
     }
   }
 });
@@ -93,29 +115,47 @@ When('I select {string} from the selection {string}', async (radioname, label) =
 When('I select the option {string} from the drop-down-menue {string}', async (value, dropd) => {
 
   try {
-    await driver.wait(until.elementLocated(By.xpath(`//*[@id='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
+    await driver.wait(until.elementLocated(By.xpath(`//*[@*='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
   } catch (e) {
-    await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::button[@type='button']`)).click();
-    await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`)).click();
+    try {
+      await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::button[@type='button']`)).click();
+    } catch (e) {
+      try {
+        await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`)).click();
+      } catch (e) {
+        await driver.findElement(By.xpath(`${dropd}`)).click();
+      }
+    }
   }
+});
+
+When('I select the option {string}', async (dropd) => {
+  await driver.findElement(By.xpath(`${dropd}`)).click();
 });
 
 // Hover over element and Select an Option
 When('I hover over the element {string} and select the option {string}', async (element, option) => {
-  const action = driver.actions({ bridge: true });
-  const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), 3 * 1000);
-  await action.move({ x: 0, y: 0, origin: link }).perform();
-
-  await driver.sleep(2000);
-  const action2 = driver.actions({ bridge: true }); // second action needed?
   try {
-    const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
+    const action = driver.actions({ bridge: true });
+    const link = await driver.wait(until.elementLocated(By.xpath(`${element}`)), 3 * 1000);
+    await action.move({ x: 0, y: 0, origin: link }).perform();
+    await driver.sleep(2000);
+    const action2 = driver.actions({ bridge: true }); // second action needed?
+    const selection = await driver.findElement(By.xpath(`${option}`));
     await action2.move({ origin: selection }).click().perform();
-
-  }
-  catch (e) {
-    const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
-    await action2.move({ origin: selection }).click().perform();
+  } catch (e) {
+    const action = driver.actions({ bridge: true });
+    const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), 3 * 1000);
+    await action.move({ x: 0, y: 0, origin: link }).perform();
+    await driver.sleep(2000);
+    try {
+      const action2 = driver.actions({ bridge: true }); // second action needed?
+      const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
+      await action2.move({ origin: selection }).click().perform();
+    } catch (e) {
+      const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
+      await action2.move({ origin: selection }).click().perform();
+    }
   }
 });
 
@@ -132,20 +172,27 @@ When('I check the box {string}', async (name) => {
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).submit();
   // await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 
-  // this one works, even if the element is not clickable (due to other elements blocking it):
-  try {
-    await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="' + name + '"]'))).sendKeys(Key.SPACE);
+  try { // this one works, even if the element is not clickable (due to other elements blocking it):
+    await driver.findElement(By.xpath('//*[@type="checkbox" and @*="' + name + '"]')).sendKeys(Key.SPACE);
   } catch (e) {
-    await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${name}' or ` + `${'@*' + "='"}${name}']`)), 3 * 1000).click();
-    //await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+    try { // this one works, for a text label next to the actual checkbox
+      await driver.findElement(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)).click();
+    } catch (e) { // default
+      try {
+        await driver.findElement(By.xpath('//*[contains(text(),"' + name + '") or @*="' + name + '"]')).click();
+      } catch (e) {
+        await driver.findElement(By.xpath(`${name}`)).click();
+      }
+    }
   }
+  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
 When('I switch to the next tab', async () => { // deprecated
-    let tabs = await driver.getAllWindowHandles();
-    await driver.switchTo().window(tabs[1]);
-  });
+  let tabs = await driver.getAllWindowHandles();
+  await driver.switchTo().window(tabs[1]);
+});
 
 When('Switch to the newly opened tab', async () => {
   let tabs = await driver.getAllWindowHandles();
@@ -155,7 +202,7 @@ When('Switch to the newly opened tab', async () => {
 When('Switch to the tab number {string}', async (number_of_tabs) => {
   const chrome_tabs = await driver.getAllWindowHandles();
   const len = chrome_tabs.length;
-  if (parseInt(number_of_tabs) === 1){
+  if (parseInt(number_of_tabs) === 1) {
     console.log("switchTo: 1st tab");
     await driver.switchTo().window(chrome_tabs[0]);
   } else {
@@ -204,10 +251,15 @@ Then('So I can´t see text in the textbox: {string}', async (label) => {
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async (string) => {
+  await driver.sleep(2000);
+  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
   await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
-    const text = await body.getText().then(bodytext => bodytext);
-    expect(text.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
-  });
+    const css_body = await body.getText().then(bodytext => bodytext);
+    const inner_html_body = await driver.executeScript("return document.documentElement.innerHTML");
+    const outer_html_body = await driver.executeScript("return document.documentElement.outerHTML");
+    const body_all = css_body + inner_html_body + outer_html_body;
+    expect(body_all.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
+  })
 });
 
 
