@@ -222,9 +222,9 @@ router.get('/getBlocks', async (req, res) => {
 });
 
 //delete a CustomBlock needs the name of the block
-router.get('/deleteBlock', async (req, res) => {
+router.delete('/deleteBlock/:blockId', async (req, res) => {
 	try {
-		const result = await mongo.deleteBlock(req.body.name);
+		const result = await mongo.deleteBlock(req.params.blockId, req.user._id);
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);

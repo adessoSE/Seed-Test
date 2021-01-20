@@ -61,4 +61,8 @@ export class AddBlockFormComponent {
     this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent)
   }
 
+  deleteBlock(rowIndex: number, block: Block) {
+    this.apiService.deleteBlock(block._id)
+  }
+
 }

@@ -750,10 +750,11 @@ async function getBlocks(userId) {
   }
 }
 //deletes the CustomBlock with the given Name, need the name
-async function deleteBlock(name) {
+async function deleteBlock(blockId, userId) {
   let db;
   try {
-    const myObjt = { name: name }
+    const myObjt = { _id: blockId,
+                    owner: userId }
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection =  await dbo.collection(CustomBlocksCollection)

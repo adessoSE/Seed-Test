@@ -12,7 +12,8 @@
       <div class="savedBlocksContainer">
         <p class="subHeader">Saved Blocks</p>
         <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="change($event)" name="folderss">
-            <mat-list-option *ngFor="let block of blocks" [value]="block">
+            <mat-list-option *ngFor="let block of blocks, let rowIndex = index" [value]="block">
+              <button a uk-icon="icon: minus-circle" class="uk-text-danger" uk-tooltip title="Delete Block" (click)="deleteBlock(rowIndex, block)"></button>
               <h4 mat-line>{{block.name}}</h4>
             </mat-list-option>
         </mat-selection-list>
