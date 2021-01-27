@@ -389,6 +389,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         let block: Block = {stepDefinitions: copyBlock}
         sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
+        this.activeActionBar = false;
     }
 
     copyBlockExample(event){
@@ -406,6 +407,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         let block: Block = {stepDefinitions: copyBlock};
         sessionStorage.setItem('copiedBlock', JSON.stringify(block));
         this.allExampleChecked = false;
+        this.activeExampleActionBar = false;
     }
 
     saveExampleBlock(event){

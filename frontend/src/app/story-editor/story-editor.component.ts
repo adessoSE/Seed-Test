@@ -474,12 +474,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         let block: Block = {stepDefinitions: copyBlock}
         sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
+        this.activeActionBar = false;
     }
 
     insertCopiedBlock(){
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-                this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
             })
         })
           this.selectedScenario.saved = false;
