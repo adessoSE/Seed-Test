@@ -35,7 +35,6 @@
     "jquery": "^3.5.1",
     "js": "^0.1.0",
     "lodash": "^4.17.20",
-    "lokijs": "^1.5.11",
     "masonry-layout": "^4.2.2",
     "mongodb": "^3.6.3",
     "node-fetch": "^2.6.1",
