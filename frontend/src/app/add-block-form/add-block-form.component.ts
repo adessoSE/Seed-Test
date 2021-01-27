@@ -22,6 +22,7 @@ export class AddBlockFormComponent {
   displayedColumns: string[] = ['stepType', 'pre'];
   correspondingComponent: string;
   clipboardBlock: Block;
+
   constructor(private modalService: NgbModal, public apiService: ApiService) {
 
   }
@@ -61,8 +62,11 @@ export class AddBlockFormComponent {
     this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent)
   }
 
-  deleteBlock(rowIndex: number, block: Block) {
-    this.apiService.deleteBlock(block._id)
+  deleteBlock(event, rowIndex: number, block: Block) {
+    event.stopPropagation();
+    this.apiService.deleteBlock(block._id).subscribe(resp => {
+      this.blocks.splice(rowIndex, 1)
+    })
   }
 
 }

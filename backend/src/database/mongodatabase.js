@@ -753,12 +753,13 @@ async function getBlocks(userId) {
 async function deleteBlock(blockId, userId) {
   let db;
   try {
-    const myObjt = { _id: blockId,
-                    owner: userId }
+    const myObjt = { _id: ObjectId(blockId),
+                    owner: ObjectId(userId) }
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection =  await dbo.collection(CustomBlocksCollection)
-    await collection.deleteOne(myObjt)
+    let result = await collection.deleteOne(myObjt)
+    //return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteBlock: " + e)
   } finally {
