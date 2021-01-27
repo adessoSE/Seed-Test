@@ -26,9 +26,6 @@ export class AccountManagementComponent implements OnInit {
                 this.updateSite('Successful');
             }
         });
-        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-            this.repositories = repositories;
-          });
     }
     login() {
         if (this.email) {
@@ -64,6 +61,10 @@ export class AccountManagementComponent implements OnInit {
                     this.jira = user['jira'];
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                 }
+            });
+
+            this.apiService.getRepositories().subscribe((repositories) => {
+                this.repositories = repositories;
             });
         }
     }
