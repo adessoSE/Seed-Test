@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, DoCheck } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
@@ -23,7 +23,7 @@ const emptyBackground:Background = {stepDefinitions: {when: []}};
   templateUrl: './story-editor.component.html',
   styleUrls: ['./story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit {
+export class StoryEditorComponent implements OnInit, DoCheck {
 
   originalStepTypes: StepType[];
   stories: Story[];
@@ -48,6 +48,7 @@ export class StoryEditorComponent implements OnInit {
   activeActionBar: boolean = false;
   allChecked: boolean = false;
   saveBackgroundAndRun: boolean = false;
+  clipboardBlock: any = null;
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
@@ -78,6 +79,9 @@ export class StoryEditorComponent implements OnInit {
         this.loadStepTypes();
     }
   }
+  ngDoCheck(): void {
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
+    }
 
   ngOnInit() {
     this.apiService.runSaveOptionEvent.subscribe(option => {
@@ -468,8 +472,18 @@ export class StoryEditorComponent implements OnInit {
             }
         }
         let block: Block = {stepDefinitions: copyBlock}
-        localStorage.setItem('copiedBlock', JSON.stringify(block))
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
+        this.activeActionBar = false;
+    }
+
+    insertCopiedBlock(){
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+            })
+        })
+          this.selectedScenario.saved = false;
     }
 
 

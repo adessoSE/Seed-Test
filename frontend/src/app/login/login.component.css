@@ -7,11 +7,13 @@ h1{
     margin: 5px;
 }
 
-.grid{
+
+.loginGrid{
     display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-areas: "howToStart" "formular" "repositories";
+    grid-template:
+    "howToStart formular"
+    "howToStart repositories"
+    / 1fr 1fr;
     background-color: white;
     place-items: center;
 }
@@ -22,22 +24,24 @@ h1{
     grid-column: 3 / 4;
     text-align: center;
     background-color: white;
-    margin-top: 80px;
-    margin-right: 100px;
-    margin-bottom: 100px;
+    margin-top: auto;
+    margin-right: auto;
+    margin-left: 10%;
+    margin-bottom: auto;
     text-align: center;
-    padding: 40px;
+    padding: 40px 20px 40px 40px;
 }
 
 .repositories{
     grid-area: repositories;
     grid-row: 3 / 4;
     grid-column: 3 / 4;
-    width: 400px;
+    /*width: 400px;*/
     text-align: center;
-    margin-right: 100px;
-    margin-bottom: 80px;
-    padding: 15px;
+    margin-right: auto;
+    margin-bottom: 5%;
+    margin-left: auto;
+    padding: auto;
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
 }
@@ -50,10 +54,10 @@ h1{
     background-color: white;
     text-align: center;
     font-size: small;
-    margin-top: 80px;
-    margin-bottom: 180px;
-    margin-right: 150px;
-    margin-left: 100px;
+    margin-top: auto;
+    margin-bottom: 10%;
+    margin-right: auto;
+    margin-left: auto;
     width: 830px;
     height: 500px;
     position: relative;
@@ -99,7 +103,7 @@ h1{
 }
 
 .slideDescription{
-    margin-top: 330px;
+    margin-top: 340px;
     background-color: #999;
     color: white;
     height: 88px;
@@ -340,4 +344,49 @@ a:not([href]):not([tabindex]).repoLink:hover {
         grid-template-rows: auto;
         grid-template-areas: "formular" "repositories";
     }
+}
+
+@media screen and (min-width: 1600px) {
+    .howToStart {
+        grid-area: howToStart;
+        grid-row: 2 / 3;
+        grid-column: 2 / 3;
+        background-color: white;
+        text-align: center;
+        font-size: small;
+        margin-top: 80px;
+        margin-bottom: 180px;
+        margin-right: 150px;
+        margin-left: 100px;
+        width: 830px;
+        height: 500px;
+        position: relative;
+    }
+
+    .formular{
+        grid-area: formular;
+        grid-row: 2 / 3;
+        grid-column: 3 / 4;
+        text-align: center;
+        background-color: white;
+        margin-top: 80px;
+        margin-right: 100px;
+        margin-bottom: 100px;
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .repositories{
+        grid-area: repositories;
+        grid-row: 3 / 4;
+        grid-column: 3 / 4;
+        width: 400px;
+        text-align: center;
+        margin-right: 100px;
+        margin-bottom: 80px;
+        padding: 15px;
+        background-color:rgb(224, 224, 224);
+        border: 1px solid #999;
+    }
+    
 }

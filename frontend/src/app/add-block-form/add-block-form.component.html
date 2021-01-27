@@ -12,7 +12,8 @@
       <div class="savedBlocksContainer">
         <p class="subHeader">Saved Blocks</p>
         <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="change($event)" name="folderss">
-            <mat-list-option *ngFor="let block of blocks" [value]="block">
+            <mat-list-option  *ngFor="let block of blocks, let rowIndex = index" [value]="block" >
+              <button a uk-icon="icon: minus-circle" class="deleteButton uk-text-danger" uk-tooltip title="Delete Block" (click)="deleteBlock($event, rowIndex, block)"></button>
               <h4 mat-line>{{block.name}}</h4>
             </mat-list-option>
         </mat-selection-list>
@@ -35,9 +36,9 @@
       </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="uk-button" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" (click)="copiedBlock(); modal.close('Save click')">Add from Clipboard
-    </button>
-      <button type="button" class="uk-button"  (click)="submit(); modal.close('Save click')">Add to Scenario
+    <!--<button type="button" class="uk-button" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" (click)="copiedBlock(); modal.close('Save click')">Add from Clipboard
+    </button>-->
+      <button type="button" class="uk-button"  (click)="submit(); modal.close('Save click')">Add Block
       </button>
   </div>
 </ng-template>

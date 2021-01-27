@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, DoCheck } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -19,7 +19,7 @@ import { AddBlockFormComponent } from '../add-block-form/add-block-form.componen
     styleUrls: ['./scenario-editor.component.css'],
 })
 
-export class ScenarioEditorComponent implements OnInit {
+export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     
     selectedStory: Story;
@@ -32,6 +32,7 @@ export class ScenarioEditorComponent implements OnInit {
     allChecked: boolean = false;
     activeExampleActionBar: boolean = false;
     allExampleChecked: boolean = false;
+    clipboardBlock: any = null;
 
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('submitForm') modalService: SubmitformComponent;
@@ -43,6 +44,9 @@ export class ScenarioEditorComponent implements OnInit {
         public apiService: ApiService,
         private toastr: ToastrService
     ) { }
+    ngDoCheck(): void {
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
+    }
 
     ngOnInit() {
         this.apiService.runSaveOptionEvent.subscribe(option => {
@@ -151,6 +155,30 @@ export class ScenarioEditorComponent implements OnInit {
         } else {
             return '';
         }
+    }
+
+    insertCopiedBlock(){
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                if (key == 'example'){
+                    if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))){
+                        this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                    }
+                    if (j == 0){
+                        step.values.forEach(el => {
+                            let s = '<' + el + '>'
+                            if(!this.uncutInputs.includes(s)){
+                                this.uncutInputs.push(s)
+                            }
+                        })
+                    }
+                    this.exampleChild.updateTable();
+                }else{
+                    this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                }
+            })
+        })
+          this.selectedScenario.saved = false;
     }
 
 
@@ -359,8 +387,9 @@ export class ScenarioEditorComponent implements OnInit {
             }
         }
         let block: Block = {stepDefinitions: copyBlock}
-        localStorage.setItem('copiedBlock', JSON.stringify(block))
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
+        this.activeActionBar = false;
     }
 
     copyBlockExample(event){
@@ -376,8 +405,9 @@ export class ScenarioEditorComponent implements OnInit {
             }
         }
         let block: Block = {stepDefinitions: copyBlock};
-        localStorage.setItem('copiedBlock', JSON.stringify(block));
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block));
         this.allExampleChecked = false;
+        this.activeExampleActionBar = false;
     }
 
     saveExampleBlock(event){

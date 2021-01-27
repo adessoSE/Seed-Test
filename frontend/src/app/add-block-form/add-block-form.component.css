@@ -176,6 +176,15 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     display: none !important;
 }
 
+::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteButton{
+    margin-right: 20px;
+}
+
+::ng-deep div.mat-list-item-content.mat-list-item-content-reverse div.mat-list-text{
+    display: flex;
+    flex-direction: row;
+}
+
 @media screen and (max-height: 800px) {
     .dividerContainer{
         max-height: 300px;

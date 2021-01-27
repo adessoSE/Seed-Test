@@ -16,6 +16,7 @@ import { Block } from '../model/Block';
 
 export class ApiService {
 
+
     constructor(private http: HttpClient) {
     }
 
@@ -82,6 +83,15 @@ export class ApiService {
                 catchError(ApiService.handleError));
         }
     }
+
+    deleteBlock(blockId: any) {
+        const str = this.apiServer + '/mongo/deleteBlock/' + blockId;
+        return this.http.delete<any>(str, ApiService.getOptions())
+        .pipe(tap(resp => {
+            
+        }),
+          catchError(ApiService.handleError));
+      }
 
     public getProjectsFromJira() {
         this.apiServer = localStorage.getItem('url_backend');
