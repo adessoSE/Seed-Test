@@ -239,7 +239,7 @@ function jiraProjects(user) {
 		} else resolve([]);
 	});
 }
-
+//TODO chris getRepository add (userId, source(db))
 function dbProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined') {

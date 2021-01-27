@@ -235,7 +235,7 @@ export class ApiService {
         let params;
         if (repository.source === 'github') {
             const repo = repository.value.split('/');
-            params = { githubName: repo[0], repository: repo[1], source: repository.source};
+            params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source};
         } else if (repository.source === 'jira') {
             params = {projectKey: repository.value, source: repository.source};
         } else if (repository.source === 'db') {
