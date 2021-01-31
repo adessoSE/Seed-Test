@@ -214,7 +214,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         }
         this.selectedScenario.lastTestPassed = null;
         return new Promise<void>((resolve, reject) => {this.apiService
-            .updateScenario(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedScenario)
+            .updateScenario(this.selectedStory._id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Scenario')
                 resolve()

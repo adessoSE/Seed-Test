@@ -204,6 +204,8 @@ router.get('/stories', async (req, res) => {
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
 		const tmpStories = [];
+		const storiesArray = [];
+		let repo;
 		// get Issues from GitHub .
 		const headers = {
 			Authorization: `token ${token}`
@@ -211,6 +213,7 @@ router.get('/stories', async (req, res) => {
 		const response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers });
 		if (response.status === 401) res.status(401).json('Github Status 401');
 		if (response.status === 200) {
+			repo = await mongo.createRepoIfNonenExists(req.user._id, req.query.repoName, source) 
 			const json = await response.json();
 			for (const issue of json) {
 				// only relevant issues with label: "story"
@@ -229,9 +232,20 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
+				entry = await helper.fuseStoriesWithDb(story, issue.id)
+				tmpStories.push(entry);
+				storiesArray.push(entry._id)
 			}
 		}
+		Promise.all(storiesArray)
+			.then((result) => {
+				if (repo !== null) {
+					mongo.updateStoriesArrayInRepo(repo, result) 
+				}
+			})
+			.catch((e) => {
+				console.log(e);
+			});
 		Promise.all(tmpStories)
 			.then((results) => {
 				res.status(200)
@@ -249,7 +263,9 @@ router.get('/stories', async (req, res) => {
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
 		const cookieJar = request.jar();
+		let repo;
 		const tmpStories = [];
+		const storiesArray = [];
 		const options = {
 			method: 'GET',
 			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
@@ -260,12 +276,13 @@ router.get('/stories', async (req, res) => {
 			}
 		};
 		try {
-			request(options, (error2, response2, body) => {
+			request(options, async (error2, response2, body) => {
 				if (error2) {
 					res.status(500).json(error2);
 				}
 				else {
 					try {
+						repo = await mongo.createRepoIfNonenExists(req.user._id, req.query.projectKey, source)
 						const json = JSON.parse(body).issues;
 						for (const issue of json) {
 							if (issue.fields.labels.includes("Seed-Test")) {
@@ -285,12 +302,23 @@ router.get('/stories', async (req, res) => {
 									story.assignee = 'unassigned';
 									story.assignee_avatar_url = null;
 								}
-								tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
+								entry = await helper.fuseStoriesWithDb(story, issue.id)
+								tmpStories.push(entry);
+								storiesArray.push(entry._id)
 							}
 						}
 					} catch (e) {
 						console.log('Jira Error 2:', e)
 					}
+					Promise.all(storiesArray)
+						.then((result) => {
+							if (repo !== null) {
+								mongo.updateStoriesArrayInRepo(repo, result) 
+							}
+						})
+						.catch((e) => {
+							console.log(e);
+						});
 					Promise.all(tmpStories)
 						.then((results) => {
 							res.status(200)
@@ -304,31 +332,33 @@ router.get('/stories', async (req, res) => {
 		} catch (e) {
 			console.log('Jira Error:', e);
 		}
-	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.name !== 'null') {
-		const tmpStories = [];
+	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
+		// const tmpStories = [];
 		const { name } = req.query;
-		mongo.getOneRepository(name).then((body) => {
-			const json = body.issues;
-			if (Object.keys(json).length > 0) for (const key of Object.keys(json)) {
-				const issue = json[key];
-				const story = {
-					story_id: issue.id,
-					title: issue.title,
-					body: issue.description,
-					state: issue.status,
-					issue_number: issue.id,
-					assignee: issue.assignee,
-					assignee_avatar_url: null,
-					storySource: "db"
-				};
-				tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
-			}
-			// let stories = results; // need this to clear promises from the Story List
-			Promise.all(tmpStories).then((results) => { res.status(200).json(results); })
-				.catch((e) => {
-					console.log(e);
-				});
-		});
+		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName)
+		res.status(200).json(result)
+		// mongo.getOneRepository(req.user._id, name).then((body) => {
+		// 	const json = body.stories;
+		// 	if (Object.keys(json).length > 0) for (const key of Object.keys(json)) {
+		// 		const issue = json[key];
+		// 		const story = {
+		// 			story_id: issue.id,
+		// 			title: issue.title,
+		// 			body: issue.description,
+		// 			state: issue.status,
+		// 			issue_number: issue.id,
+		// 			assignee: issue.assignee,
+		// 			assignee_avatar_url: null,
+		// 			storySource: "db"
+		// 		};
+		// 		tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
+		// 	}
+		// 	// let stories = results; // need this to clear promises from the Story List
+		// 	Promise.all(tmpStories).then((results) => { res.status(200).json(results); })
+		// 		.catch((e) => {
+		// 			console.log(e);
+		// 		});
+		// });
 	} else res.sendStatus(401);
 });
 

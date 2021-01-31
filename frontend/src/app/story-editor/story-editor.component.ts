@@ -242,6 +242,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       const description = (document.getElementById('storydescription') as HTMLInputElement).value;
       const value = localStorage.getItem('repository');
       const source = 'db';
+      console.log("Der Titel aus dem Html!: " + title)
       const repositorycontainer: RepositoryContainer = {value, source};
       this.apiService.createStory(title, description, value).subscribe(resp => {
           console.log(resp);

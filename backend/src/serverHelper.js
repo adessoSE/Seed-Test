@@ -239,7 +239,7 @@ function jiraProjects(user) {
 		} else resolve([]);
 	});
 }
-//TODO chris getRepository add (userId, source(db))
+
 function dbProjects(user) {
 	return new Promise((resolve) => {
 		if (typeof user !== 'undefined') {
@@ -248,7 +248,9 @@ function dbProjects(user) {
 			mongo.getRepository(userId).then((json) => {
 				let names = [];
 				if (Object.keys(json).length !== 0) {
-					for (const repo of json) names.push(repo.name);
+					for (const repo of json){
+             names.push(repo.repoName);
+            }
 					names = names.map(value => ({
 						value,
 						source: 'db'

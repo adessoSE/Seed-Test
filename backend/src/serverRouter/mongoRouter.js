@@ -47,22 +47,25 @@ router.get('/stepTypes', async (_, res) => {
 
 // create Repository in Database
 router.post('/createRepository', async (req, res) => {
-	mongo.insertEntry(req.user._id, req.body.name);
+	mongo.createRepo(req.user._id, req.body.name);
 	res.status(200).json('');
 });
 
-// create Repository in Database
+//creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
 router.post('/createStory', async (req, res) => {
-	const issue = {
-		id: Math.floor(Math.random() * 10000),
-		title: req.body.title,
-		description: req.body.description,
-		status: 'open',
-		assignee: req.user.email
-	};
-	mongo.addIssue(issue, req.body.repo).then((body) => {
-		res.status(200).json(body);
-	});
+	console.log("Das ist der ReqTitel: "+ req.body.titel)
+	let resultStoryId = await mongo.createStory(req.body.titel, req.body.description)  //, req.user.email
+	let result = await mongo.insertStoryIdIntoRepo(req.user._id, req.body.repo, resultStoryId)
+	// const issue = {
+	// 	id: Math.floor(Math.random() * 10000),
+	// 	title: req.body.title,
+	// 	description: req.body.description,
+	// 	status: 'open',
+	// 	assignee: req.user.email
+	// };
+	//mongo.addIssue(req.user._id, req.body.repo).then((body) => {
+		res.status(200).json('');
+	//});
 });
 
 // update background

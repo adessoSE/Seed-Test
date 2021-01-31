@@ -70,10 +70,13 @@ export class StoriesBarComponent implements OnInit {
   }
 
   createnewStory() {
+    console.log("Bin ich hier?")
     const title = (document.getElementById('storytitle') as HTMLInputElement).value;
     const description = (document.getElementById('storydescription') as HTMLInputElement).value;
     const value = localStorage.getItem('repository');
     const source = 'db';
+    console.log("Der Titel aus dem Html: ")
+    console.log(title)
     const repositorycontainer: RepositoryContainer = {value, source};
     this.apiService.createStory(title, description, value).subscribe(resp => {
       console.log(resp);

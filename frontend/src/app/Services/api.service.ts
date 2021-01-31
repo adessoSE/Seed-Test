@@ -107,7 +107,7 @@ export class ApiService {
 
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
-
+        
         const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
@@ -182,10 +182,9 @@ export class ApiService {
 
     public createStory(title: string, description: string, repository: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log(this.apiServer);
         const body = {'title' : title, 'description' : description, 'repo' : repository};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
+            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())   
             .pipe(tap(resp => {
             }));
     }
@@ -239,7 +238,7 @@ export class ApiService {
         } else if (repository.source === 'jira') {
             params = {projectKey: repository.value, source: repository.source};
         } else if (repository.source === 'db') {
-            params = {name: repository.value, source: repository.source};
+            params = {repoName: repository.value, source: repository.source};
         }
 
         return this.http
