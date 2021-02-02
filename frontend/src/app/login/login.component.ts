@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private testJiraHost = '';
     repositoriesLoading: boolean;
     showInstruction = false;
+    slide0 = [{'image0': '/assets//slide0.png'}];
     slide1 = [{'image1': '/assets//slide1.png'}];
     slide2 = [{'image2': '/assets//slide2.png'}];
     slide3 = [{'image3': '/assets//slide3.png'}];

@@ -10,13 +10,18 @@
           interval="3000"
           proportion="50"
           color="white">
-        <mat-carousel-slide>
+        <!--<mat-carousel-slide>
             <div class="welcomeSlide">
               <h1>Welcome to seed-test!</h1>
               <h4 id="info">HOW TO START</h4>
               <img id="arrowRight" src ="../assets/arrow.png" >
             </div>
-        </mat-carousel-slide>
+        </mat-carousel-slide>-->
+        <mat-carousel-slide
+        *ngFor="let slide of slide0;"
+        [image]="slide.image0"
+        [hideOverlay]="true"> 
+    </mat-carousel-slide>
         <mat-carousel-slide
             *ngFor="let slide of slide1;"
             [image]="slide.image1"
@@ -40,16 +45,16 @@
               Alternatively, you can also create a custom repository, for what you do not need a Github or Jira account.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
+        *ngFor="let slide of slide5;"
+        [image]="slide.image5"
+        [hideOverlay]="true">
+          <p class="slideDescription">In our tutorial we explain in detail how to create stories, perform tests and how to use the other features in our application. </p>
+      </mat-carousel-slide>
+        <mat-carousel-slide
           *ngFor="let slide of slide4;"
           [image]="slide.image4"
           [hideOverlay]="true">
             <p class="slideDescription">The settings and connections can be edited using the account settings via the menu. You can also change the repository here.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide5;"
-          [image]="slide.image5"
-          [hideOverlay]="true">
-            <p class="slideDescription">In our tutorial we explain in detail how to create stories, perform tests and how to use the other features in our application. </p>
         </mat-carousel-slide>
       </mat-carousel>
     </div>
