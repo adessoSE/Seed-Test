@@ -76,6 +76,11 @@ input.wrongEmail {
     margin: 25px;
 }
 
+.wrongLogin{
+    background-color: rgb(228, 92, 92);
+    text-align: center;
+}
+
 
 @media screen and (max-width: 600px) {
     .grid{

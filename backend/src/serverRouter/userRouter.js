@@ -157,7 +157,8 @@ router.post('/register', async (req, res) => {
 		const user = await mongo.registerUser(req.body);
 		res.json(user);
 	} catch (error) {
-		res.status(400).send(error);
+		console.log('register error', error)
+		res.status(400).json({status: 'error', message: error.message});
 	}
 });
 

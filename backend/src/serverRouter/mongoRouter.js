@@ -29,7 +29,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		console.log(_.url + JSON.stringify(_.user));
+		//console.log(_.url + JSON.stringify(_.user));
 		console.log('Time of mongoDB request:', Date.now());
 		next();
 	});

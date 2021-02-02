@@ -279,13 +279,18 @@ export class ApiService {
             }));
     }
 
-    public registerUser(email: string, password: string): Observable<any> {
-        const user = {email, password};
+    public registerUser(email: string, password: string, userId: any): Observable<any> {
+        const user = {email, password, userId};
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(resp => {
-            }), catchError(this.handleStoryError));
+            }), catchError((err, caught) => {
+                return new Observable(subscriber => {
+                    subscriber.next(err)
+                    subscriber.complete();
+                })
+            }));
     }
 
     public updateUser(userID: string, user: User): Observable<User> {
