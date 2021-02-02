@@ -26,6 +26,9 @@ export class AccountManagementComponent implements OnInit {
                 this.updateSite('Successful');
             }
         });
+        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+            this.repositories = repositories;
+        });
     }
     login() {
         localStorage.setItem('userId', this.id);
@@ -85,11 +88,11 @@ export class AccountManagementComponent implements OnInit {
         this.router.navigate(['/register']);
     }
 
-  selectRepository(userRepository: RepositoryContainer) {
-    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository.value;
-    localStorage.setItem('repository', userRepository.value)
-    localStorage.setItem('source', userRepository.source)
-    this.router.navigate(['']);
-}
+    selectRepository(userRepository: RepositoryContainer) {
+        const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+        ref.href = 'https://github.com/' + userRepository.value;
+        localStorage.setItem('repository', userRepository.value)
+        localStorage.setItem('source', userRepository.source)
+        this.router.navigate(['']);
+    }
 }

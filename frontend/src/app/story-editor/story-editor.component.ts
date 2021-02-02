@@ -237,23 +237,6 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.selectedStory.background.saved = false;
     }
 
-    createnewStory() {
-      const title = (document.getElementById('storytitle') as HTMLInputElement).value;
-      const description = (document.getElementById('storydescription') as HTMLInputElement).value;
-      const value = localStorage.getItem('repository');
-      const source = 'db';
-      const repositorycontainer: RepositoryContainer = {value, source};
-      this.apiService.createStory(title, description, value).subscribe(resp => {
-          console.log(resp);
-          this.apiService.getStories(repositorycontainer).subscribe((resp: Story[]) => {
-              console.log('Stories');
-              console.log(resp);
-              this.stories = resp;
-          });
-      });
-    }
-
-
     inputSize(event){
         let inputField = event.target;
         inputField.style.width = (inputField.value.length) * 9 + "px";
