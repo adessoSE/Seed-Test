@@ -535,28 +535,28 @@ const getGithubData = (res, req, accessToken) => {
         }
     },
     async function(err, response, body){
-        req.body = await JSON.parse(body)
-        req.body.githubToken = accessToken;
-        try{
-          await mongo.findOrRegister(req.body)
-          passport.authenticate('github-local', function (error, user, info) {
-                    if(error){
-                      res.json({error: 'Authentication Error'})
-                    } else if(!user){
-                      res.json({error: 'Authentication Error'})
-                    }
-                    req.logIn(user, async function(err){
-                        if(err){
-                            res.json({error: 'Login Error'})
-                        }else {
-                          res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
-		                      res.header('Access-Control-Allow-Credentials', 'true');
-		                      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-                          res.json({login: user.github.login, id: user.github.id})
-                        }
-			
-                    });
-                })(req,res);
+      req.body = await JSON.parse(body)
+      req.body.githubToken = accessToken;
+      try{
+        await mongo.findOrRegister(req.body)
+        passport.authenticate('github-local', function (error, user, info) {
+                  if(error){
+                    res.json({error: 'Authentication Error'})
+                  } else if(!user){
+                    res.json({error: 'Authentication Error'})
+                  }
+                  req.logIn(user, async function(err){
+                      if(err){
+                        console.log('error 3')
+                          res.json({error: 'Login Error'})
+                      }else {
+                        res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
+		                    res.header('Access-Control-Allow-Credentials', 'true');
+		                    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
+                        res.json({login: user.github.login, id: user.github.id})
+                      }
+                  });
+              })(req,res);
       }catch(error){
           console.log('getGithubData error:', error)
           res.sendStatus(400)

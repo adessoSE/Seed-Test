@@ -28,10 +28,8 @@ export class AccountManagementComponent implements OnInit {
         });
     }
     login() {
-        if (this.email) {
-            localStorage.setItem('userId', this.id);
-            this.apiService.githubLogin();
-        }
+        localStorage.setItem('userId', this.id);
+        this.apiService.githubLogin();
     }
     
     newRepository() {
@@ -83,8 +81,9 @@ export class AccountManagementComponent implements OnInit {
     }
 
     navToRegistration() {
+        localStorage.setItem('userId', this.id);
         this.router.navigate(['/register']);
-      }
+    }
 
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;

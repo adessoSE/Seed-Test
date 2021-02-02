@@ -88,24 +88,23 @@ async function deleteRequest(mail) {
 
 
 async function registerUser(user) {
-  let db;
-  try {
-    let db = await connectDb()
-    let dbo = db.db(dbName);
-    let collection = await dbo.collection(userCollection)
-    let dbUser = await getUserByEmail(user.email);
-    let result;
-    if (dbUser !== null) {
-      result = 'User already exists'
-    } else {
+  let db = await connectDb()
+  let dbo = db.db(dbName);
+  let collection = await dbo.collection(userCollection)
+  let dbUser = await getUserByEmail(user.email);
+  let result;
+  if (dbUser !== null) {
+    throw Error('User already exists')
+  } else {
+    if (user.userId){
+      result = await collection.update({_id: ObjectId(user.userId)}, {$set: {email: user.email, password: user.password}});
+    }else{
+      delete user.userId;
       result = await collection.insertOne(user);
     }
-    return result;
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in registerUser: " + e)
-  } finally {
-    if (db) db.close()
   }
+  if (db) db.close()
+  return result;
 }
 
 async function registerGithubUser(user) {
@@ -135,7 +134,14 @@ async function mergeGithub(userId, login, id) {
     if (githubAccount.hasOwnProperty('jira') && !seedAccount.hasOwnProperty('jira')) {
       seedAccount.jira = githubAccount.jira;
     }
-    let deletedGithub = await deleteUser(githubAccount._id);
+
+    if(githubAccount.email){
+      delete githubAccount.github
+      await replaceUser(githubAccount, collection);
+    }else{
+      let deletedGithub = await deleteUser(githubAccount._id);
+    }
+    
     let result = await replaceUser(seedAccount, collection);
     return result;
   } catch (e) {
