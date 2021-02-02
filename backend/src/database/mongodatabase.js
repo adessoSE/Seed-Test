@@ -134,7 +134,14 @@ async function mergeGithub(userId, login, id) {
     if (githubAccount.hasOwnProperty('jira') && !seedAccount.hasOwnProperty('jira')) {
       seedAccount.jira = githubAccount.jira;
     }
-    let deletedGithub = await deleteUser(githubAccount._id);
+
+    if(githubAccount.email){
+      delete githubAccount.github
+      await replaceUser(githubAccount, collection);
+    }else{
+      let deletedGithub = await deleteUser(githubAccount._id);
+    }
+    
     let result = await replaceUser(seedAccount, collection);
     return result;
   } catch (e) {
