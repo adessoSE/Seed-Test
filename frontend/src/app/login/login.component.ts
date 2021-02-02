@@ -1,16 +1,15 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { MatCarousel, MatCarouselComponent } from '@ngbmodule/material-carousel';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
 
     repositories: RepositoryContainer[];
     jirakeys: string[];
@@ -24,7 +23,7 @@ export class LoginComponent implements OnInit {
     slide4 = [{'image4': '/assets//slide4.png'}];
     slide5 = [{'image5': '/assets//slide5.png'}];
 
-    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
+    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
            if (params.code){
@@ -45,6 +44,10 @@ export class LoginComponent implements OnInit {
                 })
             }
         })
+    }
+    ngAfterViewInit(): void {
+        // needed for ExpressionChangedAfterItHasBeenCheckedError mat-carousel error
+        this.cdr.detectChanges();
     }
 
     getGithubData (accessToken){
@@ -156,14 +159,14 @@ export class LoginComponent implements OnInit {
     }
 
     navToRegistration() {
-    this.router.navigate(['/register']);
-  }
+        this.router.navigate(['/register']);
+    }
 
     githubLogin() {
         this.error = undefined;
         this.repositoriesLoading = true;
         this.apiService.githubLogin();
-      }
+    }
 
     openInstruction() {
         this.showInstruction = !this.showInstruction;
