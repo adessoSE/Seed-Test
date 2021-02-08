@@ -262,8 +262,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
+    console.log("story-editor/deleteScenario die Story : " + JSON.stringify(this.selectedStory))
     this.apiService
-        .deleteScenario(this.selectedStory.story_id, this.selectedStory.storySource, scenario)
+        .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
             this.toastr.error('', 'Scenario deleted')
@@ -282,7 +283,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   }
   addScenario(){
-    this.apiService.addScenario(this.selectedStory.story_id, this.selectedStory.storySource)
+    this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
@@ -318,7 +319,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         })
     })
       this.apiService
-          .updateBackground(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedStory.background)
+          .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
           .subscribe(resp => {
             this.toastr.success('successfully saved', 'Background')
             if(this.saveBackgroundAndRun){
@@ -496,7 +497,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             const loadingScreen: HTMLElement = document.getElementById('loading');
             loadingScreen.scrollIntoView();
             this.apiService
-                .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
+                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id)
                 .subscribe(resp => {
                     iframe.srcdoc = resp;
                     // console.log("This is the response: " + resp);

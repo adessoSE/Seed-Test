@@ -246,12 +246,15 @@ function selectUsersCollection(db) {
 }
 
 function findStory(storyId, storySource, collection) {
-  const myObjt = {
-    _id: Object(storyId),
-    storySource: storySource
-  };
+
+  const id = ObjectId(storyId)
+  // const myObjt = {
+  //   _id: Object(storyId),
+  //   storySource: storySource
+  // };
+  //console.log("DAS ABSOLUT BESCHISSENE OBJECT NACH DEM GEUSCHT WIRD: " + JSON.stringify(myObjt))
   return new Promise((resolve, reject) => {
-    collection.findOne(myObjt, (err, result) => {
+    collection.findOne({_id: id, storySource: storySource }, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -320,15 +323,37 @@ async function getOneStory(storyId, storySource) {
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    let story = await findStory(storyId, storySource, collection)
+    let story = await collection.findOne({_id: ObjectId(storyId), storySource: storySource })
+    //let story = await findStory(storyId, storySource, collection)
 
     // TODO remove later when all used stories have the tag storySource
     if (!story) {
-      story = await findStory(storyId, undefined, collection)
+      story = await collection.findOne({_id: ObjectId(storyId), storySource: undefined })
     }
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER in getOneStory: " + e)
+  } finally {
+    if (db) db.close();
+  }
+}
+
+
+async function getOneStoryByStoryId(storyId, storySource) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await collection.findOne({story_id: storyId, storySource: storySource })
+    //let story = await findStory(storyId, storySource, collection)
+
+    // TODO remove later when all used stories have the tag storySource
+    if (!story) {
+      story = await collection.findOne({story_id: storyId, storySource: undefined })
+    }
+    return story
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
   } finally {
     if (db) db.close();
   }
@@ -434,9 +459,9 @@ async function insertStoryIdIntoRepo(ownerId, repoName, storyId) {
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
-    let resultRepo = await collectionRepo.findOne({ owner: Object(ownerId), repoName: repoName })
+    let resultRepo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
     resultRepo.stories.push(storyId)
-    let result = await collectionRepo.findOneAndUpdate({ owner: Object(ownerId), repoName: repoName }, { $set: resultRepo })
+    let result = await collectionRepo.findOneAndUpdate({ owner: ObjectId(ownerId), repoName: repoName }, { $set: resultRepo })
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
@@ -452,9 +477,9 @@ async function getAllStoriesOfRepo(ownerId, repoName){
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
     let collectionStories = await selectStoriesCollection(db)
-    let repo = await collectionRepo.findOne({owner: Object(ownerId), repoName: repoName})
+    let repo = await collectionRepo.findOne({owner: ObjectId(ownerId), repoName: repoName})
     for(entry of repo.stories) {
-      let story = await collectionStories.findOne( {_id: Object(entry)} )
+      let story = await collectionStories.findOne( {_id: ObjectId(entry)} )
       storiesArray.push(story)
     }
     return storiesArray
@@ -467,11 +492,13 @@ async function getAllStoriesOfRepo(ownerId, repoName){
 
 // CREATE Scenario
 async function createScenario(storyId, storySource) {
+  console.log("createScenario: Die ID: " + storyId + " Die Source: " + storySource)
   let db;
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyId, storySource, collection)
+    console.log("createScenario: Die gefundene Story: " + JSON.stringify(story))
     const lastScenarioIndex = story.scenarios.length;
     const tmpScenario = emptyScenario();
     if (story.scenarios.length === 0) {
@@ -480,6 +507,7 @@ async function createScenario(storyId, storySource) {
       tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
       story.scenarios.push(tmpScenario);
     }
+    console.log("createScenario: Die Story, die gepeichert werden soll: " + JSON.stringify(story))
     await replace(story, collection)
     return tmpScenario
   } catch (e) {
@@ -491,6 +519,7 @@ async function createScenario(storyId, storySource) {
 
 // DELETE Scenario
 async function deleteScenario(storyId, storySource, scenarioID) {
+  console.log("DeleteScenarios ID: " + JSON.stringify(storyId + " ScenarioId: " + JSON.stringify(scenarioID)))
   let db;
   try {
     db = await connectDb()
@@ -517,7 +546,9 @@ async function updateScenario(storyId, storySource, updatedScenario) {
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
+    console.log("mdb/updateScenario die StoryID: " + JSON.stringify(storyId))
     let story = await findStory(storyId, storySource, collection)
+    console.log("mdb/updateScenario die Story: " + JSON.stringify(story))
     for (const scenario of story.scenarios) {
       if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
         story.scenarios.push(scenario);
@@ -543,7 +574,7 @@ async function createRepoIfNonenExists(ownerId, repoName, source) {
   try {
     db = await connectDb();
     let collection = await selectRepositoryCollection(db);
-    let result = await collection.findOne({ owner: Object(ownerId), repoName: repoName })
+    let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
     if (result === null) {
       myObjt = { owner: ownerId, repoName: repoName, stories: [], repoType: source, customBlocks: [] }
       result = await collection.insertOne(myObjt)
@@ -563,7 +594,7 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
   try {
     db = await connectDb();
     let collection = await selectRepositoryCollection(db);
-    let result = await collection.findOneAndUpdate({ _id: Object(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
+    let result = await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
@@ -576,7 +607,7 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
 async function getRepository(userID) {
   let db;
   try {
-    const myObjt = { owner: Object(userID) };
+    const myObjt = { owner: ObjectId(userID) };
     db = await connectDb();
     let collection = await selectRepositoryCollection(db);
     let result = await collection.find(myObjt).toArray();
@@ -593,7 +624,7 @@ async function getRepository(userID) {
 async function deleteRepositorys(ownerID) {
   let db;
   try {
-    const myObjt = { owner: Object(ownerID) };
+    const myObjt = { owner: ObjectId(ownerID) };
     let db = await connectDb();
     let collection = await selectRepositoryCollection(db);
     let result = await collection.deleteMany(myObjt);
@@ -608,7 +639,7 @@ async function deleteRepositorys(ownerID) {
 
 async function getOneRepository(ownerId, name) {
   try {
-    const myObjt = {owner: Object(ownerId), name: name };
+    const myObjt = {owner: ObjectId(ownerId), name: name };
     let db = await connectDb();
     let collection = await selectRepositoryCollection(db);
     let result = await collection.findOne(myObjt);
@@ -623,7 +654,7 @@ async function createRepo(ownerId, name) {
   let emptyRepo = { owner: ownerId, repoName: name, stories: [], repoType: "db", customBlocks: [] } //{ 'name': name, 'owner': Object(ownerId), 'sotries': [] };
   let db = await connectDb();
   let collection = await selectRepositoryCollection(db);
-  let result = await collection.findOne({ owner: Object(ownerId), repoName: name })
+  let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name })
   if (result !== null) {
     return "Sie besitzen bereits ein Repository mit diesem Namen!"
   } else {
@@ -667,7 +698,7 @@ async function upsertEntry(storyId, updatedContent, storySource) {
   let db;
   try {
     const myObjt = {
-      _id: Object(storyId),
+      story_id: storyId,
       storySource: storySource,
     };
     db = await connectDb()
@@ -684,7 +715,7 @@ async function upsertEntry(storyId, updatedContent, storySource) {
         upsert: true,
       })
     }
-    return result;
+    return result.value;
   } catch (e) {
     console.log("UPS!!!! FEHLER in upsertEntry: " + e)
   } finally {
@@ -897,6 +928,7 @@ module.exports = {
   createStory,
   insertStoryIdIntoRepo,
   getOneStory,
+  getOneStoryByStoryId,
   upsertEntry,
   updateStory,
   createUser,

@@ -69,11 +69,11 @@ router.post('/createStory', async (req, res) => {
 });
 
 // update background
-router.post('/background/update/:issueID/:storySource', async (req, res) => {
+router.post('/background/update/:storyID/:storySource', async (req, res) => {
 	try {
 		const background = req.body;
-		const result = await mongo.updateBackground(parseInt(req.params.issueID, 10), req.params.storySource, background);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
+		const result = await mongo.updateBackground(req.params.storyID, req.params.storySource, background);
+		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)
 			.json(result);
 	} catch (error) {
@@ -82,10 +82,10 @@ router.post('/background/update/:issueID/:storySource', async (req, res) => {
 });
 // delete background
 //TODO storySource aus dem Frontend mitsenden
-router.delete('/background/delete/:issueID/:storySource', async (req, res) => {
+router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
 	try {
-		await mongo.deleteBackground(parseInt(req.params.issueID, 10), req.params.storySource);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
+		await mongo.deleteBackground(req.params.storyID, req.params.storySource);
+		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)
 			.json({});
 	} catch (error) {
@@ -94,10 +94,11 @@ router.delete('/background/delete/:issueID/:storySource', async (req, res) => {
 });
 // create scenario
 // TODO: add storySource parameter in frontend
-router.get('/scenario/add/:issueID/:storySource', async (req, res) => {
+router.get('/scenario/add/:storyID/:storySource', async (req, res) => {
 	try {
-		const scenario = await mongo.createScenario(parseInt(req.params.issueID, 10), req.params.storySource);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
+		console.log("Ok im mongoRouter der storyIDParameter "+ JSON.stringify(req.params))
+		const scenario = await mongo.createScenario(req.params.storyID, req.params.storySource);
+		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)
 			.json(scenario);
 	} catch (error) {
@@ -106,11 +107,11 @@ router.get('/scenario/add/:issueID/:storySource', async (req, res) => {
 });
 // update scenario
 // TODO: add storySource parameter in frontend
-router.post('/scenario/update/:issueID/:storySource', async (req, res) => {
+router.post('/scenario/update/:storyID/:storySource', async (req, res) => {
 	try {
 		const scenario = req.body;
-		const updatedStory = await mongo.updateScenario(parseInt(req.params.issueID, 10), req.params.storySource, scenario);
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
+		const updatedStory = await mongo.updateScenario(req.params.storyID, req.params.storySource, scenario);
+		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)
 			.json(updatedStory);
 	} catch (error) {
@@ -119,11 +120,11 @@ router.post('/scenario/update/:issueID/:storySource', async (req, res) => {
 });
 // delete scenario
 // TODO: add storySource parameter in frontend
-router.delete('/scenario/delete/:issueID/:storySource/:scenarioID', async (req, res) => {
+router.delete('/scenario/delete/:storyID/:storySource/:scenarioID', async (req, res) => {
 	try {
 		await mongo
-			.deleteScenario(parseInt(req.params.issueID, 10), req.params.storySource, parseInt(req.params.scenarioID, 10));
-		helper.updateFeatureFile(parseInt(req.params.issueID, 10), req.params.storySource);
+			.deleteScenario(req.params.storyID, req.params.storySource, parseInt(req.params.scenarioID, 10));
+		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)
 			.json({});
 	} catch (error) {

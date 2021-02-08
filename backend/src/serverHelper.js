@@ -124,7 +124,7 @@ function getFeatureContent(story) {
 	if (story.background != null) data += getBackgroundContent(story.background);
 
 	// Get scenarios
-	data += getScenarioContent(story.scenarios, story.story_id);
+	data += getScenarioContent(story.scenarios, story._id);
 	return data;
 }
 
@@ -165,7 +165,7 @@ function execReport2(req, res, stories, mode, story, callback) {
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
   } else {
-    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)}`;
+    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.storyID}_${req.params.scenarioID}" --format json:${path.normalize(path3)}`;
   }
 
   console.log(`Executing: ${cmd}`);
@@ -184,7 +184,8 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 async function execReport(req, res, stories, mode, callback) {
 	try {
-    const result = await mongo.getOneStory(parseInt(req.params.issueID, 10), req.params.storySource);
+    const result = await mongo.getOneStory(req.params.storyID, req.params.storySource);
+    console.log("ServerHelper/execReport das Result: " + JSON.stringify(result) + " Und auch die story ID: " + JSON.stringify(req.params))
 		execReport2(req, res, stories, mode, result, callback);
 	} catch (error) {
 		res.status(404)
@@ -318,7 +319,7 @@ function starredRepositories(githubName, token) {
 }
 
 async function fuseStoriesWithDb(story, issueId) {
-  const result = await mongo.getOneStory(parseInt(issueId), story.storySource);
+  const result = await mongo.getOneStoryByStoryId(parseInt(issueId), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -332,8 +333,7 @@ async function fuseStoriesWithDb(story, issueId) {
         story.issue_number = parseInt(story.issue_number);
     }
   let finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
-  story._id = finalStory.value._id
-
+  story._id = finalStory._id
 	// Create & Update Feature Files
 	writeFile('', story);
 	return story;

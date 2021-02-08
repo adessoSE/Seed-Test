@@ -13,6 +13,7 @@ import { SaveBlockFormComponent } from '../save-block-form/save-block-form.compo
 import { Block } from '../model/Block';
 import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
 
+
 @Component({
     selector: 'app-scenario-editor',
     templateUrl: './scenario-editor.component.html',
@@ -222,6 +223,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     addScenarioToStory(storyID: any) {
+        console.log("addSecenarioToStory: die storyID: " + JSON.stringify(storyID) + "Und hier noch die selected Story dazu: " + JSON.stringify(this.selectedStory))
         this.addScenarioEvent.emit(storyID);
     }
 
