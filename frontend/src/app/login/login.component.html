@@ -18,43 +18,75 @@
             </div>
         </mat-carousel-slide>-->
         <mat-carousel-slide
-        *ngFor="let slide of slide0;"
-        [image]="slide.image0"
-        [hideOverlay]="true"> 
-    </mat-carousel-slide>
-        <mat-carousel-slide
-            *ngFor="let slide of slide1;"
-            [image]="slide.image1"
-            [hideOverlay]="true"> 
-              <p class="slideDescription">
-                To log in to Seed-Test you either need a Seed-Test account or you can log in with your Github account.
-                To create a Seed-Test account, click on "Register".
-                If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.</p>
+          *ngFor="let slide of slide0;"
+          [image]="slide.image0"
+          [hideOverlay]="true"> 
         </mat-carousel-slide>
         <mat-carousel-slide
-            *ngFor="let slide of slide2;"
-            [image]="slide.image2"
+            *ngFor="let slide of slide01;"
+            [image]="slide.image01"
             [hideOverlay]="true">
-              <p class="slideDescription">As soon as you logged in successfully you can select the repository/project you want to use from the appearing list.</p>
+              <p class="slideDescription">Login to Seed-Test via GitHub or create a new Seed-Test Account by registering. Alternatively you can try Seed-Test without an account, by trying our Demo.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
-          *ngFor="let slide of slide3;"
-          [image]="slide.image3"
+          *ngFor="let slide of slide02;"
+          [image]="slide.image02"
           [hideOverlay]="true">
-            <p class="slideDescription">Via the account settings you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
-              Alternatively, you can also create a custom repository, for what you do not need a Github or Jira account.</p>
+            <p class="slideDescription">After the login via GitHub you can see your repositories.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
-        *ngFor="let slide of slide5;"
-        [image]="slide.image5"
-        [hideOverlay]="true">
-          <p class="slideDescription">In our tutorial we explain in detail how to create stories, perform tests and how to use the other features in our application. </p>
-      </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide4;"
-          [image]="slide.image4"
+          *ngFor="let slide of slide03;"
+          [image]="slide.image03"
           [hideOverlay]="true">
-            <p class="slideDescription">The settings and connections can be edited using the account settings via the menu. You can also change the repository here.</p>
+            <p class="slideDescription">Else you can just register yourself using your E-Mail.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide04;"
+          [image]="slide.image04"
+          [hideOverlay]="true">
+          <p class="slideDescription">After the first Login of your Seed-Test account, you can create your own custom Repositories or connect an existing GitHub Account or Jira Server.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide05;"
+          [image]="slide.image05"
+          [hideOverlay]="true">
+          <p class="slideDescription">Type in the name of your custom Repository.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide06;"
+          [image]="slide.image06"
+          [hideOverlay]="true">
+          <p class="slideDescription">Select your newly created Repository to continue.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide07;"
+          [image]="slide.image07"
+          [hideOverlay]="true">
+          <p class="slideDescription">With a new Custom Repository you can create your own stories. If you use a Github orJ ira repositories, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide08;"
+          [image]="slide.image08"
+          [hideOverlay]="true">
+          <p class="slideDescription">Enter a name and description for your new story.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide09;"
+          [image]="slide.image09"
+          [hideOverlay]="true">
+          <p class="slideDescription">Now you can add steps to create your first Test! Usually you want to start using the Given-Step: "Website".</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide10;"
+          [image]="slide.image10"
+          [hideOverlay]="true">
+          <p class="slideDescription">Run your Test by clickling on "Run Scenario".</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide11;"
+          [image]="slide.image11"
+          [hideOverlay]="true">
+          <p class="slideDescription">For help and further information click on Help and check out our Turtorial.</p>
         </mat-carousel-slide>
       </mat-carousel>
     </div>

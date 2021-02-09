@@ -18,11 +18,18 @@ export class LoginComponent implements OnInit, AfterViewInit {
     repositoriesLoading: boolean;
     showInstruction = false;
     slide0 = [{'image0': '/assets//slide0.png'}];
-    slide1 = [{'image1': '/assets//slide1.png'}];
-    slide2 = [{'image2': '/assets//slide2.png'}];
-    slide3 = [{'image3': '/assets//slide3.png'}];
-    slide4 = [{'image4': '/assets//slide4.png'}];
-    slide5 = [{'image5': '/assets//slide5.png'}];
+    slide1 = [{'image01': '/assets//slide01.PNG'}];
+    slide2 = [{'image02': '/assets//slide02.png'}];
+    slide3 = [{'image03': '/assets//slide03.PNG'}];
+    slide4 = [{'image04': '/assets//slide04.PNG'}];
+    slide5 = [{'image05': '/assets//slide05.PNG'}];
+    slide6 = [{'image06': '/assets//slide06.PNG'}];
+    slide7 = [{'image07': '/assets//slide07.png'}];
+    slide8 = [{'image08': '/assets//slide08.PNG'}];
+    slide9 = [{'image09': '/assets//slide09.PNG'}];
+    slide10 = [{'image10': '/assets//slide10.PNG'}];
+    slide11 = [{'image11': '/assets//slide11.jpg'}];
+
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
         this.error = undefined;
