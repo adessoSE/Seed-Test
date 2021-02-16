@@ -94,16 +94,14 @@ export class StoriesBarComponent implements OnInit {
       this.selectScenario(this.selectedStory._id, this.stories[storyIndex].scenarios[0]);
     }
   }
-/*to do
-  shortenTitle() {
-    get getSortedStories(this.stories.title);
-      if (this.selectedStory.title.length > 10) {
-      return true;
+
+  shortenTitle(title) {
+    let new_title = title;
+    if (title.length > 19) {
+      new_title = title.slice(0, 19);
+      new_title = new_title + '...';
     }
-    else {
-      return false; 
-    }
+    return new_title;
   }
-*/
 
 }

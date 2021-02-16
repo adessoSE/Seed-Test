@@ -34,7 +34,7 @@ export class LoginFormComponent {
     eraseAccount() {
         this.modalService.open(this.content4, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
     }
-s
+
     submitRepo(){
         const name = (document.getElementById('repo_name') as HTMLInputElement).value;
         if (!this.isEmptyOrSpaces(name)){
