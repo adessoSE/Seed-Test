@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
+const { ObjectID } = require('mongodb');
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		console.log(_.url + JSON.stringify(_.user));
+		//console.log(_.url + JSON.stringify(_.user));
 		console.log('Time of mongoDB request:', Date.now());
 		next();
 	});
@@ -175,8 +176,13 @@ router.get('/user', async (req, res) => {
 router.post('/saveBlock', async (req, res) => {
 	try {
 		let body = req.body
-		const result = await mongo.saveBlock(body);
-		res.status(200).json(result);
+		if (!req.user){
+			res.sendStatus(401)
+		}else{
+			body.owner = ObjectID(req.user._id)
+			const result = await mongo.saveBlock(body);
+			res.status(200).json(result);
+		}
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
@@ -204,17 +210,21 @@ router.get('/getBlocksById', async (req, res) => {
 
 router.get('/getBlocks', async (req, res) => {
 	try {
-		const result = await mongo.getBlocks(req.body.repo);
-		res.status(200).json(result);
+		//if (!req.user){
+		//	res.sendStatus(401)
+		//}else{
+			const result = await mongo.getBlocks(req.user._id);
+			res.status(200).json(result);
+		//}
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
 });
 
 //delete a CustomBlock needs the name of the block
-router.get('/deleteBlock', async (req, res) => {
+router.delete('/deleteBlock/:blockId', async (req, res) => {
 	try {
-		const result = await mongo.deleteBlock(req.body.name);
+		const result = await mongo.deleteBlock(req.params.blockId, req.user._id);
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);

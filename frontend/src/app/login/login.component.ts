@@ -17,35 +17,27 @@ export class LoginComponent implements OnInit {
     private testJiraHost = '';
     repositoriesLoading: boolean;
     showInstruction = false;
+    slide1 = [{'image1': '/assets//slide1.png'}];
+    slide2 = [{'image2': '/assets//slide2.png'}];
+    slide3 = [{'image3': '/assets//slide3.png'}];
+    slide4 = [{'image4': '/assets//slide4.png'}];
+    slide5 = [{'image5': '/assets//slide5.png'}];
 
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
-            if (params.github == 'success') {
-                localStorage.setItem('login', 'true')
-                this.getRepositories()
-                let userId = localStorage.getItem('userId');
-                localStorage.removeItem('userId');
-                if(userId){
-                    this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
-                        this.loginGithubToken(params.login, params.id);
-                    })
-                }
-            }else if(params.github == 'error'){
-                this.error = 'A Login error occured. Please try it again';
-            } else if (params.code){
+           if (params.code){
                 this.apiService.githubCallback(params.code).subscribe(resp => {
                     if (resp.error){
                         this.error = resp.error
                     }else{
-                        console.log('code resp:', resp)
                         localStorage.setItem('login', 'true')
                         this.getRepositories()
                         let userId = localStorage.getItem('userId');
                         localStorage.removeItem('userId');
                         if(userId){
-                            this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
-                                this.loginGithubToken(params.login, params.id);
+                            this.apiService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((respo) => {
+                                this.loginGithubToken(resp.login, resp.id);
                             })
                         }
                     }

@@ -1,27 +1,59 @@
-<div class="grid">
+<div class="loginGrid">
   <div class="howToStart">
-      <div class="uk-text-secondary instructionText">
-        <h3>Welcome to seed-test!</h3>
-        <p id="info">If you don't have an account yet, you have two options to log in and start testing:</p><br>
-        <h6 class="req"><b>1. Create a seed-test account<br>(no requirements)</b></h6>
-        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data.
-          You will be forwarded to the account settings where you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
-        </p>
-        <br>
-        <h6 class="req"><b>2. Login via GitHub Account<br>(GitHub Account required)</b></h6>
-        <p>If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.
-        Additionally you can connect to Jira or create new seed-test projects (repositories) using the account settings.
-        </p>
-        <br>
-        <p><i>The settings and connections can be edited using the account settings via the menu.</i></p>
-        <br>
-        <hr>
-        <p>If you have questions, feel free to contact us: seed-test@adesso.de</p>
-        <br>
-        <p>You can find a detailed tutorial <a class="linkButton" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
-        </p>
-      </div>
+    <div class="mat">
+      <mat-carousel
+          timings="200ms ease-in"
+          [autoplay]="true"
+          [hideArrows]="false"
+          [hideIndicators]="true"
+          [loop]="true"
+          interval="3000"
+          proportion="50"
+          color="white">
+        <mat-carousel-slide>
+            <div class="welcomeSlide">
+              <h1>Welcome to seed-test!</h1>
+              <h4 id="info">HOW TO START</h4>
+              <img id="arrowRight" src ="../assets/arrow.png" >
+            </div>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+            *ngFor="let slide of slide1;"
+            [image]="slide.image1"
+            [hideOverlay]="true"> 
+              <p class="slideDescription">
+                To log in to Seed-Test you either need a Seed-Test account or you can log in with your Github account.
+                To create a Seed-Test account, click on "Register".
+                If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+            *ngFor="let slide of slide2;"
+            [image]="slide.image2"
+            [hideOverlay]="true">
+              <p class="slideDescription">As soon as you logged in successfully you can select the repository/project you want to use from the appearing list.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide3;"
+          [image]="slide.image3"
+          [hideOverlay]="true">
+            <p class="slideDescription">Via the account settings you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
+              Alternatively, you can also create a custom repository, for what you do not need a Github or Jira account.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide4;"
+          [image]="slide.image4"
+          [hideOverlay]="true">
+            <p class="slideDescription">The settings and connections can be edited using the account settings via the menu. You can also change the repository here.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide5;"
+          [image]="slide.image5"
+          [hideOverlay]="true">
+            <p class="slideDescription">In our tutorial we explain in detail how to create stories, perform tests and how to use the other features in our application. </p>
+        </mat-carousel-slide>
+      </mat-carousel>
     </div>
+  </div>
   <div class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->

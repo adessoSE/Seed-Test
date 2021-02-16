@@ -49,6 +49,7 @@ function getValues(values) {
 function getBackgroundSteps(steps) {
 	let data = '';
 	for (let i = 0; i < steps.length; i++) {
+    if(steps[i].deactivated) continue;
 		if (i === 0) data += 'When ';
 		else data += 'And ';
 		if (steps[i].values[0] != null) data += `${steps[i].pre} '${steps[i].values[0]}' ${steps[i].mid}${getValues(steps[i].values)} \n`;
@@ -76,6 +77,7 @@ function jsUcfirst(string) {
 function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
+    if(step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		// TODO: If Given contains Background (Background>0): Add Background (method)
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
@@ -89,6 +91,7 @@ function getSteps(steps, stepType) {
 function getExamples(steps) {
 	let data = 'Examples:';
 	for (let i = 0; i < steps.length; i++) {
+    if(steps[i].deactivated) continue;
 		data += '\n | ';
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
@@ -462,62 +465,6 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 	return story;
 }
 
-//function getJiraIssues(user, projectKey){
-//  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
-//    const {Host} = user.jira;
-//    const {AccountName} = user.jira;
-//    const {Password} = user.jira;
-//    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
-//    const cookieJar = request.jar();
-//    const tmpStories = [];
-//    const options = {
-//      method: 'GET',
-//      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
-//      jar: cookieJar,
-//      qs: {
-//        type: 'page',
-//        title: 'title',
-//      },
-//      headers: {
-//        'cache-control': 'no-cache',
-//        Authorization: `Basic ${auth}`,
-//      },
-//    };
-//    request(options, (error) => {
-//      if (error) {
-//        return error;
-//      }
-//      request(options, (error2, response2, body) => {
-//        if (error2) {
-//          return error;
-//        }
-//        const json = JSON.parse(body).issues;
-//        for (const issue of json) {
-//            if (issue.fields.labels.includes("Seed-Test")){
-//                const story = {
-//                    story_id: issue.id,
-//                    title: issue.fields.summary,
-//                    body: issue.fields.description,
-//                    state: issue.fields.status.name,
-//                    issue_number: issue.key,
-//                    storySource = 'jira'
-//                };
-//                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-//                    story.assignee = issue.fields.assignee.name;
-//                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-//                } else {
-//                    story.assignee = 'unassigned';
-//                    story.assignee_avatar_url = null;
-//                }
-//                tmpStories.push(fuseStoriesWithDb(story, issue.id));
-//            }
-//        }
-//        return tmpStories;
-//      });
-//    });
-//  }
-//}
-
 function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
   let comment = '';
   let testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
@@ -588,28 +535,28 @@ const getGithubData = (res, req, accessToken) => {
         }
     },
     async function(err, response, body){
-        req.body = await JSON.parse(body)
-        req.body.githubToken = accessToken;
-        try{
-          await mongo.findOrRegister(req.body)
-          passport.authenticate('github-local', function (error, user, info) {
-                    if(error){
-                      res.json({error: 'Authentication Error'})
-                    } else if(!user){
-                      res.json({error: 'Authentication Error'})
-                    }
-                    req.logIn(user, async function(err){
-                        if(err){
-                            res.json({error: 'Login Error'})
-                        }else {
-                          res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
-		                      res.header('Access-Control-Allow-Credentials', 'true');
-		                      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-                          res.json({login: user.github.login, id: user.github.id})
-                        }
-			
-                    });
-                })(req,res);
+      req.body = await JSON.parse(body)
+      req.body.githubToken = accessToken;
+      try{
+        await mongo.findOrRegister(req.body)
+        passport.authenticate('github-local', function (error, user, info) {
+                  if(error){
+                    res.json({error: 'Authentication Error'})
+                  } else if(!user){
+                    res.json({error: 'Authentication Error'})
+                  }
+                  req.logIn(user, async function(err){
+                      if(err){
+                        console.log('error 3')
+                          res.json({error: 'Login Error'})
+                      }else {
+                        res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
+		                    res.header('Access-Control-Allow-Credentials', 'true');
+		                    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
+                        res.json({login: user.github.login, id: user.github.id})
+                      }
+                  });
+              })(req,res);
       }catch(error){
           console.log('getGithubData error:', error)
           res.sendStatus(400)

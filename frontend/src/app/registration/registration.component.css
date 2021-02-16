@@ -87,8 +87,17 @@
     border-left: 5px solid #d15553;
   }
 
+input.wrongEmail {
+  border-left: 5px solid #d15553;
+}
+
 #email, #confirmPassword{
     margin: 25px;
+}
+
+.wrongLogin{
+    background-color: rgb(228, 92, 92);
+    text-align: center;
 }
 
 

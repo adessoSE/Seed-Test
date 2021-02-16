@@ -1,15 +1,22 @@
 <div class="grid-container uk-card uk-card-default">
-     <div class="header">
-       <h1 class="uk-card-header">Account Settings</h1>
-     <!---Create Repo -->
+    <div>
+        <a routerLink="/" class="title">
+            <button class="backButton" title="Back to Repository">
+                <img id="backImage" src ="../assets/left.png">
+            </button>
+        </a>
+    </div>
+    <div class="header">
+        <h1 class="uk-card-header">Account Settings</h1>
     </div>
     <div class="grid_seedTest uk-card uk-card-default">
         <h2 class="uk-card-header">Seed-Test Account</h2>
-        <b>Email:</b>
-        <div class="uk-form-horizontal">
-            <label>
-                <input id="email_field" [defaultValue]="email" placeholder="E-Mail*">
-            </label>
+        <div *ngIf="email">
+            <b>Email: </b>
+            <label id="emailLabel" class="active">{{email}}</label>
+            <hr>
+            <p id="needCustomRepo">Need a new custom repository?</p>
+            <p><button class="button" (click)="newRepository()">Create Custom Repository</button></p>
         </div>
         <div *ngIf="!email">
             <label id="noEmail">- no email deposited -</label>
@@ -46,8 +53,8 @@
             <b>Github-Account: </b>
             <label class="active">{{github['login']}}</label>
             <div>
-                <div class="githubLoginContainer" (click)="disconnectGithub()">
-                    <button class="githubButton" >
+                <div class="githubLoginContainer" >
+                    <button class="githubButton" (click)="disconnectGithub()">
                         <img src ="../assets/github-logo.png" >
                         <p> Disconnect Github</p>
                     </button>
@@ -55,8 +62,8 @@
             </div>
         </div>
         <div class="grid_github" *ngIf="!github">
-            <div class="githubLoginContainer" (click)="login()">
-                <button class="githubButton">
+            <div class="githubLoginContainer" >
+                <button class="githubButton" (click)="login()">
                     <img src ="../assets/github-logo.png">
                     <p>Connect Github</p>
                 </button>
