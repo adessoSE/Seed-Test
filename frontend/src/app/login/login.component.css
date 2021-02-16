@@ -276,7 +276,7 @@ a:not([href]):not([tabindex]).repoLink:hover {
 .registerButton{
     font-style: inherit;
     border: 0px;
-    background-color: rgb(247, 247, 247);
+    background-color: rgba(0, 0, 0, 0);
     color:#0099CC;
     font-size: 10pt;
     font-weight: bold;

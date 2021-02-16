@@ -155,8 +155,8 @@ export class LoginComponent implements OnInit {
     }
 
     navToRegistration() {
-    this.router.navigate(['/register']);
-  }
+        this.router.navigate(['/register']);
+    }
 
     githubLogin() {
         this.error = undefined;
@@ -166,5 +166,9 @@ export class LoginComponent implements OnInit {
 
     openInstruction() {
         this.showInstruction = !this.showInstruction;
+    }
+
+    resetPassword() {
+        this.router.navigate(['/resetpassword']);
     }
 }

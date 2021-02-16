@@ -108,8 +108,4 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);
   }
   
-  resetPassword() {
-  this.router.navigate(['/resetPassword']);
-  }
-
 }
