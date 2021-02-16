@@ -31,6 +31,7 @@ export class ApiService {
     public getProjectsEvent = new EventEmitter();
     public runSaveOptionEvent = new EventEmitter();
     public addBlockToScenarioEvent = new EventEmitter();
+    public logoutEvent = new EventEmitter();
     public user;
     //public local:boolean = false;
 
@@ -325,10 +326,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public deleteUser(userID: string) {
+    public deleteUser() {
         this.apiServer = localStorage.getItem('url_backend');
-        this.http
-            .delete<any>(this.apiServer + '/mongo/user/delete/' + userID)
+        return this.http
+            .delete<any>(this.apiServer + '/mongo/user/delete', ApiService.getOptions())
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }

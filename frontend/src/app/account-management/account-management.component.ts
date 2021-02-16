@@ -35,7 +35,7 @@ export class AccountManagementComponent implements OnInit {
     }
     
     newRepository() {
-        this.modalService.openCreateRepo();
+        this.modalService.openCreateRepoModal();
     }
 
     jiraLogin() {
@@ -43,7 +43,7 @@ export class AccountManagementComponent implements OnInit {
     }
  
      eraseAccount() {
-        this.modalService.eraseAccount();
+        this.modalService.eraseAccountModal(this.email);
     }
     
     
