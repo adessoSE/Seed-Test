@@ -16,6 +16,7 @@ import { Block } from '../model/Block';
 
 export class ApiService {
 
+
     constructor(private http: HttpClient) {
     }
 
@@ -37,7 +38,7 @@ export class ApiService {
     public static getOptions() {
         return { withCredentials: true};
     }
-    
+
     public runSaveOption(option: String){
         this.runSaveOptionEvent.emit(option)
     }
@@ -68,7 +69,7 @@ export class ApiService {
     githubCallback(code: string): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/callback?code=' + code;
-        return this.http.get(str,  { responseType: 'text', withCredentials: true})
+        return this.http.get(str, {withCredentials: true})
             .pipe(tap(resp => {}),
             catchError(ApiService.handleError));
     }
@@ -82,6 +83,15 @@ export class ApiService {
                 catchError(ApiService.handleError));
         }
     }
+
+    deleteBlock(blockId: any) {
+        const str = this.apiServer + '/mongo/deleteBlock/' + blockId;
+        return this.http.delete<any>(str, ApiService.getOptions())
+        .pipe(tap(resp => {
+            
+        }),
+          catchError(ApiService.handleError));
+      }
 
     public getProjectsFromJira() {
         this.apiServer = localStorage.getItem('url_backend');
@@ -269,13 +279,18 @@ export class ApiService {
             }));
     }
 
-    public registerUser(email: string, password: string): Observable<any> {
-        const user = {email, password};
+    public registerUser(email: string, password: string, userId: any): Observable<any> {
+        const user = {email, password, userId};
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(resp => {
-            }), catchError(this.handleStoryError));
+            }), catchError((err, caught) => {
+                return new Observable(subscriber => {
+                    subscriber.next(err)
+                    subscriber.complete();
+                })
+            }));
     }
 
     public updateUser(userID: string, user: User): Observable<User> {
@@ -368,7 +383,7 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: any, storySource:string, scenarioID: number) {
+    public runTests(storyID: any, storySource: string, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
         
         if (scenarioID) {
@@ -380,11 +395,11 @@ export class ApiService {
             .get(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, { responseType: 'text', withCredentials: true});
     }
 
-    //public changeDaisy(){
+    // public changeDaisy(){
     //    this.apiServer = localStorage.getItem('url_backend');
     //    return this.http.get(this.apiServer + '/user/daisy')
-    //}
-    
+    // }
+
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;
         // return false;

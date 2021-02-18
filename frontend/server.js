@@ -8,6 +8,7 @@ if(!process.env.NODE_ENV){
 const express = require('express');
 const path = require('path');
 const app = express();
+app.disable('x-powered-by');
 const ngPath = path.join(__dirname, 'dist/cucumber-frontend');
 const environment = '../frontend/src/environments/environment';
 

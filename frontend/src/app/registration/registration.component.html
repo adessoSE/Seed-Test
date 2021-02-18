@@ -4,6 +4,7 @@
     <!--Formular-->
     <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(registrationForm);" appPasswordConfirmed>
       <hr>
+      <p class="wrongLogin" *ngIf="error">{{error}}</p>
       <!--Input Email-->
       <label class="uk-form-label"></label>
       <input #email ngModel id="email" type="email" name="email" [class.wrongEmail]="registrationForm.controls.email == undefined || (registrationForm.controls.email.invalid && registrationForm.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Email*" class="uk-form-controls input" required>

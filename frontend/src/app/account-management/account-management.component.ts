@@ -28,13 +28,11 @@ export class AccountManagementComponent implements OnInit {
         });
         this.apiService.getRepositoriesEvent.subscribe((repositories) => {
             this.repositories = repositories;
-          });
+        });
     }
     login() {
-        if (this.email) {
-            localStorage.setItem('userId', this.id);
-            this.apiService.githubLogin();
-        }
+        localStorage.setItem('userId', this.id);
+        this.apiService.githubLogin();
     }
     
     newRepository() {
@@ -65,6 +63,10 @@ export class AccountManagementComponent implements OnInit {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                 }
             });
+
+            this.apiService.getRepositories().subscribe((repositories) => {
+                this.repositories = repositories;
+            });
         }
     }
 
@@ -82,14 +84,15 @@ export class AccountManagementComponent implements OnInit {
     }
 
     navToRegistration() {
+        localStorage.setItem('userId', this.id);
         this.router.navigate(['/register']);
-      }
+    }
 
-  selectRepository(userRepository: RepositoryContainer) {
-    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository.value;
-    localStorage.setItem('repository', userRepository.value)
-    localStorage.setItem('source', userRepository.source)
-    this.router.navigate(['']);
-}
+    selectRepository(userRepository: RepositoryContainer) {
+        const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+        ref.href = 'https://github.com/' + userRepository.value;
+        localStorage.setItem('repository', userRepository.value)
+        localStorage.setItem('source', userRepository.source)
+        this.router.navigate(['']);
+    }
 }

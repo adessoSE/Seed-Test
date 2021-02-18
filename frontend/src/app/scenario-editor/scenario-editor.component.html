@@ -51,13 +51,16 @@
           <em class="material-icons">delete</em>
         </button>
         <button id="{{'scenario_' + i + '_copy_step_'}}" a
-        class="actionButton" uk-tooltip title="Copy Step"
+        class="actionButton" uk-tooltip title="Copy Step to Clipboard"
         (click)="copyBlock();">
           <em class="material-icons">content_copy</em>
         </button>
       </div>
     </div>
     <div class="scenarioButtonGroup">
+      <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
+        <em class="material-icons">copy_all</em>
+      </button>
       <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock()">
         <em class="material-icons">playlist_add</em>
       </button>
@@ -167,7 +170,7 @@
                 <em class="material-icons">delete</em>
               </button>
               <button id="{{'scenario_' + i + '_example_copy_step_'}}" a
-              class="actionButton" uk-tooltip title="Copy Step"
+              class="actionButton" uk-tooltip title="Copy Step to Clipboard"
               (click)="copyBlockExample();">
                 <em class="material-icons">content_copy</em>
               </button>
