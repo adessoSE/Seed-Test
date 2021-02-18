@@ -7,7 +7,7 @@
   "private": true,
   "dependencies": {
     "concurrently": "^4.1.0",
-    "mongodb": "^2.2.36",
+    "mongodb": "^3.1.13",
     "cucumber": "^5.1.0",
     "nodemon": "^1.19.0",
     "npm": "^6.9.0",
