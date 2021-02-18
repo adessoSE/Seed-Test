@@ -50,6 +50,7 @@ function getValues(values) {
 function getBackgroundSteps(steps) {
 	let data = '';
 	for (let i = 0; i < steps.length; i++) {
+    if(steps[i].deactivated) continue;
 		if (i === 0) data += 'When ';
 		else data += 'And ';
 		if (steps[i].values[0] != null) data += `${steps[i].pre} '${steps[i].values[0]}' ${steps[i].mid}${getValues(steps[i].values)} \n`;
@@ -77,6 +78,7 @@ function jsUcfirst(string) {
 function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
+    if(step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		// TODO: If Given contains Background (Background>0): Add Background (method)
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
@@ -90,6 +92,7 @@ function getSteps(steps, stepType) {
 function getExamples(steps) {
 	let data = 'Examples:';
 	for (let i = 0; i < steps.length; i++) {
+    if(steps[i].deactivated) continue;
 		data += '\n | ';
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
@@ -443,16 +446,19 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 //  }
 // }
 
-function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested,
-	reportTime, story, scenario, mode, reportName) {
+function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
 	let comment = '';
-	const testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
-	const frontendUrl = process.env.FRONTEND_URL;
-	const reportUrl = `${frontendUrl}/report/${reportName}`;
-	if (mode === 'scenario') comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
-	else comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
+	let testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
+	let frontendUrl = process.env.FRONTEND_URL;
+	let reportUrl = `${frontendUrl}/report/${reportName}`;
+	if(mode == 'scenario'){
+	  comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
+	} else{
+	  comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
+	}
 	return comment;
-}
+  }
+
 
 function postComment(issueNumber, comment, githubName, githubRepo, password) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
@@ -466,6 +472,7 @@ function postComment(issueNumber, comment, githubName, githubRepo, password) {
 		}
 	};
 }
+
 
 function addLabelToIssue(githubName, githubRepo, password, issueNumber, label) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`;
@@ -507,39 +514,59 @@ function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumbe
 }
 
 const getGithubData = (res, req, accessToken) => {
-	request(
-		{
-			uri: `https://api.github.com/user?access_token=${accessToken}`,
-			method: 'GET',
-			headers: {
-				'User-Agent': 'SampleOAuth',
-				Authorization: `Token ${accessToken}`
-			}
-		},
-		async (err, response, body) => {
-			req.body = await JSON.parse(body);
-			req.body.githubToken = accessToken;
-			try {
-				await mongo.findOrRegister(req.body);
-				passport.authenticate('github-local', (error, user) => {
-					if (error) res.json({ error: 'Authentication Error' });
-					else if (!user) res.json({ error: 'Authentication Error' });
-					req.logIn(user, async (err) => {
-						if (err) res.json({ error: 'Login Error' });
-						else {
-							res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
-							res.header('Access-Control-Allow-Credentials', 'true');
-							res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-							res.json({ login: user.github.login, id: user.github.id });
-						}
-					});
-				})(req, res);
-			} catch (error) {
-				console.log('getGithubData error:', error);
-				res.sendStatus(400);
-			}
-		}
-	);
+  request(
+    {
+        uri: `https://api.github.com/user?access_token=${accessToken}`,
+        method:"GET",
+        headers: {
+            "User-Agent": "SampleOAuth",
+            "Authorization": `Token ${accessToken}`
+        }
+    },
+    async function(err, response, body){
+      req.body = await JSON.parse(body)
+      req.body.githubToken = accessToken;
+      try{
+        await mongo.findOrRegister(req.body)
+        passport.authenticate('github-local', function (error, user, info) {
+                  if(error){
+                    res.json({error: 'Authentication Error'})
+                  } else if(!user){
+                    res.json({error: 'Authentication Error'})
+                  }
+                  req.logIn(user, async function(err){
+                      if(err){
+                        console.log('error 3')
+                          res.json({error: 'Login Error'})
+                      }else {
+                        res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
+		                    res.header('Access-Control-Allow-Credentials', 'true');
+		                    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
+                        res.json({login: user.github.login, id: user.github.id})
+                      }
+                  });
+              })(req,res);
+      }catch(error){
+          console.log('getGithubData error:', error)
+          res.sendStatus(400)
+      }
+    }
+  )
+}
+
+function encriptPassword(text){
+	const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
+	let encrypted = cipher.update(text, 'utf8', 'hex');
+	encrypted += cipher.final('hex');
+	return encrypted
+};
+
+
+function decryptPassword(encrypted){
+	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted
 };
 
 function runReport(req, res, stories, mode) {
