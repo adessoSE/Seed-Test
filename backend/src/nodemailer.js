@@ -9,8 +9,8 @@ async function sendResetLink(email, id){
         port: 465,
         secure: true,
         auth: {
-            user: 'seed',
-            pass: 'Fb9YKMW0lPJL'
+            user: '',
+            pass: ''
         },
         tls: {rejectUnauthorized: true}
     });
