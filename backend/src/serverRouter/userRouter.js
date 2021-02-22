@@ -60,6 +60,8 @@ router.post("/resetpassword", async (req, res) => {
 		} catch (error) {
 			res.status(401).json(error);
 		}
+	}else{ 
+		console.log("UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!")
 	}
 });
 
@@ -179,8 +181,8 @@ router.get('/repositories', (req, res) => {
 	}
 	// get repositories from individual sources
 	Promise.all([
-		helper.starredRepositories(githubName, token),
-		helper.ownRepositories(githubName, token),
+		helper.starredRepositories(req.user._id, req.user.github.id, githubName, token),
+		helper.ownRepositories(req.user._id, req.user.github.id, githubName, token),
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
@@ -213,7 +215,7 @@ router.get('/stories', async (req, res) => {
 		const response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers });
 		if (response.status === 401) res.status(401).json('Github Status 401');
 		if (response.status === 200) {
-			repo = await mongo.createRepoIfNonenExists(req.user._id, req.query.repoName, source) 
+			repo = await mongo.getOneGitRepository(req.query.repoName)
 			const json = await response.json();
 			for (const issue of json) {
 				// only relevant issues with label: "story"
@@ -240,7 +242,7 @@ router.get('/stories', async (req, res) => {
 		Promise.all(storiesArray)
 			.then((result) => {
 				if (repo !== null) {
-					mongo.updateStoriesArrayInRepo(repo, result) 
+					mongo.updateStoriesArrayInRepo(repo._id, result) 
 				}
 			})
 			.catch((e) => {
@@ -282,7 +284,7 @@ router.get('/stories', async (req, res) => {
 				}
 				else {
 					try {
-						repo = await mongo.createRepoIfNonenExists(req.user._id, req.query.projectKey, source)
+						repo = await mongo.createJiraRepoIfNonenExists(req.query.projectKey, source)
 						const json = JSON.parse(body).issues;
 						for (const issue of json) {
 							if (issue.fields.labels.includes("Seed-Test")) {

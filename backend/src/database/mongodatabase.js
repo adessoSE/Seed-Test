@@ -254,7 +254,7 @@ function findStory(storyId, storySource, collection) {
   // };
   //console.log("DAS ABSOLUT BESCHISSENE OBJECT NACH DEM GEUSCHT WIRD: " + JSON.stringify(myObjt))
   return new Promise((resolve, reject) => {
-    collection.findOne({_id: id, storySource: storySource }, (err, result) => {
+    collection.findOne({ _id: id, storySource: storySource }, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -323,12 +323,12 @@ async function getOneStory(storyId, storySource) {
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    let story = await collection.findOne({_id: ObjectId(storyId), storySource: storySource })
+    let story = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource })
     //let story = await findStory(storyId, storySource, collection)
 
     // TODO remove later when all used stories have the tag storySource
     if (!story) {
-      story = await collection.findOne({_id: ObjectId(storyId), storySource: undefined })
+      story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined })
     }
     return story
   } catch (e) {
@@ -344,12 +344,12 @@ async function getOneStoryByStoryId(storyId, storySource) {
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    let story = await collection.findOne({story_id: storyId, storySource: storySource })
+    let story = await collection.findOne({ story_id: storyId, storySource: storySource })
     //let story = await findStory(storyId, storySource, collection)
 
     // TODO remove later when all used stories have the tag storySource
     if (!story) {
-      story = await collection.findOne({story_id: storyId, storySource: undefined })
+      story = await collection.findOne({ story_id: storyId, storySource: undefined })
     }
     return story
   } catch (e) {
@@ -470,16 +470,16 @@ async function insertStoryIdIntoRepo(ownerId, repoName, storyId) {
   }
 }
 
-async function getAllStoriesOfRepo(ownerId, repoName){
+async function getAllStoriesOfRepo(ownerId, repoName) {
   let db
   let storiesArray = []
-  try{
+  try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
     let collectionStories = await selectStoriesCollection(db)
-    let repo = await collectionRepo.findOne({owner: ObjectId(ownerId), repoName: repoName})
-    for(entry of repo.stories) {
-      let story = await collectionStories.findOne( {_id: ObjectId(entry)} )
+    let repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    for (entry of repo.stories) {
+      let story = await collectionStories.findOne({ _id: ObjectId(entry) })
       storiesArray.push(story)
     }
     return storiesArray
@@ -568,41 +568,6 @@ async function updateScenario(storyId, storySource, updatedScenario) {
   }
 }
 
-
-async function createRepoIfNonenExists(ownerId, repoName, source) {
-  let db;
-  try {
-    db = await connectDb();
-    let collection = await selectRepositoryCollection(db);
-    let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
-    if (result === null) {
-      myObjt = { owner: ownerId, repoName: repoName, stories: [], repoType: source, customBlocks: [] }
-      result = await collection.insertOne(myObjt)
-      return result.insertedId
-    } else {
-      return result._id
-    }
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in createRepoIfNonenExists" + e)
-  } finally {
-    db.close();
-  }
-}
-
-async function updateStoriesArrayInRepo(repoId, storiesArray) {
-  let db
-  try {
-    db = await connectDb();
-    let collection = await selectRepositoryCollection(db);
-    let result = await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
-    return result
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
-  } finally {
-    if (db) db.close()
-  }
-}
-
 //gets all Repositories of one user
 async function getRepository(userID) {
   let db;
@@ -639,7 +604,7 @@ async function deleteRepositorys(ownerID) {
 
 async function getOneRepository(ownerId, name) {
   try {
-    const myObjt = {owner: ObjectId(ownerId), name: name };
+    const myObjt = { owner: ObjectId(ownerId), repoName: name };
     let db = await connectDb();
     let collection = await selectRepositoryCollection(db);
     let result = await collection.findOne(myObjt);
@@ -647,6 +612,19 @@ async function getOneRepository(ownerId, name) {
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in getOneRepository" + e)
+  }
+}
+
+async function getOneGitRepository(name) {
+  try {
+    const myObjt = { repoName: name, repoType: "github" };
+    let db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.findOne(myObjt);
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getOneGitRepository" + e)
   }
 }
 
@@ -662,37 +640,68 @@ async function createRepo(ownerId, name) {
   }
 }
 
-// async function addIssue(issue, name) {
-//   try {
-//     const myObjt = { name: name };
-//     let db = await connectDb();
-//     let collection = await selectRepositoryCollection(db);
-//     let result = await collection.findOne(myObjt);
-//     let issues = result.issues;
-//     let highest = 0
-//     if (issues.length > 0) {
-//       issues.forEach((issue) => {
-//         if (issue.id > highest) {
-//           highest = issue.id;
-//         }
-//       })
-//     }
-//     issue.id = highest + 1;
-//     issues[issue.id] = issue;
-//     result.issues = issues;
-//     collection.findOneAndUpdate(myObjt, { $set: result }, {
-//       returnOriginal: false,
-//       upsert: true,
-//     }, (error) => {
-//       if (error) throw error;
-//       db.close();
-//     });
-//     db.close();
-//     return result;
-//   } catch (e) {
-//     console.log("UPS!!!! FEHLER in addIssue" + e)
-//   }
-// }
+async function createJiraRepoIfNonenExists(repoName, source) {
+  let db;
+  try {
+    db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.findOne({ repoName: repoName, repoType: source })
+    if (result === null) {
+        myObjt = { owner: "", repoName: repoName, stories: [], repoType: source, customBlocks: [] }
+        result = await collection.insertOne(myObjt)
+        return result.insertedId
+    } else {
+      return result._id
+    }
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in createJiraRepoIfNonenExists" + e)
+  } finally {
+    db.close();
+  }
+}
+
+
+async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName, source) {
+  let db;
+  try {
+    db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    if (result === null) {
+      let result = await collection.findOne({ gitOwner: gOId, repoName: repoName })
+      if (result === null) {
+        myObjt = { owner: "", gitOwner: gOId, repoName: repoName, stories: [], repoType: source, customBlocks: [] }
+        result = await collection.insertOne(myObjt)
+        return result.insertedId
+      } else {
+        if (result.gitOwner === githubId) result.owner = ObjectId(ownerId)
+        return result._id
+      }
+    } else {
+      return result._id
+    }
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in createGitOwnerRepoIfNonenExists" + e)
+  } finally {
+    db.close();
+  }
+}
+
+
+async function updateStoriesArrayInRepo(repoId, storiesArray) {
+  let db
+  try {
+    db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
+  } finally {
+    if (db) db.close()
+  }
+}
+
 
 async function upsertEntry(storyId, updatedContent, storySource) {
   let db;
@@ -769,18 +778,24 @@ async function createUser(user) {
 }
 
 // delete User in DB needs ID TODO: Chris alles überarbeiten!!!!
-async function deleteUser(userID, storyId, source) {
+async function deleteUser(userID) {
   let db;
   try {
     oId = ObjectId(userID)
     const myObjt = { _id: oId }
     db = await connectDb()
     let collection = await selectUsersCollection(db);
-    let collection2 = await selectRepositoryCollection(db);
-    let collection3 = await selectStoriesCollection(db);
+    let collectionRepo = await selectRepositoryCollection(db);
+    let collectionStories = await selectStoriesCollection(db);
+    let user = await collection.findOne(myObjt);
+    let email = user.email;
     let resultUser = await collection.deleteOne(myObjt);
-    let resultRepo = await collection2.deleteMany({ owner: oId });
-    let resultScenario = await collection3.deleteMany({ story_id: storyId, storySource: source });
+    let stories = await collectionRepo.find({ owner: oId }).toArray();
+    for (const issue of stories.issues) {
+      await collectionStories.deleteMany({ asignee: email, storySource: source });
+    }
+    let resultRepo = await collectionRepo.deleteMany({ owner: oId });
+    let resultScenario = await collectionStories.deleteMany({ story_id: storyId, storySource: "db" });
     let result = resultUser + resultRepo + resultScenario
     console.log(result)
     return result
@@ -935,10 +950,12 @@ module.exports = {
   deleteUser,
   updateUser,
   getUserData,
-  createRepoIfNonenExists,
+  createGitOwnerRepoIfNonenExists,
+  createJiraRepoIfNonenExists,
   updateStoriesArrayInRepo,
   getRepository,
   getOneRepository,
+  getOneGitRepository,
   getAllStoriesOfRepo,
   createRepo,
   selectStoriesCollection,
