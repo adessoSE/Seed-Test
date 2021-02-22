@@ -199,9 +199,17 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 async function execReport(req, res, stories, mode, callback) {
 	try {
-		const result = await mongo.getOneStory(parseInt(req.params.issueID, 10),
+		const story = await mongo.getOneStory(parseInt(req.params.issueID, 10),
 			req.params.storySource);
-		execReport2(req, res, stories, mode, result, callback);
+			console.log("DAISYAUTOLOGOUT");
+			console.log(typeof(story.daisyAutoLogout));
+			// does not Fail if "daisyAutoLogout" is undefined
+		if (story.daisyAutoLogout) {
+				process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
+		} else {
+				process.env.DAISY_AUTO_LOGOUT = false;
+		}
+		execReport2(req, res, stories, mode, story, callback);
 	} catch (error) {
 		res.status(404)
 			.send(error);

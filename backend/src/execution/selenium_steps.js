@@ -14,7 +14,6 @@ chromeOptions.addArguments('--disable-dev-shm-usage');
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
-
 // Starts the webdriver / Browser
 async function initDriver() {
 	driver = new webdriver.Builder()
@@ -232,26 +231,31 @@ async function checkIfTextIsMissing(text) {
 	});
 }
 
+async function daisyLogout() {
+	try {
+		await waitMs(1000);
+		await clickButton('Zurück zum Portal');
+		await waitMs(2000);
+		await clickButton('Abmelden');
+	} catch (e) {
+		await waitMs(1000);
+		await clickButton('Abmelden');
+	}
+}
+
 // Closes the webdriver (Browser)
 async function closeDriver() {
-	// if {
-	// 		daisyLogout()
-	// }
+	// process.env.DAISY_AUTO_LOGOUT is written as boolean, but read as a string
+	if (process.env.DAISY_AUTO_LOGOUT === true || process.env.DAISY_AUTO_LOGOUT === 'true') {
+		console.log('Trying DaisyAutoLogout');
+		await daisyLogout();
+	}
+
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	const condition = until.elementLocated(By.name('loader'));
 	driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
 	if (process.env.NODE_ENV) driver.quit();
-}
-
-async function daisyLogout() {
-	try {
-		await clickButton('Zurück zum Portal');
-		waitMs(2000);
-		await clickButton('Abmelden');
-	} catch (e) {
-		await clickButton('Abmelden');
-	}
 }
 
 module.exports = {
