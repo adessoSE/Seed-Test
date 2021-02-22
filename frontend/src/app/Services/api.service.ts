@@ -58,7 +58,7 @@ export class ApiService {
     addBlockToScenario(block: Block, correspondingComponent: string){
         this.addBlockToScenarioEvent.emit([correspondingComponent, block])
     }
-    
+
     public githubLogin() {
         const scope = 'repo';
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
@@ -88,7 +88,7 @@ export class ApiService {
         const str = this.apiServer + '/mongo/deleteBlock/' + blockId;
         return this.http.delete<any>(str, ApiService.getOptions())
         .pipe(tap(resp => {
-            
+
         }),
           catchError(ApiService.handleError));
       }
@@ -223,6 +223,7 @@ export class ApiService {
            return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
                 localStorage.setItem('clientId', backendInfo.clientId);
+               localStorage.setItem('version', backendInfo.version);
 
                 this.getBackendUrlEvent.emit();
             });
@@ -385,7 +386,7 @@ export class ApiService {
     // demands testing from the server
     public runTests(storyID: any, storySource: string, scenarioID: number) {
         this.apiServer = localStorage.getItem('url_backend');
-        
+
         if (scenarioID) {
             return this.http
                 .get(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, {

@@ -90,10 +90,10 @@
           <div *ngIf="sd == 'example'"> Example (Cases)
             <!--<dfn *ngIf="sd == 'example'" class="def"><span id="infoIcon" uk-icon="info"></span>
               <span rel="def">
-                For using examples, you have to create placeholders in your Given/When/Then-Steps. 
-                You can assign values to the placeholders, which will be used instead of them. 
-                You can assign more than one value. If there is more than one value assigned, 
-                the whole test will be run as often as there is a value that hasn't been used once. 
+                For using examples, you have to create placeholders in your Given/When/Then-Steps.
+                You can assign values to the placeholders, which will be used instead of them.
+                You can assign more than one value. If there is more than one value assigned,
+                the whole test will be run as often as there is a value that hasn't been used once.
                 Each test case created by this will be carried out individually and independent.
               </span></dfn>-->
           </div>
@@ -180,11 +180,18 @@
         </ng-template>
       </div>
       <br>
-      <div class="comment">
-          <label>Comment</label><br>
-          <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
+       <div class="scenario-bottom">
+         <div class="comment">
+           <label>Comment</label><br>
+           <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
           </textarea>
-      </div>
+           </div>
+         <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
+           <label>Auto Logout (Daisy)</label>
+           <input type="checkbox" id="daisyAutoLogout" (change)="setDaisyAutoLogout($event, null)" [defaultChecked]="selectedStory.daisyAutoLogout">
+         </form>
+       </div>
+
       <br>
     </div>
   </div>
@@ -205,7 +212,7 @@
     </div>
   </div>
 
-  <div id="saveBlockModal" uk-modal> 
+  <div id="saveBlockModal" uk-modal>
     <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin padding">
       <h2 class="padding">Save as Block</h2>
       <input *ngIf="this.selectedScenario" id="Block" type="text" #ScenarioName placeholder="Name of Block"/>

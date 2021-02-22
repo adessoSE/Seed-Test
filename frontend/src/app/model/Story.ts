@@ -14,4 +14,5 @@ export interface Story {
     assignee: string;
     assignee_avatar_url: string;
     lastTestPassed?: boolean;
+    daisyAutoLogout?: boolean;
 }
