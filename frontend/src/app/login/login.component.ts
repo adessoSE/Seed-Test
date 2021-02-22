@@ -1,16 +1,15 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { MatCarousel, MatCarouselComponent } from '@ngbmodule/material-carousel';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
 
     repositories: RepositoryContainer[];
     jirakeys: string[];
@@ -18,46 +17,45 @@ export class LoginComponent implements OnInit {
     private testJiraHost = '';
     repositoriesLoading: boolean;
     showInstruction = false;
-    slide1 = [{'image1': '/assets//slide1.png'}];
-    slide2 = [{'image2': '/assets//slide2.png'}];
-    slide3 = [{'image3': '/assets//slide3.png'}];
-    slide4 = [{'image4': '/assets//slide4.png'}];
-    slide5 = [{'image5': '/assets//slide5.png'}];
+    slide0 = [{'image0': '/assets//slide0.png'}];
+    slide01 = [{'image01': '/assets//slide01.png'}];
+    slide02 = [{'image02': '/assets//slide02.png'}];
+    slide03 = [{'image03': '/assets//slide03.png'}];
+    slide04 = [{'image04': '/assets//slide04.png'}];
+    slide05 = [{'image05': '/assets//slide05.png'}];
+    slide06 = [{'image06': '/assets//slide06.png'}];
+    slide07 = [{'image07': '/assets//slide07.png'}];
+    slide08 = [{'image08': '/assets//slide08.png'}];
+    slide09 = [{'image09': '/assets//slide09.png'}];
+    slide10 = [{'image10': '/assets//slide10.png'}];
+    slide11 = [{'image11': '/assets//slide11.png'}];
 
-    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute) {
+
+    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
-            if (params.github == 'success') {
-                localStorage.setItem('login', 'true')
-                this.getRepositories()
-                let userId = localStorage.getItem('userId');
-                localStorage.removeItem('userId');
-                if(userId){
-                    this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
-                        this.loginGithubToken(params.login, params.id);
-                    })
-                }
-            }else if(params.github == 'error'){
-                this.error = 'A Login error occured. Please try it again';
-            } else if (params.code){
+           if (params.code){
                 this.apiService.githubCallback(params.code).subscribe(resp => {
                     if (resp.error){
                         this.error = resp.error
                     }else{
-                        console.log('code resp:', resp)
                         localStorage.setItem('login', 'true')
                         this.getRepositories()
                         let userId = localStorage.getItem('userId');
                         localStorage.removeItem('userId');
                         if(userId){
-                            this.apiService.mergeAccountGithub(userId, params.login, params.id).subscribe((resp) => {
-                                this.loginGithubToken(params.login, params.id);
+                            this.apiService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((respo) => {
+                                this.loginGithubToken(resp.login, resp.id);
                             })
                         }
                     }
                 })
             }
         })
+    }
+    ngAfterViewInit(): void {
+        // needed for ExpressionChangedAfterItHasBeenCheckedError mat-carousel error
+        this.cdr.detectChanges();
     }
 
     getGithubData (accessToken){
@@ -169,14 +167,14 @@ export class LoginComponent implements OnInit {
     }
 
     navToRegistration() {
-    this.router.navigate(['/register']);
-  }
+        this.router.navigate(['/register']);
+    }
 
     githubLogin() {
         this.error = undefined;
         this.repositoriesLoading = true;
         this.apiService.githubLogin();
-      }
+    }
 
     openInstruction() {
         this.showInstruction = !this.showInstruction;

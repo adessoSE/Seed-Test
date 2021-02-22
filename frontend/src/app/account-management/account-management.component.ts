@@ -26,12 +26,13 @@ export class AccountManagementComponent implements OnInit {
                 this.updateSite('Successful');
             }
         });
+        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+            this.repositories = repositories;
+        });
     }
     login() {
-        if (this.email) {
-            localStorage.setItem('userId', this.id);
-            this.apiService.githubLogin();
-        }
+        localStorage.setItem('userId', this.id);
+        this.apiService.githubLogin();
     }
     
     newRepository() {
@@ -83,14 +84,15 @@ export class AccountManagementComponent implements OnInit {
     }
 
     navToRegistration() {
+        localStorage.setItem('userId', this.id);
         this.router.navigate(['/register']);
-      }
+    }
 
-  selectRepository(userRepository: RepositoryContainer) {
-    const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-    ref.href = 'https://github.com/' + userRepository.value;
-    localStorage.setItem('repository', userRepository.value)
-    localStorage.setItem('source', userRepository.source)
-    this.router.navigate(['']);
-}
+    selectRepository(userRepository: RepositoryContainer) {
+        const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
+        ref.href = 'https://github.com/' + userRepository.value;
+        localStorage.setItem('repository', userRepository.value)
+        localStorage.setItem('source', userRepository.source)
+        this.router.navigate(['']);
+    }
 }

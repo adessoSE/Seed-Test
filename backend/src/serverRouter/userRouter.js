@@ -139,11 +139,15 @@ router.post('/mergeGithub', async (req, res) => {
 	try {
 		const mergedUser = await mongo.mergeGithub(userId, login, id);
 		req.logIn(mergedUser, function (err) {
-			if (err) return res.sendStatus(400)
-			res.sendStatus(200)
+			if (err) {
+				console.log('Merge Github login error:', err)
+				return res.status(400).json({status: 'error'})
+			}
+			res.status(200).json({status: 'success'})
 		})
 	} catch (error) {
-		res.sendStatus(400);
+		console.log('Merge github error:', error)
+		res.status(400).json({status: 'error'})
 	}
 });
 
@@ -155,7 +159,8 @@ router.post('/register', async (req, res) => {
 		const user = await mongo.registerUser(req.body);
 		res.json(user);
 	} catch (error) {
-		res.status(400).send(error);
+		console.log('register error', error)
+		res.status(400).json({status: 'error', message: error.message});
 	}
 });
 
