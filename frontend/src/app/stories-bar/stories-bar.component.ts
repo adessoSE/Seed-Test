@@ -85,7 +85,6 @@ export class StoriesBarComponent implements OnInit {
     });
   }
 
-
   selectStoryScenario(story: Story) {
     this.selectedStory = story;
     this.storyChosen.emit(story);
@@ -93,15 +92,6 @@ export class StoriesBarComponent implements OnInit {
     if (this.stories[storyIndex].scenarios[0]) {
       this.selectScenario(this.selectedStory._id, this.stories[storyIndex].scenarios[0]);
     }
-  }
-
-  shortenTitle(title) {
-    let new_title = title;
-    if (title.length > 19) {
-      new_title = title.slice(0, 19);
-      new_title = new_title + '...';
-    }
-    return new_title;
   }
 
 }

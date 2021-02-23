@@ -14,27 +14,18 @@
     <ul uk-accordion>
       <li *ngFor="let s of getSortedStories(); let i = index ">
           <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
-            <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
-              {{s.issue_number}}. {{shortenTitle(s.title)}}
+            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+              {{s.issue_number}}. {{s.title}}
             </a>
-         <!--- To Do
-          <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
-          <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
-          
-          <div *ngIf="shortenTitle({{s.title}}); else elseBlock">{{s.issue_number}}. {{s.title | slice:0:15 | titlecase }} ...true.</div>
-          <ng-template #elseBlock> {{s.issue_number}}. {{s.title | titlecase }}...false</ng-template>
-        </a>
-      -->
-      
           <span class="github-avatar">
-            <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px">
-            <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px">
-              {{s.assignee}}</span>
+            <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+            <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+          </span>
         </div>
 
         <div class="uk-accordion-content">
           <li *ngFor="let scen of s.scenarios; let c = index">
-            <a [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(s._id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
+            <a class="scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(s._id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
           </li>
         </div>
       </li>
