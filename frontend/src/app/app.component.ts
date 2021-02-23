@@ -25,6 +25,9 @@ export class AppComponent implements OnInit {
     this.apiService.getRepositoriesEvent.subscribe((repositories) => {
       this.repositories = repositories;
     });
+    this.apiService.logoutEvent.subscribe(_ => {
+      this.logout();
+  });
   }
 
   ngOnInit() {
@@ -104,4 +107,5 @@ export class AppComponent implements OnInit {
     });
     this.router.navigate(['/login']);
   }
+  
 }

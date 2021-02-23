@@ -31,6 +31,7 @@ export class ApiService {
     public getProjectsEvent = new EventEmitter();
     public runSaveOptionEvent = new EventEmitter();
     public addBlockToScenarioEvent = new EventEmitter();
+    public logoutEvent = new EventEmitter();
     public user;
     //public local:boolean = false;
 
@@ -189,6 +190,30 @@ export class ApiService {
             .pipe(tap(resp => {
             }));
     }
+    
+/*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
+
+  public requestReset(email: string): Observable <any> {   
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {'email' : email};   
+        return this.http
+            .post<any>(this.apiServer + '/user/resetpassword/', body)
+            .pipe(tap(resp => {
+            }));
+  }
+
+  public confirmReset(uuid: string, password: string): Observable <any> {   
+    this.apiServer = localStorage.getItem('url_backend');
+    const body = {'id' : uuid, 'password' : password};   
+    return this.http
+        .post<any>(this.apiServer + '/user/reset/', body)
+        .pipe(tap(resp => {
+        }));
+}
+
+
+
+  
 
     public saveBlock(block: Block){
         return this.http
@@ -301,10 +326,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public deleteUser(userID: string) {
+    public deleteUser() {
         this.apiServer = localStorage.getItem('url_backend');
-        this.http
-            .delete<any>(this.apiServer + '/mongo/user/delete/' + userID)
+        return this.http
+            .delete<any>(this.apiServer + '/mongo/user/delete', ApiService.getOptions())
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
