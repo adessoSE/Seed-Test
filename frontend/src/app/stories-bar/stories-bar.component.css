@@ -49,8 +49,6 @@
 
   #storyList{
     grid-area: storyList;
-    color: #0099CC;
-    font-size: small;
   }
 
   #createNewStoryDiv{
@@ -116,11 +114,11 @@
     font-size: 1em;
   }
   
-  a:hover, a:focus {
+  /*a:hover, a:focus {
     font-size: 1.2em;
     font-weight: bold;
     text-decoration: none;
-  }
+  }*/
 
   .uk-accordion{
     width: 100%;
