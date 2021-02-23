@@ -14,9 +14,6 @@
 
   #storyHeader{
     grid-area: storyHeader;
-    color: #999;
-    float: left;
-    margin-bottom: 10px;
   }
 
   #infoIcon{
