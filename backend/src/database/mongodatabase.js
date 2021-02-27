@@ -451,7 +451,6 @@ async function createStory(storyTitel, storyDescription) {        //, asigneeEma
       lastTestPassed: null,
     }
     let result = await collection.insertOne(emptyStory)
-    console.log("Die Id der neuen Story ist: " + result.insertedId)
     return result.insertedId
   } catch (e) {
     console.log("UPS!!!! FEHLER in createStory: " + e)

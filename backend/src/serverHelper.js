@@ -538,9 +538,12 @@ const getGithubData = (res, req, accessToken) => {
       try{
         await mongo.findOrRegister(req.body)
         passport.authenticate('github-local', function (error, user, info) {
+                  console.log("Der User in authenticate", JSON.stringify(user))
                   if(error){
+                    console.log("error1 !!!!!!!!!!!!!!!!!" , error)
                     res.json({error: 'Authentication Error'})
                   } else if(!user){
+                    console.log("error2 !!!!!!!!!!!!!!!!!")
                     res.json({error: 'Authentication Error'})
                   }
                   req.logIn(user, async function(err){

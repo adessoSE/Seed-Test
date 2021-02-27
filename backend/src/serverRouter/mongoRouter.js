@@ -53,8 +53,7 @@ router.post('/createRepository', async (req, res) => {
 
 //creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
 router.post('/createStory', async (req, res) => {
-	console.log("Das ist der ReqTitel: "+ req.body.titel)
-	let resultStoryId = await mongo.createStory(req.body.titel, req.body.description)  //, req.user.email
+	let resultStoryId = await mongo.createStory(req.body.title, req.body.description)  
 	let result = await mongo.insertStoryIdIntoRepo(req.user._id, req.body.repo, resultStoryId)
 	// const issue = {
 	// 	id: Math.floor(Math.random() * 10000),

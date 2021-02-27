@@ -175,19 +175,22 @@ router.get('/logout', async (req, res) => {
 router.get('/repositories', (req, res) => {
 	let githubName;
 	let token;
+	let githubId
 	if (req.user) {
 		if (req.user.github) {
 			githubName = req.user.github.login;
 			token = req.user.github.githubToken;
+			githubId = req.user.github.id;
 		}
 	} else {
 		githubName = process.env.TESTACCOUNT_NAME;
 		token = process.env.TESTACCOUNT_TOKEN;
+		githubId = 0;
 	}
 	// get repositories from individual sources
 	Promise.all([
-		helper.starredRepositories(req.user._id, req.user.github.id, githubName, token),
-		helper.ownRepositories(req.user._id, req.user.github.id, githubName, token),
+		helper.starredRepositories(req.user._id, githubId, githubName, token),
+		helper.ownRepositories(req.user._id, githubId, githubName, token),
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
