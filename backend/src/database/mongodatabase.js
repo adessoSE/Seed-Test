@@ -440,14 +440,16 @@ async function createStory(storyTitel, storyDescription) {        //, asigneeEma
     let collection = await selectStoriesCollection(db);
     let emptyStory = {
       story_id: '',
-      asignee: '',
-      titel: storyTitel,
+      assignee: 'unassigned',
+      title: storyTitel,
       body: storyDescription,
+      issue_number: 0,
       background: emptyBackground(),
       scenarios: [],
       storySource: 'db',
       repo_type: 'db',
       state: 'open',
+      assignee_avatar_url: null,
       lastTestPassed: null,
     }
     let result = await collection.insertOne(emptyStory)
