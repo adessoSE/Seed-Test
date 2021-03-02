@@ -50,11 +50,7 @@
     display: block;
   }
 
-  #storyList{
-    grid-area: storyList;
-    color: #0099CC;
-    font-size: small;
-  }
+
 
   #createNewStoryDiv{
     text-align: right;
@@ -109,20 +105,32 @@
     float: right;
   }
 
-  .github-avatar img{
-    margin-right: 5px;
+  a.storyListLink {
+    transition: 0.1s;
+    font-size: 1em;
+    display: inline-block;
+    max-width: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  a {
-    color: black;
-    transition: 0.3s;
-    font-size: 1em;
+  #storyList{
+    grid-area: storyList;
+    color: #0099CC;
+    font-size: small;
+    transition: 0.1s;
   }
-  
-  a:hover, a:focus {
-    font-size: 1.2em;
-    font-weight: bold;
-    text-decoration: none;
+
+  #storyList:hover{
+    cursor: pointer;
+    background-color: #f1f1f1;
+  }
+  .scenarioListItem{
+    display: block;
+  }
+  .scenarioListItem:hover{
+    background-color: #f1f1f1;
   }
 
   .uk-accordion{

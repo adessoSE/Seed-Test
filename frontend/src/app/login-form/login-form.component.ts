@@ -14,7 +14,11 @@ export class LoginFormComponent {
 
     @ViewChild('content') content: any;
     @ViewChild('content2') content2: any;
+    @ViewChild('content3') content3: any;
+    @ViewChild('content4') content4: any;
     type: string;
+    email: string;
+    userId;
 
     constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
     }
@@ -25,8 +29,25 @@ export class LoginFormComponent {
         document.getElementById('modalHeader').innerHTML = `Login to ${type}`;
     }
 
-    openCreateRepo() {
+    openCreateRepoModal() {
         this.modalService.open(this.content2, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
+    }
+
+    eraseAccountModal(email) {
+        this.email = email;
+        this.modalService.open(this.content4, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
+    }
+
+    eraseAccount(){
+        let insertedEmail = (document.getElementById('insertedEmail') as HTMLInputElement).value;
+        if (insertedEmail == this.email){
+            this.apiService.deleteUser().subscribe(resp => {
+                this.toastr.info('', 'User Deleted')
+                this.apiService.logoutEvent.emit()
+            });
+        }else{
+            this.modalService.open(this.content4, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
+        }
     }
 
     submitRepo(){

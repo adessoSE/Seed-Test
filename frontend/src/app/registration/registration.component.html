@@ -1,8 +1,10 @@
 <div class="grid">
   <div class="formular">
     <h1 id="headerFont">Registration</h1>
+     
     <!--Formular-->
     <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(registrationForm);" appPasswordConfirmed>
+     
       <hr>
       <p class="wrongLogin" *ngIf="error">{{error}}</p>
       <!--Input Email-->

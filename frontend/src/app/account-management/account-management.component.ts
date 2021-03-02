@@ -30,19 +30,27 @@ export class AccountManagementComponent implements OnInit {
             this.repositories = repositories;
         });
     }
+
+    
     login() {
         localStorage.setItem('userId', this.id);
         this.apiService.githubLogin();
     }
     
     newRepository() {
-        this.modalService.openCreateRepo();
+        this.modalService.openCreateRepoModal();
     }
 
     jiraLogin() {
         this.modalService.open('Jira');
     }
-
+ 
+     eraseAccount() {
+        this.modalService.eraseAccountModal(this.email);
+    }
+    
+    
+    
     updateSite(report) {
         console.log(report);
         if (report === 'Successful') {
@@ -69,6 +77,8 @@ export class AccountManagementComponent implements OnInit {
             });
         }
     }
+
+   
 
     ngOnInit() {
     }
