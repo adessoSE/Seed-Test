@@ -38,16 +38,12 @@ input[type="text"]{
 em.dragIcon{
   font-size: 18px;
   color: black;
-  background-color: white;
+  background-color: var(--white);
   margin-top:3px
 }
 
 .text-inline{
   display: flex;
-  flex-direction: row;
-  align-content: center;
-  font-weight: normal;
-  justify-self: start;
 }
 
 .text-inline > button{
@@ -60,7 +56,7 @@ em.dragIcon{
 
 .def:hover span[rel=def] {
   font-size: small;
-  color: white;
+  color: var(--white);
 	background-color: rgb(109, 109, 109);
 	position: absolute;
 	bottom: 2em;
@@ -112,7 +108,7 @@ em.dragIcon{
 
 .checkbox{
   margin-right: 5px;
-  margin-bottom: 1.5px;
+  margin-bottom: 5px;
   margin-left: 3px
 }
 
@@ -173,28 +169,24 @@ em.dragIcon{
 }
 
 .scenarioButton em{
-  color:  #0099CC;
+  color:  var(--ocean-blue);
 }
 
 .scenarioButton em:active {
-  background-color: #0099CC;
-  color: #ffffff;
+  background-color: var(--ocean-blue);
+  color: var(--white);
 }
-
-
-
-
 
 .button {
   margin-right: 3px;
-  color:#ffffff;
+  color:var(--white);
   padding: 0px 10px;
   font-size: 15px;
   cursor: pointer;
   border-radius: 3px;
-  border: solid 1px #0099CC;
-  background: #0099CC;
-  background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+  border: solid 1px var(--ocean-blue);
+  background: var(--ocean-blue);
+  background: -moz-linear-gradient(top,  var(--ocean-blue),  rgb(2, 111, 161));
   line-height: 38px;
   text-transform: uppercase;
 }
@@ -214,12 +206,12 @@ em.dragIcon{
 }
 
 .scenarioTitle{
-  background: white;
+  background: var(--white);
   border: none;
 }
 
 .scenarioTitle > em{
-  color:  #0099CC;
+  color:  var(--ocean-blue);
   font-size: 20px;
   transform: translate(0px, 3px)
 }
@@ -229,13 +221,8 @@ em.dragIcon{
   margin: 0px 5px;
 }
 
-
 .scenarioButton_unsaved em{
   color: red;
-}
-
-.disabledDeactivateButton{
-  color: #0099CC;
 }
 
 .disabled input{
@@ -253,7 +240,7 @@ em.dragIcon{
 }
 
 .uk-nav > li > .dropdownStep {
-  color:#0099CC;
+  color:var(--ocean-blue);
 }
 
 .uk-nav > li > span:hover {
@@ -261,16 +248,13 @@ em.dragIcon{
 }
 
 .uk-nav > li > .dropdownStepUndefined {
-  color:#000080;
+  color:var(--marine-blue);
 }
 
-.addStepButtons{
-  color: rgba(7, 142, 187, 0.733);
-}
 
 .disabled {
   color: gray !important;
-  background: white !important;
+  background: var(--white) !important;
   font-style: italic;
   text-decoration: line-through;
 }
@@ -289,11 +273,6 @@ em.dragIcon{
   background:#dddddd
 }
 
-.testButtons{
-  padding-left:10px;
-  padding-right:10px;
-}
-
 table {
   width: 100%;
 }
@@ -303,17 +282,13 @@ table {
   height: 50px;
 }
 
-.scenario_unsaved {
-  color: red;
-}
-
 .stepsListContainer{
   display: flex;
   justify-content: space-between;
 }
 
 .stepsListContainer em{
-  color: #0099CC;
+  color: var(--ocean-blue);
 }
 
 .stepsListContainer .disabled em{

@@ -27,21 +27,11 @@
   .emptyStories a {
     display: block;
   }
-  .outdated {
-    background-color: #F9A7A7;
-  }
-  #storyHeader{
-    font-size: 1.25rem;
-    line-height: 1.4;
-  }
 
-  .disabledDeactivateButton{
-    color: #0099CC;
-  }
   
   .disabled input{
     color: gray;
-    border-bottom: 1px solid gray;
+    border-bottom: none;
   }
 
   #noStoriesHeader{
@@ -49,7 +39,7 @@
   }
 
   .tutorial{
-    color: #0099CC;
+    color: var(--ocean-blue);
   }
 
   .tutorialDiv{
@@ -80,7 +70,7 @@
 
   #infoList{
     padding-left: 10px;
-    color: #0099CC;
+    color: var(--ocean-blue);
     list-style-type: none;
   }
 
@@ -91,15 +81,6 @@
 
   #noStoriesHeader{
     padding-bottom: 5px;
-  }
-
-  .firstStoryDiv{
-    margin-top: 7px;
-    padding: 6px;
-    height: 95px;
-    width: 220px;
-    color: white;
-    background-color: rgba(153, 153, 153, 0.726);
   }
 
   .def {
@@ -131,7 +112,7 @@
 
   .def:hover span[rel=def] {
     font-size: small;
-    color: white;
+    color: var(--white);
     background-color: rgb(109, 109, 109);
     position: absolute;
     bottom: 2em;
@@ -141,12 +122,6 @@
     display: block;
   }
 
-  #storyHeader{
-      color: #999;
-      font-size: 20px;
-      font-weight: bold;
-  }
-  
   #story{
     border-top: 1px solid #999;
     border-left: 1px solid #999;
@@ -162,13 +137,12 @@
 
   .button {
     margin-right: 3px;
-    color:#ffffff;
+    color:var(--white);
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    border: solid 1px #0099CC;
-    background: #0099CC;
-    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+    background: var(--ocean-blue);
+    border: none;
     line-height: 25px;
   }
 
@@ -181,7 +155,7 @@
   }
   
   .button:hover {
-    background: rgb(2, 111, 161);
+    background: var(--marine-blue);
   }
 
   .button:active {
@@ -192,35 +166,17 @@
 
   .uk-button-group{
     border-radius:4px;
-    border:2px solid rgb(255, 255, 255);
+    border:2px solid var(--white);
   }
   
   .padding{
     padding: 20px;
   }
   
-  .iconButton {
-    border: none;
-    background-color: #ffffff;
-    padding: 0px;
-    border-radius: 10%;
-  }
-  
-  .iconButton em{
-    vertical-align:middle;
-    color: #0099CC;
-    border-radius: 10%;
-  }
-
   #saveButton.iconButton_unsaved em{
     color: red;
   }
   
-  .iconButton em:active {
-    background-color: rgb(0, 153, 204);
-    color: #ffffff;
-  }
-
   .uk-dropdown{
     padding: 15px;
   }
@@ -231,22 +187,16 @@
   }
   
   .uk-nav > li > .dropdownStep {
-    color:#0099CC;
+    color: var(--ocean-blue);
   }  
     
   .uk-nav > li > span:hover {
       color: gray;
   }
   
-  .buttonGroup{
-    text-align: center;
-    margin-left: 10px;
-    color: #0099CC;
-  }
-  
   .disabled {
     color: gray !important;
-    background: white !important;
+    background: var(--white) !important;
     font-style: italic;
   }
   
@@ -263,17 +213,12 @@
   em.dragIcon{
     font-size: 18px;
     color: black;
-    background-color: white;
+    background-color: var(--white);
     margin-top:3px
   }
   
   .text-inline{
     display: flex;
-    flex-direction: row;
-    align-content: center;
-    font-weight: normal;
-    justify-self: start;
-    color: #333;
   }
   
   .text-inline > button{
@@ -294,20 +239,10 @@
     background:#dddddd
   }
 
-
-  .descriptionText{
-    font-weight: 100;
-  }
-  
-  .backgroundItems{
-    padding-right:40px;
+  input.backgroundName{
+    margin: 5px;
   }
 
-  .backgroundButtons{
-    float: right;
-    padding-right:40px;
-  }
-  
   .loading{
     text-align: center;
     font-size: 40px;
@@ -332,9 +267,7 @@
   }
 
   .storyTitle{
-    color: #0099CC;
-    font-weight: bold;
-    font-size: 17px;
+    color: var(--ocean-blue);
   }
   
   .marginLeft{
@@ -366,7 +299,7 @@
 
   .checkbox{
     margin-right: 5px;
-    margin-bottom: 1.5px;
+    margin-bottom: 5px;
     margin-left: 3px
   }
   
@@ -374,17 +307,6 @@
     cursor: pointer;
   }
   
-  .actionBarContainer{
-    margin: 5px 0px;
-    padding: 10px 15px;
-    border-bottom: 1px solid #e5e5e5;
-    display: flex;
-  }
-
-
-
-  
-
 .scenarioBarContainer{
   display: flex;
   justify-content: space-between;
@@ -434,10 +356,10 @@
 }
 
 .scenarioButton em{
-  color:  #0099CC;
+  color:  var(--ocean-blue);
 }
 
 .scenarioButton em:active {
-  background-color: #0099CC;
-  color: #ffffff;
+  background-color: var(--ocean-blue);
+  color: var(--white);
 }

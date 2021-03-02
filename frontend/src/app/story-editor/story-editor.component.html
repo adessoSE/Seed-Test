@@ -36,7 +36,7 @@
   <div class="uk-card uk-card-default padding" id="story">
     <div class="storyHeaderContainer">
       <div>
-          <span id="storyHeader">Story</span>
+          <span id="storyHeader" class="SmallCategory1" >Story</span>
           <dfn class="def">
               <span id="infoIcon" uk-icon="info"></span>
               <span rel="def">A user story describes requirements for a software system.
@@ -47,22 +47,22 @@
               </span>
           </dfn>
       </div>
-      <span class="storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
+      <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
     </div>
     <!--Description-->
     <div class="title" (click)="openDescription();">
-      <div class="expand">
+      <div class="expand SmallHeadline5">
         Description
         <button id="description_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
         <button id="description_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
       </div>
-      <div class="uk-text-secondary descriptionText" *ngIf="showDescription">
+      <div class="SmallBody1regularLH" *ngIf="showDescription">
         {{selectedStory.body}}
       </div>
     </div>
     <!--Background-->
     <div class="title">
-      <div class="expand" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
+      <div class="expand SmallHeadline5" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
           <span rel="def">
             You can use the background to set actions, which will be carried out before testing the whole story. 
@@ -75,7 +75,7 @@
       <div *ngIf="showBackground">
       <!--Buttons-->
       <div class="marginLeft">
-        <input id="background_name" #backgroundName type="text" value="{{selectedStory.background.name}}" on-input="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
+        <input id="backgroundName" class="backgroundName" #backgroundName type="text" value="{{selectedStory.background.name}}" on-input="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
       </div>
 
       <!--Action bar-->
@@ -119,7 +119,7 @@
           <div uk-dropdown="pos: left-bottom">
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of originalStepTypes; let i = index" >
-                <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
+                <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep MediumBody2" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
                   {{step.type}}</span>
               </li>
             </ul>
@@ -143,7 +143,7 @@
         <br>
         <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
           <div *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
-            <div class="text-inline" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
+            <div class="text-inline SmallBody1regularLH" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
               <div class="dragIconContainer" cdkDragHandle>
                 <em class="material-icons dragIcon">drag_indicator</em>
               </div>
@@ -173,7 +173,7 @@
     <!--Buttons Run Story-->
     <div class="uk-card-footer">
       <div class="uk-button-group uk-align-right">
-        <span class="lastTestText">Latest execution:  </span>
+        <span class="lastTestText SmallBody1regularLH">Latest execution:  </span>
         <span class="dot" [class.notPassed]="!selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined" [class.passed]="selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined"></span>
         <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
         <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
@@ -194,7 +194,7 @@
       <!--Buttons Run Scenario-->
       <div class="uk-card-footer">
         <div class="uk-button-group uk-align-right">
-          <span class="lastTestText">Latest execution:</span>
+          <span class="lastTestText SmallBody1regularLH">Latest execution:</span>
             <span class="dot"  [class.notPassed]="!selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined" [class.passed]="selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined"></span>
          <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedScenario.scenario_id);">
             Run Scenario</button>
