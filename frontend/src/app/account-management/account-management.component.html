@@ -38,8 +38,15 @@
                 </ul>
             </div>
         </div>
-        <!------------------------------------->
-    </div>
+        <!-----------------Erase your Account-------------->
+        <div class="grid_eraseAccount repositories" *ngIf="login === true"></div>
+            <h2 class="uk-card-header">Delete Seed-Test Account </h2>
+            <div class="uk-form-horizontal">
+                <button class="buttonRed" id="erase_Account" (click)="eraseAccount()">Delete Seed-Test Account</button>
+            </div>
+         </div>
+    <!------------------------------------->
+    <hr>
     <div class="grid_github uk-card uk-card-default">
         <h2 class="uk-card-header">Github</h2>
         <div *ngIf="github">
@@ -78,8 +85,8 @@
                 </ul>
             </div>
         </div>
-        <!------------------------------------->
-    </div>
+    </div> 
+    <!------------------------------------->
     <div class="grid_jira uk-card uk-card-default">
         <h2 class="uk-card-header">Jira</h2>
         <div>

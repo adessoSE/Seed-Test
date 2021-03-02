@@ -99,11 +99,11 @@
       <br>
       <hr>
       <br>
-      <!-- Github Name -->
+      <!-- E-Mail -->
       <label for="email" class="uk-form-label" style="color: grey;"></label>
       <input id="email" type="username" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
       <br>
-      <!-- Token -->
+      <!-- Token (Password) -->
       <label for="password" class="uk-form-label" style="color: grey;"></label>
       <br>
       <input id="password" type="password" name="password" placeholder=" Password" #password ngModel class="uk-form-controls" required>
@@ -119,7 +119,9 @@
         <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
-    <br>
+    <div>
+      <button class="registerButton" (click)="resetPassword();">Forgot Password?</button>
+    </div>
     <p>or</p>
     <hr>
     <!--<p class="noAccount">No account?
@@ -135,7 +137,7 @@
    <br>
    <div class="uk-card default" id="noAccountDiv">
     <span class="noAccount">No account yet? <br>
-    <button class="registerButton" title="register" (click)="navToRegistration();">Register</button>
+    <button class="registerButton" (click)="navToRegistration();">Register</button>
     or
     <button class="registerButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
        (no account required)

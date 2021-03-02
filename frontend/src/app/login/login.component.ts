@@ -179,4 +179,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     openInstruction() {
         this.showInstruction = !this.showInstruction;
     }
+
+    resetPassword() {
+        this.router.navigate(['/resetpassword']);
+    }
 }
