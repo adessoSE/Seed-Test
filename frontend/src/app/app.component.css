@@ -57,15 +57,15 @@
   padding: 12px;
 }
 
+
 #version {
   color: #56595e;
-  align-self: center;
   padding: 13px;
 }
 
 .impressum, .terms {
   text-align: center;
-  color: white;
+  color: var(--white);
   font-size: small;
   padding: 4px;
   position: center;
@@ -124,7 +124,7 @@
 .impressumContent a,
 .termsContent a,
 .termsContent p{
-  color: white;
+  color: var(--white);
   text-align: center;
   font-size: x-small;
 }
@@ -136,7 +136,7 @@
 
 .rightButton {
   background-color: #999;
-  color: white;
+  color: var(--white);
   padding: 13px;
   font-size: 15px;
   border: none;
@@ -158,28 +158,14 @@ a:hover{
 }
 
 .menuButton{
-  color: white;
+  color: var(--white);
   outline: none;
   font-style: inherit;
-  padding: 13px 20px;
+  padding: 12px 20px;
   border: 0px;
   background: #999;
   float: left;
   transition: 0.3s;
-}
-
-.right-button:focus {outline:0 !important;}
-
-.right-button#logout{
-  border: solid 1px #f07289;
-  background: -moz-linear-gradient(top,  #f07289, #f0506e);
-  color:#fff;
-  background-color: #f1647e;
-}
-
-.menulist{
-  list-style: none;
-  background-color: #f8f8f8;
 }
 
 .menuSelection{
@@ -193,7 +179,7 @@ a:hover{
 }
 
 .menuSelection:hover{
-  color: #0099CC;
+  color: var(--ocean-blue);
 }
 
 .menuSelection#logout:hover{
@@ -235,7 +221,7 @@ a:hover{
 }
 
 .dropdown-list a:hover{
-  color: #0099CC;
+  color: var(--ocean-blue);
 }
 
 .dropdown:hover .dropdown-list{
@@ -259,7 +245,7 @@ a:hover{
 }
 
 #githubHref{
-  color: white;
+  color: var(--white);
   transition: 0.3s;
 }
 
