@@ -66,12 +66,6 @@ em.dragIcon{
   display: block;
 }
 
-#scenarioHeader{
-  color: #999;
-  font-size: 20px;
-  font-weight: bold;
-}
-
 #scenario{
   border: 1px solid #999;
 }
@@ -80,13 +74,6 @@ em.dragIcon{
   font-size: medium;
   font-weight: bold;
 }
-
-#scenarioTitle{
-  color: #56595e;
-  font-weight: bold;
-  font-size: 17px;
-}
-
 
 #infoIcon{
   color: #999;

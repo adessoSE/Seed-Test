@@ -113,6 +113,7 @@ h1{
 
 a.repoLink{
     color: var(--ocean-blue);
+    transition: 0.2s;
 }
 
 a.repoLink:hover{
@@ -127,25 +128,6 @@ a.repoLink:hover{
 .loginFont{
     color:var(--ocean-blue);
 }
-
-.loginButton{
-    color:var(--white);
-    padding: 5px 10px;
-    font-size: 15px;
-    cursor: pointer;
-    border: none;
-    background: var(--ocean-blue);
-}
-
-.loginButton:focus {outline:0 !important;}
-
-.loginButton:hover {
-    background: var(--marine-blue);
-    }
-
-.loginButton:active {
-    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
-    }
 
 .noAccount{
     font-size: 13px;
@@ -184,6 +166,7 @@ a.repoLink:hover{
     border: none;
     background-color: transparent;
     color: var(--ocean-blue);
+    transition: 0.2s;
     font-size: 10pt;
 }
 

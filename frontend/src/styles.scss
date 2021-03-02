@@ -540,3 +540,17 @@
     color: var(--black);
   }
   
+
+  .normalButton{
+    color:var(--white);
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: var(--ocean-blue);
+    border: none;
+}
+
+.normalButton:hover{
+  background: var(--marine-blue);
+}

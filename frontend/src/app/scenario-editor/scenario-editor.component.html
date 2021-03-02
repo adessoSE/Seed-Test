@@ -3,7 +3,7 @@
     <div class="title">
       <div class="scenarioHeaderContainer">
         <div>
-          <span id="scenarioHeader">Scenario</span>
+          <span id="scenarioHeader" class="Smallnavigation2">Scenario</span>
             <dfn class="def"><span id="infoIconScenario" uk-icon="info"></span>
                 <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
                   It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -18,7 +18,7 @@
           title="Previous Scenario" (click)="scenarioShiftLeft();">
           <em class="material-icons">keyboard_arrow_left</em>
         </button>
-          <span *ngIf="this.selectedScenario" id="scenarioTitle"># {{selectedScenario.name | titlecase}}</span>
+          <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5"># {{selectedScenario.name | titlecase}}</span>
           <button id="scenario_change_title" class="scenarioTitle" href="#changeScenario" data-uk-tooltip
           title="Change Scenario Title" uk-toggle>
           <em class="material-icons">edit</em>
