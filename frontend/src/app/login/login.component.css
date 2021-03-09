@@ -121,7 +121,7 @@ a.repoLink:hover{
 }
 
 .wrongLogin{
-    background-color: rgb(228, 92, 92);
+    background-color: var(--grape);
     text-align: center;
 }
 

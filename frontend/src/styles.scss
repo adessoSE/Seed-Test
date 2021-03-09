@@ -51,6 +51,9 @@
       --pale: #e8e4e1;
       --grape-purple: #40171d;
       --dark-forest-green: #002e19;
+
+      --dark-grey: #857971;
+      --light-grey: #E8E4E1;
   }
 
   .LargeHeadline1 {
@@ -543,7 +546,7 @@
 
   .normalButton{
     color:var(--white);
-    padding: 5px 10px;
+    padding: 5px 10px !important;
     font-size: 15px;
     cursor: pointer;
     transition: 0.2s;
@@ -553,4 +556,12 @@
 
 .normalButton:hover{
   background: var(--marine-blue);
+}
+
+.deleteButton{
+  background: var(--grape);
+}
+
+.deleteButton:hover{
+  background: var(--grape-purple);
 }
