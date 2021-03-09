@@ -50,19 +50,19 @@
           *ngFor="let slide of slide05;"
           [image]="slide.image05"
           [hideOverlay]="true">
-          <p class="slideDescription">Name your custom Repository and save it.</p>
+          <p class="slideDescription">Name your custom Project and save it.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
           *ngFor="let slide of slide06;"
           [image]="slide.image06"
           [hideOverlay]="true">
-          <p class="slideDescription">Select your newly created Repository to continue.</p>
+          <p class="slideDescription">Select your newly created Project to continue.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
           *ngFor="let slide of slide07;"
           [image]="slide.image07"
           [hideOverlay]="true">
-          <p class="slideDescription">With a new Custom Repository you can create your own stories.<br>If you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.</p>
+          <p class="slideDescription">With a new Custom Project you can create your own stories.<br>If you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.</p>
         </mat-carousel-slide>
         <mat-carousel-slide
           *ngFor="let slide of slide08;"
@@ -145,7 +145,7 @@
   <!-- Repositories -->
   <div class="repositories" *ngIf="repositories">
     <div id="repositoriesList">
-      <label class="MediumSubline1H4">Select Your Repository:</label>
+      <label class="MediumSubline1H4">Select Your Project:</label>
       <br>
       <ul class="uk-list">
         <li *ngFor="let repository of repositories; let i = index" >

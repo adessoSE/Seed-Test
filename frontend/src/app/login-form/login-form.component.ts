@@ -55,7 +55,7 @@ export class LoginFormComponent {
         if (!this.isEmptyOrSpaces(name)){
             this.apiService.createRepository(name).subscribe(resp => {
                 console.log(resp);
-                this.toastr.info('', 'Repository created')
+                this.toastr.info('', 'Project created')
                 this.apiService.getRepositories().subscribe(res => {
                 })
             });

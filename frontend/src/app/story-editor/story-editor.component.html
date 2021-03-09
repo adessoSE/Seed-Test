@@ -1,6 +1,6 @@
 <br>
 <div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
-  <h1 id="noStoriesHeader">No Stories Yet In This Repository</h1>
+  <h1 id="noStoriesHeader">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
     <div class="tutorialDiv uk-card uk-card-default">
       <h4>Find out how to create stories:</h4>
@@ -12,8 +12,8 @@
       </div>
       <div id="infoDiv">
         <img id="infoImg" src="assets/aha-icon.png">
-        <p id=infoText>When using a custom repository new stories can be created within our application.
-          Create a custom repository using the account settings.
+        <p id=infoText>When using a custom project new stories can be created within our application.
+          Create a custom project using the account settings.
         </p>
       </div>
     </div>
@@ -28,7 +28,7 @@
 </div>
 
 <div class="emptyStories" *ngIf="storiesError">
-  <h1>You are not authorized to use this repository</h1>
+  <h1>You are not authorized to use this project</h1>
 </div>
 
 <div *ngIf="stories && (showEditor === true)">
