@@ -53,7 +53,7 @@ router.post('/createRepository', async (req, res) => {
 
 //creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
 router.post('/createStory', async (req, res) => {
-	let resultStoryId = await mongo.createStory(req.body.title, req.body.description)  
+	let resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.user._id, req.body.repo)  
 	let result = await mongo.insertStoryIdIntoRepo(req.user._id, req.body.repo, resultStoryId)
 	// const issue = {
 	// 	id: Math.floor(Math.random() * 10000),
@@ -95,7 +95,6 @@ router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
 // TODO: add storySource parameter in frontend
 router.get('/scenario/add/:storyID/:storySource', async (req, res) => {
 	try {
-		console.log("Ok im mongoRouter der storyIDParameter "+ JSON.stringify(req.params))
 		const scenario = await mongo.createScenario(req.params.storyID, req.params.storySource);
 		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)

@@ -165,8 +165,6 @@ export class ApiService {
                             'jiraServer': jiraServer};
         return this.http.post(this.apiServer + '/jira/login', body, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('hier ist die Response:');
-                console.log(resp);
                 localStorage.setItem('JiraSession', resp.toString());
             }));
     }
@@ -354,7 +352,6 @@ export class ApiService {
 
     public addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log("In der Api addScenario: die storyID: " + storyID)
 
         return this.http
             .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
@@ -380,7 +377,6 @@ export class ApiService {
 
     public updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log("Api: updateScenario: Die StoryId: " + JSON.stringify(storyID))
         return this.http
             .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storySource, scenario, ApiService.getOptions())
             .pipe(tap(resp => {

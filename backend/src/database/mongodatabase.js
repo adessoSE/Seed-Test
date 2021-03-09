@@ -96,9 +96,9 @@ async function registerUser(user) {
   if (dbUser !== null) {
     throw Error('User already exists')
   } else {
-    if (user.userId){
-      result = await collection.update({_id: ObjectId(user.userId)}, {$set: {email: user.email, password: user.password}});
-    }else{
+    if (user.userId) {
+      result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
+    } else {
       delete user.userId;
       result = await collection.insertOne(user);
     }
@@ -135,13 +135,13 @@ async function mergeGithub(userId, login, id) {
       seedAccount.jira = githubAccount.jira;
     }
 
-    if(githubAccount.email){
+    if (githubAccount.email) {
       delete githubAccount.github
       await replaceUser(githubAccount, collection);
-    }else{
+    } else {
       let deletedGithub = await deleteUser(githubAccount._id);
     }
-    
+
     let result = await replaceUser(seedAccount, collection);
     return result;
   } catch (e) {
@@ -433,19 +433,36 @@ async function deleteBackground(storyId, storySource) {
   }
 }
 
-async function createStory(storyTitel, storyDescription) {        //, asigneeEmail
+async function createStory(storyTitel, storyDescription, ownerId, repoName) {        //, asigneeEmail
   let db;
+  let iNumberArray = [];
+  let finalIssueNumber = 0;
   try {
     db = await connectDb();
+    let repoCollection = await selectRepositoryCollection(db);
     let collection = await selectStoriesCollection(db);
+    let repo = await repoCollection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    if (repo.stories.length > 0) {
+      for (storyId of repo.stories) {
+        let story = await collection.findOne({ _id: ObjectId(storyId) })
+        iNumberArray.push(story.issue_number)
+      }
+      for (i = 0; i <= iNumberArray.length; i++) {
+        let included = iNumberArray.includes(i)
+        if (!included) {
+          finalIssueNumber = i;
+          break;
+        }
+      }
+    }
     let emptyStory = {
-      story_id: '',
+      story_id: 0,
       assignee: 'unassigned',
       title: storyTitel,
       body: storyDescription,
-      issue_number: 0,
+      issue_number: finalIssueNumber,
       background: emptyBackground(),
-      scenarios: [],
+      scenarios: [emptyScenario()],
       storySource: 'db',
       repo_type: 'db',
       state: 'open',
@@ -499,13 +516,11 @@ async function getAllStoriesOfRepo(ownerId, repoName) {
 
 // CREATE Scenario
 async function createScenario(storyId, storySource) {
-  console.log("createScenario: Die ID: " + storyId + " Die Source: " + storySource)
   let db;
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await findStory(storyId, storySource, collection)
-    console.log("createScenario: Die gefundene Story: " + JSON.stringify(story))
     const lastScenarioIndex = story.scenarios.length;
     const tmpScenario = emptyScenario();
     if (story.scenarios.length === 0) {
@@ -654,9 +669,9 @@ async function createJiraRepoIfNonenExists(repoName, source) {
     let collection = await selectRepositoryCollection(db);
     let result = await collection.findOne({ repoName: repoName, repoType: source })
     if (result === null) {
-        myObjt = { owner: "", repoName: repoName, stories: [], repoType: source, customBlocks: [] }
-        result = await collection.insertOne(myObjt)
-        return result.insertedId
+      myObjt = { owner: "", repoName: repoName, stories: [], repoType: source, customBlocks: [] }
+      result = await collection.insertOne(myObjt)
+      return result.insertedId
     } else {
       return result._id
     }
@@ -794,18 +809,19 @@ async function deleteUser(userID) {
     let collection = await selectUsersCollection(db);
     let collectionRepo = await selectRepositoryCollection(db);
     let collectionStories = await selectStoriesCollection(db);
-    let user = await collection.findOne(myObjt);
-    let email = user.email;
-    let resultUser = await collection.deleteOne(myObjt);
-    let stories = await collectionRepo.find({ owner: oId }).toArray();
-    for (const issue of stories.issues) {
-      await collectionStories.deleteMany({ asignee: email, storySource: source });
+    let repos = await collectionRepo.find({ owner: oId }).toArray();
+    if (repos) {
+      for (const repo of repos) {
+        for (const storyID of repo.stories) {
+          await collectionStories.deleteOne({ _id: ObjectId(storyID) });
+        }
+      }
+      let resultRepo = await collectionRepo.deleteMany({ owner: oId });
+      let resultUser = await collection.deleteOne(myObjt);
+      let result = resultUser + resultRepo
     }
-    let resultRepo = await collectionRepo.deleteMany({ owner: oId });
-    let resultScenario = await collectionStories.deleteMany({ story_id: storyId, storySource: "db" });
-    let result = resultUser + resultRepo + resultScenario
-    console.log(result)
     return result
+
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteUser: " + e)
   } finally {

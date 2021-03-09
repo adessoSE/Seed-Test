@@ -223,7 +223,6 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     addScenarioToStory(storyID: any) {
-        console.log("addSecenarioToStory: die storyID: " + JSON.stringify(storyID) + "Und hier noch die selected Story dazu: " + JSON.stringify(this.selectedStory))
         this.addScenarioEvent.emit(storyID);
     }
 
