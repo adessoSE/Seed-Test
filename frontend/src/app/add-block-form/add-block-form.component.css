@@ -59,11 +59,7 @@
     border: 1px solid #999;
 }
 
-#modalHeader{
-    color: #999;
-    float: center;
-    font-size: 20px;
-}
+
 
 #scenarioheader{
     color: #999;
@@ -94,6 +90,14 @@
 .disabled {
     background: gray !important;
   }
+
+  .modal-title{
+    color: var(--white);
+}
+
+.modal-header{
+    background-color: var(--ocean-blue);
+}
 
 table {
     width: 100%;
@@ -138,12 +142,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 .dividerContainer{
     max-height: 600px;
     overflow-y: auto;
-}
-
-.headTitle{
-    padding: 1rem 1rem;
-    border-bottom: 1px solid #dee2e6;
-    text-align: center;
 }
 
 .dividerContainer{

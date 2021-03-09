@@ -1,6 +1,6 @@
 <ng-template #content let-modal>
-  <div class="headTitle">
-      <span id="modalHeader">Save as Block</span>
+  <div class="modal-header">
+      <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
       <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
           <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
             Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this repository.
@@ -12,11 +12,11 @@
   <div class="modal-body modal-xl">
       <div class="uk-card-title" id="submitForm">
         <div class="blockNameContainer">
-          <span class="blockNameHeader">Name</span>
+          <span class="blockNameHeader LargeBody2">Name</span>
           <input id="blockNameInput" class="blockNameInput" placeholder="Name of Block">
         </div>
         <div class="tableContainer">
-          <span class="blockNameHeader">Selected Steps</span>
+          <span class="blockNameHeader blockNameHeader">Selected Steps</span>
           <table mat-table [dataSource]="stepList" class="mat-elevation-z8">
             <ng-container matColumnDef="stepType">
               <th mat-header-cell *matHeaderCellDef> Steptype </th>

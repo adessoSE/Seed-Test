@@ -1,6 +1,6 @@
 <ng-template #content let-modal>
-    <div class="modal-header modal-xl">
-        <span id="modalHeader">New Step Request</span>
+    <div class="modal-header">
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">New Step Request</span>
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
             <span rel="def">Warning: You are about to submit a new step-type.
                         This step will be evaluated by our team, and eventually implemented.
@@ -17,11 +17,11 @@
             <div>
                 <form>
                     <div class="padding_top">
-                        <label class="padding_right">Title:</label>
+                        <label class="SmallHeadline5 padding_right">Title:</label>
                         <input id="label_form">
                     </div>
                     <div class="padding_top">
-                        <label class="padding_right">Type:</label>
+                        <label class="SmallHeadline5 padding_right">Type:</label>
                         <select id="type_form">
                             <option id="type_form_given" value="given">given</option>
                             <option id="type_form_when" value="when">when</option>
@@ -29,14 +29,13 @@
                         </select>
                     </div>
                     <div class="padding_top">
-                        <label class="padding_right">Description:</label>
+                        <label class="SmallHeadline5 padding_right">Description:</label>
                         <div>
-                            <textarea id="description_form">
-                            </textarea>
+                            <textarea id="description_form"></textarea>
                         </div>
                     </div>
                     <div class="padding_top">
-                        <label class="padding_right">E-Mail:</label>
+                        <label class="SmallHeadline5 padding_right">E-Mail:</label>
                         <input id="email_form">
                     </div>
                 </form>
@@ -44,7 +43,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="uk-button" (click)="submit(); modal.close('Save click')">Submit
+        <button type="button" class="normalButton" (click)="submit(); modal.close('Save click')">Submit
         </button>
     </div>
 </ng-template>

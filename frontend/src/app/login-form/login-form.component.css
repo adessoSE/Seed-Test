@@ -1,6 +1,6 @@
 
   .modal-title{
-    color: white;
+    color: var(--white);
   }
   
   .modal-header{
