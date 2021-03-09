@@ -108,7 +108,7 @@ export class ApiService {
 
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
-
+        
         const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
@@ -165,8 +165,6 @@ export class ApiService {
                             'jiraServer': jiraServer};
         return this.http.post(this.apiServer + '/jira/login', body, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('hier ist die Response:');
-                console.log(resp);
                 localStorage.setItem('JiraSession', resp.toString());
             }));
     }
@@ -183,10 +181,9 @@ export class ApiService {
 
     public createStory(title: string, description: string, repository: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log(this.apiServer);
         const body = {'title' : title, 'description' : description, 'repo' : repository};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
+            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())   
             .pipe(tap(resp => {
             }));
     }
@@ -260,11 +257,11 @@ export class ApiService {
         let params;
         if (repository.source === 'github') {
             const repo = repository.value.split('/');
-            params = { githubName: repo[0], repository: repo[1], source: repository.source};
+            params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source};
         } else if (repository.source === 'jira') {
             params = {projectKey: repository.value, source: repository.source};
         } else if (repository.source === 'db') {
-            params = {name: repository.value, source: repository.source};
+            params = {repoName: repository.value, source: repository.source};
         }
 
         return this.http
@@ -357,7 +354,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID+ '/' + storySource, ApiService.getOptions())
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
@@ -380,7 +377,6 @@ export class ApiService {
 
     public updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
-
         return this.http
             .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storySource, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
