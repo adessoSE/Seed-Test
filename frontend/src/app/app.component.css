@@ -24,7 +24,8 @@
 
 
 .topnav{
-  background-color: #999;
+  /*background-color: #999;*/
+  background-color: var(--dark-grey);
   grid-area: topnav;
   display: grid;
   grid-template-columns: 3fr auto 1fr auto 3fr;
@@ -59,7 +60,7 @@
 
 
 #version {
-  color: #56595e;
+  color: var(--light-grey);
   padding: 17px;
 }
 
@@ -75,7 +76,7 @@
 .footer{
   grid-area: footer;
   display: grid;
-  background-color: #999;
+  background-color: var(--dark-grey);
   grid-template-rows: auto auto;
   grid-template-columns: 1fr auto 1fr;
   grid-template-areas:
@@ -135,7 +136,7 @@
 }
 
 .rightButton {
-  background-color: #999;
+  background-color: transparent;
   color: var(--white);
   padding: 13px;
   font-size: 15px;
@@ -146,11 +147,11 @@
 }
 
 .rightButton:hover, .menuButton:hover {
-  color: rgb(121, 121, 121);
+  color: var(--light-grey);
 }
 
 a:hover{
-  color:#0099CC;
+  color: var(--ocean-blue);
 }
 
 #logo {
@@ -163,7 +164,7 @@ a:hover{
   font-style: inherit;
   padding: 12px 20px;
   border: 0px;
-  background: #999;
+  background: transparent;
   float: left;
   transition: 0.3s;
 }
@@ -173,8 +174,8 @@ a:hover{
   font-style: inherit;
   padding: 12px 16px;
   border: 0px;
-  background-color: #f8f8f8;
-  color: #56595e;
+  background-color: transparent;
+  color: var(--black);
   outline: none;
 }
 
@@ -183,7 +184,7 @@ a:hover{
 }
 
 .menuSelection#logout:hover{
-  color: #f0506e;
+  color: var(--grape);
 }
 
 /*dropdown general*/
@@ -196,7 +197,7 @@ a:hover{
 .dropdown-list{
   display: none;
   position: fixed;
-  background-color:  #f8f8f8;
+  background-color: var(--light-grey);
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
   list-style-type: none;
@@ -207,7 +208,7 @@ a:hover{
 
 .dropdown-list a{
   overflow: auto;
-  color: #56595e;
+  color: var(--black);
   padding: 12px 16px;
   display: block;
   list-style-type: none;
@@ -250,7 +251,7 @@ a:hover{
 }
 
 #githubHref:hover{
-  color: rgb(121, 121, 121);
+  color: var(--light-grey);
 }
 
 @media screen and (max-width: 600px) {
