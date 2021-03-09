@@ -4,7 +4,7 @@
 }
 /* Refactor this*/
 .grid{
-  background-color: rgb(224, 224, 224);
+  background-color: var(--light-grey);
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
@@ -19,7 +19,7 @@
 
 .router{
   grid-area: router;
-  background-color: rgb(224, 224, 224);
+  background-color: var(--light-grey);
 }
 
 
