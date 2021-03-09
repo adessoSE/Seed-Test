@@ -41,7 +41,7 @@ h1{
     margin-right: auto;
     margin-bottom: 5%;
     margin-left: auto;
-    padding: auto;
+    padding: 25px;
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
 }
@@ -109,7 +109,9 @@ h1{
     color: #0099CC;
     font-weight: bold;
 }*/
-
+.repositoryList{
+    list-style: none;
+}
 
 a.repoLink{
     color: var(--ocean-blue);
