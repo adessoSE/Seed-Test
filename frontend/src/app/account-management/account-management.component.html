@@ -39,12 +39,13 @@
             </div>
         </div>
         <!-----------------Erase your Account-------------->
-        <div class="grid_eraseAccount repositories" *ngIf="login === true"></div>
+        <div class="grid_eraseAccount repositories" *ngIf="login === true && !email">
             <h2 class="LargeHeadline3">Delete Seed-Test Account </h2>
             <div class="uk-form-horizontal">
                 <button class="normalButton deleteButton" id="erase_Account" (click)="eraseAccount()">Delete Seed-Test Account</button>
             </div>
-         </div>
+        </div>
+    </div>
     <!------------------------------------->
     <hr>
     <div class="grid_github uk-card uk-card-default">
