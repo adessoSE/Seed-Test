@@ -747,4 +747,12 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     scenarioSaved(){
         return this.testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined
     }
+
+    sortedStepTypes(){
+       let sortedStepTypes =  this.originalStepTypes;
+       sortedStepTypes.sort((a, b) => {
+           return a.id - b.id;
+       })
+       return sortedStepTypes
+    }
 }  

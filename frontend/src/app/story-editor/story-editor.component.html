@@ -118,7 +118,7 @@
           </button>
           <div uk-dropdown="pos: left-bottom">
             <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of originalStepTypes; let i = index" >
+              <li *ngFor="let step of sortedStepTypes(); let i = index" >
                 <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
                   {{step.type}}</span>
               </li>
