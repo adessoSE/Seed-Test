@@ -529,4 +529,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     return this.runUnsaved ||((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved))
   }
 
+  sortedStepTypes(){
+    let sortedStepTypes =  this.originalStepTypes;
+    sortedStepTypes.sort((a, b) => {
+        return a.id - b.id;
+    })
+    return sortedStepTypes
+ }
+
 }
