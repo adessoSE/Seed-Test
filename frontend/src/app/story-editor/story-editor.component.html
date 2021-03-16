@@ -1,6 +1,6 @@
 <br>
 <div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
-  <h1 id="noStoriesHeader">No Stories Yet In This Project</h1>
+  <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
     <div class="tutorialDiv uk-card uk-card-default">
       <h4>Find out how to create stories:</h4>
@@ -24,11 +24,11 @@
   </div>
 </div>
 <div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
-  <h1>Loading Stories ...</h1>
+  <h1 class="LargeHeadline2">Loading Stories ...</h1>
 </div>
 
 <div class="emptyStories" *ngIf="storiesError">
-  <h1>You are not authorized to use this project</h1>
+  <h1 class="LargeHeadline2">You are not authorized to use this project</h1>
 </div>
 
 <div *ngIf="stories && (showEditor === true)">

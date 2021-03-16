@@ -3,6 +3,10 @@
     margin: 0px;
 }*/
 
+*{
+    font-family: Klavika, sans-serif;
+}
+
 .uk-accordion-title, .uk-accordion-content, .uk-label {
     font-size: small;
 }
@@ -160,7 +164,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     display: none !important;
 }
 
-::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteButton{
+::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteBlockButton{
     margin-right: 20px;
 }
 
