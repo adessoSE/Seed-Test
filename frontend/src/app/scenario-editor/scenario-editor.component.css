@@ -177,6 +177,18 @@ em.dragIcon{
   line-height: 38px;
   text-transform: uppercase;
 }
+.marginButton{
+  margin: 5px;
+}
+.modal-title{
+  color: var(--white);
+}
+
+.modal-header2{
+  background-color: var(--ocean-blue);
+  padding: 15px;
+  margin-bottom: 5px;
+}
 
 .modalMargin{
   margin-left: auto !important;
