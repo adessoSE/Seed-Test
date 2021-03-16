@@ -33,6 +33,14 @@ Given('As a {string}', async function (string) {
   this.role = string;
 });
 
+Given('I add a cookie with the name {string} and value {string}', async (name, value) => {
+  await driver.manage().addCookie({name: name, value: value});
+});
+
+Given('I remove a cookie with the name {string}', async (name) => {
+  await driver.manage().deleteCookie(name);
+});
+
 Given('I am on the website: {string}', async (url) => {
   await driver.get(url);
   await driver.getCurrentUrl().then(async (currentUrl) => {
