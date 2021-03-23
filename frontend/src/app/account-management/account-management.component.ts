@@ -22,7 +22,6 @@ export class AccountManagementComponent implements OnInit {
 
     constructor(public apiService: ApiService, public router: Router, private toastr: ToastrService) {
         router.events.forEach((event) => {
-            console.log('from router events')
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful');
             }
@@ -51,7 +50,6 @@ export class AccountManagementComponent implements OnInit {
     }
     
     updateSite(report) {
-        console.log('update Site')
         console.log(report);
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {

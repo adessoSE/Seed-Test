@@ -85,7 +85,6 @@ export class ModalsComponent{
     const name = (document.getElementById('repo_name') as HTMLInputElement).value;
     if (!this.isEmptyOrSpaces(name)){
         this.apiService.createRepository(name).subscribe(resp => {
-            console.log(resp);
             this.toastr.info('', 'Project created')
             this.apiService.getRepositories().subscribe(res => {
             })
@@ -260,7 +259,6 @@ export class ModalsComponent{
 
   submitRenameScenario() {
     let name = (document.getElementById('newTitle') as HTMLInputElement).value ;
-    console.log('new name', name)
     this.apiService.renameScenarioEmit(name)
   }
 }
