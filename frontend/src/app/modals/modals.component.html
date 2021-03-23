@@ -8,7 +8,7 @@
         </button>
     </div>
     <div class="modal-body">
-        <div id="submitForm">
+        <div class="submitForm">
             <div>
                 <form>
                     <div class="form-group" id="jiraForm" *ngIf="type==='Jira'">
@@ -50,7 +50,7 @@
         </button>
     </div>
     <div class="modal-body">
-        <div id="submitForm">
+        <div class="submitForm">
             <div>
                 <form>
                     <div class="form-group">
@@ -78,7 +78,7 @@
         </button>
     </div>
     <div class="modal-body">
-        <div id="submitForm">
+        <div class="submitForm">
             <div>
                 <form>
                     <div class="form-group">
@@ -104,7 +104,7 @@
 <ng-template #addBlockFormModal let-modal>
     <div class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Add Block</span>
-        <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
             <span rel="def">Add a saved Block. These Steps will get appended to the steps of this story.
                   </span></dfn>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -151,7 +151,7 @@
   <ng-template #saveBlockFormModal let-modal>
     <div class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
-        <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
             <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
               Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
                   </span></dfn>
@@ -160,7 +160,7 @@
         </button>
     </div>
     <div class="modal-body modal-xl">
-        <div class="uk-card-title" id="submitForm">
+        <div class="uk-card-title submitForm">
           <div class="blockNameContainer">
             <span class="blockNameHeader LargeBody2">Name</span>
             <input id="blockNameInput" class="blockNameInput" placeholder="Name of Block">
@@ -198,7 +198,7 @@
 <ng-template #newStepsRequestModal let-modal>
     <div class="modal-header">
         <span id="modalHeader"class="MediumSubline1H4 modal-title">New Step Request</span>
-        <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
             <span rel="def">Warning: You are about to submit a new step-type.
                         This step will be evaluated by our team, and eventually implemented.
                         Please fill out the form below to submit the step.
@@ -210,7 +210,7 @@
         </button>
     </div>
     <div class="modal-body modal-xl">
-        <div class="uk-card-title" id="submitForm">
+        <div class="uk-card-title submitForm">
             <div>
                 <form>
                     <div class="padding_top">
@@ -252,7 +252,7 @@
         <span id="modalHeader"class="MediumSubline1H4 modal-title">Change Scenario Title</span>
     </div>
     <div class="modal-body modal-xl">
-        <div class="uk-card-title" id="submitForm">
+        <div class="uk-card-title submitForm">
             <div>
                 <form>
                     <div class="padding_top">
