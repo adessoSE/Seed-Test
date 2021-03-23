@@ -19,8 +19,8 @@
           <em class="material-icons">keyboard_arrow_left</em>
         </button>
           <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5"># {{selectedScenario.name | titlecase}}</span>
-          <button id="scenario_change_title" class="scenarioTitle" href="#changeScenario" data-uk-tooltip
-          title="Change Scenario Title" uk-toggle>
+          <button id="scenario_change_title" class="scenarioTitle" (click)="changeScenarioTitle();" data-uk-tooltip
+          title="Change Scenario Title">
           <em class="material-icons">edit</em>
         </button>
           <button id="scenario_shift_right" class="scenarioTitle" *ngIf="!arrowRight" data-uk-tooltip
@@ -192,6 +192,7 @@
 <app-submitform #submitForm></app-submitform>
 <app-save-block-form #saveBlockForm></app-save-block-form>
 <app-add-block-form #addBlockForm></app-add-block-form>
+<app-modals #modalsComponent></app-modals>
 
   <div id="changeScenario" uk-modal>
     <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin">

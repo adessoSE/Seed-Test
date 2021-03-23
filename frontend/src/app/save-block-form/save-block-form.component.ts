@@ -14,8 +14,8 @@ export class SaveBlockFormComponent {
   @ViewChild('content') content: any;
 
   block: Block;
-  displayedColumns: string[] = ['stepType', 'pre'];
-  stepList = [];
+  displayedColumnsSaveBlock: string[] = ['stepType', 'pre'];
+  stepListSaveBlock = [];
   exampleBlock = false;
   exampleChecked = false;
   stepListComplete = [];
@@ -36,10 +36,10 @@ export class SaveBlockFormComponent {
   }
 
   createStepList(){
-    this.stepList = []
+    this.stepListSaveBlock = []
     Object.keys(this.block.stepDefinitions).forEach((key, index) => {
       this.block.stepDefinitions[key].forEach((step: StepType) => {
-        this.stepList.push(step)
+        this.stepListSaveBlock.push(step)
       })
     })
   }
@@ -47,12 +47,12 @@ export class SaveBlockFormComponent {
   exampleCheck(event){
     this.exampleChecked = !this.exampleChecked;
     if(this.exampleChecked){
-      this.stepListComplete = JSON.parse(JSON.stringify(this.stepList))
-      this.stepList = this.stepList.filter(step => {
+      this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock))
+      this.stepListSaveBlock = this.stepListSaveBlock.filter(step => {
         return step.stepType == "example";
       })
     }else {
-      this.stepList = JSON.parse(JSON.stringify(this.stepListComplete))
+      this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete))
     }
   }
 

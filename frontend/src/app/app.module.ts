@@ -40,7 +40,8 @@ import { AddBlockFormComponent } from './add-block-form/add-block-form.component
 import { MatCarouselModule } from '@ngbmodule/material-carousel';
 import {RunTestToast} from './custom-toast'
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component'
+import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
+import { ModalsComponent } from './modals/modals.component'
 
 @NgModule({
   declarations: [
@@ -70,7 +71,8 @@ import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-
     SaveBlockFormComponent,
     AddBlockFormComponent,
     ResetPasswordComponent,
-    ConfirmResetPasswordComponent
+    ConfirmResetPasswordComponent,
+    ModalsComponent
   ],
   imports: [
       NgbModule,

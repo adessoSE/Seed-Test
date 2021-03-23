@@ -1,9 +1,9 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
-import {LoginFormComponent} from '../login-form/login-form.component';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ToastrService } from 'ngx-toastr';
+import { ModalsComponent } from "../modals/modals.component";
 
 @Component({
     selector: 'app-account-management',
@@ -11,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
     styleUrls: ['./account-management.component.css']
 })
 export class AccountManagementComponent implements OnInit {
-    @ViewChild('loginForm') modalService: LoginFormComponent;
+    @ViewChild('modalComponent') modalComponent: ModalsComponent;
 
     repositories: RepositoryContainer[];
     email: string;
@@ -22,6 +22,7 @@ export class AccountManagementComponent implements OnInit {
 
     constructor(public apiService: ApiService, public router: Router, private toastr: ToastrService) {
         router.events.forEach((event) => {
+            console.log('from router events')
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful');
             }
@@ -38,20 +39,19 @@ export class AccountManagementComponent implements OnInit {
     }
     
     newRepository() {
-        this.modalService.openCreateRepoModal();
+        this.modalComponent.openCreateCustomProjectModal();
     }
 
     jiraLogin() {
-        this.modalService.open('Jira');
+        this.modalComponent.openChangeJiraAccountModal('Jira');
     }
  
-     eraseAccount() {
-        this.modalService.eraseAccountModal(this.email);
+    eraseAccount() {
+        this.modalComponent.deleteAccountModal(this.email);
     }
     
-    
-    
     updateSite(report) {
+        console.log('update Site')
         console.log(report);
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {
