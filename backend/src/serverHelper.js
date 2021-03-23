@@ -203,7 +203,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 async function execReport(req, res, stories, mode, callback) {
   try {
     const result = await mongo.getOneStory(req.params.storyID, req.params.storySource);
-    console.log("ServerHelper/execReport das Result: " + JSON.stringify(result) + " Und auch die story ID: " + JSON.stringify(req.params))
+    //console.log("ServerHelper/execReport das Result: " + JSON.stringify(result) + " Und auch die story ID: " + JSON.stringify(req.params))
     execReport2(req, res, stories, mode, result, callback);
   } catch (error) {
     res.status(404)
@@ -637,7 +637,7 @@ function runReport(req, res, stories, mode) {
 			}
 			if (scenarioID && scenario) {
 				scenario.lastTestPassed = testStatus;
-				mongo.updateScenario(story.story_id, story.storySource, scenario, () => {
+				mongo.updateScenario(story._id, story.storySource, scenario, () => {
 				});
 			} else if (!scenarioID) {
 				story.lastTestPassed = testStatus;

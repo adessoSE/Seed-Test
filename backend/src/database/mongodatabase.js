@@ -568,9 +568,9 @@ async function updateScenario(storyId, storySource, updatedScenario) {
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    console.log("mdb/updateScenario die StoryID: " + JSON.stringify(storyId))
+    //console.log("mdb/updateScenario die StoryID: " + JSON.stringify(storyId))
     let story = await findStory(storyId, storySource, collection)
-    console.log("mdb/updateScenario die Story: " + JSON.stringify(story))
+    //console.log("mdb/updateScenario die Story: " + JSON.stringify(story))
     for (const scenario of story.scenarios) {
       if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
         story.scenarios.push(scenario);
@@ -819,6 +819,7 @@ async function deleteUser(userID) {
       let resultRepo = await collectionRepo.deleteMany({ owner: oId });
       let resultUser = await collection.deleteOne(myObjt);
       let result = resultUser + resultRepo
+      return result
     }
     return result
 

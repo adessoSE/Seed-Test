@@ -57,6 +57,16 @@ When('I go to the website: {string}', async (url) => {
   });
 });
 
+When('I want to upload the file from this path: {string} into this uploadfield: {string}', async (path,input) => {
+  try {
+  await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
+  .sendKeys(`${path}`)
+  }catch (e) {
+    await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
+  .sendKeys(`${path}`)
+  }
+});
+
 // clicks a button if found in html code with xpath,
 // timeouts if not found after 3 sec, waits for next page to be loaded
 When('I click the button: {string}', async (button) => {

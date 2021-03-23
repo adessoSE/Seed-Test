@@ -247,6 +247,17 @@ function stepDefs() {
 		values: [
 			''
 		]
+	},
+	{
+		id: '',
+		stepType: 'when',
+		type: 'Upload a file',
+		pre: 'I want to upload the file from this path:',
+		mid: 'into this uploadfield: ',
+		values: [
+			'',
+			''
+		]	
 	}];
 }
 
