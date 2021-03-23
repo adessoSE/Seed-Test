@@ -55,7 +55,7 @@ export class ModalsComponent{
   openChangeJiraAccountModal(type) {
       this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
       this.type = type;
-      document.getElementById('modalHeader').innerHTML = `Login to ${type}`;
+      //document.getElementById('modalHeader').innerHTML = `Login to ${type}`;
   }
 
   changeJiraAccountSubmit() {

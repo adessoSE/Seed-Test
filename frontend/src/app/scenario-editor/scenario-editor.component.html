@@ -189,33 +189,4 @@
     </div>
   </div>
 
-<app-submitform #submitForm></app-submitform>
-<app-save-block-form #saveBlockForm></app-save-block-form>
-<app-add-block-form #addBlockForm></app-add-block-form>
 <app-modals #modalsComponent></app-modals>
-
-  <div id="changeScenario" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin">
-      <div class="modal-header2">
-        <h2 class="MediumSubline1H4 modal-title">Change Scenario Title</h2>
-      </div>
-      <input *ngIf="this.selectedScenario" id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
-      <p class="uk-text-right">
-        <button id="change_scenario_title_cancel" class="marginButton normalButton uk-modal-close" type="button">Cancel</button>
-        <button id="change_scenario_title_save" class="marginButton normalButton uk-modal-close" (click)="renameScenario($event)"
-          type="button">Save</button>
-      </p>
-    </div>
-  </div>
-
-  <div id="saveBlockModal" uk-modal> 
-    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin padding">
-      <h2 class="padding">Save as Block</h2>
-      <input *ngIf="this.selectedScenario" id="Block" type="text" #ScenarioName placeholder="Name of Block"/>
-      <p class="uk-text-right">
-        <button id="change_scenario_title_cancel" class="button uk-modal-close" type="button">Cancel</button>
-        <button id="change_scenario_title_save" class="button uk-modal-close" (click)="renameScenario($event)"
-          type="button">Save</button>
-      </p>
-    </div>
-  </div>

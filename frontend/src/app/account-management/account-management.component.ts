@@ -47,7 +47,7 @@ export class AccountManagementComponent implements OnInit {
     }
  
     eraseAccount() {
-        this.modalComponent.deleteAccountModal(this.email);
+        this.modalComponent.openDeleteAccountModal(this.email);
     }
     
     updateSite(report) {
