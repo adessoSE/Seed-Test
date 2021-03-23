@@ -2,7 +2,7 @@
   "name": "cucumber-frontend",
   "version": "0.0.0",
   "engines": {
-    "node": "10.x"
+    "node": "10.24.x"
   },
   "scripts": {
     "ng": "ng",
