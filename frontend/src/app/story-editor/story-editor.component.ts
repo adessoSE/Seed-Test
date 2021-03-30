@@ -474,9 +474,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.testRunning = true;
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
+            var browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
             loadingScreen.scrollIntoView();
             this.apiService
-                .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
+                .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id, {browser: browserSelect})
                 .subscribe(resp => {
                     iframe.srcdoc = resp;
                     // console.log("This is the response: " + resp);

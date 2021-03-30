@@ -414,7 +414,7 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: any, storySource: string, scenarioID: number) {
+    public runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
         
         if (scenarioID) {
