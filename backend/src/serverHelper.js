@@ -182,7 +182,7 @@ function execReport2(req, res, stories, mode, story, callback) {
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
   } else {
-    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.storyID}_${req.params.scenarioID}" --format json:${path.normalize(path3)}`;
+    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.storyID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters \"{\\\"browser\\\": \\\"chrome\\\"}\"`;
   }
 
 
