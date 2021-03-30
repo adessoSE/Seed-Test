@@ -23,10 +23,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
-import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
-import { LoginFormComponent } from './login-form/login-form.component';
 import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -35,12 +33,11 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { SaveBlockFormComponent } from './save-block-form/save-block-form.component';
-import { AddBlockFormComponent } from './add-block-form/add-block-form.component'
 import { MatCarouselModule } from '@ngbmodule/material-carousel';
 import {RunTestToast} from './custom-toast'
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component'
+import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
+import { ModalsComponent } from './modals/modals.component'
 
 @NgModule({
   declarations: [
@@ -57,9 +54,7 @@ import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-
     EditableOnEnterDirective,
     FeedbackComponent,
     TermsComponent,
-    SubmitformComponent,
     AccountManagementComponent,
-    LoginFormComponent,
     TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
@@ -67,10 +62,9 @@ import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
-    SaveBlockFormComponent,
-    AddBlockFormComponent,
     ResetPasswordComponent,
-    ConfirmResetPasswordComponent
+    ConfirmResetPasswordComponent,
+    ModalsComponent
   ],
   imports: [
       NgbModule,

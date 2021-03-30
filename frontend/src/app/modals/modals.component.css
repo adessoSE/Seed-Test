@@ -1,72 +1,34 @@
-/**{
-    padding: 0px;
-    margin: 0px;
-}*/
-
 *{
     font-family: Klavika, sans-serif;
 }
 
-.uk-accordion-title, .uk-accordion-content, .uk-label {
-    font-size: small;
-}
+  .modal-title{
+    color: var(--white);
+  }
+  
+  .modal-header{
+    background-color: var(--ocean-blue);
+  }
+
+  .modal-body{
+    text-align: center;
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 15px;
+  }
+
+  .modal-footer{
+    height: 60px;
+  }
+
+  .close{
+    color: var(--white);
+    outline: none;
+  }
 
 .uk-card-title {
     font-size: medium;
-}
-
-
-.uk-accordion{
-    width: 100%;
-}
-.def {
-    color: #999;
-    cursor: help;
-    position: relative;
-    font-size: 20px;
-    font-weight: lighter;
-}
-
-.def span[rel=def] {
-    display: none;
-}
-
-.def:hover span[rel=def] {
-    font-size: small;
-    color: var(--white);
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    top: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-    z-index: 100;
-}
-
-
-#infoIcon{
-    color: #999;
-    margin-left: 5px;
-    margin-right: 5px;
-}
-
-#submitForm{
-    width: 100%
-}
-
-#scname{
-    color: #56595e;
-}
-
-#story{
-    border: 1px solid #999;
-}
-
-
-
-#scenarioheader{
-    color: #999;
 }
 
 ::ng-deep .modal-dialog{
@@ -74,7 +36,6 @@
 }
 
 .subHeader{
-    color: #999;
     margin-left: 5px;
 }
 
@@ -93,14 +54,6 @@
 
 .disabled {
     background: gray !important;
-  }
-
-  .modal-title{
-    color: var(--white);
-}
-
-.modal-header{
-    background-color: var(--ocean-blue);
 }
 
 table {
@@ -111,6 +64,7 @@ table {
 .mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
   }
+
 .mat-cell, .mat-header-cell {
     text-align: center;
 }
@@ -124,15 +78,14 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 }
 
 .blockNameContainer{
-    display: flex;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 10px;
-    flex-direction: column;
+    display: flex;
 }
 
 .blockNameHeader{
     font-size: 18px;
-    color: #999;
+    margin-right: 10px;
 }
 
 .blockNameInput{
@@ -146,9 +99,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 .dividerContainer{
     max-height: 600px;
     overflow-y: auto;
-}
-
-.dividerContainer{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -173,9 +123,67 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     flex-direction: row;
 }
 
+.def {
+    cursor: help;
+    position: relative;
+    font-size: 20px;
+    font-weight: lighter;
+}
+
+.def span[rel=def] {
+    display: none;
+}
+
+.def:hover span[rel=def] {
+    font-size: small;
+    color: var(--white);
+    background-color: rgb(109, 109, 109);
+    position: absolute;
+    top: 2em;
+    left: 2em;
+    width: 30em;
+    padding: 0.5em;
+    display: block;
+    z-index: 100;
+}
+
+
+.infoIcon{
+    color: var(--white);
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.submitForm{
+    width: 100%
+}
+
+
+.tableContainer{
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.mat-table{
+    font-family: Klavika, sans-serif;
+  }
+
+.exampleCheckboxContainer{
+    padding-top: 5px;
+}
+
+.exampleCheckbox{
+    margin-right: 5px;
+}
+
 @media screen and (max-height: 800px) {
+    .tableContainer{
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
     .dividerContainer{
         max-height: 300px;
         overflow-y: auto;
     }
-  }
+}

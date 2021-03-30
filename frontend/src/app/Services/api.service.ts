@@ -32,6 +32,8 @@ export class ApiService {
     public runSaveOptionEvent = new EventEmitter();
     public addBlockToScenarioEvent = new EventEmitter();
     public logoutEvent = new EventEmitter();
+    public renameScenarioEvent = new EventEmitter();
+
     public user;
     //public local:boolean = false;
 
@@ -47,6 +49,10 @@ export class ApiService {
     static handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
         return throwError(error);
+    }
+
+    renameScenarioEmit(newTitle){
+        this.renameScenarioEvent.emit(newTitle);
     }
 
     getBlocks() {

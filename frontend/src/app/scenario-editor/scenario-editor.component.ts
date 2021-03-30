@@ -7,11 +7,9 @@ import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
-import { SubmitformComponent } from '../submitform/submitform.component';
 import { ToastrService } from 'ngx-toastr';
-import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
 import { Block } from '../model/Block';
-import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
+import { ModalsComponent } from '../modals/modals.component';
 
 @Component({
     selector: 'app-scenario-editor',
@@ -35,9 +33,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     clipboardBlock: any = null;
 
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
-    @ViewChild('submitForm') modalService: SubmitformComponent;
-    @ViewChild('saveBlockForm') saveBlockFormService: SaveBlockFormComponent;
-    @ViewChild('addBlockForm') addBlockFormService: AddBlockFormComponent;
+    @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
 
     
     constructor(
@@ -80,6 +76,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
                   this.selectedScenario.saved = false;
             }
         })
+
+        this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
     }
 
     @Input() originalStepTypes: StepType[];
@@ -233,7 +231,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     addStepToScenario(storyID: any, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if(newStep['type'] === this.newStepName){
-            this.modalService.open(newStep['stepType']);
+            this.modalsComponent.openNewStepRequestModal(newStep['stepType']);
         }else{
             switch (newStep.stepType) {
                 case 'given':
@@ -356,7 +354,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     addBlock(event){
-        this.addBlockFormService.open('scenario');
+        this.modalsComponent.openAddBlockFormModal('scenario');
     }
 
     saveBlock(event){
@@ -371,7 +369,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
             }
         }
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.saveBlockFormService.open(block, this);
+        this.modalsComponent.openSaveBlockFormModal(block, this);
     }
 
     copyBlock(event){
@@ -420,7 +418,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
             }
         }
         let block: Block = {stepDefinitions: saveBlock}
-        this.saveBlockFormService.open(block, this);
+        this.modalsComponent.openSaveBlockFormModal(block, this);
     }
 
     includesExampleStep(step: StepType){
@@ -660,10 +658,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
     }
 
-    renameScenario(event) {
-        let name = (document.getElementById('scenarioName') as HTMLInputElement).value ;
-        if (name) {
-            this.selectedScenario.name = name;
+    renameScenario(newTitle) {
+        if (newTitle && newTitle.replace(/\s/g, '').length > 0) {
+            this.selectedScenario.name = newTitle;
         }
         this.selectedScenario.saved = false;
     }
@@ -745,5 +742,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     scenarioSaved(){
         return this.testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined
+    }
+
+    changeScenarioTitle(){
+        this.modalsComponent.openRenameScenarioModal(this.selectedScenario.name)
     }
 }  
