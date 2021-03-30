@@ -6,7 +6,7 @@ const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
 const chrome = require('selenium-webdriver/chrome');
-
+const fs = require('fs');
 // Cucumber default timer for timeout
 setDefaultTimeout(20 * 1000);
 let driver;
@@ -43,7 +43,14 @@ Given('I am on the website: {string}', async function (url) {
 
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 	  // expect(currentUrl).to.equal(url, 'Error');
+
 	});
+	await driver.takeScreenshot().then(function(data){
+		var base64Data = data.replace(/^data:image\/png;base64,/,"")
+		fs.writeFile("features/screenshots/out.png", base64Data, 'base64', function(err) {
+			 if(err) console.log(err);
+		});
+	 });
 });
 
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
@@ -72,6 +79,12 @@ When('I go to the website: {string}', async function (url) {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 	  // expect(currentUrl).to.equal(url, 'Error');
 	});
+	await driver.takeScreenshot().then(function(data){
+		var base64Data = data.replace(/^data:image\/png;base64,/,"")
+		fs.writeFile("features/screenshots/out2.png", base64Data, 'base64', function(err) {
+			 if(err) console.log(err);
+		});
+	 });
 });
 
 When('I want to upload the file from this path: {string} into this uploadfield: {string}', async function (path,input){
