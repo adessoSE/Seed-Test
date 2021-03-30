@@ -172,19 +172,28 @@ async function updateFeatureFile(issueID, storySource) {
   if (result != null) writeFile('', result);
 }
 
-function execReport2(req, res, stories, mode, story, callback) {
+function execReport2(req, res, stories, mode, story, cucumberParameters, callback) {
   const reportTime = Date.now();
   const path1 = 'node_modules/.bin/cucumber-js';
   const path2 = `features/${cleanFileName(story.title)}.feature`;
   const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
   const path3 = `features/${reportName}.json`;
+  worldParam= ''
+  const keys = Object.keys(cucumberParameters)
+  for (const [index, key] of keys.entries()) {
+    if (index < keys.length - 1){
+      worldParam += `\\\"${key}\\\": \\\"${cucumberParameters[key]}\\\",`
+    } else {
+      worldParam += `\\\"${key}\\\": \\\"${cucumberParameters[key]}\\\"`
+    }
+  }
   let cmd;
   if (mode === 'feature') {
-    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
+    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
   } else {
-    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.storyID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters \"{\\\"browser\\\": \\\"chrome\\\"}\"`;
+    console.log('{' + worldParam + '}')
+    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.storyID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
   }
-
 
 	console.log(`Executing: ${cmd}`);
 	exec(cmd, (error, stdout, stderr) => {
@@ -200,11 +209,11 @@ function execReport2(req, res, stories, mode, story, callback) {
 	});
 }
 
-async function execReport(req, res, stories, mode, callback) {
+async function execReport(req, res, stories, mode, cucumberParameters, callback) {
   try {
     const result = await mongo.getOneStory(req.params.storyID, req.params.storySource);
     //console.log("ServerHelper/execReport das Result: " + JSON.stringify(result) + " Und auch die story ID: " + JSON.stringify(req.params))
-    execReport2(req, res, stories, mode, result, callback);
+    execReport2(req, res, stories, mode, result,cucumberParameters, callback);
   } catch (error) {
     res.status(404)
       .send(error);
@@ -581,8 +590,8 @@ function decryptPassword(encrypted) {
   return decrypted
 };
 
-function runReport(req, res, stories, mode) {
-	execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
+function runReport(req, res, stories, mode, cucumberParameters) {
+	execReport(req, res, stories, mode, cucumberParameters, (reportTime, story, scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 		const reportOptions = setOptions(reportName);

@@ -20,12 +20,14 @@ router
 
 // run single Feature
 router.get('/Feature/:storyID/:storySource', (req, res) => {
-	helper.runReport(req, res, stories, 'feature');
+	cucumberParameters = {}
+	helper.runReport(req, res, stories, 'feature', cucumberParameters);
 });
 
 // run single Scenario of a Feature
 router.get('/Scenario/:storyID/:storySource/:scenarioID', (req, res) => {
-	helper.runReport(req, res, stories, 'scenario');
+	cucumberParameters = {}
+	helper.runReport(req, res, stories, 'scenario', cucumberParameters);
 });
 
 router.get('/report/:reportName', (req, res) => {
