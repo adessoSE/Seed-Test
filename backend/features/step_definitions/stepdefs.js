@@ -47,18 +47,12 @@ Given('I am on the website: {string}', async function (url) {
 });
 
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
-	console.log('world parameters 3', this.parameters, this.role)
-	//this.parameters['blub'] = 'schlupp'
-	await driver.manage().addCookie({name: this.parameters.browser, value: value});
-	//this.parameters.browser
+	await driver.manage().addCookie({name: name, value: value});
 });
 
 Given('As a {string}', async function (string) {
-	//this.role = string;
-
-	console.log('world parameters 1', this.parameters)
+	this.role = string;
 	//await driver.sleep(parseInt(parseInt(this.parameters.waitTime)));
-
 });
 
 
