@@ -19,13 +19,17 @@ router
 	});
 
 // run single Feature
-router.get('/Feature/:issueID/:storySource', (req, res) => {
-	helper.runReport(req, res, stories, 'feature');
+router.post('/Feature/:issueID/:storySource', (req, res) => {
+	body = req.body
+	console.log('body1:', body)
+	helper.runReport(req, res, stories, 'feature', body);
 });
 
 // run single Scenario of a Feature
-router.get('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
-	helper.runReport(req, res, stories, 'scenario');
+router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
+	body = req.body
+	console.log('body2:', body)
+	helper.runReport(req, res, stories, 'scenario', body);
 });
 
 router.get('/report/:reportName', (req, res) => {

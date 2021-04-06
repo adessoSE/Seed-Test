@@ -4,6 +4,49 @@
 
  }
 
+ .storyInfoContainer{
+  display: flex;  
+  flex-flow: row wrap;
+  font-weight: bold;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
+ }
+
+ @media all and (min-width: 800px) {
+  /* We invert order of first sidebar and main
+   * And tell the main element to take twice as much width as the other two sidebars 
+   */
+  .storyInfoCenter { flex: 2 0px; }
+  .storyInfoLeft { order: 1; }
+  .storyInfoCenter    { order: 2; }
+  .storyInfoRight { order: 3; }
+
+}
+  .storyInfoLeft{
+    display: flex;
+    justify-content: flex-start;
+    padding: 5px;
+    align-items: center;
+  }
+
+ .storyInfoRight{
+    padding: 5px;
+ }
+
+ .storyInfoCenter{
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px;
+    align-items: center;
+ }
+
+ .selectLabel{
+   margin-right: 5px;
+ }
+
+ .select {
+   width: 120px;
+ }
  .arrowLeft{
    width: 130px;
    float: left;

@@ -414,16 +414,16 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: any, storySource: string, scenarioID: number) {
+    public runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
         
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, {
+                .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
                     responseType: 'text', withCredentials: true});
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, { responseType: 'text', withCredentials: true});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true});
     }
 
     // public changeDaisy(){
