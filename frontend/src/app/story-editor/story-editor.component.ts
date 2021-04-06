@@ -478,7 +478,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             var browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
             loadingScreen.scrollIntoView();
             this.apiService
-                .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id, {browser: browserSelect})
+                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id, {browser: browserSelect})
                 .subscribe(resp => {
                     iframe.srcdoc = resp;
                     // console.log("This is the response: " + resp);

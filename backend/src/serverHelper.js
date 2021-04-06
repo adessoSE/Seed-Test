@@ -173,13 +173,19 @@ async function updateFeatureFile(issueID, storySource) {
 }
 
 function execReport2(req, res, stories, mode, story, cucumberParameters, callback) {
+  console.log('execReport2 1')
   const reportTime = Date.now();
   const path1 = 'node_modules/.bin/cucumber-js';
+  console.log('execReport2 pre', story)
   const path2 = `features/${cleanFileName(story.title)}.feature`;
+  console.log('execReport2 post')
+
   const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
   const path3 = `features/${reportName}.json`;
   worldParam= ''
   const keys = Object.keys(cucumberParameters)
+  console.log('execReport2 2')
+
   for (const [index, key] of keys.entries()) {
     if (index < keys.length - 1){
       worldParam += `\\\"${key}\\\": \\\"${cucumberParameters[key]}\\\",`
@@ -187,6 +193,7 @@ function execReport2(req, res, stories, mode, story, cucumberParameters, callbac
       worldParam += `\\\"${key}\\\": \\\"${cucumberParameters[key]}\\\"`
     }
   }
+  console.log('execRep2')
   let cmd;
   if (mode === 'feature') {
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
@@ -211,10 +218,14 @@ function execReport2(req, res, stories, mode, story, cucumberParameters, callbac
 
 async function execReport(req, res, stories, mode, cucumberParameters, callback) {
   try {
-    const result = await mongo.getOneStory(req.params.storyID, req.params.storySource);
+	console.log('execreport', req.params.issueID, req.params.storySource)
+    const result = await mongo.getOneStory(req.params.issueID, req.params.storySource);
     //console.log("ServerHelper/execReport das Result: " + JSON.stringify(result) + " Und auch die story ID: " + JSON.stringify(req.params))
+	console.log('execreport 2', result)
+
     execReport2(req, res, stories, mode, result,cucumberParameters, callback);
   } catch (error) {
+	
     res.status(404)
       .send(error);
   }
@@ -591,6 +602,7 @@ function decryptPassword(encrypted) {
 };
 
 function runReport(req, res, stories, mode, cucumberParameters) {
+	console.log('runReport')
 	execReport(req, res, stories, mode, cucumberParameters, (reportTime, story, scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
