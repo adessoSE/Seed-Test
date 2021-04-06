@@ -178,11 +178,13 @@
       </div>
       
       <div class="storyInfoCenter">
+          <label class="selectLabel SmallBody1regularLH">Step wait time (ms):</label>
+          <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0>
           <label class="selectLabel SmallBody1regularLH">Browser:</label>
           <select name="browser" class="select" id="browserSelect">
             <option value="chrome">Chrome</option>
             <option value="firefox">Firefox</option>
-          </select>
+          </select> 
       </div>
       <div clasS="storyInfoRight">
         <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>

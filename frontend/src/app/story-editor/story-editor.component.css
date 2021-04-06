@@ -47,6 +47,11 @@
  .select {
    width: 120px;
  }
+
+ .waitTime {
+   width: 70px;
+   margin-right: 5px;
+ }
  .arrowLeft{
    width: 130px;
    float: left;
