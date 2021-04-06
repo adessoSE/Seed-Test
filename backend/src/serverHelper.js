@@ -194,8 +194,7 @@ function execReport2(req, res, stories, mode, story, cucumberParameters, callbac
     cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
   } else {
     console.log('{' + worldParam + '}')
-    //cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.storyID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
-	cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.storyID}_${req.params.scenarioID}" --format json:${path.normalize(path3)}`;
+    cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
   }
 
 	console.log(`Executing: ${cmd}`);
@@ -214,7 +213,6 @@ function execReport2(req, res, stories, mode, story, cucumberParameters, callbac
 
 async function execReport(req, res, stories, mode, cucumberParameters, callback) {
   try {
-	console.log('execreport', req.params.issueID, req.params.storySource)
     const result = await mongo.getOneStory(req.params.issueID, req.params.storySource);
     //console.log("ServerHelper/execReport das Result: " + JSON.stringify(result) + " Und auch die story ID: " + JSON.stringify(req.params))
     execReport2(req, res, stories, mode, result,cucumberParameters, callback);
