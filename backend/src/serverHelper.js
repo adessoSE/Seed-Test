@@ -172,7 +172,8 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-function execReport2(req, res, stories, mode, story, callback) {
+function execReport2(req, res, stories, mode, story, params, callback) {
+	console.log('params', params)
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
 	const path2 = `features/${cleanFileName(story.title)}.feature`;
@@ -197,11 +198,11 @@ function execReport2(req, res, stories, mode, story, callback) {
 	});
 }
 
-async function execReport(req, res, stories, mode, callback) {
+async function execReport(req, res, stories, mode, params, callback) {
 	try {
 		const result = await mongo.getOneStory(parseInt(req.params.issueID, 10),
 			req.params.storySource);
-		execReport2(req, res, stories, mode, result, callback);
+		execReport2(req, res, stories, mode, result, params, callback);
 	} catch (error) {
 		res.status(404)
 			.send(error);
@@ -569,8 +570,8 @@ function decryptPassword(encrypted){
   return decrypted
 };
 
-function runReport(req, res, stories, mode) {
-	execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
+function runReport(req, res, stories, mode, params) {
+	execReport(req, res, stories, mode, params, (reportTime, story, scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 		const reportOptions = setOptions(reportName);
