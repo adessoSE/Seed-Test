@@ -103,8 +103,8 @@
           </button>
           <div *ngIf="sd != 'example'" uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of originalStepTypes; let j = index;" >
-                <span class="MediumBody2" [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
+              <li *ngFor="let step of sortedStepTypes(); let j = index;" >
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
               {{step.type}}</span>
               </li>
             </ul>

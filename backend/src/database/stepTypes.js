@@ -226,6 +226,38 @@ function stepDefs() {
 		values: [
 			''
 		]
+	},
+	{
+		id: '',
+		stepType: 'given',
+		type: 'Add Cookie',
+		pre: 'I add a cookie with the name',
+		mid: 'and value ',
+		values: [
+			'',
+			''
+		]
+	},
+	{
+		id: '',
+		stepType: 'given',
+		type: 'Remove Cookie',
+		pre: 'I remove a cookie with the name',
+		mid: '',
+		values: [
+			''
+		]
+	},
+	{
+		id: '',
+		stepType: 'when',
+		type: 'Upload a file',
+		pre: 'I want to upload the file from this path:',
+		mid: 'into this uploadfield: ',
+		values: [
+			'',
+			''
+		]	
 	}];
 }
 

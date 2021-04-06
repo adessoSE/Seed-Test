@@ -11,6 +11,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
 
+
 @Component({
     selector: 'app-scenario-editor',
     templateUrl: './scenario-editor.component.html',
@@ -212,7 +213,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         }
         this.selectedScenario.lastTestPassed = null;
         return new Promise<void>((resolve, reject) => {this.apiService
-            .updateScenario(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedScenario)
+            .updateScenario(this.selectedStory._id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Scenario')
                 resolve()
@@ -742,6 +743,14 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     scenarioSaved(){
         return this.testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined
+    }
+
+    sortedStepTypes(){
+       let sortedStepTypes =  this.originalStepTypes;
+       sortedStepTypes.sort((a, b) => {
+           return a.id - b.id;
+       })
+       return sortedStepTypes
     }
 
     changeScenarioTitle(){

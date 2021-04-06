@@ -76,6 +76,7 @@ async function writeBackup() {
         if (err) throw err;
     });
 }
+
 //writeBackup()
 async function createContent() {
     let collection = await getCollection();
@@ -89,7 +90,7 @@ async function createContent() {
     }
     return data;
 }
-//writeBackup()
+
 
 // show all Collections
 function getCollections() {
