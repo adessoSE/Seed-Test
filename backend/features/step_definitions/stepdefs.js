@@ -4,15 +4,18 @@ const {
 const webdriver = require('selenium-webdriver');
 const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
-require('geckodriver');
-const chrome = require('selenium-webdriver/chrome');
 const fs = require('fs');
+require('geckodriver');
+const firefox = require('selenium-webdriver/firefox');
+const chrome = require('selenium-webdriver/chrome');
+const { throws, fail } = require('assert');
+const { assert } = require('console');
 // Cucumber default timer for timeout
 setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
 //if (process.env.NODE_ENV) {
- // chromeOptions.addArguments('--headless');
+// chromeOptions.addArguments('--headless');
 //}
 chromeOptions.addArguments('--disable-dev-shm-usage')
 //chromeOptions.addArguments('--no-sandbox')
@@ -27,24 +30,20 @@ function CustomWorld({attach, parameters}) {
 setWorldConstructor(CustomWorld)
 	// Starts the driver / Browser
 Before(async function(){ // runs before each scenario
-	console.log('wold paramaters 0', this.parameters)
 	driver = new webdriver.Builder()
-  	.forBrowser('chrome')
+  	.forBrowser(this.parameters.browser)
   	.setChromeOptions(chromeOptions)
   	.build();
 });
-
+const firefoxOptions = new firefox.Options()
 // #################### GIVEN ########################################
 
 Given('I am on the website: {string}', async function (url) {
-	console.log('world parameters 2', this.parameters, this.role)
-
 	await driver.get(url);
-
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 	  // expect(currentUrl).to.equal(url, 'Error');
-
 	});
+	await driver.sleep(this.parameters.waitTime);
 	//await driver.takeScreenshot().then(function(data){
 	//	var base64Data = data.replace(/^data:image\/png;base64,/,"")
 	//	fs.writeFile("features/screenshots/out.png", base64Data, 'base64', function(err) {
@@ -55,10 +54,12 @@ Given('I am on the website: {string}', async function (url) {
 
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
 	await driver.manage().addCookie({name: name, value: value});
+	await driver.sleep(this.parameters.waitTime);
 });
 
 Given('As a {string}', async function (string) {
 	this.role = string;
+	await driver.sleep(this.parameters.waitTime);
 	//await driver.sleep(parseInt(parseInt(this.parameters.waitTime)));
 });
 
@@ -66,6 +67,7 @@ Given('As a {string}', async function (string) {
 
 Given('I remove a cookie with the name {string}', async function (name) {
 	await driver.manage().deleteCookie(name);
+	await driver.sleep(this.parameters.waitTime);
 });
 
 
@@ -73,8 +75,6 @@ Given('I remove a cookie with the name {string}', async function (name) {
 // ################### WHEN ##########################################
 // driver navigates to the Website
 When('I go to the website: {string}', async function (url) {
-	console.log('world parameters 4', this.parameters)
-
 	await driver.get(url);
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 	  // expect(currentUrl).to.equal(url, 'Error');
@@ -85,6 +85,7 @@ When('I go to the website: {string}', async function (url) {
 	//		 if(err) console.log(err);
 	//	});
 	// });
+	await driver.sleep(this.parameters.waitTime);
 });
 
 When('I want to upload the file from this path: {string} into this uploadfield: {string}', async function (path,input){
@@ -95,6 +96,7 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 	  await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
 	.sendKeys(`${path}`)
 	}
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // clicks a button if found in html code with xpath,
@@ -114,6 +116,7 @@ When('I click the button: {string}', async function (button) {
 
 	  }
 	});
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // selenium sleeps for a certain amount of time
@@ -152,11 +155,13 @@ When('I insert {string} into the field {string}', async function (value, label){
 		}
 	  }
 	}
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // "Radio"
 When('I select {string} from the selection {string}', async function (radioname, label){
 	await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${radioname}']`)), 3 * 1000).click();
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // Select an Option from an dropdown-menu
@@ -175,10 +180,12 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 		}
 	  }
 	}
+	await driver.sleep(this.parameters.waitTime);
 });
 
 When('I select the option {string}', async function (dropd){
 	await driver.findElement(By.xpath(`${dropd}`)).click();
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // Hover over element and Select an Option
@@ -205,6 +212,7 @@ When('I hover over the element {string} and select the option {string}', async f
 		await action2.move({ origin: selection }).click().perform();
 	  }
 	}
+	await driver.sleep(this.parameters.waitTime);
 });
 
 
@@ -234,17 +242,20 @@ When('I check the box {string}', async function (name){
 	  }
 	}
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
 When('I switch to the next tab', async function (){ // deprecated
 	let tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
+	await driver.sleep(this.parameters.waitTime);
 });
 
 When('Switch to the newly opened tab', async function (){
 	let tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
+	await driver.sleep(this.parameters.waitTime);
 });
 
 When('Switch to the tab number {string}', async function (number_of_tabs){
@@ -257,6 +268,7 @@ When('Switch to the tab number {string}', async function (number_of_tabs){
 	  const tab = len - (parseInt(number_of_tabs) - 1);
 	  await driver.switchTo().window(chrome_tabs[tab]);
 	}
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // ################### THEN ##########################################
@@ -265,6 +277,7 @@ Then('So I will be navigated to the website: {string}', async function (url){
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 	  expect(currentUrl).to.equal(url, 'Error');
 	});
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // Search a textfield in the html code and assert it with a Text
@@ -275,6 +288,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function (
 	  const resp = await link.getText().then(text => text);
 	  expect(string).to.equal(resp, 'Error');
 	});
+	await driver.sleep(this.parameters.waitTime);
 });
 // Search if a is text in html code
 Then('So I can see the text: {string}', async function (string){
@@ -287,6 +301,7 @@ Then('So I can see the text: {string}', async function (string){
 	  const body_all = css_body + inner_html_body + outer_html_body;
 	  expect(body_all.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
 	})
+	await driver.sleep(this.parameters.waitTime);
 });
 
 // Search a textfield in the html code and assert if it's empty
@@ -295,11 +310,17 @@ Then('So I can´t see text in the textbox: {string}', async function (label){
 	  const resp = await link.getText().then(text => text);
 	  expect('').to.equal(resp, 'Error');
 	});
+	await driver.sleep(this.parameters.waitTime);
 });
+
+Then('So a file with the name {string} is downloaded in this Directory {string}', async (fileName, Directory) => {
+  let path = `${Directory}\\${fileName}`  //todo pathingtool (path.normalize)serverhelper
+  await fs.promises.access(path, fs.constants.F_OK)
+  await driver.sleep(this.parameters.waitTime);
+})
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function (string){
-	await driver.sleep(2000);
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
 	  const css_body = await body.getText().then(bodytext => bodytext);
@@ -308,6 +329,7 @@ Then('So I can\'t see the text: {string}', async function (string){
 	  const body_all = css_body + inner_html_body + outer_html_body;
 	  expect(body_all.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
 	})
+	await driver.sleep(this.parameters.waitTime);
 });
 	  
 	  

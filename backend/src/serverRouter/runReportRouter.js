@@ -32,6 +32,7 @@ router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
 
 router.get('/report/:reportName', (req, res) => {
   let reportName = req.params.reportName;
+  console.log("Mongo/Run der verusuch den Report zu schreiben!!!!!!!!!!", reporttName)
   helper.createReport(res, reportName);
 });
 

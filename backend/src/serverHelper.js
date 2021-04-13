@@ -391,12 +391,12 @@ function testPassed(failed, passed) {
 }
 
 async function createReport(res, reportName) {
-	const report = await mongo.getReport(reportName);
+  const report = await mongo.getReport(reportName);
 	fs.writeFileSync(`./features/${reportName}.json`, JSON.stringify(report.jsonReport),
 		(err) => { console.log('Error:', err); });
 	reporter.generate(report.options);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+  setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 	res.sendFile(`/${reportName}.html`, { root: rootPath });
 }
 
@@ -598,8 +598,8 @@ function runReport(req, res, stories, mode, cucumberParameters) {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 		const reportOptions = setOptions(reportName);
-		reporter.generate(reportOptions);
-		res.sendFile(`/${reportName}.html`, { root: rootPath });
+    reporter.generate(reportOptions);
+    res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		let testStatus = false;
 		try{
