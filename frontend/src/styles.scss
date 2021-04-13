@@ -11,21 +11,21 @@
   	    font-family: 'Klavika', sans-serif;
   	}
   	@font-face {
-  	    font-family: Klavika;
+  	    font-family: Klavika, sans-serif;
   	    src: local(Klavika-Light), url(fonts/Klavika-Light.otf) format("opentype");
   	    font-weight: 300;
   	    font-style: normal;
   	    font-stretch: normal;
   	}
   	@font-face {
-  	    font-family: Klavika;
+  	    font-family: Klavika, sans-serif;
   	    src: local(Klavika-Regular), url(fonts/Klavika-Regular.otf) format("opentype");
   	    font-weight: normal;
   	    font-style: normal;
   	    font-stretch: normal;
   	}
   	@font-face {
-  	  font-family: Klavika;
+  	  font-family: Klavika, sans-serif;
   	  src: local(Klavika-Medium), url(fonts/Klavika-Medium.otf) format("opentype");
   	  font-weight: 500;
   	  font-style: normal;
@@ -57,7 +57,7 @@
   }
 
   .LargeHeadline1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 56px;
     font-weight: 500;
     font-stretch: normal;
@@ -67,7 +67,7 @@
     color: var(--black);
   }
   .LargeHeadline2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 40px;
     font-weight: 500;
     font-stretch: normal;
@@ -77,7 +77,7 @@
     color: var(--black);
   }
   .MediumHeadline1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 40px;
     font-weight: 500;
     font-stretch: normal;
@@ -87,7 +87,7 @@
     color: var(--black);
   }
   .LargeHeadline3 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 32px;
     font-weight: 500;
     font-stretch: normal;
@@ -97,7 +97,7 @@
     color: var(--black);
   }
   .LargeSublineH1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 32px;
     font-weight: normal;
     font-stretch: normal;
@@ -107,7 +107,7 @@
     color: var(--black);
   }
   .LargeCategory1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 32px;
     font-weight: 300;
     font-stretch: normal;
@@ -117,7 +117,7 @@
     color: var(--brown-grey);
   }
   .SmallHeadline1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 28px;
     font-weight: 500;
     font-stretch: normal;
@@ -127,7 +127,7 @@
     color: var(--black);
   }
   .LargeIntro {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 28px;
     font-weight: 300;
     font-stretch: normal;
@@ -137,7 +137,7 @@
     color: var(--black);
   }
   .MediumHeadline3 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 26px;
     font-weight: 500;
     font-stretch: normal;
@@ -147,7 +147,7 @@
     color: var(--black);
   }
   .MediumSublineH1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 26px;
     font-weight: normal;
     font-stretch: normal;
@@ -157,7 +157,7 @@
     color: var(--black);
   }
   .LargeHeadline4 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 24px;
     font-weight: 500;
     font-stretch: normal;
@@ -167,7 +167,7 @@
     color: var(--black);
   }
   .Largeaccordeon1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 24px;
     font-weight: 500;
     font-stretch: normal;
@@ -177,7 +177,7 @@
     color: var(--ocean-blue);
   }
   .LargeSublineH4 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 24px;
     font-weight: normal;
     font-stretch: normal;
@@ -187,7 +187,7 @@
     color: var(--black);
   }
   .Largenavigation2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 24px;
     font-weight: normal;
     font-stretch: normal;
@@ -197,7 +197,7 @@
     color: var(--brown-grey);
   }
   .MediumCategory1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 24px;
     font-weight: 300;
     font-stretch: normal;
@@ -207,7 +207,7 @@
     color: var(--brown-grey);
   }
   .MediumIntro {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 24px;
     font-weight: 300;
     font-stretch: normal;
@@ -217,7 +217,7 @@
     color: var(--black);
   }
   .MediumHeadline4 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 22px;
     font-weight: 500;
     font-stretch: normal;
@@ -227,7 +227,7 @@
     color: var(--black);
   }
   .MediumSubline1H4 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 22px;
     font-weight: normal;
     font-stretch: normal;
@@ -237,7 +237,7 @@
     color: var(--black);
   }
   .LargeHeadline5 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 20px;
     font-weight: 500;
     font-stretch: normal;
@@ -247,7 +247,7 @@
     color: var(--black);
   }
   .Mediumaccordeon1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 20px;
     font-weight: 500;
     font-stretch: normal;
@@ -257,7 +257,7 @@
     color: var(--ocean-blue);
   }
   .LargeBody1compact {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 20px;
     font-weight: normal;
     font-stretch: normal;
@@ -267,7 +267,7 @@
     color: var(--black);
   }
   .LargeBody1regularLH {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 20px;
     font-weight: normal;
     font-stretch: normal;
@@ -277,7 +277,7 @@
     color: var(--black);
   }
   .Mediumnavigation2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 20px;
     font-weight: normal;
     font-stretch: normal;
@@ -287,7 +287,7 @@
     color: var(--brown-grey);
   }
   .SmallCategory1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 20px;
     font-weight: 300;
     font-stretch: normal;
@@ -297,7 +297,7 @@
     color: var(--brown-grey);
   }
   .SmallIntro {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 20px;
     font-weight: 300;
     font-stretch: normal;
@@ -307,7 +307,7 @@
     color: var(--black);
   }
   .Largeaccordeon2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 18px;
     font-weight: 500;
     font-stretch: normal;
@@ -317,7 +317,7 @@
     color: var(--ocean-blue);
   }
   .Largenavigation1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 18px;
     font-weight: 500;
     font-stretch: normal;
@@ -328,7 +328,7 @@
     color: var(--brown-grey);
   }
   .MediumHeadline5 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 18px;
     font-weight: 500;
     font-stretch: normal;
@@ -338,7 +338,7 @@
     color: var(--black);
   }
   .Smallaccordeon1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 18px;
     font-weight: 500;
     font-stretch: normal;
@@ -348,7 +348,7 @@
     color: var(--ocean-blue);
   }
   .MediumBody1compact {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 18px;
     font-weight: normal;
     font-stretch: normal;
@@ -358,7 +358,7 @@
     color: var(--black);
   }
   .MediumBody1regularLH {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 18px;
     font-weight: normal;
     font-stretch: normal;
@@ -368,7 +368,7 @@
     color: var(--black);
   }
   .Smallnavigation2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 18px;
     font-weight: normal;
     font-stretch: normal;
@@ -378,7 +378,7 @@
     color: var(--brown-grey);
   }
   .LargeButton {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: 500;
     font-stretch: normal;
@@ -389,7 +389,7 @@
     color: var(--black);
   }
   .LargeLink {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: 500;
     font-stretch: normal;
@@ -399,7 +399,7 @@
     color: var(--black);
   }
   .Mediumaccordeon2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: 500;
     font-stretch: normal;
@@ -409,7 +409,7 @@
     color: var(--ocean-blue);
   }
   .Mediumnavigation1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: 500;
     font-stretch: normal;
@@ -420,7 +420,7 @@
     color: var(--brown-grey);
   }
   .SmallHeadline5 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: 500;
     font-stretch: normal;
@@ -430,7 +430,7 @@
     color: var(--black);
   }
   .Smallnavigation1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: 500;
     font-stretch: normal;
@@ -440,7 +440,7 @@
     color: var(--brown-grey);
   }
   .LargeBody2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: normal;
     font-stretch: normal;
@@ -450,7 +450,7 @@
     color: var(--black);
   }
   .SmallBody1compact {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: normal;
     font-stretch: normal;
@@ -460,7 +460,7 @@
     color: var(--black);
   }
   .SmallBody1regularLH {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 16px;
     font-weight: normal;
     font-stretch: normal;
@@ -470,7 +470,7 @@
     color: var(--black);
   }
   .MediumButton1 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 14px;
     font-weight: 500;
     font-stretch: normal;
@@ -480,7 +480,7 @@
     color: var(--black);
   }
   .SmallButton {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 14px;
     font-weight: 500;
     font-stretch: normal;
@@ -491,7 +491,7 @@
     color: var(--black);
   }
   .SmallIcontext {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 14px;
     font-weight: 500;
     font-stretch: normal;
@@ -502,7 +502,7 @@
     color: var(--brown-grey);
   }
   .Largecaption {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 14px;
     font-weight: normal;
     font-stretch: normal;
@@ -512,7 +512,7 @@
     color: var(--black);
   }
   .MediumBody2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 14px;
     font-weight: normal;
     font-stretch: normal;
@@ -522,7 +522,7 @@
     color: var(--black);
   }
   .LargeCategory2 {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 12px;
     font-weight: 500;
     font-stretch: normal;
@@ -532,7 +532,7 @@
     color: var(--black);
   }
   .Mediumcaption {
-    font-family: Klavika;
+    font-family: Klavika, sans-serif;
     font-size: 12px;
     font-weight: normal;
     font-stretch: normal;
