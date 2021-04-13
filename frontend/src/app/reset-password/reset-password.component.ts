@@ -33,4 +33,8 @@ export class ResetPasswordComponent implements OnInit {
     })
     this.router.navigate(['/resetpasswordconfirm']);
   };
+
+  navToRegistration(){
+    console.log('navigate to registration')
+  }
 }

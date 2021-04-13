@@ -32,6 +32,8 @@ export class ApiService {
     public runSaveOptionEvent = new EventEmitter();
     public addBlockToScenarioEvent = new EventEmitter();
     public logoutEvent = new EventEmitter();
+    public renameScenarioEvent = new EventEmitter();
+
     public user;
     //public local:boolean = false;
 
@@ -47,6 +49,10 @@ export class ApiService {
     static handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
         return throwError(error);
+    }
+
+    renameScenarioEmit(newTitle){
+        this.renameScenarioEvent.emit(newTitle);
     }
 
     getBlocks() {
@@ -404,16 +410,16 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: any, storySource: string, scenarioID: number) {
+    public runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
         
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, {
+                .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
                     responseType: 'text', withCredentials: true});
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, { responseType: 'text', withCredentials: true});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true});
     }
 
     // public changeDaisy(){

@@ -13,8 +13,7 @@ import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../custom-toast';
 import { Block } from '../model/Block';
-import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
-import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
+import { ModalsComponent } from '../modals/modals.component';
 
 const emptyBackground:Background = {stepDefinitions: {when: []}};
 
@@ -52,8 +51,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
-  @ViewChild('saveBlockForm') saveBlockFormService: SaveBlockFormComponent;
-  @ViewChild('addBlockForm') addBlockFormService: AddBlockFormComponent;
+  @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
 
   constructor(
       public apiService: ApiService,
@@ -110,7 +108,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     })
   }
   addBlock(event){
-    this.addBlockFormService.open('background');
+    this.modalsComponent.openAddBlockFormModal('background');
     }
   runOption(){
       console.log('running')
@@ -440,7 +438,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         }
 
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.saveBlockFormService.open(block, this);
+        this.modalsComponent.openSaveBlockFormModal(block, this);
     }
 
     copyBlock(event){
@@ -477,9 +475,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.testRunning = true;
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
+            var browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
+            var defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
+
             loadingScreen.scrollIntoView();
             this.apiService
-                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id)
+                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id, {browser: browserSelect, waitTime: defaultWaitTimeInput})
                 .subscribe(resp => {
                     iframe.srcdoc = resp;
                     // console.log("This is the response: " + resp);
