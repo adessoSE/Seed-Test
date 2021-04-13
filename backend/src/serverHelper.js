@@ -203,7 +203,6 @@ function execReport2(req, res, stories, mode, story, callback) {
 async function execReport(req, res, stories, mode, callback) {
   try {
     const result = await mongo.getOneStory(req.params.storyID, req.params.storySource);
-    //console.log("ServerHelper/execReport das Result: " + JSON.stringify(result) + " Und auch die story ID: " + JSON.stringify(req.params))
     execReport2(req, res, stories, mode, result, callback);
   } catch (error) {
     res.status(404)
@@ -379,12 +378,12 @@ function testPassed(failed, passed) {
 }
 
 async function createReport(res, reportName) {
-	const report = await mongo.getReport(reportName);
+  const report = await mongo.getReport(reportName);
 	fs.writeFileSync(`./features/${reportName}.json`, JSON.stringify(report.jsonReport),
 		(err) => { console.log('Error:', err); });
 	reporter.generate(report.options);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+  setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 	res.sendFile(`/${reportName}.html`, { root: rootPath });
 }
 
@@ -586,12 +585,12 @@ function runReport(req, res, stories, mode) {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 		const reportOptions = setOptions(reportName);
-		reporter.generate(reportOptions);
-		res.sendFile(`/${reportName}.html`, { root: rootPath });
+    reporter.generate(reportOptions);
+    res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		let testStatus = false;
 		fs.readFile(`./features/${reportName}.json`, 'utf8', (err, data) => {
-			const json = JSON.parse(data);
+      const json = JSON.parse(data);
 			uploadReport(reportName, reportTime, json, reportOptions);
 			let passed = 0;
 			let failed = 0;

@@ -4,27 +4,35 @@ const {
 const webdriver = require('selenium-webdriver');
 const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
+const fs = require('fs');
 require('geckodriver');
+const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
+const { throws, fail } = require('assert');
+const { assert } = require('console');
 
 // Cucumber default timer for timeout
 setDefaultTimeout(20 * 1000);
 let driver;
 const chromeOptions = new chrome.Options();
 //if (process.env.NODE_ENV) {
- // chromeOptions.addArguments('--headless');
+// chromeOptions.addArguments('--headless');
 //}
 chromeOptions.addArguments('--disable-dev-shm-usage')
 //chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
+const firefoxOptions = new firefox.Options()
+//firefoxOptions.headless()
+
+
 
 // Starts the driver / Browser
 Before(() => { // runs before each scenario
   driver = new webdriver.Builder()
-    .forBrowser('chrome')
-    .setChromeOptions(chromeOptions)
+    .forBrowser('firefox')
+    .setFirefoxOptions(firefoxOptions)
     .build();
 });
 
@@ -34,7 +42,7 @@ Given('As a {string}', async function (string) {
 });
 
 Given('I add a cookie with the name {string} and value {string}', async (name, value) => {
-  await driver.manage().addCookie({name: name, value: value});
+  await driver.manage().addCookie({ name: name, value: value });
 });
 
 Given('I remove a cookie with the name {string}', async (name) => {
@@ -57,13 +65,13 @@ When('I go to the website: {string}', async (url) => {
   });
 });
 
-When('I want to upload the file from this path: {string} into this uploadfield: {string}', async (path,input) => {
+When('I want to upload the file from this path: {string} into this uploadfield: {string}', async (path, input) => {
   try {
-  await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
-  .sendKeys(`${path}`)
-  }catch (e) {
+    await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
+      .sendKeys(`${path}`)
+  } catch (e) {
     await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
-  .sendKeys(`${path}`)
+      .sendKeys(`${path}`)
   }
 });
 
@@ -266,6 +274,11 @@ Then('So I can´t see text in the textbox: {string}', async (label) => {
     expect('').to.equal(resp, 'Error');
   });
 });
+
+Then('So a file with the name {string} is downloaded in this Directory {string}', async (fileName, Directory) => {
+  let path = `${Directory}\\${fileName}`  //todo pathingtool (path.normalize)serverhelper
+  await fs.promises.access(path, fs.constants.F_OK)
+})
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async (string) => {

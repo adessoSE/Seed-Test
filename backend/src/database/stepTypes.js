@@ -188,6 +188,16 @@ function stepDefs() {
 		values: [
 			''
 		]
+	}, {
+		id: '0',
+		stepType: 'then',
+		type: 'Validate downloaded File',
+		pre: 'So a file with the name',
+		mid: 'is downloaded in this Directory',
+		values: [
+			'',
+			''
+		]
 	},
 	{
 		id: '',
