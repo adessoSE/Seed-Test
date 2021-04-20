@@ -31,6 +31,10 @@
     font-size: medium;
 }
 
+input.wrongEmail {
+    border-left: 5px solid #d15553;
+  }
+
 ::ng-deep .modal-dialog{
     max-width: 800px;
 }

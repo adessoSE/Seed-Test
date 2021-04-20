@@ -250,8 +250,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
                 default:
                     break;
             }
+            this.selectedScenario.saved = false;
         }
-        this.selectedScenario.saved = false;
     }
 
     addExampleStep(step: StepType){
