@@ -8,12 +8,15 @@ import {Scenario} from '../model/Scenario';
 import {Background} from '../model/Background';
 import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
+import { Block } from '../model/Block';
 
 @Injectable({
     providedIn: 'root'
 })
 
 export class ApiService {
+
+
     constructor(private http: HttpClient) {
     }
 
@@ -27,6 +30,10 @@ export class ApiService {
     public getRepositoriesEvent = new EventEmitter();
     public getProjectsEvent = new EventEmitter();
     public runSaveOptionEvent = new EventEmitter();
+    public addBlockToScenarioEvent = new EventEmitter();
+    public logoutEvent = new EventEmitter();
+    public renameScenarioEvent = new EventEmitter();
+
     public user;
     //public local:boolean = false;
 
@@ -34,7 +41,7 @@ export class ApiService {
     public static getOptions() {
         return { withCredentials: true};
     }
-    
+
     public runSaveOption(option: String){
         this.runSaveOptionEvent.emit(option)
     }
@@ -44,6 +51,21 @@ export class ApiService {
         return throwError(error);
     }
 
+    renameScenarioEmit(newTitle){
+        this.renameScenarioEvent.emit(newTitle);
+    }
+
+    getBlocks() {
+        const str = this.apiServer + '/mongo/getBlocks';
+        return this.http.get<Block[]>(str,  ApiService.getOptions())
+        .pipe(tap(resp => {}),
+        catchError(ApiService.handleError));
+      }
+
+    addBlockToScenario(block: Block, correspondingComponent: string){
+        this.addBlockToScenarioEvent.emit([correspondingComponent, block])
+    }
+    
     public githubLogin() {
         const scope = 'repo';
         const AUTHORIZE_URL = 'https://github.com/login/oauth/authorize';
@@ -54,7 +76,7 @@ export class ApiService {
     githubCallback(code: string): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/callback?code=' + code;
-        return this.http.get(str,  { responseType: 'text', withCredentials: true})
+        return this.http.get(str, {withCredentials: true})
             .pipe(tap(resp => {}),
             catchError(ApiService.handleError));
     }
@@ -68,6 +90,15 @@ export class ApiService {
                 catchError(ApiService.handleError));
         }
     }
+
+    deleteBlock(blockId: any) {
+        const str = this.apiServer + '/mongo/deleteBlock/' + blockId;
+        return this.http.delete<any>(str, ApiService.getOptions())
+        .pipe(tap(resp => {
+            
+        }),
+          catchError(ApiService.handleError));
+      }
 
     public getProjectsFromJira() {
         this.apiServer = localStorage.getItem('url_backend');
@@ -83,7 +114,7 @@ export class ApiService {
 
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
-
+        
         const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
@@ -140,8 +171,6 @@ export class ApiService {
                             'jiraServer': jiraServer};
         return this.http.post(this.apiServer + '/jira/login', body, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('hier ist die Response:');
-                console.log(resp);
                 localStorage.setItem('JiraSession', resp.toString());
             }));
     }
@@ -158,12 +187,44 @@ export class ApiService {
 
     public createStory(title: string, description: string, repository: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log(this.apiServer);
         const body = {'title' : title, 'description' : description, 'repo' : repository};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
+            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())   
             .pipe(tap(resp => {
             }));
+    }
+    
+/*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
+
+  public requestReset(email: string): Observable <any> {   
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {'email' : email};   
+        return this.http
+            .post<any>(this.apiServer + '/user/resetpassword/', body)
+            .pipe(tap(resp => {
+            }));
+  }
+
+  public confirmReset(uuid: string, password: string): Observable <any> {   
+    this.apiServer = localStorage.getItem('url_backend');
+    const body = {'id' : uuid, 'password' : password};   
+    return this.http
+        .post<any>(this.apiServer + '/user/reset/', body)
+        .pipe(tap(resp => {
+            //
+        }));
+}
+
+
+
+  
+
+    public saveBlock(block: Block){
+        return this.http
+        .post<any>(this.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
     }
 
     logoutUser() {
@@ -204,11 +265,11 @@ export class ApiService {
         let params;
         if (repository.source === 'github') {
             const repo = repository.value.split('/');
-            params = { githubName: repo[0], repository: repo[1], source: repository.source};
+            params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source};
         } else if (repository.source === 'jira') {
             params = {projectKey: repository.value, source: repository.source};
         } else if (repository.source === 'db') {
-            params = {name: repository.value, source: repository.source};
+            params = {repoName: repository.value, source: repository.source};
         }
 
         return this.http
@@ -236,7 +297,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/jira/user/create/', request, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log(resp.body);
+                //console.log(resp.body);
             }));
     }
 
@@ -248,13 +309,18 @@ export class ApiService {
             }));
     }
 
-    public registerUser(email: string, password: string): Observable<any> {
-        const user = {email, password};
+    public registerUser(email: string, password: string, userId: any): Observable<any> {
+        const user = {email, password, userId};
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(resp => {
-            }), catchError(this.handleStoryError));
+            }), catchError((err, caught) => {
+                return new Observable(subscriber => {
+                    subscriber.next(err)
+                    subscriber.complete();
+                })
+            }));
     }
 
     public updateUser(userID: string, user: User): Observable<User> {
@@ -265,10 +331,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public deleteUser(userID: string) {
+    public deleteUser() {
         this.apiServer = localStorage.getItem('url_backend');
-        this.http
-            .delete<any>(this.apiServer + '/mongo/user/delete/' + userID)
+        return this.http
+            .delete<any>(this.apiServer + '/mongo/user/delete', ApiService.getOptions())
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
@@ -292,20 +358,20 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public addScenario(storyID: number): Observable<Scenario> {
+    public addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID, ApiService.getOptions())
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
 
-    public updateBackground(storyID: number, background: Background): Observable<Background> {
+    public updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID, background, ApiService.getOptions())
+            .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
             }));
@@ -317,54 +383,51 @@ export class ApiService {
             .post<any>(this.apiServer + '/github/submitIssue/', obj, ApiService.getOptions());
     }
 
-    public updateScenario(storyID: number, scenario: Scenario): Observable<Story> {
+    public updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
-
         return this.http
-            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID, scenario, ApiService.getOptions())
+            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storySource, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
             }));
     }
 
-    public deleteBackground(storyID: number): Observable<any> {
+    public deleteBackground(storyID: any, storySource: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID, ApiService.getOptions() )
+            .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID + '/' + storySource, ApiService.getOptions() )
             .pipe(tap(resp => {
                 //  console.log('Delete background for story ' + storyID )
             }));
     }
 
-    public deleteScenario(storyID: number, scenario: Scenario): Observable<Story> {
+    public deleteScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
+            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
             }));
     }
 
     // demands testing from the server
-    public runTests(storyID: number, scenarioID: number) {
+    public runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        const value = localStorage.getItem('repository');
-        const source = localStorage.getItem('source');
-        const params = {value, source};
+        
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, {
-                    responseType: 'text', withCredentials: true, params});
+                .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
+                    responseType: 'text', withCredentials: true});
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID, { responseType: 'text', withCredentials: true, params});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true});
     }
 
-    //public changeDaisy(){
+    // public changeDaisy(){
     //    this.apiServer = localStorage.getItem('url_backend');
     //    return this.http.get(this.apiServer + '/user/daisy')
-    //}
+    // }
 
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;

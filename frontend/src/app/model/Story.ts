@@ -2,8 +2,10 @@ import {Scenario} from './Scenario';
 import { Background } from './Background';
 
 export interface Story {
-    issue_number: number;
+    _id: any;
+    issue_number: any;
     story_id: number;
+    storySource: string;
     background: Background;
     scenarios: Scenario[];
     title: string;

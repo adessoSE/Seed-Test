@@ -1,22 +1,20 @@
   .grid {
-    display: grid;
+    /*display: grid;
     grid-template-columns: 100%;
     grid-template-rows: auto;
-    grid-template-areas: "storyHeader" "storyList";
+    grid-template-areas: "storyHeader" "storyList";*/
     margin-top: 24px;
     border: 1px solid #999;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 1px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
-    background-color: white;
+    background-color: var(--white);
   }
+
 
   #storyHeader{
     grid-area: storyHeader;
-    color: #999;
-    float: left;
-    margin-bottom: 10px;
   }
 
   #infoIcon{
@@ -50,30 +48,69 @@
     display: block;
   }
 
-  #storyList{
-    grid-area: storyList;
-    color: #0099CC;
-    font-size: small;
+ 
+
+
+  #createNewStoryDiv{
+    text-align: right;
+  }
+
+  .modal-title{
+    color: var(--white);
+  }
+  .modal-header{
+    background-color: var(--ocean-blue);
+  }
+
+  .modal-body{
+    text-align: center;
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 15px;
+  }
+
+  .modal-footer{
+    height: 60px;
+  }
+
+  .close{
+    color: white;
+    outline: none;
   }
 
   .github-avatar{
     float: right;
   }
 
-  .github-avatar img{
-    margin-right: 5px;
+  a.storyListLink {
+    transition: 0.2s;
+    display: inline-block;
+    max-width: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  a {
-    color: black;
-    transition: 0.3s;
-    font-size: 1em;
+  a.storyListLink:hover{
+    color: var(--dark-grey);
   }
-  
-  a:hover, a:focus {
-    font-size: 1.2em;
-    font-weight: bold;
-    text-decoration: none;
+
+  #storyList{
+    grid-area: storyList;
+    font-size: smaller;
+    transition: 0.1s;
+  }
+
+  #storyList:hover{
+    cursor: pointer;
+    background-color: #f1f1f1;
+  }
+  .scenarioListItem{
+    display: block;
+  }
+  .scenarioListItem:hover{
+    background-color: #f1f1f1;
   }
 
   .uk-accordion{

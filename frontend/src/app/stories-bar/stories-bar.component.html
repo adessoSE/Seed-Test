@@ -1,7 +1,7 @@
 <div class="grid">
   <div>
     <br>
-      <div class="uk-card-title"><span id="storyHeader">Stories</span>
+      <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
       <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
         <span rel="def">A user story describes requirements for a software system.
           It is consciously kept in short sentences and simple words.
@@ -13,31 +13,50 @@
     <hr>
     <ul uk-accordion>
       <li *ngFor="let s of getSortedStories(); let i = index ">
-        <div id="storyList" (click)="selectStoryScenario(s)" class="uk-accordion-title uk-background-muted" >
-          <a maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.body}}">
-            {{s.issue_number}}. {{s.title | slice:0:25 | titlecase }}
-          </a>
+        <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
+            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+              {{s.issue_number}}. {{s.title}}
+            </a>
           <span class="github-avatar">
-            <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px">
-            <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px">
-              {{s.assignee}}</span>
+            <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
+            <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+            <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+          </span>
         </div>
 
         <div class="uk-accordion-content">
           <li *ngFor="let scen of s.scenarios; let c = index">
-            <a [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(s.story_id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
+            <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(s._id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
           </li>
         </div>
       </li>
     </ul>
-    <div *ngIf="db">
-      <label>
-        Title <input id="storytitle">
-      </label>
-      <label>
-        Description <input id="storydescription">
-      </label>
-      <button type="button" class="uk-button" (click)="createnewStory()">Create new Story</button>
+    <div *ngIf="db" id="createNewStoryDiv">
+      <!--- MODAL MASK START-->
+      <ng-template #content let-modal>
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Create New Story</h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label class="uk-form-label"  style="color: grey;"></label>
+                <input id="storytitle" placeholder=" Title">
+                <br><br>
+             <label class="uk-form-label" style="color: grey;"></label>
+               <input id="storydescription" placeholder=" Description">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="normalButton" (click)="createnewStory(); modal.close('Save click')">Save</button>
+        </div>
+      </ng-template>
+      <button class="normalButton" (click)="open(content)">Create New Story</button>
+      <!--- MODAL MASK END-->
     </div>
   </div>
 </div>

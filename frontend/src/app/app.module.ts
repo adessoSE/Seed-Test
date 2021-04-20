@@ -11,7 +11,8 @@ import {ParentComponent} from './parent/parent.component';
 import {LoginComponent} from './login/login.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AuthGuard} from './guards/auth.guard';
-import {MatTableModule} from '@angular/material';
+import {MatTableModule} from '@angular/material/table';
+import {MatListModule} from '@angular/material/list'
 import {ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
@@ -22,19 +23,21 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { FeedbackComponent } from './feedback/feedback.component';
 import { TermsComponent } from './terms/terms.component';
-import { SubmitformComponent } from './submitform/submitform.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
-import { LoginFormComponent } from './login-form/login-form.component';
 import {CookieService } from 'ngx-cookie-service';
 import { TestAccountComponent } from './test-account/test-account.component'
-import {MatProgressSpinnerModule} from '@angular/material';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { MatCarouselModule } from '@ngbmodule/material-carousel';
 import {RunTestToast} from './custom-toast'
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
+import { ModalsComponent } from './modals/modals.component'
 
 @NgModule({
   declarations: [
@@ -51,16 +54,17 @@ import {RunTestToast} from './custom-toast'
     EditableOnEnterDirective,
     FeedbackComponent,
     TermsComponent,
-    SubmitformComponent,
     AccountManagementComponent,
-    LoginFormComponent,
     TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
     ReportComponent,
-    RunTestToast
+    RunTestToast,
+    ResetPasswordComponent,
+    ConfirmResetPasswordComponent,
+    ModalsComponent
   ],
   imports: [
       NgbModule,
@@ -70,10 +74,12 @@ import {RunTestToast} from './custom-toast'
     ReactiveFormsModule,
     HttpClientModule,
     MatTableModule,
+    MatListModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
     DragDropModule,
     MatProgressSpinnerModule,
+    MatCarouselModule.forRoot(),
     ToastrModule.forRoot({
       timeOut: 3000
     })
