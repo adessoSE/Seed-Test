@@ -307,6 +307,10 @@
     cursor: pointer;
   }
   
+  .backgroundContainer{
+    margin-bottom: 20px;
+  }
+
   .title {
     color: #333;
     font-size: medium;

@@ -72,11 +72,11 @@
         <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
         <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
       </div>
-      <div *ngIf="showBackground">
-      <!--Buttons-->
-      <div class="marginLeft">
-        <input id="backgroundName" class="backgroundName" #backgroundName type="text" value="{{selectedStory.background.name}}" on-input="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
-      </div>
+      <div class="backgroundContainer" *ngIf="showBackground">
+        <!--Buttons-->
+        <div class="marginLeft">
+          <input id="backgroundName" class="backgroundName" #backgroundName type="text" value="{{selectedStory.background.name}}" on-input="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
+        </div>
 
       <!--Action bar-->
       <div class="scenarioBarContainer">
@@ -105,7 +105,7 @@
             </button>
           </div>
         </div>
-        <div class="scenarioButtonGroup">
+        <div class="scenarioButtonGroup SmallHeadline5">
           <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
               <em class="material-icons">copy_all</em>
           </button>
@@ -237,3 +237,5 @@
     </div>
   </div>
 </div>
+
+<app-modals #modalsComponent></app-modals>
