@@ -18,9 +18,9 @@
               {{s.issue_number}}. {{s.title}}
             </a>
           <span class="github-avatar">
-            <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
-            <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
-            <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+            <img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+            <!--<img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+            <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">-->
           </span>
         </div>
 
