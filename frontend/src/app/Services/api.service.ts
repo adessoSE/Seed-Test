@@ -31,6 +31,9 @@ export class ApiService {
     public getProjectsEvent = new EventEmitter();
     public runSaveOptionEvent = new EventEmitter();
     public addBlockToScenarioEvent = new EventEmitter();
+    public logoutEvent = new EventEmitter();
+    public renameScenarioEvent = new EventEmitter();
+
     public user;
     //public local:boolean = false;
 
@@ -46,6 +49,10 @@ export class ApiService {
     static handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
         return throwError(error);
+    }
+
+    renameScenarioEmit(newTitle){
+        this.renameScenarioEvent.emit(newTitle);
     }
 
     getBlocks() {
@@ -107,7 +114,7 @@ export class ApiService {
 
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
-
+        
         const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
@@ -164,8 +171,6 @@ export class ApiService {
                             'jiraServer': jiraServer};
         return this.http.post(this.apiServer + '/jira/login', body, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('hier ist die Response:');
-                console.log(resp);
                 localStorage.setItem('JiraSession', resp.toString());
             }));
     }
@@ -182,18 +187,43 @@ export class ApiService {
 
     public createStory(title: string, description: string, repository: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        console.log(this.apiServer);
         const body = {'title' : title, 'description' : description, 'repo' : repository};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
+            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())   
             .pipe(tap(resp => {
             }));
     }
+    
+/*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
+
+  public requestReset(email: string): Observable <any> {   
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {'email' : email};   
+        return this.http
+            .post<any>(this.apiServer + '/user/resetpassword/', body)
+            .pipe(tap(resp => {
+            }));
+  }
+
+  public confirmReset(uuid: string, password: string): Observable <any> {   
+    this.apiServer = localStorage.getItem('url_backend');
+    const body = {'id' : uuid, 'password' : password};   
+    return this.http
+        .post<any>(this.apiServer + '/user/reset/', body)
+        .pipe(tap(resp => {
+            //
+        }));
+}
+
+
+
+  
 
     public saveBlock(block: Block){
         return this.http
         .post<any>(this.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
         .pipe(tap(resp => {
+            //
         }));
     }
 
@@ -235,11 +265,11 @@ export class ApiService {
         let params;
         if (repository.source === 'github') {
             const repo = repository.value.split('/');
-            params = { githubName: repo[0], repository: repo[1], source: repository.source};
+            params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source};
         } else if (repository.source === 'jira') {
             params = {projectKey: repository.value, source: repository.source};
         } else if (repository.source === 'db') {
-            params = {name: repository.value, source: repository.source};
+            params = {repoName: repository.value, source: repository.source};
         }
 
         return this.http
@@ -301,10 +331,10 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    public deleteUser(userID: string) {
+    public deleteUser() {
         this.apiServer = localStorage.getItem('url_backend');
-        this.http
-            .delete<any>(this.apiServer + '/mongo/user/delete/' + userID)
+        return this.http
+            .delete<any>(this.apiServer + '/mongo/user/delete', ApiService.getOptions())
             .pipe(tap(resp => {
             }), catchError(this.handleStoryError));
     }
@@ -332,7 +362,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID+ '/' + storySource, ApiService.getOptions())
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
@@ -355,7 +385,6 @@ export class ApiService {
 
     public updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
-
         return this.http
             .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storySource, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
@@ -383,16 +412,16 @@ export class ApiService {
     }
 
     // demands testing from the server
-    public runTests(storyID: any, storySource: string, scenarioID: number) {
+    public runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
         
         if (scenarioID) {
             return this.http
-                .get(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, {
+                .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
                     responseType: 'text', withCredentials: true});
         }
         return this.http
-            .get(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, { responseType: 'text', withCredentials: true});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true});
     }
 
     // public changeDaisy(){

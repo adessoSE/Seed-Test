@@ -13,8 +13,7 @@ import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../custom-toast';
 import { Block } from '../model/Block';
-import { SaveBlockFormComponent } from '../save-block-form/save-block-form.component';
-import { AddBlockFormComponent } from '../add-block-form/add-block-form.component';
+import { ModalsComponent } from '../modals/modals.component';
 
 const emptyBackground:Background = {stepDefinitions: {when: []}};
 
@@ -52,8 +51,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
-  @ViewChild('saveBlockForm') saveBlockFormService: SaveBlockFormComponent;
-  @ViewChild('addBlockForm') addBlockFormService: AddBlockFormComponent;
+  @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
 
   constructor(
       public apiService: ApiService,
@@ -110,7 +108,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     })
   }
   addBlock(event){
-    this.addBlockFormService.open('background');
+    this.modalsComponent.openAddBlockFormModal('background');
     }
   runOption(){
       console.log('running')
@@ -244,8 +242,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
+    console.log("story-editor/deleteScenario die Story : " + JSON.stringify(this.selectedStory))
     this.apiService
-        .deleteScenario(this.selectedStory.story_id, this.selectedStory.storySource, scenario)
+        .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
             this.toastr.error('', 'Scenario deleted')
@@ -264,7 +263,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   }
   addScenario(){
-    this.apiService.addScenario(this.selectedStory.story_id, this.selectedStory.storySource)
+    this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
@@ -300,7 +299,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         })
     })
       this.apiService
-          .updateBackground(this.selectedStory.story_id, this.selectedStory.storySource, this.selectedStory.background)
+          .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
           .subscribe(resp => {
             this.toastr.success('successfully saved', 'Background')
             if(this.saveBackgroundAndRun){
@@ -439,7 +438,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         }
 
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.saveBlockFormService.open(block, this);
+        this.modalsComponent.openSaveBlockFormModal(block, this);
     }
 
     copyBlock(event){
@@ -476,9 +475,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.testRunning = true;
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
+            var browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
+            var defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
+
             loadingScreen.scrollIntoView();
             this.apiService
-                .runTests(this.selectedStory.story_id, this.selectedStory.storySource, scenario_id)
+                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id, {browser: browserSelect, waitTime: defaultWaitTimeInput})
                 .subscribe(resp => {
                     iframe.srcdoc = resp;
                     // console.log("This is the response: " + resp);
@@ -527,5 +529,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   storySaved(){
     return this.runUnsaved ||((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved))
   }
+
+  sortedStepTypes(){
+    let sortedStepTypes =  this.originalStepTypes;
+    sortedStepTypes.sort((a, b) => {
+        return a.id - b.id;
+    })
+    return sortedStepTypes
+ }
 
 }

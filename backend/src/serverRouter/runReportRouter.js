@@ -19,18 +19,19 @@ router
 	});
 
 // run single Feature
-router.get('/Feature/:issueID/:storySource', (req, res) => {
-	helper.runReport(req, res, stories, 'feature');
+router.post('/Feature/:issueID/:storySource', (req, res) => {
+	let body = req.body
+	helper.runReport(req, res, stories, 'feature', body);
 });
 
 // run single Scenario of a Feature
-router.get('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
-	helper.runReport(req, res, stories, 'scenario');
+router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
+	let body = req.body
+	helper.runReport(req, res, stories, 'scenario', body);
 });
 
 router.get('/report/:reportName', (req, res) => {
-  let reportName = req.params.reportName;
-  helper.createReport(res, reportName);
+  helper.createReport(res, req.params.reportName);
 });
 
 module.exports = router;

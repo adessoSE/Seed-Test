@@ -1,8 +1,10 @@
 <div class="grid">
   <div class="formular">
-    <h1 id="headerFont">Registration</h1>
+    <h1 id="headerFont" class="LargeHeadline3">Registration</h1>
+     
     <!--Formular-->
     <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(registrationForm);" appPasswordConfirmed>
+     
       <hr>
       <p class="wrongLogin" *ngIf="error">{{error}}</p>
       <!--Input Email-->
@@ -29,7 +31,7 @@
             Please enter a valid <i>Email address</i>.
         </div>
         </div>
-        <button class="registerButton" type="submit" [disabled]="registrationForm.invalid">Register</button>
+        <button class="normalButton" type="submit" [disabled]="registrationForm.invalid">Register</button>
     </form>
   </div>
 </div>
