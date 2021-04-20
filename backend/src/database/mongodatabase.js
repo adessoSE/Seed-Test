@@ -662,7 +662,7 @@ async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName
     if (result === null) {
       let resu = await collection.findOne({ gitOwner: gOId, repoName: repoName })
       if (resu === null) {
-        myObjt = { owner: "", gitOwner: gOId, repoName: repoName, stories: [], repoType: source, customBlocks: [] }
+        let myObjt = { owner: "", gitOwner: gOId, repoName: repoName, stories: [], repoType: source, customBlocks: [] }
         resu = await collection.insertOne(myObjt)
         return resu.insertedId
       } else {

@@ -391,7 +391,7 @@ function testPassed(failed, passed) {
 
 async function createReport(res, reportName) {
   const report = await mongo.getReport(reportName);
-  reportName2 = 'features/' + reportName + '.json'
+  let reportName2 = 'features/' + reportName + '.json'
   const resolvedPath = path.resolve(reportName2);
 
 	fs.writeFileSync(resolvedPath, JSON.stringify(report.jsonReport),

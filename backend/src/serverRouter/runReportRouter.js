@@ -20,7 +20,7 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID/:storySource', (req, res) => {
-	body = req.body
+	let body = req.body
 	helper.runReport(req, res, stories, 'feature', body);
 });
 

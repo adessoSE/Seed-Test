@@ -312,7 +312,7 @@ router.get('/stories', async (req, res) => {
 									story.assignee = 'unassigned';
 									story.assignee_avatar_url = null;
 								}
-								entry = await helper.fuseStoriesWithDb(story, issue.id)
+								let entry = await helper.fuseStoriesWithDb(story, issue.id)
 								tmpStories.push(entry);
 								storiesArray.push(entry._id)
 							}

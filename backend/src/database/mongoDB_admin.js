@@ -171,8 +171,7 @@ async function backupScenarios() {
         if (x.scenarios[0] !== undefined) {
             console.log(x.scenarios[0].stepDefinitions);
             if (x.scenarios[0].stepDefinitions.given.length === 0 && x.scenarios[0].stepDefinitions.when.length === 0 && x.scenarios[0].stepDefinitions.then.length === 0) {
-                // if (x.story_id === 652141286)    {
-                for (y of backup) {
+                for (let y of backup) {
                     if (y.story_id === x.story_id) {
                         console.log("Updating Story: " + x.story_id);
                         await mongo.updateStory(y);
@@ -183,8 +182,6 @@ async function backupScenarios() {
         }
     }
 }
-// backupScenarios();
-
 
 // insert Many documents ("collectionname", [{documents},{...}] )
 function insertMore(name, content) {
