@@ -6,10 +6,6 @@ const path = require('path');
 const stepTypes = require('./stepTypes.js');
 const db_backup = require('../../dbbackups/db_backup.js');
 
-if (!process.env.NODE_ENV) {
-    const dotenv = require('dotenv').config();
-}
-
 const uri = process.env.DATABASE_URI;
 const db_name = 'Seed';
 
@@ -81,13 +77,13 @@ async function writeBackup() {
 async function createContent() {
     let collection = await getCollection();
     let data = '[\n';
-    for (let i = 0; i < collection.length; i++) {
-        if (collection[i] === collection[collection.length - 1]) {
-            data += JSON.stringify(collection[i]) + '\n]'
+    collection.forEach((item, index, arr) => {
+        if (item === arr[arr.length - 1]) {
+            data += JSON.stringify(item) + '\n]'
         } else {
-            data += JSON.stringify(collection[i]) + ',\n';
+            data += JSON.stringify(item) + ',\n';
         }
-    }
+    })
     return data;
 }
 

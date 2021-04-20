@@ -254,11 +254,6 @@ function selectUsersCollection(db) {
 function findStory(storyId, storySource, collection) {
 
   const id = ObjectId(storyId)
-  // const myObjt = {
-  //   _id: Object(storyId),
-  //   storySource: storySource
-  // };
-  //console.log("DAS ABSOLUT BESCHISSENE OBJECT NACH DEM GEUSCHT WIRD: " + JSON.stringify(myObjt))
   return new Promise((resolve, reject) => {
     collection.findOne({ _id: id, storySource: storySource }, (err, result) => {
       if (err) {
@@ -330,8 +325,6 @@ async function getOneStory(storyId, storySource) {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource })
-    //let story = await findStory(storyId, storySource, collection)
-
     // TODO remove later when all used stories have the tag storySource
     if (!story) {
       story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined })
@@ -351,8 +344,6 @@ async function getOneStoryByStoryId(storyId, storySource) {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let story = await collection.findOne({ story_id: storyId, storySource: storySource })
-    //let story = await findStory(storyId, storySource, collection)
-
     // TODO remove later when all used stories have the tag storySource
     if (!story) {
       story = await collection.findOne({ story_id: storyId, storySource: undefined })
@@ -380,24 +371,6 @@ async function showSteptypes() {
     if (db) db.close()
   }
 }
-
-// Create Background
-//async function createBackground(storyId, storySource) {
-//  let db;
-//  try {
-//    db = await connectDb()
-//    let collection = await selectStoriesCollection(db)
-//    let story = await findStory(storyId, storySource, collection)
-//    const tmpBackground = emptyBackground();
-//    story.background = tmpBackground;
-//    let result = await replace(story, collection)
-//    return result
-//  } catch (e) {
-//    console.log("UPS!!!! FEHLER: " + e)
-//  } finally {
-//    if(db) db.close()
-//  }
-//}
 
 // UPDATE Background
 async function updateBackground(storyId, storySource, updatedBackground) {
@@ -443,11 +416,11 @@ async function createStory(storyTitel, storyDescription, ownerId, repoName) {   
     let collection = await selectStoriesCollection(db);
     let repo = await repoCollection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
     if (repo.stories.length > 0) {
-      for (storyId of repo.stories) {
+      for (let storyId of repo.stories) {
         let story = await collection.findOne({ _id: ObjectId(storyId) })
         iNumberArray.push(story.issue_number)
       }
-      for (i = 0; i <= iNumberArray.length; i++) {
+      for (let i = 0; i <= iNumberArray.length; i++) {
         let included = iNumberArray.includes(i)
         if (!included) {
           finalIssueNumber = i;
@@ -485,8 +458,7 @@ async function insertStoryIdIntoRepo(ownerId, repoName, storyId) {
     let collectionRepo = await selectRepositoryCollection(db)
     let resultRepo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
     resultRepo.stories.push(storyId)
-    let result = await collectionRepo.findOneAndUpdate({ owner: ObjectId(ownerId), repoName: repoName }, { $set: resultRepo })
-    return result
+    return await collectionRepo.findOneAndUpdate({ owner: ObjectId(ownerId), repoName: repoName }, { $set: resultRepo })
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
   } finally {
@@ -502,7 +474,7 @@ async function getAllStoriesOfRepo(ownerId, repoName) {
     let collectionRepo = await selectRepositoryCollection(db)
     let collectionStories = await selectStoriesCollection(db)
     let repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
-    for (entry of repo.stories) {
+    for (let entry of repo.stories) {
       let story = await collectionStories.findOne({ _id: ObjectId(entry) })
       storiesArray.push(story)
     }
@@ -568,9 +540,7 @@ async function updateScenario(storyId, storySource, updatedScenario) {
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    //console.log("mdb/updateScenario die StoryID: " + JSON.stringify(storyId))
     let story = await findStory(storyId, storySource, collection)
-    //console.log("mdb/updateScenario die Story: " + JSON.stringify(story))
     for (const scenario of story.scenarios) {
       if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
         story.scenarios.push(scenario);
@@ -669,7 +639,7 @@ async function createJiraRepoIfNonenExists(repoName, source) {
     let collection = await selectRepositoryCollection(db);
     let result = await collection.findOne({ repoName: repoName, repoType: source })
     if (result === null) {
-      myObjt = { owner: "", repoName: repoName, stories: [], repoType: source, customBlocks: [] }
+      let myObjt = { owner: "", repoName: repoName, stories: [], repoType: source, customBlocks: [] }
       result = await collection.insertOne(myObjt)
       return result.insertedId
     } else {
@@ -690,17 +660,17 @@ async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName
     let collection = await selectRepositoryCollection(db);
     let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
     if (result === null) {
-      let result = await collection.findOne({ gitOwner: gOId, repoName: repoName })
-      if (result === null) {
+      let resu = await collection.findOne({ gitOwner: gOId, repoName: repoName })
+      if (resu === null) {
         myObjt = { owner: "", gitOwner: gOId, repoName: repoName, stories: [], repoType: source, customBlocks: [] }
-        result = await collection.insertOne(myObjt)
-        return result.insertedId
+        resu = await collection.insertOne(myObjt)
+        return resu.insertedId
       } else {
-        if (result.gitOwner === githubId) result.owner = ObjectId(ownerId)
-        return result._id
+        if (resu.gitOwner === githubId) resu.owner = ObjectId(ownerId)
+        return resu._id
       }
     } else {
-      return result._id
+      return resu._id
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in createGitOwnerRepoIfNonenExists" + e)
@@ -715,8 +685,7 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
   try {
     db = await connectDb();
     let collection = await selectRepositoryCollection(db);
-    let result = await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
-    return result
+    return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
   } finally {
@@ -818,8 +787,7 @@ async function deleteUser(userID) {
       }
       let resultRepo = await collectionRepo.deleteMany({ owner: oId });
       let resultUser = await collection.deleteOne(myObjt);
-      let result = resultUser + resultRepo
-      return result
+      return resultUser + resultRepo
     }
     return result
 

@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import {ApiService} from '../Services/api.service';
-import {NavigationEnd, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { Observable } from 'rxjs';
-import { ConfirmResetPasswordComponent } from '../confirm-reset-password/confirm-reset-password.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -12,7 +10,7 @@ import { ConfirmResetPasswordComponent } from '../confirm-reset-password/confirm
   styleUrls: ['./reset-password.component.css']
 })
 
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent{
 
   user = {};
   error: string;
@@ -22,9 +20,6 @@ export class ResetPasswordComponent implements OnInit {
 
   constructor(public apiService: ApiService, private router: Router) {    
   }
- 
-  ngOnInit() {
-  }
 
   requestReset(form : NgForm) {
     console.log('form', form.value.email)
@@ -32,7 +27,7 @@ export class ResetPasswordComponent implements OnInit {
       console.log('test')
     })
     this.router.navigate(['/resetpasswordconfirm']);
-  };
+  }
 
   navToRegistration(){
     console.log('navigate to registration')

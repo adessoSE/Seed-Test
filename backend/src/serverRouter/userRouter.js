@@ -242,7 +242,7 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-				entry = await helper.fuseStoriesWithDb(story, issue.id)
+				let entry = await helper.fuseStoriesWithDb(story, issue.id)
 				tmpStories.push(entry);
 				storiesArray.push(entry._id)
 			}
@@ -343,32 +343,8 @@ router.get('/stories', async (req, res) => {
 			console.log('Jira Error:', e);
 		}
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
-		// const tmpStories = [];
-		const { name } = req.query;
 		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName)
 		res.status(200).json(result)
-		// mongo.getOneRepository(req.user._id, name).then((body) => {
-		// 	const json = body.stories;
-		// 	if (Object.keys(json).length > 0) for (const key of Object.keys(json)) {
-		// 		const issue = json[key];
-		// 		const story = {
-		// 			story_id: issue.id,
-		// 			title: issue.title,
-		// 			body: issue.description,
-		// 			state: issue.status,
-		// 			issue_number: issue.id,
-		// 			assignee: issue.assignee,
-		// 			assignee_avatar_url: null,
-		// 			storySource: "db"
-		// 		};
-		// 		tmpStories.push(helper.fuseStoriesWithDb(story, issue.id));
-		// 	}
-		// 	// let stories = results; // need this to clear promises from the Story List
-		// 	Promise.all(tmpStories).then((results) => { res.status(200).json(results); })
-		// 		.catch((e) => {
-		// 			console.log(e);
-		// 		});
-		// });
 	} else res.sendStatus(401);
 });
 

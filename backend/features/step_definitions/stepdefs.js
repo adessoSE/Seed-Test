@@ -44,12 +44,7 @@ Given('I am on the website: {string}', async function (url) {
 	  // expect(currentUrl).to.equal(url, 'Error');
 	});
 	await driver.sleep(this.parameters.waitTime);
-	//await driver.takeScreenshot().then(function(data){
-	//	var base64Data = data.replace(/^data:image\/png;base64,/,"")
-	//	fs.writeFile("features/screenshots/out.png", base64Data, 'base64', function(err) {
-	//		 if(err) console.log(err);
-	//	});
-	// });
+
 });
 
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
@@ -60,7 +55,6 @@ Given('I add a cookie with the name {string} and value {string}', async function
 Given('As a {string}', async function (string) {
 	this.role = string;
 	await driver.sleep(this.parameters.waitTime);
-	//await driver.sleep(parseInt(parseInt(this.parameters.waitTime)));
 });
 
 
@@ -79,12 +73,7 @@ When('I go to the website: {string}', async function (url) {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 	  // expect(currentUrl).to.equal(url, 'Error');
 	});
-	//await driver.takeScreenshot().then(function(data){
-	//	var base64Data = data.replace(/^data:image\/png;base64,/,"")
-	//	fs.writeFile("features/screenshots/out2.png", base64Data, 'base64', function(err) {
-	//		 if(err) console.log(err);
-	//	});
-	// });
+
 	await driver.sleep(this.parameters.waitTime);
 });
 

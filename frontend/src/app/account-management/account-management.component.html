@@ -40,7 +40,6 @@
         </div>
         <!-----------------Erase your Account-------------->
         <div class="grid_eraseAccount repositories" *ngIf="apiService.isLoggedIn() && email">
-            <!--<h2 class="LargeHeadline3">Delete Seed-Test Account </h2>-->
             <div class="uk-form-horizontal">
                 <button class="normalButton deleteButton" id="erase_Account" (click)="eraseAccount()">Delete Seed-Test Account</button>
             </div>

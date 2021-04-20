@@ -55,7 +55,6 @@ export class ModalsComponent{
   openChangeJiraAccountModal(type) {
       this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
       this.type = type;
-      //document.getElementById('modalHeader').innerHTML = `Login to ${type}`;
   }
 
   changeJiraAccountSubmit() {
@@ -71,8 +70,6 @@ export class ModalsComponent{
         this.apiService.createJiraAccount(request).subscribe(response => {
             this.mongoUpdate.emit(response);
         });
-    } else {
-
     }
   }
 
@@ -87,6 +84,7 @@ export class ModalsComponent{
         this.apiService.createRepository(name).subscribe(resp => {
             this.toastr.info('', 'Project created')
             this.apiService.getRepositories().subscribe(res => {
+              //
             })
         });
     }

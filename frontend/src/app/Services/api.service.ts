@@ -211,6 +211,7 @@ export class ApiService {
     return this.http
         .post<any>(this.apiServer + '/user/reset/', body)
         .pipe(tap(resp => {
+            //
         }));
 }
 
@@ -222,6 +223,7 @@ export class ApiService {
         return this.http
         .post<any>(this.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
         .pipe(tap(resp => {
+            //
         }));
     }
 

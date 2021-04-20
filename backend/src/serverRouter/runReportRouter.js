@@ -26,14 +26,12 @@ router.post('/Feature/:issueID/:storySource', (req, res) => {
 
 // run single Scenario of a Feature
 router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
-	body = req.body
+	let body = req.body
 	helper.runReport(req, res, stories, 'scenario', body);
 });
 
 router.get('/report/:reportName', (req, res) => {
-  let reportName = req.params.reportName;
-  console.log("Mongo/Run der verusuch den Report zu schreiben!!!!!!!!!!", reporttName)
-  helper.createReport(res, reportName);
+  helper.createReport(res, req.params.reportName);
 });
 
 module.exports = router;

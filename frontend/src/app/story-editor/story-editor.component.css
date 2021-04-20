@@ -16,9 +16,11 @@
   /* We invert order of first sidebar and main
    * And tell the main element to take twice as much width as the other two sidebars 
    */
-  .storyInfoCenter { flex: 2 0px; }
   .storyInfoLeft { order: 1; }
-  .storyInfoCenter    { order: 2; }
+  .storyInfoCenter    { 
+    flex: 2 0px; 
+    order: 2; 
+  }
   .storyInfoRight { order: 3; }
 
 }
