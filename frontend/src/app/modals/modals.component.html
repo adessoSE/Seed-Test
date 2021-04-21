@@ -210,14 +210,14 @@
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
             <div>
-                <form #submitNewStep="ngForm" novalidate (ngSubmit)="submitNewStepRequest(); modal.close('Save click')">
+                <form #submitNewStep="ngForm" novalidate (ngSubmit)="submitNewStepRequest(submitNewStep); modal.close('Save click')">
                     <div class="padding_top">
                         <label class="SmallHeadline5 padding_right">Title:</label>
                         <input id="label_form">
                     </div>
                     <div class="padding_top">
                         <label class="SmallHeadline5 padding_right">Type:</label>
-                        <select id="type_form">
+                        <select id="type_form" name="type_form">
                             <option id="type_form_given" value="given">given</option>
                             <option id="type_form_when" value="when">when</option>
                             <option id="type_form_then" value="then">then</option>
@@ -226,15 +226,15 @@
                     <div class="padding_top">
                         <label class="SmallHeadline5 padding_right">Description:</label>
                         <div>
-                            <textarea id="description_form"></textarea>
+                            <textarea id="description_form" ngModel name="description_form"></textarea>
                         </div>
                     </div>
                     <div class="padding_top">
                         <label class="SmallHeadline5 padding_right">E-Mail:</label>
-                        <input id="email_form" #email ngModel type="email" name="email" [class.wrongEmail]="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Email*" class="uk-form-controls input" required>
+                        <input id="email" #email ngModel type="email" name="email" [class.wrongEmail]="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Email*" class="uk-form-controls input" required>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="normalButton">Submit
+                        <button type="submit" class="normalButton" [disabled]="submitNewStep.invalid">Submit
                         </button>
                     </div>
                 </form>
