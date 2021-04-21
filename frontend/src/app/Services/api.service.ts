@@ -215,9 +215,31 @@ export class ApiService {
         }));
 }
 
+    public addToWorkgroup(_id, email){
+        let user = {email}
+        return this.http
+        .post<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
 
-
+    public getWorkgroup(_id){
+        return this.http
+        .get<any>(this.apiServer + '/workgroups/wgmembers/' + _id, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
   
+    public removeFromWorkgroup(_id, email){
+        let user = {email}
+        return this.http
+        .post<any>(this.apiServer + '/workgroups/deletemember/' + _id, user, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
 
     public saveBlock(block: Block){
         return this.http

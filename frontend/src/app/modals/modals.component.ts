@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
 import { StepType } from '../model/StepType';
 import { NgForm } from '@angular/forms';
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Component({
   selector: 'app-modals',
@@ -49,6 +50,12 @@ export class ModalsComponent{
   stepListComplete = [];
   parentComponent;
   
+
+  // workgroup modal
+  displayedColumnsWorkgroup: string[] = ['email'];
+  workgroupList = [{email: 'horsty@schlumpf.de'}, {email: 'porst@pong.de'}]
+  wrongEmail = false;
+  workgroupProject: RepositoryContainer;
 
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
   }
@@ -264,15 +271,36 @@ export class ModalsComponent{
 
 
   // workgroup Edit Modal
-  openWorkgroupEditModal(projectTitle) {
+
+  openWorkgroupEditModal(project: RepositoryContainer) {
+    this.workgroupProject = project
     this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
-    //let name = document.getElementById('newTitle') as HTMLInputElement
-    //name.placeholder = oldTitle
+    let header = document.getElementById('workgroupHeader') as HTMLSpanElement
+    header.textContent = 'Workgroup: ' + project.value
+
+    this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
+      this.workgroupList = res
+    })
   }
 
   workgroupInvite(form: NgForm) {
     let email = form.value.email;
-    console.log('email', email)
-    //this.apiService.renameScenarioEmit(name)
+    this.wrongEmail = false;
+    this.apiService.addToWorkgroup(this.workgroupProject._id, email).subscribe(res => {
+      if (res.error){
+        this.wrongEmail = true
+      }else{
+        this.workgroupList.push(res)
+      }
+    })
+  }
+
+  removeFromWorkgroup(user){
+    this.apiService.removeFromWorkgroup(this.workgroupProject._id, user.email).subscribe(res => {
+      const index = this.workgroupList.indexOf(user);
+      if (index > -1) {
+        this.workgroupList.splice(index, 1);
+      }
+    })
   }
 }

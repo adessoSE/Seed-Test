@@ -160,6 +160,10 @@ h2, h1{
     font-family: Klavika, sans-serif;
 }
 
+.editRepoButton{
+    margin-left: 5px;
+}
+
 .repositories{
     width: 300px;
     text-align: center;

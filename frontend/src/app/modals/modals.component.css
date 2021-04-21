@@ -180,6 +180,14 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     margin-right: 5px;
 }
 
+.workGroupEmail{
+    margin-right: 5px;
+}
+
+
+.wrongEmail{
+    background-color: var(--grape);
+}
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;

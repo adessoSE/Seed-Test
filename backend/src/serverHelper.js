@@ -276,16 +276,19 @@ function dbProjects(user) {
     if (typeof user !== 'undefined') {
       const userId = user._id;
       mongo.getRepository(userId).then((json) => {
-        let names = [];
+        let projects = [];
         if (Object.keys(json).length !== 0) {
           for (const repo of json) {
-            if (repo.repoType === "db") names.push(repo.repoName);
+            if (repo.repoType === "db"){
+              let proj = {
+                _id: repo._id,
+                value: repo.repoName,
+                source: repo.repoType
+              }
+              projects.push(proj)
+            } 
           }
-          names = names.map(value => ({
-            value,
-            source: 'db'
-          }));
-          resolve(names);
+          resolve(projects);
         }
         resolve([]);
       });
@@ -318,19 +321,18 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
     xmlrequest.onreadystatechange = async function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(xmlrequest.responseText);
-        let names = [];
-        let index = 0;
+        let projects = [];
         for (const repo of data) {
-          await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
+          let mongoRepoId = await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
           const repoName = repo.full_name;
-          names[index] = repoName;
-          index++;
+          let proj = {
+            //_id: mongoRepoId,
+            value: repoName,
+            source: 'github'
+          }
+          projects.push(proj)
         }
-        names = names.map(value => ({
-          value,
-          source: 'github'
-        }));
-        resolve(names);
+        resolve(projects);
       } else
         if (this.readyState === 4) reject(this.status);
     };
