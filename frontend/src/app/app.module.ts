@@ -38,6 +38,7 @@ import {RunTestToast} from './custom-toast'
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { ModalsComponent } from './modals/modals.component'
+import { DeleteScenarioToast } from './deleteScenario-toast';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { ModalsComponent } from './modals/modals.component'
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
+    DeleteScenarioToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ModalsComponent

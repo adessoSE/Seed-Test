@@ -12,6 +12,7 @@ import { RepositoryContainer} from '../model/RepositoryContainer';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../custom-toast';
+import { DeleteScenarioToast } from '../deleteScenario-toast'
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
 
@@ -71,6 +72,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
       this.apiService.getBackendUrlEvent.subscribe(() => {
         this.loadStepTypes();
+    });
+
+    this.apiService.deleteScenarioEvent.subscribe(() => {
+        this.deleteScen(this.selectedScenario)
     });
 
     if (this.apiService.urlReceived) {
@@ -242,7 +247,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   //from Scenario deleteScenarioEvent
   deleteScenario(scenario: Scenario){
-    console.log("story-editor/deleteScenario die Story : " + JSON.stringify(this.selectedStory))
+
+    this.toastr.warning('', 'Do you really want to delete this scenario?', {
+        toastComponent: DeleteScenarioToast
+    })
+  }
+
+  deleteScen(scenario: Scenario){
     this.apiService
         .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
         .subscribe(resp => {

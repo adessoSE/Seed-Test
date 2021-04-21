@@ -33,6 +33,7 @@ export class ApiService {
     public addBlockToScenarioEvent = new EventEmitter();
     public logoutEvent = new EventEmitter();
     public renameScenarioEvent = new EventEmitter();
+    public deleteScenarioEvent = new EventEmitter();
 
     public user;
     //public local:boolean = false;
@@ -44,6 +45,10 @@ export class ApiService {
 
     public runSaveOption(option: String){
         this.runSaveOptionEvent.emit(option)
+    }
+
+    public deleteScenarioEmitter(){
+        this.deleteScenarioEvent.emit()
     }
 
     static handleError(error: HttpErrorResponse) {
