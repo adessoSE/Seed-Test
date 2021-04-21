@@ -4,6 +4,7 @@ import {ApiService} from '../Services/api.service';
 import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
 import { StepType } from '../model/StepType';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-modals',
@@ -219,14 +220,14 @@ export class ModalsComponent{
   }
 
 
-  submitNewStepRequest() {
+  submitNewStepRequest(form: NgForm) {
       let title = (document.getElementById('label_form') as HTMLInputElement).value;
       if (title.length === 0) {
           title = (document.getElementById('label_form') as HTMLInputElement).placeholder;
       }
       const type = 'Type: '.concat((document.getElementById('type_form') as HTMLSelectElement).value , '\n');
-      const description = 'Description: '.concat((document.getElementById('description_form') as HTMLTextAreaElement).value, '\n');
-      const email = 'E-Mail: '.concat((document.getElementById('email_form') as HTMLInputElement).value , '\n');
+      let description = 'Description: '.concat(form.value.description_form, '\n')
+      let email = 'Email: '.concat(form.value.email, '\n')
       const body = type.concat(description, email);
       const obj = {
           'title': title,
@@ -240,10 +241,9 @@ export class ModalsComponent{
               'ToDo'
           ]
       };
-
-      this.apiService.submitGithub(obj).subscribe((resp) => {
-          console.log(resp);
-      });
+     this.apiService.submitGithub(obj).subscribe((resp) => {
+         console.log(resp);
+     });
 
   }
 
