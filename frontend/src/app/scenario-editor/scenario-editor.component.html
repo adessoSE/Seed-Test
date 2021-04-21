@@ -3,7 +3,7 @@
     <div class="title">
       <div class="scenarioHeaderContainer">
         <div>
-          <span id="scenarioHeader">Scenario</span>
+          <span id="scenarioHeader" class="Smallnavigation2">Scenario</span>
             <dfn class="def"><span id="infoIconScenario" uk-icon="info"></span>
                 <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
                   It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
@@ -18,9 +18,9 @@
           title="Previous Scenario" (click)="scenarioShiftLeft();">
           <em class="material-icons">keyboard_arrow_left</em>
         </button>
-          <span *ngIf="this.selectedScenario" id="scenarioTitle"># {{selectedScenario.name | titlecase}}</span>
-          <button id="scenario_change_title" class="scenarioTitle" href="#changeScenario" data-uk-tooltip
-          title="Change Scenario Title" uk-toggle>
+          <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5"># {{selectedScenario.name | titlecase}}</span>
+          <button id="scenario_change_title" class="scenarioTitle" (click)="changeScenarioTitle();" data-uk-tooltip
+          title="Change Scenario Title">
           <em class="material-icons">edit</em>
         </button>
           <button id="scenario_shift_right" class="scenarioTitle" *ngIf="!arrowRight" data-uk-tooltip
@@ -61,7 +61,7 @@
       <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
         <em class="material-icons">copy_all</em>
       </button>
-      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock()">
+      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock($event)">
         <em class="material-icons">playlist_add</em>
       </button>
       <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
@@ -83,7 +83,7 @@
     <div class="uk-card-title padding">
       <div *ngIf="this.selectedScenario">
       <div *ngFor="let sd of getKeysList(this.selectedScenario.stepDefinitions);let i = index;" >
-        <div class="stepsListContainer">
+        <div class="stepsListContainer SmallHeadline5">
           <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
           <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
           <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
@@ -98,12 +98,12 @@
               </span></dfn>-->
           </div>
           <button *ngIf="sd != 'example'" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
-          class="addStepButtons" title="Add New Step" uk-tooltip>
+           title="Add New Step" uk-tooltip>
             <em class="material-icons">add_circle_outline</em>
           </button>
           <div *ngIf="sd != 'example'" uk-dropdown>
             <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of originalStepTypes; let j = index;" >
+              <li *ngFor="let step of sortedStepTypes(); let j = index;" >
                 <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
               {{step.type}}</span>
               </li>
@@ -112,7 +112,7 @@
           <div *ngIf="sd == 'example'">
             <div *ngFor="let step of originalStepTypes; let j = index;" >
               <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
-              class="addStepButtons" (click)="addStepToScenario(selectedStory._id,step);" title="Add New Variable" uk-tooltip>
+               (click)="addStepToScenario(selectedStory._id,step);" title="Add New Variable" uk-tooltip>
                 <em class="material-icons">add_circle_outline</em>
               </button>
             </div>
@@ -121,7 +121,7 @@
         <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
             <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag >
-              <div class="text-inline" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
+              <div class="text-inline SmallBody1regularLH" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                 <div class="dragIconContainer" cdkDragHandle >
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
@@ -180,10 +180,9 @@
         </ng-template>
       </div>
       <br>
-       <div class="scenario-bottom">
-         <div class="comment">
-           <label>Comment</label><br>
-           <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
+      <div class="comment MediumButton1">
+          <label>Comment</label><br>
+          <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
           </textarea>
            </div>
          <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
@@ -196,30 +195,4 @@
     </div>
   </div>
 
-<app-submitform #submitForm></app-submitform>
-<app-save-block-form #saveBlockForm></app-save-block-form>
-<app-add-block-form #addBlockForm></app-add-block-form>
-
-  <div id="changeScenario" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin padding">
-      <h2 class="padding">Change Scenario Title</h2>
-      <input *ngIf="this.selectedScenario" id="scenarioName" type="text" [value]="selectedScenario.name" #ScenarioName />
-      <p class="uk-text-right">
-        <button id="change_scenario_title_cancel" class="button uk-modal-close" type="button">Cancel</button>
-        <button id="change_scenario_title_save" class="button uk-modal-close" (click)="renameScenario($event)"
-          type="button">Save</button>
-      </p>
-    </div>
-  </div>
-
-  <div id="saveBlockModal" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical modalMargin padding">
-      <h2 class="padding">Save as Block</h2>
-      <input *ngIf="this.selectedScenario" id="Block" type="text" #ScenarioName placeholder="Name of Block"/>
-      <p class="uk-text-right">
-        <button id="change_scenario_title_cancel" class="button uk-modal-close" type="button">Cancel</button>
-        <button id="change_scenario_title_save" class="button uk-modal-close" (click)="renameScenario($event)"
-          type="button">Save</button>
-      </p>
-    </div>
-  </div>
+<app-modals #modalsComponent></app-modals>

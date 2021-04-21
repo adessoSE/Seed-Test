@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { exec, execFile } = require('child_process');
 const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
@@ -50,7 +50,7 @@ function getValues(values) {
 function getBackgroundSteps(steps) {
 	let data = '';
 	for (let i = 0; i < steps.length; i++) {
-    if(steps[i].deactivated) continue;
+		if (steps[i].deactivated) continue;
 		if (i === 0) data += 'When ';
 		else data += 'And ';
 		if (steps[i].values[0] != null) data += `${steps[i].pre} '${steps[i].values[0]}' ${steps[i].mid}${getValues(steps[i].values)} \n`;
@@ -78,7 +78,7 @@ function jsUcfirst(string) {
 function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
-    if(step.deactivated) continue;
+		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		// TODO: If Given contains Background (Background>0): Add Background (method)
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
@@ -92,7 +92,7 @@ function getSteps(steps, stepType) {
 function getExamples(steps) {
 	let data = 'Examples:';
 	for (let i = 0; i < steps.length; i++) {
-    if(steps[i].deactivated) continue;
+		if (steps[i].deactivated) continue;
 		data += '\n | ';
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
 	}
@@ -125,7 +125,7 @@ function getFeatureContent(story) {
 	if (story.background != null) data += getBackgroundContent(story.background);
 
 	// Get scenarios
-	data += getScenarioContent(story.scenarios, story.story_id);
+	data += getScenarioContent(story.scenarios, story._id);
 	return data;
 }
 
@@ -172,22 +172,31 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-function execReport2(req, res, stories, mode, story, callback) {
+function execReport2(req, res, stories, mode, story, cucumberParameters, callback) {
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
 	const path2 = `features/${cleanFileName(story.title)}.feature`;
+
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 	const path3 = `features/${reportName}.json`;
+	let worldParam = '';
+	const keys = Object.keys(cucumberParameters);
+
+	for (const [index, k] of keys.entries()) if (index < keys.length - 1) worldParam += `\\\"${k}\\\": \\\"${cucumberParameters[k]}\\\",`;
+		 else worldParam += `\\\"${k}\\\": \\\"${cucumberParameters[k]}\\\"`;
+
+
 	let cmd;
-	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)}`;
-	else cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)}`;
+	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
+
+	else cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
 
 
 	console.log(`Executing: ${cmd}`);
+
 	exec(cmd, (error, stdout, stderr) => {
 		if (error) {
 			console.error(`exec error: ${error}`);
-
 			callback(reportTime, story, req.params.scenarioID, reportName);
 			return;
 		}
@@ -197,19 +206,17 @@ function execReport2(req, res, stories, mode, story, callback) {
 	});
 }
 
-async function execReport(req, res, stories, mode, callback) {
+async function execReport(req, res, stories, mode, cucumberParameters, callback) {
 	try {
 		const story = await mongo.getOneStory(parseInt(req.params.issueID, 10),
 			req.params.storySource);
-			console.log("DAISYAUTOLOGOUT");
-			console.log(typeof(story.daisyAutoLogout));
-			// does not Fail if "daisyAutoLogout" is undefined
-		if (story.daisyAutoLogout) {
-				process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
-		} else {
-				process.env.DAISY_AUTO_LOGOUT = false;
-		}
-		execReport2(req, res, stories, mode, story, callback);
+		// console.log('DAISYAUTOLOGOUT');
+		// console.log(typeof (story.daisyAutoLogout));
+		// // does not Fail if "daisyAutoLogout" is undefined
+		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
+		//  else process.env.DAISY_AUTO_LOGOUT = false;
+
+		execReport2(req, res, stories, mode, story, cucumberParameters, callback);
 	} catch (error) {
 		res.status(404)
 			.send(error);
@@ -270,7 +277,8 @@ function dbProjects(user) {
 			mongo.getRepository(userId).then((json) => {
 				let names = [];
 				if (Object.keys(json).length !== 0) {
-					for (const repo of json) names.push(repo.name);
+					for (const repo of json) if (repo.repoType === 'db') names.push(repo.repoName);
+
 					names = names.map(value => ({
 						value,
 						source: 'db'
@@ -299,19 +307,21 @@ function setOptions(reportName) {
 	return myOptions;
 }
 
-function execRepositoryRequests(link, user, password) {
+async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 	return new Promise((resolve, reject) => {
-		const xmlRequest = new XMLHttpRequest();
+		const xmlrequest = new XMLHttpRequest();
 		// get Issues from GitHub
-		xmlRequest.open('GET', link, true, user, password);
-		xmlRequest.send();
-		xmlRequest.onreadystatechange = function () {
+		xmlrequest.open('GET', link, true, user, password);
+		xmlrequest.send();
+		xmlrequest.onreadystatechange = async function () {
 			if (this.readyState === 4 && this.status === 200) {
-				const data = JSON.parse(xmlRequest.responseText);
+				const data = JSON.parse(xmlrequest.responseText);
 				let names = [];
 				let index = 0;
 				for (const repo of data) {
-					names[index] = repo.full_name;
+					await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, 'github');
+					const repoName = repo.full_name;
+					names[index] = repoName;
 					index++;
 				}
 				names = names.map(value => ({
@@ -325,18 +335,18 @@ function execRepositoryRequests(link, user, password) {
 	});
 }
 
-function ownRepositories(githubName, token) {
-	if (!githubName && !token) return new Promise(resolve => resolve([]));
-	return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token);
+function ownRepositories(ownerId, githubId, githubName, token) {
+	if (!githubName && !token) return Promise.resolve([]);
+	return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token, ownerId, githubId);
 }
 
-function starredRepositories(githubName, token) {
-	if (!githubName && !token) return new Promise(resolve => resolve([]));
-	return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token);
+function starredRepositories(ownerId, githubId, githubName, token) {
+	if (!githubName && !token) return Promise.resolve([]);
+	return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token, ownerId, githubId);
 }
 
 async function fuseStoriesWithDb(story, issueId) {
-	const result = await mongo.getOneStory(parseInt(issueId, 10), story.storySource);
+	const result = await mongo.getOneStoryByStoryId(parseInt(issueId), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -345,12 +355,11 @@ async function fuseStoriesWithDb(story, issueId) {
 		story.scenarios = [emptyScenario()];
 		story.background = emptyBackground();
 	}
-	story.story_id = parseInt(story.story_id, 10);
-	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number, 10);
+	story.story_id = parseInt(story.story_id);
+	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number);
 
 	const finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
-	story._id = finalStory.value._id;
-
+	story._id = finalStory._id;
 	// Create & Update Feature Files
 	writeFile('', story);
 	return story;
@@ -379,7 +388,10 @@ function testPassed(failed, passed) {
 
 async function createReport(res, reportName) {
 	const report = await mongo.getReport(reportName);
-	fs.writeFileSync(`./features/${reportName}.json`, JSON.stringify(report.jsonReport),
+	const reportName2 = `features/${reportName}.json`;
+	const resolvedPath = path.resolve(reportName2);
+
+	fs.writeFileSync(resolvedPath, JSON.stringify(report.jsonReport),
 		(err) => { console.log('Error:', err); });
 	reporter.generate(report.options);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
@@ -398,74 +410,16 @@ function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
 	return story;
 }
 
-// function getJiraIssues(user, projectKey){
-//  if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && projectKey !== 'null') {
-//    const {Host} = user.jira;
-//    const {AccountName} = user.jira;
-//    const {Password} = user.jira;
-//    const auth = Buffer.from(`${AccountName}:${Password}`).toString('base64');
-//    const cookieJar = request.jar();
-//    const tmpStories = [];
-//    const options = {
-//      method: 'GET',
-//      url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
-//      jar: cookieJar,
-//      qs: {
-//        type: 'page',
-//        title: 'title',
-//      },
-//      headers: {
-//        'cache-control': 'no-cache',
-//        Authorization: `Basic ${auth}`,
-//      },
-//    };
-//    request(options, (error) => {
-//      if (error) {
-//        return error;
-//      }
-//      request(options, (error2, response2, body) => {
-//        if (error2) {
-//          return error;
-//        }
-//        const json = JSON.parse(body).issues;
-//        for (const issue of json) {
-//            if (issue.fields.labels.includes("Seed-Test")){
-//                const story = {
-//                    story_id: issue.id,
-//                    title: issue.fields.summary,
-//                    body: issue.fields.description,
-//                    state: issue.fields.status.name,
-//                    issue_number: issue.key,
-//                    storySource = 'jira'
-//                };
-//                if (issue.fields.assignee !== null) { // skip in case of "unassigned"
-//                    story.assignee = issue.fields.assignee.name;
-//                    story.assignee_avatar_url = issue.fields.assignee.avatarUrls['48x48'];
-//                } else {
-//                    story.assignee = 'unassigned';
-//                    story.assignee_avatar_url = null;
-//                }
-//                tmpStories.push(fuseStoriesWithDb(story, issue.id));
-//            }
-//        }
-//        return tmpStories;
-//      });
-//    });
-//  }
-// }
-
-function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName){
+function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested, reportTime, story, scenario, mode, reportName) {
 	let comment = '';
-	let testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
-	let frontendUrl = process.env.FRONTEND_URL;
-	let reportUrl = `${frontendUrl}/report/${reportName}`;
-	if(mode == 'scenario'){
-	  comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
-	} else{
-	  comment =  `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
-	}
+	const testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
+	const frontendUrl = process.env.FRONTEND_URL;
+	const reportUrl = `${frontendUrl}/report/${reportName}`;
+	if (mode == 'scenario') comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
+	 else comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
+
 	return comment;
-  }
+}
 
 
 function postComment(issueNumber, comment, githubName, githubRepo, password) {
@@ -522,63 +476,52 @@ function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumbe
 }
 
 const getGithubData = (res, req, accessToken) => {
-  request(
-    {
-        uri: `https://api.github.com/user?access_token=${accessToken}`,
-        method:"GET",
-        headers: {
-            "User-Agent": "SampleOAuth",
-            "Authorization": `Token ${accessToken}`
-        }
-    },
-    async function(err, response, body){
-      req.body = await JSON.parse(body)
-      req.body.githubToken = accessToken;
-      try{
-        await mongo.findOrRegister(req.body)
-        passport.authenticate('github-local', function (error, user, info) {
-                  if(error){
-                    res.json({error: 'Authentication Error'})
-                  } else if(!user){
-                    res.json({error: 'Authentication Error'})
-                  }
-                  req.logIn(user, async function(err){
-                      if(err){
-                        console.log('error 3')
-                          res.json({error: 'Login Error'})
-                      }else {
-                        res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
+	request(
+		{
+			uri: `https://api.github.com/user?access_token=${accessToken}`,
+			method: 'GET',
+			headers: {
+				'User-Agent': 'SampleOAuth',
+				Authorization: `Token ${accessToken}`
+			}
+		},
+		async (err, response, body) => {
+			req.body = await JSON.parse(body);
+			req.body.githubToken = accessToken;
+			try {
+				await mongo.findOrRegister(req.body);
+				passport.authenticate('github-local', (error, user, info) => {
+					console.log('Der User in authenticate', JSON.stringify(user));
+					if (error) {
+						console.log('error1 !!!!!!!!!!!!!!!!!', error);
+						res.json({ error: 'Authentication Error' });
+					} else if (!user) {
+						console.log('error2 !!!!!!!!!!!!!!!!!');
+						res.json({ error: 'Authentication Error' });
+					}
+					req.logIn(user, async (err) => {
+						if (err) {
+							console.log('error 3');
+							res.json({ error: 'Login Error' });
+						} else {
+							res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
 		                    res.header('Access-Control-Allow-Credentials', 'true');
 		                    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-                        res.json({login: user.github.login, id: user.github.id})
-                      }
-                  });
-              })(req,res);
-      }catch(error){
-          console.log('getGithubData error:', error)
-          res.sendStatus(400)
-      }
-    }
-  )
-}
-
-function encriptPassword(text){
-	const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
-	let encrypted = cipher.update(text, 'utf8', 'hex');
-	encrypted += cipher.final('hex');
-	return encrypted
+							res.json({ login: user.github.login, id: user.github.id });
+						}
+					});
+				})(req, res);
+			} catch (error) {
+				console.log('getGithubData error:', error);
+				res.sendStatus(400);
+			}
+		}
+	);
 };
 
 
-function decryptPassword(encrypted){
-	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted
-};
-
-function runReport(req, res, stories, mode) {
-	execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
+function runReport(req, res, stories, mode, cucumberParameters) {
+	execReport(req, res, stories, mode, cucumberParameters, (reportTime, story, scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 		const reportOptions = setOptions(reportName);
@@ -586,60 +529,70 @@ function runReport(req, res, stories, mode) {
 		res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		let testStatus = false;
-		fs.readFile(`./features/${reportName}.json`, 'utf8', (err, data) => {
-			const json = JSON.parse(data);
-			uploadReport(reportName, reportTime, json, reportOptions);
-			let passed = 0;
-			let failed = 0;
-			let skipped = 0;
-			const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
-			const scenariosTested = { passed: 0, failed: 0 };
-			json[0].elements.forEach((d) => {
-				let scenarioPassed = 0;
-				let scenarioFailed = 0;
-				d.steps.forEach((s) => {
-					switch (s.result.status) {
-						case 'passed':
-							passed++;
-							scenarioPassed++;
-							break;
-						case 'failed':
-							failed++;
-							scenarioFailed++;
-							break;
-						case 'skipped':
-							skipped++;
-							break;
-						default:
-							console.log(`Status default: ${s.result.status}`);
-					}
-				});
-				if (testPassed(scenarioFailed, scenarioPassed)) scenariosTested.passed += 1;
-				else scenariosTested.failed += 1;
-				story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed),
-					d.tags[0].name, story);
-			});
+		try {
+			fs.readFile(`./features/${reportName}.json`, 'utf8', (err, data) => {
+				const json = JSON.parse(data);
+				uploadReport(reportName, reportTime, json, reportOptions);
+				let passed = 0;
+				let failed = 0;
+				let skipped = 0;
+				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
+				const scenariosTested = { passed: 0, failed: 0 };
+				try {
+					json[0].elements.forEach((d) => {
+						let scenarioPassed = 0;
+						let scenarioFailed = 0;
+						d.steps.forEach((s) => {
+							switch (s.result.status) {
+								case 'passed':
+									passed++;
+									scenarioPassed++;
+									break;
+								case 'failed':
+									failed++;
+									scenarioFailed++;
+									break;
+								case 'skipped':
+									skipped++;
+									break;
+								default:
+									console.log(`Status default: ${s.result.status}`);
+							}
+						});
+						if (testPassed(scenarioFailed, scenarioPassed)) scenariosTested.passed += 1;
+						else scenariosTested.failed += 1;
+						story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed),
+							d.tags[0].name, story);
+					});
+				} catch (error) {
+					console.log('json element in fs runReport', error);
+				}
 
-			testStatus = testPassed(failed, passed);
-			if (req.query.source === 'github' && req.user && req.user.github) {
-				const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
-					reportTime, story, scenario, mode, reportName);
-				const githubValue = req.query.value.split('/');
-				const githubName = githubValue[0];
-				const githubRepo = githubValue[1];
-				postComment(story.issue_number, comment, githubName, githubRepo,
-					req.user.github.githubToken);
-				if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-			}
-			if (scenarioID && scenario) {
-				scenario.lastTestPassed = testStatus;
-				mongo.updateScenario(story.story_id, story.storySource, scenario, () => {
-				});
-			} else if (!scenarioID) {
-				story.lastTestPassed = testStatus;
-				mongo.updateStory(story);
-			}
-		});
+
+				testStatus = testPassed(failed, passed);
+				if (req.query.source === 'github' && req.user && req.user.github) {
+					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
+						reportTime, story, scenario, mode, reportName);
+					const githubValue = req.query.value.split('/');
+					const githubName = githubValue[0];
+					const githubRepo = githubValue[1];
+					postComment(story.issue_number, comment, githubName, githubRepo,
+						req.user.github.githubToken);
+					if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+				}
+				if (scenarioID && scenario) {
+					scenario.lastTestPassed = testStatus;
+					mongo.updateScenario(story._id, story.storySource, scenario, () => {
+						// console.log()
+					});
+				} else if (!scenarioID) {
+					story.lastTestPassed = testStatus;
+					mongo.updateStory(story);
+				}
+			});
+		} catch (error) {
+			console.log(`fs readfile error for file ./features/${reportName}.json`);
+		}
 	});
 }
 

@@ -1,10 +1,13 @@
 const webdriver = require('selenium-webdriver');
+const fs = require('file-saver');
 const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
+const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
 
 let driver;
+const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
 // if (process.env.NODE_ENV) {
 // chromeOptions.addArguments('--headless');
@@ -15,24 +18,35 @@ chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
 // Starts the webdriver / Browser
-async function initDriver() {
+async function initDriver(parameters) {
 	driver = new webdriver.Builder()
-		.forBrowser('chrome')
+		.forBrowser(parameters.browser)
 		.setChromeOptions(chromeOptions)
 		.build();
 }
 
 // driver navigates to the Website
-async function getUrl(url) {
+async function getUrl(parameters, url) {
 	await driver.get(url);
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 		// expect(currentUrl).to.equal(url, 'Error');
 	});
+	await driver.sleep(parameters.waitTime);
+}
+
+async function addCookie(parameters, name, value) {
+	await driver.manage().addCookie({ name, value });
+	await driver.sleep(parameters.waitTime);
+}
+
+async function removeCookie(parameters, name) {
+	await driver.manage().deleteCookie(name);
+	await driver.sleep(parameters.waitTime);
 }
 
 // clicks a button if found in html code with xpath,
 // timeouts if not found after 3 sec, waits for next page to be loaded
-async function clickButton(button) {
+async function clickButton(parameters, button) {
 	await driver.getCurrentUrl()
 		.then(async (currentUrl) => {
 			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
@@ -48,15 +62,17 @@ async function clickButton(button) {
 					.click();
 			}
 		});
+	await driver.sleep(parameters.waitTime);
 }
 
 // "Radio"
-async function clickRadioButton(radioname, label) {
+async function clickRadioButton(parameters, radioname, label) {
 	await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${radioname}']`)), 3 * 1000).click();
+	await driver.sleep(parameters.waitTime);
 }
 
 // Hover over element and Select an Option
-async function hoverClick(element, option) {
+async function hoverClick(parameters, element, option) {
 	try {
 		const action = driver.actions({ bridge: true });
 		const link = await driver.wait(until.elementLocated(By.xpath(`${element}`)), 3 * 1000);
@@ -82,6 +98,7 @@ async function hoverClick(element, option) {
 				.perform();
 		}
 	}
+	await driver.sleep(parameters.waitTime);
 }
 
 // selenium sleeps for a certain amount of time
@@ -90,7 +107,7 @@ async function waitMs(ms) {
 }
 
 // Search a field in the html code and fill in the value
-async function fillTextField(value, label) {
+async function fillTextField(parameters, value, label) {
 	try {
 		// await driver.findElement(By.css(`input#${label}`)).clear();
 		// await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
@@ -120,10 +137,11 @@ async function fillTextField(value, label) {
 			}
 		}
 	}
+	await driver.sleep(parameters.waitTime);
 }
 
 // Select an Option from an dropdown-menu
-async function selectFromDropdown(value, dropd) {
+async function selectFromDropdown(parameters, value, dropd) {
 	try {
 		await driver.wait(until.elementLocated(By.xpath(`//*[@*='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
 	} catch (e) {
@@ -137,10 +155,11 @@ async function selectFromDropdown(value, dropd) {
 			}
 		}
 	}
+	await driver.sleep(parameters.waitTime);
 }
 
 // Check the Checkbox with a specific name or id
-async function checkBox(name) {
+async function checkBox(parameters, name) {
 	// Some alternative methods to "check the box":
 	// await driver.executeScript("arguments[0].submit;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
 	// await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
@@ -161,14 +180,16 @@ async function checkBox(name) {
 		}
 	}
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+	await driver.sleep(parameters.waitTime);
 }
 
-async function switchToNewTab() {
+async function switchToNewTab(parameters) {
 	const tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
+	await driver.sleep(parameters.waitTime);
 }
 
-async function switchToSpecificTab(numberOfTabs) {
+async function switchToSpecificTab(parameters, numberOfTabs) {
 	const chromeTabs = await driver.getAllWindowHandles();
 	const len = chromeTabs.length;
 	if (parseInt(numberOfTabs) === 1) {
@@ -178,17 +199,30 @@ async function switchToSpecificTab(numberOfTabs) {
 		const tab = len - (parseInt(numberOfTabs) - 1);
 		await driver.switchTo().window(chromeTabs[tab]);
 	}
+	await driver.sleep(parameters.waitTime);
 }
 
+async function uploadFile(parameters, path, input) {
+	try {
+		await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
+			.sendKeys(`${path}`);
+	} catch (e) {
+		await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
+			.sendKeys(`${path}`);
+	}
+	await driver.sleep(parameters.waitTime);
+}
+// ########################################## THEN ##########################################
+
 // Checks if the current Website is the one it is supposed to be
-async function checkUrl(url) {
+async function checkUrl(parameters, url) {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 		expect(currentUrl).to.equal(url, 'Error');
 	});
 }
 
 // Search a textfield in the html code and assert it with a Text
-async function compareTextbox(string, label) {
+async function compareTextbox(parameters, string, label) {
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.wait(until.elementLocated(By.xpath(`${'//*[@*="'}${label}"]`)), 3 * 1000).then(async (link) => {
 		// `${'//*[text()' + "='"}${button}' or ` + `${'@*'='}${button}']`
@@ -198,7 +232,7 @@ async function compareTextbox(string, label) {
 }
 
 // Search if a is text in html code
-async function checkforText(string) {
+async function checkforText(parameters, string) {
 	await driver.sleep(2000);
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
@@ -211,7 +245,7 @@ async function checkforText(string) {
 }
 
 // Search a textfield in the html code and assert if it's empty
-async function checkForEmptyTextbox(label) {
+async function checkForEmptyTextbox(parameters, label) {
 	await driver.wait(until.elementLocated(By.xpath(`${'//*[@*="'}${label}"]`)), 3 * 1000).then(async (link) => {
 		const resp = await link.getText().then(text => text);
 		expect('').to.equal(resp, 'Error');
@@ -219,7 +253,7 @@ async function checkForEmptyTextbox(label) {
 }
 
 // Search if a text isn't in html code
-async function checkIfTextIsMissing(text) {
+async function checkIfTextIsMissing(parameters, text) {
 	await driver.sleep(2000);
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
@@ -229,24 +263,32 @@ async function checkIfTextIsMissing(text) {
 		const body_all = css_body + inner_html_body + outer_html_body;
 		expect(body_all.toLowerCase()).to.not.include(text.toString().toLowerCase(), 'Error');
 	});
+	await driver.sleep(parameters.waitTime);
 }
+
+async function checkDownloadedFile(parameters, fileName, directory) {
+	const path = `${directory}\\${fileName}`; // Todo: pathingtool (path.normalize)serverhelper
+	await fs.promises.access(path, fs.constants.F_OK);
+	await driver.sleep(parameters.waitTime);
+}
+
 
 async function daisyLogout() {
 	try {
-		await waitMs(1000);
+		await waitMs(500);
 		await clickButton('Zurück zum Portal');
-		await waitMs(2000);
+		await waitMs(500);
 		await clickButton('Abmelden');
 	} catch (e) {
-		await waitMs(1000);
+		await waitMs(500);
 		await clickButton('Abmelden');
 	}
 }
 
 // Closes the webdriver (Browser)
-async function closeDriver() {
+async function closeDriver(parameters) {
 	// process.env.DAISY_AUTO_LOGOUT is written as boolean, but read as a string
-	if (process.env.DAISY_AUTO_LOGOUT === true || process.env.DAISY_AUTO_LOGOUT === 'true') {
+	if (parameters.daisyAutoLogout === true || parameters.daisyAutoLogout === 'true') {
 		console.log('Trying DaisyAutoLogout');
 		await daisyLogout();
 	}
@@ -261,6 +303,8 @@ async function closeDriver() {
 module.exports = {
 	initDriver,
 	getUrl,
+	addCookie,
+	removeCookie,
 	clickButton,
 	clickRadioButton,
 	hoverClick,
@@ -270,10 +314,12 @@ module.exports = {
 	checkBox,
 	switchToNewTab,
 	switchToSpecificTab,
+	uploadFile,
 	checkIfTextIsMissing,
 	checkForEmptyTextbox,
 	checkforText,
 	checkUrl,
 	compareTextbox,
+	checkDownloadedFile,
 	closeDriver
 };

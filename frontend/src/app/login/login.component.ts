@@ -18,16 +18,16 @@ export class LoginComponent implements OnInit, AfterViewInit {
     repositoriesLoading: boolean;
     showInstruction = false;
     slide0 = [{'image0': '/assets//slide0.png'}];
-    slide01 = [{'image01': '/assets//slide01.png'}];
+    slide01 = [{'image01': '/assets//slide01.PNG'}];
     slide02 = [{'image02': '/assets//slide02.png'}];
-    slide03 = [{'image03': '/assets//slide03.png'}];
-    slide04 = [{'image04': '/assets//slide04.png'}];
-    slide05 = [{'image05': '/assets//slide05.png'}];
-    slide06 = [{'image06': '/assets//slide06.png'}];
+    slide03 = [{'image03': '/assets//slide03.PNG'}];
+    slide04 = [{'image04': '/assets//slide04.PNG'}];
+    slide05 = [{'image05': '/assets//slide05.PNG'}];
+    slide06 = [{'image06': '/assets//slide06.PNG'}];
     slide07 = [{'image07': '/assets//slide07.png'}];
-    slide08 = [{'image08': '/assets//slide08.png'}];
-    slide09 = [{'image09': '/assets//slide09.png'}];
-    slide10 = [{'image10': '/assets//slide10.png'}];
+    slide08 = [{'image08': '/assets//slide08.PNG'}];
+    slide09 = [{'image09': '/assets//slide09.PNG'}];
+    slide10 = [{'image10': '/assets//slide10.PNG'}];
     slide11 = [{'image11': '/assets//slide11.png'}];
 
 
@@ -178,5 +178,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     openInstruction() {
         this.showInstruction = !this.showInstruction;
+    }
+
+    resetPassword() {
+        this.router.navigate(['/resetpassword']);
     }
 }
