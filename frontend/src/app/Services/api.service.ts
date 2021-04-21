@@ -119,7 +119,7 @@ export class ApiService {
 
     public getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
-        
+
         const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
@@ -194,25 +194,25 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'title' : title, 'description' : description, 'repo' : repository};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())   
+            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
             .pipe(tap(resp => {
             }));
     }
-    
+
 /*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
 
-  public requestReset(email: string): Observable <any> {   
+  public requestReset(email: string): Observable <any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'email' : email};   
+        const body = {'email' : email};
         return this.http
             .post<any>(this.apiServer + '/user/resetpassword/', body)
             .pipe(tap(resp => {
             }));
   }
 
-  public confirmReset(uuid: string, password: string): Observable <any> {   
+  public confirmReset(uuid: string, password: string): Observable <any> {
     this.apiServer = localStorage.getItem('url_backend');
-    const body = {'id' : uuid, 'password' : password};   
+    const body = {'id' : uuid, 'password' : password};
     return this.http
         .post<any>(this.apiServer + '/user/reset/', body)
         .pipe(tap(resp => {
@@ -222,7 +222,7 @@ export class ApiService {
 
 
 
-  
+
 
     public saveBlock(block: Block){
         return this.http
@@ -258,7 +258,7 @@ export class ApiService {
            return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
                 localStorage.setItem('url_backend', backendInfo.url);
                 localStorage.setItem('clientId', backendInfo.clientId);
-               localStorage.setItem('version', backendInfo.version);
+                localStorage.setItem('version', backendInfo.version);
 
                 this.getBackendUrlEvent.emit();
             });

@@ -192,7 +192,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         }
         let checkCount = 0;
         let stepCount = 0;
-        
+
         for (let prop in this.selectedStory.background.stepDefinitions) {
             for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
                 stepCount++;
@@ -300,7 +300,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     delete this.selectedStory.background.saved;
     this.allChecked = false;
     this.activeActionBar = false;
-    
+
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
         this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
             delete step.checked;
@@ -482,16 +482,20 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     // Make the API Request to run the tests and display the results as a chart
     runTests(scenario_id) {
-        if(this.storySaved()){
+        if (this.storySaved()) {
             this.testRunning = true;
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
-            var browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
-            var defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
+            const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
+            const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
+            const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
 
             loadingScreen.scrollIntoView();
             this.apiService
-                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id, {browser: browserSelect, waitTime: defaultWaitTimeInput})
+                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
+                    {browser: browserSelect,
+                        waitTime: defaultWaitTimeInput,
+                        daisyAutoLogout: daisyAutoLogout})
                 .subscribe(resp => {
                     iframe.srcdoc = resp;
                     // console.log("This is the response: " + resp);
@@ -511,7 +515,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
                 toastComponent: RunTestToast
             })
-        }        
+        }
     }
 
   downloadFile() {

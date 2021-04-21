@@ -19,6 +19,7 @@ chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
 // Starts the webdriver / Browser
 async function initDriver(parameters) {
+	console.log(parameters)
 	driver = new webdriver.Builder()
 		.forBrowser(parameters.browser)
 		.setChromeOptions(chromeOptions)

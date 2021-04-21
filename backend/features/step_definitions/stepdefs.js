@@ -1,6 +1,6 @@
 const {
-	Given, When, Then, Before, After, setDefaultTimeout
-} = require('cucumber');
+	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor
+} = require('@cucumber/cucumber');
 const seleniumSteps = require('../../src/execution/selenium_steps');
 
 function CustomWorld({ attach, parameters }) {
@@ -8,12 +8,18 @@ function CustomWorld({ attach, parameters }) {
 	this.parameters = parameters;
 }
 
+
 setWorldConstructor(CustomWorld);
+
 // Cucumber default timer for timeout
 setDefaultTimeout(20 * 1000);
 
 // runs before each scenario
-Before(seleniumSteps.initDriver(this.parameters));
+// Before(async function () {
+// 	console.log(this.parameters.browser);
+// });
+
+Before(() => seleniumSteps.initDriver(this.parameters));
 
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
@@ -55,25 +61,22 @@ When('I select the option {string} from the drop-down-menue {string}', (value, d
 // Hover over element and Select an Option
 When('I hover over the element {string} and select the option {string}', (element, option) => seleniumSteps.hoverClick(this.parameters, element, option));
 
-
-When('I select from the {string} multiple selection, the values {string}{string}{string}',
-		async (this.parameters, button, string2, string3, string4) => {
-		// TODO
-});
+// TODO:
+When('I select from the {string} multiple selection, the values {string}{string}{string}', () => {});
 
 // Check the Checkbox with a specific name or id
 When('I check the box {string}', name => seleniumSteps.checkBox(this.parameters, name));
 
-When('Switch to the newly opened tab', seleniumSteps.switchToNewTab(this.parameters) );
+When('Switch to the newly opened tab', () => seleniumSteps.switchToNewTab(this.parameters));
 
 
 When('Switch to the tab number {string}', numberOfTabs => seleniumSteps.switchToSpecificTab(this.parameters, numberOfTabs));
 
 // TODO: delete this following step (also in DB), once every branch has the changes
-When('I switch to the next tab', seleniumSteps.switchToNewTab(this.parameters));
+When('I switch to the next tab', () => seleniumSteps.switchToNewTab(this.parameters));
 
 When('I want to upload the file from this path: {string} into this uploadfield: {string}',
-		(path, input) => seleniumSteps.uploadFile(this.parameters, path, input));
+	(path, input) => seleniumSteps.uploadFile(this.parameters, path, input));
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
@@ -91,7 +94,7 @@ Then('So I can´t see text in the textbox: {string}', label => seleniumSteps.che
 
 
 Then('So a file with the name {string} is downloaded in this Directory {string}',
-		(fileName, Directory) => seleniumSteps.checkDownloadedFile(this.parameters, fileName, Directory));
+	(fileName, directory) => seleniumSteps.checkDownloadedFile(this.parameters, fileName, directory));
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', text => seleniumSteps.checkIfTextIsMissing(text));
@@ -99,4 +102,4 @@ Then('So I can\'t see the text: {string}', text => seleniumSteps.checkIfTextIsMi
 
 // Closes the webdriver (Browser)
 // runs after each Scenario
-After(seleniumSteps.closeDriver(this.parameters));
+After(() => seleniumSteps.closeDriver(this.parameters));
