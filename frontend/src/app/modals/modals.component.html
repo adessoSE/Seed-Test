@@ -266,3 +266,31 @@
         </button>
     </div>
 </ng-template>
+
+
+<!-- Workgroup edit Modal-->
+<ng-template #workgroupEditModal let-modal>
+    <div class="modal-header">
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">Project</span>
+    </div>
+    <div class="modal-body modal-xl">
+        <div class="uk-card-title submitForm">
+            <div>
+                <form #workgroupInviteForm="ngForm" novalidate (ngSubmit)="workgroupInvite(workgroupInviteForm);"> 
+                    <div class="padding_top">
+                        <label class="SmallHeadline5 padding_right">Memer:</label>
+                        <input type="email" ngModel name="email" placeholder="Email">                    
+                    </div>
+                    <button type="submit" class="normalButton">Invite</button>
+                </form>
+            </div>
+        </div>
+        <div>
+            <p>Email:</p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="submitRenameScenario(); modal.close('Save click')">Submit
+        </button>
+    </div>
+</ng-template>

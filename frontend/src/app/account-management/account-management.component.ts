@@ -48,6 +48,10 @@ export class AccountManagementComponent implements OnInit {
     eraseAccount() {
         this.modalComponent.openDeleteAccountModal(this.email);
     }
+
+    workGroupEdit(projectTitle){
+        this.modalComponent.openWorkgroupEditModal(projectTitle);
+    }
     
     updateSite(report) {
         console.log(report);

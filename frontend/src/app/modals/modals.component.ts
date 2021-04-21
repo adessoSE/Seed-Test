@@ -22,6 +22,7 @@ export class ModalsComponent{
   @ViewChild('saveBlockFormModal') saveBlockFormModal: any;
   @ViewChild('newStepRequestModal') newStepRequestModal: any;
   @ViewChild('renameScenarioModal') renameScenarioModal: any;
+  @ViewChild('workgroupEditModal') workgroupEditModal: any;
 
   //change Jira account modal
   type: string;
@@ -258,5 +259,20 @@ export class ModalsComponent{
   submitRenameScenario() {
     let name = (document.getElementById('newTitle') as HTMLInputElement).value ;
     this.apiService.renameScenarioEmit(name)
+  }
+
+
+
+  // workgroup Edit Modal
+  openWorkgroupEditModal(projectTitle) {
+    this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
+    //let name = document.getElementById('newTitle') as HTMLInputElement
+    //name.placeholder = oldTitle
+  }
+
+  workgroupInvite(form: NgForm) {
+    let email = form.value.email;
+    console.log('email', email)
+    //this.apiService.renameScenarioEmit(name)
   }
 }
