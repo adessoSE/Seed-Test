@@ -602,7 +602,7 @@ function runReport(req, res, stories, mode, cucumberParameters) {
 					if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 				}
 				if (scenarioID && scenario) {
-					scenario.lastTestPassed = testStatus;
+          scenario.lastTestPassed = testStatus;
 					mongo.updateScenario(story._id, story.storySource, scenario, () => {
             // console.log()
 					});
