@@ -957,27 +957,27 @@ async function addMember(id, email) {
   try {
     db = await connectDb()
     let dbo = db.db(dbName)
-    let rCollection = await dbo.collection(repositoriesCollection)
     let wGCollection = await dbo.collection(WorkgroupsCollection)
+    let check = await wGCollection.findOne({ Repo: id, Members: email })
+    if (check) return "Dieser User ist bereits in der Workgroup"
+    let rCollection = await dbo.collection(repositoriesCollection)
     let newUser = await getUserByEmail(email)
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
-    let check = await wGCollection.findOne({ Repo: id, Members: email })
     let result = await wGCollection.findOne({ Repo: id })
-    if (check) return "Dieser User ist bereits in der Workgroup"
     if (!result) {
       await wGCollection.insertOne({ name: repo.repoName, Repo: id, Members: [email] })
-      if (!repo.entiteledUsers) {
+      if (!repo.entitledUsers) {
         await rCollection.findOneAndUpdate({ _id: ObjectId(id) }, [{ $set: { entitledUsers: [newUser._id] } }])
       } else {
-        rCollection.findOneAndUpdate({ _id: ObjectId(id) }, { $push: { entiteldUsers: newUser._id } })
+        rCollection.findOneAndUpdate({ _id: ObjectId(id) }, { $push: { entitledUsers: newUser._id } })
       }
       return email
     } else {
       await wGCollection.findOneAndUpdate({ Repo: id }, { $push: { Members: email } })
-      if (!repo.entiteledUsers) {
+      if (!repo.entitledUsers) {
         await rCollection.findOneAndUpdate({ _id: ObjectId(id) }, [{ $set: { entitledUsers: [newUser._id] } }])
       } else {
-        rCollection.findOneAndUpdate({ _id: ObjectId(id) }, { $push: { entiteldUsers: newUser._id } })
+        rCollection.findOneAndUpdate({ _id: ObjectId(id) }, { $push: { entitledUsers: newUser._id } })
       }
       return email
     }
@@ -996,7 +996,8 @@ async function getMembers(id) {
     let wGcollection = await dbo.collection(WorkgroupsCollection)
     let result = await wGcollection.findOne({ Repo: id })
     if (!result) return []
-    return result.Members
+    result = result.Members.map(e => e={email: e})
+    return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getMembers: " + e)
   } finally {
@@ -1009,9 +1010,12 @@ async function removeFromWorkgroup(id, email) {
   try {
     db = await connectDb()
     let dbo = db.db(dbName)
+    let user = await getUserByEmail(email)
+    let repoCollection = await selectRepositoryCollection(db)
     let wGcollection = await dbo.collection(WorkgroupsCollection)
     let result = await wGcollection.findOneAndUpdate({ Repo: id }, { $pull: { Members: email } })
-    if (!result) return "User does not exist in this Workgroup"
+    await repoCollection.findOneAndUpdate({_id: ObjectId(id)}, {$pull: {entitledUsers: user._id }})
+    if (result) return "Success"
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
   } finally {

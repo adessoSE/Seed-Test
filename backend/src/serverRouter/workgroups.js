@@ -61,9 +61,10 @@ router.get('/wgmembers/:id', async (req, res) => {
     }
 });
 
-router.post('/wgmembers/deleteMember/:id', async (req, res) => {
+router.post('/deletemember/:id', async (req, res) => {
     try {
-        const result = await mongo.removeFromWorkgroup(req.params.id, req.body.user)
+        const result = await mongo.removeFromWorkgroup(req.params.id, req.body.email)
+        if (!result) res.status(500).json({error: 'Beim Löschen des Users ist ein Fehler aufgetreten'})
         res.status(200).json(result);
     } catch (error) {
         handleError(res, error, error, 500);
