@@ -309,7 +309,7 @@ export class ModalsComponent{
 
   checkEditUser(event, user){
     user.canEdit = !user.canEdit
-    this.apiService.updatWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
+    this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
       this.workgroupList = res
     })
   }

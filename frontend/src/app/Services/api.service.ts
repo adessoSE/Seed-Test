@@ -185,9 +185,9 @@ export class ApiService {
             }));
     }
 
-    public createStory(title: string, description: string, repository: string): Observable<any> {
+    public createStory(title: string, description: string, repository: string, _id): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'title' : title, 'description' : description, 'repo' : repository};
+        const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
         return this.http
             .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())   
             .pipe(tap(resp => {
@@ -224,7 +224,7 @@ export class ApiService {
         }));
     }
     
-    public updatWorkgroupUser(_id, user){
+    public updateWorkgroupUser(_id, user){
         return this.http
         .put<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
         .pipe(tap(resp => {
