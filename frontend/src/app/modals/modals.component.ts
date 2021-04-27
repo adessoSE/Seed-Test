@@ -293,7 +293,7 @@ export class ModalsComponent{
         this.wrongEmail = true
       }else{
         let originList = JSON.parse(JSON.stringify(this.workgroupList))
-        originList.push(email)
+        originList.push(user)
         this.workgroupList = []
         this.workgroupList = originList
       }
