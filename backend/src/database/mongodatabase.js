@@ -996,8 +996,8 @@ async function getMembers(id) {
     let wGcollection = await dbo.collection(WorkgroupsCollection)
     let result = await wGcollection.findOne({ Repo: id })
     if (!result) return []
-    result = result.Members.map(e => e={email: e})
-    return result
+    //result = result.Members.map(e => e={email: e})
+    return result.Members
   } catch (e) {
     console.log("UPS!!!! FEHLER in getMembers: " + e)
   } finally {
@@ -1014,8 +1014,10 @@ async function removeFromWorkgroup(id, email) {
     let repoCollection = await selectRepositoryCollection(db)
     let wGcollection = await dbo.collection(WorkgroupsCollection)
     let result = await wGcollection.findOneAndUpdate({ Repo: id }, { $pull: { Members: email } })
+    let result2 = await wGcollection.findOne({ Repo: id })
+    console.log('result2', result2)
     await repoCollection.findOneAndUpdate({_id: ObjectId(id)}, {$pull: {entitledUsers: user._id }})
-    if (result) return "Success"
+    if (result) return result2.Members
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
   } finally {

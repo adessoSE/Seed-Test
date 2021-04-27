@@ -53,7 +53,7 @@ export class ModalsComponent{
 
   // workgroup modal
   displayedColumnsWorkgroup: string[] = ['email'];
-  workgroupList = [{email: 'horsty@schlumpf.de'}, {email: 'porst@pong.de'}]
+  workgroupList = []
   wrongEmail = false;
   workgroupProject: RepositoryContainer;
 
@@ -290,17 +290,18 @@ export class ModalsComponent{
       if (res.error){
         this.wrongEmail = true
       }else{
-        this.workgroupList.push(res)
+        let originList = JSON.parse(JSON.stringify(this.workgroupList))
+        originList.push(email)
+        this.workgroupList = []
+        this.workgroupList = originList
       }
+      console.log(this.workgroupList)
     })
   }
 
   removeFromWorkgroup(user){
-    this.apiService.removeFromWorkgroup(this.workgroupProject._id, user.email).subscribe(res => {
-      const index = this.workgroupList.indexOf(user);
-      if (index > -1) {
-        this.workgroupList.splice(index, 1);
-      }
+    this.apiService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
+      this.workgroupList = res
     })
   }
 }
