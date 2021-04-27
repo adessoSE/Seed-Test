@@ -223,6 +223,14 @@ export class ApiService {
             //
         }));
     }
+    
+    public updatWorkgroupUser(_id, user){
+        return this.http
+        .put<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
 
     public getWorkgroup(_id){
         return this.http

@@ -32,7 +32,7 @@
                             <div>
                                 <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                                <button class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Edit</button>
+                                <button *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Edit</button>
                             </div>
                         </li>
                     </ng-container>
