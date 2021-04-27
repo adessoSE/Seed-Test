@@ -753,9 +753,15 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     setDaisyAutoLogout($event: Event,  checkValue: boolean) {
-        this.selectedStory.daisyAutoLogout = checkValue;
+        this.selectedScenario.daisyAutoLogout = checkValue;
         this.selectedScenario.saved = false;
     }
+
+    commentChange(newComment){
+        this.selectedScenario.comment = newComment;
+        this.selectedScenario.saved = false;
+    }
+
     
     sortedStepTypes(){
        let sortedStepTypes =  this.originalStepTypes;

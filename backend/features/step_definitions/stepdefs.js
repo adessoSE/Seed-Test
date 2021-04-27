@@ -332,7 +332,7 @@ async function daisyLogout() {
 // runs after each Scenario
 After(async function closeDriver() {
 	// process.env.DAISY_AUTO_LOGOUT is written as boolean, but read as a string
-	if (this.parameters.daisyAutoLogout === true || this.parameters.daisyAutoLogout === 'on') {
+	if (this.parameters.daisyAutoLogout == "true" || this.parameters.daisyAutoLogout == true) {
 		console.log('Trying DaisyAutoLogout');
 		await daisyLogout();
 	}

@@ -182,12 +182,12 @@
       <br>
       <div class="comment MediumButton1">
           <label>Comment</label><br>
-          <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" on-change="commentChange(comment.value)">
+          <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" (change)="commentChange(comment.value)">
           </textarea>
            </div>
          <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
            <label>Auto Logout (Daisy)</label>
-           <input type="checkbox" id="daisyAutoLogout" (change)="setDaisyAutoLogout($event, null)" [defaultChecked]="selectedStory.daisyAutoLogout">
+           <input type="checkbox" id="daisyAutoLogout" (change)="this.setDaisyAutoLogout($event, $event.target.checked)" [defaultChecked]="this.selectedScenario.daisyAutoLogout">
          </form>
        </div>
 

@@ -173,16 +173,17 @@ async function updateFeatureFile(issueID, storySource) {
 }
 
 function execReport2(req, res, stories, mode, story, cucumberParameters, callback) {
+	let scenario = story.scenarios.find(elem => elem.scenario_id == req.params.scenarioID)
+	let parameters = {browser: cucumberParameters.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
 	const path2 = `features/${cleanFileName(story.title)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 	const path3 = `features/${reportName}.json`;
 	let worldParam = '';
-	const keys = Object.keys(cucumberParameters);
-	for (const [index, k] of keys.entries()) if (index < keys.length - 1) worldParam += `\\\"${k}\\\": \\\"${cucumberParameters[k]}\\\",`;
-		 else worldParam += `\\\"${k}\\\": \\\"${cucumberParameters[k]}\\\"`;
-
+	const keys = Object.keys(parameters);
+	for (const [index, k] of keys.entries()) if (index < keys.length - 1) worldParam += `\\\"${k}\\\": \\\"${parameters[k]}\\\",`;
+		 else worldParam += `\\\"${k}\\\": \\\"${parameters[k]}\\\"`;
 
 	let cmd;
 	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;

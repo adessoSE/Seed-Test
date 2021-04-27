@@ -487,15 +487,16 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
             const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
-            const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
-            const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
+            //const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
+            //const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
 
             loadingScreen.scrollIntoView();
             this.apiService
                 .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
                     {browser: browserSelect,
-                        waitTime: defaultWaitTimeInput,
-                        daisyAutoLogout: daisyAutoLogout})
+                        //waitTime: defaultWaitTimeInput,
+                        //daisyAutoLogout: daisyAutoLogout
+                    })
                 .subscribe(resp => {
                     iframe.srcdoc = resp;
                     // console.log("This is the response: " + resp);
@@ -522,6 +523,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       const blob = new Blob([this.htmlReport], {type: 'text/html'});
       saveAs(blob);
   }
+
+  setStepWaitTime(event, newTime){
+    this.selectedScenario.stepWaitTime = newTime;
+    this.selectedScenario.saved = false; 
+}
 
   hideResults() {
       this.showResults = !this.showResults;
