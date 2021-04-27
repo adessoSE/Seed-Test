@@ -52,7 +52,7 @@ export class ModalsComponent{
   
 
   // workgroup modal
-  displayedColumnsWorkgroup: string[] = ['email'];
+  displayedColumnsWorkgroup: string[] = ['email' , 'can_edit_workgroup'];
   workgroupList = []
   wrongEmail = false;
   workgroupProject: RepositoryContainer;
@@ -286,7 +286,9 @@ export class ModalsComponent{
   workgroupInvite(form: NgForm) {
     let email = form.value.email;
     this.wrongEmail = false;
-    this.apiService.addToWorkgroup(this.workgroupProject._id, email).subscribe(res => {
+    let canEdit = form.value.canEdit
+    let user = {email, canEdit}
+    this.apiService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
       if (res.error){
         this.wrongEmail = true
       }else{

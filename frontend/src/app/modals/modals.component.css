@@ -188,6 +188,17 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 .wrongEmail{
     background-color: var(--grape);
 }
+
+.canEditContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.canEditLabel{
+    margin-right: 5px;
+    margin-bottom: 0px;
+}
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;

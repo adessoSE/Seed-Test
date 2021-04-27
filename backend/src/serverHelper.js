@@ -326,7 +326,7 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
           let mongoRepoId = await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
           const repoName = repo.full_name;
           let proj = {
-            //_id: mongoRepoId,
+            _id: mongoRepoId,
             value: repoName,
             source: 'github'
           }

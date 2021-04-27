@@ -283,6 +283,10 @@
                         
                         <input class="workGroupEmail" type="email" ngModel name="email" placeholder="Email"> 
                         <button type="submit" class="normalButton">Invite to Workgroup</button>
+                        <div class="canEditContainer">
+                            <label class="canEditLabel" >Can edit the workgroup</label>
+                            <input type="checkbox" ngModel name="canEdit" class="normalButton">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -291,10 +295,16 @@
             <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8" aria-describedby="mydesc">
                 <ng-container matColumnDef="email">
                   <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
-                  <td mat-cell *matCellDef="let element"> {{element}} 
+                  <td mat-cell *matCellDef="let element"> {{element.email}} 
                     <button class="normalButton deleteButton"(click)="removeFromWorkgroup(element);">Remove</button>
                   </td>
                 </ng-container>
+
+                <ng-container matColumnDef="can_edit_workgroup">
+                    <th  mat-header-cell *matHeaderCellDef> Can Edit Workgroup </th>
+                    <td mat-cell *matCellDef="let element"> {{element.canEdit}} 
+                    </td>
+                  </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
               </table> 
