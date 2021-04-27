@@ -215,8 +215,7 @@ export class ApiService {
         }));
 }
 
-    public addToWorkgroup(_id, email){
-        let user = {email}
+    public addToWorkgroup(_id, user){
         return this.http
         .post<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
         .pipe(tap(resp => {
