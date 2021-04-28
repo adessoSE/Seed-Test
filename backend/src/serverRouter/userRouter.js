@@ -323,7 +323,7 @@ router.get('/stories', async (req, res) => {
 					Promise.all(storiesArray)
 						.then((result) => {
 							if (repo !== null) {
-								mongo.updateStoriesArrayInRepo(repo, result) 
+								mongo.updateStoriesArrayInRepo(repo._id, result) 
 							}
 						})
 						.catch((e) => {
@@ -343,7 +343,8 @@ router.get('/stories', async (req, res) => {
 			console.log('Jira Error:', e);
 		}
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
-		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName)
+		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id)
+		console.log("Die Repo Id in user/getStories!!!!!!!!!!", req.query )
 		res.status(200).json(result)
 	} else res.sendStatus(401);
 });

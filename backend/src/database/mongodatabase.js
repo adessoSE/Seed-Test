@@ -406,7 +406,7 @@ async function deleteBackground(storyId, storySource) {
   }
 }
 
-async function createStory(storyTitel, storyDescription, ownerId, repoName) {        //, asigneeEmail
+async function createStory(storyTitel, storyDescription, repoId) {   
   let db;
   let iNumberArray = [];
   let finalIssueNumber = 0;
@@ -414,7 +414,7 @@ async function createStory(storyTitel, storyDescription, ownerId, repoName) {   
     db = await connectDb();
     let repoCollection = await selectRepositoryCollection(db);
     let collection = await selectStoriesCollection(db);
-    let repo = await repoCollection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    let repo = await repoCollection.findOne({ _id: ObjectId(repoId) })
     if (repo) {
       if (repo.stories.length > 0) {
         for (let storyId of repo.stories) {
@@ -429,22 +429,7 @@ async function createStory(storyTitel, storyDescription, ownerId, repoName) {   
           }
         }
       }
-    } else {
-      let repo = await repoCollection.findOne({ entitledUsers: ObjectId(ownerId), repoName: repoName })
-      if (repo.stories.length > 0) {
-        for (let storyId of repo.stories) {
-          let story = await collection.findOne({ _id: ObjectId(storyId) })
-          iNumberArray.push(story.issue_number)
-        }
-        for (let i = 0; i <= iNumberArray.length; i++) {
-          let included = iNumberArray.includes(i)
-          if (!included) {
-            finalIssueNumber = i;
-            break;
-          }
-        }
-      }
-    }
+    } 
     let emptyStory = {
       story_id: 0,
       assignee: 'unassigned',
@@ -468,20 +453,13 @@ async function createStory(storyTitel, storyDescription, ownerId, repoName) {   
   }
 }
 
-async function insertStoryIdIntoRepo(ownerId, repoName, storyId) {
+async function insertStoryIdIntoRepo(storyId, repoId) {
   let db;
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
-    let resultRepo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
-    if (resultRepo) {
-    resultRepo.stories.push(storyId)
-    return await collectionRepo.findOneAndUpdate({ owner: ObjectId(ownerId), repoName: repoName }, { $set: resultRepo })
-    } else {
-      let resultRepo = await collectionRepo.findOne({ entitledUsers: ObjectId(ownerId), repoName: repoName })
-      resultRepo.stories.push(storyId)
-      return await collectionRepo.findOneAndUpdate({ entitledUsers: ObjectId(ownerId), repoName: repoName }, { $set: resultRepo })
-    }
+    let resultRepo = await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: { storyId } } })
+    return resultRepo
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
   } finally {
@@ -489,22 +467,15 @@ async function insertStoryIdIntoRepo(ownerId, repoName, storyId) {
   }
 }
 
-async function getAllStoriesOfRepo(ownerId, repoName) {
+async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
   let db
   let storiesArray = []
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
     let collectionStories = await selectStoriesCollection(db)
-    let repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    let repo = await collectionRepo.findOne({ _id: ObjectId(repoId) })
     if (repo) {
-      for (let entry of repo.stories) {
-        let story = await collectionStories.findOne({ _id: ObjectId(entry) })
-        storiesArray.push(story)
-      }
-    } else {
-
-      let repo = await collectionRepo.findOne({ entitledUsers: ObjectId(ownerId), repoName: repoName })
       for (let entry of repo.stories) {
         let story = await collectionStories.findOne({ _id: ObjectId(entry) })
         storiesArray.push(story)
@@ -533,7 +504,6 @@ async function createScenario(storyId, storySource) {
       tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
       story.scenarios.push(tmpScenario);
     }
-    console.log("createScenario: Die Story, die gepeichert werden soll: " + JSON.stringify(story))
     await replace(story, collection)
     return tmpScenario
   } catch (e) {
@@ -545,7 +515,6 @@ async function createScenario(storyId, storySource) {
 
 // DELETE Scenario
 async function deleteScenario(storyId, storySource, scenarioID) {
-  console.log("DeleteScenarios ID: " + JSON.stringify(storyId + " ScenarioId: " + JSON.stringify(scenarioID)))
   let db;
   try {
     db = await connectDb()
@@ -603,11 +572,23 @@ async function getRepository(userID) {
     let repoCollection = await selectRepositoryCollection(db);
     let userCollection = await selectUsersCollection(db)
     let user = await userCollection.findOne({ _id: ObjectId(userID) })
-    let workgroups = await wGCollection.find({ Members: user.email }).toArray()
-    let wGArray = workgroups.map(entry => ObjectId(entry.Repo))
-    let wGRepos = await repoCollection.find({ _id: { $in: wGArray } }).toArray()
+    let positiveWorkgroups = await wGCollection.find({ Members: { $elemMatch: { email: user.email, canEdit: true } } }).toArray()
+    let PWgArray = positiveWorkgroups.map(entry => ObjectId(entry.Repo))
+    let PWgRepos = await repoCollection.find({ _id: { $in: PWgArray } }).toArray()
+    PWgRepos.forEach(function (element) {
+      element.canEdit = true;
+    });
+    let negativeWorkgroups = await wGCollection.find({ Members: { $elemMatch: { email: user.email, canEdit: false } } }).toArray()
+    let NWgArray = negativeWorkgroups.map(entry => ObjectId(entry.Repo))
+    let NWgRepos = await repoCollection.find({ _id: { $in: NWgArray } }).toArray()
+    NWgRepos.forEach(function (element) {
+      element.canEdit = false;
+    });
     let result = await repoCollection.find(myObjt).toArray();
-    let finalResult = result.concat(wGRepos)
+    result.forEach(function (element) {
+      element.canEdit = true;
+    });
+    let finalResult = result.concat(PWgRepos, NWgRepos)
     return finalResult;
   } catch (e) {
     console.log("UPS!!!! FEHLER in getRepository" + e)
@@ -952,37 +933,41 @@ async function deleteBlock(blockId, userId) {
   }
 }
 
-async function addMember(id, email) {
+async function addMember(id, user) {
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName)
     let wGCollection = await dbo.collection(WorkgroupsCollection)
-    let check = await wGCollection.findOne({ Repo: id, Members: email })
+    let check = await wGCollection.findOne({ Repo: ObjectId(id), Members: { $elemMatch: { email: user.email } } })
     if (check) return "Dieser User ist bereits in der Workgroup"
     let rCollection = await dbo.collection(repositoriesCollection)
-    let newUser = await getUserByEmail(email)
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
-    let result = await wGCollection.findOne({ Repo: id })
+    let result = await wGCollection.findOne({ Repo: ObjectId(id) })
     if (!result) {
-      await wGCollection.insertOne({ name: repo.repoName, Repo: id, Members: [email] })
-      if (!repo.entitledUsers) {
-        await rCollection.findOneAndUpdate({ _id: ObjectId(id) }, [{ $set: { entitledUsers: [newUser._id] } }])
-      } else {
-        rCollection.findOneAndUpdate({ _id: ObjectId(id) }, { $push: { entitledUsers: newUser._id } })
-      }
-      return email
+      result = await wGCollection.insertOne({ name: repo.repoName, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
+      return result.Members
     } else {
-      await wGCollection.findOneAndUpdate({ Repo: id }, { $push: { Members: email } })
-      if (!repo.entitledUsers) {
-        await rCollection.findOneAndUpdate({ _id: ObjectId(id) }, [{ $set: { entitledUsers: [newUser._id] } }])
-      } else {
-        rCollection.findOneAndUpdate({ _id: ObjectId(id) }, { $push: { entitledUsers: newUser._id } })
-      }
-      return email
+      result = await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { email: user.email, canEdit: user.canEdit } })
+      return result.Members
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in addMember: " + e)
+  } finally {
+    if (db) db.close()
+  }
+}
+
+async function updateMemberStatus(repoId, user) {
+  let db;
+  try {
+    db = await connectDb()
+    let dbo = db.db(dbName)
+    let wGCollection = await dbo.collection(WorkgroupsCollection)
+    let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
+    if (updatedWG) return updatedWG.Members
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in updateMemberStatus: " + e)
   } finally {
     if (db) db.close()
   }
@@ -994,9 +979,8 @@ async function getMembers(id) {
     db = await connectDb()
     let dbo = db.db(dbName)
     let wGcollection = await dbo.collection(WorkgroupsCollection)
-    let result = await wGcollection.findOne({ Repo: id })
+    let result = await wGcollection.findOne({ Repo: ObjectId(id) })
     if (!result) return []
-    //result = result.Members.map(e => e={email: e})
     return result.Members
   } catch (e) {
     console.log("UPS!!!! FEHLER in getMembers: " + e)
@@ -1005,19 +989,14 @@ async function getMembers(id) {
   }
 }
 
-async function removeFromWorkgroup(id, email) {
+async function removeFromWorkgroup(id, user) {
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName)
-    let user = await getUserByEmail(email)
-    let repoCollection = await selectRepositoryCollection(db)
     let wGcollection = await dbo.collection(WorkgroupsCollection)
-    let result = await wGcollection.findOneAndUpdate({ Repo: id }, { $pull: { Members: email } })
-    let result2 = await wGcollection.findOne({ Repo: id })
-    console.log('result2', result2)
-    await repoCollection.findOneAndUpdate({_id: ObjectId(id)}, {$pull: {entitledUsers: user._id }})
-    if (result) return result2.Members
+    let result = await wGcollection.findOneAndUpdate({ Repo: id }, { $pull: { Members: { email: user.email } } })
+    if (result) return result.Members
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
   } finally {
@@ -1072,6 +1051,7 @@ module.exports = {
   getBlocks,
   deleteBlock,
   addMember,
+  updateMemberStatus,
   getMembers,
-  removeFromWorkgroup
+  removeFromWorkgroup,
 };

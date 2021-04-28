@@ -38,15 +38,30 @@ router
 router.post('/wgmembers/:id', async (req, res) => {
     try {
         const user = await mongo.getUserByEmail(req.body.email)
-        const result = await mongo.addMember(req.params.id, req.body.email)
-        
         if (!user) {
             res.status(500).json({error: 'User mit dieser E-mail nicht gefunden'})
-        } else if (result === "Dieser User ist bereits in der Workgroup") {
+            break
+        }
+        const result = await mongo.addMember(req.params.id, req.body)
+        if (result === "Dieser User ist bereits in der Workgroup") {
             res.status(500).json({error: 'Dieser User ist bereits in der Workgroup'})
         } else {
             res.status(200).json(result);
         }
+    } catch (error) {
+        handleError(res, error, error, 500);
+    }
+});
+
+router.put('/wgmembers/:id', async (req, res) => {
+    try {
+        const user = await mongo.getUserByEmail(req.body.email)
+        if (!user) {
+            res.status(500).json({error: 'User mit dieser E-mail nicht gefunden'})
+            break
+        }
+        let result = await mongo.updateMemberStatus(req.params.id, req.body)
+        return result
     } catch (error) {
         handleError(res, error, error, 500);
     }

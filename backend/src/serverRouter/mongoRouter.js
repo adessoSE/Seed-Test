@@ -53,18 +53,9 @@ router.post('/createRepository', async (req, res) => {
 
 //creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
 router.post('/createStory', async (req, res) => {
-	let resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.user._id, req.body.repo)  
-	await mongo.insertStoryIdIntoRepo(req.user._id, req.body.repo, resultStoryId)
-	// const issue = {
-	// 	id: Math.floor(Math.random() * 10000),
-	// 	title: req.body.title,
-	// 	description: req.body.description,
-	// 	status: 'open',
-	// 	assignee: req.user.email
-	// };
-	//mongo.addIssue(req.user._id, req.body.repo).then((body) => {
+	let resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.body.repoId)  
+	await mongo.insertStoryIdIntoRepo( resultStoryId, req.body.repoId)
 		res.status(200).json('');
-	//});
 });
 
 // update background
