@@ -527,7 +527,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   setStepWaitTime(event, newTime){
     this.selectedScenario.stepWaitTime = newTime;
     this.selectedScenario.saved = false; 
-}
+    }
+
+    setBrowser(event, newBrowser){
+        console.log('browser', newBrowser, event)
+        this.selectedScenario.browser = newBrowser;
+        this.selectedScenario.saved = false; 
+    }
 
   hideResults() {
       this.showResults = !this.showResults;

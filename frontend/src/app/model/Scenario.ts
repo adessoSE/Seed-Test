@@ -10,4 +10,5 @@ export interface Scenario {
     saved?: boolean;
     daisyAutoLogout?: boolean;
     stepWaitTime?: number;
+    browser?: string;
 }

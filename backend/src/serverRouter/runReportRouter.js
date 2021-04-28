@@ -20,14 +20,14 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID/:storySource', (req, res) => {
-		console.log(req.body);
-	helper.runReport(req, res, stories, 'feature', req.body);
+		console.log('body', req.body);
+	helper.runReport(req, res, stories, 'feature');
 });
 
 // run single Scenario of a Feature
 router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
 		console.log(req.body);
-	helper.runReport(req, res, stories, 'scenario', req.body);
+	helper.runReport(req, res, stories, 'scenario');
 });
 
 router.get('/report/:reportName', (req, res) => {

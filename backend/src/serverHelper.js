@@ -172,23 +172,46 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-function execReport2(req, res, stories, mode, story, cucumberParameters, callback) {
-	let scenario = story.scenarios.find(elem => elem.scenario_id == req.params.scenarioID)
-	let parameters = {browser: cucumberParameters.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}
+function execReport2(req, res, stories, mode, story, callback) {
+	let parameters = {}
+	if (mode == 'scenario'){
+		let scenario = story.scenarios.find(elem => elem.scenario_id == req.params.scenarioID)
+		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
+		if (!scenario.browser) scenario.browser = 'chrome'
+		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
+		parameters = {scenarios: [{browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}]}
+	}else{
+		parameters = {scenarios: []}
+		story.scenarios
+		story.scenarios.forEach(scenario => {
+			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
+			if (!scenario.browser) scenario.browser = 'chrome'
+			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
+			parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+		})
+	}
+	
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
 	const path2 = `features/${cleanFileName(story.title)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 	const path3 = `features/${reportName}.json`;
-	let worldParam = '';
-	const keys = Object.keys(parameters);
-	for (const [index, k] of keys.entries()) if (index < keys.length - 1) worldParam += `\\\"${k}\\\": \\\"${parameters[k]}\\\",`;
-		 else worldParam += `\\\"${k}\\\": \\\"${parameters[k]}\\\"`;
+	let jsParam = JSON.stringify(parameters)
+	let worldParam = ''
+	for (let i = 0; i < jsParam.length; i++){
+		if (jsParam[i] == '"'){
+			worldParam += '\\\"'
+
+		} else {
+			worldParam += jsParam[i]
+		}
+	}
+	console.log('worldParam', worldParam)
 
 	let cmd;
-	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
+	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
 
-	else cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters \"{${worldParam}}\"`;
+	else cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
 
 
 	console.log(`Executing: ${cmd}`);
@@ -205,17 +228,15 @@ function execReport2(req, res, stories, mode, story, cucumberParameters, callbac
 	});
 }
 
-async function execReport(req, res, stories, mode, cucumberParameters, callback) {
+async function execReport(req, res, stories, mode, callback) {
 	try {
-		const story = await mongo.getOneStory(req.params.issueID,
-			req.params.storySource);
+		const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 		// console.log('DAISYAUTOLOGOUT');
 		// console.log(typeof (story.daisyAutoLogout));
 		// // does not Fail if "daisyAutoLogout" is undefined
 		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
 		//  else process.env.DAISY_AUTO_LOGOUT = false;
-
-		execReport2(req, res, stories, mode, story, cucumberParameters, callback);
+		execReport2(req, res, stories, mode, story, callback);
 	} catch (error) {
 		res.status(404)
 			.send(error);
@@ -519,8 +540,8 @@ const getGithubData = (res, req, accessToken) => {
 };
 
 
-function runReport(req, res, stories, mode, cucumberParameters) {
-	execReport(req, res, stories, mode, cucumberParameters, (reportTime, story,
+function runReport(req, res, stories, mode) {
+	execReport(req, res, stories, mode, (reportTime, story,
 		scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);

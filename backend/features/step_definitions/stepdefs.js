@@ -19,12 +19,13 @@ chromeOptions.addArguments('--disable-dev-shm-usage');
 // chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
+let currentParameters = {}
 
 function CustomWorld({ attach, parameters }) {
 	this.attach = attach;
 	this.parameters = parameters;
 }
-
+let scenarioIndex = 0;
 
 setWorldConstructor(CustomWorld);
 
@@ -32,7 +33,14 @@ setWorldConstructor(CustomWorld);
 setDefaultTimeout(20 * 1000);
 
 
-Before(initDriver);
+Before(async function (){
+	currentParameters = this.parameters.scenarios[scenarioIndex]
+	driver = new webdriver.Builder()
+	.forBrowser(currentParameters.browser)
+	.setChromeOptions(chromeOptions)
+	.build();
+	
+});
 
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
@@ -44,19 +52,19 @@ Given('I am on the website: {string}', async function getUrl(url) {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 		// expect(currentUrl).to.equal(url, 'Error');
 	});
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
 Given('I add a cookie with the name {string} and value {string}', async function addCookie(name, value) {
 	await driver.manage().addCookie({ name, value });
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
 Given('I remove a cookie with the name {string}', async function removeCookie(name) {
 	await driver.manage().deleteCookie(name);
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
@@ -67,7 +75,7 @@ When('I go to the website: {string}', async function getUrl(url) {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 		// expect(currentUrl).to.equal(url, 'Error');
 	});
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 // clicks a button if found in html code with xpath,
@@ -88,7 +96,7 @@ When('I click the button: {string}', async function clickButton(button) {
 					.click();
 			}
 		});
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 // selenium sleeps for a certain amount of time
@@ -128,13 +136,13 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 			}
 		}
 	}
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
 	await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${radioname}']`)), 3 * 1000).click();
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
@@ -153,7 +161,7 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 			}
 		}
 	}
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
@@ -184,7 +192,7 @@ When('I hover over the element {string} and select the option {string}', async f
 				.perform();
 		}
 	}
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 // TODO:
@@ -212,13 +220,13 @@ When('I check the box {string}', async function checkBox(name) {
 		}
 	}
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 When('Switch to the newly opened tab', async function switchToNewTab() {
 	const tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
@@ -232,14 +240,14 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(num
 		const tab = len - (parseInt(numberOfTabs) - 1);
 		await driver.switchTo().window(chromeTabs[tab]);
 	}
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
 When('I switch to the next tab', async function switchToNewTab() {
 	const tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 When('I want to upload the file from this path: {string} into this uploadfield: {string}',
@@ -251,7 +259,7 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 			await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
 				.sendKeys(`${path}`);
 		}
-		await driver.sleep(this.parameters.waitTime);
+		await driver.sleep(currentParameters.waitTime);
 	});
 
 // ################### THEN ##########################################
@@ -260,6 +268,7 @@ Then('So I will be navigated to the website: {string}', async (url) => {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 		expect(currentUrl).to.equal(url, 'Error');
 	});
+	await driver.sleep(currentParameters.waitTime);
 });
 
 // Search a textfield in the html code and assert it with a Text
@@ -270,6 +279,7 @@ Then('So I can see the text {string} in the textbox: {string}', async (string, l
 		const resp = await link.getText().then(text => text);
 		expect(string).to.equal(resp, 'Error');
 	});
+	await driver.sleep(currentParameters.waitTime);
 });
 
 // Search if a is text in html code
@@ -283,6 +293,7 @@ Then('So I can see the text: {string}', async (string) => {
 		const body_all = css_body + inner_html_body + outer_html_body;
 		expect(body_all.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
 	});
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
@@ -292,6 +303,7 @@ Then('So I can´t see text in the textbox: {string}', async (label) => {
 		const resp = await link.getText().then(text => text);
 		expect('').to.equal(resp, 'Error');
 	});
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
@@ -299,7 +311,7 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 	async function checkDownloadedFile(fileName, directory) {
 		const path = `${directory}\\${fileName}`; // Todo: pathingtool (path.normalize)serverhelper
 		await fs.promises.access(path, fs.constants.F_OK);
-		await driver.sleep(this.parameters.waitTime);
+		await driver.sleep(currentParameters.waitTime);
 	});
 
 // Search if a text isn't in html code
@@ -313,7 +325,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 		const body_all = css_body + inner_html_body + outer_html_body;
 		expect(body_all.toLowerCase()).to.not.include(text.toString().toLowerCase(), 'Error');
 	});
-	await driver.sleep(this.parameters.waitTime);
+	await driver.sleep(currentParameters.waitTime);
 });
 
 async function daisyLogout() {
@@ -334,9 +346,13 @@ After(async function closeDriver() {
 	// process.env.DAISY_AUTO_LOGOUT is written as boolean, but read as a string
 	if (this.parameters.daisyAutoLogout == "true" || this.parameters.daisyAutoLogout == true) {
 		console.log('Trying DaisyAutoLogout');
-		await daisyLogout();
-	}
+		try{
+			await daisyLogout();
+		}catch(e){
 
+		}
+	}
+	scenarioIndex += 1;
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	const condition = until.elementLocated(By.name('loader'));
