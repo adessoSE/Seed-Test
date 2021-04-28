@@ -143,6 +143,15 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.allChecked = false;
   }
 
+  selectNewScenario(scenario: Scenario){
+      this.selectedScenario = scenario;
+      if (this.selectedStory) {
+          this.selectScenario(scenario);
+      }
+      this.activeActionBar = false;
+      this.allChecked = false;
+  }
+
   @Input()
   set newSelectedStory(story: Story) {
       this.selectedStory = story;
@@ -530,7 +539,6 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     }
 
     setBrowser(event, newBrowser){
-        console.log('browser', newBrowser, event)
         this.selectedScenario.browser = newBrowser;
         this.selectedScenario.saved = false; 
     }

@@ -126,6 +126,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     deleteScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
 
     @Output()
+    selectNewScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
+
+    @Output()
     addScenarioEvent: EventEmitter<number> = new EventEmitter();
 
     @Output()
@@ -693,6 +696,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
         if (this.selectedStory.scenarios[scenarioIndex - 1]) {
             this.selectScenario(this.selectedStory.scenarios[scenarioIndex - 1]);
+            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex - 1])
         }
     }
 
@@ -700,6 +704,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
         if (this.selectedStory.scenarios[scenarioIndex + 1]) {
             this.selectScenario(this.selectedStory.scenarios[scenarioIndex + 1]);
+            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex + 1])
         }
     }
 
