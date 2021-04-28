@@ -946,10 +946,12 @@ async function addMember(id, user) {
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
     let result = await wGCollection.findOne({ Repo: ObjectId(id) })
     if (!result) {
-      result = await wGCollection.insertOne({ name: repo.repoName, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
+      await wGCollection.insertOne({ name: repo.repoName, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
+      result = await wGCollection.findOne({ Repo: ObjectId(id) })
       return result.Members
     } else {
-      result = await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { email: user.email, canEdit: user.canEdit } })
+      await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: {Members: user} })
+      result = await wGCollection.findOne({ Repo: ObjectId(id) })
       return result.Members
     }
   } catch (e) {
@@ -966,7 +968,10 @@ async function updateMemberStatus(repoId, user) {
     let dbo = db.db(dbName)
     let wGCollection = await dbo.collection(WorkgroupsCollection)
     let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
-    if (updatedWG) return updatedWG.Members
+    if (updatedWG){
+      result = await wGCollection.findOne({ Repo: ObjectId(id) })
+      return result.Members
+    } 
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateMemberStatus: " + e)
   } finally {
@@ -997,7 +1002,10 @@ async function removeFromWorkgroup(id, user) {
     let dbo = db.db(dbName)
     let wGcollection = await dbo.collection(WorkgroupsCollection)
     let result = await wGcollection.findOneAndUpdate({ Repo: id }, { $pull: { Members: { email: user.email } } })
-    if (result) return result.Members
+    if (result) {
+      result = await wGCollection.findOne({ Repo: ObjectId(id) })
+      return result.Members
+    }
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
   } finally {
