@@ -274,6 +274,7 @@ export class ModalsComponent{
   // workgroup Edit Modal
 
   openWorkgroupEditModal(project: RepositoryContainer) {
+    this.workgroupList = []
     this.workgroupProject = project
     this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
     let header = document.getElementById('workgroupHeader') as HTMLSpanElement
@@ -315,4 +316,5 @@ export class ModalsComponent{
       this.workgroupList = res
     })
   }
+  
 }
