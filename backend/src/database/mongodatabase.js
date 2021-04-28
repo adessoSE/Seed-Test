@@ -458,7 +458,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
-    let resultRepo = await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: { storyId } } })
+    let resultRepo = await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: ObjectId(storyId) }})
     return resultRepo
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
