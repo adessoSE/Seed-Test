@@ -969,7 +969,7 @@ async function updateMemberStatus(repoId, user) {
     let wGCollection = await dbo.collection(WorkgroupsCollection)
     let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
     if (updatedWG){
-      result = await wGCollection.findOne({ Repo: ObjectId(id) })
+      result = await wGCollection.findOne({ Repo: ObjectId(repoId) })
       return result.Members
     } 
   } catch (e) {
@@ -1001,9 +1001,9 @@ async function removeFromWorkgroup(id, user) {
     db = await connectDb()
     let dbo = db.db(dbName)
     let wGcollection = await dbo.collection(WorkgroupsCollection)
-    let result = await wGcollection.findOneAndUpdate({ Repo: id }, { $pull: { Members: { email: user.email } } })
+    let result = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } })
     if (result) {
-      result = await wGCollection.findOne({ Repo: ObjectId(id) })
+      result = await wGcollection.findOne({ Repo: ObjectId(id) })
       return result.Members
     }
   } catch (e) {
