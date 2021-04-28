@@ -288,6 +288,7 @@ export class ModalsComponent{
     let email = form.value.email;
     this.wrongEmail = false;
     let canEdit = form.value.canEdit
+    if (!canEdit) canEdit = false;
     let user = {email, canEdit}
     this.apiService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
       if (res.error){
