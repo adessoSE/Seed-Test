@@ -55,8 +55,8 @@ export class ApiService {
         this.renameScenarioEvent.emit(newTitle);
     }
 
-    getBlocks() {
-        const str = this.apiServer + '/mongo/getBlocks';
+    getBlocks(repoId: string) {
+        const str = this.apiServer + '/mongo/getBlocks/' + repoId;
         return this.http.get<Block[]>(str,  ApiService.getOptions())
         .pipe(tap(resp => {}),
         catchError(ApiService.handleError));

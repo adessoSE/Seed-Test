@@ -355,7 +355,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     addBlock(event){
-        this.modalsComponent.openAddBlockFormModal('scenario');
+        let id = localStorage.getItem('id')
+        this.modalsComponent.openAddBlockFormModal('scenario', id);
     }
 
     saveBlock(event){
