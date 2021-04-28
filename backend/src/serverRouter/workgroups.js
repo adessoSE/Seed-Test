@@ -40,7 +40,6 @@ router.post('/wgmembers/:id', async (req, res) => {
         const user = await mongo.getUserByEmail(req.body.email)
         if (!user) {
             res.status(500).json({error: 'User mit dieser E-mail nicht gefunden'})
-            break
         }
         const result = await mongo.addMember(req.params.id, req.body)
         if (result === "Dieser User ist bereits in der Workgroup") {
@@ -58,7 +57,6 @@ router.put('/wgmembers/:id', async (req, res) => {
         const user = await mongo.getUserByEmail(req.body.email)
         if (!user) {
             res.status(500).json({error: 'User mit dieser E-mail nicht gefunden'})
-            break
         }
         let result = await mongo.updateMemberStatus(req.params.id, req.body)
         return result

@@ -1048,7 +1048,7 @@ module.exports = {
   getResetRequestByEmail,
   saveBlock,
   updateBlock,
-  getBlocksById,
+  
   getBlocks,
   deleteBlock,
   addMember,
