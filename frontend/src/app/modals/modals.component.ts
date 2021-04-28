@@ -124,15 +124,15 @@ export class ModalsComponent{
 
   // add block form modal
   
-  openAddBlockFormModal(correspondingComponent) {
-    this.getAllBlocks()
+  openAddBlockFormModal(correspondingComponent, repoId) {
+    this.getAllBlocks(repoId)
     this.correspondingComponent = correspondingComponent;
     this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
     this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
   }
 
-  getAllBlocks(){
-    this.apiService.getBlocks().subscribe((resp) => {
+  getAllBlocks(repoId){
+    this.apiService.getBlocks(repoId).subscribe((resp) => {
       this.blocks = resp
     });
   }
@@ -214,6 +214,7 @@ export class ModalsComponent{
       this.block.name = title
       this.block.repository = localStorage.getItem('repository')
       this.block.source = localStorage.getItem('source')
+      this.block.repositoryId = localStorage.getItem('id') 
       this.apiService.saveBlock(this.block).subscribe((resp) => {
           console.log(resp);
       });

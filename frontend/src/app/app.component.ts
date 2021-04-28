@@ -89,6 +89,7 @@ export class AppComponent implements OnInit {
     ref.href = 'https://github.com/' + userRepository.value;
     localStorage.setItem('repository', userRepository.value)
     localStorage.setItem('source', userRepository.source)
+    localStorage.setItem('id', userRepository._id)
     if(this.router.url !== '/'){
       this.router.navigate(['']);
     } else {

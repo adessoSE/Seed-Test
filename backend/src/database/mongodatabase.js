@@ -856,7 +856,8 @@ async function getUserData(userID) {
 async function saveBlock(block) {
   let db;
   try {
-    db = await connectDb()
+    block.repositoryId = ObjectId(block.repositoryId);
+    db = await connectDb();
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
     let result = await collection.insertOne(block)
@@ -883,29 +884,29 @@ async function updateBlock(name, updatedBlock) {
   }
 }
 //get all Blocks for designated Id need objectId returns Array with all found CustomBlocks
-async function getBlocksById(id, repo) {
-  //todo ObjectID
-  let db;
-  try {
-    db = await connectDb()
-    let dbo = db.db(dbName);
-    let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({ owner: id, repo: repo }).toArray()
-    return result
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in getBlocksById: " + e)
-  } finally {
-    if (db) db.close()
-  }
-}
+//async function getBlocksById(id, repo) {
+//  //todo ObjectID
+//  let db;
+//  try {
+//    db = await connectDb()
+//    let dbo = db.db(dbName);
+//    let collection = await dbo.collection(CustomBlocksCollection)
+//    let result = await collection.find({ owner: id, repo: repo }).toArray()
+//    return result
+//  } catch (e) {
+//    console.log("UPS!!!! FEHLER in getBlocksById: " + e)
+//  } finally {
+//    if (db) db.close()
+//  }
+//}
 //get all Blocks by Id returns Array with all existing CustomBlocks
-async function getBlocks(userId) {
+async function getBlocks(userId, repoId) {
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({ owner: userId }).toArray()
+    let result = await collection.find({ repositoryId: ObjectId(repoId) }).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
