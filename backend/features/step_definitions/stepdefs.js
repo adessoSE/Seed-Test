@@ -108,29 +108,37 @@ When('The site should wait for {string} milliseconds', async (ms) => {
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async function fillTextField(value, label) {
 	try {
-		// await driver.findElement(By.css(`input#${label}`)).clear();
-		// await driver.findElement(By.css(`input#${label}`)).sendKeys(value);
 		await driver.findElement(By.xpath(`//input[@id='${label}']`)).clear();
 		await driver.findElement(By.xpath(`//input[@id='${label}']`)).sendKeys(value);
 	} catch (e) {
 		try {
-			await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).clear();
-			await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).sendKeys(value);
+			await driver.findElement(By.xpath(`//input[contains(@id,'${label}')]`)).clear();
+			await driver.findElement(By.xpath(`//input[contains(@id,'${label}')]`)).sendKeys(value);
 		} catch (e) {
 			try {
-				await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
-				await driver.findElement(By.xpath(`//*[@id='${label}']`)).sendKeys(value);
+				await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).clear();
+				await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).sendKeys(value);
 			} catch (e) {
 				try {
-					await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
-					await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).clear();
+					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).sendKeys(value);
 				} catch (e) {
 					try {
-						await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
-						await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+						await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
+						await driver.findElement(By.xpath(`//*[@id='${label}']`)).sendKeys(value);
 					} catch (e) {
-						await driver.findElement(By.xpath(`${label}`)).clear();
-						await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+						try {
+							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
+							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+						} catch (e) {
+							try {
+								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
+								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+							} catch (e) {
+								await driver.findElement(By.xpath(`${label}`)).clear();
+								await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+							}
+						}
 					}
 				}
 			}
@@ -343,13 +351,15 @@ async function daisyLogout() {
 		await waitMs(500);
 		await clickButton('Abmelden');
 	}
+	await waitMs(500);
+	await driver.quit();
 }
 
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async function closeDriver() {
-	console.log(currentParameters.daisyAutoLogout);
-	console.log(typeof(currentParameters.daisyAutoLogout));
+	// console.log(currentParameters.daisyAutoLogout);
+	// console.log(typeof (currentParameters.daisyAutoLogout));
 	// currentParameters.daisyAutoLogout == 'true' ||
 	if (currentParameters.daisyAutoLogout === true) {
 		console.log('Trying DaisyAutoLogout');
@@ -362,9 +372,11 @@ After(async function closeDriver() {
 	scenarioIndex += 1;
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
-	const condition = until.elementLocated(By.name('loader'));
-	driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-	if (process.env.NODE_ENV) driver.quit();
+	if (process.env.NODE_ENV) {
+		const condition = until.elementLocated(By.name('loader'));
+		driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
+		driver.quit();
+	}
 });
 
 
