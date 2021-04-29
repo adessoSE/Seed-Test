@@ -8,4 +8,7 @@ export interface Scenario {
     comment: string;
     lastTestPassed?: boolean;
     saved?: boolean;
+    daisyAutoLogout?: boolean;
+    stepWaitTime?: number;
+    browser?: string;
 }

@@ -1,4 +1,5 @@
 <br>
+<br>
 <div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
@@ -65,8 +66,8 @@
       <div class="expand SmallHeadline5" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
         <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
           <span rel="def">
-            You can use the background to set actions, which will be carried out before testing the whole story. 
-            This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios. 
+            You can use the background to set actions, which will be carried out before testing the whole story.
+            This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios.
             In short: A background allows to set Given-Steps used for all scenarios.
           </span></dfn>
         <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
@@ -176,15 +177,15 @@
         <span class="lastTestText SmallBody1regularLH">Latest execution:  </span>
         <span class="dot" [class.notPassed]="!selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined" [class.passed]="selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined"></span>
       </div>
-      
+
       <div class="storyInfoCenter">
           <label class="selectLabel SmallBody1regularLH">Wait between steps (ms):</label>
-          <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0 min=0 step=200>
+          <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0 min=0 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
           <label class="selectLabel SmallBody1regularLH">Browser:</label>
-          <select name="browser" class="select" id="browserSelect">
+          <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
             <option value="chrome">Chrome</option>
-            <option value="firefox">Firefox</option>
-          </select> 
+            <!--<option value="firefox">Firefox</option>-->
+          </select>
       </div>
       <div clasS="storyInfoRight">
         <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
@@ -199,7 +200,7 @@
 
     <!--Scenario Header-->
 
-    <app-scenario-editor #scenarioChild (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
+    <app-scenario-editor #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
     <app-save-block-form #saveBlockForm></app-save-block-form>
     <app-add-block-form #addBlockForm></app-add-block-form>
 
