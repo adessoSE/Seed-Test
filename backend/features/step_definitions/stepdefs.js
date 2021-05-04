@@ -44,7 +44,10 @@ Given('I am on the website: {string}', async function (url) {
 	  // expect(currentUrl).to.equal(url, 'Error');
 	});
 	await driver.sleep(this.parameters.waitTime);
-
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
@@ -100,12 +103,24 @@ When('I click the button: {string}', async function (button) {
 		  await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
 		  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 		} catch (e) {
-		  await driver.findElement(By.xpath(`${button}`)).click();
+			try{
+				await driver.findElement(By.xpath(`${button}`)).click();
+			}catch (ed) {
+				var world = this;
+				await driver.takeScreenshot().then(async function (buffer) {
+					world.attach(buffer, 'image/png');
+				});
+				throw Error(e)
+			}
 		}
 
 	  }
 	});
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // selenium sleeps for a certain amount of time
@@ -145,6 +160,10 @@ When('I insert {string} into the field {string}', async function (value, label){
 	  }
 	}
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // "Radio"
@@ -267,6 +286,10 @@ Then('So I will be navigated to the website: {string}', async function (url){
 	  expect(currentUrl).to.equal(url, 'Error');
 	});
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // Search a textfield in the html code and assert it with a Text

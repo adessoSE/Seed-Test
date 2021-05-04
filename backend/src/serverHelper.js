@@ -26,6 +26,8 @@ const options = {
   output: 'features/reporting_html.html',
   reportSuiteAsScenarios: true,
   launchReport: false,
+  storeScreenshots: false,
+  screenshotsDirectory: 'features/screenshots/',
   metadata: {
     'App Version': '0.3.2',
     'Test Environment': 'STAGING',
