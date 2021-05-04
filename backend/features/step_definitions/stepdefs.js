@@ -55,11 +55,19 @@ Given('I am on the website: {string}', async function (url) {
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
 	await driver.manage().addCookie({name: name, value: value});
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 Given('As a {string}', async function (string) {
 	this.role = string;
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 
@@ -67,6 +75,10 @@ Given('As a {string}', async function (string) {
 Given('I remove a cookie with the name {string}', async function (name) {
 	await driver.manage().deleteCookie(name);
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 
@@ -80,6 +92,10 @@ When('I go to the website: {string}', async function (url) {
 	});
 
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 When('I want to upload the file from this path: {string} into this uploadfield: {string}', async function (path,input){
@@ -87,10 +103,22 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 	await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
 	.sendKeys(`${path}`)
 	}catch (e) {
-	  await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
-	.sendKeys(`${path}`)
+		try{
+			await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
+			.sendKeys(`${path}`)
+		}catch(e2){
+			var world = this;
+			await driver.takeScreenshot().then(async function (buffer) {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e)
+		}
 	}
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // clicks a button if found in html code with xpath,
@@ -155,8 +183,16 @@ When('I insert {string} into the field {string}', async function (value, label){
 			  await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
 			  await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
 			} catch (e) {
-			  await driver.findElement(By.xpath(`${label}`)).clear();
-			  await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+				try{
+					await driver.findElement(By.xpath(`${label}`)).clear();
+					await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+				}catch(e2){
+					var world = this;
+					await driver.takeScreenshot().then(async function (buffer) {
+						world.attach(buffer, 'image/png');
+					});
+					throw Error(e)
+				}
 			}
 		  }
 		}
@@ -173,6 +209,9 @@ When('I insert {string} into the field {string}', async function (value, label){
 When('I select {string} from the selection {string}', async function (radioname, label){
 	await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${radioname}']`)), 3 * 1000).click();
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // Select an Option from an dropdown-menu
@@ -187,16 +226,30 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 		try {
 		  await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`)).click();
 		} catch (e) {
-		  await driver.findElement(By.xpath(`${dropd}`)).click();
+			try{
+				await driver.findElement(By.xpath(`${dropd}`)).click();
+			}catch(e2){
+				var world = this;
+				await driver.takeScreenshot().then(async function (buffer) {
+					world.attach(buffer, 'image/png');
+				});
+				throw Error(e)
+			}
 		}
 	  }
 	}
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 When('I select the option {string}', async function (dropd){
 	await driver.findElement(By.xpath(`${dropd}`)).click();
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // Hover over element and Select an Option
@@ -219,11 +272,22 @@ When('I hover over the element {string} and select the option {string}', async f
 		const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
 		await action2.move({ origin: selection }).click().perform();
 	  } catch (e) {
-		const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
-		await action2.move({ origin: selection }).click().perform();
+		  try{
+			const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
+			await action2.move({ origin: selection }).click().perform();
+		  }catch(e2){
+				var world = this;
+				await driver.takeScreenshot().then(async function (buffer) {
+					world.attach(buffer, 'image/png');
+				});
+				throw Error(e)
+		}
 	  }
 	}
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 
@@ -248,12 +312,23 @@ When('I check the box {string}', async function (name){
 		try {
 		  await driver.findElement(By.xpath('//*[contains(text(),"' + name + '") or @*="' + name + '"]')).click();
 		} catch (e) {
-		  await driver.findElement(By.xpath(`${name}`)).click();
+			try{
+				await driver.findElement(By.xpath(`${name}`)).click();
+			}catch(e2){
+				var world = this;
+				await driver.takeScreenshot().then(async function (buffer) {
+					world.attach(buffer, 'image/png');
+				});
+				throw Error(e)
+			}
 		}
 	  }
 	}
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
@@ -261,12 +336,18 @@ When('I switch to the next tab', async function (){ // deprecated
 	let tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 When('Switch to the newly opened tab', async function (){
 	let tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 When('Switch to the tab number {string}', async function (number_of_tabs){
@@ -280,6 +361,9 @@ When('Switch to the tab number {string}', async function (number_of_tabs){
 	  await driver.switchTo().window(chrome_tabs[tab]);
 	}
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // ################### THEN ##########################################
@@ -304,6 +388,9 @@ Then('So I can see the text {string} in the textbox: {string}', async function (
 	  expect(string).to.equal(resp, 'Error');
 	});
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 // Search if a is text in html code
 Then('So I can see the text: {string}', async function (string){
@@ -317,6 +404,9 @@ Then('So I can see the text: {string}', async function (string){
 	  expect(body_all.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
 	})
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // Search a textfield in the html code and assert if it's empty
@@ -326,12 +416,18 @@ Then('So I can´t see text in the textbox: {string}', async function (label){
 	  expect('').to.equal(resp, 'Error');
 	});
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 Then('So a file with the name {string} is downloaded in this Directory {string}', async (fileName, Directory) => {
   let path = `${Directory}\\${fileName}`  //todo pathingtool (path.normalize)serverhelper
   await fs.promises.access(path, fs.constants.F_OK)
   await driver.sleep(this.parameters.waitTime);
+  await driver.takeScreenshot().then(async function (buffer) {
+	world.attach(buffer, 'image/png');
+});
 })
 
 // Search if a text isn't in html code
@@ -345,6 +441,9 @@ Then('So I can\'t see the text: {string}', async function (string){
 	  expect(body_all.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
 	})
 	await driver.sleep(this.parameters.waitTime);
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 	  
 	  

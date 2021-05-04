@@ -591,6 +591,7 @@ function runReport(req, res, stories, mode, cucumberParameters) {
 				
 
 				testStatus = testPassed(failed, passed);
+        // TODO req.params.storySource fix postComment
 				if (req.query.source === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
