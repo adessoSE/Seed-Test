@@ -942,7 +942,6 @@ async function getWorkgroup(id) {
     let dbo = db.db(dbName);
     let collection = await dbo.collection(WorkgroupsCollection)
     let result = await collection.findOne({ Repo: ObjectId(id) })
-    console.log("Die WorkGroup", result)
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getWorkgroup: " + e)
@@ -963,19 +962,16 @@ async function addMember(id, user) {
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
     let userCollection = await selectUsersCollection(db)
     let owner = await userCollection.findOne({_id: repo.owner })
-    console.log("Der Owner", owner)
     let result = await wGCollection.findOne({ Repo: ObjectId(id) })
     if (!result) {
       await wGCollection.insertOne({ name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
       result = await wGCollection.findOne({ Repo: ObjectId(id) })
       result.Members.unshift({email: owner.email, canEdit: true})
-      console.log("Die Liste!!!!!!!!!!!!!", result.Members )
       return result.Members
     } else {
       await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } })
       result = await wGCollection.findOne({ Repo: ObjectId(id) })
       result.Members.unshift({email: owner.email, canEdit: true})
-      console.log("Die Liste!!!!!!!!!!!!!", result.Members )
       return result.Members
     }
   } catch (e) {

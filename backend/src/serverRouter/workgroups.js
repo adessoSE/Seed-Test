@@ -45,7 +45,6 @@ router.post('/wgmembers/:id', async (req, res) => {
         const wG = await mongo.getWorkgroup(req.params.id)
         if (wG.owner === req.body.email) {
             res.status(400).json({error: 'Der User ist bereits der Owner'})
-            console.log("Der Owner wurde abgefangen",wG )
             return
         }
         const result = await mongo.addMember(req.params.id, req.body)
