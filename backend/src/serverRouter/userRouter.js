@@ -344,7 +344,6 @@ router.get('/stories', async (req, res) => {
 		}
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
 		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id)
-		console.log("Die Repo Id in user/getStories!!!!!!!!!!", req.query )
 		res.status(200).json(result)
 	} else res.sendStatus(401);
 });

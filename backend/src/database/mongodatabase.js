@@ -406,7 +406,7 @@ async function deleteBackground(storyId, storySource) {
   }
 }
 
-async function createStory(storyTitel, storyDescription, repoId) {   
+async function createStory(storyTitel, storyDescription, repoId) {
   let db;
   let iNumberArray = [];
   let finalIssueNumber = 0;
@@ -429,7 +429,7 @@ async function createStory(storyTitel, storyDescription, repoId) {
           }
         }
       }
-    } 
+    }
     let emptyStory = {
       story_id: 0,
       assignee: 'unassigned',
@@ -458,7 +458,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
-    let resultRepo = await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: ObjectId(storyId) }})
+    let resultRepo = await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: ObjectId(storyId) } })
     return resultRepo
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
@@ -470,6 +470,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
   let db
   let storiesArray = []
+
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
@@ -934,6 +935,22 @@ async function deleteBlock(blockId, userId) {
   }
 }
 
+async function getWorkgroup(id) {
+  let db;
+  try {
+    db = await connectDb()
+    let dbo = db.db(dbName);
+    let collection = await dbo.collection(WorkgroupsCollection)
+    let result = await collection.findOne({ Repo: ObjectId(id) })
+    console.log("Die WorkGroup", result)
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getWorkgroup: " + e)
+  } finally {
+    if (db) db.close()
+  }
+}
+
 async function addMember(id, user) {
   let db;
   try {
@@ -944,14 +961,21 @@ async function addMember(id, user) {
     if (check) return "Dieser User ist bereits in der Workgroup"
     let rCollection = await dbo.collection(repositoriesCollection)
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
+    let userCollection = await selectUsersCollection(db)
+    let owner = await userCollection.findOne({_id: repo.owner })
+    console.log("Der Owner", owner)
     let result = await wGCollection.findOne({ Repo: ObjectId(id) })
     if (!result) {
-      await wGCollection.insertOne({ name: repo.repoName, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
+      await wGCollection.insertOne({ name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
       result = await wGCollection.findOne({ Repo: ObjectId(id) })
+      result.Members.unshift({email: owner.email, canEdit: true})
+      console.log("Die Liste!!!!!!!!!!!!!", result.Members )
       return result.Members
     } else {
-      await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: {Members: user} })
+      await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } })
       result = await wGCollection.findOne({ Repo: ObjectId(id) })
+      result.Members.unshift({email: owner.email, canEdit: true})
+      console.log("Die Liste!!!!!!!!!!!!!", result.Members )
       return result.Members
     }
   } catch (e) {
@@ -968,10 +992,10 @@ async function updateMemberStatus(repoId, user) {
     let dbo = db.db(dbName)
     let wGCollection = await dbo.collection(WorkgroupsCollection)
     let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
-    if (updatedWG){
+    if (updatedWG) {
       result = await wGCollection.findOne({ Repo: ObjectId(repoId) })
       return result.Members
-    } 
+    }
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateMemberStatus: " + e)
   } finally {
@@ -1056,9 +1080,9 @@ module.exports = {
   getResetRequestByEmail,
   saveBlock,
   updateBlock,
-  
   getBlocks,
   deleteBlock,
+  getWorkgroup,
   addMember,
   updateMemberStatus,
   getMembers,
