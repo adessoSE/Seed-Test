@@ -209,6 +209,7 @@ When('I insert {string} into the field {string}', async function (value, label){
 When('I select {string} from the selection {string}', async function (radioname, label){
 	await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${radioname}']`)), 3 * 1000).click();
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -239,6 +240,7 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 	  }
 	}
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -247,6 +249,7 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 When('I select the option {string}', async function (dropd){
 	await driver.findElement(By.xpath(`${dropd}`)).click();
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -285,6 +288,7 @@ When('I hover over the element {string} and select the option {string}', async f
 	  }
 	}
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -326,6 +330,7 @@ When('I check the box {string}', async function (name){
 	}
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -336,6 +341,7 @@ When('I switch to the next tab', async function (){ // deprecated
 	let tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -345,6 +351,7 @@ When('Switch to the newly opened tab', async function (){
 	let tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -361,6 +368,7 @@ When('Switch to the tab number {string}', async function (number_of_tabs){
 	  await driver.switchTo().window(chrome_tabs[tab]);
 	}
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -388,6 +396,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function (
 	  expect(string).to.equal(resp, 'Error');
 	});
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -404,6 +413,7 @@ Then('So I can see the text: {string}', async function (string){
 	  expect(body_all.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
 	})
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -416,6 +426,7 @@ Then('So I can´t see text in the textbox: {string}', async function (label){
 	  expect('').to.equal(resp, 'Error');
 	});
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
@@ -425,6 +436,7 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
   let path = `${Directory}\\${fileName}`  //todo pathingtool (path.normalize)serverhelper
   await fs.promises.access(path, fs.constants.F_OK)
   await driver.sleep(this.parameters.waitTime);
+  var world = this;
   await driver.takeScreenshot().then(async function (buffer) {
 	world.attach(buffer, 'image/png');
 });
@@ -441,6 +453,7 @@ Then('So I can\'t see the text: {string}', async function (string){
 	  expect(body_all.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
 	})
 	await driver.sleep(this.parameters.waitTime);
+	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
 	});
