@@ -308,14 +308,14 @@ export class ModalsComponent{
 
   removeFromWorkgroup(user){
     this.apiService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res.members
+      this.workgroupList = res.member
     })
   }
 
   checkEditUser(event, user){
     user.canEdit = !user.canEdit
     this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res.members
+      this.workgroupList = res.member
     })
   }
   
