@@ -54,6 +54,7 @@ export class ModalsComponent{
   // workgroup modal
   displayedColumnsWorkgroup: string[] = ['email' , 'can_edit_workgroup'];
   workgroupList = []
+  workgroupOwner = ''
   wrongEmail = false;
   workgroupProject: RepositoryContainer;
 
@@ -278,10 +279,11 @@ export class ModalsComponent{
     this.workgroupProject = project
     this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
     let header = document.getElementById('workgroupHeader') as HTMLSpanElement
-    header.textContent = 'Workgroup: ' + project.value
+    header.textContent = 'Project: ' + project.value
 
     this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
-      this.workgroupList = res
+      this.workgroupList = res.member
+      this.workgroupOwner = res.owner.email
     })
   }
 
@@ -306,14 +308,14 @@ export class ModalsComponent{
 
   removeFromWorkgroup(user){
     this.apiService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res
+      this.workgroupList = res.members
     })
   }
 
   checkEditUser(event, user){
     user.canEdit = !user.canEdit
     this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res
+      this.workgroupList = res.members
     })
   }
   

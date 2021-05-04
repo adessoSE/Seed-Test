@@ -199,6 +199,22 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     margin-right: 5px;
     margin-bottom: 0px;
 }
+
+
+.emailTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.emailTableContainer > *{
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.editColumn{
+    max-width: 50px;
+}
+
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;
