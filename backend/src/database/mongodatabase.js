@@ -976,7 +976,6 @@ async function addMember(id, user) {
       wG = await wGCollection.findOne({ Repo: ObjectId(id) })
       result.owner = { email: owner.email, canEdit: true }
       result.member = wG.Members
-      console.log("Das Result", JSON.stringify(result))
       return result
     }
   } catch (e) {
@@ -998,9 +997,10 @@ async function updateMemberStatus(repoId, user) {
     let owner = await userCollection.findOne({ _id: repo.owner })
     let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
     if (updatedWG) {
+      wG = await wGcollection.findOne({ Repo: ObjectId(id) })
       result = { owner: {}, member: [] }
       result.owner = { email: owner.email, canEdit: true }
-      result.member = await wGcollection.findOne({ Repo: ObjectId(id) })
+      result.member = wG.Members
       return result
     }
   } catch (e) {
@@ -1025,7 +1025,6 @@ async function getMembers(id) {
     let result = { owner: {}, member: [] }
     result.owner = { email: owner.email, canEdit: true }
     result.member = wG.Members
-    console.log("Das getMembers Result", result)
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getMembers: " + e)
@@ -1046,9 +1045,10 @@ async function removeFromWorkgroup(id, user) {
     let owner = await userCollection.findOne({ _id: repo.owner })
     let result = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } })
     if (result) {
+      wG = await wGcollection.findOne({ Repo: ObjectId(id) })
       result = { owner: {}, member: [] }
       result.owner = { email: owner.email, canEdit: true }
-      result.member = await wGcollection.findOne({ Repo: ObjectId(id) })
+      result.member = wG.Members
       return result
     }
   } catch (e) {
