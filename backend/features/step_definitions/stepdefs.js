@@ -20,6 +20,8 @@ const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('--disable-dev-shm-usage')
 //chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
+chromeOptions.addArguments('--start-maximized');
+//chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 
 function CustomWorld({attach, parameters}) {
@@ -117,6 +119,7 @@ When('I click the button: {string}', async function (button) {
 	  }
 	});
 	await driver.sleep(this.parameters.waitTime);
+    //await driver.manage().window().setRect({width: 4000, height: 4000});
 	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
