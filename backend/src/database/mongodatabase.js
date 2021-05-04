@@ -961,18 +961,23 @@ async function addMember(id, user) {
     let rCollection = await dbo.collection(repositoriesCollection)
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
     let userCollection = await selectUsersCollection(db)
-    let owner = await userCollection.findOne({_id: repo.owner })
+    let owner = await userCollection.findOne({ _id: repo.owner })
     let result = await wGCollection.findOne({ Repo: ObjectId(id) })
     if (!result) {
       await wGCollection.insertOne({ name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
-      result = await wGCollection.findOne({ Repo: ObjectId(id) })
-      result.Members.unshift({email: owner.email, canEdit: true})
-      return result.Members
+      let result = { owner: {}, member: [] }
+      wG = await wGCollection.findOne({ Repo: ObjectId(id) })
+      result.owner = { email: owner.email, canEdit: true }
+      result.member = wG.Members
+      return result
     } else {
       await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } })
-      result = await wGCollection.findOne({ Repo: ObjectId(id) })
-      result.Members.unshift({email: owner.email, canEdit: true})
-      return result.Members
+      let result = { owner: {}, member: [] }
+      wG = await wGCollection.findOne({ Repo: ObjectId(id) })
+      result.owner = { email: owner.email, canEdit: true }
+      result.member = wG.Members
+      console.log("Das Result", JSON.stringify(result))
+      return result
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in addMember: " + e)
@@ -987,10 +992,16 @@ async function updateMemberStatus(repoId, user) {
     db = await connectDb()
     let dbo = db.db(dbName)
     let wGCollection = await dbo.collection(WorkgroupsCollection)
+    let rCollection = await dbo.collection(repositoriesCollection)
+    let repo = await rCollection.findOne({ _id: ObjectId(id) })
+    let userCollection = await selectUsersCollection(db)
+    let owner = await userCollection.findOne({ _id: repo.owner })
     let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
     if (updatedWG) {
-      result = await wGCollection.findOne({ Repo: ObjectId(repoId) })
-      return result.Members
+      result = { owner: {}, member: [] }
+      result.owner = { email: owner.email, canEdit: true }
+      result.member = await wGcollection.findOne({ Repo: ObjectId(id) })
+      return result
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateMemberStatus: " + e)
@@ -1004,10 +1015,18 @@ async function getMembers(id) {
   try {
     db = await connectDb()
     let dbo = db.db(dbName)
-    let wGcollection = await dbo.collection(WorkgroupsCollection)
-    let result = await wGcollection.findOne({ Repo: ObjectId(id) })
-    if (!result) return []
-    return result.Members
+    let wGCollection = await dbo.collection(WorkgroupsCollection)
+    let rCollection = await dbo.collection(repositoriesCollection)
+    let repo = await rCollection.findOne({ _id: ObjectId(id) })
+    let userCollection = await selectUsersCollection(db)
+    let owner = await userCollection.findOne({ _id: repo.owner })   
+    wG = await wGCollection.findOne({ Repo: ObjectId(id) })
+    if (!wG) return { owner: { email: owner.email, canEdit: true }, member: [] }
+    let result = { owner: {}, member: [] }
+    result.owner = { email: owner.email, canEdit: true }
+    result.member = wG.Members
+    console.log("Das getMembers Result", result)
+    return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getMembers: " + e)
   } finally {
@@ -1021,10 +1040,16 @@ async function removeFromWorkgroup(id, user) {
     db = await connectDb()
     let dbo = db.db(dbName)
     let wGcollection = await dbo.collection(WorkgroupsCollection)
+    let rCollection = await dbo.collection(repositoriesCollection)
+    let repo = await rCollection.findOne({ _id: ObjectId(id) })
+    let userCollection = await selectUsersCollection(db)
+    let owner = await userCollection.findOne({ _id: repo.owner })
     let result = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } })
     if (result) {
-      result = await wGcollection.findOne({ Repo: ObjectId(id) })
-      return result.Members
+      result = { owner: {}, member: [] }
+      result.owner = { email: owner.email, canEdit: true }
+      result.member = await wGcollection.findOne({ Repo: ObjectId(id) })
+      return result
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
