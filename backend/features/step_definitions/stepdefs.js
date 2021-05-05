@@ -87,15 +87,18 @@ When('I click the button: {string}', async function clickButton(button) {
 			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
 				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
 			else try {
-				await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + '=\''}${button}' or ` + `${'@*' + '=\''}${button}']`)), 3 * 1000)
+				await driver.wait(until.elementLocated(By.xpath(`//*[text()='${button}' or @*='${button}']`)), 3 * 1000)
 					.click();
-				await driver.wait(async () => driver.executeScript('return document.readyState')
-					.then(async readyState => readyState === 'complete'));
 			} catch (e) {
-				await driver.findElement(By.xpath(`${button}`))
-					.click();
+				try {
+					await driver.wait(until.elementLocated(By.xpath(`//*[contains()='${button}']`)), 3 * 1000).click();
+				} catch (e) {
+					await driver.findElement(By.xpath(`${button}`)).click();
+				}
 			}
 		});
+	await driver.wait(async () => driver.executeScript('return document.readyState')
+		.then(async readyState => readyState === 'complete'));
 	await driver.sleep(currentParameters.waitTime);
 });
 
