@@ -982,7 +982,6 @@ async function updateMemberStatus(repoId, user) {
     let owner = await userCollection.findOne({ _id: repo.owner })
     let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
     if (updatedWG) {
-      console.log('in updatedWg', wGCollection)
       wG = await wGCollection.findOne({ Repo: ObjectId(repoId) })
       result = { owner: {}, member: [] }
       result.owner = { email: owner.email, canEdit: true }
