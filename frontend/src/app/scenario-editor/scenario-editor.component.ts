@@ -47,7 +47,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     ngOnInit() {
-        if (localStorage.getItem('version') === 'DAISY') {
+        if (localStorage.getItem('version') == 'DAISY') {
             this.showDaisyAutoLogout = true;
         } else {
             this.showDaisyAutoLogout = false;
@@ -365,7 +365,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     addBlock(event){
-        this.modalsComponent.openAddBlockFormModal('scenario');
+        let id = localStorage.getItem('id');
+        this.modalsComponent.openAddBlockFormModal('scenario', id);
     }
 
     saveBlock(event){

@@ -262,13 +262,14 @@ async function execReport(req, res, stories, mode, callback) {
 	}
 }
 
-function jiraProjects(user) {
+async function jiraProjects(user) {
   return new Promise((resolve) => {
     if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
       let { Host, AccountName, Password } = user.jira;
       Password = decryptPassword(Password)
       const auth = Buffer.from(`${AccountName}:${Password}`)
         .toString('base64');
+	  const source = 'jira';
       const cookieJar = request.jar();
       const reqoptions = {
         method: 'GET',
@@ -283,8 +284,8 @@ function jiraProjects(user) {
           Authorization: `Basic ${auth}`
         }
       };
-      request(reqoptions, () => {
-        request(reqoptions, (error2, response2, body) => {
+      request(reqoptions, async () => {
+        request(reqoptions, async (error2, response2, body) => {
           let json = '';
           try {
             json = JSON.parse(body).projects;
@@ -293,13 +294,15 @@ function jiraProjects(user) {
             json = {};
           }
           let names = [];
-          if (Object.keys(json).length !== 0) {
+		  if (Object.keys(json).length !== 0) {
             for (const repo of json) {
-              names.push(repo.name);
+              let result = await mongo.createJiraRepoIfNonenExists(repo.name, source)
+              names.push({name: repo.name, _id: result});
             }
             names = names.map(value => ({
-              value,
-              source: 'jira'
+              _id: value._id,
+              value: value.name,
+              source
             }));
             resolve(names);
           }
@@ -311,30 +314,34 @@ function jiraProjects(user) {
 }
 
 function dbProjects(user) {
-  return new Promise((resolve) => {
-    if (typeof user !== 'undefined') {
-      const userId = user._id;
-      mongo.getRepository(userId).then((json) => {
-        let names = [];
-        if (Object.keys(json).length !== 0) {
-          for (const repo of json) {
-            if (repo.repoType === "db") names.push(repo.repoName);
-          }
-          names = names.map(value => ({
-            value,
-            source: 'db'
-          }));
-          resolve(names);
-        }
-        resolve([]);
-      });
-    } else resolve([]);
-  });
-}
+	return new Promise((resolve) => {
+	  if (typeof user !== 'undefined') {
+		const userId = user._id;
+		mongo.getRepository(userId).then((json) => {
+		  let projects = [];
+		  if (Object.keys(json).length !== 0) {
+			for (const repo of json) {
+			  if (repo.repoType === "db"){
+				let proj = {
+				  _id: repo._id,
+				  value: repo.repoName,
+				  source: repo.repoType,
+				  canEdit: repo.canEdit
+				}
+				projects.push(proj)
+			  } 
+			}
+			resolve(projects);
+		  }
+		  resolve([]);
+		});
+	  } else resolve([]);
+	});
+  }
 
 function uniqueRepositories(repositories) {
   return repositories.filter((repo, index, self) => index === self.findIndex(t => (
-    t.source === repo.source && t.value === repo.value
+    t._id === repo._id
   )));
 }
 
@@ -349,31 +356,30 @@ function setOptions(reportName) {
 }
 
 async function execRepositoryRequests(link, user, password, ownerId, githubId) {
-  return new Promise((resolve, reject) => {
-    const xmlrequest = new XMLHttpRequest();
-    // get Issues from GitHub
-    xmlrequest.open('GET', link, true, user, password);
-    xmlrequest.send();
-    xmlrequest.onreadystatechange = async function () {
-      if (this.readyState === 4 && this.status === 200) {
-        const data = JSON.parse(xmlrequest.responseText);
-        let names = [];
-        let index = 0;
-        for (const repo of data) {
-          await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
-          const repoName = repo.full_name;
-          names[index] = repoName;
-          index++;
-        }
-        names = names.map(value => ({
-          value,
-          source: 'github'
-        }));
-        resolve(names);
-      } else
-        if (this.readyState === 4) reject(this.status);
-    };
-  });
+	return new Promise((resolve, reject) => {
+	  const xmlrequest = new XMLHttpRequest();
+	  // get Issues from GitHub
+	  xmlrequest.open('GET', link, true, user, password);
+	  xmlrequest.send();
+	  xmlrequest.onreadystatechange = async function () {
+		if (this.readyState === 4 && this.status === 200) {
+		  const data = JSON.parse(xmlrequest.responseText);
+		  let projects = [];
+		  for (const repo of data) {
+			let mongoRepoId = await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
+			const repoName = repo.full_name;
+			let proj = {
+			  _id: mongoRepoId,
+			  value: repoName,
+			  source: 'github'
+			}
+			projects.push(proj)
+		  }
+		  resolve(projects);
+		} else
+		  if (this.readyState === 4) reject(this.status);
+	  };
+	});
 }
 
 function ownRepositories(ownerId, githubId, githubName, token) {
@@ -534,15 +540,12 @@ const getGithubData = (res, req, accessToken) => {
         passport.authenticate('github-local', function (error, user, info) {
                   console.log("Der User in authenticate", JSON.stringify(user))
                   if(error){
-                    console.log("error1 !!!!!!!!!!!!!!!!!" , error)
                     res.json({error: 'Authentication Error'})
                   } else if(!user){
-                    console.log("error2 !!!!!!!!!!!!!!!!!")
                     res.json({error: 'Authentication Error'})
                   }
                   req.logIn(user, async function(err){
                       if(err){
-                        console.log('error 3')
                           res.json({error: 'Login Error'})
                       }else {
                         res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );

@@ -47,6 +47,11 @@ Before(async function (){
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
 	this.role = string;
+	await driver.sleep(currentParameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 Given('I am on the website: {string}', async function getUrl(url) {
@@ -69,16 +74,6 @@ Given('I add a cookie with the name {string} and value {string}', async function
 		world.attach(buffer, 'image/png');
 	});
 });
-
-Given('As a {string}', async function (string) {
-	this.role = string;
-	await driver.sleep(currentParameters.waitTime);
-	var world = this;
-	await driver.takeScreenshot().then(async function (buffer) {
-		world.attach(buffer, 'image/png');
-	});
-});
-
 
 Given('I remove a cookie with the name {string}', async function removeCookie(name) {
 	await driver.manage().deleteCookie(name);
@@ -154,7 +149,6 @@ When('I click the button: {string}', async function (button) {
 	  }
 	});
 	await driver.sleep(currentParameters.waitTime);
-    //await driver.manage().window().setRect({width: 4000, height: 4000});
 	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
 		world.attach(buffer, 'image/png');
@@ -185,15 +179,35 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 				await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).clear();
 				await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).sendKeys(value);
 			} catch (e) {
-				try{
-					await driver.findElement(By.xpath(`${label}`)).clear();
-					await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
-				}catch(e2){
-					var world = this;
-					await driver.takeScreenshot().then(async function (buffer) {
-						world.attach(buffer, 'image/png');
-					});
-					throw Error(e)
+				try {
+					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).clear();
+					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).sendKeys(value);
+				} catch (e) {
+					try {
+						await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
+						await driver.findElement(By.xpath(`//*[@id='${label}']`)).sendKeys(value);
+					} catch (e) {
+						try {
+							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
+							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+						} catch (e) {
+							try {
+								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
+								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+							} catch (e) {
+								try{
+									await driver.findElement(By.xpath(`${label}`)).clear();
+									await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+								}catch(e2){
+									var world = this;
+									await driver.takeScreenshot().then(async function (buffer) {
+										world.attach(buffer, 'image/png');
+									});
+									throw Error(e)
+								}
+							}
+						}
+					}
 				}
 			}
 		}

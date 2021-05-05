@@ -33,15 +33,17 @@ npm install
 Create an `.env` file in the backend folder with following variables:
 ```
 REPORT_DELETION_TIME=5
-PORT=8080
-FRONTEND_URL=http://localhost:4200
-Unassigned_AVATAR_URL= https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png
-
-DATABASE_URI
-GITHUB_CLIENT_SECRET
-GITHUB_CLIENT_ID
-JIRA_SECRET
-SESSION_SECRET
+TESTACCOUNT_NAME=
+TESTACCOUNT_REPO=
+TESTACCOUNT_TOKEN=
+PORT=8080 
+SESSION_SECRET=
+JIRA_SECRET=
+DATABASE_URI=
+FRONTEND_URL=http://localhost:4200 
+GITHUB_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+PASSPORT_GITHUB_LOCAL_PW_FIELD = id
 ```
 First you need a DATABASE_URI provided by your MongoDB (local or cloud).
 For the GITHUB_CLIENT_SECRET and GITHUB_CLIENT_ID check out [GitHub´s Guide on Autorizing OAuth Apps](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/).
