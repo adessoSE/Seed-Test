@@ -21,18 +21,20 @@ const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report
 const options = {
-	theme: 'bootstrap',
-	jsonFile: 'features/reporting.json',
-	output: 'features/reporting_html.html',
-	reportSuiteAsScenarios: true,
-	launchReport: false,
-	metadata: {
-		'App Version': '0.3.2',
-		'Test Environment': 'STAGING',
-		GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
-		Parallel: 'Scenarios',
-		Executed: 'Remote'
-	}
+  theme: 'bootstrap',
+  jsonFile: 'features/reporting.json',
+  output: 'features/reporting_html.html',
+  reportSuiteAsScenarios: true,
+  launchReport: false,
+  storeScreenshots: false,
+  screenshotsDirectory: 'features/screenshots/',
+  metadata: {
+    'App Version': '0.3.2',
+    'Test Environment': 'STAGING',
+    GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
+    Parallel: 'Scenarios',
+    Executed: 'Remote'
+  }
 };
 
 // Time after which the report is deleted in minutes
@@ -179,7 +181,16 @@ function execReport2(req, res, stories, mode, story, callback) {
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
 		if (!scenario.browser) scenario.browser = 'chrome'
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
-		parameters = {scenarios: [{browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}]}
+		if (scenario.stepDefinitions.example.length <= 0){
+			parameters = {scenarios: [{browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}]}
+		}else{
+			parameters = {scenarios: []}
+			scenario.stepDefinitions.example.forEach((examples, index) => {
+				if (index > 0){
+					parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+				}
+			})
+		}
 	}else{
 		parameters = {scenarios: []}
 		story.scenarios
@@ -187,7 +198,15 @@ function execReport2(req, res, stories, mode, story, callback) {
 			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
 			if (!scenario.browser) scenario.browser = 'chrome'
 			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
-			parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+			if (scenario.stepDefinitions.example.length <= 0){
+				parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+			}else{
+				scenario.stepDefinitions.example.forEach((examples, index) => {
+					if (index > 0){
+						parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+					}
+				})
+			}
 		})
 	}
 	
@@ -243,78 +262,87 @@ async function execReport(req, res, stories, mode, callback) {
 	}
 }
 
-function jiraProjects(user) {
-	return new Promise((resolve) => {
-		if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
-			let { Host, AccountName, Password } = user.jira;
-			Password = decryptPassword(Password);
-			const auth = Buffer.from(`${AccountName}:${Password}`)
-				.toString('base64');
-			const cookieJar = request.jar();
-			const reqoptions = {
-				method: 'GET',
-				url: `http://${Host}/rest/api/2/issue/createmeta`,
-				jar: cookieJar,
-				qs: {
-					type: 'page',
-					title: 'title'
-				},
-				headers: {
-					'cache-control': 'no-cache',
-					Authorization: `Basic ${auth}`
-				}
-			};
-			request(reqoptions, () => {
-				request(reqoptions, (error2, response2, body) => {
-					let json = '';
-					try {
-						json = JSON.parse(body).projects;
-					} catch (e) {
-						console.warn('Jira Request did not work', e);
-						json = {};
-					}
-					let names = [];
-					if (Object.keys(json).length !== 0) {
-						for (const repo of json) names.push(repo.name);
-
-						names = names.map(value => ({
-							value,
-							source: 'jira'
-						}));
-						resolve(names);
-					}
-					resolve([]);
-				});
-			});
-		} else resolve([]);
-	});
+async function jiraProjects(user) {
+  return new Promise((resolve) => {
+    if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
+      let { Host, AccountName, Password } = user.jira;
+      Password = decryptPassword(Password)
+      const auth = Buffer.from(`${AccountName}:${Password}`)
+        .toString('base64');
+	  const source = 'jira';
+      const cookieJar = request.jar();
+      const reqoptions = {
+        method: 'GET',
+        url: `http://${Host}/rest/api/2/issue/createmeta`,
+        jar: cookieJar,
+        qs: {
+          type: 'page',
+          title: 'title'
+        },
+        headers: {
+          'cache-control': 'no-cache',
+          Authorization: `Basic ${auth}`
+        }
+      };
+      request(reqoptions, async () => {
+        request(reqoptions, async (error2, response2, body) => {
+          let json = '';
+          try {
+            json = JSON.parse(body).projects;
+          } catch (e) {
+            console.warn('Jira Request did not work', e);
+            json = {};
+          }
+          let names = [];
+		  if (Object.keys(json).length !== 0) {
+            for (const repo of json) {
+              let result = await mongo.createJiraRepoIfNonenExists(repo.name, source)
+              names.push({name: repo.name, _id: result});
+            }
+            names = names.map(value => ({
+              _id: value._id,
+              value: value.name,
+              source
+            }));
+            resolve(names);
+          }
+          resolve([]);
+        });
+      });
+    } else resolve([]);
+  });
 }
 
 function dbProjects(user) {
 	return new Promise((resolve) => {
-		if (typeof user !== 'undefined') {
-			const userId = user._id;
-			mongo.getRepository(userId).then((json) => {
-				let names = [];
-				if (Object.keys(json).length !== 0) {
-					for (const repo of json) if (repo.repoType === 'db') names.push(repo.repoName);
-
-					names = names.map(value => ({
-						value,
-						source: 'db'
-					}));
-					resolve(names);
+	  if (typeof user !== 'undefined') {
+		const userId = user._id;
+		mongo.getRepository(userId).then((json) => {
+		  let projects = [];
+		  if (Object.keys(json).length !== 0) {
+			for (const repo of json) {
+			  if (repo.repoType === "db"){
+				let proj = {
+				  _id: repo._id,
+				  value: repo.repoName,
+				  source: repo.repoType,
+				  canEdit: repo.canEdit
 				}
-				resolve([]);
-			});
-		} else resolve([]);
+				projects.push(proj)
+			  } 
+			}
+			resolve(projects);
+		  }
+		  resolve([]);
+		});
+	  } else resolve([]);
 	});
-}
+  }
 
 function uniqueRepositories(repositories) {
-	return repositories.filter((repo, index, self) => index === self.findIndex(t => (
-		t.source === repo.source && t.value === repo.value
-	)));
+  return repositories.filter((repo, index, self) => index === self.findIndex(t => (
+    t._id === repo._id
+  )));
 }
 
 
@@ -329,29 +357,28 @@ function setOptions(reportName) {
 
 async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 	return new Promise((resolve, reject) => {
-		const xmlrequest = new XMLHttpRequest();
-		// get Issues from GitHub
-		xmlrequest.open('GET', link, true, user, password);
-		xmlrequest.send();
-		xmlrequest.onreadystatechange = async function () {
-			if (this.readyState === 4 && this.status === 200) {
-				const data = JSON.parse(xmlrequest.responseText);
-				let names = [];
-				let index = 0;
-				for (const repo of data) {
-					await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, 'github');
-					const repoName = repo.full_name;
-					names[index] = repoName;
-					index++;
-				}
-				names = names.map(value => ({
-					value,
-					source: 'github'
-				}));
-				resolve(names);
-			} else
-			if (this.readyState === 4) reject(this.status);
-		};
+	  const xmlrequest = new XMLHttpRequest();
+	  // get Issues from GitHub
+	  xmlrequest.open('GET', link, true, user, password);
+	  xmlrequest.send();
+	  xmlrequest.onreadystatechange = async function () {
+		if (this.readyState === 4 && this.status === 200) {
+		  const data = JSON.parse(xmlrequest.responseText);
+		  let projects = [];
+		  for (const repo of data) {
+			let mongoRepoId = await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
+			const repoName = repo.full_name;
+			let proj = {
+			  _id: mongoRepoId,
+			  value: repoName,
+			  source: 'github'
+			}
+			projects.push(proj)
+		  }
+		  resolve(projects);
+		} else
+		  if (this.readyState === 4) reject(this.status);
+	  };
 	});
 }
 
@@ -496,51 +523,55 @@ function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumbe
 }
 
 const getGithubData = (res, req, accessToken) => {
-	request(
-		{
-			uri: `https://api.github.com/user?access_token=${accessToken}`,
-			method: 'GET',
-			headers: {
-				'User-Agent': 'SampleOAuth',
-				Authorization: `Token ${accessToken}`
-			}
-		},
-		async (err, response, body) => {
-			req.body = await JSON.parse(body);
-			req.body.githubToken = accessToken;
-			try {
-				await mongo.findOrRegister(req.body);
-				passport.authenticate('github-local', (error, user, info) => {
-					console.log('Der User in authenticate', JSON.stringify(user));
-					if (error) {
-						console.log('error1 !!!!!!!!!!!!!!!!!', error);
-						res.json({ error: 'Authentication Error' });
-					} else if (!user) {
-						console.log('error2 !!!!!!!!!!!!!!!!!');
-						res.json({ error: 'Authentication Error' });
-					}
-					req.logIn(user, async (err) => {
-						if (err) {
-							console.log('error 3');
-							res.json({ error: 'Login Error' });
-						} else {
-							res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
-							res.header('Access-Control-Allow-Credentials', 'true');
-							res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-							res.json({ login: user.github.login, id: user.github.id });
-						}
-					});
-				})(req, res);
-			} catch (error) {
-				console.log('getGithubData error:', error);
-				res.sendStatus(400);
-			}
-		}
-	);
+  request(
+    {
+      uri: `https://api.github.com/user?access_token=${accessToken}`,
+      method: "GET",
+      headers: {
+        "User-Agent": "SampleOAuth",
+        "Authorization": `Token ${accessToken}`
+      }
+    },
+    async function(err, response, body){
+      req.body = await JSON.parse(body)
+      req.body.githubToken = accessToken;
+      try{
+        await mongo.findOrRegister(req.body)
+        passport.authenticate('github-local', function (error, user, info) {
+                  console.log("Der User in authenticate", JSON.stringify(user))
+                  if(error){
+                    res.json({error: 'Authentication Error'})
+                  } else if(!user){
+                    res.json({error: 'Authentication Error'})
+                  }
+                  req.logIn(user, async function(err){
+                      if(err){
+                          res.json({error: 'Login Error'})
+                      }else {
+                        res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
+		                    res.header('Access-Control-Allow-Credentials', 'true');
+		                    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
+                        res.json({login: user.github.login, id: user.github.id})
+                      }
+                  });
+              })(req,res);
+      }catch(error){
+          console.log('getGithubData error:', error)
+          res.sendStatus(400)
+      }
+    }
+  )
+}
+
+function encriptPassword(text) {
+  const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted
 };
 
 
-function runReport(req, res, stories, mode) {
+function runReport(req, res, stories, mode, parameters) {
 	execReport(req, res, stories, mode, (reportTime, story,
 		scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
@@ -591,10 +622,11 @@ function runReport(req, res, stories, mode) {
 
 
 				testStatus = testPassed(failed, passed);
-				if (req.query.source === 'github' && req.user && req.user.github) {
+				
+				if (req.params.storySource === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
-					const githubValue = req.query.value.split('/');
+					const githubValue = parameters.repository.split('/');
 					const githubName = githubValue[0];
 					const githubRepo = githubValue[1];
 					postComment(story.issue_number, comment, githubName, githubRepo,

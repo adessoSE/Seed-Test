@@ -60,8 +60,8 @@ export class ApiService {
         this.renameScenarioEvent.emit(newTitle);
     }
 
-    getBlocks() {
-        const str = this.apiServer + '/mongo/getBlocks';
+    getBlocks(repoId: string) {
+        const str = this.apiServer + '/mongo/getBlocks/' + repoId;
         return this.http.get<Block[]>(str,  ApiService.getOptions())
         .pipe(tap(resp => {}),
         catchError(ApiService.handleError));
@@ -190,9 +190,9 @@ export class ApiService {
             }));
     }
 
-    public createStory(title: string, description: string, repository: string): Observable<any> {
+    public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'title' : title, 'description' : description, 'repo' : repository};
+        const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
         return this.http
             .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
             .pipe(tap(resp => {
@@ -222,7 +222,38 @@ export class ApiService {
 
 
 
+    public addToWorkgroup(_id, user){
+        return this.http
+        .post<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
 
+    public updateWorkgroupUser(_id, user){
+        return this.http
+        .put<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
+
+    public getWorkgroup(_id){
+        return this.http
+        .get<any>(this.apiServer + '/workgroups/wgmembers/' + _id, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
+
+    public removeFromWorkgroup(_id, email){
+        let user = {email}
+        return this.http
+        .post<any>(this.apiServer + '/workgroups/deletemember/' + _id, user, ApiService.getOptions())
+        .pipe(tap(resp => {
+            //
+        }));
+    }
 
     public saveBlock(block: Block){
         return this.http
@@ -249,19 +280,20 @@ export class ApiService {
     public getBackendInfo(): Promise<any> {
         const url = localStorage.getItem('url_backend');
         const clientId = localStorage.getItem('clientId');
+        const version = localStorage.getItem('version');
 
-        if (url && url !== 'undefined' && clientId && clientId !== 'undefined') {
+        if (url && url !== 'undefined' && clientId && clientId !== 'undefined' && version && version !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
             return Promise.resolve(url);
         } else {
-           return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
-                localStorage.setItem('url_backend', backendInfo.url);
-                localStorage.setItem('clientId', backendInfo.clientId);
-                localStorage.setItem('version', backendInfo.version);
 
-                this.getBackendUrlEvent.emit();
-            });
+        return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
+             localStorage.setItem('url_backend', backendInfo.url);
+             localStorage.setItem('clientId', backendInfo.clientId);
+             localStorage.setItem('version', backendInfo.version);
+             this.getBackendUrlEvent.emit();
+         });
         }
     }
 
@@ -271,11 +303,11 @@ export class ApiService {
         let params;
         if (repository.source === 'github') {
             const repo = repository.value.split('/');
-            params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source};
+            params = { repoName: repository.value, githubName: repo[0], repository: repo[1], source: repository.source, id: repository._id};
         } else if (repository.source === 'jira') {
-            params = {projectKey: repository.value, source: repository.source};
+            params = {projectKey: repository.value, source: repository.source, id: repository._id};
         } else if (repository.source === 'db') {
-            params = {repoName: repository.value, source: repository.source};
+            params = {repoName: repository.value, source: repository.source, id: repository._id};
         }
 
         return this.http

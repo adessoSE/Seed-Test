@@ -185,7 +185,7 @@
           <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
             <option value="chrome">Chrome</option>
             <!--<option value="firefox">Firefox</option>-->
-          </select>
+          </select> 
       </div>
       <div clasS="storyInfoRight">
         <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
