@@ -113,7 +113,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     })
   }
   addBlock(event){
-    this.modalsComponent.openAddBlockFormModal('background');
+    let id = localStorage.getItem('id')
+    this.modalsComponent.openAddBlockFormModal('background', id);
     }
   runOption(){
       console.log('running')

@@ -160,8 +160,12 @@ h2, h1{
     font-family: Klavika, sans-serif;
 }
 
+.editRepoButton{
+    margin-left: 5px;
+}
+
 .repositories{
-    width: 300px;
+    width: 90%;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
@@ -176,6 +180,11 @@ h2, h1{
     margin-left: 5px;
     margin-right: 5px;
     max-height: 18px;
+}
+
+.customRepoContainer{
+    display: flex;
+    justify-content: space-between;
 }
 
 @media screen and (max-width: 600px) {
