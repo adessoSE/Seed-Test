@@ -157,6 +157,10 @@ When('I click the button: {string}', async function (button) {
 // selenium sleeps for a certain amount of time
 When('The site should wait for {string} milliseconds', async function (ms){
 	await driver.sleep(parseInt(ms));
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 });
 
 // Search a field in the html code and fill in the value

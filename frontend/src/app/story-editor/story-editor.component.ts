@@ -516,7 +516,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   downloadFile() {
       const blob = new Blob([this.htmlReport], {type: 'text/html'});
-      saveAs(blob);
+      saveAs(blob, this.selectedStory.title + '.html');
   }
 
   hideResults() {
