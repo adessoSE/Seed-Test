@@ -20,23 +20,24 @@ import { ModalsComponent } from '../modals/modals.component';
 
 export class ScenarioEditorComponent implements OnInit, DoCheck {
 
-    
+
     selectedStory: Story;
     selectedScenario: Scenario;
     arrowLeft = true;
     arrowRight = true;
     uncutInputs: string[] = [];
-    newStepName= 'New Step';
+    newStepName = 'New Step';
     activeActionBar: boolean = false;
     allChecked: boolean = false;
     activeExampleActionBar: boolean = false;
     allExampleChecked: boolean = false;
     clipboardBlock: any = null;
+    showDaisyAutoLogout: boolean = false;
 
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
     @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
 
-    
+
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
@@ -46,6 +47,12 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     ngOnInit() {
+        if (localStorage.getItem('version') === 'DAISY') {
+            this.showDaisyAutoLogout = true;
+        } else {
+            this.showDaisyAutoLogout = false;
+        }
+
         this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option == 'saveScenario'){
                 this.saveRunOption();
@@ -117,6 +124,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     @Output()
     deleteScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
+
+    @Output()
+    selectNewScenarioEvent: EventEmitter<Scenario> = new EventEmitter();
 
     @Output()
     addScenarioEvent: EventEmitter<number> = new EventEmitter();
@@ -263,7 +273,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
                 this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
             }
             this.exampleChild.updateTable();
-        }  
+        }
         this.selectedScenario.saved = false;
     }
 
@@ -463,7 +473,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         }
         let checkCount = 0;
         let stepCount = 0;
-        
+
         for (let prop in this.selectedScenario.stepDefinitions) {
             if(prop !== 'example'){
                 for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
@@ -495,7 +505,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         }
         let checkCount = 0;
         let stepCount = 0;
-        
+
         for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
             stepCount++;
             if(this.selectedScenario.stepDefinitions.example[i].checked){
@@ -687,6 +697,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
         if (this.selectedStory.scenarios[scenarioIndex - 1]) {
             this.selectScenario(this.selectedStory.scenarios[scenarioIndex - 1]);
+            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex - 1])
         }
     }
 
@@ -694,6 +705,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
         if (this.selectedStory.scenarios[scenarioIndex + 1]) {
             this.selectScenario(this.selectedStory.scenarios[scenarioIndex + 1]);
+            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex + 1])
         }
     }
 
@@ -746,6 +758,17 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         return this.testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined
     }
 
+    setDaisyAutoLogout($event: Event,  checkValue: boolean) {
+        this.selectedScenario.daisyAutoLogout = checkValue;
+        this.selectedScenario.saved = false;
+    }
+
+    commentChange(newComment){
+        this.selectedScenario.comment = newComment;
+        this.selectedScenario.saved = false;
+    }
+
+    
     sortedStepTypes(){
        let sortedStepTypes =  this.originalStepTypes;
        sortedStepTypes.sort((a, b) => {
