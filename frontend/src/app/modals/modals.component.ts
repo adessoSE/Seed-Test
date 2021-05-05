@@ -164,6 +164,8 @@ export class ModalsComponent{
     event.stopPropagation();
     this.apiService.deleteBlock(block._id).subscribe(resp => {
       this.blocks.splice(rowIndex, 1)
+      this.stepList = []
+      this.selectedBlock = null
     })
   }
 
