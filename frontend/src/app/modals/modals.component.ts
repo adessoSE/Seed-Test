@@ -5,7 +5,6 @@ import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
 import { StepType } from '../model/StepType';
 import { NgForm } from '@angular/forms';
-import { RepositoryContainer } from '../model/RepositoryContainer';
 
 @Component({
   selector: 'app-modals',
@@ -23,7 +22,6 @@ export class ModalsComponent{
   @ViewChild('saveBlockFormModal') saveBlockFormModal: any;
   @ViewChild('newStepRequestModal') newStepRequestModal: any;
   @ViewChild('renameScenarioModal') renameScenarioModal: any;
-  @ViewChild('workgroupEditModal') workgroupEditModal: any;
 
   //change Jira account modal
   type: string;
@@ -50,13 +48,6 @@ export class ModalsComponent{
   stepListComplete = [];
   parentComponent;
   
-
-  // workgroup modal
-  displayedColumnsWorkgroup: string[] = ['email' , 'can_edit_workgroup'];
-  workgroupList = []
-  workgroupOwner = '';
-  workgroupError = '';
-  workgroupProject: RepositoryContainer;
 
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
   }
@@ -125,15 +116,15 @@ export class ModalsComponent{
 
   // add block form modal
   
-  openAddBlockFormModal(correspondingComponent, repoId) {
-    this.getAllBlocks(repoId)
+  openAddBlockFormModal(correspondingComponent) {
+    this.getAllBlocks()
     this.correspondingComponent = correspondingComponent;
     this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
     this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
   }
 
-  getAllBlocks(repoId){
-    this.apiService.getBlocks(repoId).subscribe((resp) => {
+  getAllBlocks(){
+    this.apiService.getBlocks().subscribe((resp) => {
       this.blocks = resp
     });
   }
@@ -215,7 +206,6 @@ export class ModalsComponent{
       this.block.name = title
       this.block.repository = localStorage.getItem('repository')
       this.block.source = localStorage.getItem('source')
-      this.block.repositoryId = localStorage.getItem('id') 
       this.apiService.saveBlock(this.block).subscribe((resp) => {
           console.log(resp);
       });
@@ -269,51 +259,4 @@ export class ModalsComponent{
     let name = (document.getElementById('newTitle') as HTMLInputElement).value ;
     this.apiService.renameScenarioEmit(name)
   }
-
-
-
-  // workgroup Edit Modal
-
-  openWorkgroupEditModal(project: RepositoryContainer) {
-    this.workgroupList = []
-    this.workgroupProject = project
-    this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
-    let header = document.getElementById('workgroupHeader') as HTMLSpanElement
-    header.textContent = 'Project: ' + project.value
-
-    this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
-      this.workgroupList = res.member
-      this.workgroupOwner = res.owner.email
-    })
-  }
-
-  workgroupInvite(form: NgForm) {
-    let email = form.value.email;
-    let canEdit = form.value.canEdit
-    if (!canEdit) canEdit = false;
-    let user = {email, canEdit}
-    this.workgroupError = ''
-    this.apiService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-      let originList = JSON.parse(JSON.stringify(this.workgroupList))
-      originList.push(user)
-      this.workgroupList = []
-      this.workgroupList = originList
-    }, (error) => {
-      this.workgroupError = error.error.error
-    })
-  }
-
-  removeFromWorkgroup(user){
-    this.apiService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res.member
-    })
-  }
-
-  checkEditUser(event, user){
-    user.canEdit = !user.canEdit
-    this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res.member
-    })
-  }
-  
 }

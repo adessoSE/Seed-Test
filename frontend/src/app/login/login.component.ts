@@ -110,8 +110,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     getRepositories() {
         let value = localStorage.getItem('repository')
         let source = localStorage.getItem('source')
-        let _id = localStorage.getItem('id')
-        let repository: RepositoryContainer = {value, source, _id}
+        let repository: RepositoryContainer = {value, source}
         this.repositoriesLoading = true;
         const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner');
         if (loadingSpinner){
@@ -124,7 +123,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 this.router.navigate(['/accountManagement'])
             }
             resp.forEach((elem) => {
-                if(elem.value == repository.value && elem.source == repository.source && elem._id == repository._id){
+                if(elem.value == repository.value && elem.source == repository.source){
                     this.router.navigate(['']);
                 }
             })
@@ -164,7 +163,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
         ref.href = 'https://github.com/' + userRepository.value;
         localStorage.setItem('repository', userRepository.value)
         localStorage.setItem('source', userRepository.source)
-        localStorage.setItem('id', userRepository._id)
         this.router.navigate(['']);
     }
 

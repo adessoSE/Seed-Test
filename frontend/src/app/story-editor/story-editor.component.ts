@@ -113,8 +113,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     })
   }
   addBlock(event){
-    let id = localStorage.getItem('id')
-    this.modalsComponent.openAddBlockFormModal('background', id);
+    this.modalsComponent.openAddBlockFormModal('background');
     }
   runOption(){
       console.log('running')
@@ -531,7 +530,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   downloadFile() {
       const blob = new Blob([this.htmlReport], {type: 'text/html'});
-      saveAs(blob);
+      saveAs(blob, this.selectedStory.title + '.html');
   }
 
   setStepWaitTime(event, newTime){

@@ -15,7 +15,7 @@
             <p class="SmallHeadline5">Email: </p>
             <label id="emailLabel" class="active MediumBody2">{{email}}</label>
             <hr>
-            <p id="needCustomRepo" class="LargeBody2">Need a new Custom Project?</p>
+            <p id="needCustomRepo" class="LargeBody2">Need a new custom project?</p>
             <p><button class="normalButton" (click)="newRepository()">Create Custom Project</button></p>
         </div>
         <div *ngIf="!email">
@@ -25,18 +25,13 @@
         <!------------------Repositories DB------------------->
         <div class="grid_customRepos repositories" *ngIf="repositories">
             <div id="DBRepositoriesList">
-                <label class="MediumHeadline5">Custom Projects:</label>
+                <label class="MediumHeadline5">Database Projects:</label>
                 <ul class="uk-list">
                     <ng-container *ngFor="let repository of repositories; let i = index">
                         <li *ngIf="this.apiService.isCustomRepo(repository)">
                             <div>
-                                <div class="customRepoContainer">
-                                    <div>
-                                        <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
-                                        <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                                    </div>
-                                    <button *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Manage Team</button>
-                                </div>
+                                <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
+                                <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                             </div>
                         </li>
                     </ng-container>

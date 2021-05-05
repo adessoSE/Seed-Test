@@ -48,10 +48,6 @@ export class AccountManagementComponent implements OnInit {
     eraseAccount() {
         this.modalComponent.openDeleteAccountModal(this.email);
     }
-
-    workGroupEdit(projectTitle){
-        this.modalComponent.openWorkgroupEditModal(projectTitle);
-    }
     
     updateSite(report) {
         console.log(report);
@@ -105,7 +101,6 @@ export class AccountManagementComponent implements OnInit {
         ref.href = 'https://github.com/' + userRepository.value;
         localStorage.setItem('repository', userRepository.value)
         localStorage.setItem('source', userRepository.source)
-        localStorage.setItem('id', userRepository._id)
         this.router.navigate(['']);
     }
 }

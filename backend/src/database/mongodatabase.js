@@ -17,7 +17,6 @@ const repositoriesCollection = 'Repositories'
 const steptypesCollection = 'stepTypes'
 const PwResetReqCollection = 'PwResetRequests'
 const CustomBlocksCollection = 'CustomBlocks'
-const WorkgroupsCollection = 'Workgroups'
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 // async function createTTLIndex(){
 //   let db = await connectDb()
@@ -268,8 +267,9 @@ function findStory(storyId, storySource, collection) {
 
 
 function replace(story, collection) {
+
   const myObjt = {
-    _id: story._id,
+    story_id: story.story_id,
     storySource: story.storySource,
   };
   return new Promise((resolve, reject) => {
@@ -406,7 +406,7 @@ async function deleteBackground(storyId, storySource) {
   }
 }
 
-async function createStory(storyTitel, storyDescription, repoId) {
+async function createStory(storyTitel, storyDescription, ownerId, repoName) {        //, asigneeEmail
   let db;
   let iNumberArray = [];
   let finalIssueNumber = 0;
@@ -414,19 +414,17 @@ async function createStory(storyTitel, storyDescription, repoId) {
     db = await connectDb();
     let repoCollection = await selectRepositoryCollection(db);
     let collection = await selectStoriesCollection(db);
-    let repo = await repoCollection.findOne({ _id: ObjectId(repoId) })
-    if (repo) {
-      if (repo.stories.length > 0) {
-        for (let storyId of repo.stories) {
-          let story = await collection.findOne({ _id: ObjectId(storyId) })
-          iNumberArray.push(story.issue_number)
-        }
-        for (let i = 0; i <= iNumberArray.length; i++) {
-          let included = iNumberArray.includes(i)
-          if (!included) {
-            finalIssueNumber = i;
-            break;
-          }
+    let repo = await repoCollection.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    if (repo.stories.length > 0) {
+      for (let storyId of repo.stories) {
+        let story = await collection.findOne({ _id: ObjectId(storyId) })
+        iNumberArray.push(story.issue_number)
+      }
+      for (let i = 0; i <= iNumberArray.length; i++) {
+        let included = iNumberArray.includes(i)
+        if (!included) {
+          finalIssueNumber = i;
+          break;
         }
       }
     }
@@ -453,13 +451,14 @@ async function createStory(storyTitel, storyDescription, repoId) {
   }
 }
 
-async function insertStoryIdIntoRepo(storyId, repoId) {
+async function insertStoryIdIntoRepo(ownerId, repoName, storyId) {
   let db;
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
-    let resultRepo = await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: ObjectId(storyId) } })
-    return resultRepo
+    let resultRepo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    resultRepo.stories.push(storyId)
+    return await collectionRepo.findOneAndUpdate({ owner: ObjectId(ownerId), repoName: repoName }, { $set: resultRepo })
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
   } finally {
@@ -467,20 +466,17 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
   }
 }
 
-async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
+async function getAllStoriesOfRepo(ownerId, repoName) {
   let db
   let storiesArray = []
-
   try {
     db = await connectDb()
     let collectionRepo = await selectRepositoryCollection(db)
     let collectionStories = await selectStoriesCollection(db)
-    let repo = await collectionRepo.findOne({ _id: ObjectId(repoId) })
-    if (repo) {
-      for (let entry of repo.stories) {
-        let story = await collectionStories.findOne({ _id: ObjectId(entry) })
-        storiesArray.push(story)
-      }
+    let repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), repoName: repoName })
+    for (let entry of repo.stories) {
+      let story = await collectionStories.findOne({ _id: ObjectId(entry) })
+      storiesArray.push(story)
     }
     return storiesArray
   } catch (e) {
@@ -505,6 +501,7 @@ async function createScenario(storyId, storySource) {
       tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
       story.scenarios.push(tmpScenario);
     }
+    console.log("createScenario: Die Story, die gepeichert werden soll: " + JSON.stringify(story))
     await replace(story, collection)
     return tmpScenario
   } catch (e) {
@@ -516,6 +513,7 @@ async function createScenario(storyId, storySource) {
 
 // DELETE Scenario
 async function deleteScenario(storyId, storySource, scenarioID) {
+  console.log("DeleteScenarios ID: " + JSON.stringify(storyId + " ScenarioId: " + JSON.stringify(scenarioID)))
   let db;
   try {
     db = await connectDb()
@@ -568,29 +566,10 @@ async function getRepository(userID) {
   try {
     const myObjt = { owner: ObjectId(userID) };
     db = await connectDb();
-    let dbo = db.db(dbName);
-    let wGCollection = await dbo.collection(WorkgroupsCollection)
-    let repoCollection = await selectRepositoryCollection(db);
-    let userCollection = await selectUsersCollection(db)
-    let user = await userCollection.findOne({ _id: ObjectId(userID) })
-    let positiveWorkgroups = await wGCollection.find({ Members: { $elemMatch: { email: user.email, canEdit: true } } }).toArray()
-    let PWgArray = positiveWorkgroups.map(entry => ObjectId(entry.Repo))
-    let PWgRepos = await repoCollection.find({ _id: { $in: PWgArray } }).toArray()
-    PWgRepos.forEach(function (element) {
-      element.canEdit = true;
-    });
-    let negativeWorkgroups = await wGCollection.find({ Members: { $elemMatch: { email: user.email, canEdit: false } } }).toArray()
-    let NWgArray = negativeWorkgroups.map(entry => ObjectId(entry.Repo))
-    let NWgRepos = await repoCollection.find({ _id: { $in: NWgArray } }).toArray()
-    NWgRepos.forEach(function (element) {
-      element.canEdit = false;
-    });
-    let result = await repoCollection.find(myObjt).toArray();
-    result.forEach(function (element) {
-      element.canEdit = true;
-    });
-    let finalResult = result.concat(PWgRepos, NWgRepos)
-    return finalResult;
+    let collection = await selectRepositoryCollection(db);
+    let result = await collection.find(myObjt).toArray();
+    db.close();
+    return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in getRepository" + e)
   } finally {
@@ -606,6 +585,7 @@ async function deleteRepositorys(ownerID) {
     let db = await connectDb();
     let collection = await selectRepositoryCollection(db);
     let result = await collection.deleteMany(myObjt);
+    db.close();
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteRepositorys" + e)
@@ -641,7 +621,7 @@ async function getOneGitRepository(name) {
 }
 
 async function createRepo(ownerId, name) {
-  let emptyRepo = { owner: ownerId, repoName: name, stories: [], repoType: "db", customBlocks: [] }
+  let emptyRepo = { owner: ownerId, repoName: name, stories: [], repoType: "db", customBlocks: [] } //{ 'name': name, 'owner': Object(ownerId), 'sotries': [] };
   let db = await connectDb();
   let collection = await selectRepositoryCollection(db);
   let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name })
@@ -857,8 +837,7 @@ async function getUserData(userID) {
 async function saveBlock(block) {
   let db;
   try {
-    block.repositoryId = ObjectId(block.repositoryId);
-    db = await connectDb();
+    db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
     let result = await collection.insertOne(block)
@@ -885,29 +864,29 @@ async function updateBlock(name, updatedBlock) {
   }
 }
 //get all Blocks for designated Id need objectId returns Array with all found CustomBlocks
-//async function getBlocksById(id, repo) {
-//  //todo ObjectID
-//  let db;
-//  try {
-//    db = await connectDb()
-//    let dbo = db.db(dbName);
-//    let collection = await dbo.collection(CustomBlocksCollection)
-//    let result = await collection.find({ owner: id, repo: repo }).toArray()
-//    return result
-//  } catch (e) {
-//    console.log("UPS!!!! FEHLER in getBlocksById: " + e)
-//  } finally {
-//    if (db) db.close()
-//  }
-//}
-//get all Blocks by Id returns Array with all existing CustomBlocks
-async function getBlocks(userId, repoId) {
+async function getBlocksById(id, repo) {
+  //todo ObjectID
   let db;
   try {
     db = await connectDb()
     let dbo = db.db(dbName);
     let collection = await dbo.collection(CustomBlocksCollection)
-    let result = await collection.find({ repositoryId: ObjectId(repoId) }).toArray()
+    let result = await collection.find({ owner: id, repo: repo }).toArray()
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getBlocksById: " + e)
+  } finally {
+    if (db) db.close()
+  }
+}
+//get all Blocks by Id returns Array with all existing CustomBlocks
+async function getBlocks(userId) {
+  let db;
+  try {
+    db = await connectDb()
+    let dbo = db.db(dbName);
+    let collection = await dbo.collection(CustomBlocksCollection)
+    let result = await collection.find({ owner: userId }).toArray()
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
@@ -935,128 +914,6 @@ async function deleteBlock(blockId, userId) {
   }
 }
 
-async function getWorkgroup(id) {
-  let db;
-  try {
-    db = await connectDb()
-    let dbo = db.db(dbName);
-    let collection = await dbo.collection(WorkgroupsCollection)
-    let result = await collection.findOne({ Repo: ObjectId(id) })
-    return result
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in getWorkgroup: " + e)
-  } finally {
-    if (db) db.close()
-  }
-}
-
-async function addMember(id, user) {
-  let db;
-  try {
-    db = await connectDb()
-    let dbo = db.db(dbName)
-    let wGCollection = await dbo.collection(WorkgroupsCollection)
-    let check = await wGCollection.findOne({ Repo: ObjectId(id), Members: { $elemMatch: { email: user.email } } })
-    if (check) return "Dieser User ist bereits in der Workgroup"
-    let rCollection = await dbo.collection(repositoriesCollection)
-    let repo = await rCollection.findOne({ _id: ObjectId(id) })
-    let userCollection = await selectUsersCollection(db)
-    let owner = await userCollection.findOne({ _id: repo.owner })
-    let result = await wGCollection.findOne({ Repo: ObjectId(id) })
-    if (!result) {
-      await wGCollection.insertOne({ name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }] })
-      let result = { owner: {}, member: [] }
-      wG = await wGCollection.findOne({ Repo: ObjectId(id) })
-      result.owner = { email: owner.email, canEdit: true }
-      result.member = wG.Members
-      return result
-    } else {
-      await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } })
-      let result = { owner: {}, member: [] }
-      wG = await wGCollection.findOne({ Repo: ObjectId(id) })
-      result.owner = { email: owner.email, canEdit: true }
-      result.member = wG.Members
-      return result
-    }
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in addMember: " + e)
-  } finally {
-    if (db) db.close()
-  }
-}
-
-async function updateMemberStatus(repoId, user) {
-  let db;
-  try {
-    db = await connectDb()
-    let dbo = db.db(dbName)
-    let wGCollection = await dbo.collection(WorkgroupsCollection)
-    let rCollection = await dbo.collection(repositoriesCollection)
-    let repo = await rCollection.findOne({ _id: ObjectId(id) })
-    let userCollection = await selectUsersCollection(db)
-    let owner = await userCollection.findOne({ _id: repo.owner })
-    let updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { "Members.$[elem].canEdit": user.canEdit } }, { arrayFilters: [{ "elem.email": user.email }] })
-    if (updatedWG) {
-      wG = await wGcollection.findOne({ Repo: ObjectId(id) })
-      result = { owner: {}, member: [] }
-      result.owner = { email: owner.email, canEdit: true }
-      result.member = wG.Members
-      return result
-    }
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in updateMemberStatus: " + e)
-  } finally {
-    if (db) db.close()
-  }
-}
-
-async function getMembers(id) {
-  let db;
-  try {
-    db = await connectDb()
-    let dbo = db.db(dbName)
-    let wGCollection = await dbo.collection(WorkgroupsCollection)
-    let rCollection = await dbo.collection(repositoriesCollection)
-    let repo = await rCollection.findOne({ _id: ObjectId(id) })
-    let userCollection = await selectUsersCollection(db)
-    let owner = await userCollection.findOne({ _id: repo.owner })   
-    wG = await wGCollection.findOne({ Repo: ObjectId(id) })
-    if (!wG) return { owner: { email: owner.email, canEdit: true }, member: [] }
-    let result = { owner: {}, member: [] }
-    result.owner = { email: owner.email, canEdit: true }
-    result.member = wG.Members
-    return result
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in getMembers: " + e)
-  } finally {
-    if (db) db.close()
-  }
-}
-
-async function removeFromWorkgroup(id, user) {
-  let db;
-  try {
-    db = await connectDb()
-    let dbo = db.db(dbName)
-    let wGcollection = await dbo.collection(WorkgroupsCollection)
-    let rCollection = await dbo.collection(repositoriesCollection)
-    let repo = await rCollection.findOne({ _id: ObjectId(id) })
-    let userCollection = await selectUsersCollection(db)
-    let owner = await userCollection.findOne({ _id: repo.owner })
-    let result = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } })
-    if (result) {
-      wG = await wGcollection.findOne({ Repo: ObjectId(id) })
-      result = { owner: {}, member: [] }
-      result.owner = { email: owner.email, canEdit: true }
-      result.member = wG.Members
-      return result
-    }
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
-  } finally {
-    if (db) db.close()
-  }
-}
 
 module.exports = {
   getReport,
@@ -1101,11 +958,7 @@ module.exports = {
   getResetRequestByEmail,
   saveBlock,
   updateBlock,
+  getBlocksById,
   getBlocks,
   deleteBlock,
-  getWorkgroup,
-  addMember,
-  updateMemberStatus,
-  getMembers,
-  removeFromWorkgroup,
 };

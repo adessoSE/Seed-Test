@@ -21,18 +21,20 @@ const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report
 const options = {
-	theme: 'bootstrap',
-	jsonFile: 'features/reporting.json',
-	output: 'features/reporting_html.html',
-	reportSuiteAsScenarios: true,
-	launchReport: false,
-	metadata: {
-		'App Version': '0.3.2',
-		'Test Environment': 'STAGING',
-		GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
-		Parallel: 'Scenarios',
-		Executed: 'Remote'
-	}
+  theme: 'bootstrap',
+  jsonFile: 'features/reporting.json',
+  output: 'features/reporting_html.html',
+  reportSuiteAsScenarios: true,
+  launchReport: false,
+  storeScreenshots: false,
+  screenshotsDirectory: 'features/screenshots/',
+  metadata: {
+    'App Version': '0.3.2',
+    'Test Environment': 'STAGING',
+    GoogleChromeShiv: process.env.GOOGLE_CHROME_SHIM,
+    Parallel: 'Scenarios',
+    Executed: 'Remote'
+  }
 };
 
 // Time after which the report is deleted in minutes
@@ -179,7 +181,16 @@ function execReport2(req, res, stories, mode, story, callback) {
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
 		if (!scenario.browser) scenario.browser = 'chrome'
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
-		parameters = {scenarios: [{browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}]}
+		if (scenario.stepDefinitions.example.length <= 0){
+			parameters = {scenarios: [{browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}]}
+		}else{
+			parameters = {scenarios: []}
+			scenario.stepDefinitions.example.forEach((examples, index) => {
+				if (index > 0){
+					parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+				}
+			})
+		}
 	}else{
 		parameters = {scenarios: []}
 		story.scenarios
@@ -187,7 +198,15 @@ function execReport2(req, res, stories, mode, story, callback) {
 			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
 			if (!scenario.browser) scenario.browser = 'chrome'
 			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
-			parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+			if (scenario.stepDefinitions.example.length <= 0){
+				parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+			}else{
+				scenario.stepDefinitions.example.forEach((examples, index) => {
+					if (index > 0){
+						parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+					}
+				})
+			}
 		})
 	}
 	
@@ -243,14 +262,13 @@ async function execReport(req, res, stories, mode, callback) {
 	}
 }
 
-async function jiraProjects(user) {
+function jiraProjects(user) {
   return new Promise((resolve) => {
     if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
       let { Host, AccountName, Password } = user.jira;
       Password = decryptPassword(Password)
       const auth = Buffer.from(`${AccountName}:${Password}`)
         .toString('base64');
-      const source = "jira"
       const cookieJar = request.jar();
       const reqoptions = {
         method: 'GET',
@@ -265,8 +283,8 @@ async function jiraProjects(user) {
           Authorization: `Basic ${auth}`
         }
       };
-      request(reqoptions, async () => {
-        request(reqoptions, async (error2, response2, body) => {
+      request(reqoptions, () => {
+        request(reqoptions, (error2, response2, body) => {
           let json = '';
           try {
             json = JSON.parse(body).projects;
@@ -277,12 +295,10 @@ async function jiraProjects(user) {
           let names = [];
           if (Object.keys(json).length !== 0) {
             for (const repo of json) {
-              let result = await mongo.createJiraRepoIfNonenExists(repo.name, source)
-              names.push({name: repo.name, _id: result});
+              names.push(repo.name);
             }
             names = names.map(value => ({
-              _id: value._id,
-              value: value.name,
+              value,
               source: 'jira'
             }));
             resolve(names);
@@ -299,20 +315,16 @@ function dbProjects(user) {
     if (typeof user !== 'undefined') {
       const userId = user._id;
       mongo.getRepository(userId).then((json) => {
-        let projects = [];
+        let names = [];
         if (Object.keys(json).length !== 0) {
           for (const repo of json) {
-            if (repo.repoType === "db"){
-              let proj = {
-                _id: repo._id,
-                value: repo.repoName,
-                source: repo.repoType,
-                canEdit: repo.canEdit
-              }
-              projects.push(proj)
-            } 
+            if (repo.repoType === "db") names.push(repo.repoName);
           }
-          resolve(projects);
+          names = names.map(value => ({
+            value,
+            source: 'db'
+          }));
+          resolve(names);
         }
         resolve([]);
       });
@@ -322,7 +334,7 @@ function dbProjects(user) {
 
 function uniqueRepositories(repositories) {
   return repositories.filter((repo, index, self) => index === self.findIndex(t => (
-    t._id === repo._id
+    t.source === repo.source && t.value === repo.value
   )));
 }
 
@@ -345,18 +357,19 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
     xmlrequest.onreadystatechange = async function () {
       if (this.readyState === 4 && this.status === 200) {
         const data = JSON.parse(xmlrequest.responseText);
-        let projects = [];
+        let names = [];
+        let index = 0;
         for (const repo of data) {
-          let mongoRepoId = await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
+          await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, "github")
           const repoName = repo.full_name;
-          let proj = {
-            _id: mongoRepoId,
-            value: repoName,
-            source: 'github'
-          }
-          projects.push(proj)
+          names[index] = repoName;
+          index++;
         }
-        resolve(projects);
+        names = names.map(value => ({
+          value,
+          source: 'github'
+        }));
+        resolve(names);
       } else
         if (this.readyState === 4) reject(this.status);
     };
@@ -519,13 +532,17 @@ const getGithubData = (res, req, accessToken) => {
       try{
         await mongo.findOrRegister(req.body)
         passport.authenticate('github-local', function (error, user, info) {
+                  console.log("Der User in authenticate", JSON.stringify(user))
                   if(error){
+                    console.log("error1 !!!!!!!!!!!!!!!!!" , error)
                     res.json({error: 'Authentication Error'})
                   } else if(!user){
+                    console.log("error2 !!!!!!!!!!!!!!!!!")
                     res.json({error: 'Authentication Error'})
                   }
                   req.logIn(user, async function(err){
                       if(err){
+                        console.log('error 3')
                           res.json({error: 'Login Error'})
                       }else {
                         res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
@@ -602,6 +619,7 @@ function runReport(req, res, stories, mode) {
 
 
 				testStatus = testPassed(failed, passed);
+        // TODO req.params.storySource fix postComment
 				if (req.query.source === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
@@ -613,7 +631,7 @@ function runReport(req, res, stories, mode) {
 					if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 				}
 				if (scenarioID && scenario) {
-          scenario.lastTestPassed = testStatus;
+					scenario.lastTestPassed = testStatus;
 					mongo.updateScenario(story._id, story.storySource, scenario, () => {
 						// console.log()
 					});
