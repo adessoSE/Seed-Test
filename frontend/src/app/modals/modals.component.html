@@ -277,7 +277,7 @@
         <div class="uk-card-title submitForm">
             <div>
                 <form #workgroupInviteForm="ngForm" novalidate (ngSubmit)="workgroupInvite(workgroupInviteForm);"> 
-                    <p *ngIf="wrongEmail" class="wrongEmail">No user found with this email</p>
+                    <p *ngIf="this.workgroupError" class="wrongEmail">{{this.workgroupError}}</p>
                     <label>Project Owner: </label>
                     <label>{{this.workgroupOwner}}</label>
 

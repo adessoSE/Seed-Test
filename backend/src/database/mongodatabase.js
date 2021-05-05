@@ -11,13 +11,13 @@ if (!process.env.NODE_ENV) {
 const uri = process.env.DATABASE_URI;
 const dbName = 'Seed';
 const userCollection = 'User';
-const storiesCollection = 'TestStories';
+const storiesCollection = 'Stories';
 const testreportCollection = 'TestReport';
-const repositoriesCollection = 'TestRepositories'
+const repositoriesCollection = 'Repositories'
 const steptypesCollection = 'stepTypes'
 const PwResetReqCollection = 'PwResetRequests'
 const CustomBlocksCollection = 'CustomBlocks'
-const WorkgroupsCollection = "TestWorkgroups"
+const WorkgroupsCollection = 'Workgroups'
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 // async function createTTLIndex(){
 //   let db = await connectDb()

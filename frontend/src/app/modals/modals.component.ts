@@ -54,8 +54,8 @@ export class ModalsComponent{
   // workgroup modal
   displayedColumnsWorkgroup: string[] = ['email' , 'can_edit_workgroup'];
   workgroupList = []
-  workgroupOwner = ''
-  wrongEmail = false;
+  workgroupOwner = '';
+  workgroupError = '';
   workgroupProject: RepositoryContainer;
 
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
@@ -289,20 +289,17 @@ export class ModalsComponent{
 
   workgroupInvite(form: NgForm) {
     let email = form.value.email;
-    this.wrongEmail = false;
     let canEdit = form.value.canEdit
     if (!canEdit) canEdit = false;
     let user = {email, canEdit}
+    this.workgroupError = ''
     this.apiService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-      if (res.error){
-        this.wrongEmail = true
-      }else{
-        let originList = JSON.parse(JSON.stringify(this.workgroupList))
-        originList.push(user)
-        this.workgroupList = []
-        this.workgroupList = originList
-      }
-      console.log(this.workgroupList)
+      let originList = JSON.parse(JSON.stringify(this.workgroupList))
+      originList.push(user)
+      this.workgroupList = []
+      this.workgroupList = originList
+    }, (error) => {
+      this.workgroupError = error.error.error
     })
   }
 
