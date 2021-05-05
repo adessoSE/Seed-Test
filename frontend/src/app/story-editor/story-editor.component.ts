@@ -504,6 +504,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.apiService
                 .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
                     {browser: browserSelect,
+                        repository: localStorage.getItem('repository'),
+                        source: localStorage.getItem('source')
                         //waitTime: defaultWaitTimeInput,
                         //daisyAutoLogout: daisyAutoLogout
                     })

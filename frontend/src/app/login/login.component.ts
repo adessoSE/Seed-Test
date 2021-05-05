@@ -104,6 +104,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
 
     async loginTestAccount() {
+        localStorage.setItem('repository', 'adessoCucumber/Cucumber')
+        localStorage.setItem('source', 'github')
         this.router.navigate(['/testaccount']);
     }
 

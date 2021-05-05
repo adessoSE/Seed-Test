@@ -571,7 +571,7 @@ function encriptPassword(text) {
 };
 
 
-function runReport(req, res, stories, mode) {
+function runReport(req, res, stories, mode, parameters) {
 	execReport(req, res, stories, mode, (reportTime, story,
 		scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
@@ -622,11 +622,11 @@ function runReport(req, res, stories, mode) {
 
 
 				testStatus = testPassed(failed, passed);
-        // TODO req.params.storySource fix postComment
-				if (req.query.source === 'github' && req.user && req.user.github) {
+				
+				if (req.params.storySource === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
-					const githubValue = req.query.value.split('/');
+					const githubValue = parameters.repository.split('/');
 					const githubName = githubValue[0];
 					const githubRepo = githubValue[1];
 					postComment(story.issue_number, comment, githubName, githubRepo,
