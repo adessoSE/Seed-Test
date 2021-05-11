@@ -34,6 +34,7 @@ export class ApiService {
     public logoutEvent = new EventEmitter();
     public renameScenarioEvent = new EventEmitter();
     public deleteScenarioEvent = new EventEmitter();
+    public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
 
     public user;
     //public local:boolean = false;
@@ -460,6 +461,10 @@ export class ApiService {
         }
         return this.http
             .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true});
+    }
+
+    public createNewCustomStory(repo: RepositoryContainer, story){
+        this.createCustomStoryEmitter.emit({repo, story})
     }
 
     // public changeDaisy(){

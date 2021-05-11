@@ -1,9 +1,10 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import {RepositoryContainer} from "../model/RepositoryContainer";
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { ModalsComponent } from '../modals/modals.component';
 
 @Component({
   selector: 'app-stories-bar',
@@ -24,11 +25,22 @@ export class StoriesBarComponent implements OnInit {
   @Output()
   scenarioChosen: EventEmitter<any> = new EventEmitter();
 
+  @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
+  
   constructor(public apiService: ApiService, private modalService: NgbModal) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.stories = stories;
       this.db = localStorage.getItem('source') === 'db' ;
     } );
+
+    this.apiService.createCustomStoryEmitter.subscribe(custom => {
+      this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
+        this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
+          console.log('stories', resp);
+          this.stories = resp;
+        });
+      });
+    })
   }
     
   /* modal mask start */
@@ -76,23 +88,6 @@ export class StoriesBarComponent implements OnInit {
     this.scenarioChosen.emit(scenario);
   }
 
-  createnewStory() {
-    const title = (document.getElementById('storytitle') as HTMLInputElement).value;
-    const description = (document.getElementById('storydescription') as HTMLInputElement).value;
-    const value = localStorage.getItem('repository');
-    const _id = localStorage.getItem('id')
-    const source = 'db';
-    const repositorycontainer: RepositoryContainer = {value, source, _id};
-    this.apiService.createStory(title, description, value, _id).subscribe(resp => {
-      console.log(resp);
-      this.apiService.getStories(repositorycontainer).subscribe((resp: Story[]) => {
-        console.log('Stories');
-        console.log(resp);
-        this.stories = resp;
-      });
-    });
-  }
-
   selectStoryScenario(story: Story) {
     this.selectedStory = story;
     this.storyChosen.emit(story);
@@ -100,6 +95,10 @@ export class StoriesBarComponent implements OnInit {
     if (this.stories[storyIndex].scenarios[0]) {
       this.selectScenario(this.selectedStory._id, this.stories[storyIndex].scenarios[0]);
     }
+  }
+
+  openCreateNewScenarioModal(){
+    this.modalsComponent.openCreateNewStoryModal()
   }
 
 }

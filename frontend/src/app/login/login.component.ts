@@ -170,10 +170,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.router.navigate(['']);
     }
 
-    navToRegistration() {
-        this.router.navigate(['/register']);
-    }
-
     githubLogin() {
         this.error = undefined;
         this.repositoriesLoading = true;
@@ -182,9 +178,5 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     openInstruction() {
         this.showInstruction = !this.showInstruction;
-    }
-
-    resetPassword() {
-        this.router.navigate(['/resetpassword']);
     }
 }

@@ -98,10 +98,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-  manageAccount() {
-    this.router.navigate(['/accountManagement']);
-  }
-
   logout() {
     this.repositories = undefined;
     this.apiService.logoutUser().subscribe(resp => {
