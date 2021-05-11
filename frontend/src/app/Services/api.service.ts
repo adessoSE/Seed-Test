@@ -1,6 +1,6 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {catchError, tap} from 'rxjs/operators';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {Story} from '../model/Story';
 import {Observable, of, throwError} from 'rxjs';
 import {StepType} from '../model/StepType';
@@ -453,14 +453,15 @@ export class ApiService {
     // demands testing from the server
     public runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
-
+        let head: HttpHeaders = new HttpHeaders();
+        head.append('timeout', '600000')
         if (scenarioID) {
             return this.http
                 .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
-                    responseType: 'text', withCredentials: true});
+                    responseType: 'text', withCredentials: true, headers: head});
         }
         return this.http
-            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true, headers: head});
     }
 
     public createNewCustomStory(repo: RepositoryContainer, story){

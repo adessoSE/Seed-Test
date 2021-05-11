@@ -4,7 +4,7 @@ import {RouterModule} from '@angular/router';
 import {ROUTES} from '../app/routes/routes';
 import {AppComponent} from './app.component';
 import {ScenarioEditorComponent} from './scenario-editor/scenario-editor.component';
-import {HttpClientModule} from '@angular/common/http';
+import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {ApiService} from './Services/api.service';
 import {StoriesBarComponent} from './stories-bar/stories-bar.component';
 import {ParentComponent} from './parent/parent.component';
@@ -39,6 +39,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
+import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 
 @NgModule({
   declarations: [
@@ -87,7 +88,7 @@ import { DeleteScenarioToast } from './deleteScenario-toast';
     })
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService],
+  providers: [ApiService, AuthGuard, CookieService,[{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
