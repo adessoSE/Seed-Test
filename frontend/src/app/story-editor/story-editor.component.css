@@ -338,6 +338,14 @@
     background-color: green;
   }
 
+  a.passed{
+    color: green;
+  }
+
+  a.notPassed{
+    color: red;
+  }
+
   .dot {
     height: 20px;
     width: 20px;

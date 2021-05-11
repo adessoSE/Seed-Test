@@ -49,6 +49,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   allChecked: boolean = false;
   saveBackgroundAndRun: boolean = false;
   clipboardBlock: any = null;
+  reportHistoryStory = [];
+  reportHistoryScenario = [];
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
@@ -159,6 +161,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.showEditor = true;
       this.activeActionBar = false;
       this.allChecked =false;
+      this.reportStoryHistory(story._id)
   }
 
     loadStepTypes() {
@@ -487,6 +490,26 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             })
         })
           this.selectedScenario.saved = false;
+    }
+
+    reportStoryHistory(storyId){
+        this.reportHistoryStory = []
+        this.reportHistoryScenario = []
+        this.apiService.getReportHistory(storyId).subscribe(resp => {
+            resp.forEach(element => {
+                if (element.mode =='feature'){
+                    this.reportHistoryStory.push(element)
+                }else{
+                    this.reportHistoryScenario.push(element)
+                }
+            });
+          });
+    }
+
+    reportTime(time){
+        let date = new Date(time).toLocaleDateString("de")
+        let t = new Date(time).toLocaleTimeString("de")
+        return "Report: " + date + " " + t
     }
 
 

@@ -422,10 +422,11 @@ function deleteReport(jsonReport) {
 }
 
 
-async function uploadReport(reportName, reportTime, jsonReport, options) {
-	const report = {
-		reportTime, reportName, options, jsonReport
-	};
+async function getReportHistory(storyId){
+	return await mongo.getTestReports(storyId);
+}
+
+async function uploadReport(report) {
 	await mongo.uploadReport(report);
 }
 
@@ -440,7 +441,8 @@ async function createReport(res, reportName) {
 
 	fs.writeFileSync(resolvedPath, JSON.stringify(report.jsonReport),
 		(err) => { console.log('Error:', err); });
-	reporter.generate(report.options);
+	//console.log('report options', report)
+	reporter.generate(report.reportOptions);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 	res.sendFile(`/${reportName}.html`, { root: rootPath });
@@ -584,11 +586,11 @@ function runReport(req, res, stories, mode, parameters) {
 		try {
 			fs.readFile(`./features/${reportName}.json`, 'utf8', (err, data) => {
 				const json = JSON.parse(data);
-				uploadReport(reportName, reportTime, json, reportOptions);
+				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
+
 				let passed = 0;
 				let failed = 0;
 				let skipped = 0;
-				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
 				const scenariosTested = { passed: 0, failed: 0 };
 				try {
 					json[0].elements.forEach((d) => {
@@ -622,7 +624,12 @@ function runReport(req, res, stories, mode, parameters) {
 
 
 				testStatus = testPassed(failed, passed);
-				
+				console.log('storyId', story._id)
+				const report = {
+					reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
+				};
+
+				uploadReport(report);
 				if (req.params.storySource === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
@@ -650,6 +657,7 @@ function runReport(req, res, stories, mode, parameters) {
 }
 
 module.exports = {
+	getReportHistory,
 	uniqueRepositories,
 	jiraProjects,
 	getGithubData,

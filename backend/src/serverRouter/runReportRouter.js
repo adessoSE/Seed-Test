@@ -34,4 +34,10 @@ router.get('/report/:reportName', (req, res) => {
 	helper.createReport(res, req.params.reportName);
 });
 
+router.get('/reportHistory/:storyId', async (req, res) => {
+	let storyId = req.params.storyId;
+	let history = await helper.getReportHistory(storyId);
+	res.status(200).json(history);
+});
+
 module.exports = router;

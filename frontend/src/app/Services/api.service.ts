@@ -468,6 +468,14 @@ export class ApiService {
         this.createCustomStoryEmitter.emit({repo, story})
     }
 
+    public getReportHistory(storyId){
+        return this.http
+            .get<any>(this.apiServer + '/run/reportHistory/' + storyId, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Add new scenario in story ' + storyID + '!', resp)
+            }));
+    }
+
     // public changeDaisy(){
     //    this.apiServer = localStorage.getItem('url_backend');
     //    return this.http.get(this.apiServer + '/user/daisy')
