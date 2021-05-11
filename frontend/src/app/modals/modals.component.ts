@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
@@ -16,6 +16,7 @@ export class ModalsComponent{
   @Output()
   mongoUpdate: EventEmitter<any> = new EventEmitter();
 
+  
   @ViewChild('changeJiraAccountModal') changeJiraAccountModal: any;
   @ViewChild('createCustomProjectModal') createCustomProjectModal: any;
   @ViewChild('deleteAccountModal') deleteAccountModal: any;
@@ -24,6 +25,8 @@ export class ModalsComponent{
   @ViewChild('newStepRequestModal') newStepRequestModal: any;
   @ViewChild('renameScenarioModal') renameScenarioModal: any;
   @ViewChild('workgroupEditModal') workgroupEditModal: any;
+  @ViewChild('createNewStoryModal') createNewStoryModal: any;
+
 
   //change Jira account modal
   type: string;
@@ -56,7 +59,6 @@ export class ModalsComponent{
   workgroupOwner = ''
   workgroupError = '';
   workgroupProject: RepositoryContainer;
-  
 
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
   }
@@ -313,6 +315,25 @@ export class ModalsComponent{
     this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
       this.workgroupList = res.member
     })
+  }
+
+
+  // createNewStoryModal
+
+  openCreateNewStoryModal() {
+    this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
+  }
+
+  createNewStory() {
+    const title = (document.getElementById('storytitle') as HTMLInputElement).value;
+    const description = (document.getElementById('storydescription') as HTMLInputElement).value;
+    const value = localStorage.getItem('repository');
+    const _id = localStorage.getItem('id')
+    const source = 'db';
+    const repositoryContainer: RepositoryContainer = {value, source, _id};
+    let story = {title, description}
+    this.apiService.createCustomStoryEmitter.emit({repositoryContainer, story})
+
   }
     
 }

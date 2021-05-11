@@ -584,7 +584,7 @@ function runReport(req, res, stories, mode, parameters) {
 		try {
 			fs.readFile(`./features/${reportName}.json`, 'utf8', (err, data) => {
 				const json = JSON.parse(data);
-				uploadReport(reportName, reportTime, json, reportOptions);
+				//uploadReport(reportName, reportTime, json, reportOptions);
 				let passed = 0;
 				let failed = 0;
 				let skipped = 0;
