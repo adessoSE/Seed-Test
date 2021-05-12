@@ -759,6 +759,20 @@ async function getTestReports(storyId){
   }
 }
 
+async function deleteTestReport(testReportId){
+  let db;
+  try {
+    db = await connectDb()
+    dbo = db.db(dbName)
+    let collection = await dbo.collection(testreportCollection)
+    let result = await collection.deleteOne({_id: ObjectId(testReportId)})
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getTestReports", e)
+  }
+}
+
 async function uploadReport(reportData) {
   let db;
   try {
@@ -1060,6 +1074,7 @@ async function removeFromWorkgroup(id, user) {
 }
 
 module.exports = {
+  deleteTestReport,
   getTestReports,
   getReport,
   uploadReport,

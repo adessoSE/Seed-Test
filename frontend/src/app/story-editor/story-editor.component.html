@@ -174,11 +174,14 @@
     <!--Buttons Run Story-->
     <div class="storyInfoContainer">
       <div class="storyInfoLeft">
-        <span class="lastTestText SmallBody1regularLH">Latest execution:  </span>
-        <div *ngFor="let rep of reportHistoryScenario">
-          <a *ngIf="rep.scenarioId == selectedScenario.scenario_id" [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
+        <div class="dropdown">
+          <button class="button">Latest Story Executions:</button>
+          <div class="dropdown-content">
+            <div *ngFor="let rep of reportHistoryStory">
+              <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
+            </div>
+          </div>
         </div>
-        <span class="dot" [class.notPassed]="!selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined" [class.passed]="selectedStory.lastTestPassed && selectedStory.lastTestPassed != undefined"></span>
       </div>
 
       <div class="storyInfoCenter">
@@ -209,12 +212,16 @@
 
       <!--Buttons Run Scenario-->
       <div class="uk-card-footer">
-        <div class="uk-button-group uk-align-right">
-          <span class="lastTestText SmallBody1regularLH">Latest execution:</span>
-          <div *ngFor="let rep of reportHistoryStory">
-            <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
+        
+          <div class="dropdown">
+            <button class="button">Latest Scenario Executions:</button>
+            <div class="dropdown-content dropup">
+              <div *ngFor="let rep of reportHistoryScenario">
+                <a *ngIf="rep.scenarioId == selectedScenario.scenario_id" [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
+              </div>
+            </div>
           </div>
-            <span class="dot"  [class.notPassed]="!selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined" [class.passed]="selectedScenario.lastTestPassed && selectedScenario.lastTestPassed != undefined"></span>
+        <div class="uk-button-group uk-align-right">
          <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedScenario.scenario_id);">
             Run Scenario</button>
           <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"

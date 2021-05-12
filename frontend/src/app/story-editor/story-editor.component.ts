@@ -544,6 +544,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                     }, 10);
                     this.toastr.info('', 'Test is done')
                     this.runUnsaved = false;
+                    setTimeout(() => {this.reportStoryHistory(this.selectedStory._id)}, 1000);
                 });
         }else{
             this.currentTestScenarioId = scenario_id;
