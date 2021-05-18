@@ -288,6 +288,7 @@ When('I hover over the element {string} and select the option {string}', async f
 		await action2.move({ origin: selection }).click().perform();
 	  } catch (e) {
 		  try{
+			
 			const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
 			await action2.move({ origin: selection }).click().perform();
 		  }catch(e2){
