@@ -66,7 +66,7 @@ router.post("/resetpassword", async (req, res) => {
 });
 
 //checks if requests exist if true, gets the according Account and changes the password
-router.post("/reset", async (req, res) => {
+router.patch("/reset", async (req, res) => {
 	const thisRequest = await mongo.getResetRequest(req.body.uuid);
 	if (thisRequest) {
 		const user = await mongo.getUserByEmail(thisRequest.email);
