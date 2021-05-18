@@ -21,7 +21,11 @@ async function sendResetLink(email, id){
         from: 'seed-test@mail.de',
         to: email,
         subject: 'Seed-Test-Passwort-Reset',
-        text: "Dies ist eine automatische Email, bitte antworten sie nicht darauf. /n/n Sie oder jemand anderes hat versucht das Passwort für ihren Seed-Test-Account zu ändern. Sollten sie das nicht wünschen, ignorieren Sie einfach diese E-Mail. Wünschen sie ihr Passwort zu ändern klicken sie bitte den folgenden Link oder geben sie den Link in ihre Adresszeile des Browsers ein. /n" + 'https://seed-test-frontend.herokuapp.com/resetpasswordconfirm' + id
+        html: `<p>Dies ist eine automatische Email, bitte antworten sie nicht darauf.<br>
+                Sie oder jemand anderes hat versucht das Passwort für ihren Seed-Test-Account zu ändern. Sollten sie das nicht wünschen, ignorieren Sie einfach diese E-Mail.<br>
+                Wünschen sie ihr Passwort zu ändern, klicken sie bitte den folgenden Link:<br>
+                <a href='${process.env.RESET_PW_BASE_URL}/resetpasswordconfirm?uuid=${id}'>Click here</a>
+                </p>`
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
