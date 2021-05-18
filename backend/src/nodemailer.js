@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 
 
-async function sendResetLink(email, id){
+async function sendResetLink(email, id) {
 
     const transporter = nodemailer.createTransport({
         host: 'smtp.mail.de',
@@ -13,7 +13,7 @@ async function sendResetLink(email, id){
             pass: process.env.EMAIL_PW
         },
         tls: {
-            ciphers:'SSLv3'
+            ciphers: 'SSLv3'
         }
     });
 
@@ -21,11 +21,16 @@ async function sendResetLink(email, id){
         from: 'seed-test@mail.de',
         to: email,
         subject: 'Seed-Test-Passwort-Reset',
-        html: `<p>Dies ist eine automatische Email, bitte antworten sie nicht darauf.<br>
-                Sie oder jemand anderes hat versucht das Passwort für ihren Seed-Test-Account zu ändern. Sollten sie das nicht wünschen, ignorieren Sie einfach diese E-Mail.<br>
-                Wünschen sie ihr Passwort zu ändern, klicken sie bitte den folgenden Link:<br>
-                <a href='${process.env.FRONTEND_URL}/resetpasswordconfirm?uuid=${id}'>Click here</a>
-                </p>`
+        html: `<p>
+                Sie haben kürzlich versucht das Passwort Ihres Seed-Test-Account zu ändern.<br>
+                Falls das nicht Sie waren, oder Sie keine Änderung der Passworts wünschen, ignorieren Sie diese Mail.<br><br>
+                Klicken Sie auf folgenden Link, um jetzt Ihr Passwort zu ändern: 
+                <a href='${process.env.FRONTEND_URL}/resetpasswordconfirm?uuid=${id}'>Click here</a><br><br>
+                Dieser Link  und die Anfrage verfallen in 60 Minuten.<br>
+                Dies ist eine automatische E-Mail, bitte antworten Sie nicht darauf.<br><br><br>
+                Mit freundlichen Grüßen<br>
+                Das Seed-Test Team
+            </p>`
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
