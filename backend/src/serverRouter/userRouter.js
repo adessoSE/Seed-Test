@@ -39,7 +39,7 @@ router
 
 //checks if a reset request already exists if true it delets the old request. Checks if an Account with this email exists, if true creates a request and saves it.
 //also sends an email via nodemailer with resetlink to the given emailadress.
-router.post("/resetpassword", async (req, res) => {
+router.post('/resetpassword', async (req, res) => {
 	let checkRequest = await mongo.getResetRequestByEmail(req.body.email)
 	if (checkRequest) {
 		mongo.deleteRequest(req.body.email)
@@ -66,7 +66,7 @@ router.post("/resetpassword", async (req, res) => {
 });
 
 //checks if requests exist if true, gets the according Account and changes the password
-router.patch("/reset", async (req, res) => {
+router.patch('/reset', async (req, res) => {
 	const thisRequest = await mongo.getResetRequest(req.body.uuid);
 	if (thisRequest) {
 		const user = await mongo.getUserByEmail(thisRequest.email);
@@ -77,7 +77,7 @@ router.patch("/reset", async (req, res) => {
 		mongo.deleteRequest(user.email)
 		res.status(204).json();
 	} else {
-		res.status(404).json();
+		res.status(401).json();
 	}
 });
 
