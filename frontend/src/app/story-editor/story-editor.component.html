@@ -175,12 +175,7 @@
     <div class="storyInfoContainer">
       <div class="storyInfoLeft">
         <div class="dropdown">
-          <button class="button">Latest Story Executions:</button>
-          <div class="dropdown-content">
-            <div *ngFor="let rep of reportHistoryStory">
-              <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
-            </div>
-          </div>
+          <button class="button" (click)="openReportHistory()">Latest Story Executions:</button>
         </div>
       </div>
 
@@ -212,14 +207,8 @@
 
       <!--Buttons Run Scenario-->
       <div class="uk-card-footer">
-        
           <div class="dropdown">
-            <button class="button">Latest Scenario Executions:</button>
-            <div class="dropdown-content dropup">
-              <div *ngFor="let rep of reportHistoryScenario">
-                <a *ngIf="rep.scenarioId == selectedScenario.scenario_id" [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
-              </div>
-            </div>
+            <button class="button" (click)="openReportHistory()">Latest Scenario Executions:</button>
           </div>
         <div class="uk-button-group uk-align-right">
          <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedScenario.scenario_id);">

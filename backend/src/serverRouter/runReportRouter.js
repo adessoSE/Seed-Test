@@ -37,7 +37,18 @@ router.get('/report/:reportName', (req, res) => {
 router.get('/reportHistory/:storyId', async (req, res) => {
 	let storyId = req.params.storyId;
 	let history = await helper.getReportHistory(storyId);
-	res.status(200).json(history);
+	let storyReports = [];
+	let scenarioReports = [];
+	history.forEach(element => {
+		if (element.mode =='feature'){
+			storyReports.push(element)
+		}else{
+			scenarioReports.push(element)
+		}
+	});
+	let reportContainer = {storyReports, scenarioReports}
+	console.log('reportContainer', reportContainer)
+	res.status(200).json(reportContainer);
 });
 
 module.exports = router;

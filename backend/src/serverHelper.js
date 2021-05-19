@@ -658,7 +658,7 @@ function runReport(req, res, stories, mode, parameters) {
 }
 
 async function deleteOldReports(storyId){
-	let keepReportAmount = 1;
+	let keepReportAmount = 10;
 	let historyStory = await getReportHistory(storyId);
 	let historyScenario = JSON.parse(JSON.stringify(historyStory))
 	historyStory = historyStory.filter(element =>  element.mode =='feature')

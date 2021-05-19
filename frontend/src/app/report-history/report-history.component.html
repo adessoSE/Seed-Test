@@ -1,0 +1,68 @@
+<div class="uk-card uk-card-default padding">
+    <div>
+        <h2 *ngIf="this.selectedStory">Reports: {{this.selectedStory.title}}</h2>
+    </div>
+    <div>
+        <a class="title">
+            <button class="backButton" title="Back to Projects" (click)="goBack()">
+                <img id="backImage" src ="../assets/left.svg">
+            </button>
+        </a>
+    </div>
+    <div class="storyReportsContainer">
+        <div class="storyReportsHeader">
+            <p>Story Reports:</p>
+        </div>
+        <div *ngIf="reports" class="reportContainer">
+            <div *ngFor="let rep of reports.storyReports; let i = index" class="storyReport">
+                <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
+                <div class="reportButtons">
+                    <button  a
+                    class="actionButton" uk-tooltip title="Delete Step"
+                   (click)="removeStepFromBackground();">
+                      <em class="material-icons">delete</em>
+                    </button>
+                    <button a
+                    class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+                    (click)="copyBlock();">
+                      <em class="material-icons">star</em>
+                    </button>
+                    <button a
+                    class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+                    (click)="copyBlock();">
+                      <em class="material-icons">star_border</em>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="reports"class="scenarioReportContainer">
+        <div *ngFor="let scen of this.selectedStory.scenarios; let i = index">
+            <div class="storyReportsHeader">
+                <p>Scenario {{i + 1}} Reports: {{scen.name}}</p>
+            </div>
+            <div *ngIf="reports" class="reportContainer">
+                <div *ngFor="let reps of sortScenarioReports(scen); let j = index" class="storyReport">
+                    <a [class.notPassed]="!reps.testStatus" [class.passed]="reps.testStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{reportTime(reps.reportTime)}}</a>
+                    <div class="reportButtons">
+                        <button  a
+                        class="actionButton" uk-tooltip title="Delete Step"
+                       (click)="removeStepFromBackground();">
+                          <em class="material-icons">delete</em>
+                        </button>
+                        <button a
+                        class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+                        (click)="copyBlock();">
+                          <em class="material-icons">star</em>
+                        </button>
+                        <button a
+                        class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+                        (click)="copyBlock();">
+                          <em class="material-icons">star_border</em>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

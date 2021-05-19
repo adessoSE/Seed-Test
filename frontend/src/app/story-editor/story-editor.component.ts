@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, DoCheck } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
@@ -57,6 +57,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   @ViewChild('scenarioChild') scenarioChild;
   @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
 
+
+  @Output()
+  changeEditor: EventEmitter<any> = new EventEmitter();
+  
   constructor(
       public apiService: ApiService,
       private toastr: ToastrService
@@ -90,6 +94,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     }
 
   ngOnInit() {
+    console.log('onInit storyEditor', this.stories)
+    if(this.selectedStory){
+        this.storiesLoaded = true;
+        this.storiesError = false;
+    }
     let version = localStorage.getItem('version')
     if (version == 'DAISY' || version == 'HEROKU' || !version) {
       this.daisyVersion = true;
@@ -121,6 +130,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         }
     })
   }
+
   addBlock(event){
     let id = localStorage.getItem('id')
     this.modalsComponent.openAddBlockFormModal('background', id);
@@ -153,6 +163,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.allChecked = false;
   }
 
+  @Input()
+  set newStories(stories: Story[]) {
+        if (stories){
+            this.stories = stories;
+        }
+  }
+
   selectNewScenario(scenario: Scenario){
       this.selectedScenario = scenario;
       if (this.selectedStory) {
@@ -168,8 +185,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.showEditor = true;
       this.activeActionBar = false;
       this.allChecked =false;
-      this.reportStoryHistory(story._id)
+      if(story){
+        this.reportStoryHistory(story._id)
+      }
   }
+
+    openReportHistory(){
+        this.changeEditor.emit();
+    }
 
     loadStepTypes() {
     this.apiService
@@ -502,15 +525,15 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     reportStoryHistory(storyId){
         this.reportHistoryStory = []
         this.reportHistoryScenario = []
-        this.apiService.getReportHistory(storyId).subscribe(resp => {
-            resp.forEach(element => {
-                if (element.mode =='feature'){
-                    this.reportHistoryStory.push(element)
-                }else{
-                    this.reportHistoryScenario.push(element)
-                }
-            });
-          });
+        //this.apiService.getReportHistory(storyId).subscribe(resp => {
+        //    resp.forEach(element => {
+        //        if (element.mode =='feature'){
+        //            this.reportHistoryStory.push(element)
+        //        }else{
+        //            this.reportHistoryScenario.push(element)
+        //        }
+        //    });
+        //  });
     }
 
     reportTime(time){

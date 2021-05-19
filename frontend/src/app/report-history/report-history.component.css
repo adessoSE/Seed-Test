@@ -1,0 +1,7 @@
+a.passed{
+    color: green;
+  }
+
+  a.notPassed{
+    color: red;
+  }

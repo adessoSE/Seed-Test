@@ -16,6 +16,7 @@ export class ParentComponent implements OnInit {
   selectedStory: Story;
   selectedScenario: Scenario;
   formtosubmit: [""];
+  storyEditorActive = true;
 
   constructor(public apiService: ApiService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
@@ -49,10 +50,15 @@ export class ParentComponent implements OnInit {
 
   setSelectedStory(story: Story){
     this.selectedStory = story;
+    console.log('select story')
   }
 
   setSelectedScenario(scenario: Scenario){
     this.selectedScenario = scenario;
   }
 
+  setEditor(e){
+    this.storyEditorActive = !this.storyEditorActive;
+    console.log('setEditor', this.storyEditorActive, this.selectedStory)
+  }
 }

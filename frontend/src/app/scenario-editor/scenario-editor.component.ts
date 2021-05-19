@@ -770,11 +770,13 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     
     sortedStepTypes(){
-       let sortedStepTypes =  this.originalStepTypes;
-       sortedStepTypes.sort((a, b) => {
-           return a.id - b.id;
-       })
-       return sortedStepTypes
+        if (this.originalStepTypes){
+            let sortedStepTypes =  this.originalStepTypes;
+            sortedStepTypes.sort((a, b) => {
+                return a.id - b.id;
+            })
+            return sortedStepTypes
+        }
     }
 
     changeScenarioTitle(){
