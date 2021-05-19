@@ -213,9 +213,9 @@ export class ApiService {
 
   public confirmReset(uuid: string, password: string): Observable <any> {
     this.apiServer = localStorage.getItem('url_backend');
-    const body = {'id' : uuid, 'password' : password};
+    const body = {'uuid' : uuid, 'password' : password};
     return this.http
-        .post<any>(this.apiServer + '/user/reset/', body)
+        .patch<any>(this.apiServer + '/user/reset', body)
         .pipe(tap(resp => {
             //
         }));

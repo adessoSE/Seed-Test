@@ -22,11 +22,10 @@ export class ResetPasswordComponent{
   }
 
   requestReset(form : NgForm) {
-    console.log('form', form.value.email)
     this.apiService.requestReset(form.value.email).subscribe(res => {
-      console.log('test')
+      //console.log('test')
     })
-    this.router.navigate(['/resetpasswordconfirm']);
+    this.router.navigate(['/login']);
   }
 
   navToRegistration(){
