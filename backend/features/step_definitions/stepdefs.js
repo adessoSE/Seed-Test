@@ -361,15 +361,6 @@ When('Switch to the newly opened tab', async function switchToNewTab() {
 	});
 });
 
-When('Switch to the newly opened tab', async function () {
-	const world = this;
-	const tabs = await driver.getAllWindowHandles();
-	await driver.switchTo().window(tabs[1]);
-	await driver.sleep(currentParameters.waitTime);
-	await driver.takeScreenshot().then(async (buffer) => {
-		world.attach(buffer, 'image/png');
-	});
-});
 
 When('Switch to the tab number {string}', async function switchToSpecificTab(numberOfTabs) {
 	const world = this;
@@ -604,19 +595,35 @@ After(async () => {
 // clicks a button if found in html code with xpath,
 // timeouts if not found after 3 sec, waits for next page to be loaded
 async function clickButton(button) {
-	await driver.getCurrentUrl().then(async (currentUrl) => {
-		// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-		if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-			.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-		else try {
-			await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + '=\''}${button}' or ` + `${'@*' + '=\''}${button}']`)), 3 * 1000)
-				.click();
-			await driver.wait(async () => driver.executeScript('return document.readyState')
-				.then(async readyState => readyState === 'complete'));
-		} catch (e) {
-			await driver.findElement(By.xpath(`${button}`)).click();
-		}
-	});
+	await driver.getCurrentUrl()
+		.then(async (currentUrl) => {
+			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
+			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
+				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
+			else try {	// first check for the exact id
+				await driver.wait(until.elementLocated(By.xpath(`//*[@id='${button}']`)), 3 * 1000)
+					.click();
+			} catch (e) {
+				try {	// check for an id with the substring using contains
+					await driver.wait(until.elementLocated(By.xpath(`//*[contains(@id,'${button}')]`)), 3 * 1000)
+						.click();
+				} catch (e2) {
+					try { // text() looks for a text node (inside an element like button
+						await driver.wait(until.elementLocated(By.xpath(`//*[text()='${button}' or @*='${button}']`)), 3 * 1000)
+							.click();
+					} catch (e3) {
+						try { // check for any element containing the string
+							await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${button}')]`)), 3 * 1000)
+								.click();
+						} catch (e4) {
+							await driver.findElement(By.xpath(`${button}`)).click();
+						}
+					}
+				}
+			}
+		});
+	await driver.wait(async () => driver.executeScript('return document.readyState')
+		.then(async readyState => readyState === 'complete'));
 }
 
 // selenium sleeps for a certain amount of time
