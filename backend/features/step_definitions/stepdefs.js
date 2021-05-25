@@ -350,7 +350,7 @@ When('I check the box {string}', async function checkBox(name) {
 			await driver.findElement(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)).click();
 		} catch (e2) { // default
 			try {
-				await driver.findElement(By.xpath(`//*[contains(text(),"${name}") or @*="${name}"]`)).click();
+				await driver.findElement(By.xpath(`//*[contains(text(),'${name}') or @*='${name}']`)).click();
 			} catch (e3) {
 				try {
 					await driver.findElement(By.xpath(`${name}`)).click();
@@ -384,7 +384,7 @@ When('Switch to the newly opened tab', async function switchToNewTab() {
 
 When('Switch to the tab number {string}', async function switchToSpecificTab(numberOfTabs) {
 	const world = this;
-	try{
+	try {
 		const chromeTabs = await driver.getAllWindowHandles();
 		const len = chromeTabs.length;
 		if (parseInt(numberOfTabs) === 1) {
@@ -394,7 +394,7 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(num
 			const tab = len - (parseInt(numberOfTabs) - 1);
 			await driver.switchTo().window(chromeTabs[tab]);
 		}
-	}catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -442,11 +442,11 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 // Checks if the current Website is the one it is supposed to be
 Then('So I will be navigated to the website: {string}', async function (url) {
 	const world = this;
-	try{
+	try {
 		await driver.getCurrentUrl().then(async (currentUrl) => {
 			expect(currentUrl).to.equal(url, 'Error');
 		});
-	}catch (e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -476,7 +476,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 				});
 		} catch (e2) {
 			try {
-				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@*, '${label}']`)), 3 * 1000)
+				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@*, '${label}')]`)), 3 * 1000)
 					.then(async (body) => {
 						const resp = await body.getText().then(text => text);
 						expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
@@ -516,64 +516,67 @@ Then('So I can see the text: {string}', async function (string) {
 });
 
 // Search a textfield in the html code and assert if it's empty
-Then('So I can´t see text in the textbox: {string}', async (label) => {
+Then('So I can\'t see text in the textbox: {string}', async (label) => {
 	const world = this;
 	await driver.sleep(500);
 	await driver.wait(async () => driver.executeScript('return document.readyState')
 		.then(async readyState => readyState === 'complete'));
 	try {
+		await driver.wait(until.elementLocated(By.xpath(`//*[@id='${label}']`)), 3 * 1000).then(async (body) => {
+			const resp = await body.getText().then(text => text);
+			expect(resp).to.equal('', 'Textfield does contain some Text');
+		});
+	} catch (e) {
 		try {
-			await driver.wait(until.elementLocated(By.xpath(`//*[@id='${label}']`)), 3 * 1000).then(async (body) => {
-				const resp = await body.getText().then(text => text);
-				expect('').to.equal(resp, 'Textfield does contain some Text');
-			});
-		} catch (e) {
+			await driver.wait(until.elementLocated(By.xpath(`//*[@*='${label}']`)), 3 * 1000)
+				.then(async (body) => {
+					const resp = await body.getText()
+						.then(text => text);
+					expect(resp).to.equal('', 'Textfield does contain some Text');
+				});
+		} catch (e2) {
 			try {
-				await driver.wait(until.elementLocated(By.xpath(`//*[@*='${label}']`)), 3 * 1000)
+				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@id, '${label}')]`)), 3 * 1000)
 					.then(async (body) => {
 						const resp = await body.getText()
 							.then(text => text);
-						expect('').to.equal(resp, 'Textfield does contain some Text');
+						expect(resp).to.equal('', 'Textfield does contain some Text');
 					});
-			} catch (e2) {
-				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@*, '${label}']`)), 3 * 1000)
-					.then(async (body) => {
-						const resp = await body.getText()
-							.then(text => text);
-						expect('').to.equal(resp, 'Textfield does contain some Text');
-					});
+			} catch (e) {
+				// await driver.takeScreenshot().then(async (buffer) => {
+				// 	world.attach(buffer, 'image/png');
+				// });
+				throw Error(e);
 			}
 		}
-		await driver.sleep(currentParameters.waitTime);
-	} catch (e) {
-		await driver.takeScreenshot().then(async (buffer) => {
-			world.attach(buffer, 'image/png');
-		});
-		throw Error(e);
 	}
+	// await driver.takeScreenshot().then(async (buffer) => {
+	// 	world.attach(buffer, 'image/png');
+	// });
+	await driver.sleep(currentParameters.waitTime);
 });
 
 
 Then('So a file with the name {string} is downloaded in this Directory {string}',
 	async function checkDownloadedFile(fileName, directory) {
 		const world = this;
-		try{
+		try {
 			const path = `${directory}\\${fileName}`; // Todo: pathingtool (path.normalize)serverhelper
 			await fs.promises.access(path, fs.constants.F_OK);
-		}catch(e){
+		} catch (e) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
 			throw Error(e);
 		}
 		await driver.sleep(currentParameters.waitTime);
-});
+	});
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(text) {
 	const world = this;
-	try{
-		//await driver.sleep(2000);
+	try {
+		// await driver.sleep(2000);
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 		await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
 			const cssBody = await body.getText().then(bodytext => bodytext);
@@ -582,7 +585,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
 			expect(bodyAll.toLowerCase()).to.not.include(text.toString().toLowerCase(), 'Error');
 		});
-	}catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
