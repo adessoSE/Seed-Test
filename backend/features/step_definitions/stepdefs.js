@@ -554,16 +554,23 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 });
 
 async function daisyLogout() {
+	await waitMs(200);
 	try {
-		await waitMs(500);
-		await clickButton('Zurück zum Portal');
-		await waitMs(500);
 		await clickButton('Abmelden');
 	} catch (e) {
-		await waitMs(500);
-		await clickButton('Abmelden');
+		try {
+			await clickButton('Zurück zum Portal');
+			await waitMs(200);
+			await clickButton('Abmelden');
+		} catch (e2) {
+			await clickButton('Abbrechen');
+			await waitMs(200);
+			await clickButton('Zurück zum Portal');
+			await waitMs(200);
+			await clickButton('Abmelden');
+		}
 	}
-	await waitMs(500);
+	await waitMs(200);
 	await driver.quit();
 }
 
