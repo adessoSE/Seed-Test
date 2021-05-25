@@ -18,18 +18,18 @@
                 <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
                 <div class="reportButtons">
                     <button  a
-                    class="actionButton" uk-tooltip title="Delete Step"
-                   (click)="removeStepFromBackground();">
+                    class="actionButton" uk-tooltip title="Delete Report"
+                   (click)="deleteReport(rep);">
                       <em class="material-icons">delete</em>
                     </button>
-                    <button a
-                    class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-                    (click)="copyBlock();">
+                    <button a *ngIf="rep.isSaved"
+                    class="actionButton" uk-tooltip title="Report is currently Saved"
+                    (click)="unsaveReport(rep);">
                       <em class="material-icons">star</em>
                     </button>
-                    <button a
-                    class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-                    (click)="copyBlock();">
+                    <button a *ngIf="!rep.isSaved"
+                    class="actionButton" uk-tooltip title="Report is currently not Saved"
+                    (click)="saveReport(rep);">
                       <em class="material-icons">star_border</em>
                     </button>
                 </div>
@@ -46,18 +46,18 @@
                     <a [class.notPassed]="!reps.testStatus" [class.passed]="reps.testStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{reportTime(reps.reportTime)}}</a>
                     <div class="reportButtons">
                         <button  a
-                        class="actionButton" uk-tooltip title="Delete Step"
-                       (click)="removeStepFromBackground();">
+                        class="actionButton" uk-tooltip title="Delete Report"
+                       (click)="deleteReport(reps);">
                           <em class="material-icons">delete</em>
                         </button>
-                        <button a
-                        class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-                        (click)="copyBlock();">
+                        <button a *ngIf="reps.isSaved"
+                        class="actionButton" uk-tooltip title="Report is currently Saved"
+                        (click)="unsaveReport(reps);">
                           <em class="material-icons">star</em>
                         </button>
-                        <button a
-                        class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-                        (click)="copyBlock();">
+                        <button a *ngIf="!reps.isSaved"
+                        class="actionButton" uk-tooltip title="Report is currently not Saved"
+                        (click)="saveReport(reps);">
                           <em class="material-icons">star_border</em>
                         </button>
                     </div>

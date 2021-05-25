@@ -431,6 +431,34 @@ export class ApiService {
             }));
     }
 
+    public deleteReport(reportId): Observable<any> {
+        console.log('delete reportId', reportId)
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .delete<any>(this.apiServer + '/run/report/' + reportId, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+            }));
+    }
+
+    public saveReport(reportId): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .get<any>(this.apiServer + '/run/saveReport/' + reportId, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+            }));
+    }
+
+    public unsaveReport(reportId): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .get<any>(this.apiServer + '/run/unsaveReport/' + reportId, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+            }));
+    }
+
     public deleteBackground(storyID: any, storySource: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
 

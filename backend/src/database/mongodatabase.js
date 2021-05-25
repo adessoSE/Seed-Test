@@ -759,13 +759,30 @@ async function getTestReports(storyId){
   }
 }
 
-async function deleteTestReport(testReportId){
+async function deleteReport(testReportId){
   let db;
   try {
     db = await connectDb()
     dbo = db.db(dbName)
     let collection = await dbo.collection(testreportCollection)
     let result = await collection.deleteOne({_id: ObjectId(testReportId)})
+    db.close();
+    return result;
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getTestReports", e)
+  }
+}
+
+async function setIsSavedTestReport(testReportId, isSaved){
+  let db;
+  try {
+    db = await connectDb()
+    dbo = db.db(dbName)
+    let collection = await dbo.collection(testreportCollection)
+    report = await collection.findOne({_id: ObjectId(testReportId)})
+    let updatedReport = report
+    updatedReport.isSaved = isSaved
+    let result = await collection.findOneAndReplace({_id: ObjectId(testReportId)}, updatedReport, { returnOriginal: false })
     db.close();
     return result;
   } catch (e) {
@@ -1074,7 +1091,9 @@ async function removeFromWorkgroup(id, user) {
 }
 
 module.exports = {
-  deleteTestReport,
+
+  setIsSavedTestReport,
+  deleteReport,
   getTestReports,
   getReport,
   uploadReport,

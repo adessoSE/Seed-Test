@@ -8,4 +8,5 @@ export interface Report {
     mode: string;
     scenarioId?: any;
     testStatus: boolean;
+    isSaved?: boolean;
 }

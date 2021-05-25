@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helper = require('../serverHelper');
-
+const mongo = require('../database/mongodatabase');
 const router = express.Router();
 const stories = [];
 // This router is used for accessing Cucumber/Selenium Reports
@@ -47,8 +47,47 @@ router.get('/reportHistory/:storyId', async (req, res) => {
 		}
 	});
 	let reportContainer = {storyReports, scenarioReports}
-	console.log('reportContainer', reportContainer)
+	//console.log('reportContainer', reportContainer)
 	res.status(200).json(reportContainer);
+});
+
+//delete a report
+router.delete('/report/:reportId', async (req, res) => {
+	try {
+		// TODO: Authenticate user
+		console.log('params', req.params.reportId)
+		const result = await mongo.deleteReport(req.params.reportId);
+		res.status(200).json(result);
+	} catch (error) {
+		console.log('error in delete report', error)
+		res.sendStatus(401);
+	}
+});
+
+//save Report
+router.get('/saveReport/:reportId', async (req, res) => {
+	try {
+		// TODO: Authenticate user
+		const result = await mongo.setIsSavedTestReport(req.params.reportId, true);
+		res.status(200).json(result);
+	} catch (error) {
+		console.log('error in saveReport', error)
+
+		res.sendStatus(401);
+	}
+});
+
+//unsave Report
+router.get('/unsaveReport/:reportId', async (req, res) => {
+	try {
+		// TODO: Authenticate user
+		const result = await mongo.setIsSavedTestReport(req.params.reportId, false);
+		res.status(200).json(result);
+	} catch (error) {
+		console.log('error in unsaveReport', error)
+
+		res.sendStatus(401);
+	}
 });
 
 module.exports = router;

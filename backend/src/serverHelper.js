@@ -193,7 +193,6 @@ function execReport2(req, res, stories, mode, story, callback) {
 		}
 	}else{
 		parameters = {scenarios: []}
-		story.scenarios
 		story.scenarios.forEach(scenario => {
 			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
 			if (!scenario.browser) scenario.browser = 'chrome'
@@ -658,22 +657,26 @@ function runReport(req, res, stories, mode, parameters) {
 }
 
 async function deleteOldReports(storyId){
-	let keepReportAmount = 10;
+	let keepReportAmount = 1;
 	let historyStory = await getReportHistory(storyId);
 	let historyScenario = JSON.parse(JSON.stringify(historyStory))
 	historyStory = historyStory.filter(element =>  element.mode =='feature')
 	historyScenario = historyScenario.filter(element => element.mode =='scenario')
 
 	historyStory.sort((a, b) => a.reportTime < b.reportTime)
+	historyStory = historyStory.filter((elem) => !elem.isSaved)
 	historyStory.splice(0, keepReportAmount)
 	historyStory.forEach(element => {
-		mongo.deleteTestReport(element._id)
+		mongo.deleteReport(element._id)
 	})
 
 	historyScenario.sort((a, b) => a.reportTime < b.reportTime)
+	console.log('historyScenario pre', historyScenario)
+	historyScenario = historyScenario.filter((elem) => !elem.isSaved)
+	console.log('historyScenario post', historyScenario)
 	historyScenario.splice(0, keepReportAmount)
 	historyScenario.forEach(element => {
-		mongo.deleteTestReport(element._id)
+		mongo.deleteReport(element._id)
 	})
 }
 
