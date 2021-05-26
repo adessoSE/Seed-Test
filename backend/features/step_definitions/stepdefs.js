@@ -51,12 +51,12 @@ Given('As a {string}', async function (string) {
 
 Given('I am on the website: {string}', async function getUrl(url) {
 	const world = this;
-	try{
+	try {
 		await driver.get(url);
 		await driver.getCurrentUrl().then(async (currentUrl) => {
 			// expect(currentUrl).to.equal(url, 'Error');
 		});
-	} catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -67,9 +67,9 @@ Given('I am on the website: {string}', async function getUrl(url) {
 
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
 	const world = this;
-	try{
+	try {
 		await driver.manage().addCookie({ name, value });
-	} catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -80,9 +80,9 @@ Given('I add a cookie with the name {string} and value {string}', async function
 
 Given('I remove a cookie with the name {string}', async function removeCookie(name) {
 	const world = this;
-	try{
+	try {
 		await driver.manage().deleteCookie(name);
-	} catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -93,11 +93,11 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 
 Given('I take a screenshot', async function() {
 	const world = this;
-	try{
+	try {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
-	} catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -111,12 +111,12 @@ Given('I take a screenshot', async function() {
 // driver navigates to the Website
 When('I go to the website: {string}', async function getUrl(url) {
 	const world = this;
-	try{
+	try {
 		await driver.get(url);
 		await driver.getCurrentUrl().then(async (currentUrl) => {
 			// expect(currentUrl).to.equal(url, 'Error');
 		});
-	}catch (e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -168,9 +168,9 @@ When('I click the button: {string}', async function clickButton(button) {
 // selenium sleeps for a certain amount of time
 When('The site should wait for {string} milliseconds', async function (ms) {
 	const world = this;
-	try{
-		await driver.sleep(parseInt(ms));
-	}catch (e){
+	try {
+		await driver.sleep(parseInt(ms,10));
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -283,9 +283,9 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 // Dropdown via XPath:
 When('I select the option {string}', async function selectviaXPath(dropd) {
 	const world = this;
-	try{
+	try {
 		await driver.findElement(By.xpath(`${dropd}`)).click();
-	}catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -369,10 +369,10 @@ When('I check the box {string}', async function checkBox(name) {
 
 When('Switch to the newly opened tab', async function switchToNewTab() {
 	const world = this;
-	try{
+	try {
 		const tabs = await driver.getAllWindowHandles();
 		await driver.switchTo().window(tabs[1]);
-	}catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -387,11 +387,11 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(num
 	try {
 		const chromeTabs = await driver.getAllWindowHandles();
 		const len = chromeTabs.length;
-		if (parseInt(numberOfTabs) === 1) {
+		if (parseInt(numberOfTabs, 10) === 1) {
 			console.log('switchTo: 1st tab');
 			await driver.switchTo().window(chromeTabs[0]);
 		} else {
-			const tab = len - (parseInt(numberOfTabs) - 1);
+			const tab = len - (parseInt(numberOfTabs, 10) - 1);
 			await driver.switchTo().window(chromeTabs[tab]);
 		}
 	} catch (e) {
@@ -406,10 +406,10 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(num
 // TODO: delete this following step (also in DB), once every branch has the changes
 When('I switch to the next tab', async function switchToNewTab() {
 	const world = this;
-	try{
+	try {
 		const tabs = await driver.getAllWindowHandles();
 		await driver.switchTo().window(tabs[1]);
-	}catch(e){
+	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -595,24 +595,25 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 });
 
 async function daisyLogout() {
-	await waitMs(200);
+	await driver.sleep(200);
 	try {
 		await clickButton('Abmelden');
+		await driver.sleep(200);
 	} catch (e) {
 		try {
 			await clickButton('Zurück zum Portal');
-			await waitMs(200);
+			await driver.sleep(200);
 			await clickButton('Abmelden');
+			await driver.sleep(200);
 		} catch (e2) {
 			await clickButton('Abbrechen');
-			await waitMs(200);
+			await driver.sleep(200);
 			await clickButton('Zurück zum Portal');
-			await waitMs(200);
+			await driver.sleep(200);
 			await clickButton('Abmelden');
+			await driver.sleep(200);
 		}
 	}
-	await waitMs(200);
-	await driver.quit();
 }
 
 // Closes the webdriver (Browser)
@@ -625,8 +626,12 @@ After(async () => {
 		console.log('Trying DaisyAutoLogout');
 		try {
 			await daisyLogout();
+			await driver.sleep(500);
+			await driver.quit();
 		} catch (e) {
 			console.log('Failed DaisyAutoLogout');
+			await driver.sleep(500);
+			await driver.quit();
 		}
 	}
 	scenarioIndex += 1;
@@ -648,20 +653,16 @@ async function clickButton(button) {
 			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
 				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
 			else try {	// first check for the exact id
-				await driver.wait(until.elementLocated(By.xpath(`//*[@id='${button}']`)), 3 * 1000)
-					.click();
+				await driver.findElement(By.xpath(`//*[@id='${button}']`)).click();
 			} catch (e) {
 				try {	// check for an id with the substring using contains
-					await driver.wait(until.elementLocated(By.xpath(`//*[contains(@id,'${button}')]`)), 3 * 1000)
-						.click();
+					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
 				} catch (e2) {
 					try { // text() looks for a text node (inside an element like button
-						await driver.wait(until.elementLocated(By.xpath(`//*[text()='${button}' or @*='${button}']`)), 3 * 1000)
-							.click();
+						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
 					} catch (e3) {
 						try { // check for any element containing the string
-							await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${button}')]`)), 3 * 1000)
-								.click();
+							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
 						} catch (e4) {
 							await driver.findElement(By.xpath(`${button}`)).click();
 						}
