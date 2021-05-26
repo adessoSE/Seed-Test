@@ -425,9 +425,9 @@ async function getReportHistory(storyId){
 	return await mongo.getTestReports(storyId);
 }
 
-async function uploadReport(report, storyId) {
+async function uploadReport(report, storyId, scenarioID) {
 	await mongo.uploadReport(report);
-	await deleteOldReports(storyId);
+	await deleteOldReports(storyId, scenarioID);
 }
 
 function testPassed(failed, passed) {
@@ -629,7 +629,7 @@ function runReport(req, res, stories, mode, parameters) {
 					reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 				};
 
-				uploadReport(report, story._id);
+				uploadReport(report, story._id, scenarioID);
 				if (req.params.storySource === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
@@ -656,8 +656,8 @@ function runReport(req, res, stories, mode, parameters) {
 	});
 }
 
-async function deleteOldReports(storyId){
-	let keepReportAmount = 1;
+async function deleteOldReports(storyId, scenarioID){
+	let keepReportAmount = process.env.MAX_SAVED_REPORTS;
 	let historyStory = await getReportHistory(storyId);
 	let historyScenario = JSON.parse(JSON.stringify(historyStory))
 	historyStory = historyStory.filter(element =>  element.mode =='feature')
@@ -671,9 +671,7 @@ async function deleteOldReports(storyId){
 	})
 
 	historyScenario.sort((a, b) => a.reportTime < b.reportTime)
-	console.log('historyScenario pre', historyScenario)
-	historyScenario = historyScenario.filter((elem) => !elem.isSaved)
-	console.log('historyScenario post', historyScenario)
+	historyScenario = historyScenario.filter((elem) => !elem.isSaved && parseInt(elem.scenarioId) == scenarioID)
 	historyScenario.splice(0, keepReportAmount)
 	historyScenario.forEach(element => {
 		mongo.deleteReport(element._id)
