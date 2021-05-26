@@ -486,10 +486,10 @@ export class ApiService {
         if (scenarioID) {
             return this.http
                 .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
-                    responseType: 'text', withCredentials: true, headers: head});
+                     withCredentials: true, headers: head});
         }
         return this.http
-            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true, headers: head});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, {withCredentials: true, headers: head});
     }
 
     public createNewCustomStory(repo: RepositoryContainer, story){

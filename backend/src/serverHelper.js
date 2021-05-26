@@ -426,8 +426,9 @@ async function getReportHistory(storyId){
 }
 
 async function uploadReport(report, storyId, scenarioID) {
-	await mongo.uploadReport(report);
+	let uploadedReport = await mongo.uploadReport(report);
 	await deleteOldReports(storyId, scenarioID);
+	return uploadedReport;
 }
 
 function testPassed(failed, passed) {
@@ -580,11 +581,12 @@ function runReport(req, res, stories, mode, parameters) {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 		const reportOptions = setOptions(reportName);
 		reporter.generate(reportOptions);
-		res.sendFile(`/${reportName}.html`, { root: rootPath });
+
+		//res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		let testStatus = false;
 		try {
-			fs.readFile(`./features/${reportName}.json`, 'utf8', (err, data) => {
+			fs.readFile(`./features/${reportName}.json`, 'utf8', async (err, data) => {
 				const json = JSON.parse(data);
 				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
 
@@ -629,7 +631,10 @@ function runReport(req, res, stories, mode, parameters) {
 					reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 				};
 
-				uploadReport(report, story._id, scenarioID);
+				let uploadedReport = await uploadReport(report, story._id, scenarioID);
+				fs.readFile(`./features/${reportName}.html`, 'utf8',(err, data) => {
+					res.json({htmlFile: data, reportId: uploadedReport.ops[0]._id})
+				})
 				if (req.params.storySource === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);

@@ -52,6 +52,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   reportHistoryStory = [];
   reportHistoryScenario = [];
   daisyVersion= false;
+  reportIsSaved = false;
+  reportId;
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
@@ -562,8 +564,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                         //waitTime: defaultWaitTimeInput,
                         //daisyAutoLogout: daisyAutoLogout
                     })
-                .subscribe(resp => {
-                    iframe.srcdoc = resp;
+                .subscribe((resp: any) => {
+                    this.reportId = resp.reportId;
+                    iframe.srcdoc = resp.htmlFile;
                     // console.log("This is the response: " + resp);
                     this.htmlReport = resp;
                     this.testDone = true;
@@ -629,5 +632,23 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     })
     return sortedStepTypes
  }
+
+ unsaveReport(reportId){
+    this.reportIsSaved = false;
+    return new Promise<void>((resolve, reject) => {this.apiService
+      .unsaveReport(reportId)
+      .subscribe(_resp => {
+          resolve()
+      });})  
+  }
+
+  saveReport(reportId){
+    this.reportIsSaved = true;
+    return new Promise<void>((resolve, reject) => {this.apiService
+      .saveReport(reportId)
+      .subscribe(_resp => {
+          resolve()
+      });})
+  }
 
 }
