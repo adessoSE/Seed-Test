@@ -516,7 +516,7 @@ Then('So I can see the text: {string}', async function (string) {
 });
 
 // Search a textfield in the html code and assert if it's empty
-Then('So I can\'t see text in the textbox: {string}', async (label) => {
+Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	const world = this;
 	await driver.sleep(500);
 	await driver.wait(async () => driver.executeScript('return document.readyState')
@@ -543,16 +543,16 @@ Then('So I can\'t see text in the textbox: {string}', async (label) => {
 						expect(resp).to.equal('', 'Textfield does contain some Text');
 					});
 			} catch (e) {
-				// await driver.takeScreenshot().then(async (buffer) => {
-				// 	world.attach(buffer, 'image/png');
-				// });
+				await driver.takeScreenshot().then(async (buffer) => {
+					world.attach(buffer, 'image/png');
+				});
 				throw Error(e);
 			}
 		}
 	}
-	// await driver.takeScreenshot().then(async (buffer) => {
-	// 	world.attach(buffer, 'image/png');
-	// });
+	await driver.takeScreenshot().then(async (buffer) => {
+		world.attach(buffer, 'image/png');
+	});
 	await driver.sleep(currentParameters.waitTime);
 });
 
