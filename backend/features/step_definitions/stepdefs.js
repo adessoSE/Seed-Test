@@ -32,7 +32,7 @@ let scenarioIndex = 0;
 setWorldConstructor(CustomWorld);
 
 // Cucumber default timer for timeout
-setDefaultTimeout(20 * 1000);
+setDefaultTimeout(30 * 1000);
 
 
 Before(async function () {
