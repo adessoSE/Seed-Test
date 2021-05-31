@@ -84,6 +84,7 @@ router.patch('/reset', async (req, res) => {
 // login user
 router.post('/login', (req, res, next) => {
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
+	req.body.email = req.body.email.toLowerCase();
 	try {
 		passport.authenticate('normal-local', function (error, user, info) {
 			if (error) {
@@ -154,6 +155,7 @@ router.post('/mergeGithub', async (req, res) => {
 
 // registers user
 router.post('/register', async (req, res) => {
+	req.body.email = req.body.email.toLowerCase();
 	req.body.password = bcrypt.hashSync(req.body.password, salt);
 	try {
 		const user = await mongo.registerUser(req.body);
