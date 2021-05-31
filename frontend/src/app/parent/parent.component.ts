@@ -16,7 +16,7 @@ export class ParentComponent implements OnInit {
   selectedStory: Story;
   selectedScenario: Scenario;
   formtosubmit: [""];
-  storyEditorActive = true;
+  storyEditorActive = false;
 
   constructor(public apiService: ApiService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {

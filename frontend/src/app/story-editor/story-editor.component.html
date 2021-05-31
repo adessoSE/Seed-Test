@@ -1,5 +1,4 @@
 <br>
-<br>
 <div class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
@@ -175,7 +174,7 @@
     <div class="storyInfoContainer">
       <div class="storyInfoLeft">
         <div class="dropdown">
-          <button class="button" (click)="openReportHistory()">Latest Story Executions:</button>
+          <button class="button" (click)="openReportHistory()">Latest Story Executions</button>
         </div>
       </div>
 
