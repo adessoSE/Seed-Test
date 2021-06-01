@@ -484,11 +484,10 @@ export class ApiService {
         let timeout = 600000;
         if (scenarioID) {
             return this.http
-                .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
-                    responseType: 'text', withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
+                .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
         }
         return this.http
-            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
     public createNewCustomStory(repo: RepositoryContainer, story){

@@ -35,6 +35,12 @@
     padding: 5px;
  }
 
+.button > em{
+  color: var(--white);
+  font-size: 18px;
+  vertical-align: text-top;
+}
+
  .storyInfoCenter{
     display: flex;
     justify-content: flex-end;
