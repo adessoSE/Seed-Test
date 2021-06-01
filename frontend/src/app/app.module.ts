@@ -18,7 +18,7 @@ import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
 import {EditModeDirective} from './directives/edit-mode.directive';
 import {EditableOnEnterDirective} from './directives/edit-on-enter.directive';
-import {FocusableDirective} from './example-table/focusable.directive';
+import {FocusableDirective} from './editable/focusable.directive';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { FeedbackComponent } from './feedback/feedback.component';
