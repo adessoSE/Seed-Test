@@ -58,14 +58,14 @@
     <h3>File</h3>
 </p>
 <p class="comment">
-    <code>src/app/custom-toast.ts</code>
+    <code>src/app/runSave-toast.ts</code>
 </p>
 
     <p class="comment">
         <h3>Description</h3>
     </p>
     <p class="comment">
-        <p>Component of the Toasts</p>
+        <p>Component of the run save toasts</p>
 
     </p>
 
@@ -243,7 +243,7 @@
             <tr>
                 <td class="col-md-4">
                     <div class="io-line">Defined in <a href="" data-line="141"
-                            class="link-to-prism">src/app/custom-toast.ts:141</a></div>
+                            class="link-to-prism">src/app/runSave-toast.ts:141</a></div>
                 </td>
             </tr>
 
@@ -315,7 +315,7 @@
             <tr>
                 <td class="col-md-4">
                     <div class="io-line">Defined in <a href="" data-line="152"
-                            class="link-to-prism">src/app/custom-toast.ts:152</a></div>
+                            class="link-to-prism">src/app/runSave-toast.ts:152</a></div>
                 </td>
             </tr>
 
@@ -395,7 +395,7 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="123" class="link-to-prism">src/app/custom-toast.ts:123</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="123" class="link-to-prism">src/app/runSave-toast.ts:123</a></div>
                             </td>
                         </tr>
 
@@ -433,7 +433,7 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="118" class="link-to-prism">src/app/custom-toast.ts:118</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="118" class="link-to-prism">src/app/runSave-toast.ts:118</a></div>
                             </td>
                         </tr>
 
@@ -465,7 +465,7 @@ import { Toast, ToastrService, ToastPackage } from &#x27;ngx-toastr&#x27;;
 import { ApiService } from &#x27;./Services/api.service&#x27;;
   
   /**
-   * Component of the Toasts
+   * Component of the run save toasts
    */
   @Component({
     selector: &#x27;[pink-toast-component]&#x27;,
@@ -653,7 +653,7 @@ import { ApiService } from &#x27;./Services/api.service&#x27;;
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
         var COMPONENT_TEMPLATE = '<div><div class="row" [style.display]="state.value === \'inactive\' ? \'none\' : \'\'">  <div class="col-9">    <div *ngIf="title" [class]="options.titleClass" [attr.aria-label]="title">      {{ title }}    </div>    <div *ngIf="message && options.enableHtml" role="alert" aria-live="polite"      [class]="options.messageClass" [innerHTML]="message">    </div>    <div *ngIf="message && !options.enableHtml" role="alert" aria-live="polite"      [class]="options.messageClass" [attr.aria-label]="message">      {{ message }}    </div>  </div>  <div class="col-9">    <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="saveAndRunTest($event)">      {{ saveRunString }}    </a>    <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="runTest($event)">        {{ runString }}    </a>    <a *ngIf="options.closeButton" (click)="remove()" class="btn btn-pink btn-sm">      close    </a>  </div></div><div *ngIf="options.progressBar">  <div class="toast-progress" [style.width]="width + \'%\'"></div></div></div>'
-    var COMPONENTS = [{'name': 'AccountManagementComponent', 'selector': 'app-account-management'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConfirmResetPasswordComponent', 'selector': 'app-confirm-reset-password'},{'name': 'DeleteScenarioToast', 'selector': '[pink-toast-component]'},{'name': 'EditableComponent', 'selector': 'editable'},{'name': 'ExampleTableComponent', 'selector': 'app-example-table'},{'name': 'FeedbackComponent', 'selector': 'app-feedback'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'ModalsComponent', 'selector': 'app-modals'},{'name': 'ParentComponent', 'selector': 'app-parent'},{'name': 'RegistrationComponent', 'selector': 'app-registration'},{'name': 'ReportComponent', 'selector': 'app-report'},{'name': 'ReportHistoryComponent', 'selector': 'app-report-history'},{'name': 'ResetPasswordComponent', 'selector': 'app-reset-password'},{'name': 'ScenarioEditorComponent', 'selector': 'app-scenario-editor'},{'name': 'StoriesBarComponent', 'selector': 'app-stories-bar'},{'name': 'StoryEditorComponent', 'selector': 'app-story-editor'},{'name': 'TermsComponent', 'selector': 'app-terms'},{'name': 'TestAccountComponent', 'selector': 'app-test-account'}];
+    var COMPONENTS = [{'name': 'AccountManagementComponent', 'selector': 'app-account-management'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConfirmResetPasswordComponent', 'selector': 'app-confirm-reset-password'},{'name': 'DeleteScenarioToast', 'selector': '[pink-toast-component]'},{'name': 'EditableComponent', 'selector': 'editable'},{'name': 'ExampleTableComponent', 'selector': 'app-example-table'},{'name': 'FeedbackComponent', 'selector': 'app-feedback'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'ModalsComponent', 'selector': 'app-modals'},{'name': 'ParentComponent', 'selector': 'app-parent'},{'name': 'RegistrationComponent', 'selector': 'app-registration'},{'name': 'ReportComponent', 'selector': 'app-report'},{'name': 'ReportHistoryComponent', 'selector': 'app-report-history'},{'name': 'ResetPasswordComponent', 'selector': 'app-reset-password'},{'name': 'RunTestToast', 'selector': '[pink-toast-component]'},{'name': 'ScenarioEditorComponent', 'selector': 'app-scenario-editor'},{'name': 'StoriesBarComponent', 'selector': 'app-stories-bar'},{'name': 'StoryEditorComponent', 'selector': 'app-story-editor'},{'name': 'TermsComponent', 'selector': 'app-terms'},{'name': 'TestAccountComponent', 'selector': 'app-test-account'}];
     var DIRECTIVES = [{'name': 'EditableOnEnterDirective', 'selector': '[editableOnEnter]'},{'name': 'EditModeDirective', 'selector': '[editMode]'},{'name': 'FocusableDirective', 'selector': '[focusable]'},{'name': 'PasswordConfirmedValidatorDirective', 'selector': '[appPasswordConfirmed]'},{'name': 'ViewModeDirective', 'selector': '[viewMode]'}];
     var ACTUAL_COMPONENT = {'name': 'RunTestToast'};
 </script>

@@ -117,7 +117,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
     async login(form: NgForm) {
         this.isLoadingRepositories = true;
         this.error = undefined;
-        const response = await this.apiService.loginUser(form.value.email, form.value.password, form.value.stayLoggedIn).toPromise()
+        let user ={
+            email: form.value.email,
+            password: form.value.password,
+            stayLoggedIn: form.value.stayLoggedIn
+        };
+        const response = await this.apiService.loginUser(user).toPromise()
         if (response.status === 'error') {
             this.isLoadingRepositories = false;
             this.error = response.message;

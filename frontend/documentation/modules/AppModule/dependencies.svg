@@ -28,13 +28,13 @@
 <title>cluster_AppModule_declarations</title>
 <polygon fill="none" stroke="black" points="148,-78 148,-130 4223,-130 4223,-78 148,-78"/>
 </g>
-<g id="clust30" class="cluster">
-<title>cluster_AppModule_bootstrap</title>
-<polygon fill="none" stroke="black" points="1956,-208 1956,-260 2080,-260 2080,-208 1956,-208"/>
-</g>
 <g id="clust31" class="cluster">
 <title>cluster_AppModule_providers</title>
 <polygon fill="none" stroke="black" points="16,-78 16,-130 140,-130 140,-78 16,-78"/>
+</g>
+<g id="clust30" class="cluster">
+<title>cluster_AppModule_bootstrap</title>
+<polygon fill="none" stroke="black" points="1956,-208 1956,-260 2080,-260 2080,-208 1956,-208"/>
 </g>
 <!-- AccountManagementComponent -->
 <g id="node1" class="node">

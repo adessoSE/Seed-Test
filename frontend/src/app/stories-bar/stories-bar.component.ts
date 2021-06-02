@@ -13,7 +13,6 @@ import { ModalsComponent } from '../modals/modals.component';
   styleUrls: ['./stories-bar.component.css']
 })
 export class StoriesBarComponent implements OnInit {
-
   /**
    * Stories in the project
    */
