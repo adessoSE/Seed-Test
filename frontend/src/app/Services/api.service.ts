@@ -219,7 +219,7 @@ export class ApiService {
      * @param stayLoggedIn 
      * @returns 
      */
-    loginUser(user): Observable<string[]> {
+    loginUser(user): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/login';
 
