@@ -10,8 +10,7 @@ import { Directive, TemplateRef } from '@angular/core';
 
 export class EditModeDirective {
   /**
-   * Constructor
-   * @param tpl
+   * @ignore
    */
   constructor(public tpl: TemplateRef<any>) { }
 }

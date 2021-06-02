@@ -6,11 +6,13 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-  import { Component} from '@angular/core';
-  
-  import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
+import { Component} from '@angular/core';  
+import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
   
+  /**
+   * Component of the run save toasts
+   */
   @Component({
     selector: '[pink-toast-component]',
     //styles: [`
@@ -107,12 +109,23 @@ import { ApiService } from './Services/api.service';
     ],
     preserveWhitespaces: false,
   })
+
   export class RunTestToast extends Toast {
-    // used for demo purposes
+    
+    /**
+     * Name for the save run button
+     */
     saveRunString = 'Save and Run';
+
+    /**
+     * Name for the run test button
+     */
     runString = 'Run Test'
     // constructor is only necessary when not using AoT
 
+    /**
+     * @ignore
+     */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
@@ -121,14 +134,21 @@ import { ApiService } from './Services/api.service';
       super(toastrService, toastPackage);
     }
   
+    /**
+     * Run test without saving it
+     * @param event 
+     */
     runTest(event: Event){
-        console.log('Run Test')
         event.stopPropagation();
         this.apiService.runSaveOption('run')
         this.remove();
 
     }
 
+    /**
+     * Saves the scenario and then runs the test
+     * @param event 
+     */
     saveAndRunTest(event: Event){
         console.log('Save and Run Test')
         event.stopPropagation();

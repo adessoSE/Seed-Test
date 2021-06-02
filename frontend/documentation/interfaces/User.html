@@ -64,6 +64,13 @@
             <code>src/app/model/User.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of a user</p>
+
+            </p>
 
 
         <section>
@@ -131,6 +138,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Object id of the user in the database</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -160,6 +173,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Email of the user</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -189,6 +208,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Github object of the user if it is connected to github</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -218,6 +243,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Jira object of the user if it is connected to jira</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -247,6 +278,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Password of the user usually hashed</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -255,17 +292,58 @@
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface User {
+    /**
+     * Object id of the user in the database
+     */
     _id: any;
+
+    /**
+     * Email of the user
+     */
     email: string;
+
+    /**
+     * Password of the user usually hashed
+     */
     password: string;
+
+    /**
+     * Github object of the user if it is connected to github
+     */
     github: {
+        /** 
+         * Token to access the github data of the user
+        */
         githubToken: string;
+
+        /**
+         * Name of the user in github
+         */
         githubAccountName: string;
+
+        /** 
+         * Last used github repository
+        */
         githubRepo: string;
     };
+
+    /**
+     * Jira object of the user if it is connected to jira
+     */
     jira: {
+        /**
+         * Account name of the user
+         */
         AccountName: string;
+
+        /**
+         * Password of the user usually hashed
+         */
         Password: string;
+
+        /**
+         * Address of the jira host
+         */
         Host: string;
     };
 }

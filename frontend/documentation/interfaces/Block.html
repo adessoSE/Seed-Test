@@ -64,6 +64,13 @@
             <code>src/app/model/Block.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of a block</p>
+
+            </p>
 
 
         <section>
@@ -148,6 +155,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Object id of the block from the database</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -182,6 +195,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Name of the block</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -216,6 +235,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Creator of the block</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -250,6 +275,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Name of the repository which the block belongs to</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -284,6 +315,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Id of the repository which the block belongs to</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -318,6 +355,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Source of the repository the block belongs to</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -347,6 +390,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Step definitions included in the block</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -356,13 +405,43 @@
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { StepDefinition } from &quot;./StepDefinition&quot;;
 
+/**
+ * Interface of a block
+ */
 export interface Block {
+    /**
+     * Object id of the block from the database
+     */
     _id?: any;
+
+    /**
+     * Creator of the block
+     */
     owner?: any;
+
+    /**
+     * Name of the block
+     */
     name?: string;
+
+    /**
+     * Step definitions included in the block
+     */
     stepDefinitions: StepDefinition;
+
+    /**
+     * Id of the repository which the block belongs to
+     */
     repositoryId?: string;
+
+    /**
+     * Name of the repository which the block belongs to
+     */
     repository?: string;
+
+    /**
+     * Source of the repository the block belongs to
+     */
     source?: string;
 }</code></pre>
     </div>

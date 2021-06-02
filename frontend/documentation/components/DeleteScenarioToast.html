@@ -61,6 +61,13 @@
     <code>src/app/deleteScenario-toast.ts</code>
 </p>
 
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>Component of the Delete Scenario toasts</p>
+
+    </p>
 
     <p class="comment">
         <h3>Extends</h3>
@@ -223,12 +230,14 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="117" class="link-to-prism">src/app/deleteScenario-toast.ts:117</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="125" class="link-to-prism">src/app/deleteScenario-toast.ts:125</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Constructor</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -237,6 +246,7 @@
                                                 <td>Name</td>
                                                     <td>Type</td>
                                                 <td>Optional</td>
+                                                    <td>Description</td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -251,6 +261,8 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>toastPackage</td>
@@ -263,6 +275,8 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>apiService</td>
@@ -275,6 +289,10 @@
                                                             No
                                                     </td>
                                                     
+                                                        <td>
+                                                                <code><p>constructor is only necessary when not using AoT</p>
+</code>
+                                                        </td>
                                                 </tr>
                                         </tbody>
                                     </table>
@@ -316,14 +334,16 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="129"
-                            class="link-to-prism">src/app/deleteScenario-toast.ts:129</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="146"
+                            class="link-to-prism">src/app/deleteScenario-toast.ts:146</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Creates a toast and deltes the scenario</p>
+</div>
 
                     <div class="io-description">
                         <b>Parameters :</b>
@@ -391,10 +411,15 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="124" class="link-to-prism">src/app/deleteScenario-toast.ts:124</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="137" class="link-to-prism">src/app/deleteScenario-toast.ts:137</a></div>
                             </td>
                         </tr>
 
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description">constructor is only necessary when not using AoT</div>
+                    </td>
+                </tr>
 
             </tbody>
         </table>
@@ -423,10 +448,16 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="117" class="link-to-prism">src/app/deleteScenario-toast.ts:117</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="125" class="link-to-prism">src/app/deleteScenario-toast.ts:125</a></div>
                             </td>
                         </tr>
 
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Name of the cancel button</p>
+</div>
+                    </td>
+                </tr>
 
             </tbody>
         </table>
@@ -455,10 +486,16 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="116" class="link-to-prism">src/app/deleteScenario-toast.ts:116</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="121" class="link-to-prism">src/app/deleteScenario-toast.ts:121</a></div>
                             </td>
                         </tr>
 
+                <tr>
+                    <td class="col-md-4">
+                        <div class="io-description"><p>Name of the delete button</p>
+</div>
+                    </td>
+                </tr>
 
             </tbody>
         </table>
@@ -483,7 +520,7 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="123" class="link-to-prism">src/app/deleteScenario-toast.ts:123</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="136" class="link-to-prism">src/app/deleteScenario-toast.ts:136</a></div>
                             </td>
                         </tr>
 
@@ -504,11 +541,13 @@
     transition,
     trigger
   } from &#x27;@angular/animations&#x27;;
-  import { Component} from &#x27;@angular/core&#x27;;
-  
-  import { Toast, ToastrService, ToastPackage } from &#x27;ngx-toastr&#x27;;
+import { Component} from &#x27;@angular/core&#x27;;
+import { Toast, ToastrService, ToastPackage } from &#x27;ngx-toastr&#x27;;
 import { ApiService } from &#x27;./Services/api.service&#x27;;
   
+/**
+ * Component of the Delete Scenario toasts
+ */
   @Component({
     selector: &#x27;[pink-toast-component]&#x27;,
     //styles: [&#x60;
@@ -610,12 +649,23 @@ import { ApiService } from &#x27;./Services/api.service&#x27;;
     preserveWhitespaces: false,
   })
   export class DeleteScenarioToast extends Toast {
-    // used for demo purposes
+    
+    /**
+     * Name of the delete button
+     */
     deleteString &#x3D; &#x27;Delete&#x27;;
+    /**
+     * Name of the cancel button
+     */
     cancelString &#x3D; &#x27;Cancel&#x27;;
 
-    // constructor is only necessary when not using AoT
-
+    /**
+     * Constructor
+     * @param toastrService 
+     * @param toastPackage 
+     * @param apiService 
+     * constructor is only necessary when not using AoT
+     */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
@@ -623,9 +673,12 @@ import { ApiService } from &#x27;./Services/api.service&#x27;;
     ) {
       super(toastrService, toastPackage);
     }
-  
+    
+    /**
+     * Creates a toast and deltes the scenario
+     * @param event 
+     */
     deleteToast(event: Event){
-        console.log(&#x27;delete Toast&#x27;)
         event.stopPropagation();
         this.apiService.deleteScenarioEmitter()
         this.remove();
@@ -678,7 +731,7 @@ import { ApiService } from &#x27;./Services/api.service&#x27;;
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
         var COMPONENT_TEMPLATE = '<div><div class="row" [style.display]="state.value === \'inactive\' ? \'none\' : \'\'">  <div class="col-9">    <div *ngIf="title" [class]="options.titleClass" [attr.aria-label]="title">      {{ title }}    </div>    <div *ngIf="message && options.enableHtml" role="alert" aria-live="polite"      [class]="options.messageClass" [innerHTML]="message">    </div>    <div *ngIf="message && !options.enableHtml" role="alert" aria-live="polite"      [class]="options.messageClass" [attr.aria-label]="message">      {{ message }}    </div>  </div>  <div class="col-9">    <a *ngIf="!options.closeButton" class="deleteButton btn btn-pink btn-sm" (click)="deleteToast($event)">        {{ deleteString }}    </a>    <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="remove()">    {{ cancelString }}    </a>    <a *ngIf="options.closeButton" (click)="remove()" class="btn btn-pink btn-sm">      close    </a>  </div></div><div *ngIf="options.progressBar">  <div class="toast-progress" [style.width]="width + \'%\'"></div></div></div>'
-    var COMPONENTS = [{'name': 'AccountManagementComponent', 'selector': 'app-account-management'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConfirmResetPasswordComponent', 'selector': 'app-confirm-reset-password'},{'name': 'DeleteScenarioToast', 'selector': '[pink-toast-component]'},{'name': 'EditableComponent', 'selector': 'editable'},{'name': 'ExampleTableComponent', 'selector': 'app-example-table'},{'name': 'FeedbackComponent', 'selector': 'app-feedback'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'ModalsComponent', 'selector': 'app-modals'},{'name': 'ParentComponent', 'selector': 'app-parent'},{'name': 'RegistrationComponent', 'selector': 'app-registration'},{'name': 'ReportComponent', 'selector': 'app-report'},{'name': 'ReportHistoryComponent', 'selector': 'app-report-history'},{'name': 'ResetPasswordComponent', 'selector': 'app-reset-password'},{'name': 'RunTestToast', 'selector': '[pink-toast-component]'},{'name': 'ScenarioEditorComponent', 'selector': 'app-scenario-editor'},{'name': 'StoriesBarComponent', 'selector': 'app-stories-bar'},{'name': 'StoryEditorComponent', 'selector': 'app-story-editor'},{'name': 'TermsComponent', 'selector': 'app-terms'},{'name': 'TestAccountComponent', 'selector': 'app-test-account'}];
+    var COMPONENTS = [{'name': 'AccountManagementComponent', 'selector': 'app-account-management'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConfirmResetPasswordComponent', 'selector': 'app-confirm-reset-password'},{'name': 'DeleteScenarioToast', 'selector': '[pink-toast-component]'},{'name': 'EditableComponent', 'selector': 'editable'},{'name': 'ExampleTableComponent', 'selector': 'app-example-table'},{'name': 'FeedbackComponent', 'selector': 'app-feedback'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'ModalsComponent', 'selector': 'app-modals'},{'name': 'ParentComponent', 'selector': 'app-parent'},{'name': 'RegistrationComponent', 'selector': 'app-registration'},{'name': 'ReportComponent', 'selector': 'app-report'},{'name': 'ReportHistoryComponent', 'selector': 'app-report-history'},{'name': 'ResetPasswordComponent', 'selector': 'app-reset-password'},{'name': 'ScenarioEditorComponent', 'selector': 'app-scenario-editor'},{'name': 'StoriesBarComponent', 'selector': 'app-stories-bar'},{'name': 'StoryEditorComponent', 'selector': 'app-story-editor'},{'name': 'TermsComponent', 'selector': 'app-terms'},{'name': 'TestAccountComponent', 'selector': 'app-test-account'}];
     var DIRECTIVES = [{'name': 'EditableOnEnterDirective', 'selector': '[editableOnEnter]'},{'name': 'EditModeDirective', 'selector': '[editMode]'},{'name': 'FocusableDirective', 'selector': '[focusable]'},{'name': 'PasswordConfirmedValidatorDirective', 'selector': '[appPasswordConfirmed]'},{'name': 'ViewModeDirective', 'selector': '[viewMode]'}];
     var ACTUAL_COMPONENT = {'name': 'DeleteScenarioToast'};
 </script>

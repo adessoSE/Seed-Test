@@ -64,6 +64,13 @@
             <code>src/app/model/Story.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of the story</p>
+
+            </p>
 
 
         <section>
@@ -153,6 +160,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Object id of the story in the database</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -182,6 +195,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Github user assigned to this issue</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -211,6 +230,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Url of the assignee avatar</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -240,6 +265,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Background of the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -269,6 +300,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Description of the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -298,6 +335,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Id of the story received from github</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -332,6 +375,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>If the last test was successful or not</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -361,6 +410,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Scenarios in the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -390,6 +445,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>State of the github issue</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -419,6 +480,13 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Id of the story received from github
+very similar to issue_number but is currently not used anymore</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -448,6 +516,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Source of the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -477,6 +551,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Title of the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -487,18 +567,69 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {Scenario} from &#x27;./Scenario&#x27;;
 import { Background } from &#x27;./Background&#x27;;
 
+/**
+ * Interface of the story
+ */
 export interface Story {
+    /**
+     * Object id of the story in the database
+     */
     _id: any;
+
+    /**
+     * Id of the story received from github
+     */
     issue_number: any;
+
+    /**
+     * Id of the story received from github
+     * very similar to issue_number but is currently not used anymore
+     */
     story_id: number;
+
+    /**
+     * Source of the story
+     */
     storySource: string;
+
+    /**
+     * Background of the story
+     */
     background: Background;
+
+    /**
+     * Scenarios in the story
+     */
     scenarios: Scenario[];
+
+    /**
+     * Title of the story
+     */
     title: string;
+
+    /**
+     * Description of the story
+     */
     body: string;
+
+    /**
+     * State of the github issue
+     */
     state: string;
+
+    /**
+     * Github user assigned to this issue
+     */
     assignee: string;
+
+    /**
+     * Url of the assignee avatar
+     */
     assignee_avatar_url: string;
+
+    /**
+     * If the last test was successful or not
+     */
     lastTestPassed?: boolean;
 }
 </code></pre>

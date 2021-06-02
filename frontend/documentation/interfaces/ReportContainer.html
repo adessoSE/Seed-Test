@@ -64,6 +64,13 @@
             <code>src/app/model/ReportContainer.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of a Report container for the report history</p>
+
+            </p>
 
 
         <section>
@@ -122,6 +129,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Reports of the scenarios included in the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -151,6 +164,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Reports of the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -160,8 +179,18 @@
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Report } from &quot;./Report&quot;;
 
+/**
+ * Interface of a Report container for the report history
+ */
 export interface ReportContainer {
+    /**
+     * Reports of the story
+     */
     storyReports: Report[],
+
+    /**
+     * Reports of the scenarios included in the story
+     */
     scenarioReports: Report[]
 }</code></pre>
     </div>

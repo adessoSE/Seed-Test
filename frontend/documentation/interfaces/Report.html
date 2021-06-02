@@ -64,6 +64,13 @@
             <code>src/app/model/Report.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of a report</p>
+
+            </p>
 
 
         <section>
@@ -154,6 +161,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Object id of the report of the databse</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -188,6 +201,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Status of the report if it is marked as saved or not</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -217,6 +236,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Cucumber report in json format</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -246,6 +271,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Mode: either feature, scenario</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -275,6 +306,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>included options to create html</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -304,6 +341,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Name of the report</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -333,6 +376,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Time of the run test in milliseconds since 1970</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -367,6 +416,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>scenario id of the executed test</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -396,6 +451,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Story id of the executed test</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -425,6 +486,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Status if the test was successfull or not</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -433,15 +500,55 @@
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface Report {
+
+    /**
+     * Object id of the report of the databse
+     */
     _id?: any,
+
+    /**
+     * Time of the run test in milliseconds since 1970
+     */
     reportTime: number;
+
+    /**
+     * Name of the report
+     */
     reportName: string;
+
+    /**
+     * Cucumber report in json format
+     */
     jsonReport: any;
+
+    /**
+     * included options to create html
+     */
     options: any;
+
+    /**
+     * Story id of the executed test
+     */
     storyId: any;
+
+    /**
+     * Mode: either feature, scenario
+     */
     mode: string;
+
+    /**
+     * scenario id of the executed test
+     */
     scenarioId?: any;
+
+    /**
+     * Status if the test was successfull or not
+     */
     testStatus: boolean;
+
+    /**
+     * Status of the report if it is marked as saved or not
+     */
     isSaved?: boolean;
 }</code></pre>
     </div>

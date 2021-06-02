@@ -11,7 +11,7 @@ import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { RepositoryContainer} from '../model/RepositoryContainer';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
-import { RunTestToast } from '../custom-toast';
+import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast'
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
@@ -323,7 +323,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
-           this.storiesBar.selectScenario(null, resp)
+           this.storiesBar.selectScenario(resp)
            this.toastr.info('', 'Senario added')
         });
   }

@@ -64,6 +64,13 @@
     <code>src/app/report/report.component.ts</code>
 </p>
 
+    <p class="comment">
+        <h3>Description</h3>
+    </p>
+    <p class="comment">
+        <p>Component to show the report</p>
+
+    </p>
 
 
     <p class="comment">
@@ -155,9 +162,6 @@
                             <li>
                                 <a href="#getReport">getReport</a>
                             </li>
-                            <li>
-                                <a href="#ngOnInit">ngOnInit</a>
-                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -181,12 +185,14 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/app/report/report.component.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/app/report/report.component.ts:14</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Retrieves the report</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -262,14 +268,16 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="31"
-                            class="link-to-prism">src/app/report/report.component.ts:31</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="46"
+                            class="link-to-prism">src/app/report/report.component.ts:46</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Gets the report and sets the iframe to it</p>
+</div>
 
                     <div class="io-description">
                         <b>Parameters :</b>
@@ -279,6 +287,7 @@
                                     <td>Name</td>
                                     <td>Type</td>
                                     <td>Optional</td>
+                                    <td>Description</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -293,6 +302,10 @@
                                     </td>
 
 
+                                    <td>
+                                        <p>name of the report</p>
+
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -305,45 +318,6 @@
                     </div>
                     <div class="io-description">
                         
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="ngOnInit"></a>
-                    <span class="name">
-                        <b>
-                            ngOnInit
-                        </b>
-                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>ngOnInit()</code>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="28"
-                            class="link-to-prism">src/app/report/report.component.ts:28</a></div>
-                </td>
-            </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                    <div class="io-description">
-                        <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
                     </div>
                 </td>
             </tr>
@@ -376,7 +350,7 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/app/report/report.component.ts:14</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/app/report/report.component.ts:22</a></div>
                             </td>
                         </tr>
 
@@ -408,7 +382,7 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/app/report/report.component.ts:11</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/app/report/report.component.ts:14</a></div>
                             </td>
                         </tr>
 
@@ -436,7 +410,7 @@
                     </tr>
                         <tr>
                             <td class="col-md-4">
-                                    <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/app/report/report.component.ts:14</a></div>
+                                    <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/app/report/report.component.ts:22</a></div>
                             </td>
                         </tr>
 
@@ -453,6 +427,9 @@
 import { ApiService } from &#x27;../Services/api.service&#x27;;
 import { ActivatedRoute } from &#x27;@angular/router&#x27;;
 
+/**
+ * Component to show the report
+ */
 @Component({
   selector: &#x27;app-report&#x27;,
   templateUrl: &#x27;./report.component.html&#x27;,
@@ -462,6 +439,11 @@ export class ReportComponent implements OnInit {
   reportReceived: Boolean &#x3D; false;
 
 
+  /**
+   * Retrieves the report
+   * @param apiService 
+   * @param route 
+   */
   constructor(public apiService: ApiService, public route: ActivatedRoute) { 
     this.route.params.subscribe((params) &#x3D;&gt; {
       if(params.reportName){
@@ -476,9 +458,16 @@ export class ReportComponent implements OnInit {
     });
   }
 
+  /**
+   * @ignore
+   */
   ngOnInit() {
   }
 
+  /**
+   * Gets the report and sets the iframe to it
+   * @param reportName name of the report
+   */
   getReport(reportName: string){
     this.apiService.getReport(reportName).subscribe((resp) &#x3D;&gt; {
       const iframe: HTMLIFrameElement &#x3D; document.getElementById(&#x27;testFrame&#x27;) as HTMLIFrameElement;
@@ -532,7 +521,7 @@ export class ReportComponent implements OnInit {
 <script src="../js/libs/deep-iterator.js"></script>
 <script>
         var COMPONENT_TEMPLATE = '<div><div *ngIf="!this.reportReceived">    <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner></div><iframe title="Test Report" id="testFrame" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe></div>'
-    var COMPONENTS = [{'name': 'AccountManagementComponent', 'selector': 'app-account-management'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConfirmResetPasswordComponent', 'selector': 'app-confirm-reset-password'},{'name': 'DeleteScenarioToast', 'selector': '[pink-toast-component]'},{'name': 'EditableComponent', 'selector': 'editable'},{'name': 'ExampleTableComponent', 'selector': 'app-example-table'},{'name': 'FeedbackComponent', 'selector': 'app-feedback'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'ModalsComponent', 'selector': 'app-modals'},{'name': 'ParentComponent', 'selector': 'app-parent'},{'name': 'RegistrationComponent', 'selector': 'app-registration'},{'name': 'ReportComponent', 'selector': 'app-report'},{'name': 'ReportHistoryComponent', 'selector': 'app-report-history'},{'name': 'ResetPasswordComponent', 'selector': 'app-reset-password'},{'name': 'RunTestToast', 'selector': '[pink-toast-component]'},{'name': 'ScenarioEditorComponent', 'selector': 'app-scenario-editor'},{'name': 'StoriesBarComponent', 'selector': 'app-stories-bar'},{'name': 'StoryEditorComponent', 'selector': 'app-story-editor'},{'name': 'TermsComponent', 'selector': 'app-terms'},{'name': 'TestAccountComponent', 'selector': 'app-test-account'}];
+    var COMPONENTS = [{'name': 'AccountManagementComponent', 'selector': 'app-account-management'},{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'ConfirmResetPasswordComponent', 'selector': 'app-confirm-reset-password'},{'name': 'DeleteScenarioToast', 'selector': '[pink-toast-component]'},{'name': 'EditableComponent', 'selector': 'editable'},{'name': 'ExampleTableComponent', 'selector': 'app-example-table'},{'name': 'FeedbackComponent', 'selector': 'app-feedback'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'ModalsComponent', 'selector': 'app-modals'},{'name': 'ParentComponent', 'selector': 'app-parent'},{'name': 'RegistrationComponent', 'selector': 'app-registration'},{'name': 'ReportComponent', 'selector': 'app-report'},{'name': 'ReportHistoryComponent', 'selector': 'app-report-history'},{'name': 'ResetPasswordComponent', 'selector': 'app-reset-password'},{'name': 'ScenarioEditorComponent', 'selector': 'app-scenario-editor'},{'name': 'StoriesBarComponent', 'selector': 'app-stories-bar'},{'name': 'StoryEditorComponent', 'selector': 'app-story-editor'},{'name': 'TermsComponent', 'selector': 'app-terms'},{'name': 'TestAccountComponent', 'selector': 'app-test-account'}];
     var DIRECTIVES = [{'name': 'EditableOnEnterDirective', 'selector': '[editableOnEnter]'},{'name': 'EditModeDirective', 'selector': '[editMode]'},{'name': 'FocusableDirective', 'selector': '[focusable]'},{'name': 'PasswordConfirmedValidatorDirective', 'selector': '[appPasswordConfirmed]'},{'name': 'ViewModeDirective', 'selector': '[viewMode]'}];
     var ACTUAL_COMPONENT = {'name': 'ReportComponent'};
 </script>

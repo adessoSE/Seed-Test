@@ -9,11 +9,13 @@ import { Directive, ElementRef, AfterViewInit } from '@angular/core';
 export class FocusableDirective implements AfterViewInit {
 
   /**
-   * Constructor
-   * @param host 
+   * @ignore
    */
   constructor(private host: ElementRef) { }
 
+  /**
+   * focues the native element
+   */
   ngAfterViewInit() {
     this.host.nativeElement.focus();
   }

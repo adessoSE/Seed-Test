@@ -64,6 +64,13 @@
             <code>src/app/model/RepositoryContainer.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of the repository container</p>
+
+            </p>
 
 
         <section>
@@ -135,6 +142,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Object id of the repository container from the database</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -169,6 +182,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>If the user can edit the repository</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -198,6 +217,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Source of the repository</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -227,6 +252,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Name of the repository</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -235,9 +266,24 @@
 
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">export interface RepositoryContainer {
+    /**
+     * Object id of the repository container from the database
+     */
     _id?: any;
+
+    /**
+     * Name of the repository
+     */
     value: string;
+
+    /**
+     * Source of the repository
+     */
     source: string;
+
+    /**
+     * If the user can edit the repository
+     */
     canEdit?: boolean;
 }
 </code></pre>

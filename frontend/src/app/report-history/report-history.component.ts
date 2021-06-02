@@ -1,27 +1,49 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Report } from '../model/Report';
 import { ReportContainer } from '../model/ReportContainer';
+import { Scenario } from '../model/Scenario';
 import { Story } from '../model/Story';
 import { ApiService } from '../Services/api.service';
 
+/**
+ * Component of the report history
+ */
 @Component({
   selector: 'app-report-history',
   templateUrl: './report-history.component.html',
   styleUrls: ['./report-history.component.css']
 })
-export class ReportHistoryComponent implements OnInit {
 
+export class ReportHistoryComponent implements OnInit {
+  /**
+   * Currently selected story
+   */
   selectedStory: Story = null;
+
+  /**
+   * Reports of the selected story
+   */
   reports: ReportContainer = null;
 
+  /**
+   * Event emiter to change the editor to story editor
+   */
   @Output()
   changeEditor: EventEmitter<any> = new EventEmitter();
 
+  /**
+   * @ignore
+   */
   constructor(public apiService: ApiService) { }
 
-  ngOnInit(): void {
-  }
+  /**
+   * @ignore
+   */
+  ngOnInit(): void {}
 
+  /**
+   * Sets a new currently used story
+   */
   @Input()
   set newSelectedStory(story: Story) {
       this.selectedStory = story;
@@ -30,62 +52,89 @@ export class ReportHistoryComponent implements OnInit {
       }
   }
 
+  /**
+   * Retrieves the reports of the story
+   */
   getReports(){
     this.reports = null;
     this.apiService.getReportHistory(this.selectedStory._id).subscribe(resp => {
-        console.log('resp.', resp)
         this.reports = resp;
     });
   }
 
-  sortScenarioReports(scenario){
+  /**
+   * Filters the scenario reports to only the reports of the current scenario
+   * @param scenario currently regarded scenario
+   * @returns list of reports of this scenario
+   */
+   filterScenarioReports(scenario: Scenario){
     return this.reports.scenarioReports.filter((elem) => parseInt(elem.scenarioId) == scenario.scenario_id)
   }
 
+  /**
+   * Sorts the reports depending on their report time
+   * @param reps reports
+   * @returns 
+   */
   sortReportsTime(reps){
     return reps.sort((a, b) => a.reportTime > b.reportTime)
   }
 
-  goBack(){
+  /**
+   * Returns to story editor
+   */
+  goBackToStoryEditor(){
     this.changeEditor.emit();
   }
 
-  reportTime(time){
+  /**
+   * Creates a date out of the report time
+   * @param time report time
+   * @returns Name of the report with the date
+   */
+  stringifyReportTime(time: number){
     let date = new Date(time).toLocaleDateString("de")
     let t = new Date(time).toLocaleTimeString("de")
     return "Report: " + date + " " + t
   }
 
-
+  /**
+   * Deletes a report of the list
+   * @param report report to be deleted
+   */
   deleteReport(report: Report){
-    console.log('report', report)
-    return new Promise<void>((resolve, reject) => {this.apiService
+    this.apiService
       .deleteReport(report._id)
       .subscribe(_resp => {
           let newReports = JSON.parse(JSON.stringify(this.reports));
           newReports.storyReports = newReports.storyReports.filter((rep) => rep._id != report._id);
           newReports.scenarioReports = newReports.scenarioReports.filter((rep) => rep._id != report._id);
           this.reports = newReports;
-          resolve()
-      });})
+      });
   }
 
+  /**
+   * Set the report to not be saved
+   * @param report 
+   */
   unsaveReport(report: Report){
     report.isSaved = false;
-    return new Promise<void>((resolve, reject) => {this.apiService
+    this.apiService
       .unsaveReport(report._id)
       .subscribe(_resp => {
-          resolve()
-      });})  
+      });
   }
 
+  /**
+   * Sets the report to be saved
+   * @param report 
+   */
   saveReport(report: Report){
     report.isSaved = true;
-    return new Promise<void>((resolve, reject) => {this.apiService
+    this.apiService
       .saveReport(report._id)
       .subscribe(_resp => {
-          resolve()
-      });})
+      });
   }
 
 }

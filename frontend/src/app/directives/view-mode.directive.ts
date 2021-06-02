@@ -9,8 +9,7 @@ import { Directive, TemplateRef } from '@angular/core';
 export class ViewModeDirective {
 
   /**
-   * Constructor
-   * @param tpl 
+   * @ignore
    */
   constructor(public tpl: TemplateRef<any>) { }
 

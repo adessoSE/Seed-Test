@@ -64,6 +64,13 @@
             <code>src/app/model/Scenario.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of the Scenario</p>
+
+            </p>
 
 
         <section>
@@ -153,6 +160,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Selected browser to execute the test on</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -182,6 +195,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Comment in this scenario</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -216,6 +235,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>If the daisy Auto Logout is active</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -250,6 +275,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>If the last test was successfull or not</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -279,6 +310,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Name of the scenario</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -313,6 +350,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>If the scenario got saved</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -342,6 +385,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Number of scenario created in the story</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -371,6 +420,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Step definitions in the scenario</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -405,6 +460,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Wait time between the steps</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -414,16 +475,54 @@
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {StepDefinition} from &#x27;./StepDefinition&#x27;;
 
-
+/**
+ * Interface of the Scenario
+ */
 export interface Scenario {
+
+    /**
+     * Number of scenario created in the story
+     */
     scenario_id: number;
+
+    /**
+     * Name of the scenario
+     */
     name: string;
+
+    /**
+     * Step definitions in the scenario
+     */
     stepDefinitions: StepDefinition;
+
+    /**
+     * Comment in this scenario
+     */
     comment: string;
+
+    /**
+     * If the last test was successfull or not
+     */
     lastTestPassed?: boolean;
+
+    /**
+     * If the scenario got saved
+     */
     saved?: boolean;
+
+    /**
+     * If the daisy Auto Logout is active
+     */
     daisyAutoLogout?: boolean;
+
+    /**
+     * Wait time between the steps
+     */
     stepWaitTime?: number;
+
+    /**
+     * Selected browser to execute the test on
+     */
     browser?: string;
 }
 </code></pre>

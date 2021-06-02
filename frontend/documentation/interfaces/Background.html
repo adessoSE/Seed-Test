@@ -64,6 +64,13 @@
             <code>src/app/model/Background.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interface of the Background </p>
+
+            </p>
 
 
         <section>
@@ -132,6 +139,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Given name of the background</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -166,6 +179,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>If the background is saved</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -195,6 +214,12 @@
 
 
 
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Stepdefinitions included in the background</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             </section>
@@ -204,9 +229,23 @@
     <div class="tab-pane fade  tab-source-code" id="c-source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { StepDefinitionBackground } from &#x27;./StepDefinitionBackground&#x27;;
 
+/**
+ * Interface of the Background 
+ */
 export interface Background {
+    /**
+     * Given name of the background
+     */
     name?: string;
+
+    /**
+     * Stepdefinitions included in the background
+     */
     stepDefinitions: StepDefinitionBackground;
+
+    /**
+     * If the background is saved
+     */
     saved?: boolean;
 }
 </code></pre>

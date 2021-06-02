@@ -60,6 +60,14 @@
             <code>src/app/Services/timeout-interceptor.interceptor.ts</code>
         </p>
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Interceptor to make run requests last for as long as we specify in the header
+from <a href="https://stackoverflow.com/questions/45938931/default-and-specific-request-timeout">https://stackoverflow.com/questions/45938931/default-and-specific-request-timeout</a></p>
+
+            </p>
 
 
             <section>
@@ -101,7 +109,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/app/Services/timeout-interceptor.interceptor.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/app/Services/timeout-interceptor.interceptor.ts:16</a></div>
                             </td>
                         </tr>
 
@@ -166,14 +174,16 @@
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-line">Defined in <a href="" data-line="15"
-                            class="link-to-prism">src/app/Services/timeout-interceptor.interceptor.ts:15</a></div>
+                    <div class="io-line">Defined in <a href="" data-line="26"
+                            class="link-to-prism">src/app/Services/timeout-interceptor.interceptor.ts:26</a></div>
                 </td>
             </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                    <div class="io-description"><p>Intercepts the request and makes the timeout to the specified time</p>
+</div>
 
                     <div class="io-description">
                         <b>Parameters :</b>
@@ -237,15 +247,26 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from &#x27;@angu
 import { Observable } from &#x27;rxjs&#x27;;
 import { timeout } from &#x27;rxjs/operators&#x27;;
 
-
-// from https://stackoverflow.com/questions/45938931/default-and-specific-request-timeout
+/**
+ * Default request timeout specified in the app module
+ */
 export const DEFAULT_TIMEOUT &#x3D; new InjectionToken&lt;number&gt;(&#x27;defaultTimeout&#x27;);
 
+/**
+ * Interceptor to make run requests last for as long as we specify in the header
+ * from https://stackoverflow.com/questions/45938931/default-and-specific-request-timeout
+ */
 @Injectable()
 export class TimeoutInterceptor implements HttpInterceptor {
   constructor(@Inject(DEFAULT_TIMEOUT) protected defaultTimeout: number) {
   }
 
+  /**
+   * Intercepts the request and makes the timeout to the specified time
+   * @param req 
+   * @param next 
+   * @returns 
+   */
   intercept(req: HttpRequest&lt;any&gt;, next: HttpHandler): Observable&lt;HttpEvent&lt;any&gt;&gt; {
     const timeoutValue &#x3D; req.headers.get(&#x27;timeout&#x27;) || this.defaultTimeout;
     const timeoutValueNumeric &#x3D; Number(timeoutValue);

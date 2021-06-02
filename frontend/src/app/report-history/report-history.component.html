@@ -3,7 +3,7 @@
     <div class="reportHistoryTitleContainer">
         <div>
             <a class="title">
-                <button class="backButton" title="Back to Projects" (click)="goBack()">
+                <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
                     <img id="backImage" src ="../assets/left.svg">
                 </button>
             </a>
@@ -21,7 +21,7 @@
         </div>
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let rep of reports.storyReports; let i = index" class="report">
-                <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{reportTime(rep.reportTime)}}</a>
+                <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
                 <div class="reportButtons">
                     <button  a
                     class="actionButton" uk-tooltip title="Delete Report"
@@ -48,8 +48,8 @@
                 <p class="Mediumaccordeon2 reportsHeader">Scenario {{i + 1}} Reports: {{scen.name}}</p>
             </div>
             <div *ngIf="reports" class="reportContainer">
-                <div *ngFor="let reps of sortScenarioReports(scen); let j = index" class="report">
-                    <a [class.notPassed]="!reps.testStatus" [class.passed]="reps.testStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{reportTime(reps.reportTime)}}</a>
+                <div *ngFor="let reps of filterScenarioReports(scen); let j = index" class="report">
+                    <a [class.notPassed]="!reps.testStatus" [class.passed]="reps.testStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{stringifyReportTime(reps.reportTime)}}</a>
                     <div class="reportButtons">
                         <button  a
                         class="actionButton" uk-tooltip title="Delete Report"

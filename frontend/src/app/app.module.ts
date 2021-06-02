@@ -34,7 +34,7 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatCarouselModule } from '@ngbmodule/material-carousel';
-import {RunTestToast} from './custom-toast'
+import {RunTestToast} from './runSave-toast'
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { ModalsComponent } from './modals/modals.component'
