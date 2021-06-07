@@ -483,11 +483,15 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 						expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
 					});
 			} catch (e3) {
-				await driver.takeScreenshot()
-					.then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-				throw Error(e);
+				try {
+					await driver.findElement(By.xpath(`${label}`)).click();
+				} catch (e4) {
+					await driver.takeScreenshot()
+						.then(async (buffer) => {
+							world.attach(buffer, 'image/png');
+						});
+					throw Error(e);
+				}
 			}
 		}
 	}
@@ -543,10 +547,14 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 							.then(text => text);
 						expect(resp).to.equal('', 'Textfield does contain some Text');
 					});
-			} catch (e) {
-				await driver.takeScreenshot().then(async (buffer) => {
-					world.attach(buffer, 'image/png');
-				});
+			} catch (e3) {
+				try {
+					await driver.findElement(By.xpath(`${label}`)).click();
+				} catch (e4) {
+					await driver.takeScreenshot().then(async (buffer) => {
+						world.attach(buffer, 'image/png');
+					});
+				}
 				throw Error(e);
 			}
 		}
@@ -599,20 +607,20 @@ async function daisyLogout() {
 	await driver.sleep(200);
 	try {
 		await driver.getCurrentUrl().then(async (currentUrl) => {
-			url = currentUrl.split('.de')[0]
-			driver.get(url + '/redirect_uri?logout=/')
+			const url = currentUrl.split('.de')[0];
+			driver.get(url + '/redirect_uri?logout=/');
 		});
 	} catch (e) {
-		try{ 
+		try {
 			await clickButton('Abmelden');
 			await driver.sleep(200);
-		} catch (e) {
+		} catch (e2) {
 			try {
 				await clickButton('Zurück zum Portal');
 				await driver.sleep(200);
 				await clickButton('Abmelden');
 				await driver.sleep(200);
-			} catch (e2) {
+			} catch (e3) {
 				await clickButton('Abbrechen');
 				await driver.sleep(200);
 				await clickButton('Zurück zum Portal');
@@ -645,11 +653,9 @@ After(async () => {
 	scenarioIndex += 1;
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
-	if (process.env.NODE_ENV) {
 	const condition = until.elementLocated(By.name('loader'));
 	driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
 	driver.quit();
-	
 });
 
 // clicks a button if found in html code with xpath,
