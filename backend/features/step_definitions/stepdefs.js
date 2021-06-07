@@ -19,6 +19,7 @@ chromeOptions.addArguments('--disable-dev-shm-usage');
 // chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
+chromeOptions.addArguments('--lang=de');
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -597,21 +598,28 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 async function daisyLogout() {
 	await driver.sleep(200);
 	try {
-		await clickButton('Abmelden');
-		await driver.sleep(200);
+		await driver.getCurrentUrl().then(async (currentUrl) => {
+			url = currentUrl.split('.de')[0]
+			driver.get(url + '/redirect_uri?logout=/')
+		});
 	} catch (e) {
-		try {
-			await clickButton('Zurück zum Portal');
-			await driver.sleep(200);
+		try{ 
 			await clickButton('Abmelden');
 			await driver.sleep(200);
-		} catch (e2) {
-			await clickButton('Abbrechen');
-			await driver.sleep(200);
-			await clickButton('Zurück zum Portal');
-			await driver.sleep(200);
-			await clickButton('Abmelden');
-			await driver.sleep(200);
+		} catch (e) {
+			try {
+				await clickButton('Zurück zum Portal');
+				await driver.sleep(200);
+				await clickButton('Abmelden');
+				await driver.sleep(200);
+			} catch (e2) {
+				await clickButton('Abbrechen');
+				await driver.sleep(200);
+				await clickButton('Zurück zum Portal');
+				await driver.sleep(200);
+				await clickButton('Abmelden');
+				await driver.sleep(200);
+			}
 		}
 	}
 }
@@ -638,10 +646,10 @@ After(async () => {
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	if (process.env.NODE_ENV) {
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-		driver.quit();
-	}
+	const condition = until.elementLocated(By.name('loader'));
+	driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
+	driver.quit();
+	
 });
 
 // clicks a button if found in html code with xpath,
