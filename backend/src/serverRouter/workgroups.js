@@ -1,9 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
-const { ObjectID } = require('mongodb');
 
 const router = express.Router();
 
@@ -37,6 +35,7 @@ router
 // if an workgroup with the id exists it adds the email as a new user, if not it creates a workgroup and adds the member
 router.post('/wgmembers/:id', async (req, res) => {
     try {
+        req.body.email = req.body.email.toLowerCase();
         const user = await mongo.getUserByEmail(req.body.email)
         if (!user) {
             res.status(400).json({ error: 'User mit dieser E-mail nicht gefunden' })
@@ -62,6 +61,7 @@ router.post('/wgmembers/:id', async (req, res) => {
 
 router.put('/wgmembers/:id', async (req, res) => {
     try {
+        req.body.email = req.body.email.toLowerCase();
         const user = await mongo.getUserByEmail(req.body.email)
         if (!user) {
             res.status(400).json({ error: 'User mit dieser E-mail nicht gefunden' })
@@ -85,6 +85,7 @@ router.get('/wgmembers/:id', async (req, res) => {
 
 router.post('/deletemember/:id', async (req, res) => {
     try {
+        req.body.email.email = req.body.email.email.toLowerCase();
         const result = await mongo.removeFromWorkgroup(req.params.id, req.body.email)
         if (!result) res.status(500).json({ error: 'Beim Löschen des Users ist ein Fehler aufgetreten' })
         res.status(200).json(result);

@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 
 
-async function sendResetLink(email, id){
+async function sendResetLink(email, id) {
 
     const transporter = nodemailer.createTransport({
         host: 'smtp.mail.de',
@@ -13,7 +13,7 @@ async function sendResetLink(email, id){
             pass: process.env.EMAIL_PW
         },
         tls: {
-            ciphers:'SSLv3'
+            ciphers: 'SSLv3'
         }
     });
 

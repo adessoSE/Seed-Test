@@ -50,6 +50,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   allChecked: boolean = false;
   saveBackgroundAndRun: boolean = false;
   clipboardBlock: any = null;
+  daisyVersion= false;
 
   @ViewChild('exampleChildView') exampleChild;
   @ViewChild('scenarioChild') scenarioChild;
@@ -88,6 +89,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     }
 
   ngOnInit() {
+    let version = localStorage.getItem('version')
+    if (version == 'DAISY' || version == 'HEROKU' || !version) {
+      this.daisyVersion = true;
+    } else {
+      this.daisyVersion = false;
+    }
     this.apiService.runSaveOptionEvent.subscribe(option => {
         if(option == "run"){
             this.runUnsaved = true;
