@@ -23,6 +23,7 @@ const server = app.listen(process.env.PORT || 8080, () => {
 	const { port } = server.address();
 	console.log(`App now running on port: ${port}`);
 });
+server.setTimeout(600000);
 /**
  * API Description
  */

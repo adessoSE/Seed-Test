@@ -453,15 +453,14 @@ export class ApiService {
     // demands testing from the server
     public runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        let head: HttpHeaders = new HttpHeaders();
-        head.append('timeout', '600000')
+        let timeout = 600000;
         if (scenarioID) {
             return this.http
                 .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
-                    responseType: 'text', withCredentials: true, headers: head});
+                    responseType: 'text', withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
         }
         return this.http
-            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true, headers: head});
+            .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { responseType: 'text', withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
     public createNewCustomStory(repo: RepositoryContainer, story){
