@@ -406,6 +406,14 @@ export class ApiService {
     }
 
     /**
+     * Emitts the create custom story event
+     * @param story 
+     */
+    createCustomStoryEvent(story){
+        this.createCustomStoryEmitter.emit(story)
+    }
+
+    /**
      * Retrieves the backend info for all api request necessary
      * @returns 
      */
@@ -710,14 +718,6 @@ export class ApiService {
             .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
-    /**
-     * Creates a new custom story
-     * @param repo 
-     * @param story 
-     */
-    createNewCustomStory(repo: RepositoryContainer, story){
-        this.createCustomStoryEmitter.emit({repo, story})
-    }
 
     /**
      * Retrieves the report history of a story

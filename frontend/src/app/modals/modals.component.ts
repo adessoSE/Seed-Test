@@ -448,13 +448,14 @@ export class ModalsComponent{
    * Opens the create new story modal
    */
   openCreateNewStoryModal() {
-    this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
+    this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
   /**
    * Creates a new custom story 
    */
-  createNewStory() {
+  createNewStory(event) {
+    event.stopPropagation();
     const title = (document.getElementById('storytitle') as HTMLInputElement).value;
     const description = (document.getElementById('storydescription') as HTMLInputElement).value;
     const value = localStorage.getItem('repository');
@@ -462,7 +463,7 @@ export class ModalsComponent{
     const source = 'db';
     const repositoryContainer: RepositoryContainer = {value, source, _id};
     let story = {title, description}
-    this.apiService.createCustomStoryEmitter.emit({repositoryContainer, story})
+    this.apiService.createCustomStoryEvent({repositoryContainer, story})
   }
     
 }

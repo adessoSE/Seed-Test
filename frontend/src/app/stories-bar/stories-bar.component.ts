@@ -1,8 +1,9 @@
-import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy } from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { ModalsComponent } from '../modals/modals.component';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 /**
  * Component of the Stories bar
@@ -12,7 +13,7 @@ import { ModalsComponent } from '../modals/modals.component';
   templateUrl: './stories-bar.component.html',
   styleUrls: ['./stories-bar.component.css']
 })
-export class StoriesBarComponent implements OnInit {
+export class StoriesBarComponent implements OnInit, OnDestroy {
   /**
    * Stories in the project
    */
@@ -37,6 +38,11 @@ export class StoriesBarComponent implements OnInit {
    * If it is the daisy version
    */
   daisyVersion: boolean = true;
+
+  /**
+   * Subscription element if a custom story should be created
+   */
+  createStoryEmitter: Subscription;
 
   /**
    * Emits a new chosen story
@@ -65,14 +71,7 @@ export class StoriesBarComponent implements OnInit {
       this.isCustomStory = localStorage.getItem('source') === 'db' ;
     } );
 
-    this.apiService.createCustomStoryEmitter.subscribe(custom => {
-      this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
-        this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
-          console.log('stories', resp);
-          this.stories = resp;
-        });
-      });
-    })
+
   }
 
   /**
@@ -85,7 +84,21 @@ export class StoriesBarComponent implements OnInit {
     } else {
       this.daisyVersion = false;
     }
+
+    this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
+       this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
+        this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
+          this.stories = resp;
+        });
+      });
+    })
   }
+
+  ngOnDestroy() {
+    if (this.createStoryEmitter) {
+       this.createStoryEmitter.unsubscribe()
+    }
+ }
 
 
   /**
