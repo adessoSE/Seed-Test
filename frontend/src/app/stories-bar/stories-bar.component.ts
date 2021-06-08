@@ -41,6 +41,8 @@ export class StoriesBarComponent implements OnInit {
         });
       });
     })
+    // TODO update Story
+    // TODO delete Story
   }
     
   /* modal mask start */

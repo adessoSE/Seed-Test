@@ -37,7 +37,8 @@ async function createResetRequest(request) {
     return result
   } catch (e) {
     console.log("UPS!!!!FEHLER im ResetRequest: " + e)
-  } finally {
+  throw e; 
+} finally {
     if (db) db.close()
   }
 }
@@ -52,7 +53,8 @@ async function getResetRequest(id) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getResetRequest: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -67,7 +69,8 @@ async function getResetRequestByEmail(mail) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getResetRequestByEmail: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -82,7 +85,8 @@ async function deleteRequest(mail) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteRequest: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -118,7 +122,8 @@ async function registerGithubUser(user) {
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in registerGithubUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -147,7 +152,8 @@ async function mergeGithub(userId, login, id) {
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in mergeGithub: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -162,7 +168,8 @@ async function getUserByEmail(email) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getUserByEmail: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -269,9 +276,10 @@ function findStory(storyId, storySource, collection) {
 
 function replace(story, collection) {
   const myObjt = {
-    _id: story._id,
+    _id: ObjectId(story._id),
     storySource: story.storySource,
   };
+  story._id = ObjectId(story._id)
   return new Promise((resolve, reject) => {
     collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
       if (err) {
@@ -305,6 +313,7 @@ function replaceUser(newUser, collection) {
 }
 
 async function updateStory(updatedStuff) {
+  console.log('updateStuff', updatedStuff)
   let db;
   try {
     db = await connectDb()
@@ -313,7 +322,8 @@ async function updateStory(updatedStuff) {
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER updateStory: " + e)
-  } finally {
+    throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -332,7 +342,8 @@ async function getOneStory(storyId, storySource) {
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER in getOneStory: " + e)
-  } finally {
+    throw e;
+} finally {
     if (db) db.close();
   }
 }
@@ -351,7 +362,8 @@ async function getOneStoryByStoryId(storyId, storySource) {
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close();
   }
 }
@@ -367,7 +379,8 @@ async function showSteptypes() {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in showSteptypes: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -384,7 +397,8 @@ async function updateBackground(storyId, storySource, updatedBackground) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateBackground: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -401,7 +415,8 @@ async function deleteBackground(storyId, storySource) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteBackground: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -443,12 +458,30 @@ async function createStory(storyTitel, storyDescription, repoId) {
       state: 'open',
       assignee_avatar_url: null,
       lastTestPassed: null,
+      oneDriver: false
     }
     let result = await collection.insertOne(emptyStory)
     return result.insertedId
   } catch (e) {
     console.log("UPS!!!! FEHLER in createStory: " + e)
-  } finally {
+  throw e;
+} finally {
+    if (db) db.close()
+  }
+}
+
+async function deleteStory(repoId, storyId){
+  try {
+    db = await connectDb();
+    let collection = await selectStoriesCollection(db);
+    let repo = await selectRepositoryCollection(db)
+    collection.findOneAndDelete({_id: ObjectId(storyId)})
+    await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in deleteStory: " + e)
+    throw e
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -462,7 +495,8 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
     return resultRepo
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -485,7 +519,8 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
     return storiesArray
   } catch (e) {
     console.log("UPS!!!! FEHLER in getAllStoriesOfRepo: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -509,7 +544,8 @@ async function createScenario(storyId, storySource) {
     return tmpScenario
   } catch (e) {
     console.log("UPS!!!! FEHLER in createScenario: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -531,7 +567,8 @@ async function deleteScenario(storyId, storySource, scenarioID) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteScenario: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -557,7 +594,8 @@ async function updateScenario(storyId, storySource, updatedScenario) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateScenario: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -593,7 +631,8 @@ async function getRepository(userID) {
     return finalResult;
   } catch (e) {
     console.log("UPS!!!! FEHLER in getRepository" + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -609,7 +648,8 @@ async function deleteRepositorys(ownerID) {
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteRepositorys" + e)
-  } finally {
+  throw e;
+} finally {
     db.close();
   }
 }
@@ -667,7 +707,8 @@ async function createJiraRepoIfNonenExists(repoName, source) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in createJiraRepoIfNonenExists" + e)
-  } finally {
+  throw e;
+} finally {
     db.close();
   }
 }
@@ -694,7 +735,8 @@ async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in createGitOwnerRepoIfNonenExists" + e)
-  } finally {
+  throw e;
+} finally {
     db.close();
   }
 }
@@ -708,7 +750,8 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
     return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -738,7 +781,8 @@ async function upsertEntry(storyId, updatedContent, storySource) {
     return result.value;
   } catch (e) {
     console.log("UPS!!!! FEHLER in upsertEntry: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -783,7 +827,8 @@ async function createUser(user) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in createUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -813,7 +858,8 @@ async function deleteUser(userID) {
 
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -832,7 +878,8 @@ async function updateUser(userID, updatedUser) {
     return result.value
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -849,7 +896,8 @@ async function getUserData(userID) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLERin getUserData: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -865,7 +913,8 @@ async function saveBlock(block) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in saveBlock: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -880,7 +929,8 @@ async function updateBlock(name, updatedBlock) {
     await collection.findOneAndReplace(myObjt, updatedBlock, { returnOriginal: false })
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateBlock: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -896,7 +946,8 @@ async function getBlocks(userId, repoId) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -915,7 +966,8 @@ async function deleteBlock(blockId, userId) {
     //return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteBlock: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -930,7 +982,8 @@ async function getWorkgroup(id) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getWorkgroup: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -965,7 +1018,8 @@ async function addMember(id, user) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in addMember: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -990,7 +1044,8 @@ async function updateMemberStatus(repoId, user) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateMemberStatus: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1004,7 +1059,7 @@ async function getMembers(id) {
     let rCollection = await dbo.collection(repositoriesCollection)
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
     let userCollection = await selectUsersCollection(db)
-    let owner = await userCollection.findOne({ _id: repo.owner })   
+    let owner = await userCollection.findOne({ _id: repo.owner })
     wG = await wGCollection.findOne({ Repo: ObjectId(id) })
     if (!wG) return { owner: { email: owner.email, canEdit: true }, member: [] }
     let result = { owner: {}, member: [] }
@@ -1013,7 +1068,8 @@ async function getMembers(id) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getMembers: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1038,7 +1094,8 @@ async function removeFromWorkgroup(id, user) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1061,6 +1118,7 @@ module.exports = {
   deleteScenario,
   updateScenario,
   createStory,
+  deleteStory,
   insertStoryIdIntoRepo,
   getOneStory,
   getOneStoryByStoryId,

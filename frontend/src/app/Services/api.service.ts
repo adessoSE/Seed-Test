@@ -191,12 +191,39 @@ export class ApiService {
             }));
     }
 
+    public getStory(_id, source): Observable<any>{
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .get<Story>(this.apiServer + '/story/' + _id + '/' + source, ApiService.getOptions())
+            .pipe(tap(resp => {
+            }));
+    }
+
+
     public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
+            .post<any>(this.apiServer + '/story/', body, ApiService.getOptions())
             .pipe(tap(resp => {
+            }));
+    }
+
+    public updateStory(story: Story): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .put<Story>(this.apiServer + '/story', story, ApiService.getOptions())
+            .pipe(tap(resp =>{
+            }));
+    }
+
+    public deleteStory(_id): Observable<any>{
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {'_id' : _id};
+        return this.http
+            .delete<any>(this.apiServer + '/story/' + _id, ApiService.getOptions())
+            .pipe(tap(resp =>{
             }));
     }
 
