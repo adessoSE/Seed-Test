@@ -196,7 +196,7 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-function execReport2(req, res, stories, mode, story, callback) {
+function execReport2(req, res, stories, mode, story, params, callback) {
 	let parameters = {}
 	if (mode == 'scenario'){
 		let scenario = story.scenarios.find(elem => elem.scenario_id == req.params.scenarioID)
@@ -215,17 +215,17 @@ function execReport2(req, res, stories, mode, story, callback) {
 		}
 	}else{
 		parameters = {scenarios: []}
-		story.scenarios
+		if (!story.oneDriver) story.oneDriver = false
 		story.scenarios.forEach(scenario => {
 			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
 			if (!scenario.browser) scenario.browser = 'chrome'
 			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
 			if (scenario.stepDefinitions.example.length <= 0){
-				parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+				parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout, oneDriver: story.oneDriver})
 			}else{
 				scenario.stepDefinitions.example.forEach((examples, index) => {
 					if (index > 0){
-						parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+						parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout, oneDriver: story.oneDriver})
 					}
 				})
 			}
@@ -269,7 +269,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 	});
 }
 
-async function execReport(req, res, stories, mode, callback) {
+async function execReport(req, res, stories, mode, parameters, callback) {
 	try {
 		const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 		// console.log('DAISYAUTOLOGOUT');
@@ -277,7 +277,7 @@ async function execReport(req, res, stories, mode, callback) {
 		// // does not Fail if "daisyAutoLogout" is undefined
 		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
 		//  else process.env.DAISY_AUTO_LOGOUT = false;
-		execReport2(req, res, stories, mode, story, callback);
+		execReport2(req, res, stories, mode, story, parameters, callback);
 	} catch (error) {
 		res.status(404)
 			.send(error);
@@ -594,7 +594,7 @@ function encriptPassword(text) {
 
 
 function runReport(req, res, stories, mode, parameters) {
-	execReport(req, res, stories, mode, (reportTime, story,
+	execReport(req, res, stories, mode, parameters, (reportTime, story,
 		scenarioID, reportName) => {
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);

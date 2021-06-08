@@ -43,6 +43,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   db = false;
   newStepName = 'New Step';
   runUnsaved = false;
+  oneDriver: boolean = false;
   currentTestStoryId: number;
   currentTestScenarioId: number;
   activeActionBar: boolean = false;
@@ -167,6 +168,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         .subscribe((resp: StepType[]) => {
             this.originalStepTypes = resp;
         });
+    }
+
+    setOneDriver(event) {
+        this.apiService
+        .changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
+        .subscribe((resp: any) => {
+            this.selectedStory = resp;
+        })
     }
 
     checkAllSteps(event, checkValue: boolean){
@@ -505,7 +514,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                 .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
                     {browser: browserSelect,
                         repository: localStorage.getItem('repository'),
-                        source: localStorage.getItem('source')
+                        source: localStorage.getItem('source'),
+                        oneDriver: this.oneDriver
                         //waitTime: defaultWaitTimeInput,
                         //daisyAutoLogout: daisyAutoLogout
                     })

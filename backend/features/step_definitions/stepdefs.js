@@ -9,6 +9,7 @@ require('geckodriver');
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
 
+
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
@@ -35,14 +36,33 @@ setWorldConstructor(CustomWorld);
 setDefaultTimeout(20 * 1000);
 
 
-Before(async function (){
+Before(async function () {
 	currentParameters = this.parameters.scenarios[scenarioIndex]
-	driver = new webdriver.Builder()
-	.forBrowser(currentParameters.browser)
-	.setChromeOptions(chromeOptions)
-	.build();
+	if (currentParameters.oneDriver) {
+		if (currentParameters.oneDriver === true) {
+			if (driver) {
+				console.log("Es gibt bereits einen Treiber")
+			} else {
+				driver = new webdriver.Builder()
+					.forBrowser(currentParameters.browser)
+					.setChromeOptions(chromeOptions)
+					.build();
+			}
+		}
+	} else {
+
+		driver = new webdriver.Builder()
+			.forBrowser(currentParameters.browser)
+			.setChromeOptions(chromeOptions)
+			.build();
+	}
 
 });
+
+
+// driver = new webdriver.Builder().forBrowser("chrome").setChromeOptions(chromeOptions).build();
+
+
 
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
@@ -67,7 +87,7 @@ Given('I am on the website: {string}', async function getUrl(url) {
 });
 
 Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
-	await driver.manage().addCookie({name: name, value: value});
+	await driver.manage().addCookie({ name: name, value: value });
 	await driver.sleep(currentParameters.waitTime);
 	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
@@ -100,15 +120,15 @@ When('I go to the website: {string}', async function getUrl(url) {
 	});
 });
 
-When('I want to upload the file from this path: {string} into this uploadfield: {string}', async function (path,input){
+When('I want to upload the file from this path: {string} into this uploadfield: {string}', async function (path, input) {
 	try {
-	await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
-	.sendKeys(`${path}`)
-	}catch (e) {
-		try{
-			await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
+		await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
 			.sendKeys(`${path}`)
-		}catch(e2){
+	} catch (e) {
+		try {
+			await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
+				.sendKeys(`${path}`)
+		} catch (e2) {
 			var world = this;
 			await driver.takeScreenshot().then(async function (buffer) {
 				world.attach(buffer, 'image/png');
@@ -127,26 +147,26 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 // timeouts if not found after 3 sec, waits for next page to be loaded
 When('I click the button: {string}', async function (button) {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
-	  // prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-	  if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase().match(/^run[ _](story|scenario)$/) !== null) {
-		throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-	  } else {
-		try {
-		  await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
-		  await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
-		} catch (e) {
-			try{
-				await driver.findElement(By.xpath(`${button}`)).click();
-			}catch (ed) {
-				var world = this;
-				await driver.takeScreenshot().then(async function (buffer) {
-					world.attach(buffer, 'image/png');
-				});
-				throw Error(e)
+		// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
+		if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase().match(/^run[ _](story|scenario)$/) !== null) {
+			throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
+		} else {
+			try {
+				await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + "='"}${button}' or ` + `${'@*' + "='"}${button}']`)), 3 * 1000).click();
+				await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+			} catch (e) {
+				try {
+					await driver.findElement(By.xpath(`${button}`)).click();
+				} catch (ed) {
+					var world = this;
+					await driver.takeScreenshot().then(async function (buffer) {
+						world.attach(buffer, 'image/png');
+					});
+					throw Error(e)
+				}
 			}
-		}
 
-	  }
+		}
 	});
 	await driver.sleep(currentParameters.waitTime);
 	var world = this;
@@ -156,7 +176,7 @@ When('I click the button: {string}', async function (button) {
 });
 
 // selenium sleeps for a certain amount of time
-When('The site should wait for {string} milliseconds', async function (ms){
+When('The site should wait for {string} milliseconds', async function (ms) {
 	await driver.sleep(parseInt(ms));
 	var world = this;
 	await driver.takeScreenshot().then(async function (buffer) {
@@ -195,10 +215,10 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
 								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
 							} catch (e) {
-								try{
+								try {
 									await driver.findElement(By.xpath(`${label}`)).clear();
 									await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
-								}catch(e2){
+								} catch (e2) {
 									var world = this;
 									await driver.takeScreenshot().then(async function (buffer) {
 										world.attach(buffer, 'image/png');
@@ -238,9 +258,9 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 		try {
 			await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::button[@type='button']`)).click();
 		} catch (e) {
-			try{
+			try {
 				await driver.findElement(By.xpath(`${dropd}`)).click();
-			}catch(e2){
+			} catch (e2) {
 				var world = this;
 				await driver.takeScreenshot().then(async function (buffer) {
 					world.attach(buffer, 'image/png');
@@ -278,27 +298,27 @@ When('I hover over the element {string} and select the option {string}', async f
 		await action2.move({ origin: selection }).click()
 			.perform();
 	} catch (e) {
-	  const action = driver.actions({ bridge: true });
-	  const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), 3 * 1000);
-	  await action.move({ x: 0, y: 0, origin: link }).perform();
-	  await driver.sleep(2000);
-	  try {
-		const action2 = driver.actions({ bridge: true }); // second action needed?
-		const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
-		await action2.move({ origin: selection }).click().perform();
-	  } catch (e) {
-		  try{
-			
-			const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
+		const action = driver.actions({ bridge: true });
+		const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), 3 * 1000);
+		await action.move({ x: 0, y: 0, origin: link }).perform();
+		await driver.sleep(2000);
+		try {
+			const action2 = driver.actions({ bridge: true }); // second action needed?
+			const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
 			await action2.move({ origin: selection }).click().perform();
-		  }catch(e2){
+		} catch (e) {
+			try {
+
+				const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
+				await action2.move({ origin: selection }).click().perform();
+			} catch (e2) {
 				var world = this;
 				await driver.takeScreenshot().then(async function (buffer) {
 					world.attach(buffer, 'image/png');
 				});
 				throw Error(e)
+			}
 		}
-	  }
 	}
 	await driver.sleep(currentParameters.waitTime);
 	var world = this;
@@ -308,7 +328,7 @@ When('I hover over the element {string} and select the option {string}', async f
 });
 
 // TODO:
-When('I select from the {string} multiple selection, the values {string}{string}{string}', async function (){});
+When('I select from the {string} multiple selection, the values {string}{string}{string}', async function () { });
 
 // Check the Checkbox with a specific name or id
 When('I check the box {string}', async function checkBox(name) {
@@ -321,22 +341,22 @@ When('I check the box {string}', async function checkBox(name) {
 	try { // this one works, even if the element is not clickable (due to other elements blocking it):
 		await driver.findElement(By.xpath(`//*[@type="checkbox" and @*="${name}"]`)).sendKeys(Key.SPACE);
 	} catch (e) {
-	  	try { // this one works, for a text label next to the actual checkbox
+		try { // this one works, for a text label next to the actual checkbox
 			await driver.findElement(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)).click();
-	  	} catch (e) { // default
+		} catch (e) { // default
 			try {
-		  		await driver.findElement(By.xpath('//*[contains(text(),"' + name + '") or @*="' + name + '"]')).click();
+				await driver.findElement(By.xpath('//*[contains(text(),"' + name + '") or @*="' + name + '"]')).click();
 			} catch (e) {
-				try{
+				try {
 					await driver.findElement(By.xpath(`${name}`)).click();
-				}catch(e2){
+				} catch (e2) {
 					var world = this;
 					await driver.takeScreenshot().then(async function (buffer) {
 						world.attach(buffer, 'image/png');
 					});
 					throw Error(e)
 				}
-		  	}
+			}
 		}
 	}
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
@@ -357,7 +377,7 @@ When('Switch to the newly opened tab', async function switchToNewTab() {
 	});
 });
 
-When('Switch to the newly opened tab', async function (){
+When('Switch to the newly opened tab', async function () {
 	let tabs = await driver.getAllWindowHandles();
 	await driver.switchTo().window(tabs[1]);
 	await driver.sleep(currentParameters.waitTime);
@@ -401,10 +421,10 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 			await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
 				.sendKeys(`${path}`);
 		} catch (e) {
-			try{
+			try {
 				await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
-				.sendKeys(`${path}`);
-			}catch(e2){
+					.sendKeys(`${path}`);
+			} catch (e2) {
 				var world = this;
 				await driver.takeScreenshot().then(async function (buffer) {
 					world.attach(buffer, 'image/png');
@@ -421,7 +441,7 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
-Then('So I will be navigated to the website: {string}', async function (url){
+Then('So I will be navigated to the website: {string}', async function (url) {
 	await driver.getCurrentUrl().then(async (currentUrl) => {
 		expect(currentUrl).to.equal(url, 'Error');
 	});
@@ -452,11 +472,11 @@ Then('So I can see the text: {string}', async function (string) {
 	await driver.sleep(2000);
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
-	  const css_body = await body.getText().then(bodytext => bodytext);
-	  const inner_html_body = await driver.executeScript("return document.documentElement.innerHTML");
-	  const outer_html_body = await driver.executeScript("return document.documentElement.outerHTML");
-	  const body_all = css_body + inner_html_body + outer_html_body;
-	  expect(body_all.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
+		const css_body = await body.getText().then(bodytext => bodytext);
+		const inner_html_body = await driver.executeScript("return document.documentElement.innerHTML");
+		const outer_html_body = await driver.executeScript("return document.documentElement.outerHTML");
+		const body_all = css_body + inner_html_body + outer_html_body;
+		expect(body_all.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
 	})
 	await driver.sleep(currentParameters.waitTime);
 	var world = this;
@@ -480,13 +500,13 @@ Then('So I can´t see text in the textbox: {string}', async function (label) {
 });
 
 Then('So a file with the name {string} is downloaded in this Directory {string}', async function (fileName, Directory) {
-  let path = `${Directory}\\${fileName}`  //todo pathingtool (path.normalize)serverhelper
-  await fs.promises.access(path, fs.constants.F_OK)
-  await driver.sleep(currentParameters.waitTime);
-  var world = this;
-  await driver.takeScreenshot().then(async function (buffer) {
-	world.attach(buffer, 'image/png');
-});
+	let path = `${Directory}\\${fileName}`  //todo pathingtool (path.normalize)serverhelper
+	await fs.promises.access(path, fs.constants.F_OK)
+	await driver.sleep(currentParameters.waitTime);
+	var world = this;
+	await driver.takeScreenshot().then(async function (buffer) {
+		world.attach(buffer, 'image/png');
+	});
 })
 
 Then('So a file with the name {string} is downloaded in this Directory {string}',
@@ -496,8 +516,8 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 		await driver.sleep(currentParameters.waitTime);
 		var world = this;
 		await driver.takeScreenshot().then(async function (buffer) {
-		  world.attach(buffer, 'image/png');
-	  	});
+			world.attach(buffer, 'image/png');
+		});
 	});
 
 // Search if a text isn't in html code
@@ -505,11 +525,11 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 	await driver.sleep(2000);
 	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 	await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
-	  const css_body = await body.getText().then(bodytext => bodytext);
-	  const inner_html_body = await driver.executeScript("return document.documentElement.innerHTML");
-	  const outer_html_body = await driver.executeScript("return document.documentElement.outerHTML");
-	  const body_all = css_body + inner_html_body + outer_html_body;
-	  expect(body_all.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
+		const css_body = await body.getText().then(bodytext => bodytext);
+		const inner_html_body = await driver.executeScript("return document.documentElement.innerHTML");
+		const outer_html_body = await driver.executeScript("return document.documentElement.outerHTML");
+		const body_all = css_body + inner_html_body + outer_html_body;
+		expect(body_all.toLowerCase()).to.not.include(string.toString().toLowerCase(), 'Error');
 	})
 	await driver.sleep(currentParameters.waitTime);
 	var world = this;
@@ -534,27 +554,27 @@ async function daisyLogout() {
 
 // Closes the webdriver (Browser)
 // runs after each Scenario
-After(async function closeDriver() {
-	// console.log(currentParameters.daisyAutoLogout);
-	// console.log(typeof (currentParameters.daisyAutoLogout));
-	// currentParameters.daisyAutoLogout == 'true' ||
-	if (currentParameters && currentParameters.daisyAutoLogout === true) {
-		console.log('Trying DaisyAutoLogout');
-		try {
-			await daisyLogout();
-		} catch (e) {
-			console.log('Failed DaisyAutoLogout');
-		}
-	}
-	scenarioIndex += 1;
-	// Without Timeout driver quit is happening too quickly. Need a better solution
-	// https://github.com/SeleniumHQ/selenium/issues/5560
-	if (process.env.NODE_ENV) {
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-		driver.quit();
-	}
-});
+// After(async function closeDriver() {
+// 	// console.log(currentParameters.daisyAutoLogout);
+// 	// console.log(typeof (currentParameters.daisyAutoLogout));
+// 	// currentParameters.daisyAutoLogout == 'true' ||
+// 	if (currentParameters && currentParameters.daisyAutoLogout === true) {
+// 		console.log('Trying DaisyAutoLogout');
+// 		try {
+// 			await daisyLogout();
+// 		} catch (e) {
+// 			console.log('Failed DaisyAutoLogout');
+// 		}
+// 	}
+// 	scenarioIndex += 1;
+// 	// Without Timeout driver quit is happening too quickly. Need a better solution
+// 	// https://github.com/SeleniumHQ/selenium/issues/5560
+// 	if (process.env.NODE_ENV) {
+// 		const condition = until.elementLocated(By.name('loader'));
+// 		driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
+// 		driver.quit();
+// 	}
+// });
 
 
 // clicks a button if found in html code with xpath,
@@ -562,19 +582,19 @@ After(async function closeDriver() {
 async function clickButton(button) {
 	await driver.getCurrentUrl()
 		.then(async (currentUrl) => {
-						// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-						if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-								.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-						else try {
-								await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + '=\''}${button}' or ` + `${'@*' + '=\''}${button}']`)), 3 * 1000)
-										.click();
-								await driver.wait(async () => driver.executeScript('return document.readyState')
-										.then(async readyState => readyState === 'complete'));
-						} catch (e) {
-								await driver.findElement(By.xpath(`${button}`))
-										.click();
-						}
-				});
+			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
+			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
+				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
+			else try {
+				await driver.wait(until.elementLocated(By.xpath(`${'//*[text()' + '=\''}${button}' or ` + `${'@*' + '=\''}${button}']`)), 3 * 1000)
+					.click();
+				await driver.wait(async () => driver.executeScript('return document.readyState')
+					.then(async readyState => readyState === 'complete'));
+			} catch (e) {
+				await driver.findElement(By.xpath(`${button}`))
+					.click();
+			}
+		});
 }
 
 // selenium sleeps for a certain amount of time

@@ -39,7 +39,6 @@ export class ApiService {
     public user;
     //public local:boolean = false;
 
-
     public static getOptions() {
         return { withCredentials: true};
     }
@@ -455,6 +454,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         let head: HttpHeaders = new HttpHeaders();
         head.append('timeout', '600000')
+        console.log("Apiservice: params:", params)
         if (scenarioID) {
             return this.http
                 .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, {
@@ -488,4 +488,12 @@ export class ApiService {
     isCustomRepo(repo): boolean {
         return ( repo.source === 'db');
     }
+
+    public changeOneDriver(oneDriver: boolean, storyID: any) {
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
+    }
+    
 }

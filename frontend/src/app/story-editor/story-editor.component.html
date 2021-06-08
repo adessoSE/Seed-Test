@@ -179,6 +179,8 @@
       </div>
 
       <div class="storyInfoCenter">
+          <label class="selectLabel SmallBody1regularLH">Execute all in one Driver:</label>
+          <input type="checkbox" id="oneDriverCheck" (change)= "setOneDriver($event)" [checked]="this.selectedStory.oneDriver">
           <label class="selectLabel SmallBody1regularLH">Wait between steps (ms):</label>
           <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0 min=0 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
           <label class="selectLabel SmallBody1regularLH">Browser:</label>

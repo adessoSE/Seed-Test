@@ -8,6 +8,7 @@ export interface Story {
     storySource: string;
     background: Background;
     scenarios: Scenario[];
+    oneDriver?: boolean;
     title: string;
     body: string;
     state: string;

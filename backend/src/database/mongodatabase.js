@@ -443,6 +443,7 @@ async function createStory(storyTitel, storyDescription, repoId) {
       state: 'open',
       assignee_avatar_url: null,
       lastTestPassed: null,
+      oneDriver: false
     }
     let result = await collection.insertOne(emptyStory)
     return result.insertedId
@@ -1043,6 +1044,22 @@ async function removeFromWorkgroup(id, user) {
   }
 }
 
+async function updateOneDriver(id, driver) {
+  let db;
+  try {
+    let oneDriver = !driver.oneDriver
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let result = await collection.findOneAndUpdate({ _id: ObjectId(id) }, { $set: {oneDriver: oneDriver }}, {returnOriginal: false})
+    return result.value
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in updateOneDriver: " + e)
+  } finally {
+    if (db) db.close()
+  }
+}
+
+
 module.exports = {
   getReport,
   uploadReport,
@@ -1093,4 +1110,5 @@ module.exports = {
   updateMemberStatus,
   getMembers,
   removeFromWorkgroup,
+  updateOneDriver,
 };
