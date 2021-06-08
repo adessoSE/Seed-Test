@@ -51,32 +51,110 @@ export class ModalsComponent{
   /**
    * Modal: add block form modal
    */
+
+  /**
+   * Saved blocks 
+   */
   blocks: Block[];
+
+  /**
+   * Steps of the current block
+   */
   stepList: any;
+
+  /**
+   * Current selected block list
+   */
   selectedBlockList: Block[]; 
+
+  /**
+   * Currently selected block
+   */
   selectedBlock: Block;
+
+  /**
+   * Columns of the select block table
+   */
   displayedColumns: string[] = ['stepType', 'pre'];
+
+  /**
+   * Background or Scenario, depending from where the block was saved
+   */
   correspondingComponent: string;
+
+  /**
+   * Block which is saved to the clipboard
+   */
   clipboardBlock: Block;
+
 
   /**
    * Modal: save Block form modal
    */
+
+  /**
+   * Block to be saved
+   */
   block: Block;
+
+  /**
+   * Columns of the save block table
+   */
   displayedColumnsSaveBlock: string[] = ['stepType', 'pre'];
+
+  /**
+   * List with the steps to be saved to the block
+   */
   stepListSaveBlock = [];
+
+  /**
+   * If the block is an example
+   */
   exampleBlock = false;
+
+  /**
+   * If an example is checked
+   */
   exampleChecked = false;
+
+  /**
+   * All Steps
+   */
   stepListComplete = [];
+
+  /**
+   * Parent component
+   */
   parentComponent;
   
+
   /**
    * Modal: workgroup modal
    */
+
+  /**
+   * Columns of the workgroup table
+   */
   displayedColumnsWorkgroup: string[] = ['email' , 'can_edit_workgroup'];
+
+  /**
+   * List of all members in the workgroup
+   */
   workgroupList = []
+
+  /**
+   * Owner of the workgroup
+   */
   workgroupOwner = ''
+
+  /**
+   * Error if the request was not successful
+   */
   workgroupError = '';
+
+  /**
+   * Repository container of the workgroup
+   */
   workgroupProject: RepositoryContainer;
 
   /**

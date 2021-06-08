@@ -36,19 +36,53 @@ export class ApiService {
     public urlReceived = false;
 
     /**
-     * Event Emitters
+     * Event Emitter if the stories could not be retrieved
      */
     public storiesErrorEvent = new EventEmitter();
+
+    /**
+     * Event Emitter to distribute the stories to all components
+     */
     public getStoriesEvent = new EventEmitter();
-    public getTokenEvent = new EventEmitter();
+
+    /**
+     * Event Emitter to signal that the backend url is available
+     */
     public getBackendUrlEvent = new EventEmitter();
+
+    /**
+     * Event Emitter to distribute the repositories to all components
+     */
     public getRepositoriesEvent = new EventEmitter();
-    public getProjectsEvent = new EventEmitter();
+
+    /**
+     * Event emitter to save the story / scenario and then run the test
+     */
     public runSaveOptionEvent = new EventEmitter();
+
+    /**
+     * Event emitter to add a block to the current scenario
+     */
     public addBlockToScenarioEvent = new EventEmitter();
+
+    /**
+     * Event emitter to logout the user
+     */
     public logoutEvent = new EventEmitter();
+
+    /**
+     * Event emitter to rename the scenario
+     */
     public renameScenarioEvent = new EventEmitter();
+
+    /**
+     * Event emitter to delete the scenario
+     */
     public deleteScenarioEvent = new EventEmitter();
+
+    /**
+     * Event emitter to create a custom story
+     */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
 
     /**

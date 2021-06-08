@@ -26,11 +26,23 @@ export class AccountManagementComponent implements OnInit {
     repositories: RepositoryContainer[];
 
     /**
-     * Data of the user
+     * Email of the user
      */
     email: string;
+
+    /**
+     * Github object of the user
+     */
     github: any;
+
+    /**
+     * Jira object of the user
+     */
     jira: any;
+
+    /**
+     * User id
+     */
     id: string;
 
     /**
