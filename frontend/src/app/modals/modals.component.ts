@@ -7,16 +7,25 @@ import { StepType } from '../model/StepType';
 import { NgForm } from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
+/**
+ * Component of all Modals
+ */
 @Component({
   selector: 'app-modals',
   templateUrl: './modals.component.html',
   styleUrls: ['./modals.component.css']
 })
 export class ModalsComponent{
-  @Output()
-  mongoUpdate: EventEmitter<any> = new EventEmitter();
 
+  /**
+   * Emits a response after the jira account got created
+   */
+  @Output()
+  jiraAccountResponse: EventEmitter<any> = new EventEmitter();
   
+  /**
+   * View childs of all the several modals
+   */
   @ViewChild('changeJiraAccountModal') changeJiraAccountModal: any;
   @ViewChild('createCustomProjectModal') createCustomProjectModal: any;
   @ViewChild('deleteAccountModal') deleteAccountModal: any;
@@ -27,15 +36,21 @@ export class ModalsComponent{
   @ViewChild('workgroupEditModal') workgroupEditModal: any;
   @ViewChild('createNewStoryModal') createNewStoryModal: any;
 
-
-  //change Jira account modal
+  /**
+   * Type of the changed account
+   * Modal: change Jira account modal
+   */
   type: string;
 
-  // delete account modal
+  /**
+   * Email of the user
+   * Modal: delete account modal
+   */
   email: string;
 
-  
-  // add block form modal
+  /**
+   * Modal: add block form modal
+   */
   blocks: Block[];
   stepList: any;
   selectedBlockList: Block[]; 
@@ -44,7 +59,9 @@ export class ModalsComponent{
   correspondingComponent: string;
   clipboardBlock: Block;
 
-  // save Block form modal
+  /**
+   * Modal: save Block form modal
+   */
   block: Block;
   displayedColumnsSaveBlock: string[] = ['stepType', 'pre'];
   stepListSaveBlock = [];
@@ -53,22 +70,35 @@ export class ModalsComponent{
   stepListComplete = [];
   parentComponent;
   
-  // workgroup modal
+  /**
+   * Modal: workgroup modal
+   */
   displayedColumnsWorkgroup: string[] = ['email' , 'can_edit_workgroup'];
   workgroupList = []
   workgroupOwner = ''
   workgroupError = '';
   workgroupProject: RepositoryContainer;
 
+  /**
+   * @ignore
+   */
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
   }
 
   // change Jira Account modal
+
+  /**
+   * Opens the change Jira Account Modal
+   * @param type type of the changed account
+   */
   openChangeJiraAccountModal(type) {
       this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
       this.type = type;
   }
 
+  /**
+   * Create or change Jira Account
+   */
   changeJiraAccountSubmit() {
     if (this.type === 'Jira') {
         const jiraAccountName = (document.getElementById('jiraAccountName') as HTMLInputElement).value;
@@ -80,16 +110,23 @@ export class ModalsComponent{
             'jiraHost': jiraHost,
         };
         this.apiService.createJiraAccount(request).subscribe(response => {
-            this.mongoUpdate.emit(response);
+            this.jiraAccountResponse.emit(response);
         });
     }
   }
 
   // create custom project modal
+
+  /**
+   * Open the create custom project modal
+   */
   openCreateCustomProjectModal() {
       this.modalService.open(this.createCustomProjectModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
   }
 
+  /**
+   * Submits the repository to the backend
+   */
   submitRepo(){
     const name = (document.getElementById('repo_name') as HTMLInputElement).value;
     if (!this.isEmptyOrSpaces(name)){
@@ -102,17 +139,30 @@ export class ModalsComponent{
     }
   }
 
+  /**
+   * Checks if the string is empty or only contains spaces
+   * @param str 
+   * @returns
+   */
   isEmptyOrSpaces(str: string){
     return str === null || str.match(/^ *$/) !== null;
   }
 
   // delete Account Modal
+
+  /**
+   * Opens delete account modal
+   * @param email email of the user
+   */
   openDeleteAccountModal(email) {
       this.email = email;
       this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
   }
 
-  eraseAccount(){
+  /**
+   * Deletes The Seed-Test account
+   */
+  deleteAccount(){
       let insertedEmail = (document.getElementById('insertedEmail') as HTMLInputElement).value;
       if (insertedEmail == this.email){
           this.apiService.deleteUser().subscribe(resp => {
@@ -127,20 +177,33 @@ export class ModalsComponent{
 
   // add block form modal
   
-  openAddBlockFormModal(correspondingComponent, repoId) {
+  /**
+   * Opens the add block form modal
+   * @param correspondingComponent is either background or scenario 
+   * @param repoId id of the current repository / project
+   */
+  openAddBlockFormModal(correspondingComponent: string, repoId: string) {
     this.getAllBlocks(repoId)
     this.correspondingComponent = correspondingComponent;
     this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
     this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
   }
 
-  getAllBlocks(repoId){
+  /**
+   * Get all blocks from the backend
+   * @param repoId id of the repository / project
+   */
+  getAllBlocks(repoId: string){
     this.apiService.getBlocks(repoId).subscribe((resp) => {
       this.blocks = resp
     });
   }
 
-  change(event){
+  /**
+   * Changes block selection and updates the shown step list
+   * @param event 
+   */
+   changeBlockSelection(event){
     this.selectedBlock = this.selectedBlockList[0]
     this.selectedBlockList = []
 
@@ -152,16 +215,28 @@ export class ModalsComponent{
     })
   }
 
+  /**
+   * Copies a block from the clipboard to the scenario
+   */
   copiedBlock() {
     if (this.clipboardBlock){
       this.apiService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent)
     }
   }
 
+  /**
+   * Adds a block to saved blocks
+   */
   addBlockFormSubmit() {
     this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent)
   }
 
+  /**
+   * Deletes a block from the saved blocks
+   * @param event click event
+   * @param rowIndex index of the deleted block
+   * @param block block to be deleted
+   */
   deleteBlock(event, rowIndex: number, block: Block) {
     event.stopPropagation();
     this.apiService.deleteBlock(block._id).subscribe(resp => {
@@ -173,6 +248,12 @@ export class ModalsComponent{
 
 
   //save block form modal
+
+  /**
+   * Opens save block form modal
+   * @param block 
+   * @param comp 
+   */
   openSaveBlockFormModal(block: Block, comp) {
     this.exampleBlock = false;
     this.exampleChecked = false;
@@ -185,6 +266,9 @@ export class ModalsComponent{
     this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
+  /**
+   * Creates a new step list
+   */
   createStepList(){
     this.stepListSaveBlock = []
     Object.keys(this.block.stepDefinitions).forEach((key, index) => {
@@ -194,6 +278,10 @@ export class ModalsComponent{
     })
   }
 
+  /**
+   * Checks if an example is contained in the step list
+   * @param event 
+   */
   exampleCheck(event){
     this.exampleChecked = !this.exampleChecked;
     if(this.exampleChecked){
@@ -206,6 +294,9 @@ export class ModalsComponent{
     }
   }
 
+  /**
+   * Submits and saves a block
+   */
   submitSaveBlock() {
       if(this.exampleBlock){
         this.parentComponent.checkAllExampleSteps(null, false)
@@ -225,15 +316,23 @@ export class ModalsComponent{
       });
   }
 
+
   // new step request modal
 
+  /**
+   * Opens a new step request modal 
+   * @param stepType 
+   */
   openNewStepRequestModal(stepType) {
     this.modalService.open(this.newStepRequestModal, {ariaLabelledBy: 'modal-basic-title'});
     const id = 'type_form_' + stepType;
     (document.getElementById(id) as HTMLOptionElement).selected = true;
   }
 
-
+  /**
+   * Submits a request to create a new step
+   * @param form 
+   */
   submitNewStepRequest(form: NgForm) {
       let title = (document.getElementById('label_form') as HTMLInputElement).value;
       if (title.length === 0) {
@@ -263,18 +362,30 @@ export class ModalsComponent{
 
   // rename Scenario
 
-  openRenameScenarioModal(oldTitle) {
+  /**
+   * Opens the rename scenario Modal
+   * @param oldTitle old scenario title
+   */
+  openRenameScenarioModal(oldTitle: string) {
     this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
     let name = document.getElementById('newTitle') as HTMLInputElement
     name.placeholder = oldTitle
   }
 
+  /**
+   * Submits the new name for the scenario
+   */
   submitRenameScenario() {
     let name = (document.getElementById('newTitle') as HTMLInputElement).value ;
     this.apiService.renameScenarioEmit(name)
   }
 
+
   // workgroup Edit Modal
+
+  /**
+   * Opens the workgroup edit modal
+   */
   openWorkgroupEditModal(project: RepositoryContainer) {
     this.workgroupList = []
     this.workgroupProject = project
@@ -288,6 +399,10 @@ export class ModalsComponent{
     })
   }
 
+  /**
+   * Invites a user to the workgroup
+   * @param form 
+   */
   workgroupInvite(form: NgForm) {
     let email = form.value.email;
     let canEdit = form.value.canEdit
@@ -300,31 +415,47 @@ export class ModalsComponent{
       this.workgroupList = []
       this.workgroupList = originList
     }, (error) => {
-      this.workgroupError = error.error.error
+      this.workgroupError = error.error.error;
     })
   }
 
+  /**
+   * Removes a user from the workgroup
+   * @param user
+   */
   removeFromWorkgroup(user){
     this.apiService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res.member
+      this.workgroupList = res.member;
     })
   }
 
+  /**
+   * Checks if the user can edit the workgroup
+   * @param event 
+   * @param user 
+   */
   checkEditUser(event, user){
     user.canEdit = !user.canEdit
     this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
-      this.workgroupList = res.member
+      this.workgroupList = res.member;
     })
   }
 
 
   // createNewStoryModal
 
+  /**
+   * Opens the create new story modal
+   */
   openCreateNewStoryModal() {
-    this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm' });
+    this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
-  createNewStory() {
+  /**
+   * Creates a new custom story 
+   */
+  createNewStory(event) {
+    event.stopPropagation();
     const title = (document.getElementById('storytitle') as HTMLInputElement).value;
     const description = (document.getElementById('storydescription') as HTMLInputElement).value;
     const value = localStorage.getItem('repository');
@@ -332,8 +463,7 @@ export class ModalsComponent{
     const source = 'db';
     const repositoryContainer: RepositoryContainer = {value, source, _id};
     let story = {title, description}
-    this.apiService.createCustomStoryEmitter.emit({repositoryContainer, story})
-
+    this.apiService.createCustomStoryEvent({repositoryContainer, story})
   }
     
 }

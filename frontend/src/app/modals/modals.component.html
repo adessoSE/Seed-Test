@@ -95,7 +95,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton deleteButton" (click)="eraseAccount(); modal.close('Save click')">Delete my Account
+        <button type="button" class="normalButton deleteButton" (click)="deleteAccount(); modal.close('Save click')">Delete my Account
         </button>
     </div>
 </ng-template>
@@ -114,7 +114,7 @@
     <div class="dividerContainer">
         <div class="savedBlocksContainer">
           <p class="subHeader">Saved Blocks</p>
-          <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="change($event)" name="folderss">
+          <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="changeBlockSelection($event)" name="folderss">
               <mat-list-option  *ngFor="let block of blocks, let rowIndex = index" [value]="block" >
                 <button a uk-icon="icon: minus-circle" class="deleteBlockButton uk-text-danger" uk-tooltip title="Delete Block" (click)="deleteBlock($event, rowIndex, block)"></button>
                 <h4 mat-line>{{block.name}}</h4>
@@ -344,6 +344,6 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="createNewStory(); modal.close('Save click')">Save</button>
+        <button type="button" class="normalButton" (click)="createNewStory($event); modal.close('Save click')">Save</button>
     </div>
 </ng-template>

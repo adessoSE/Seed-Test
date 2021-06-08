@@ -6,11 +6,13 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-  import { Component} from '@angular/core';
-  
-  import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
+import { Component} from '@angular/core';
+import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
   
+/**
+ * Component of the Delete Scenario toasts
+ */
   @Component({
     selector: '[pink-toast-component]',
     //styles: [`
@@ -112,12 +114,23 @@ import { ApiService } from './Services/api.service';
     preserveWhitespaces: false,
   })
   export class DeleteScenarioToast extends Toast {
-    // used for demo purposes
+    
+    /**
+     * Name of the delete button
+     */
     deleteString = 'Delete';
+    /**
+     * Name of the cancel button
+     */
     cancelString = 'Cancel';
 
-    // constructor is only necessary when not using AoT
-
+    /**
+     * Constructor
+     * @param toastrService 
+     * @param toastPackage 
+     * @param apiService 
+     * constructor is only necessary when not using AoT
+     */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
@@ -125,9 +138,12 @@ import { ApiService } from './Services/api.service';
     ) {
       super(toastrService, toastPackage);
     }
-  
+    
+    /**
+     * Creates a toast and deltes the scenario
+     * @param event 
+     */
     deleteToast(event: Event){
-        console.log('delete Toast')
         event.stopPropagation();
         this.apiService.deleteScenarioEmitter()
         this.remove();
