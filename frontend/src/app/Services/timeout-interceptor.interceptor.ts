@@ -14,6 +14,7 @@ export class TimeoutInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const timeoutValue = req.headers.get('timeout') || this.defaultTimeout;
+    console.log('timeoutValue', timeoutValue)
     const timeoutValueNumeric = Number(timeoutValue);
 
     return next.handle(req).pipe(timeout(timeoutValueNumeric));
