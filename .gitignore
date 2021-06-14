@@ -50,6 +50,7 @@ envrionment.ts
 .DS_Store
 Thumbs.db
 
+frontend/documentation
 
 frontend/coverage
 !frontend/coverage/lcov.info
