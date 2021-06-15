@@ -321,7 +321,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
         return this.http
-            .post<any>(this.apiServer + '/story/', body, ApiService.getOptions())
+            .post<Story>(this.apiServer + '/story/', body, ApiService.getOptions())
             .pipe(tap(resp => {
             }));
     }

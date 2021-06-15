@@ -70,17 +70,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
       this.stories = stories;
       this.isCustomStory = localStorage.getItem('source') === 'db' ;
     } );
-
-    this.apiService.createCustomStoryEmitter.subscribe(custom => {
-      this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
-        this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
-          console.log('stories', resp);
-          this.stories = resp;
-        });
-      });
-    })
-    // TODO update Story
-    // TODO delete Story
   }
 
 
@@ -104,6 +93,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
       });
     })
+    // TODO update Story
+    // TODO delete Story
   }
 
   ngOnDestroy() {

@@ -43,7 +43,7 @@ router.get('/:_id/:source', async (req, res) => {
 router.post('/',async (req, res)=> {
     try {
         const db_id = await mongo.createStory(req.body.title, req.body.description, req.body._id);
-        mongo.insertStoryIdIntoRepo( db_id, req.body._id)
+        await mongo.insertStoryIdIntoRepo( db_id, req.body._id)
         res.status(200).json(db_id)
     } catch (e) {
         handleError(res, e, e, 500);
@@ -61,9 +61,9 @@ router.put('/:_id', async (req, res)=>{
     }
 });
 
-router.delete('/:repo_id/:_id', (req, res)=>{
+router.delete('/:repo_id/:_id', async (req, res)=>{
    try {
-       mongo.deleteStory(req.params.repo_id, req.params._id)
+       await mongo.deleteStory(req.params.repo_id, req.params._id)
        res.status(200).json({text: 'success'})
    } catch (e) {
        handleError(res, e, e, 500);
@@ -86,7 +86,7 @@ router.get('/:story_id/:source/:_id', async (req, res)=>{
 router.post('/:story_id/:source', async (req, res) => {
     try {
         const scenario = await mongo.createScenario(req.params.story_id, req.params.source);
-        helper.updateFeatureFile(req.params.story_id, req.params.source);
+        await helper.updateFeatureFile(req.params.story_id, req.params.source);
         res.status(200)
             .json(scenario);
     } catch (error) {
@@ -100,7 +100,7 @@ router.put('/:story_id/:source/:_id', async (req, res) => {
     try {
         const scenario = req.body;
         const updatedStory = await mongo.updateScenario(req.params.story_id, req.params.source, scenario);
-        helper.updateFeatureFile(req.params.story_id, req.params.source);
+        await helper.updateFeatureFile(req.params.story_id, req.params.source);
         res.status(200)
             .json(updatedStory);
     } catch (error) {
@@ -113,7 +113,7 @@ router.delete('/:story_id/:source/:_id', async (req, res) => {
     try {
         await mongo
             .deleteScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10));
-        helper.updateFeatureFile(req.params.story_id, req.params.source);
+        await helper.updateFeatureFile(req.params.story_id, req.params.source);
         res.status(200)
             .json({text: 'success'});
     } catch (error) {
