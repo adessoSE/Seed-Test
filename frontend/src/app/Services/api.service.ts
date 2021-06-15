@@ -638,9 +638,18 @@ export class ApiService {
     addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
+            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
+            }));
+    }
+
+    getScenario(storyID: any, storySource, scenarioID): Observable<Scenario> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .get<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenarioID, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Get scenario in story ' + storyID + '!', resp)
             }));
     }
 
@@ -678,10 +687,10 @@ export class ApiService {
      * @param scenario 
      * @returns 
      */
-    updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
+    updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storySource, scenario, ApiService.getOptions())
+            .put<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
             }));
@@ -756,7 +765,7 @@ export class ApiService {
     deleteScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
+            .delete<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
             }));

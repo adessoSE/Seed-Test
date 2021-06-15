@@ -349,25 +349,6 @@ async function getOneStory(storyId, storySource) {
 }
 
 
-async function getOneStoryByStoryId(storyId, storySource) {
-  let db;
-  try {
-    db = await connectDb()
-    let collection = await selectStoriesCollection(db)
-    let story = await collection.findOne({ story_id: storyId, storySource: storySource })
-    // TODO remove later when all used stories have the tag storySource
-    if (!story) {
-      story = await collection.findOne({ story_id: storyId, storySource: undefined })
-    }
-    return story
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
-  throw e;
-} finally {
-    if (db) db.close();
-  }
-}
-
 // GET all  Steptypes
 async function showSteptypes() {
   let db;
@@ -525,6 +506,29 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
   }
 }
 
+// GET ONE Scenario
+async function getOneScenario(storyId, storySource, scenarioId) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource , "scenarios.scenario_id": scenarioId})
+    let ret;
+    for (const scenario of story.scenarios) {
+      if (scenario.scenario_id === scenarioId) {
+        ret = scenario;
+        break;
+      }
+    }
+    return ret
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getOneScenario: " + e)
+    throw e;
+  } finally {
+    if (db) db.close();
+  }
+}
+
 // CREATE Scenario
 async function createScenario(storyId, storySource) {
   let db;
@@ -550,30 +554,7 @@ async function createScenario(storyId, storySource) {
   }
 }
 
-// DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioID) {
-  let db;
-  try {
-    db = await connectDb()
-    let collection = await selectStoriesCollection(db)
-    let story = await findStory(storyId, storySource, collection)
-    for (let i = 0; i < story.scenarios.length; i++) {
-      if (story.scenarios[i].scenario_id === scenarioID) {
-        story.scenarios.splice(i, 1);
-      }
-    }
-    let result = await replace(story, collection)
-    db.close()
-    return result
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in deleteScenario: " + e)
-  throw e;
-} finally {
-    if (db) db.close()
-  }
-}
-
-// POST Scenario
+// PUT Scenario
 async function updateScenario(storyId, storySource, updatedScenario) {
   let db;
   try {
@@ -591,9 +572,38 @@ async function updateScenario(storyId, storySource, updatedScenario) {
       }
     }
     let result = await replace(story, collection)
+    for (const scenario of result.scenarios) {
+      if (scenario.scenario_id === updatedScenario.scenario_id) {
+        result = scenario;
+        break;
+      }
+    }
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateScenario: " + e)
+    throw e;
+  } finally {
+    if (db) db.close()
+  }
+}
+
+// DELETE Scenario
+async function deleteScenario(storyId, storySource, scenarioID) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyId, storySource, collection)
+    for (let i = 0; i < story.scenarios.length; i++) {
+      if (story.scenarios[i].scenario_id === scenarioID) {
+        story.scenarios.splice(i, 1);
+      }
+    }
+    let result = await replace(story, collection)
+    db.close()
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in deleteScenario: " + e)
   throw e;
 } finally {
     if (db) db.close()
@@ -1165,14 +1175,14 @@ module.exports = {
   //createBackground,
   deleteBackground,
   updateBackground,
+  getOneScenario,
   createScenario,
-  deleteScenario,
   updateScenario,
+  deleteScenario,
   createStory,
   deleteStory,
   insertStoryIdIntoRepo,
   getOneStory,
-  getOneStoryByStoryId,
   upsertEntry,
   updateStory,
   createUser,

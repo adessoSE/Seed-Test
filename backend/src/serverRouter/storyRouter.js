@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase')
 
 const router = express.Router();
@@ -30,10 +31,9 @@ function handleError(res, reason, statusMessage, code) {
         .json({ error: statusMessage });
 }
 
-router.get('/:id/:source', (req, res)=>{
+router.get('/:_id/:source', async (req, res) => {
     try {
-
-        const story = mongo.getOneStory(req.params._id, req.params.source)
+        const story = await mongo.getOneStory(req.params._id, req.params.source)
         res.status(200).json(story)
     } catch (e) {
         handleError(res, e, e, 500)
@@ -69,5 +69,57 @@ router.delete('/:repo_id/:_id', (req, res)=>{
        handleError(res, e, e, 500);
    }
 });
+
+// get one scenario
+router.get('/:story_id/:source/:_id', async (req, res)=>{
+    try {
+        const scenario = await mongo.getOneScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10))
+        console.log(scenario)
+        res.status(200).json(scenario)
+    } catch (e) {
+        handleError(res, e, e, 500)
+    }
+});
+
+// create scenario
+// TODO: add storySource parameter in frontend
+router.post('/:story_id/:source', async (req, res) => {
+    try {
+        const scenario = await mongo.createScenario(req.params.story_id, req.params.source);
+        helper.updateFeatureFile(req.params.story_id, req.params.source);
+        res.status(200)
+            .json(scenario);
+    } catch (error) {
+        handleError(res, error, error, 500);
+    }
+});
+// update scenario
+// TODO: add storySource parameter in frontend
+router.put('/:story_id/:source/:_id', async (req, res) => {
+    console.log(req.body)
+    try {
+        const scenario = req.body;
+        const updatedStory = await mongo.updateScenario(req.params.story_id, req.params.source, scenario);
+        helper.updateFeatureFile(req.params.story_id, req.params.source);
+        res.status(200)
+            .json(updatedStory);
+    } catch (error) {
+        handleError(res, error, error, 500);
+    }
+});
+// delete scenario
+// TODO: add storySource parameter in frontend
+router.delete('/:story_id/:source/:_id', async (req, res) => {
+    try {
+        await mongo
+            .deleteScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10));
+        helper.updateFeatureFile(req.params.story_id, req.params.source);
+        res.status(200)
+            .json({text: 'success'});
+    } catch (error) {
+        handleError(res, error, error, 500);
+    }
+});
+
 
 module.exports = router;
