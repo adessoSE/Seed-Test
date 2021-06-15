@@ -18,7 +18,7 @@ import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
 import {EditModeDirective} from './directives/edit-mode.directive';
 import {EditableOnEnterDirective} from './directives/edit-on-enter.directive';
-import {FocusableDirective} from './example-table/focusable.directive';
+import {FocusableDirective} from './editable/focusable.directive';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { FeedbackComponent } from './feedback/feedback.component';
@@ -34,12 +34,13 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatCarouselModule } from '@ngbmodule/material-carousel';
-import {RunTestToast} from './custom-toast'
+import {RunTestToast} from './runSave-toast'
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
+import { ReportHistoryComponent } from './report-history/report-history.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +68,8 @@ import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-intercep
     DeleteScenarioToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
-    ModalsComponent
+    ModalsComponent,
+    ReportHistoryComponent
   ],
   imports: [
       NgbModule,

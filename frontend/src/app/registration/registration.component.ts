@@ -4,7 +4,9 @@ import {NavigationEnd, Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
-
+/**
+ * Component to register a new user
+ */
 @Component({
     selector: 'app-registration',
     templateUrl: './registration.component.html',
@@ -13,16 +15,26 @@ import { ToastrService } from 'ngx-toastr';
 
 export class RegistrationComponent implements OnInit {
 
-    user = {};
+    /**
+     * Error during user creation
+     */
     error: string;
 
-    constructor(public apiService: ApiService, private router: Router, private toastr: ToastrService) {
-        
-    }
+    /**
+     * @ignore
+     */
+    constructor(public apiService: ApiService, private router: Router, private toastr: ToastrService) {}
 
+    /**
+     * @ignore
+     */
     ngOnInit() {
     }
 
+    /**
+     * Registers a user to Seed-Test
+     * @param form user form
+     */
     async registerUser(form: NgForm){
         let userId = localStorage.getItem('userId');
         localStorage.removeItem('userId')
