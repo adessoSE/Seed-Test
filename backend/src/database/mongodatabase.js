@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectID;
+const emptyStory = require('../models/emptyStory')
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 
@@ -426,22 +427,11 @@ async function createStory(storyTitel, storyDescription, repoId) {
         }
       }
     }
-    let emptyStory = {
-      story_id: 0,
-      assignee: 'unassigned',
-      title: storyTitel,
-      body: storyDescription,
-      issue_number: finalIssueNumber,
-      background: emptyBackground(),
-      scenarios: [emptyScenario()],
-      storySource: 'db',
-      repo_type: 'db',
-      state: 'open',
-      assignee_avatar_url: null,
-      lastTestPassed: null,
-      oneDriver: false
-    }
-    let result = await collection.insertOne(emptyStory)
+    let story = emptyStory();
+    story.title = storyTitel
+    story.body = storyDescription
+    story.issue_number = finalIssueNumber
+    let result = await collection.insertOne(story)
     return result.insertedId
   } catch (e) {
     console.log("UPS!!!! FEHLER in createStory: " + e)
@@ -461,7 +451,6 @@ async function deleteStory(repoId, storyId){
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteStory: " + e)
     throw e
-  throw e;
 } finally {
     if (db) db.close()
   }
