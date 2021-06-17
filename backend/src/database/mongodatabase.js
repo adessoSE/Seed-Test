@@ -502,14 +502,7 @@ async function getOneScenario(storyId, storySource, scenarioId) {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
     let scenarios = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource , "scenarios.scenario_id": scenarioId}, {projection: {scenarios: 1}})
-    let ret;
-    console.log(scenarios)
-    for (const scenario of scenarios.scenarios) {
-      if (scenario.scenario_id === scenarioId) {
-        ret = scenario;
-        break;
-      }
-    }
+    let ret = scenarios.scenarios.find(o => o.scenario_id === scenarioId)
     return ret
   } catch (e) {
     console.log("UPS!!!! FEHLER in getOneScenario: " + e)
@@ -562,12 +555,7 @@ async function updateScenario(storyId, storySource, updatedScenario) {
       }
     }
     let result = await replace(story, collection)
-    for (const scenario of result.scenarios) {
-      if (scenario.scenario_id === updatedScenario.scenario_id) {
-        result = scenario;
-        break;
-      }
-    }
+    result = result.scenarios.find(o => o.scenario_id === updatedScenario.scenarioId)
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateScenario: " + e)
