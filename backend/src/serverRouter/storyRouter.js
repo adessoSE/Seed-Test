@@ -31,6 +31,7 @@ function handleError(res, reason, statusMessage, code) {
         .json({ error: statusMessage });
 }
 
+//get one Story
 router.get('/:_id/:source', async (req, res) => {
     try {
         const story = await mongo.getOneStory(req.params._id, req.params.source)
@@ -40,6 +41,7 @@ router.get('/:_id/:source', async (req, res) => {
     }
 });
 
+//create Story
 router.post('/',async (req, res)=> {
     try {
         const db_id = await mongo.createStory(req.body.title, req.body.description, req.body._id);
@@ -51,6 +53,7 @@ router.post('/',async (req, res)=> {
 
 });
 
+//update Story
 router.put('/:_id', async (req, res)=>{
     try {
         console.log(req.body)
@@ -61,6 +64,7 @@ router.put('/:_id', async (req, res)=>{
     }
 });
 
+//delete Story
 router.delete('/:repo_id/:_id', async (req, res)=>{
    try {
        await mongo.deleteStory(req.params.repo_id, req.params._id)
@@ -82,7 +86,6 @@ router.get('/:story_id/:source/:_id', async (req, res)=>{
 });
 
 // create scenario
-// TODO: add storySource parameter in frontend
 router.post('/:story_id/:source', async (req, res) => {
     try {
         const scenario = await mongo.createScenario(req.params.story_id, req.params.source);
@@ -93,8 +96,8 @@ router.post('/:story_id/:source', async (req, res) => {
         handleError(res, error, error, 500);
     }
 });
+
 // update scenario
-// TODO: add storySource parameter in frontend
 router.put('/:story_id/:source/:_id', async (req, res) => {
     console.log(req.body)
     try {
@@ -107,8 +110,8 @@ router.put('/:story_id/:source/:_id', async (req, res) => {
         handleError(res, error, error, 500);
     }
 });
+
 // delete scenario
-// TODO: add storySource parameter in frontend
 router.delete('/:story_id/:source/:_id', async (req, res) => {
     try {
         await mongo

@@ -298,7 +298,12 @@ export class ApiService {
             }));
     }
 
-
+    /**
+     * Get's single Story by ID
+     * @param _id storyID
+     * @param source repoSource
+     * @return single Story object
+     */
     public getStory(_id, source): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
 
@@ -308,16 +313,15 @@ export class ApiService {
             }));
     }
 
-
-    public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
     /**
      * Creates a story
-     * @param title 
-     * @param description 
-     * @param repository 
+     * @param title
+     * @param description
+     * @param repository
      * @param _id id of the repository
-     * @returns 
+     * @returns
      */
+    public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
         return this.http
@@ -326,6 +330,10 @@ export class ApiService {
             }));
     }
 
+    /**
+     * updates a Story
+     * @param story updatedStory
+     */
     public updateStory(story: Story): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
@@ -334,6 +342,10 @@ export class ApiService {
             }));
     }
 
+    /**
+     * deletes a Story
+     * @param _id StoryID
+     */
     public deleteStory(_id): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'_id' : _id};
@@ -644,6 +656,12 @@ export class ApiService {
             }));
     }
 
+    /**
+     * get's single Scenario
+     * @param storyID
+     * @param storySource
+     * @param scenarioID
+     */
     getScenario(storyID: any, storySource, scenarioID): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
@@ -684,7 +702,7 @@ export class ApiService {
      * Updates the scenario
      * @param storyID 
      * @param storySource 
-     * @param scenario 
+     * @param scenario updatedScenario
      * @returns 
      */
     updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Scenario> {

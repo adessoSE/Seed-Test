@@ -501,9 +501,10 @@ async function getOneScenario(storyId, storySource, scenarioId) {
   try {
     db = await connectDb()
     let collection = await selectStoriesCollection(db)
-    let story = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource , "scenarios.scenario_id": scenarioId})
+    let scenarios = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource , "scenarios.scenario_id": scenarioId}, {projection: {scenarios: 1}})
     let ret;
-    for (const scenario of story.scenarios) {
+    console.log(scenarios)
+    for (const scenario of scenarios.scenarios) {
       if (scenario.scenario_id === scenarioId) {
         ret = scenario;
         break;
