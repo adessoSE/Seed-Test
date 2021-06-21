@@ -51,13 +51,6 @@ router.post('/createRepository', async (req, res) => {
 	res.status(200).json('');
 });
 
-//creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
-router.post('/createStory', async (req, res) => {
-	let resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.body._id)  
-	await mongo.insertStoryIdIntoRepo( resultStoryId, req.body._id)
-		res.status(200).json('');
-});
-
 // update background
 router.post('/background/update/:storyID/:storySource', async (req, res) => {
 	try {
