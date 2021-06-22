@@ -132,6 +132,15 @@ When('I click the button: {string}', async function clickButton(button) {
 	const world = this;
 	await driver.getCurrentUrl()
 		.then(async (currentUrl) => {
+			// for daisy only: don't throw an error and end the testcase if "Alte Sitzung Beenden" is not found
+			if (button === 'Alte Sitzung beenden') {
+				try {
+					await driver.wait(until.elementLocated(By.xpath(`//*[@name='kill-session']`)), 3 * 1000).click();
+				} catch (e) {
+					console.log('Button "Alte Sitzung Beenden" not found. Skipping the Step...');
+				}
+				return;
+			}
 			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
 			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
 				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
@@ -655,7 +664,7 @@ After(async () => {
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	const condition = until.elementLocated(By.name('loader'));
 	driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-	driver.quit();
+	// driver.quit();
 });
 
 // clicks a button if found in html code with xpath,
