@@ -59,8 +59,8 @@ router.post('/:repo_id', async (req, res) => {
 router.put('/:repo_id/:group_id', async (req, res) => {
     console.log("Update StoryGroup ", req.params.repo_id, req.params.group_id, req.body)
     try {
-        let gr_id = await mongo.updateStoryGroup(req.params.repo_id, req.params.group_id, req.body)
-        res.status(200).json({'group_id': gr_id})
+        let group = await mongo.updateStoryGroup(req.params.repo_id, req.params.group_id, req.body)
+        res.status(200).json(group)
     } catch (e) {
         handleError(res,e,e,500)
     }
@@ -70,7 +70,13 @@ router.put('/:repo_id/:group_id', async (req, res) => {
 //delete Group
 router.delete('/:repo_id/:group_id',  async (req, res) => {
     console.log("Delete StoryGroup ", req.params.repo_id, req.params.group_id)
-    res.sendStatus(501)
+    try {
+        let gr_id = await mongo.deleteStoryGroup(req.params.repo_id, req.params.group_id)
+        res.status(200).json({'text': 'success'})
+    } catch (e) {
+        handleError(res,e,e,500)
+    }
+    //res.sendStatus(501)
 });
 
 //add Story to Group

@@ -369,7 +369,7 @@ async function createStoryGroup(repo_id, name) {
     await collection.updateOne({_id: ObjectId(repo_id)}, {$set: repo})
     return gr_id
   } catch (e) {
-    console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
+    console.log("UPS!!!! FEHLER in createStoryGroup: " + e)
   } finally {
     if (db) db.close();
   }
@@ -386,7 +386,24 @@ async function updateStoryGroup(repo_id, group_id, updatedGroup) {
     await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
     return updatedGroup
   } catch (e) {
-    console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
+    console.log("UPS!!!! FEHLER in updateStoryGroup: " + e)
+  } finally {
+    if (db) db.close();
+  }
+}
+
+async function deleteStoryGroup(repo_id, group_id) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectRepositoryCollection(db)
+    let repo = await collection.findOne({_id:ObjectId(repo_id)})
+    let index = repo.groups.findIndex(o => o._id === parseInt(group_id))
+    repo.groups.splice(index, 1)
+    await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
+    return null
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in deleteStoryGroup: " + e)
   } finally {
     if (db) db.close();
   }
@@ -1190,6 +1207,7 @@ module.exports = {
   createRepo,
   createStoryGroup,
   updateStoryGroup,
+  deleteStoryGroup,
   getAllStoryGroups,
   getOneStoryGroup,
   selectStoriesCollection,
