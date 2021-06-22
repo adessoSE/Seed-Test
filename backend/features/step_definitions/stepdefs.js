@@ -456,37 +456,44 @@ Then('So I will be navigated to the website: {string}', async function (url) {
 });
 
 // Search a textfield in the html code and assert it with a Text
-// TODO: refactor the "expect"
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
 	const world = this;
 	await driver.wait(async () => driver.executeScript('return document.readyState')
 		.then(async readyState => readyState === 'complete'));
 	try {
-		await driver.wait(until.elementLocated(By.xpath(`//*[@id='${label}']`)), 3 * 1000).then(async (body) => {
-			const resp = await body.getText().then(text => text);
-			expect(expectedText).to.equal(resp, 'Textfield does not match the string');
-		});
+		await driver.findElement(By.xpath(`//*[@id='${label}']`))
+			.then(async (body) => {
+				const resp = await body.getText().then(text => text);
+				expect(expectedText).to.equal(resp, 'Textfield does not match the string');
+			});
 	} catch (e) {
 		try {
-			await driver.wait(until.elementLocated(By.xpath(`//*[@*='${label}']`)), 3 * 1000)
+			await driver.findElement(By.xpath(`//*[@*='${label}']`))
 				.then(async (body) => {
-				// `${'//*[text()' + "='"}${button}' or ` + `${'@*'='}${button}']`
 					const resp = await body.getText().then(text => text);
 					expect(expectedText).to.equal(resp, 'Textfield does not match the string');
 				});
 		} catch (e2) {
 			try {
-				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@*, '${label}')]`)), 3 * 1000)
+				await driver.findElement(By.xpath(`//*[contains(@*, '${label}')]`))
 					.then(async (body) => {
 						const resp = await body.getText().then(text => text);
 						expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
 					});
 			} catch (e3) {
-				await driver.takeScreenshot()
-					.then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-				throw Error(e);
+				try {
+					await driver.findElement(By.xpath(`${label}`))
+						.then(async (body) => {
+							const resp = await body.getText().then(text => text);
+							expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
+						});
+				} catch (e4) {
+					await driver.takeScreenshot()
+						.then(async (buffer) => {
+							world.attach(buffer, 'image/png');
+						});
+					throw Error(e);
+				}
 			}
 		}
 	}
@@ -522,13 +529,14 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	await driver.wait(async () => driver.executeScript('return document.readyState')
 		.then(async readyState => readyState === 'complete'));
 	try {
-		await driver.wait(until.elementLocated(By.xpath(`//*[@id='${label}']`)), 3 * 1000).then(async (body) => {
-			const resp = await body.getText().then(text => text);
-			expect(resp).to.equal('', 'Textfield does contain some Text');
-		});
+		await driver.findElement(By.xpath(`//*[@id='${label}']`))
+			.then(async (body) => {
+				const resp = await body.getText().then(text => text);
+				expect(resp).to.equal('', 'Textfield does contain some Text');
+			});
 	} catch (e) {
 		try {
-			await driver.wait(until.elementLocated(By.xpath(`//*[@*='${label}']`)), 3 * 1000)
+			await driver.findElement(By.xpath(`//*[@*='${label}']`))
 				.then(async (body) => {
 					const resp = await body.getText()
 						.then(text => text);
@@ -536,16 +544,24 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 				});
 		} catch (e2) {
 			try {
-				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@id, '${label}')]`)), 3 * 1000)
+				await driver.findElement(By.xpath(`//*[contains(@id, '${label}')]`))
 					.then(async (body) => {
 						const resp = await body.getText()
 							.then(text => text);
 						expect(resp).to.equal('', 'Textfield does contain some Text');
 					});
-			} catch (e) {
-				await driver.takeScreenshot().then(async (buffer) => {
-					world.attach(buffer, 'image/png');
-				});
+			} catch (e3) {
+				try {
+					await driver.findElement(By.xpath(`${label}`))
+						.then(async (body) => {
+							const resp = await body.getText().then(text => text);
+							expect(resp).to.equal('', 'Textfield does contain some Text');
+						});
+				} catch (e4) {
+					await driver.takeScreenshot().then(async (buffer) => {
+						world.attach(buffer, 'image/png');
+					});
+				}
 				throw Error(e);
 			}
 		}
@@ -576,7 +592,6 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(text) {
 	const world = this;
 	try {
-		// await driver.sleep(2000);
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
 		await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
 			const cssBody = await body.getText().then(bodytext => bodytext);
