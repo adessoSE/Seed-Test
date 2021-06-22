@@ -32,39 +32,57 @@ router
         next();
     });
 
-//get Stories in Group
-router.get('/:repo_id/:group_id', async (req, res) => {
-    //query param full=true storyIDs vs Story Objects
+//get All Groups and StoryIds
+router.get('/:repo_id', async (req, res) => {
+    try {
+        let groups = await mongo.getAllStoryGroups(req.params.repo_id)
+        res.status(200).json(groups)
+    } catch (e) {
+        handleError(res,e,e,500)
+    }
     console.log("get story ", req.params.repo_id, req.params.group_id)
-    res.send().status(501)
 });
 
 //create Group
 router.post('/:repo_id', async (req, res) => {
     console.log("Create StoryGroup ",req.params.repo_id)
-    res.send().status(501)
+    //res.sendStatus(501)
+    try {
+        let gr_id = await mongo.createStoryGroup(req.params.repo_id, req.body.name)
+        res.status(200).json({'group_id': gr_id})
+    } catch (e) {
+        handleError(res,e,e,500)
+    }
 });
 
 //update Group
 router.put('/:repo_id/:group_id', async (req, res) => {
     console.log("Update StoryGroup ", req.params.repo_id, req.params.group_id, req.body)
-    res.send().status(501)
+    try {
+        let gr_id = await mongo.updateStoryGroup(req.params.repo_id, req.params.group_id, req.body)
+        res.status(200).json({'group_id': gr_id})
+    } catch (e) {
+        handleError(res,e,e,500)
+    }
+    //res.sendStatus(501)
 });
 
 //delete Group
 router.delete('/:repo_id/:group_id',  async (req, res) => {
     console.log("Delete StoryGroup ", req.params.repo_id, req.params.group_id)
-    res.send().status(501)
+    res.sendStatus(501)
 });
 
 //add Story to Group
 router.post('/:repo_id/:group_id/:story_id', async (req, res) => {
     console.log("Add Story to Group ", req.params.repo_id, req.params.group_id, req.params.story_id)
-    res.send().status(501)
+    res.sendStatus(501)
 });
 
 //remove Story from Group
 router.delete('/:repo_id/:group_id/:story_id', async (req, res) => {
     console.log("Remove Story from Group ", req.params.repo_id, req.params.group_id, req.params.story_id)
-    res.send().status(501)
+    res.sendStatus(501)
 });
+
+module.exports = router;

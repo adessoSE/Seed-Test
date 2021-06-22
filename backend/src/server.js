@@ -11,6 +11,7 @@ const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
+const gropRouter = require('./serverRouter/groupRouter')
 const workgroupsRouter = require('./serverRouter/workgroups')
 require('./database/mongodatabase');
 
@@ -75,6 +76,7 @@ app
 	.use('/api/mongo', mongoRouter)
 	.use('/api/jira', jiraRouter)
 	.use('/api/user', userRouter)
+	.use('/api/group', gropRouter)
 	.use('/api/workgroups', workgroupsRouter)
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
