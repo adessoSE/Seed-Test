@@ -409,6 +409,28 @@ async function deleteStoryGroup(repo_id, group_id) {
   }
 }
 
+async function addToStoryGroup(repo_id, group_id, story_id) {
+  try {
+    let group = await getOneStoryGroup(repo_id, group_id)
+    group.push(ObjectId(story_id))
+    await updateStoryGroup(repo_id, group_id, group)
+    return group
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in AddToStoryGroup: " + e)
+  }
+}
+
+async function removeFromStoryGroup(repo_id, group_id, story_id) {
+  try {
+    let group = await getOneStoryGroup(repo_id, group_id)
+    group.splice(group.indexOf(ObjectId(story_id)),1)
+    await updateStoryGroup(repo_id, group_id, group)
+    return group
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in removeFromStoryGroup: " + e)
+  }
+}
+
 async function getAllStoryGroups(repo_id) {
   //throw new Error("Not implemented")
   let db;
@@ -1208,6 +1230,8 @@ module.exports = {
   createStoryGroup,
   updateStoryGroup,
   deleteStoryGroup,
+  addToStoryGroup,
+  removeFromStoryGroup,
   getAllStoryGroups,
   getOneStoryGroup,
   selectStoriesCollection,

@@ -82,7 +82,14 @@ router.delete('/:repo_id/:group_id',  async (req, res) => {
 //add Story to Group
 router.post('/:repo_id/:group_id/:story_id', async (req, res) => {
     console.log("Add Story to Group ", req.params.repo_id, req.params.group_id, req.params.story_id)
-    res.sendStatus(501)
+    try {
+        await mongo.addToStoryGroup(req.params.repo_id, req.params.group_id, req.params.story_id)
+
+        res.status(200).json({'text': 'success'})
+    } catch (e) {
+        handleError(res,e,e,500)
+    }
+    //res.sendStatus(501)
 });
 
 //remove Story from Group
