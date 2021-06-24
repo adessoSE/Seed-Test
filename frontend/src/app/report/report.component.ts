@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { ActivatedRoute } from '@angular/router';
 
+/**
+ * Component to show the report
+ */
 @Component({
   selector: 'app-report',
   templateUrl: './report.component.html',
@@ -11,6 +14,11 @@ export class ReportComponent implements OnInit {
   reportReceived: Boolean = false;
 
 
+  /**
+   * Retrieves the report
+   * @param apiService 
+   * @param route 
+   */
   constructor(public apiService: ApiService, public route: ActivatedRoute) { 
     this.route.params.subscribe((params) => {
       if(params.reportName){
@@ -25,9 +33,16 @@ export class ReportComponent implements OnInit {
     });
   }
 
+  /**
+   * @ignore
+   */
   ngOnInit() {
   }
 
+  /**
+   * Gets the report and sets the iframe to it
+   * @param reportName name of the report
+   */
   getReport(reportName: string){
     this.apiService.getReport(reportName).subscribe((resp) => {
       const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
