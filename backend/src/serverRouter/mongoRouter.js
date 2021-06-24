@@ -214,8 +214,10 @@ router.delete('/deleteBlock/:blockId', async (req, res) => {
 		const result = await mongo.deleteBlock(req.params.blockId, req.user._id);
 		res.status(200).json(result);
 	} catch (error) {
-		handleError(res, error, error, 500);
+		handleError(res, error, error, 404);
 	}
 });
+
+
 
 module.exports = router;
