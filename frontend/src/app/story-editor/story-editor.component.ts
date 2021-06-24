@@ -11,7 +11,7 @@ import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
-import { DeleteScenarioToast } from '../deleteScenario-toast'
+import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
 
