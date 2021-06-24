@@ -790,8 +790,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * @param newTime
    */
   setStepWaitTime(event, newTime){
-    this.selectedScenario.stepWaitTime = newTime;
-    this.selectedScenario.saved = false;
+        if(this.selectedScenario){
+            this.selectedScenario.stepWaitTime = newTime;
+            this.selectedScenario.saved = false; 
+        }
     }
 
     /**

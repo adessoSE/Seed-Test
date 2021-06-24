@@ -159,7 +159,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 }
 
 toggleShows():boolean{
-  if(this.selectedStory.scenarios[0]==null){
+  if(this.selectedStory.scenarios.length==0){
     return this.isShown=true; 
   } else{
     return this.isShown=false;
