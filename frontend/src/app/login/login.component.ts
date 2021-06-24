@@ -4,6 +4,9 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
+/**
+ * Component to handle the client login
+ */
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -11,12 +14,24 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 })
 export class LoginComponent implements OnInit, AfterViewInit {
 
+    /**
+     * Repositories / projects of the user
+     */
     repositories: RepositoryContainer[];
-    jirakeys: string[];
+    
+    /**
+     * Login error
+     */
     error: string;
-    private testJiraHost = '';
-    repositoriesLoading: boolean;
-    showInstruction = false;
+
+    /**
+     * Boolean to see if the repository is loading
+     */
+    isLoadingRepositories: boolean;
+
+    /**
+     * Tutorial slides
+     */
     slide0 = [{'image0': '/assets//slide0.png'}];
     slide01 = [{'image01': '/assets//slide01.PNG'}];
     slide02 = [{'image02': '/assets//slide02.png'}];
@@ -31,6 +46,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
     slide11 = [{'image11': '/assets//slide11.png'}];
 
 
+    /**
+     * Constructor
+     * @param apiService 
+     * @param router 
+     * @param route 
+     * @param cdr 
+     */
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
@@ -53,27 +75,25 @@ export class LoginComponent implements OnInit, AfterViewInit {
             }
         })
     }
+
+    /**
+     * Needed for ExpressionChangedAfterItHasBeenCheckedError mat-carousel error
+     */
     ngAfterViewInit(): void {
-        // needed for ExpressionChangedAfterItHasBeenCheckedError mat-carousel error
         this.cdr.detectChanges();
     }
 
-    getGithubData (accessToken){
-        fetch(`https://api.github.com/user?access_token=${accessToken}`,
-            {
-                method:"GET",
-                headers: {
-                    "User-Agent": "SampleOAuth",
-                }
-            }).then(async function (resp) {
-                //console.log(resp)
-            })
-                
-      }
-
+    /**
+     * @ignore
+     */
     ngOnInit() {
     }
 
+    /**
+     * Loggs in the user with github after retrieving the github token
+     * @param login 
+     * @param id 
+     */
     loginGithubToken(login: string, id: any){
         this.apiService.loginGithubToken(login, id).subscribe((resp) => {
             if (resp.status === 'error') {
@@ -82,7 +102,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 let repository = resp.repository;
                 localStorage.setItem('repositoryType', 'github');
                 localStorage.setItem('repository', repository);
-                this.repositoriesLoading = false;
+                this.isLoadingRepositories = false;
                 this.router.navigate(['/']);
             } else {
                 this.getRepositories()
@@ -90,12 +110,21 @@ export class LoginComponent implements OnInit, AfterViewInit {
         })
     }
 
+    /**
+     * Loggs in the user with a Seed-Test account
+     * @param form 
+     */
     async login(form: NgForm) {
-        this.repositoriesLoading = true;
+        this.isLoadingRepositories = true;
         this.error = undefined;
-        const response = await this.apiService.loginUser(form.value.email, form.value.password, form.value.stayLoggedIn).toPromise()
+        let user ={
+            email: form.value.email,
+            password: form.value.password,
+            stayLoggedIn: form.value.stayLoggedIn
+        };
+        const response = await this.apiService.loginUser(user).toPromise()
         if (response.status === 'error') {
-            this.repositoriesLoading = false;
+            this.isLoadingRepositories = false;
             this.error = response.message;
         } else {
             localStorage.setItem('login', 'true');
@@ -103,15 +132,25 @@ export class LoginComponent implements OnInit, AfterViewInit {
         }
     }
 
+
+    /**
+     * Redirects the user to the Test account
+     */
     async loginTestAccount() {
+        localStorage.setItem('repository', 'adessoCucumber/Cucumber')
+        localStorage.setItem('source', 'github')
         this.router.navigate(['/testaccount']);
     }
 
-    getRepositories() {
+    /**
+     * Retrieves the repositories / projects of the user
+     */
+     getRepositories() {
         let value = localStorage.getItem('repository')
         let source = localStorage.getItem('source')
-        let repository: RepositoryContainer = {value, source}
-        this.repositoriesLoading = true;
+        let _id = localStorage.getItem('id');
+        let repository: RepositoryContainer = {value, source, _id}
+        this.isLoadingRepositories = true;
         const loadingSpinner: HTMLElement = document.getElementById('loadingSpinner');
         if (loadingSpinner){
             loadingSpinner.scrollIntoView();
@@ -123,12 +162,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 this.router.navigate(['/accountManagement'])
             }
             resp.forEach((elem) => {
-                if(elem.value == repository.value && elem.source == repository.source){
+                if(elem.value == repository.value && elem.source == repository.source && elem._id == repository._id){
                     this.router.navigate(['']);
                 }
             })
             this.repositories = resp;
-            this.repositoriesLoading = false;
+            this.isLoadingRepositories = false;
             setTimeout(() => {
                 const repositoriesList: HTMLElement = document.getElementById('repositoriesList');
                 if (repositoriesList){
@@ -138,49 +177,29 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
         }, (err) => {
             this.error = err.error;
-            this.repositoriesLoading = false;
+            this.isLoadingRepositories = false;
         });
     }
 
-    filterProjects(resp) {
-        try{
-            let projectNames = [];
-            let projectKeys = [];
-            JSON.parse(resp)['projects'].forEach(entry => {
-                projectNames = projectNames.concat(`jira/${entry['name']}`);
-                projectKeys = projectKeys.concat(`${entry['key']}`);
-            });
-            this.jirakeys = projectKeys;
-            console.log(this.jirakeys);
-            return projectNames;
-        }catch(error) {
-            return []
-        }
-    }
-
+    /**
+     * Selects a repository and redirects the user to the story editor
+     * @param userRepository selected repository
+     */
     selectRepository(userRepository: RepositoryContainer) {
         const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
         ref.href = 'https://github.com/' + userRepository.value;
         localStorage.setItem('repository', userRepository.value)
         localStorage.setItem('source', userRepository.source)
+        localStorage.setItem('id', userRepository._id)
         this.router.navigate(['']);
     }
 
-    navToRegistration() {
-        this.router.navigate(['/register']);
-    }
-
+    /**
+     * Loggs in the user with Github
+     */
     githubLogin() {
         this.error = undefined;
-        this.repositoriesLoading = true;
+        this.isLoadingRepositories = true;
         this.apiService.githubLogin();
-    }
-
-    openInstruction() {
-        this.showInstruction = !this.showInstruction;
-    }
-
-    resetPassword() {
-        this.router.navigate(['/resetpassword']);
     }
 }

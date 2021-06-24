@@ -39,7 +39,7 @@ router
 
 //checks if a reset request already exists if true it delets the old request. Checks if an Account with this email exists, if true creates a request and saves it.
 //also sends an email via nodemailer with resetlink to the given emailadress.
-router.post("/resetpassword", async (req, res) => {
+router.post('/resetpassword', async (req, res) => {
 	let checkRequest = await mongo.getResetRequestByEmail(req.body.email)
 	if (checkRequest) {
 		mongo.deleteRequest(req.body.email)
@@ -66,7 +66,7 @@ router.post("/resetpassword", async (req, res) => {
 });
 
 //checks if requests exist if true, gets the according Account and changes the password
-router.post("/reset", async (req, res) => {
+router.patch('/reset', async (req, res) => {
 	const thisRequest = await mongo.getResetRequest(req.body.uuid);
 	if (thisRequest) {
 		const user = await mongo.getUserByEmail(thisRequest.email);
@@ -77,13 +77,14 @@ router.post("/reset", async (req, res) => {
 		mongo.deleteRequest(user.email)
 		res.status(204).json();
 	} else {
-		res.status(404).json();
+		res.status(401).json();
 	}
 });
 
 // login user
 router.post('/login', (req, res, next) => {
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
+	req.body.email = req.body.email.toLowerCase();
 	try {
 		passport.authenticate('normal-local', function (error, user, info) {
 			if (error) {
@@ -154,6 +155,7 @@ router.post('/mergeGithub', async (req, res) => {
 
 // registers user
 router.post('/register', async (req, res) => {
+	req.body.email = req.body.email.toLowerCase();
 	req.body.password = bcrypt.hashSync(req.body.password, salt);
 	try {
 		const user = await mongo.registerUser(req.body);
@@ -323,7 +325,7 @@ router.get('/stories', async (req, res) => {
 					Promise.all(storiesArray)
 						.then((result) => {
 							if (repo !== null) {
-								mongo.updateStoriesArrayInRepo(repo, result) 
+								mongo.updateStoriesArrayInRepo(repo_id, result) 
 							}
 						})
 						.catch((e) => {
@@ -343,7 +345,7 @@ router.get('/stories', async (req, res) => {
 			console.log('Jira Error:', e);
 		}
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
-		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName)
+		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id)
 		res.status(200).json(result)
 	} else res.sendStatus(401);
 });

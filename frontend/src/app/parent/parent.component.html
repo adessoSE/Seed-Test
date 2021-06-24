@@ -3,6 +3,7 @@
         <app-stories-bar #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);"></app-stories-bar>
     </div>
     <div class="storyEditor">
-        <app-story-editor [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario"></app-story-editor>
+        <app-story-editor *ngIf="this.isStoryEditorActive" (changeEditor)="setEditor($event);"  [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario" [newStories]="stories"></app-story-editor>
+        <app-report-history *ngIf="!this.isStoryEditorActive" (changeEditor)="setEditor($event);" [newSelectedStory]="selectedStory"  ></app-report-history>
     </div>
 </div>

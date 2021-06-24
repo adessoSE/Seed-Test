@@ -11,6 +11,7 @@ const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
+const workgroupsRouter = require('./serverRouter/workgroups')
 require('./database/mongodatabase');
 
 
@@ -22,6 +23,7 @@ const server = app.listen(process.env.PORT || 8080, () => {
 	const { port } = server.address();
 	console.log(`App now running on port: ${port}`);
 });
+server.setTimeout(600000);
 /**
  * API Description
  */
@@ -73,6 +75,7 @@ app
 	.use('/api/mongo', mongoRouter)
 	.use('/api/jira', jiraRouter)
 	.use('/api/user', userRouter)
+	.use('/api/workgroups', workgroupsRouter)
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});

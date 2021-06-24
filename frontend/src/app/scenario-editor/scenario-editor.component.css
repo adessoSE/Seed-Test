@@ -75,6 +75,7 @@ em.dragIcon{
   font-weight: bold;
 }
 
+
 #infoIcon{
   color: #999;
   margin-left: 5px;
@@ -276,9 +277,25 @@ table {
   width: 100%;
 }
 
+.comment{
+  column-width: fill-available;
+}
 .comment > textarea {
-  width: 60%;
+  width: 100%;
   height: 50px;
+}
+
+.daisyAutoLogout{
+  column-width: 100px;
+  float:right;
+}
+
+#daisyAutoLogout{
+  margin-left: 5px;
+}
+
+.scenario_unsaved {
+  color: red;
 }
 
 .stepsListContainer{

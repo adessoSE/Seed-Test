@@ -111,12 +111,12 @@
       <br>
       <!-- Button Login -->
       <button class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
-      <div id="loadingSpinner" *ngIf="this.repositoriesLoading">
+      <div id="loadingSpinner" *ngIf="this.isLoadingRepositories">
         <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
     <div>
-      <button class="linkButton" (click)="resetPassword();">Forgot Password?</button>
+      <button class="linkButton" routerLink='/resetpassword'>Forgot Password?</button>
     </div>
     <p>or</p>
     <hr>
@@ -133,7 +133,7 @@
    <br>
    <div class="uk-card default" id="noAccountDiv">
     <span class="noAccount">No account yet? <br>
-    <button class="linkButton" (click)="navToRegistration();">Register</button>
+    <button class="linkButton" routerLink="/register">Register</button>
     or
     <button class="linkButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
        (no account required)

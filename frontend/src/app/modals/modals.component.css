@@ -180,6 +180,51 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     margin-right: 5px;
 }
 
+
+.workGroupEmail{
+    margin-right: 5px;
+}
+
+
+.wrongEmail{
+    background-color: var(--grape);
+}
+
+.canEditContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.canEditLabel{
+    margin-right: 5px;
+    margin-bottom: 0px;
+}
+
+.emailTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.emailTableContainer > * {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.editColumn{
+    max-width: 50px;
+}
+
+#storydescription{
+    resize: both;
+    width: 70%;
+    height: 20%; 
+    min-width: 100px;
+    min-height: 100px;
+    max-width: 100%;
+    max-height: 200px;
+}
+
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;

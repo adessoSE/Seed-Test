@@ -4,6 +4,9 @@ import {ApiService} from '../Services/api.service';
 import {Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
+/**
+ * Component to reset the password
+ */
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
@@ -12,24 +15,32 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 
 export class ResetPasswordComponent{
 
-  user = {};
+  /**
+   * Error during reset password
+   */
   error: string;
-  repositoriesLoading: boolean;
-  showInstruction = false;
-  repositories: RepositoryContainer[];
 
+  /**
+   * @ignore
+   */
   constructor(public apiService: ApiService, private router: Router) {    
   }
 
+  /**
+   * Request a reset of the password
+   * @param form 
+   */
   requestReset(form : NgForm) {
-    console.log('form', form.value.email)
     this.apiService.requestReset(form.value.email).subscribe(res => {
-      console.log('test')
+      //console.log('test')
     })
-    this.router.navigate(['/resetpasswordconfirm']);
+    this.router.navigate(['/login']);
   }
 
-  navToRegistration(){
-    console.log('navigate to registration')
+  /**
+   * Redirects the user to the register component
+   */
+  redirectToRegister(){
+    this.router.navigate(['/register']);
   }
 }

@@ -95,7 +95,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton deleteButton" (click)="eraseAccount(); modal.close('Save click')">Delete my Account
+        <button type="button" class="normalButton deleteButton" (click)="deleteAccount(); modal.close('Save click')">Delete my Account
         </button>
     </div>
 </ng-template>
@@ -114,7 +114,7 @@
     <div class="dividerContainer">
         <div class="savedBlocksContainer">
           <p class="subHeader">Saved Blocks</p>
-          <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="change($event)" name="folderss">
+          <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="changeBlockSelection($event)" name="folderss">
               <mat-list-option  *ngFor="let block of blocks, let rowIndex = index" [value]="block" >
                 <button a uk-icon="icon: minus-circle" class="deleteBlockButton uk-text-danger" uk-tooltip title="Delete Block" (click)="deleteBlock($event, rowIndex, block)"></button>
                 <h4 mat-line>{{block.name}}</h4>
@@ -264,5 +264,86 @@
     <div class="modal-footer">
         <button type="button" class="normalButton" (click)="submitRenameScenario(); modal.close('Save click')">Submit
         </button>
+    </div>
+</ng-template>
+
+
+<!-- Workgroup edit Modal-->
+<ng-template #workgroupEditModal let-modal>
+    <div class="modal-header">
+        <span id="workgroupHeader"class="MediumSubline1H4 modal-title">Project:</span>
+    </div>
+    <div class="modal-body modal-xl">
+        <div class="uk-card-title submitForm">
+            <div>
+                <form #workgroupInviteForm="ngForm" novalidate (ngSubmit)="workgroupInvite(workgroupInviteForm);"> 
+                    <p *ngIf="this.workgroupError" class="wrongEmail">{{this.workgroupError}}</p>
+                    <label>Project Owner: </label>
+                    <label>{{this.workgroupOwner}}</label>
+
+                    <div>
+                        <!--<label class="SmallHeadline5 padding_right">Member:</label>-->
+                        
+                        <input class="workGroupEmail" type="email" ngModel name="email" placeholder="Email"> 
+                        <button type="submit" class="normalButton">Invite to Team</button>
+                        <div class="canEditContainer">
+                            <label class="canEditLabel" >Can add team members</label>
+                            <input type="checkbox" ngModel name="canEdit" class="normalButton">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8" aria-describedby="mydesc">
+                <ng-container matColumnDef="email">
+                  <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
+                  <td mat-cell *matCellDef="let element"> 
+                    <div class="emailTableContainer">
+                        <label>{{element.email}} </label>
+                        <button class="normalButton deleteButton"(click)="removeFromWorkgroup(element);">Remove</button>
+                    </div> 
+                  </td>
+                </ng-container>
+
+                <ng-container  matColumnDef="can_edit_workgroup">
+                    <th class="editColumn" mat-header-cell *matHeaderCellDef> Can add team members </th>
+                    <td mat-cell *matCellDef="let element">
+                        <input type="checkbox" name="canEditUser" class="normalButton" (change)="this.checkEditUser($event, element)" [checked]="element.canEdit">
+                    </td>
+                  </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
+              </table> 
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
+        </button>
+    </div>
+</ng-template>
+
+
+<!--Create New Story in custom project-->
+<ng-template #createNewStoryModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Create New Story</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <label class="uk-form-label"  style="color: grey;"></label>
+                <input id="storytitle" placeholder=" Title">
+                <br><br>
+                <label class="uk-form-label" style="color: grey;"></label>
+                <textarea id="storydescription" placeholder=" Description"></textarea>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="createNewStory($event); modal.close('Save click')">Save</button>
     </div>
 </ng-template>

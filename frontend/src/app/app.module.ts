@@ -4,7 +4,7 @@ import {RouterModule} from '@angular/router';
 import {ROUTES} from '../app/routes/routes';
 import {AppComponent} from './app.component';
 import {ScenarioEditorComponent} from './scenario-editor/scenario-editor.component';
-import {HttpClientModule} from '@angular/common/http';
+import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {ApiService} from './Services/api.service';
 import {StoriesBarComponent} from './stories-bar/stories-bar.component';
 import {ParentComponent} from './parent/parent.component';
@@ -18,7 +18,7 @@ import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
 import {EditModeDirective} from './directives/edit-mode.directive';
 import {EditableOnEnterDirective} from './directives/edit-on-enter.directive';
-import {FocusableDirective} from './example-table/focusable.directive';
+import {FocusableDirective} from './editable/focusable.directive';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { FeedbackComponent } from './feedback/feedback.component';
@@ -34,10 +34,13 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
 import { ToastrModule } from "ngx-toastr";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatCarouselModule } from '@ngbmodule/material-carousel';
-import {RunTestToast} from './custom-toast'
+import {RunTestToast} from './runSave-toast'
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { ModalsComponent } from './modals/modals.component'
+import { DeleteScenarioToast } from './deleteScenario-toast';
+import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
+import { ReportHistoryComponent } from './report-history/report-history.component';
 
 @NgModule({
   declarations: [
@@ -62,9 +65,11 @@ import { ModalsComponent } from './modals/modals.component'
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
+    DeleteScenarioToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
-    ModalsComponent
+    ModalsComponent,
+    ReportHistoryComponent
   ],
   imports: [
       NgbModule,
@@ -85,7 +90,7 @@ import { ModalsComponent } from './modals/modals.component'
     })
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService],
+  providers: [ApiService, AuthGuard, CookieService,[{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

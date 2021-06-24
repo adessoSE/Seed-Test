@@ -15,21 +15,21 @@
                      <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
                      <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
                      <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-                      href="#">{{repository.value}}</a>
+                      routerLink=''>{{repository.value}}</a>
                    </li>
                   </ul>
                 </div>
             </div>
           </li>
           <li>
-            <button id="manageAccount" class="menuSelection" title="Account Settings" (click)="manageAccount();">Account Settings</button>
+            <button id="manageAccount" class="menuSelection" title="Account Settings" routerLink='/accountManagement'>Account Settings</button>
           </li>
           <li>
             <button class="menuSelection"  id="logout" title="Logout" (click)="logout();">Logout</button>
           </li>
         </ul>
       </div>
-      <p id="version" class="Largecaption">Version 1.3.0</p>
+      <p id="version" class="Largecaption">Version 1.3.2</p>
     </div>
 
 

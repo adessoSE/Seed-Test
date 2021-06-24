@@ -5,7 +5,9 @@ import { Story } from '../model/Story';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
 
-// here is the same template used as in the parent component
+/**
+ * Component of the TestAccountComponent
+ */
 @Component({
   selector: 'app-test-account',
   templateUrl: '../parent/parent.component.html',
@@ -13,14 +15,23 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 })
 export class TestAccountComponent extends ParentComponent implements OnInit {
 
+  /**
+   * Constructor
+   * @param apiService 
+   */
   constructor(public apiService: ApiService) {
     super(apiService);
     this.loadStories()
   }
 
-  ngOnInit() {
-  }
+  /**
+   * @ignore
+   */
+  ngOnInit() {}
 
+  /**
+   * Loads the stories from the test account
+   */
   loadStories() {
     let repository: RepositoryContainer = {value: '', source: 'testaccount'}
     this.apiService

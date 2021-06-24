@@ -19,44 +19,22 @@
             </a>
           <span class="github-avatar">
             <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
-            <img *ngIf="s.assignee_avatar_url == null" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
-            <img *ngIf="s.assignee_avatar_url != null" [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+            <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+            <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
           </span>
         </div>
 
         <div class="uk-accordion-content">
           <li *ngFor="let scen of s.scenarios; let c = index">
-            <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(s._id, scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
+            <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
           </li>
         </div>
       </li>
     </ul>
-    <div *ngIf="db" id="createNewStoryDiv">
-      <!--- MODAL MASK START-->
-      <ng-template #content let-modal>
-        <div class="modal-header">
-          <h4 class="modal-title" id="modal-basic-title">Create New Story</h4>
-          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="form-group">
-              <label class="uk-form-label"  style="color: grey;"></label>
-                <input id="storytitle" placeholder=" Title">
-                <br><br>
-             <label class="uk-form-label" style="color: grey;"></label>
-               <input id="storydescription" placeholder=" Description">
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="normalButton" (click)="createnewStory(); modal.close('Save click')">Save</button>
-        </div>
-      </ng-template>
-      <button class="normalButton" (click)="open(content)">Create New Story</button>
-      <!--- MODAL MASK END-->
+    <div *ngIf="isCustomStory" id="createNewStoryDiv">
+      <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
     </div>
   </div>
 </div>
+
+<app-modals #modalsComponent></app-modals>

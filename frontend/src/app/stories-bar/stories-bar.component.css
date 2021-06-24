@@ -92,6 +92,10 @@
     text-overflow: ellipsis;
   }
 
+  .normalButton{
+    margin-bottom: 10px;
+  }
+
   a.storyListLink:hover{
     color: var(--dark-grey);
   }

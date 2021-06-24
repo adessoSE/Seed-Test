@@ -16,7 +16,7 @@ const environment = '../frontend/src/environments/environment';
 app.use(express.static(ngPath));
 
 app.get('/backendInfo', (req, res) => {
-  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID});
+  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID, version: process.env.VERSION});
 });
 
 app.get('/*', (req, res) => {
