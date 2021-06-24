@@ -41,6 +41,7 @@ import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
+import { GroupBarComponent } from './group-bar/group-bar.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,8 @@ import { ReportHistoryComponent } from './report-history/report-history.componen
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ModalsComponent,
-    ReportHistoryComponent
+    ReportHistoryComponent,
+    GroupBarComponent
   ],
   imports: [
       NgbModule,

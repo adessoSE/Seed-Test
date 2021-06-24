@@ -144,4 +144,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     this.modalsComponent.openCreateNewStoryModal()
   }
 
+  switchToGroup(){
+      //todo
+  }
+
 }

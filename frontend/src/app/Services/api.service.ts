@@ -9,6 +9,7 @@ import {Background} from '../model/Background';
 import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
+import {Group} from "../model/Group";
 
 /**
  * Service to communicate between components and the backend
@@ -85,9 +86,11 @@ export class ApiService {
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
 
+    public createCustomGroupEmitter: EventEmitter<any> = new EventEmitter();
+
     /**
      * Gets api headers
-     * @returns 
+     * @returns
      */
     public static getOptions() {
         return { withCredentials: true};
@@ -95,7 +98,7 @@ export class ApiService {
 
     /**
      * Emits the run save option
-     * @param option 
+     * @param option
      */
     public runSaveOption(option: String){
         this.runSaveOptionEvent.emit(option)
@@ -110,8 +113,8 @@ export class ApiService {
 
     /**
      * Handles http error
-     * @param error 
-     * @returns 
+     * @param error
+     * @returns
      */
     static handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
@@ -120,7 +123,7 @@ export class ApiService {
 
     /**
      * Emits the rename scenario event
-     * @param newTitle 
+     * @param newTitle
      */
     renameScenarioEmit(newTitle){
         this.renameScenarioEvent.emit(newTitle);
@@ -129,7 +132,7 @@ export class ApiService {
     /**
      * Retrieves the blocks
      * @param repoId id of the project of the blocks
-     * @returns 
+     * @returns
      */
     getBlocks(repoId: string): Observable<Block[]> {
         const str = this.apiServer + '/mongo/getBlocks/' + repoId;
@@ -140,8 +143,8 @@ export class ApiService {
 
     /**
      * Emits the add block to scenario event
-     * @param block 
-     * @param correspondingComponent 
+     * @param block
+     * @param correspondingComponent
      */
     addBlockToScenario(block: Block, correspondingComponent: string){
         this.addBlockToScenarioEvent.emit([correspondingComponent, block])
@@ -159,8 +162,8 @@ export class ApiService {
 
     /**
      * Returns the callback from github to the backend
-     * @param code 
-     * @returns 
+     * @param code
+     * @returns
      */
     githubCallback(code: string): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
@@ -172,8 +175,8 @@ export class ApiService {
 
     /**
      * Retrieves a report
-     * @param reportName 
-     * @returns 
+     * @param reportName
+     * @returns
      */
     getReport(reportName: string) {
         this.apiServer = localStorage.getItem('url_backend');
@@ -187,8 +190,8 @@ export class ApiService {
 
     /**
      * Deletes a block
-     * @param blockId 
-     * @returns 
+     * @param blockId
+     * @returns
      */
     deleteBlock(blockId: string) {
         const str = this.apiServer + '/mongo/deleteBlock/' + blockId;
@@ -201,7 +204,7 @@ export class ApiService {
 
     /**
      * Retrieves the repositories
-     * @returns 
+     * @returns
      */
     getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -217,7 +220,7 @@ export class ApiService {
 
     /**
      * Disconnects the user from github
-     * @returns 
+     * @returns
      */
     disconnectGithub() {
         const str = this.apiServer + '/github/disconnectGithub';
@@ -230,9 +233,9 @@ export class ApiService {
 
     /**
      * Loggs in the user with a github token
-     * @param login 
-     * @param id 
-     * @returns 
+     * @param login
+     * @param id
+     * @returns
      */
     loginGithubToken(login: string, id): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -248,10 +251,10 @@ export class ApiService {
 
     /**
      * Loggs in a user
-     * @param email 
-     * @param password 
-     * @param stayLoggedIn 
-     * @returns 
+     * @param email
+     * @param password
+     * @param stayLoggedIn
+     * @returns
      */
     loginUser(user): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -267,10 +270,10 @@ export class ApiService {
 
     /**
      * Loggs in the user into jira
-     * @param jiraName 
-     * @param jiraPassword 
-     * @param jiraServer 
-     * @returns 
+     * @param jiraName
+     * @param jiraPassword
+     * @param jiraServer
+     * @returns
      */
     jiraLogin(jiraName: string, jiraPassword: string, jiraServer: string) {
         this.apiServer = localStorage.getItem('url_backend');
@@ -285,8 +288,8 @@ export class ApiService {
 
     /**
      * Creates a new repository / project
-     * @param name 
-     * @returns 
+     * @param name
+     * @returns
      */
     createRepository(name: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -300,11 +303,11 @@ export class ApiService {
 
     /**
      * Creates a story
-     * @param title 
-     * @param description 
-     * @param repository 
+     * @param title
+     * @param description
+     * @param repository
      * @param _id id of the repository
-     * @returns 
+     * @returns
      */
     createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -317,8 +320,8 @@ export class ApiService {
 
     /**
      * Requests a password request
-     * @param email 
-     * @returns 
+     * @param email
+     * @returns
      */
     requestReset(email: string): Observable <any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -331,9 +334,9 @@ export class ApiService {
 
     /**
      * Changes the old password with the new password
-     * @param uuid 
-     * @param password 
-     * @returns 
+     * @param uuid
+     * @param password
+     * @returns
      */
     confirmReset(uuid: string, password: string): Observable <any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -348,9 +351,9 @@ export class ApiService {
 
     /**
      * Adds a user to a workgroup
-     * @param _id 
-     * @param user 
-     * @returns 
+     * @param _id
+     * @param user
+     * @returns
      */
     addToWorkgroup(_id: string, user){
         return this.http
@@ -362,9 +365,9 @@ export class ApiService {
 
     /**
      * Updates a user in a workgroup
-     * @param _id 
-     * @param user 
-     * @returns 
+     * @param _id
+     * @param user
+     * @returns
      */
     updateWorkgroupUser(_id: string, user){
         return this.http
@@ -376,8 +379,8 @@ export class ApiService {
 
     /**
      * Retrieves a workgroup
-     * @param _id 
-     * @returns 
+     * @param _id
+     * @returns
      */
     getWorkgroup(_id: string){
         return this.http
@@ -389,9 +392,9 @@ export class ApiService {
 
     /**
      * Removes a user from a workgroup
-     * @param _id 
-     * @param email 
-     * @returns 
+     * @param _id
+     * @param email
+     * @returns
      */
     removeFromWorkgroup(_id: string, email: string){
         let user = {email}
@@ -404,8 +407,8 @@ export class ApiService {
 
     /**
      * Saves a new block
-     * @param block 
-     * @returns 
+     * @param block
+     * @returns
      */
     saveBlock(block: Block){
         return this.http
@@ -417,7 +420,7 @@ export class ApiService {
 
     /**
      * Loggs out the user
-     * @returns 
+     * @returns
      */
     logoutUser() {
         const url = this.apiServer + '/user/logout';
@@ -430,9 +433,9 @@ export class ApiService {
 
     /**
      * Handles the error from retrieve stories
-     * @param error 
-     * @param caught 
-     * @returns 
+     * @param error
+     * @param caught
+     * @returns
      */
     handleStoryError = (error: HttpErrorResponse, caught: Observable<any>) => {
         this.storiesErrorEvent.emit();
@@ -441,15 +444,23 @@ export class ApiService {
 
     /**
      * Emitts the create custom story event
-     * @param story 
+     * @param story
      */
     createCustomStoryEvent(story){
         this.createCustomStoryEmitter.emit(story)
     }
 
     /**
+     * Emitts the create group event
+     * @param group
+     */
+    createGroupEvent(group){
+        this.createCustomGroupEmitter.emit(group)
+    }
+
+    /**
      * Retrieves the backend info for all api request necessary
-     * @returns 
+     * @returns
      */
     getBackendInfo(): Promise<any> {
         const url = localStorage.getItem('url_backend');
@@ -473,8 +484,8 @@ export class ApiService {
 
     /**
      * Retrieves the stories
-     * @param repository 
-     * @returns 
+     * @param repository
+     * @returns
      */
     getStories(repository: RepositoryContainer): Observable<Story[]> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -499,8 +510,8 @@ export class ApiService {
 
     /**
      * Creates a jira account
-     * @param request 
-     * @returns 
+     * @param request
+     * @returns
      */
     createJiraAccount(request) {
         this.apiServer = localStorage.getItem('url_backend');
@@ -513,7 +524,7 @@ export class ApiService {
 
     /**
      * Retrieves the step types
-     * @returns 
+     * @returns
      */
     getStepTypes(): Observable<StepType[]> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -525,10 +536,10 @@ export class ApiService {
 
     /**
      * Registers a user for a seed-test account
-     * @param email 
-     * @param password 
-     * @param userId 
-     * @returns 
+     * @param email
+     * @param password
+     * @param userId
+     * @returns
      */
     registerUser(email: string, password: string, userId: any): Observable<any> {
         const user = {email, password, userId};
@@ -546,9 +557,9 @@ export class ApiService {
 
     /**
      * Updates a user
-     * @param userID 
-     * @param user 
-     * @returns 
+     * @param userID
+     * @param user
+     * @returns
      */
     updateUser(userID: string, user: User): Observable<User> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -560,7 +571,7 @@ export class ApiService {
 
     /**
      * Deletes a seed-test user
-     * @returns 
+     * @returns
      */
     deleteUser() {
         this.apiServer = localStorage.getItem('url_backend');
@@ -572,10 +583,10 @@ export class ApiService {
 
     /**
      * Merges Seed-Test account and github account
-     * @param userId 
-     * @param login 
-     * @param id 
-     * @returns 
+     * @param userId
+     * @param login
+     * @param id
+     * @returns
      */
     mergeAccountGithub(userId: string, login: string, id: any) {
         const str = this.apiServer + '/user/mergeGithub';
@@ -590,7 +601,7 @@ export class ApiService {
 
     /**
      * Retrieves data of the user
-     * @returns 
+     * @returns
      */
     getUserData(): Observable<User> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -602,9 +613,9 @@ export class ApiService {
 
     /**
      * Adds a Scenario
-     * @param storyID 
-     * @param storySource 
-     * @returns 
+     * @param storyID
+     * @param storySource
+     * @returns
      */
     addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -617,10 +628,10 @@ export class ApiService {
 
     /**
      * Updates the background
-     * @param storyID 
-     * @param storySource 
-     * @param background 
-     * @returns 
+     * @param storyID
+     * @param storySource
+     * @param background
+     * @returns
      */
     updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -633,8 +644,8 @@ export class ApiService {
 
     /**
      * Submitts an issue to github to create a new step
-     * @param obj 
-     * @returns 
+     * @param obj
+     * @returns
      */
     submitGithub(obj) {
         this.apiServer = localStorage.getItem('url_backend');
@@ -644,10 +655,10 @@ export class ApiService {
 
     /**
      * Updates the scenario
-     * @param storyID 
-     * @param storySource 
-     * @param scenario 
-     * @returns 
+     * @param storyID
+     * @param storySource
+     * @param scenario
+     * @returns
      */
     updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -660,8 +671,8 @@ export class ApiService {
 
     /**
      * Deletes a report
-     * @param reportId 
-     * @returns 
+     * @param reportId
+     * @returns
      */
     deleteReport(reportId): Observable<any> {
         console.log('delete reportId', reportId)
@@ -675,8 +686,8 @@ export class ApiService {
 
     /**
      * Marks a report as saved in the report history
-     * @param reportId 
-     * @returns 
+     * @param reportId
+     * @returns
      */
     saveReport(reportId): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -689,8 +700,8 @@ export class ApiService {
 
     /**
      * Marks a saved report as not saved
-     * @param reportId 
-     * @returns 
+     * @param reportId
+     * @returns
      */
     unsaveReport(reportId): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -703,9 +714,9 @@ export class ApiService {
 
     /**
      * Deletes the background
-     * @param storyID 
-     * @param storySource 
-     * @returns 
+     * @param storyID
+     * @param storySource
+     * @returns
      */
     deleteBackground(storyID: any, storySource: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -719,10 +730,10 @@ export class ApiService {
 
     /**
      * Deletes a scenario
-     * @param storyID 
-     * @param storySource 
-     * @param scenario 
-     * @returns 
+     * @param storyID
+     * @param storySource
+     * @param scenario
+     * @returns
      */
     deleteScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -735,11 +746,11 @@ export class ApiService {
 
     /**
      * Runs a test of a scenario or story
-     * @param storyID 
-     * @param storySource 
-     * @param scenarioID 
-     * @param params 
-     * @returns 
+     * @param storyID
+     * @param storySource
+     * @param scenarioID
+     * @param params
+     * @returns
      */
     runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
@@ -755,8 +766,8 @@ export class ApiService {
 
     /**
      * Retrieves the report history of a story
-     * @param storyId 
-     * @returns 
+     * @param storyId
+     * @returns
      */
     getReportHistory(storyId: string){
         return this.http
@@ -764,6 +775,27 @@ export class ApiService {
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
+    }
+
+    createGroup(title: string,repoId: string): Observable<any>{
+        return this.http
+            .post(this.apiServer + '/group/' + repoId, {'title': title}, ApiService.getOptions())
+    }
+
+    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any>{
+        return this.http
+            .put(this.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions())
+    }
+
+    deleteGroup(repoId: string, groupId:string){
+        return this.http
+            .delete(this.apiServer + '/group/' + repoId + '/' + groupId, ApiService.getOptions())
+    }
+
+    getGroups(repoId: string): Observable<Group[]>{
+        return this.http
+            .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions())
+
     }
 
     // public changeDaisy(){

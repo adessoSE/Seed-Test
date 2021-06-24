@@ -347,3 +347,29 @@
         <button type="button" class="normalButton" (click)="createNewStory($event); modal.close('Save click')">Save</button>
     </div>
 </ng-template>
+
+<!--Create New Story in custom project-->
+<ng-template #createNewGroupModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-group-title">Create New Group</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <label class="uk-form-label"  style="color: grey;"></label>
+                <input id="grouptitle" placeholder=" Title">
+                <br><br>
+                <label class="uk-form-label" style="color: grey;"></label>
+                <select multiple [ngModel]="selectedStories">
+                    <option *ngFor="let story in stories" value="story.id">{{story.title}}</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="createNewStory($event); modal.close('Save click')">Save</button>
+    </div>
+</ng-template>

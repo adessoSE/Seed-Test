@@ -1,0 +1,33 @@
+<div class="grid">
+    <div>
+        <br>
+        <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
+            <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                <span rel="def">ToDo</span>
+            </dfn>
+        </div>
+        <button (click)="switchToStory()" disabled>To StoryBar</button>
+        <hr>
+        <ul uk-accordion>
+            <li *ngFor="let s of getSortedGroups(); let i = index ">
+                <div id="storyList" (click)="selectGroupStory(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
+                    <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200"
+                       title="{{s.title}}">
+                        {{s.issue_number}}. {{s.title}}
+                    </a>
+                </div>
+                <div class="uk-accordion-content">
+                    <li *ngFor="let scen of s.scenarios; let c = index">
+                        <a class="Largecaption groupListItem" ;id="{{'story' + c}}">#{{s.issue_number}}
+                            .{{c + 1}} {{scen.name | titlecase}}</a>
+                    </li>
+                </div>
+            </li>
+        </ul>
+        <div *ngIf=true id="createNewStoryDiv">
+            <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
+        </div>
+    </div>
+</div>
+
+<app-modals #modalsComponent></app-modals>
