@@ -615,6 +615,16 @@ export class ApiService {
             }));
     }
 
+    public addFirstScenario(storyID, storySource: string): Observable<Scenario>{
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Add new scenario in story ' + storyID + '!', resp)
+            }));
+    }
+
     /**
      * Updates the background
      * @param storyID 
