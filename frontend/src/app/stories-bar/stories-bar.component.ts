@@ -5,6 +5,8 @@ import { Scenario } from '../model/Scenario';
 import {RepositoryContainer} from "../model/RepositoryContainer";
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import { ModalsComponent } from '../modals/modals.component';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-stories-bar',
@@ -19,6 +21,7 @@ export class StoriesBarComponent implements OnInit {
   selectedScenario: Scenario;
   db = false;
   daisyVersion: boolean = true;
+  isShown: boolean = false;
 
   @Output()
   storyChosen: EventEmitter<any> = new EventEmitter();
@@ -27,7 +30,7 @@ export class StoriesBarComponent implements OnInit {
 
   @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
   
-  constructor(public apiService: ApiService, private modalService: NgbModal) {
+  constructor(public apiService: ApiService, private modalService: NgbModal, private toastr: ToastrService) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.stories = stories;
       this.db = localStorage.getItem('source') === 'db' ;
@@ -95,10 +98,29 @@ export class StoriesBarComponent implements OnInit {
     if (this.stories[storyIndex].scenarios[0]) {
       this.selectScenario(this.selectedStory._id, this.stories[storyIndex].scenarios[0]);
     }
+    this.toggleShows();
   }
 
   openCreateNewScenarioModal(){
     this.modalsComponent.openCreateNewStoryModal()
   }
+
+  addFirstScenario(storyID){
+    this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
+    .subscribe((resp: Scenario) => {
+       this.selectScenario(storyID,resp);
+       this.selectedStory.scenarios.push(resp);
+       this.toastr.info('', 'Senario added')
+       this.isShown=false;
+    });
+}
+
+toggleShows():boolean{
+  if(this.selectedStory.scenarios[0]==null){
+    return this.isShown=true; 
+  } else{
+    return this.isShown=false;
+  } 
+}
 
 }
