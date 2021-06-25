@@ -12,6 +12,7 @@ const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
 const workgroupsRouter = require('./serverRouter/workgroups')
+const storyRouter = require('./serverRouter/storyRouter')
 require('./database/mongodatabase');
 
 
@@ -76,6 +77,7 @@ app
 	.use('/api/jira', jiraRouter)
 	.use('/api/user', userRouter)
 	.use('/api/workgroups', workgroupsRouter)
+	.use('/api/story', storyRouter)
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
