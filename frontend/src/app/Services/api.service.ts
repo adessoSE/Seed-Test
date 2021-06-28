@@ -777,9 +777,10 @@ export class ApiService {
             }));
     }
 
-    createGroup(title: string,repoId: string): Observable<any>{
+    createGroup(title: string,repoId: string, member_stories): Observable<any>{
+        console.log('createGroup', title, repoId)
         return this.http
-            .post(this.apiServer + '/group/' + repoId, {'title': title}, ApiService.getOptions())
+            .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories}, ApiService.getOptions())
     }
 
     updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any>{

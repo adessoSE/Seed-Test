@@ -36,7 +36,7 @@ export class ModalsComponent {
     @ViewChild('renameScenarioModal') renameScenarioModal: any;
     @ViewChild('workgroupEditModal') workgroupEditModal: any;
     @ViewChild('createNewStoryModal') createNewStoryModal: any;
-    @ViewChild('createNewGroupMogal') createNewGroupModal: any;
+    @ViewChild('createNewGroupModal') createNewGroupModal: any;
 
     /**
      * Type of the changed account
@@ -567,6 +567,7 @@ export class ModalsComponent {
         const source = 'db';
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         this.apiService.getStories(repositoryContainer).subscribe(res =>{
+            console.log('hallo', res)
             this.stories = res
         })
         this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
@@ -577,13 +578,13 @@ export class ModalsComponent {
      */
     createNewGroup(event) {
         event.stopPropagation();
-        const title = (document.getElementById('storytitle') as HTMLInputElement).value;
-        const memberStories = this.selectedStories
+        const title = (document.getElementById('grouptitle') as HTMLInputElement).value;
+        const member_stories = this.selectedStories
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id')
         const source = 'db';
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        let group = {title, memberStories}
+        let group = {title, member_stories}
         this.apiService.createGroupEvent({repositoryContainer, group})
     }
 

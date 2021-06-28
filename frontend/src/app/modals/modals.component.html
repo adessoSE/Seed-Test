@@ -348,7 +348,7 @@
     </div>
 </ng-template>
 
-<!--Create New Story in custom project-->
+<!--Create New Group -->
 <ng-template #createNewGroupModal let-modal>
     <div class="modal-header">
         <h4 class="modal-title" id="modal-group-title">Create New Group</h4>
@@ -363,13 +363,13 @@
                 <input id="grouptitle" placeholder=" Title">
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
-                <select multiple [ngModel]="selectedStories">
-                    <option *ngFor="let story in stories" value="story.id">{{story.title}}</option>
+                <select multiple [(ngModel)]="selectedStories" name="stories">
+                    <option *ngFor="let story of stories" [value]="story._id">{{story.title}}</option>
                 </select>
             </div>
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="createNewStory($event); modal.close('Save click')">Save</button>
+        <button type="button" class="normalButton" (click)="createNewGroup($event); modal.close('Save click')">Save</button>
     </div>
 </ng-template>

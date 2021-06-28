@@ -10,7 +10,7 @@
           As a <...>, I want <...> so that <...>
         </span></dfn>
     </div>
-    <button (click)="switchToGroup()" disabled>To GroupBar</button>
+    <button  [routerLink]="['/group']" class="normalButton">To GroupBar</button>
     <hr>
     <ul uk-accordion>
       <li *ngFor="let s of getSortedStories(); let i = index ">

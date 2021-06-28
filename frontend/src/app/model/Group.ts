@@ -7,12 +7,12 @@ export interface Group {
     /**
      * Title of the Group
      */
-    title: string;
+    name: string;
 
     /**
      * ids of memberStories
      */
-    memberStories: string[];
+    member_stories: string[];
 
 
 }

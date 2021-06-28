@@ -59,6 +59,7 @@ export class GroupBarComponent implements OnInit, OnDestroy {
   constructor(public apiService: ApiService) {
     this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
       this.groups = groups;
+      console.log('hallo constructor', groups)
     } );
 
 
@@ -76,9 +77,10 @@ export class GroupBarComponent implements OnInit, OnDestroy {
     }
 
     this.createGroupEmitter = this.apiService.createCustomGroupEmitter.subscribe(custom => {
-      this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id).subscribe(respp => {
-        this.apiService.getGroups(custom.repositoryContainer).subscribe((resp: Group[]) => {
+      this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
+        this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
           this.groups = resp;
+          console.log(resp)
         });
       });
     })
@@ -97,11 +99,7 @@ export class GroupBarComponent implements OnInit, OnDestroy {
    */
   getSortedGroups() {
     if (this.groups) {
-      return this.groups.sort(function(a, b) {
-        //if(a.issue_number < b.issue_number) { return -1; }
-        //if(a.issue_number > b.issue_number) { return 1; }
-        return 0;
-      });
+      return this.groups
     }
   }
 

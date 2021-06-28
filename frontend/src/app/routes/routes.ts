@@ -9,6 +9,8 @@ import { RegistrationComponent } from '../registration/registration.component';
 import { ReportComponent } from '../report/report.component';
 import { ResetPasswordComponent } from '../reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent }  from '../confirm-reset-password/confirm-reset-password.component';
+import {GroupBarComponent} from "../group-bar/group-bar.component";
+import {StoriesBarComponent} from "../stories-bar/stories-bar.component";
 
 /**
  * All routs of the system
@@ -93,5 +95,15 @@ export const ROUTES = [
     {
         path: 'resetpasswordconfirm',
         component: ConfirmResetPasswordComponent
+    },
+
+    {
+        path: 'group',
+        component: GroupBarComponent
+    },
+
+    {
+        path: 'story',
+        component: StoriesBarComponent
     },
 ];
