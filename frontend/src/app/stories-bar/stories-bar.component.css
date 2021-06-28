@@ -16,8 +16,11 @@
   #storyHeader{
     grid-area: storyHeader;
   }
+  #groupHeader{
+    grid-area: storyHeader;
+  }
 
-  #infoIcon{
+  .infoIcon{
     grid-area: storyHeader;
     color: #999;
     padding-top: 3px;
@@ -52,6 +55,9 @@
 
 
   #createNewStoryDiv{
+    text-align: right;
+  }
+  #createNewGroupDiv{
     text-align: right;
   }
 
@@ -102,6 +108,11 @@
 
   #storyList{
     grid-area: storyList;
+    font-size: smaller;
+    transition: 0.1s;
+  }
+  #groupList{
+    grid-area: groupList;
     font-size: smaller;
     transition: 0.1s;
   }
