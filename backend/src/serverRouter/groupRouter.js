@@ -36,7 +36,7 @@ router
 router.get('/:repo_id', async (req, res) => {
     try {
         let groups = await mongo.getAllStoryGroups(req.params.repo_id)
-        res.status(200).json(groups)
+        res.status(200).json(groups.groups)
     } catch (e) {
         handleError(res,e,e,500)
     }
@@ -48,7 +48,7 @@ router.post('/:repo_id', async (req, res) => {
     console.log("Create StoryGroup ",req.params.repo_id)
     //res.sendStatus(501)
     try {
-        let gr_id = await mongo.createStoryGroup(req.params.repo_id, req.body.name)
+        let gr_id = await mongo.createStoryGroup(req.params.repo_id, req.body.name, req.body.member_stories)
         res.status(200).json({'group_id': gr_id})
     } catch (e) {
         handleError(res,e,e,500)

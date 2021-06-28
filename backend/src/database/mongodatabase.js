@@ -356,7 +356,7 @@ async function getOneStoryByStoryId(storyId, storySource) {
   }
 }
 
-async function createStoryGroup(repo_id, name) {
+async function createStoryGroup(repo_id, name, members) {
   let db;
   try {
     db = await connectDb()
@@ -365,7 +365,7 @@ async function createStoryGroup(repo_id, name) {
     let gr_id
     if(!repo.groups[0]) {gr_id = 0}
     else {gr_id = repo.groups[repo.groups.length -1]._id +1}
-    repo.groups.push({_id:gr_id, 'name': name, 'member_stories': []})
+    repo.groups.push({_id:gr_id, 'name': name, 'member_stories': members?members:[]})
     await collection.updateOne({_id: ObjectId(repo_id)}, {$set: repo})
     return gr_id
   } catch (e) {
@@ -412,7 +412,7 @@ async function deleteStoryGroup(repo_id, group_id) {
 async function addToStoryGroup(repo_id, group_id, story_id) {
   try {
     let group = await getOneStoryGroup(repo_id, group_id)
-    group.push(ObjectId(story_id))
+    group.member_stories.push(ObjectId(story_id))
     await updateStoryGroup(repo_id, group_id, group)
     return group
   } catch (e) {
@@ -423,7 +423,7 @@ async function addToStoryGroup(repo_id, group_id, story_id) {
 async function removeFromStoryGroup(repo_id, group_id, story_id) {
   try {
     let group = await getOneStoryGroup(repo_id, group_id)
-    group.splice(group.indexOf(ObjectId(story_id)),1)
+    group.member_stories.splice(group.indexOf(ObjectId(story_id)),1)
     await updateStoryGroup(repo_id, group_id, group)
     return group
   } catch (e) {
