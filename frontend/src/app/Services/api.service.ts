@@ -88,6 +88,10 @@ export class ApiService {
 
     public createCustomGroupEmitter: EventEmitter<any> = new EventEmitter();
 
+    public updateGroupEmitter: EventEmitter<any> = new EventEmitter();
+
+    public deleteGroupEmitter: EventEmitter<any> = new EventEmitter();
+
     /**
      * Gets api headers
      * @returns
@@ -456,6 +460,21 @@ export class ApiService {
      */
     createGroupEvent(group){
         this.createCustomGroupEmitter.emit(group)
+    }
+
+    /**
+     * Emitts the create group event
+     * @param group
+     */
+    updateGroupEvent(group){
+        this.updateGroupEmitter.emit(group)
+    }
+
+    /**
+     * Emits the delete scenario event
+     */
+    public deleteGroupEvent(values){
+        this.deleteGroupEmitter.emit(values)
     }
 
     /**

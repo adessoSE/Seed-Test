@@ -5,6 +5,8 @@ import {Scenario} from '../model/Scenario';
 import {ModalsComponent} from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
+import {getMatSelectNonFunctionValueError} from "@angular/material/select/select-errors";
+import {group} from "@angular/animations";
 
 /**
  * Component of the Stories bar
@@ -75,6 +77,16 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     createGroupEmitter: Subscription;
 
     /**
+     * Subscription element if a custom Group should be created
+     */
+    updateGroupEmitter: Subscription;
+
+    /**
+     * Subscription element if a custom Group should be created
+     */
+    deleteGroupEmitter: Subscription;
+
+    /**
      * Emits a new chosen Group
      */
     @Output()
@@ -119,9 +131,26 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 });
             });
         });
+
         this.createGroupEmitter = this.apiService.createCustomGroupEmitter.subscribe(custom => {
             this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
+                    this.groups = resp;
+                });
+            });
+        });
+        this.updateGroupEmitter = this.apiService.updateGroupEmitter.subscribe(custom => {
+            this.apiService.updateGroup(custom.repositoryContainer._id, custom.group._id, custom.group).subscribe(respp => {
+                this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
+                    this.groups = resp;
+                    console.log(resp)
+                });
+            });
+        });
+        this.deleteGroupEmitter = this.apiService.deleteGroupEmitter.subscribe(custom => {
+            this.apiService.deleteGroup(custom.repo_id, custom.group_id).subscribe(respp => {
+                console.log(custom.repo_id, custom.group_id)
+                this.apiService.getGroups(custom.repo_id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                     console.log(resp)
                 });
@@ -130,12 +159,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        if (this.createStoryEmitter) {
-            this.createStoryEmitter.unsubscribe()
-        }
-        if (this.createGroupEmitter) {
-            this.createGroupEmitter.unsubscribe()
-        }
+        this.createStoryEmitter? this.createStoryEmitter.unsubscribe():null;
+        this.createGroupEmitter? this.createGroupEmitter.unsubscribe():null;
+        this.updateGroupEmitter? this.updateGroupEmitter.unsubscribe():null;
+        this.deleteGroupEmitter? this.deleteGroupEmitter.unsubscribe():null;
     }
 
 
@@ -158,13 +185,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     getSortedGroups() {
-        if (this.groups) {
+        if (this.groups && this.stories) {
             return this.groups
         }
     }
 
-    mergeById(group, stories){
-        //TODO merge groupmember ids to their names
+    mergeById(group, stories) {
+
     }
 
 
@@ -195,8 +222,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Selects a new Group
      * @param Group
      */
-    selectGroupStory(Group: Group) {
-        this.selectedGroup = Group;
+    selectGroupStory(group: Group) {
+        this.selectedGroup = group;
+    }
+
+    selectStoryOfGroup(id){
+        let story = this.stories.find(o => o._id === id)
+        this.selectStoryScenario(story)
+    }
+
+    editGroup(){
+        console.log('editgroup')
     }
 
     /**
@@ -207,10 +243,19 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Opens a create New story Modal
+     * Opens a create New group Modal
      */
     openCreateNewGroupModal(){
         this.modalsComponent.openCreateNewGroupModal()
     }
+
+    /**
+     * Opens a update group Modal
+     */
+    openUpdateGroupModal(group: Group){
+        this.modalsComponent.openUpdateGroupModal(group)
+    }
+
+
 
 }

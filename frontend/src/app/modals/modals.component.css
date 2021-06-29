@@ -225,6 +225,16 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     max-height: 200px;
 }
 
+.groupstoryselection{
+    resize: both;
+    width: 50%;
+    height: 30%;
+    min-width: 100px;
+    min-height: 100px;
+    max-width: 100%;
+    max-height: 200px;
+}
+
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;
