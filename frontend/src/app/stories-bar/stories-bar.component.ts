@@ -7,6 +7,7 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
 import {getMatSelectNonFunctionValueError} from "@angular/material/select/select-errors";
 import {group} from "@angular/animations";
+import {find} from "rxjs/operators";
 
 /**
  * Component of the Stories bar
@@ -186,12 +187,32 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     getSortedGroups() {
         if (this.groups && this.stories) {
-            return this.groups
+            return this.mergeById(this.groups, this.stories)
         }
     }
 
-    mergeById(group, stories) {
+    mergeById(groups, stories) {
+        let myMap = new Map
+        for(let story of stories)
+            myMap.set(story._id, story.title)
 
+        let ret = []
+        for(let group of groups){
+            let gr = group
+            for (let index in group.member_stories) {
+                if(!group.member_stories[index].title){
+                    console.log('index', group.member_stories[index], index)
+                    gr.member_stories[index] = {
+                        'title': myMap.get(group.member_stories[index]),
+                        '_id': group.member_stories[index]
+                    }
+                }
+            }
+            console.log(group)
+            ret.push(gr)
+        }
+        console.log()
+        return ret;
     }
 
 
@@ -229,10 +250,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     selectStoryOfGroup(id){
         let story = this.stories.find(o => o._id === id)
         this.selectStoryScenario(story)
-    }
-
-    editGroup(){
-        console.log('editgroup')
     }
 
     /**

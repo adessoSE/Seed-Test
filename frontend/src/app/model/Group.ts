@@ -12,7 +12,7 @@ export interface Group {
     /**
      * ids of memberStories
      */
-    member_stories: string[];
+    member_stories: any[];
 
 
 }

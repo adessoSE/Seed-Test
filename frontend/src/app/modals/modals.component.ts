@@ -610,7 +610,10 @@ export class ModalsComponent {
         })
         this.groupId = group._id
         this.groupTitle = group.name
-        this.selectedStories = group.member_stories
+        this.selectedStories = []
+        for (let s of group.member_stories){
+            this.selectedStories.push(s._id)
+        }
         this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
