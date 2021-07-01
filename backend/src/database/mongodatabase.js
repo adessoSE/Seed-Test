@@ -12,9 +12,9 @@ if (!process.env.NODE_ENV) {
 const uri = process.env.DATABASE_URI;
 const dbName = 'Seed';
 const userCollection = 'User';
-const storiesCollection = 'Stories';
+const storiesCollection = 'TestStories';
 const testreportCollection = 'TestReport';
-const repositoriesCollection = 'Repositories'
+const repositoriesCollection = 'TestRepositories'
 const steptypesCollection = 'stepTypes'
 const PwResetReqCollection = 'PwResetRequests'
 const CustomBlocksCollection = 'CustomBlocks'
@@ -350,6 +350,122 @@ async function getOneStory(storyId, storySource) {
 }
 
 
+async function getOneStoryByStoryId(storyId, storySource) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await collection.findOne({ story_id: storyId, storySource: storySource })
+    // TODO remove later when all used stories have the tag storySource
+    if (!story) {
+      story = await collection.findOne({ story_id: storyId, storySource: undefined })
+    }
+    return story
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
+  } finally {
+    if (db) db.close();
+  }
+}
+
+async function createStoryGroup(repo_id, name, members) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectRepositoryCollection(db)
+    let repo = await collection.findOne({_id:ObjectId(repo_id)})
+    let gr_id
+    if(!repo.groups[0]) {gr_id = 0}
+    else {gr_id = repo.groups[repo.groups.length -1]._id +1}
+    repo.groups.push({_id:gr_id, 'name': name, 'member_stories': members?members:[]})
+    await collection.updateOne({_id: ObjectId(repo_id)}, {$set: repo})
+    return gr_id
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in createStoryGroup: " + e)
+  } finally {
+    if (db) db.close();
+  }
+}
+
+async function updateStoryGroup(repo_id, group_id, updatedGroup) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectRepositoryCollection(db)
+    let repo = await collection.findOne({_id:ObjectId(repo_id)})
+    let index = repo.groups.findIndex(o => o._id === parseInt(group_id))
+    repo.groups[index] = updatedGroup
+    await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
+    return updatedGroup
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in updateStoryGroup: " + e)
+  } finally {
+    if (db) db.close();
+  }
+}
+
+async function deleteStoryGroup(repo_id, group_id) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectRepositoryCollection(db)
+    let repo = await collection.findOne({_id:ObjectId(repo_id)})
+    let index = repo.groups.findIndex(o => o._id === parseInt(group_id))
+    repo.groups.splice(index, 1)
+    await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
+    return null
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in deleteStoryGroup: " + e)
+  } finally {
+    if (db) db.close();
+  }
+}
+
+async function addToStoryGroup(repo_id, group_id, story_id) {
+  try {
+    let group = await getOneStoryGroup(repo_id, group_id)
+    group.member_stories.push(ObjectId(story_id))
+    await updateStoryGroup(repo_id, group_id, group)
+    return group
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in AddToStoryGroup: " + e)
+  }
+}
+
+async function removeFromStoryGroup(repo_id, group_id, story_id) {
+  try {
+    let group = await getOneStoryGroup(repo_id, group_id)
+    group.member_stories.splice(group.indexOf(ObjectId(story_id)),1)
+    await updateStoryGroup(repo_id, group_id, group)
+    return group
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in removeFromStoryGroup: " + e)
+  }
+}
+
+async function getAllStoryGroups(repo_id) {
+  //throw new Error("Not implemented")
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectRepositoryCollection(db)
+    let groups = await collection.findOne({_id:ObjectId(repo_id)},{projection:{"groups":1}})
+    return groups
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getAllStoryGroups: " + e)
+  } finally {
+    if (db) db.close();
+  }
+}
+async function getOneStoryGroup(repo_id, group_id) {
+  try {
+    let groups = await getAllStoryGroups(repo_id)
+    return groups.groups.find(o => o._id === parseInt(group_id))
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getOneStoryGroup: " + e)
+  }
+}
+
 // GET all  Steptypes
 async function showSteptypes() {
   let db;
@@ -669,7 +785,7 @@ async function getOneGitRepository(name) {
 }
 
 async function createRepo(ownerId, name) {
-  let emptyRepo = { owner: ownerId, repoName: name, stories: [], repoType: "db", customBlocks: [] }
+  let emptyRepo = { owner: ownerId, repoName: name, stories: [], repoType: "db", customBlocks: [] , groups: []}
   let db = await connectDb();
   let collection = await selectRepositoryCollection(db);
   let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name })
@@ -1175,6 +1291,13 @@ module.exports = {
   getOneGitRepository,
   getAllStoriesOfRepo,
   createRepo,
+  createStoryGroup,
+  updateStoryGroup,
+  deleteStoryGroup,
+  addToStoryGroup,
+  removeFromStoryGroup,
+  getAllStoryGroups,
+  getOneStoryGroup,
   selectStoriesCollection,
   connectDb,
   createResetRequest,

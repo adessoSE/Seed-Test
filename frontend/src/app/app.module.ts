@@ -69,7 +69,7 @@ import { ReportHistoryComponent } from './report-history/report-history.componen
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ModalsComponent,
-    ReportHistoryComponent
+    ReportHistoryComponent,
   ],
   imports: [
       NgbModule,

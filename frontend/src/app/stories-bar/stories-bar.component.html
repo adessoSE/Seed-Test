@@ -2,7 +2,7 @@
   <div>
     <br>
       <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
-      <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
         <span rel="def">A user story describes requirements for a software system.
           It is consciously kept in short sentences and simple words.
           A story includes several scenarios.
@@ -34,6 +34,37 @@
     <div *ngIf="isCustomStory" id="createNewStoryDiv">
       <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
     </div>
+
+
+  <br>
+  <hr>
+  <div class="uk-card-title"><span class="MediumCategory1" id="groupHeader">Groups</span>
+    <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+      <span rel="def">ToDo</span>
+    </dfn>
+  </div>
+  <hr>
+  <ul uk-accordion>
+    <li *ngFor="let g of getSortedGroups(); let i = index ">
+      <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
+        <a class="storyListLink" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
+           title="{{g.name}}">
+          {{g.name}}. {{g._id}}
+        </a>
+        <span>
+          <em class="material-icons" (click)="openUpdateGroupModal(g)" id="groupEdit">edit</em>
+        </span>
+      </div>
+      <div class="uk-accordion-content">
+    <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
+      <a class="Largecaption scenarioListItem">{{stor.title | titlecase}}</a>
+    </li>
+</div>
+</li>
+</ul>
+<div id="createNewGroupDiv">
+  <button class="normalButton" (click)="openCreateNewGroupModal()">Create New Group</button>
+</div>
   </div>
 </div>
 
