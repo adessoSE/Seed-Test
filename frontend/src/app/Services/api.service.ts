@@ -344,7 +344,7 @@ export class ApiService {
     public updateStory(story: Story): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .put<Story>(this.apiServer + '/story', story, ApiService.getOptions())
+            .put<Story>(this.apiServer + '/story/' + story._id, story, ApiService.getOptions())
             .pipe(tap(resp =>{
             }));
     }
