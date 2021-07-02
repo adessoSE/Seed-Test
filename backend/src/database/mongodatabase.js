@@ -422,24 +422,28 @@ async function deleteStoryGroup(repo_id, group_id) {
 }
 
 async function addToStoryGroup(repo_id, group_id, story_id) {
+  let db
   try {
-    let group = await getOneStoryGroup(repo_id, group_id)
-    group.member_stories.push(ObjectId(story_id))
-    await updateStoryGroup(repo_id, group_id, group)
-    return group
+    db = await connectDb()
+    let collection = await selectRepositoryCollection(db)
+    return await collection.findOneAndUpdate({_id: ObjectId(repo_id)},{ $push:{ groups: group_id , member_stories: story_id}})
   } catch (e) {
-    console.log("UPS!!!! FEHLER in AddToStoryGroup: " + e)
+    console.log("UPS!!!! FEHLER in removeFromStoryGroup: " + e)
+  } finally {
+    if (db) db.close();
   }
 }
 
 async function removeFromStoryGroup(repo_id, group_id, story_id) {
+  let db
   try {
-    let group = await getOneStoryGroup(repo_id, group_id)
-    group.member_stories.splice(group.indexOf(ObjectId(story_id)),1)
-    await updateStoryGroup(repo_id, group_id, group)
-    return group
+    db = await connectDb()
+    let collection = await selectRepositoryCollection(db)
+    return await collection.findOneAndUpdate({_id: ObjectId(repo_id)},{ $pull:{ groups: group_id , member_stories: story_id}})
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromStoryGroup: " + e)
+  } finally {
+    if (db) db.close();
   }
 }
 
@@ -562,7 +566,7 @@ async function deleteStory(repoId, storyId){
     db = await connectDb();
     let collection = await selectStoriesCollection(db);
     let repo = await selectRepositoryCollection(db)
-    collection.findOneAndDelete({_id: ObjectId(storyId)})
+    await collection.findOneAndDelete({_id: ObjectId(storyId)})
     await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteStory: " + e)
@@ -583,6 +587,21 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
   throw e;
 } finally {
+    if (db) db.close()
+  }
+}
+
+async function updateScenarioList(storyId, source, scenarioList){
+  let db
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let ret = await collection.findOneAndUpdate({ _id: ObjectId(storyId)}, { $set: { scenarios: scenarioList }})
+    return ret
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
+    throw e;
+  } finally {
     if (db) db.close()
   }
 }
@@ -1273,6 +1292,7 @@ module.exports = {
   createScenario,
   updateScenario,
   deleteScenario,
+  updateScenarioList,
   createStory,
   deleteStory,
   insertStoryIdIntoRepo,

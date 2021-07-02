@@ -74,6 +74,15 @@ router.delete('/:repo_id/:_id', async (req, res)=>{
    }
 });
 
+//update only Scenariolist
+router.patch('/:story_id/:source', async (req, res) => {
+    try {
+        await mongo.updateScenarioList(req.params.story_id, req.params.source, req.body)
+    } catch (e) {
+        handleError(res, e, e, 500);
+    }
+});
+
 // get one scenario
 router.get('/:story_id/:source/:_id', async (req, res)=>{
     try {

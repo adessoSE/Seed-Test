@@ -362,6 +362,14 @@ export class ApiService {
             }));
     }
 
+    public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any>{
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .patch(this.apiServer + '/story/' + story_id + '/' + source, scenario_list, ApiService.getOptions())
+            .pipe(tap(resp =>{
+            }));
+    }
+
 /*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
     /**
      * Requests a password request

@@ -269,9 +269,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     dropStory(event: CdkDragDrop<string[]>, s) {
+        let source = localStorage.getItem('source')
         let index = this.stories.findIndex(o => o._id === s._id)
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-        this.apiService.updateStory(this.stories[index]).subscribe(ret => {
+        this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(ret => {
             console.log(ret)
         })
     }
