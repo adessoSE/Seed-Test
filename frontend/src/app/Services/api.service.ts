@@ -782,6 +782,14 @@ export class ApiService {
             .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
+    runGroup(repoID, groupID, params) {
+        this.apiServer = localStorage.getItem('url_backend');
+        let timeout = 600000;
+        return this.http
+            .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })})
+    }
+
+
 
     /**
      * Retrieves the report history of a story

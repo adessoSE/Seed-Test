@@ -121,6 +121,11 @@
     color: var(--ocean-blue);
     cursor: pointer;
   }
+  #groupPlay{
+    float: right;
+    color: var(--ocean-blue);
+    cursor: pointer;
+  }
 
   #storyList:hover{
     cursor: pointer;

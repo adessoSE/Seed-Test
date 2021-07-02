@@ -28,6 +28,12 @@ router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
 	helper.runReport(req, res, stories, 'scenario', req.body);
 });
 
+// run one Group
+router.post('/Group/:repoID/:groupID', (req, res) => {
+	console.log('runGroup Not Implemented yet')
+	res.sendStatus(501)
+})
+
 router.get('/report/:reportName', (req, res) => {
 	helper.createReport(res, req.params.reportName);
 });

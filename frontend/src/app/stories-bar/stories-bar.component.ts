@@ -215,6 +215,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         return ret;
     }
 
+    runGroup(group: Group){
+        let id = localStorage.getItem('id')
+        this.apiService.runGroup(id, group._id, null).subscribe(ret => {
+            console.log('tried running Group, Not implemented Yet')
+        })
+    }
+
 
 
     /**
