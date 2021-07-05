@@ -422,28 +422,24 @@ async function deleteStoryGroup(repo_id, group_id) {
 }
 
 async function addToStoryGroup(repo_id, group_id, story_id) {
-  let db
   try {
-    db = await connectDb()
-    let collection = await selectRepositoryCollection(db)
-    return await collection.findOneAndUpdate({_id: ObjectId(repo_id)},{ $push:{ groups: group_id , member_stories: story_id}})
+    let group = await getOneStoryGroup(repo_id, group_id)
+    group.member_stories.push(ObjectId(story_id))
+    await updateStoryGroup(repo_id, group_id, group)
+    return group
   } catch (e) {
-    console.log("UPS!!!! FEHLER in removeFromStoryGroup: " + e)
-  } finally {
-    if (db) db.close();
+    console.log("UPS!!!! FEHLER in AddToStoryGroup: " + e)
   }
 }
 
 async function removeFromStoryGroup(repo_id, group_id, story_id) {
-  let db
   try {
-    db = await connectDb()
-    let collection = await selectRepositoryCollection(db)
-    return await collection.findOneAndUpdate({_id: ObjectId(repo_id)},{ $pull:{ groups: group_id , member_stories: story_id}})
+    let group = await getOneStoryGroup(repo_id, group_id)
+    group.member_stories.splice(group.indexOf(ObjectId(story_id)),1)
+    await updateStoryGroup(repo_id, group_id, group)
+    return group
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromStoryGroup: " + e)
-  } finally {
-    if (db) db.close();
   }
 }
 
@@ -568,6 +564,10 @@ async function deleteStory(repoId, storyId){
     let repo = await selectRepositoryCollection(db)
     await collection.findOneAndDelete({_id: ObjectId(storyId)})
     await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
+
+    // TODO update Groups Removing entries with matching story id
+    //await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories.$[].member_stories.$[]} })
+
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteStory: " + e)
     throw e
