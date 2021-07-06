@@ -91,9 +91,45 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 	await driver.sleep(currentParameters.waitTime);
 });
 
-Given('I take a screenshot', async function() {
+// Take a Screenshot
+Given('I take a screenshot', async function () {
 	const world = this;
+	await driver.wait(async () => driver.executeScript('return document.readyState')
+		.then(async (readyState) => readyState === 'complete'));
 	try {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	}
+	await driver.sleep(currentParameters.waitTime);
+});
+
+// Take a Screenshot and optionally scroll to a specific element
+Given('I take a screenshot. Optionally: Focus the page on the element {string}', async function takeScreenshot(element) {
+	const world = this;
+	await driver.wait(async () => driver.executeScript('return document.readyState')
+		.then(async (readyState) => readyState === 'complete'));
+	try {
+		if (element !== '') {
+			try {
+				await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@id='${element}']`)));
+			} catch (e2) {
+				try {
+					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@*='${element}']`)));
+				} catch (e3) {
+					try {
+						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[contains(@id, '${element}')]`)));
+					} catch (e4) {
+						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`${element}`)));
+					}
+				}
+			}
+		}
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
