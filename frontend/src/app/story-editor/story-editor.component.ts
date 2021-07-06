@@ -11,7 +11,7 @@ import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
-import { DeleteScenarioToast } from '../deleteScenario-toast'
+import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
 
@@ -169,11 +169,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     @Output()
     changeEditor: EventEmitter<any> = new EventEmitter();
-  
+
     /**
      * Constructor
-     * @param apiService 
-     * @param toastr 
+     * @param apiService
+     * @param toastr
      */
     constructor(
         public apiService: ApiService,
@@ -205,7 +205,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     }
 
     /**
-     * retrieves the saved block from the session storage 
+     * retrieves the saved block from the session storage
      */
     ngDoCheck(): void {
           this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
@@ -268,7 +268,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.activeActionBar = false;
         this.allChecked = false;
     }
-  
+
     /**
      * set new stories
      */
@@ -292,7 +292,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     /**
      * Opens add block modal
-     * @param event 
+     * @param event
      */
     addBlock(event){
         let id = localStorage.getItem('id')
@@ -313,8 +313,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     }
 
     /**
-     * sets the stories 
-     * @param stories 
+     * sets the stories
+     * @param stories
      */
     setStories(stories: Story[]) {
         this.stories = stories;
@@ -323,7 +323,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     /**
      * Select a new currently used scenario
-     * @param scenario 
+     * @param scenario
      */
   selectNewScenario(scenario: Scenario){
       this.selectedScenario = scenario;
@@ -354,8 +354,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks all check boxes or unchecks
-     * @param event 
-     * @param checkValue 
+     * @param event
+     * @param checkValue
      */
     checkAllSteps(event, checkValue: boolean){
         if(checkValue!= null){
@@ -384,9 +384,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks one step in the checkbox
-     * @param event 
-     * @param step 
-     * @param checkValue 
+     * @param event
+     * @param step
+     * @param checkValue
      */
     checkStep(event, step, checkValue: boolean){
         if(checkValue != null){
@@ -452,7 +452,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Opens the delete scenario toast
-   * @param scenario 
+   * @param scenario
    */
   showDeleteScenarioToast(scenario: Scenario){
     this.toastr.warning('', 'Do you really want to delete this scenario?', {
@@ -462,7 +462,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Deletes scenario
-   * @param scenario 
+   * @param scenario
    */
   deleteScenario(scenario: Scenario){
     this.apiService
@@ -499,8 +499,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Drag and drop event in the background
-   * @param event 
-   * @param stepDefs 
+   * @param event
+   * @param stepDefs
    */
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
       moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
@@ -508,8 +508,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Gets background step list
-   * @param stepDefinitions 
-   * @returns 
+   * @param stepDefinitions
+   * @returns
    */
   getBackgroundList(stepDefinitions: StepDefinitionBackground) {
       return stepDefinitions.when;
@@ -517,7 +517,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * changes the name of the background
-   * @param name 
+   * @param name
    */
   backgroundNameChange(name: string) {
       this.selectedStory.background.name = name;
@@ -579,8 +579,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Adds a step to the background
-   * @param storyID 
-   * @param step 
+   * @param storyID
+   * @param step
    */
   addStepToBackground(storyID: string, step: StepType) {
       const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions)
@@ -592,9 +592,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Creates a new step
-   * @param step 
-   * @param stepDefinitions 
-   * @returns 
+   * @param step
+   * @param stepDefinitions
+   * @returns
    */
   createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{
       const obj = JSON.parse(JSON.stringify(step))
@@ -612,9 +612,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Gets the last id in the steps
-   * @param stepDefs 
-   * @param stepStepType 
-   * @returns 
+   * @param stepDefs
+   * @param stepStepType
+   * @returns
    */
   getLastIDinStep(stepDefs: any, stepStepType: string): number {
       switch (stepStepType) {
@@ -631,8 +631,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * gets the id of the step
-   * @param step 
-   * @returns 
+   * @param step
+   * @returns
    */
   buildID(step): number {
       if (step.length !== 0) {
@@ -644,9 +644,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * add values to the background steps
-   * @param input 
-   * @param stepIndex 
-   * @param valueIndex 
+   * @param input
+   * @param stepIndex
+   * @param valueIndex
    */
   addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
       this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
@@ -655,7 +655,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Select a scenario
-   * @param scenario 
+   * @param scenario
    */
   selectScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
@@ -666,7 +666,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Selects a story and scenario
-   * @param story 
+   * @param story
    */
   selectStoryScenario(story: Story) {
       this.showResults = false;
@@ -680,7 +680,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     /**
      * Save the block background
-     * @param event 
+     * @param event
      */
     saveBlockBackground(event){
         let saveBlock: any = {when: []};
@@ -698,7 +698,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     /**
      * Copy a block
-     * @param event 
+     * @param event
      */
     copyBlock(event){
         let copyBlock: any = {given: [], when: [], then: [], example:[]};
@@ -733,7 +733,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     /**
      * Make the API Request to run the tests and display the results as a chart
-     * @param scenario_id 
+     * @param scenario_id
      */
     runTests(scenario_id) {
         if (this.storySaved()) {
@@ -757,7 +757,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                     this.reportId = resp.reportId;
                     iframe.srcdoc = resp.htmlFile;
                     // console.log("This is the response: " + resp);
-                    this.htmlReport = resp;
+                    this.htmlReport = resp.htmlFile;
                     this.testDone = true;
                     this.showResults = true;
                     this.testRunning = false;
@@ -786,22 +786,22 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * Set the time to wait between the steps
-   * @param event 
-   * @param newTime 
+   * @param event
+   * @param newTime
    */
   setStepWaitTime(event, newTime){
     this.selectedScenario.stepWaitTime = newTime;
-    this.selectedScenario.saved = false; 
+    this.selectedScenario.saved = false;
     }
 
     /**
      * Set the browser
-     * @param event 
-     * @param newBrowser 
+     * @param event
+     * @param newBrowser
      */
     setBrowser(event, newBrowser){
         this.selectedScenario.browser = newBrowser;
-        this.selectedScenario.saved = false; 
+        this.selectedScenario.saved = false;
     }
 
     /**
@@ -813,7 +813,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * If the story is saved
-   * @returns 
+   * @returns
    */
   storySaved(){
     return this.runUnsaved ||((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved))
@@ -821,7 +821,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
    * sort the step types
-   * @returns 
+   * @returns
    */
   sortedStepTypes(){
     let sortedStepTypes =  this.originalStepTypes;
@@ -833,8 +833,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
  /**
   * Mark the report as not saved
-  * @param reportId 
-  * @returns 
+  * @param reportId
+  * @returns
   */
  unsaveReport(reportId){
     this.reportIsSaved = false;
@@ -842,13 +842,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       .unsaveReport(reportId)
       .subscribe(_resp => {
           resolve()
-      });})  
+      });})
   }
 
   /**
    * Mark the report as saved
-   * @param reportId 
-   * @returns 
+   * @param reportId
+   * @returns
    */
   saveReport(reportId){
     this.reportIsSaved = true;

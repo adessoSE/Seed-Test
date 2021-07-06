@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectID;
+const emptyStory = require('../models/emptyStory')
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 
@@ -37,7 +38,8 @@ async function createResetRequest(request) {
     return result
   } catch (e) {
     console.log("UPS!!!!FEHLER im ResetRequest: " + e)
-  } finally {
+  throw e; 
+} finally {
     if (db) db.close()
   }
 }
@@ -52,7 +54,8 @@ async function getResetRequest(id) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getResetRequest: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -67,7 +70,8 @@ async function getResetRequestByEmail(mail) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getResetRequestByEmail: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -82,7 +86,8 @@ async function deleteRequest(mail) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteRequest: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -118,7 +123,8 @@ async function registerGithubUser(user) {
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in registerGithubUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -147,7 +153,8 @@ async function mergeGithub(userId, login, id) {
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in mergeGithub: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -162,7 +169,8 @@ async function getUserByEmail(email) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getUserByEmail: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -269,9 +277,10 @@ function findStory(storyId, storySource, collection) {
 
 function replace(story, collection) {
   const myObjt = {
-    _id: story._id,
+    _id: ObjectId(story._id),
     storySource: story.storySource,
   };
+  story._id = ObjectId(story._id)
   return new Promise((resolve, reject) => {
     collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
       if (err) {
@@ -305,6 +314,7 @@ function replaceUser(newUser, collection) {
 }
 
 async function updateStory(updatedStuff) {
+  console.log('updateStuff', updatedStuff)
   let db;
   try {
     db = await connectDb()
@@ -313,7 +323,8 @@ async function updateStory(updatedStuff) {
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER updateStory: " + e)
-  } finally {
+    throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -332,7 +343,8 @@ async function getOneStory(storyId, storySource) {
     return story
   } catch (e) {
     console.log("UPS!!!! FEHLER in getOneStory: " + e)
-  } finally {
+    throw e;
+} finally {
     if (db) db.close();
   }
 }
@@ -465,7 +477,8 @@ async function showSteptypes() {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in showSteptypes: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -482,7 +495,8 @@ async function updateBackground(storyId, storySource, updatedBackground) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateBackground: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -499,7 +513,8 @@ async function deleteBackground(storyId, storySource) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteBackground: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -528,25 +543,35 @@ async function createStory(storyTitel, storyDescription, repoId) {
         }
       }
     }
-    let emptyStory = {
-      story_id: 0,
-      assignee: 'unassigned',
-      title: storyTitel,
-      body: storyDescription,
-      issue_number: finalIssueNumber,
-      background: emptyBackground(),
-      scenarios: [emptyScenario()],
-      storySource: 'db',
-      repo_type: 'db',
-      state: 'open',
-      assignee_avatar_url: null,
-      lastTestPassed: null,
-    }
-    let result = await collection.insertOne(emptyStory)
+    let story = emptyStory();
+    story.title = storyTitel
+    story.body = storyDescription
+    story.issue_number = finalIssueNumber
+    let result = await collection.insertOne(story)
     return result.insertedId
   } catch (e) {
     console.log("UPS!!!! FEHLER in createStory: " + e)
-  } finally {
+  throw e;
+} finally {
+    if (db) db.close()
+  }
+}
+
+async function deleteStory(repoId, storyId){
+  try {
+    db = await connectDb();
+    let collection = await selectStoriesCollection(db);
+    let repo = await selectRepositoryCollection(db)
+    await collection.findOneAndDelete({_id: ObjectId(storyId)})
+    await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
+
+    // TODO update Groups Removing entries with matching story id
+    //await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories.$[].member_stories.$[]} })
+
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in deleteStory: " + e)
+    throw e
+} finally {
     if (db) db.close()
   }
 }
@@ -560,6 +585,22 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
     return resultRepo
   } catch (e) {
     console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
+  throw e;
+} finally {
+    if (db) db.close()
+  }
+}
+
+async function updateScenarioList(storyId, source, scenarioList){
+  let db
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let ret = await collection.findOneAndUpdate({ _id: ObjectId(storyId)}, { $set: { scenarios: scenarioList }})
+    return ret
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
+    throw e;
   } finally {
     if (db) db.close()
   }
@@ -583,8 +624,26 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
     return storiesArray
   } catch (e) {
     console.log("UPS!!!! FEHLER in getAllStoriesOfRepo: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
+  }
+}
+
+// GET ONE Scenario
+async function getOneScenario(storyId, storySource, scenarioId) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let scenarios = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource , "scenarios.scenario_id": scenarioId}, {projection: {scenarios: 1}})
+    let ret = scenarios.scenarios.find(o => o.scenario_id === scenarioId)
+    return ret
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in getOneScenario: " + e)
+    throw e;
+  } finally {
+    if (db) db.close();
   }
 }
 
@@ -607,6 +666,35 @@ async function createScenario(storyId, storySource) {
     return tmpScenario
   } catch (e) {
     console.log("UPS!!!! FEHLER in createScenario: " + e)
+  throw e;
+} finally {
+    if (db) db.close()
+  }
+}
+
+// PUT Scenario
+async function updateScenario(storyId, storySource, updatedScenario) {
+  let db;
+  try {
+    db = await connectDb()
+    let collection = await selectStoriesCollection(db)
+    let story = await findStory(storyId, storySource, collection)
+    for (const scenario of story.scenarios) {
+      if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
+        story.scenarios.push(scenario);
+        break;
+      }
+      if (scenario.scenario_id === updatedScenario.scenario_id) {
+        story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
+        break;
+      }
+    }
+    let result = await replace(story, collection)
+    result = result.scenarios.find(o => o.scenario_id === updatedScenario.scenarioId)
+    return result
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in updateScenario: " + e)
+    throw e;
   } finally {
     if (db) db.close()
   }
@@ -629,33 +717,8 @@ async function deleteScenario(storyId, storySource, scenarioID) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteScenario: " + e)
-  } finally {
-    if (db) db.close()
-  }
-}
-
-// POST Scenario
-async function updateScenario(storyId, storySource, updatedScenario) {
-  let db;
-  try {
-    db = await connectDb()
-    let collection = await selectStoriesCollection(db)
-    let story = await findStory(storyId, storySource, collection)
-    for (const scenario of story.scenarios) {
-      if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
-        story.scenarios.push(scenario);
-        break;
-      }
-      if (scenario.scenario_id === updatedScenario.scenario_id) {
-        story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
-        break;
-      }
-    }
-    let result = await replace(story, collection)
-    return result
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in updateScenario: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -691,7 +754,8 @@ async function getRepository(userID) {
     return finalResult;
   } catch (e) {
     console.log("UPS!!!! FEHLER in getRepository" + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -707,7 +771,8 @@ async function deleteRepositorys(ownerID) {
     return result;
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteRepositorys" + e)
-  } finally {
+  throw e;
+} finally {
     db.close();
   }
 }
@@ -765,7 +830,8 @@ async function createJiraRepoIfNonenExists(repoName, source) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in createJiraRepoIfNonenExists" + e)
-  } finally {
+  throw e;
+} finally {
     db.close();
   }
 }
@@ -792,7 +858,8 @@ async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in createGitOwnerRepoIfNonenExists" + e)
-  } finally {
+  throw e;
+} finally {
     db.close();
   }
 }
@@ -806,7 +873,8 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
     return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -836,7 +904,8 @@ async function upsertEntry(storyId, updatedContent, storySource) {
     return result.value;
   } catch (e) {
     console.log("UPS!!!! FEHLER in upsertEntry: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -928,7 +997,8 @@ async function createUser(user) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in createUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -958,7 +1028,8 @@ async function deleteUser(userID) {
 
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -977,7 +1048,8 @@ async function updateUser(userID, updatedUser) {
     return result.value
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateUser: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -994,7 +1066,8 @@ async function getUserData(userID) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLERin getUserData: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1010,7 +1083,8 @@ async function saveBlock(block) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in saveBlock: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1025,7 +1099,8 @@ async function updateBlock(name, updatedBlock) {
     await collection.findOneAndReplace(myObjt, updatedBlock, { returnOriginal: false })
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateBlock: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1041,7 +1116,8 @@ async function getBlocks(userId, repoId) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getBlocks: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1060,7 +1136,8 @@ async function deleteBlock(blockId, userId) {
     //return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteBlock: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1075,7 +1152,8 @@ async function getWorkgroup(id) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getWorkgroup: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1110,7 +1188,8 @@ async function addMember(id, user) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in addMember: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1135,7 +1214,8 @@ async function updateMemberStatus(repoId, user) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in updateMemberStatus: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1149,7 +1229,7 @@ async function getMembers(id) {
     let rCollection = await dbo.collection(repositoriesCollection)
     let repo = await rCollection.findOne({ _id: ObjectId(id) })
     let userCollection = await selectUsersCollection(db)
-    let owner = await userCollection.findOne({ _id: repo.owner })   
+    let owner = await userCollection.findOne({ _id: repo.owner })
     wG = await wGCollection.findOne({ Repo: ObjectId(id) })
     if (!wG) return { owner: { email: owner.email, canEdit: true }, member: [] }
     let result = { owner: {}, member: [] }
@@ -1158,7 +1238,8 @@ async function getMembers(id) {
     return result
   } catch (e) {
     console.log("UPS!!!! FEHLER in getMembers: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1183,7 +1264,8 @@ async function removeFromWorkgroup(id, user) {
     }
   } catch (e) {
     console.log("UPS!!!! FEHLER in removeFromWorkgroup: " + e)
-  } finally {
+  throw e;
+} finally {
     if (db) db.close()
   }
 }
@@ -1206,13 +1288,15 @@ module.exports = {
   //createBackground,
   deleteBackground,
   updateBackground,
+  getOneScenario,
   createScenario,
-  deleteScenario,
   updateScenario,
+  deleteScenario,
+  updateScenarioList,
   createStory,
+  deleteStory,
   insertStoryIdIntoRepo,
   getOneStory,
-  getOneStoryByStoryId,
   upsertEntry,
   updateStory,
   createUser,

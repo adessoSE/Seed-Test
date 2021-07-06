@@ -95,7 +95,13 @@ router.post('/:repo_id/:group_id/:story_id', async (req, res) => {
 //remove Story from Group
 router.delete('/:repo_id/:group_id/:story_id', async (req, res) => {
     console.log("Remove Story from Group ", req.params.repo_id, req.params.group_id, req.params.story_id)
-    res.sendStatus(501)
+    try {
+        await mongo.removeFromStoryGroup(req.params.repo_id, req.params.group_id, req.params.story_id)
+
+        res.status(200).json({'text': 'success'})
+    } catch (e) {
+        handleError(res,e,e,500)
+    }
 });
 
 module.exports = router;

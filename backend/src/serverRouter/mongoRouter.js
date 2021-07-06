@@ -51,13 +51,6 @@ router.post('/createRepository', async (req, res) => {
 	res.status(200).json('');
 });
 
-//creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
-router.post('/createStory', async (req, res) => {
-	let resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.body._id)  
-	await mongo.insertStoryIdIntoRepo( resultStoryId, req.body._id)
-		res.status(200).json('');
-});
-
 // update background
 router.post('/background/update/:storyID/:storySource', async (req, res) => {
 	try {
@@ -82,44 +75,7 @@ router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
 		handleError(res, error, error, 500);
 	}
 });
-// create scenario
-// TODO: add storySource parameter in frontend
-router.get('/scenario/add/:storyID/:storySource', async (req, res) => {
-	try {
-		const scenario = await mongo.createScenario(req.params.storyID, req.params.storySource);
-		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
-		res.status(200)
-			.json(scenario);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-// update scenario
-// TODO: add storySource parameter in frontend
-router.post('/scenario/update/:storyID/:storySource', async (req, res) => {
-	try {
-		const scenario = req.body;
-		const updatedStory = await mongo.updateScenario(req.params.storyID, req.params.storySource, scenario);
-		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
-		res.status(200)
-			.json(updatedStory);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-// delete scenario
-// TODO: add storySource parameter in frontend
-router.delete('/scenario/delete/:storyID/:storySource/:scenarioID', async (req, res) => {
-	try {
-		await mongo
-			.deleteScenario(req.params.storyID, req.params.storySource, parseInt(req.params.scenarioID, 10));
-		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
-		res.status(200)
-			.json({});
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
+
 // create user
 router.post('/user/add', async (req, res) => {
 	try {

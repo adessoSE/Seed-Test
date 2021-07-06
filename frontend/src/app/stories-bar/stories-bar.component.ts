@@ -5,6 +5,7 @@ import {Scenario} from '../model/Scenario';
 import {ModalsComponent} from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {getMatSelectNonFunctionValueError} from "@angular/material/select/select-errors";
 import {group} from "@angular/animations";
 import {find} from "rxjs/operators";
@@ -144,16 +145,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.updateGroup(custom.repositoryContainer._id, custom.group._id, custom.group).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
-                    console.log(resp)
                 });
             });
         });
         this.deleteGroupEmitter = this.apiService.deleteGroupEmitter.subscribe(custom => {
             this.apiService.deleteGroup(custom.repo_id, custom.group_id).subscribe(respp => {
-                console.log(custom.repo_id, custom.group_id)
                 this.apiService.getGroups(custom.repo_id).subscribe((resp: Group[]) => {
                     this.groups = resp;
-                    console.log(resp)
                 });
             });
         });
@@ -201,17 +199,14 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             let gr = group
             for (let index in group.member_stories) {
                 if(!group.member_stories[index].title){
-                    console.log('index', group.member_stories[index], index)
                     gr.member_stories[index] = {
                         'title': myMap.get(group.member_stories[index]),
                         '_id': group.member_stories[index]
                     }
                 }
             }
-            console.log(group)
             ret.push(gr)
         }
-        console.log()
         return ret;
     }
 
@@ -280,6 +275,21 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.modalsComponent.openUpdateGroupModal(group)
     }
 
+    dropStory(event: CdkDragDrop<string[]>, s) {
+        let source = localStorage.getItem('source')
+        let index = this.stories.findIndex(o => o._id === s._id)
+        moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
+        this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(ret => {
+            console.log(ret)
+        })
+    }
 
+    dropGroup(event: CdkDragDrop<string[]>, g) {
+        let index = this.groups.findIndex(o => o._id === g._id)
+        moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
+        this.apiService.updateGroup(localStorage.getItem('id'), g._id, this.groups[index]).subscribe(ret => {
+            console.log(ret)
+        })
+    }
 
 }
