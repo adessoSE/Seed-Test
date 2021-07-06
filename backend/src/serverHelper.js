@@ -176,48 +176,56 @@ async function updateFeatureFile(issueID, storySource) {
 
 function execReport2(req, res, stories, mode, story, callback) {
 	let parameters = {}
-	if (mode == 'scenario'){
+	if (mode == 'scenario') {
 		let scenario = story.scenarios.find(elem => elem.scenario_id == req.params.scenarioID)
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
 		if (!scenario.browser) scenario.browser = 'chrome'
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
-		if (scenario.stepDefinitions.example.length <= 0){
-			parameters = {scenarios: [{browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout}]}
-		}else{
+		if (scenario.stepDefinitions.example.length <= 0) {
+			parameters = {
+				scenarios: [{
+					browser: scenario.browser,
+					waitTime: scenario.stepWaitTime,
+					daisyAutoLogout: scenario.daisyAutoLogout
+				}]
+			}
+		} else {
 			parameters = {scenarios: []}
 			scenario.stepDefinitions.example.forEach((examples, index) => {
-				if (index > 0){
-					parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
+				if (index > 0) {
+					parameters.scenarios.push({
+						browser: scenario.browser,
+						waitTime: scenario.stepWaitTime,
+						daisyAutoLogout: scenario.daisyAutoLogout
+					})
 				}
 			})
 		}
-	}else{
-		parameters = {scenarios: []}
-		story.scenarios.forEach(scenario => {
-			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
-			if (!scenario.browser) scenario.browser = 'chrome'
-			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
-			if (scenario.stepDefinitions.example.length <= 0){
-				parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
-			}else{
-				scenario.stepDefinitions.example.forEach((examples, index) => {
-					if (index > 0){
-						parameters.scenarios.push({browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout})
-					}
-				})
-			}
-		})
+	} else if(mode == 'feature') {
+		const prep = scenarioPrep(story.scenarios)
+		story.scenarios = prep.scenarios
+		parameters = prep.parameters
+	} else if (mode == 'group') {
+		let prep
+		for(let story in stories) {
+			prep = scenarioPrep(stories[story].scenarios)
+			stories[story].scenarios = prep.scenarios
+		}
+		parameters = prep.parameters
+		console.log(stories)
 	}
-	
+
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
-	const path2 = `features/${cleanFileName(story.title)}.feature`;
+	let path2
+	if (mode !== 'group')
+		path2 = `features/${cleanFileName(story.title)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 	const path3 = `features/${reportName}.json`;
 	let jsParam = JSON.stringify(parameters)
 	let worldParam = ''
-	for (let i = 0; i < jsParam.length; i++){
-		if (jsParam[i] == '"'){
+	for (let i = 0; i < jsParam.length; i++) {
+		if (jsParam[i] == '"') {
 			worldParam += '\\\"'
 
 		} else {
@@ -229,8 +237,16 @@ function execReport2(req, res, stories, mode, story, callback) {
 	let cmd;
 	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
 
-	else cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
+	if (mode === 'scenario') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
 
+	if (mode === 'group') {
+	let files;
+	for (let story of stories) {
+		console.log('hallo')
+		files += `features/${cleanFileName(story.title)}.feature `
+	}
+	cmd = `${path.normalize(path1)} ${files} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
+	}
 
 	console.log(`Executing: ${cmd}`);
 
@@ -244,6 +260,33 @@ function execReport2(req, res, stories, mode, story, callback) {
 		console.log(`stderr: ${stderr}`);
 		callback(reportTime, story, req.params.scenarioID, reportName);
 	});
+}
+
+function scenarioPrep(scenarios){
+	let parameters = {scenarios: []}
+	scenarios.forEach(scenario => {
+		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
+		if (!scenario.browser) scenario.browser = 'chrome'
+		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
+		if (scenario.stepDefinitions.example.length <= 0) {
+			parameters.scenarios.push({
+				browser: scenario.browser,
+				waitTime: scenario.stepWaitTime,
+				daisyAutoLogout: scenario.daisyAutoLogout
+			})
+		} else {
+			scenario.stepDefinitions.example.forEach((examples, index) => {
+				if (index > 0) {
+					parameters.scenarios.push({
+						browser: scenario.browser,
+						waitTime: scenario.stepWaitTime,
+						daisyAutoLogout: scenario.daisyAutoLogout
+					})
+				}
+			})
+		}
+	})
+	return {scenarios, parameters}
 }
 
 async function execReport(req, res, stories, mode, callback) {
