@@ -34,7 +34,6 @@ setWorldConstructor(CustomWorld);
 // Cucumber default timer for timeout
 setDefaultTimeout(30 * 1000);
 
-
 Before(async function () {
 	currentParameters = this.parameters.scenarios[scenarioIndex];
 	driver = new webdriver.Builder()
@@ -53,9 +52,7 @@ Given('I am on the website: {string}', async function getUrl(url) {
 	const world = this;
 	try {
 		await driver.get(url);
-		await driver.getCurrentUrl().then(async (currentUrl) => {
-			// expect(currentUrl).to.equal(url, 'Error');
-		});
+		await driver.getCurrentUrl();
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
@@ -65,7 +62,7 @@ Given('I am on the website: {string}', async function getUrl(url) {
 	await driver.sleep(currentParameters.waitTime);
 });
 
-Given('I add a cookie with the name {string} and value {string}', async function (name, value) {
+Given('I add a cookie with the name {string} and value {string}', async function addCookie(name, value) {
 	const world = this;
 	try {
 		await driver.manage().addCookie({ name, value });
@@ -91,8 +88,11 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 	await driver.sleep(currentParameters.waitTime);
 });
 
-Given('I take a screenshot', async function() {
+// Take a Screenshot
+Given('I take a screenshot', async function () {
 	const world = this;
+	await driver.wait(async () => driver.executeScript('return document.readyState')
+		.then(async (readyState) => readyState === 'complete'));
 	try {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
@@ -106,6 +106,38 @@ Given('I take a screenshot', async function() {
 	await driver.sleep(currentParameters.waitTime);
 });
 
+// Take a Screenshot and optionally scroll to a specific element
+Given('I take a screenshot. Optionally: Focus the page on the element {string}', async function takeScreenshot(element) {
+	const world = this;
+	await driver.wait(async () => driver.executeScript('return document.readyState')
+		.then(async (readyState) => readyState === 'complete'));
+	try {
+		if (element !== '') {
+			try {
+				await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@id='${element}']`)));
+			} catch (e2) {
+				try {
+					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@*='${element}']`)));
+				} catch (e3) {
+					try {
+						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[contains(@id, '${element}')]`)));
+					} catch (e4) {
+						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`${element}`)));
+					}
+				}
+			}
+		}
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	}
+	await driver.sleep(currentParameters.waitTime);
+});
 
 // ################### WHEN ##########################################
 // driver navigates to the Website
@@ -113,9 +145,7 @@ When('I go to the website: {string}', async function getUrl(url) {
 	const world = this;
 	try {
 		await driver.get(url);
-		await driver.getCurrentUrl().then(async (currentUrl) => {
-			// expect(currentUrl).to.equal(url, 'Error');
-		});
+		await driver.getCurrentUrl();
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
@@ -134,17 +164,21 @@ When('I click the button: {string}', async function clickButton(button) {
 			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
 			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
 				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-			else try {	// first check for the exact id
-				await driver.wait(until.elementLocated(By.xpath(`//*[@id='${button}']`)), 3 * 1000).click();
+			else try {
+				// first check for the exact id
+				await driver.findElement(By.xpath(`//*[@id='${button}']`)).click();
 			} catch (e) {
-				try {	// check for an id with the substring using contains
-					await driver.wait(until.elementLocated(By.xpath(`//*[contains(@id,'${button}')]`)), 3 * 1000).click();
+				try {
+					// check for an id with the substring using contains
+					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
 				} catch (e2) {
-					try { // text() looks for a text node (inside an element like button
-						await driver.wait(until.elementLocated(By.xpath(`//*[text()='${button}' or @*='${button}']`)), 3 * 1000).click();
+					try {
+						// text() looks for a text node (inside an element like button
+						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
 					} catch (e3) {
-						try { // check for any element containing the string
-							await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${button}')]`)), 3 * 1000).click();
+						try {
+							// check for any element containing the string
+							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
 						} catch (e4) {
 							try {
 								await driver.findElement(By.xpath(`${button}`)).click();
@@ -160,16 +194,15 @@ When('I click the button: {string}', async function clickButton(button) {
 			}
 		});
 	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async readyState => readyState === 'complete'));
+		.then(async (readyState) => readyState === 'complete'));
 	await driver.sleep(currentParameters.waitTime);
 });
-
 
 // selenium sleeps for a certain amount of time
 When('The site should wait for {string} milliseconds', async function (ms) {
 	const world = this;
 	try {
-		await driver.sleep(parseInt(ms,10));
+		await driver.sleep(parseInt(ms, 10));
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
@@ -232,11 +265,10 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
 	const world = this;
 	try {
-		await driver.wait(until.elementLocated(By.xpath(`//*[@${label}='${radioname}']`)), 3 * 1000).click();
+		await driver.findElement(By.xpath(`//*[@${label}='${radioname}']`)).click();
 	} catch (e) {
 		try {
-			await driver.wait(until.elementLocated(By.xpath(`//*[contains(@${label}, '${radioname}')]`)), 3 * 1000)
-				.click();
+			await driver.findElement(By.xpath(`//*[contains(@${label}, '${radioname}')]`)).click();
 		} catch (e8) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
@@ -247,12 +279,11 @@ When('I select {string} from the selection {string}', async function clickRadioB
 	await driver.sleep(currentParameters.waitTime);
 });
 
-
 // Select an Option from a dropdown-menu
 When('I select the option {string} from the drop-down-menue {string}', async function selectFromDropdown(value, dropd) {
 	let world;
 	try {
-		await driver.wait(until.elementLocated(By.xpath(`//*[@*='${dropd}']/option[text()='${value}']`)), 3 * 1000).click();
+		await driver.findElement(By.xpath(`//*[@*='${dropd}']/option[text()='${value}']`)).click();
 	} catch (e) {
 		try {
 			await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`)).click();
@@ -299,26 +330,26 @@ When('I hover over the element {string} and select the option {string}', async f
 	const world = this;
 	try {
 		const action = driver.actions({ bridge: true });
-		const link = await driver.wait(until.elementLocated(By.xpath(`${element}`)), 3 * 1000);
+		const link = await driver.findElement(By.xpath(`${element}`));
 		await action.move({ x: 0, y: 0, origin: link }).perform();
 		await driver.sleep(2000);
-		const action2 = driver.actions({ bridge: true }); // second action needed?
+		const action2 = driver.actions({ bridge: true });
 		const selection = await driver.findElement(By.xpath(`${option}`));
 		await action2.move({ origin: selection }).click()
 			.perform();
 	} catch (e) {
 		const action = driver.actions({ bridge: true });
-		const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), 3 * 1000);
+		const link = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]`));
 		await action.move({ x: 0, y: 0, origin: link }).perform();
 		await driver.sleep(2000);
+		const action2 = driver.actions({ bridge: true });
 		try {
-			const action2 = driver.actions({ bridge: true }); // second action needed?
 			const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
 			await action2.move({ origin: selection }).click()
 				.perform();
 		} catch (e2) {
 			try {
-				const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), 3 * 1000);
+				const selection = await driver.findElement((`//*[contains(text(),'${option}')]`));
 				await action2.move({ origin: selection }).click()
 					.perform();
 			} catch (e3) {
@@ -338,17 +369,24 @@ When('I select from the {string} multiple selection, the values {string}{string}
 // Check the Checkbox with a specific name or id
 When('I check the box {string}', async function checkBox(name) {
 	// Some alternative methods to "check the box":
-	// await driver.executeScript("arguments[0].submit;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
-	// await driver.executeScript("arguments[0].click;", driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
-	// await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).submit();
-	// await driver.wait(until.elementLocated(By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
+	// await driver.executeScript("arguments[0].submit;",
+	// driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
+	// await driver.executeScript("arguments[0].click;",
+	// driver.findElement(By.xpath("//input[@type='checkbox' and @id='" + name + "']")));
+	// await driver.wait(until.elementLocated(
+	// By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).submit();
+	// await driver.wait(until.elementLocated(
+	// By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 	const world = this;
-	try { // this one works, even if the element is not clickable (due to other elements blocking it):
+	try {
+		// this one works, even if the element is not clickable (due to other elements blocking it):
 		await driver.findElement(By.xpath(`//*[@type="checkbox" and @*="${name}"]`)).sendKeys(Key.SPACE);
 	} catch (e) {
-		try { // this one works, for a text label next to the actual checkbox
+		try {
+			// this one works, for a text label next to the actual checkbox
 			await driver.findElement(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)).click();
-		} catch (e2) { // default
+		} catch (e2) {
+			// default
 			try {
 				await driver.findElement(By.xpath(`//*[contains(text(),'${name}') or @*='${name}']`)).click();
 			} catch (e3) {
@@ -363,7 +401,7 @@ When('I check the box {string}', async function checkBox(name) {
 			}
 		}
 	}
-	await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
+	await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -380,7 +418,6 @@ When('Switch to the newly opened tab', async function switchToNewTab() {
 	}
 	await driver.sleep(currentParameters.waitTime);
 });
-
 
 When('Switch to the tab number {string}', async function switchToSpecificTab(numberOfTabs) {
 	const world = this;
@@ -422,12 +459,10 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 	async function uploadFile(path, input) {
 		const world = this;
 		try {
-			await driver.wait(until.elementLocated(By.xpath(`//input[@*='${input}']`)), 3 * 1000)
-				.sendKeys(`${path}`);
+			await driver.findElement(By.xpath(`//input[@*='${input}']`)).sendKeys(`${path}`);
 		} catch (e) {
 			try {
-				await driver.wait(until.elementLocated(By.xpath(`${input}`)), 3 * 1000)
-					.sendKeys(`${path}`);
+				await driver.findElement(By.xpath(`${input}`)).sendKeys(`${path}`);
 			} catch (e2) {
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
@@ -436,11 +471,11 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 			}
 		}
 		await driver.sleep(currentParameters.waitTime);
-});
+	});
 
 // ################### THEN ##########################################
 // Checks if the current Website is the one it is supposed to be
-Then('So I will be navigated to the website: {string}', async function (url) {
+Then('So I will be navigated to the website: {string}', async function checkUrl(url) {
 	const world = this;
 	try {
 		await driver.getCurrentUrl().then(async (currentUrl) => {
@@ -456,37 +491,44 @@ Then('So I will be navigated to the website: {string}', async function (url) {
 });
 
 // Search a textfield in the html code and assert it with a Text
-// TODO: refactor the "expect"
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
 	const world = this;
 	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async readyState => readyState === 'complete'));
+		.then(async (readyState) => readyState === 'complete'));
 	try {
-		await driver.wait(until.elementLocated(By.xpath(`//*[@id='${label}']`)), 3 * 1000).then(async (body) => {
-			const resp = await body.getText().then(text => text);
-			expect(expectedText).to.equal(resp, 'Textfield does not match the string');
-		});
+		await driver.findElement(By.xpath(`//*[@id='${label}']`))
+			.then(async (body) => {
+				const resp = await body.getText().then((text) => text);
+				expect(expectedText).to.equal(resp, 'Textfield does not match the string');
+			});
 	} catch (e) {
 		try {
-			await driver.wait(until.elementLocated(By.xpath(`//*[@*='${label}']`)), 3 * 1000)
+			await driver.findElement(By.xpath(`//*[@*='${label}']`))
 				.then(async (body) => {
-				// `${'//*[text()' + "='"}${button}' or ` + `${'@*'='}${button}']`
-					const resp = await body.getText().then(text => text);
+					const resp = await body.getText().then((text) => text);
 					expect(expectedText).to.equal(resp, 'Textfield does not match the string');
 				});
 		} catch (e2) {
 			try {
-				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@*, '${label}')]`)), 3 * 1000)
+				await driver.findElement(By.xpath(`//*[contains(@*, '${label}')]`))
 					.then(async (body) => {
-						const resp = await body.getText().then(text => text);
+						const resp = await body.getText().then((text) => text);
 						expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
 					});
 			} catch (e3) {
-				await driver.takeScreenshot()
-					.then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-				throw Error(e);
+				try {
+					await driver.findElement(By.xpath(`${label}`))
+						.then(async (body) => {
+							const resp = await body.getText().then((text) => text);
+							expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
+						});
+				} catch (e4) {
+					await driver.takeScreenshot()
+						.then(async (buffer) => {
+							world.attach(buffer, 'image/png');
+						});
+					throw Error(e);
+				}
 			}
 		}
 	}
@@ -498,9 +540,9 @@ Then('So I can see the text: {string}', async function (string) {
 	const world = this;
 	try {
 		await driver.sleep(500);
-		await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
-		await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
-			const cssBody = await body.getText().then(bodytext => bodytext);
+		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
+		await driver.wait(until.elementLocated(By.css('Body')), 2000).then(async (body) => {
+			const cssBody = await body.getText().then((bodytext) => bodytext);
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
@@ -520,32 +562,39 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	const world = this;
 	await driver.sleep(500);
 	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async readyState => readyState === 'complete'));
+		.then(async (readyState) => readyState === 'complete'));
 	try {
-		await driver.wait(until.elementLocated(By.xpath(`//*[@id='${label}']`)), 3 * 1000).then(async (body) => {
-			const resp = await body.getText().then(text => text);
-			expect(resp).to.equal('', 'Textfield does contain some Text');
-		});
+		await driver.findElement(By.xpath(`//*[@id='${label}']`))
+			.then(async (body) => {
+				const resp = await body.getText().then((text) => text);
+				expect(resp).to.equal('', 'Textfield does contain some Text');
+			});
 	} catch (e) {
 		try {
-			await driver.wait(until.elementLocated(By.xpath(`//*[@*='${label}']`)), 3 * 1000)
+			await driver.findElement(By.xpath(`//*[@*='${label}']`))
 				.then(async (body) => {
-					const resp = await body.getText()
-						.then(text => text);
+					const resp = await body.getText().then((text) => text);
 					expect(resp).to.equal('', 'Textfield does contain some Text');
 				});
 		} catch (e2) {
 			try {
-				await driver.wait(until.elementLocated(By.xpath(`//*[contains(@id, '${label}')]`)), 3 * 1000)
+				await driver.findElement(By.xpath(`//*[contains(@id, '${label}')]`))
 					.then(async (body) => {
-						const resp = await body.getText()
-							.then(text => text);
+						const resp = await body.getText().then((text) => text);
 						expect(resp).to.equal('', 'Textfield does contain some Text');
 					});
-			} catch (e) {
-				await driver.takeScreenshot().then(async (buffer) => {
-					world.attach(buffer, 'image/png');
-				});
+			} catch (e3) {
+				try {
+					await driver.findElement(By.xpath(`${label}`))
+						.then(async (body) => {
+							const resp = await body.getText().then((text) => text);
+							expect(resp).to.equal('', 'Textfield does contain some Text');
+						});
+				} catch (e4) {
+					await driver.takeScreenshot().then(async (buffer) => {
+						world.attach(buffer, 'image/png');
+					});
+				}
 				throw Error(e);
 			}
 		}
@@ -556,12 +605,12 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	await driver.sleep(currentParameters.waitTime);
 });
 
-
 Then('So a file with the name {string} is downloaded in this Directory {string}',
 	async function checkDownloadedFile(fileName, directory) {
 		const world = this;
 		try {
-			const path = `${directory}\\${fileName}`; // Todo: pathingtool (path.normalize)serverhelper
+			// Todo: pathingtool (path.normalize)serverhelper
+			const path = `${directory}\\${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
 		} catch (e) {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -576,10 +625,9 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(text) {
 	const world = this;
 	try {
-		// await driver.sleep(2000);
-		await driver.wait(async () => driver.executeScript('return document.readyState').then(async readyState => readyState === 'complete'));
-		await driver.wait(until.elementLocated(By.css('Body')), 3 * 1000).then(async (body) => {
-			const cssBody = await body.getText().then(bodytext => bodytext);
+		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
+		await driver.wait(until.elementLocated(By.css('Body')), 2000).then(async (body) => {
+			const cssBody = await body.getText().then((bodytext) => bodytext);
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
@@ -593,6 +641,34 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 	}
 	await driver.sleep(currentParameters.waitTime);
 });
+
+// clicks a button if found in html code with xpath,
+// timeouts if not found after 3 sec, waits for next page to be loaded
+async function clickButton(button) {
+	try {
+		// first check for the exact id
+		await driver.findElement(By.xpath(`//*[@id='${button}']`)).click();
+	} catch (e) {
+		try {
+			// check for an id with the substring using contains
+			await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
+		} catch (e2) {
+			try {
+				// text() looks for a text node (inside an element like button
+				await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
+			} catch (e3) {
+				try {
+					// check for any element containing the string
+					await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
+				} catch (e4) {
+					await driver.findElement(By.xpath(`${button}`)).click();
+				}
+			}
+		}
+	}
+	await driver.wait(async () => driver.executeScript('return document.readyState')
+		.then(async (readyState) => readyState === 'complete'));
+}
 
 async function daisyLogout() {
 	await driver.sleep(200);
@@ -639,40 +715,10 @@ After(async () => {
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	if (process.env.NODE_ENV) {
 		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
+		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
 		driver.quit();
 	}
 });
-
-// clicks a button if found in html code with xpath,
-// timeouts if not found after 3 sec, waits for next page to be loaded
-async function clickButton(button) {
-	await driver.getCurrentUrl()
-		.then(async (currentUrl) => {
-			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-			else try {	// first check for the exact id
-				await driver.findElement(By.xpath(`//*[@id='${button}']`)).click();
-			} catch (e) {
-				try {	// check for an id with the substring using contains
-					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
-				} catch (e2) {
-					try { // text() looks for a text node (inside an element like button
-						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
-					} catch (e3) {
-						try { // check for any element containing the string
-							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
-						} catch (e4) {
-							await driver.findElement(By.xpath(`${button}`)).click();
-						}
-					}
-				}
-			}
-		});
-	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async readyState => readyState === 'complete'));
-}
 
 // selenium sleeps for a certain amount of time
 async function waitMs(ms) {

@@ -220,7 +220,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 			}
 		})
 	}
-	
+
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
 	const path2 = `features/${cleanFileName(story.title)}.feature`;
@@ -323,7 +323,7 @@ async function jiraProjects(user) {
 			  });
 		} else {
 			resolve([]);
-		}	
+		}
 	}catch(e){
 		resolve([]);
 	}
@@ -346,7 +346,7 @@ function dbProjects(user) {
 				  canEdit: repo.canEdit
 				}
 				projects.push(proj)
-			  } 
+			  }
 			}
 			resolve(projects);
 		  }
@@ -354,7 +354,7 @@ function dbProjects(user) {
 		});
 	  } else{
 		resolve([]);
-	  } 
+	  }
 	});
   }
 
