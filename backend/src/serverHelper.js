@@ -354,7 +354,7 @@ async function jiraProjects(user) {
 			  });
 		} else {
 			resolve([]);
-		}	
+		}
 	}catch(e){
 		resolve([]);
 	}
@@ -377,7 +377,7 @@ function dbProjects(user) {
 				  canEdit: repo.canEdit
 				}
 				projects.push(proj)
-			  } 
+			  }
 			}
 			resolve(projects);
 		  }
@@ -385,7 +385,7 @@ function dbProjects(user) {
 		});
 	  } else{
 		resolve([]);
-	  } 
+	  }
 	});
   }
 

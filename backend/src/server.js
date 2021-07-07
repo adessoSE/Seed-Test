@@ -16,7 +16,6 @@ const workgroupsRouter = require('./serverRouter/workgroups')
 const storyRouter = require('./serverRouter/storyRouter')
 require('./database/mongodatabase');
 
-
 const app = express();
 app.disable('x-powered-by');
 
