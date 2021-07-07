@@ -375,6 +375,7 @@ async function createStoryGroup(repo_id, name, members) {
     let collection = await selectRepositoryCollection(db)
     let repo = await collection.findOne({_id:ObjectId(repo_id)})
     let gr_id
+    if (!repo.groups) repo.groups = []
     if(!repo.groups[0]) {gr_id = 0}
     else {gr_id = repo.groups[repo.groups.length -1]._id +1}
     repo.groups.push({_id:gr_id, 'name': name, 'member_stories': members?members:[]})
@@ -565,8 +566,11 @@ async function deleteStory(repoId, storyId){
     await collection.findOneAndDelete({_id: ObjectId(storyId)})
     await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
 
-    // TODO update Groups Removing entries with matching story id
-    //await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories.$[].member_stories.$[]} })
+    let groups = await repo.findOne({ _id: ObjectId(repoId) }, {"projection":{"groups":1}});
+    for(let index in groups.groups){
+      groups.groups[index].member_stories = groups.groups[index].member_stories.filter(story => story !== storyId)
+    }
+    await repo.findOneAndUpdate({_id: ObjectId(repoId)}, {$set:{"groups":groups.groups}})
 
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteStory: " + e)
