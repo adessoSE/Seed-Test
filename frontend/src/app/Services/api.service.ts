@@ -323,7 +323,7 @@ export class ApiService {
      */
     public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
+        const body = {'title': title, 'description': description, 'repo': repository, '_id': _id};
         return this.http
             .post<Story>(this.apiServer + '/story/', body, ApiService.getOptions())
             .pipe(tap(resp => {

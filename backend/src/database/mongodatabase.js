@@ -446,8 +446,9 @@ async function deleteStory(repoId, storyId){
     db = await connectDb();
     let collection = await selectStoriesCollection(db);
     let repo = await selectRepositoryCollection(db)
-    collection.findOneAndDelete({_id: ObjectId(storyId)})
+    let deletedStory = await collection.findOneAndDelete({_id: ObjectId(storyId)},{"projection": {"title": 1}})
     await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
+    return deletedStory.value
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteStory: " + e)
     throw e
