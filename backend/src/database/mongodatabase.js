@@ -14,7 +14,7 @@ const dbName = 'Seed';
 const userCollection = 'User';
 const storiesCollection = 'TestStories';
 const testreportCollection = 'TestReport';
-const repositoriesCollection = 'Repositories';
+const repositoriesCollection = 'TestRepositories';
 const steptypesCollection = 'stepTypes';
 const PwResetReqCollection = 'PwResetRequests';
 const CustomBlocksCollection = 'CustomBlocks';
@@ -319,20 +319,7 @@ async function getOneStory(storyId, storySource) {
 }
 
 async function getOneStoryByStoryId(storyId, storySource) {
-	let db;
-	try {
-		db = await connectDb();
-		const collection = await selectStoriesCollection(db);
-		let story = await collection.findOne({ story_id: storyId, storySource });
-		// TODO remove later when all used stories have the tag storySource
-		if (!story) story = await collection.findOne({ story_id: storyId, storySource: undefined });
-
-    return story
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
-  } finally {
-    if (db) db.close();
-  }
+	this.getOneStory(storyId, storySource)
 }
 
 async function createStoryGroup(repo_id, name, members) {
@@ -1277,6 +1264,7 @@ module.exports = {
   removeFromStoryGroup,
   getAllStoryGroups,
   getOneStoryGroup,
+	getOneStoryByStoryId,
   selectStoriesCollection,
   connectDb,
   createResetRequest,

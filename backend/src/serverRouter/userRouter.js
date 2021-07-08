@@ -244,13 +244,16 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
+				console.log('fuse pre')
 				let entry = await helper.fuseStoriesWithDb(story, issue.id)
+				console.log('fuse',entry)
 				tmpStories.push(entry);
 				storiesArray.push(entry._id)
 			}
 		}
 		Promise.all(storiesArray)
 			.then((result) => {
+				console.log('promise', result)
 				if (repo !== null) {
 					mongo.updateStoriesArrayInRepo(repo._id, result) 
 				}

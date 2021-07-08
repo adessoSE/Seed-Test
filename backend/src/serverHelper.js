@@ -205,14 +205,16 @@ function execReport2(req, res, stories, mode, story, callback) {
 		const prep = scenarioPrep(story.scenarios)
 		story.scenarios = prep.scenarios
 		parameters = prep.parameters
+		console.log(parameters)
 	} else if (mode == 'group') {
 		let prep
+		parameters = []
 		for(let story in stories) {
 			prep = scenarioPrep(stories[story].scenarios)
 			stories[story].scenarios = prep.scenarios
+			parameters.push(prep.parameters)
 		}
-		parameters = prep.parameters
-		console.log(stories)
+		console.log(parameters)
 	}
 
 	const reportTime = Date.now();
@@ -240,12 +242,12 @@ function execReport2(req, res, stories, mode, story, callback) {
 	if (mode === 'scenario') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
 
 	if (mode === 'group') {
-	let files;
-	for (let story of stories) {
-		console.log('hallo')
-		files += `features/${cleanFileName(story.title)}.feature `
+	let file = '';
+	for (let index in stories) {
+		console.log(worldParam[index])
+		file = `features/${cleanFileName(stories[index].title)}.feature `
+		cmd = `${path.normalize(path1)} ${file} --format json:${path.normalize(path3)} --world-parameters ${worldParam[index]}`;
 	}
-	cmd = `${path.normalize(path1)} ${files} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
 	}
 
 	console.log(`Executing: ${cmd}`);
@@ -291,13 +293,18 @@ function scenarioPrep(scenarios){
 
 async function execReport(req, res, stories, mode, callback) {
 	try {
-		const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 		// console.log('DAISYAUTOLOGOUT');
 		// console.log(typeof (story.daisyAutoLogout));
 		// // does not Fail if "daisyAutoLogout" is undefined
 		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
 		//  else process.env.DAISY_AUTO_LOGOUT = false;
-		execReport2(req, res, stories, mode, story, callback);
+		if (mode == 'group'){
+			for (let story of stories)
+				execReport2(req, res, stories, 'feature', story, callback)
+		} else {
+			let story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			execReport2(req, res, stories, mode, story, callback);
+		}
 	} catch (error) {
 		res.status(404)
 			.send(error);
@@ -443,7 +450,7 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 }
 
 async function fuseStoriesWithDb(story, issueId) {
-	const result = await mongo.getOneStoryByStoryId(parseInt(issueId), story.storySource);
+	const result = await mongo.getOneStory(parseInt(issueId), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;

@@ -30,14 +30,15 @@ router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
 
 // run one Group
 router.post('/Group/:repoID/:groupID', async (req, res) => {
-	console.log('runGroup Not Implemented yet')
-	res.sendStatus(501)
-	//const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID)
-	//let mystories = []
-	//for(let id of group.member_stories){
-	//	mystories.push(await mongo.getOneStory(id, 'db'))
-	//}
-	//helper.runReport(req, res, mystories, 'group', req.body)
+	//console.log('runGroup Not Implemented yet')
+	//res.sendStatus(501)
+	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID)
+	let mystories = []
+	for(let id of group.member_stories){
+		mystories.push(await mongo.getOneStory(id, 'db'))
+	}
+
+	await helper.runReport(req, res, mystories, 'group', req.body)
 })
 
 router.get('/report/:reportName', (req, res) => {
