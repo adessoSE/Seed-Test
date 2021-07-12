@@ -31,7 +31,7 @@
   	  font-style: normal;
   	  font-stretch: normal;
   	}
-  
+
   :root{
       --ocean-blue: #0071b9;
       --grape: #782f40;
@@ -488,8 +488,15 @@
     line-height: 1.29;
     letter-spacing: normal;
     text-align: center;
-    color: var(--black);
+    //color: var(--black);
+    color:var(--white);
+    background: var(--ocean-blue);
+    cursor: pointer;
   }
+  .SmallButton:hover{
+    background: var(--marine-blue);
+  }
+
   .SmallIcontext {
     font-family: Klavika, sans-serif;
     font-size: 14px;
@@ -542,7 +549,7 @@
     text-align: center;
     color: var(--black);
   }
-  
+
 
   .normalButton{
     color:var(--white);

@@ -1,40 +1,43 @@
 <div class="grid">
-  <div>
-    <br>
-      <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
-      <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-        <span rel="def">A user story describes requirements for a software system.
-          It is consciously kept in short sentences and simple words.
-          A story includes several scenarios.
-          The following template is recommended:
-          As a <...>, I want <...> so that <...>
-        </span></dfn>
-    </div>
-    <hr>
-    <ul uk-accordion>
-      <li *ngFor="let s of getSortedStories(); let i = index ">
-        <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
-            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
-              {{s.issue_number}}. {{s.title}}
-            </a>
-          <span class="github-avatar">
-            <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
-            <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
-            <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
-          </span>
-        </div>
+  <br>
+  <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
+    <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+      <span rel="def">A user story describes requirements for a software system.
+        It is consciously kept in short sentences and simple words.
+        A story includes several scenarios.
+        The following template is recommended:
+        As a <...>, I want <...> so that <...>
+      </span>
+    </dfn>
+  </div>
+  <hr>
 
-        <div class="uk-accordion-content">
-          <button [hidden]= "isShown==false" (click)="addFirstScenario(this.selectedStory._id)" >Create First Scenario</button>
-          <li *ngFor="let scen of s.scenarios; let c = index">
-            <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
-          </li>
-        </div>
-      </li>
-    </ul>
-    <div *ngIf="isCustomStory" id="createNewStoryDiv">
-      <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
-    </div>
+  <ul uk-accordion>
+    <li *ngFor="let s of getSortedStories(); let i = index ">
+      <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
+        <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+          {{s.issue_number}}. {{s.title}}
+        </a>
+        <span class="github-avatar">
+          <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
+          <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+          <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+        </span>
+      </div>
+      <div id="scenarioList" class="uk-accordion-content">
+        <button class="SmallButton" [hidden]="hideCreateScenario" (click)="addFirstScenario()">
+          Create First Scenario
+        </button>
+        <li *ngFor="let scen of s.scenarios; let c = index">
+          <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}">
+            #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+          </a>
+        </li>
+      </div>
+    </li>
+  </ul>
+  <div *ngIf="isCustomStory" id="createNewStoryDiv">
+    <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
   </div>
 </div>
 
