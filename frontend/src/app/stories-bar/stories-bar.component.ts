@@ -75,9 +75,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     } );
   }
 
-
-
-
   /**
    * Checks if this is the daisy version
    */
@@ -90,7 +87,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
-       this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
+       this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value,
+         custom.repositoryContainer._id).subscribe(() => {
         this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
           this.stories = resp;
         });
@@ -159,12 +157,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     });
 }
 
-toggleShows(): boolean {
-  if (this.selectedStory.scenarios.length === 0) {
-    return this.hideCreateScenario = false;
-  } else {
-    return this.hideCreateScenario = true;
+  toggleShows(): boolean {
+    if (this.selectedStory.scenarios.length === 0) {
+      this.hideCreateScenario = false;
+    } else {
+      this.hideCreateScenario = true;
+    }
+    return this.hideCreateScenario;
   }
-}
 
 }
