@@ -215,40 +215,40 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        if(this.selectedStory){
+        if (this.selectedStory) {
             this.storiesLoaded = true;
             this.storiesError = false;
         }
-        let version = localStorage.getItem('version')
-        if (version == 'DAISY' || version == 'HEROKU' || !version) {
+        const version = localStorage.getItem('version');
+        if (version === 'DAISY' || version === 'HEROKU' || !version) {
           this.daisyVersion = true;
         } else {
           this.daisyVersion = false;
         }
         this.apiService.runSaveOptionEvent.subscribe(option => {
-            if(option == "run"){
+            if (option === 'run') {
                 this.runUnsaved = true;
                 this.runOption();
             }
-            if(option == "saveRun"){
+            if (option === 'saveRun') {
                 this.saveBackgroundAndRun = true;
-                this.updateBackground()
+                this.updateBackground();
           }
-        })
+        });
 
         this.apiService.addBlockToScenarioEvent.subscribe(block => {
-            if(block[0] == 'background'){
-                block = block[1]
+            if (block[0] === 'background') {
+                block = block[1];
                 Object.keys(block.stepDefinitions).forEach((key, index) => {
-                    if(key == 'when'){
+                    if (key === 'when') {
                         block.stepDefinitions[key].forEach((step: StepType) => {
                           this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
-                        })
+                        });
                     }
-                })
+                });
                   this.selectedStory.background.saved = false;
             }
-        })
+        });
     }
 
     /**
@@ -274,7 +274,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     @Input()
     set newStories(stories: Story[]) {
-          if (stories){
+          if (stories) {
               this.stories = stories;
           }
     }
@@ -287,22 +287,21 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.selectedStory = story;
         this.showEditor = true;
         this.activeActionBar = false;
-        this.allChecked =false;
+        this.allChecked = false;
     }
 
     /**
      * Opens add block modal
      * @param event
      */
-    addBlock(event){
-        let id = localStorage.getItem('id')
-        this.modalsComponent.openAddBlockFormModal('background', id);
+    addBlock(event) {
+        this.modalsComponent.openAddBlockFormModal('background', localStorage.getItem('id'));
     }
 
     /**
      * Runs the test without saving it
      */
-    runOption(){
+    runOption() {
         let tmpScenarioSaved = this.scenarioChild.scenarioSaved;
         let tmpBackgroundSaved = this.selectedStory.background.saved;
         this.scenarioChild.scenarioSaved = true;
@@ -325,7 +324,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Select a new currently used scenario
      * @param scenario
      */
-  selectNewScenario(scenario: Scenario){
+  selectNewScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
       if (this.selectedStory) {
           this.selectScenario(scenario);
@@ -357,24 +356,24 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * @param event
      * @param checkValue
      */
-    checkAllSteps(event, checkValue: boolean){
-        if(checkValue!= null){
+    checkAllSteps(event, checkValue: boolean) {
+        if (checkValue != null) {
             this.allChecked = checkValue;
-        }else{
+        } else {
             this.allChecked = !this.allChecked;
         }
-        if(this.allChecked){
+        if (this.allChecked) {
             for (let prop in this.selectedStory.background.stepDefinitions) {
-                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], true)
+                for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], true);
                 }
             }
             this.activeActionBar = true;
             this.allChecked = true;
-        }else{
+        } else {
             for (let prop in this.selectedStory.background.stepDefinitions) {
-                for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], false)
+                for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], false);
                 }
             }
             this.activeActionBar = false;
@@ -389,32 +388,32 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * @param checkValue
      */
     checkStep(event, step, checkValue: boolean){
-        if(checkValue != null){
+        if (checkValue != null) {
             step.checked = checkValue;
-        }else{
+        } else {
             step.checked = !step.checked;
         }
         let checkCount = 0;
         let stepCount = 0;
 
         for (let prop in this.selectedStory.background.stepDefinitions) {
-            for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+            for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
                 stepCount++;
-                if(this.selectedStory.background.stepDefinitions[prop][i].checked){
+                if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
                     checkCount++;
                 }
             }
         }
-        if(checkCount >= stepCount){
+        if (checkCount >= stepCount) {
             this.allChecked = true;
-        }else{
+        } else {
             this.allChecked = false;
         }
-        if(checkCount <= 0){
+        if (checkCount <= 0) {
             this.allChecked = false;
             this.activeActionBar = false;
-        }else{
-            this.activeActionBar = true
+        } else {
+            this.activeActionBar = true;
         }
     }
 
@@ -423,9 +422,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     removeStepFromBackground() {
         for (let prop in this.selectedStory.background.stepDefinitions) {
-            for (var i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                if(this.selectedStory.background.stepDefinitions[prop][i].checked){
-                    this.selectedStory.background.stepDefinitions[prop].splice(i, 1)
+            for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
+                    this.selectedStory.background.stepDefinitions[prop].splice(i, 1);
                 }
             }
         }
@@ -437,10 +436,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     /**
      * Deactivates all checked steps
      */
-    deactivateStep(){
+    deactivateStep() {
         for (let prop in this.selectedStory.background.stepDefinitions) {
-            for(let s in this.selectedStory.background.stepDefinitions[prop]){
-                if(this.selectedStory.background.stepDefinitions[prop][s].checked){
+            for (let s in this.selectedStory.background.stepDefinitions[prop]) {
+                if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
                     this.selectedStory.background.stepDefinitions[prop][s].deactivated = !this.selectedStory.background.stepDefinitions[prop][s].deactivated
                 }
             }
@@ -454,32 +453,32 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * Opens the delete scenario toast
    * @param scenario
    */
-  showDeleteScenarioToast(scenario: Scenario){
+  showDeleteScenarioToast(scenario: Scenario) {
     this.toastr.warning('', 'Do you really want to delete this scenario?', {
         toastComponent: DeleteScenarioToast
-    })
+    });
   }
 
   /**
    * Deletes scenario
    * @param scenario
    */
-  deleteScenario(scenario: Scenario){
+  deleteScenario(scenario: Scenario) {
     this.apiService
         .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
         .subscribe(resp => {
             this.scenarioDeleted();
-            this.toastr.error('', 'Scenario deleted')
+            this.toastr.error('', 'Scenario deleted');
         });
   }
 
   /**
    * Removes scenario from the selected story
    */
-  scenarioDeleted(){
+  scenarioDeleted() {
     const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
-    if(indexScenario !== -1){
-        this.selectedStory.scenarios.splice(indexScenario, 1)
+    if (indexScenario !== -1) {
+        this.selectedStory.scenarios.splice(indexScenario, 1);
     }
     this.showEditor = false;
   }
@@ -487,13 +486,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   /**
    * Adds a scenario to story
    */
-  addScenario(){
+  addScenario() {
     this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
-           this.storiesBar.selectScenario(resp)
-           this.toastr.info('', 'Senario added')
+           this.storiesBar.selectScenario(resp);
+           this.toastr.info('', 'Scenario added');
         });
   }
 
@@ -792,7 +791,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   setStepWaitTime(event, newTime){
         if(this.selectedScenario){
             this.selectedScenario.stepWaitTime = newTime;
-            this.selectedScenario.saved = false; 
+            this.selectedScenario.saved = false;
         }
     }
 
