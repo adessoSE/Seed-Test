@@ -177,9 +177,8 @@
           <button class="button" (click)="openReportHistory()">View Reports</button>
         </div>
       </div>
-
-      <div class="storyInfoCenter">
-          <label class="selectLabel LargeCategory2">Wait between steps (ms):</label>
+      <div class="storyInfoCenter" *ngIf="this.selectedScenario">
+          <label class="selectLabel SmallBody1regularLH">Wait between steps (ms):</label>
           <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0 min=0 max=25000 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
           <label class="selectLabel LargeCategory2">Browser:</label>
           <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
@@ -187,7 +186,7 @@
             <option *ngIf="!this.daisyVersion" value="firefox">Firefox</option>
           </select> 
       </div>
-      <div clasS="storyInfoRight">
+      <div class="storyInfoRight">
         <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
         <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
           uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>

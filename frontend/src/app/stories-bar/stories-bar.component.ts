@@ -4,6 +4,8 @@ import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { ModalsComponent } from '../modals/modals.component';
 import { Subscription } from 'rxjs/internal/Subscription';
+import { ToastrService } from 'ngx-toastr';
+
 
 /**
  * Component of the Stories bar
@@ -38,6 +40,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * If it is the daisy version
    */
   daisyVersion: boolean = true;
+  hideCreateScenario: boolean = false;
 
   /**
    * Subscription element if a custom story should be created
@@ -60,12 +63,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * View Child Modals
    */
   @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
-  
-  /**
+
+   /**
    * Constructor
-   * @param apiService 
+   * @param apiService
    */
-  constructor(public apiService: ApiService) {
+  constructor(public apiService: ApiService, private toastr: ToastrService) {
     this.apiService.getStoriesEvent.subscribe(stories => {
       this.stories = stories;
       this.isCustomStory = localStorage.getItem('source') === 'db' ;
@@ -79,8 +82,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * Checks if this is the daisy version
    */
   ngOnInit() {
-    let version = localStorage.getItem('version')
-    if (version == 'DAISY' || !version) {
+    const version = localStorage.getItem('version');
+    if (version === 'DAISY' || !version) {
       this.daisyVersion = true;
     } else {
       this.daisyVersion = false;
@@ -92,27 +95,25 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
           this.stories = resp;
         });
       });
-    })
-    // TODO update Story
-    // TODO delete Story
+    });
   }
 
   ngOnDestroy() {
     if (this.createStoryEmitter) {
-       this.createStoryEmitter.unsubscribe()
+       this.createStoryEmitter.unsubscribe();
     }
  }
 
 
   /**
    * Sorts the stories after issue_number
-   * @returns 
+   * @returns
    */
   getSortedStories() {
     if (this.stories) {
-      return this.stories.sort(function(a, b) { 
-        if(a.issue_number < b.issue_number) { return -1; }
-        if(a.issue_number > b.issue_number) { return 1; }
+      return this.stories.sort(function(a, b) {
+        if (a.issue_number < b.issue_number) { return -1; }
+        if (a.issue_number > b.issue_number) { return 1; }
         return 0;
       });
     }
@@ -120,7 +121,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
   /**
    * Selects a new scenario
-   * @param scenario 
+   * @param scenario
    */
   selectScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
@@ -129,7 +130,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
   /**
    * Selects a new Story and with it a new scenario
-   * @param story 
+   * @param story
    */
   selectStoryScenario(story: Story) {
     this.selectedStory = story;
@@ -138,13 +139,32 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     if (this.stories[storyIndex].scenarios[0]) {
       this.selectScenario(this.stories[storyIndex].scenarios[0]);
     }
+    this.toggleShows();
   }
 
   /**
    * Opens a create New scenario Modal
    */
-  openCreateNewScenarioModal(){
-    this.modalsComponent.openCreateNewStoryModal()
+  openCreateNewScenarioModal() {
+    this.modalsComponent.openCreateNewStoryModal();
   }
+
+  addFirstScenario() {
+    this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
+    .subscribe((resp: Scenario) => {
+       this.selectScenario(resp);
+       this.selectedStory.scenarios.push(resp);
+       this.toastr.info('Successfully added', 'Scenario');
+       this.hideCreateScenario = true;
+    });
+}
+
+toggleShows(): boolean {
+  if (this.selectedStory.scenarios.length === 0) {
+    return this.hideCreateScenario = false;
+  } else {
+    return this.hideCreateScenario = true;
+  }
+}
 
 }
