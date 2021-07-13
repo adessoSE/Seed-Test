@@ -70,9 +70,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
       this.stories = stories;
       this.isCustomStory = localStorage.getItem('source') === 'db' ;
     } );
-
-
   }
+
+
+
 
   /**
    * Checks if this is the daisy version
@@ -92,6 +93,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
       });
     })
+    // TODO update Story
+    // TODO delete Story
   }
 
   ngOnDestroy() {

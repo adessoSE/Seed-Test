@@ -299,28 +299,69 @@ export class ApiService {
     }
 
     /**
-     * Creates a story
-     * @param title 
-     * @param description 
-     * @param repository 
-     * @param _id id of the repository
-     * @returns 
+     * Get's single Story by ID
+     * @param _id storyID
+     * @param source repoSource
+     * @return single Story object
      */
-    createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
+    public getStory(_id, source): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
+
         return this.http
-            .post<any>(this.apiServer + '/mongo/createStory/', body, ApiService.getOptions())
+            .get<Story>(this.apiServer + '/story/' + _id + '/' + source, ApiService.getOptions())
             .pipe(tap(resp => {
             }));
     }
 
     /**
-     * Requests a password request
-     * @param email 
-     * @returns 
+     * Creates a story
+     * @param title
+     * @param description
+     * @param repository
+     * @param _id id of the repository
+     * @returns
      */
-    requestReset(email: string): Observable <any> {
+    public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {'title': title, 'description': description, 'repo': repository, '_id': _id};
+        return this.http
+            .post<Story>(this.apiServer + '/story/', body, ApiService.getOptions())
+            .pipe(tap(resp => {
+            }));
+    }
+
+    /**
+     * updates a Story
+     * @param story updatedStory
+     */
+    public updateStory(story: Story): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .put<Story>(this.apiServer + '/story', story, ApiService.getOptions())
+            .pipe(tap(resp =>{
+            }));
+    }
+
+    /**
+     * deletes a Story
+     * @param _id StoryID
+     */
+    public deleteStory(_id): Observable<any>{
+        this.apiServer = localStorage.getItem('url_backend');
+        const body = {'_id' : _id};
+        return this.http
+            .delete<any>(this.apiServer + '/story/' + _id, ApiService.getOptions())
+            .pipe(tap(resp =>{
+            }));
+    }
+
+/*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
+    /**
+     * Requests a password request
+     * @param email
+     * @returns
+     */
+  public requestReset(email: string): Observable <any> {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'email' : email};
         return this.http
@@ -609,9 +650,24 @@ export class ApiService {
     addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
+            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
+            }));
+    }
+
+    /**
+     * get's single Scenario
+     * @param storyID
+     * @param storySource
+     * @param scenarioID
+     */
+    getScenario(storyID: any, storySource, scenarioID): Observable<Scenario> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .get<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenarioID, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Get scenario in story ' + storyID + '!', resp)
             }));
     }
 
@@ -646,13 +702,13 @@ export class ApiService {
      * Updates the scenario
      * @param storyID 
      * @param storySource 
-     * @param scenario 
+     * @param scenario updatedScenario
      * @returns 
      */
-    updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
+    updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/mongo/scenario/update/' + storyID + '/' + storySource, scenario, ApiService.getOptions())
+            .put<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
             }));
@@ -727,7 +783,7 @@ export class ApiService {
     deleteScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .delete<any>(this.apiServer + '/mongo/scenario/delete/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
+            .delete<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
             }));
