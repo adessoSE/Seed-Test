@@ -174,6 +174,18 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
+async function deleteFeatureFile(storyTitle) {
+	try {
+		fs.unlink("features/" + cleanFileName(storyTitle) + ".feature", function (err) {
+			if (err) throw err;
+			// if no error, file has been deleted successfully
+			console.log('FeatureFile deleted!', storyTitle);
+		});
+	} catch (e) {
+		console.log('File not found', e)
+	}
+}
+
 function execReport2(req, res, stories, mode, story, callback) {
 	let parameters = {}
 	if (mode == 'scenario'){
@@ -718,6 +730,7 @@ module.exports = {
 	getBackgroundSteps,
 	getValues,
 	updateFeatureFile,
+	deleteFeatureFile,
 	runReport,
 	starredRepositories,
 	dbProjects

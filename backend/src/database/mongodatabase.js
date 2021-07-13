@@ -425,19 +425,20 @@ async function createStory(storyTitel, storyDescription, repoId) {
 	}
 }
 
-async function deleteStory(repoId, storyId) {
-	try {
-		db = await connectDb();
-		const collection = await selectStoriesCollection(db);
-		const repo = await selectRepositoryCollection(db);
-		collection.findOneAndDelete({ _id: ObjectId(storyId) });
-		await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } });
-	} catch (e) {
-		console.log(`UPS!!!! FEHLER in deleteStory: ${e}`);
-		throw e;
-	} finally {
-		if (db) db.close();
-	}
+async function deleteStory(repoId, storyId){
+  try {
+    db = await connectDb();
+    let collection = await selectStoriesCollection(db);
+    let repo = await selectRepositoryCollection(db)
+    let deletedStory = await collection.findOneAndDelete({_id: ObjectId(storyId)},{"projection": {"title": 1}})
+    await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
+    return deletedStory.value
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in deleteStory: " + e)
+    throw e
+} finally {
+    if (db) db.close()
+  }
 }
 
 async function insertStoryIdIntoRepo(storyId, repoId) {
