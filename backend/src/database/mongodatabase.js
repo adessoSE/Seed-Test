@@ -319,22 +319,17 @@ async function getOneStory(storyId, storySource) {
 }
 
 async function getOneStoryByStoryId(storyId, storySource) {
-	this.getOneStory(storyId, storySource)
+	await this.getOneStory(storyId, storySource)
 }
 
 async function createStoryGroup(repo_id, name, members) {
   let db;
   try {
     db = await connectDb()
-    let collection = await selectRepositoryCollection(db)
-    let repo = await collection.findOne({_id:ObjectId(repo_id)})
-    let gr_id
-    if (!repo.groups) repo.groups = []
-    if(!repo.groups[0]) {gr_id = 0}
-    else {gr_id = repo.groups[repo.groups.length -1]._id +1}
-    repo.groups.push({_id:gr_id, 'name': name, 'member_stories': members?members:[]})
-    await collection.updateOne({_id: ObjectId(repo_id)}, {$set: repo})
-    return gr_id
+    let collection = await selectRepositoryCollection(db);
+
+    let groups = await collection.findOneAndUpdate({_id:ObjectId(repo_id)}, {$push:{groups: {_id: new ObjectId() , 'name': name, 'member_stories': members?members:[]}}}, {projection:{groups:1}, returnOriginal: false});
+    return groups.value.groups.slice(-1)._id
   } catch (e) {
     console.log("UPS!!!! FEHLER in createStoryGroup: " + e)
   } finally {
@@ -345,10 +340,11 @@ async function createStoryGroup(repo_id, name, members) {
 async function updateStoryGroup(repo_id, group_id, updatedGroup) {
   let db;
   try {
-    db = await connectDb()
-    let collection = await selectRepositoryCollection(db)
-    let repo = await collection.findOne({_id:ObjectId(repo_id)})
-    let index = repo.groups.findIndex(o => o._id === parseInt(group_id))
+    db = await connectDb();
+    updatedGroup._id = ObjectId(updatedGroup._id)
+    let collection = await selectRepositoryCollection(db);
+    let repo = await collection.findOne({_id:ObjectId(repo_id)});
+    let index = repo.groups.findIndex(o => o._id == group_id);// leave with double equal
     repo.groups[index] = updatedGroup
     await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
     return updatedGroup
@@ -365,7 +361,7 @@ async function deleteStoryGroup(repo_id, group_id) {
     db = await connectDb()
     let collection = await selectRepositoryCollection(db)
     let repo = await collection.findOne({_id:ObjectId(repo_id)})
-    let index = repo.groups.findIndex(o => o._id === parseInt(group_id))
+    let index = repo.groups.findIndex(o => o._id == group_id)// leave with double equal
     repo.groups.splice(index, 1)
     await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
     return null
@@ -379,7 +375,7 @@ async function deleteStoryGroup(repo_id, group_id) {
 async function addToStoryGroup(repo_id, group_id, story_id) {
   try {
     let group = await getOneStoryGroup(repo_id, group_id)
-    group.member_stories.push(ObjectId(story_id))
+    group.member_stories.push(story_id)
     await updateStoryGroup(repo_id, group_id, group)
     return group
   } catch (e) {
@@ -390,7 +386,7 @@ async function addToStoryGroup(repo_id, group_id, story_id) {
 async function removeFromStoryGroup(repo_id, group_id, story_id) {
   try {
     let group = await getOneStoryGroup(repo_id, group_id)
-    group.member_stories.splice(group.indexOf(ObjectId(story_id)),1)
+    group.member_stories.splice(group.indexOf(story_id),1)
     await updateStoryGroup(repo_id, group_id, group)
     return group
   } catch (e) {
@@ -415,7 +411,7 @@ async function getAllStoryGroups(repo_id) {
 async function getOneStoryGroup(repo_id, group_id) {
   try {
     let groups = await getAllStoryGroups(repo_id)
-    return groups.groups.find(o => o._id === parseInt(group_id))
+    return groups.groups.find(o => o._id == group_id)
   } catch (e) {
     console.log("UPS!!!! FEHLER in getOneStoryGroup: " + e)
   }
