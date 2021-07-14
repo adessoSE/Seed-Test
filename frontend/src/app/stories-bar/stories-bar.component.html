@@ -45,7 +45,7 @@
   </div>
   <hr>
   <ul uk-accordion>
-    <li *ngFor="let g of getSortedGroups(); let i = index " (cdkDropListDropped)="dropGroup($event, g)" cdkDropList>
+    <li *ngFor="let g of getSortedGroups(); let i = index ">
       <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
         <a class="storyListLink" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
            title="{{g.name}}">
@@ -56,7 +56,7 @@
         </span>
       </div>
       <div class="uk-accordion-content">
-    <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)" cdkDrag>
+    <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
       <a class="Largecaption scenarioListItem">{{stor.title | titlecase}}</a>
     </li>
 </div>
