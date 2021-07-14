@@ -37,6 +37,7 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 	for(let id of group.member_stories){
 		mystories.push(await mongo.getOneStory(id, 'db'))
 	}
+	req.body = group
 
 	await helper.runReport(req, res, mystories, 'group', req.body)
 })

@@ -178,8 +178,6 @@ function runReport(req, res, stories, mode, parameters) {
 	let cumulate = 0 // only used when executing multiple stories
 	execReport(req, res, stories, mode, (reportTime, story,
 										 scenarioID, reportName) => {
-		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 
 
 		//res.sendFile(`/${reportName}.html`, { root: rootPath });
@@ -187,7 +185,14 @@ function runReport(req, res, stories, mode, parameters) {
 		let testStatus = false;
 		try {
 			//todo path
-			let path = mode !== 'group'? `./features/${reportName}.json`: `./features/abc/${reportName}.json`
+			let path
+			let gr_dir
+			if (mode !== 'group') {
+				path = `./features/${reportName}.json`
+			} else {
+				gr_dir = req.body.name.replace(' ', '_')
+				path = `./features/${gr_dir}/${reportName}.json`
+			}
 			fs.readFile(path, 'utf8', async (err, data) => {
 				console.log('JSON-data', data, path)
 				const json = JSON.parse(data);
@@ -241,16 +246,21 @@ function runReport(req, res, stories, mode, parameters) {
 					} else {
 						console.log('create report')
 						// todo path
-						reportOptions = setOptions(reportName, path ="features/abc/")
+						reportOptions = setOptions(req.body.name, path =`features/${gr_dir}/`)
 						console.log('report options', reportOptions)
 						reporter.generate(reportOptions);
 						const report = {
 							reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 						};
 						uploadedReport = await uploadReport(report, story._id, scenarioID);
-						fs.readFile(`./features/abc/${reportName}.html`, 'utf8',(err, data) => {
+						fs.readFile(`./features/${gr_dir}/${gr_dir}.html`, 'utf8',(err, data) => {
 							res.json({htmlFile: data, reportId: uploadedReport.ops[0].id})
 						})
+						setTimeout((group) => {
+							fs.rm(`./features/${group}`, {recursive: true}, () => {
+								console.log(`${group} report deleted`)
+							})
+						},reportDeletionTime * 60000, gr_dir)
 					}
 				} else {
 					reportOptions = setOptions(reportName);
@@ -262,6 +272,8 @@ function runReport(req, res, stories, mode, parameters) {
 					fs.readFile(`./features/${reportName}.html`, 'utf8',(err, data) => {
 						res.json({htmlFile: data, reportId: uploadedReport.ops[0]._id})
 					})
+					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 				}
 
 
@@ -299,6 +311,7 @@ async function execReport(req, res, stories, mode, callback) {
 		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
 		//  else process.env.DAISY_AUTO_LOGOUT = false;
 		if (mode == 'group'){
+			fs.mkdirSync(`./features/${req.body.name.replace(' ', '_')}`);
 			for (let story of stories)
 				execReport2(req, res, stories, 'group', story, callback)
 
@@ -356,8 +369,10 @@ function execReport2(req, res, stories, mode, story, callback) {
 	const path2 = `features/${cleanFileName(story.title)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 	let path3 = `features/${reportName}.json`;
+	let gr_dir
 	if (mode === 'group'){
-		path3 = `features/abc/${reportName}.json`;
+		gr_dir = req.body.name.replace(' ', '_')
+		path3 = `./features/${gr_dir}/${reportName}.json`;
 	}
 
 	let jsParam = JSON.stringify(parameters)
