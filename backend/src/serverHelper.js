@@ -190,11 +190,10 @@ function runReport(req, res, stories, mode, parameters) {
 			if (mode !== 'group') {
 				path = `./features/${reportName}.json`
 			} else {
-				gr_dir = req.body.name.replace(' ', '_')
+				gr_dir = req.body.name
 				path = `./features/${gr_dir}/${reportName}.json`
 			}
 			fs.readFile(path, 'utf8', async (err, data) => {
-				console.log('JSON-data', data, path)
 				const json = JSON.parse(data);
 				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
 
@@ -234,27 +233,22 @@ function runReport(req, res, stories, mode, parameters) {
 
 
 				testStatus = testPassed(failed, passed);
-				console.log('storyId', story._id)
 
 
 				let reportOptions
 				let uploadedReport
 				if (mode === 'group'){
 					if(cumulate +1 < stories.length){
-						console.log('cumulate', cumulate)
 						cumulate ++
 					} else {
-						console.log('create report')
-						// todo path
 						reportOptions = setOptions(req.body.name, path =`features/${gr_dir}/`)
-						console.log('report options', reportOptions)
 						reporter.generate(reportOptions);
 						const report = {
 							reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 						};
 						uploadedReport = await uploadReport(report, story._id, scenarioID);
 						fs.readFile(`./features/${gr_dir}/${gr_dir}.html`, 'utf8',(err, data) => {
-							res.json({htmlFile: data, reportId: uploadedReport.ops[0].id})
+							res.json({htmlFile: data, reportId: uploadedReport.ops[0]._id})
 						})
 						setTimeout((group) => {
 							fs.rm(`./features/${group}`, {recursive: true}, () => {
@@ -311,7 +305,8 @@ async function execReport(req, res, stories, mode, callback) {
 		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
 		//  else process.env.DAISY_AUTO_LOGOUT = false;
 		if (mode == 'group'){
-			fs.mkdirSync(`./features/${req.body.name.replace(' ', '_')}`);
+			req.body.name = req.body.name.replace(' ', '_') + Date.now()
+			fs.mkdirSync(`./features/${req.body.name}`);
 			for (let story of stories)
 				execReport2(req, res, stories, 'group', story, callback)
 
@@ -356,12 +351,10 @@ function execReport2(req, res, stories, mode, story, callback) {
 		const prep = scenarioPrep(story.scenarios)
 		story.scenarios = prep.scenarios
 		parameters = prep.parameters
-		console.log('params', parameters)
 	} else if (mode == 'group') {
 		const prep = scenarioPrep(story.scenarios)
 		story.scenarios = prep.scenarios
 		parameters = prep.parameters
-		console.log('params', parameters)
 	}
 
 	const reportTime = Date.now();
@@ -371,7 +364,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 	let path3 = `features/${reportName}.json`;
 	let gr_dir
 	if (mode === 'group'){
-		gr_dir = req.body.name.replace(' ', '_')
+		gr_dir = req.body.name
 		path3 = `./features/${gr_dir}/${reportName}.json`;
 	}
 
@@ -385,7 +378,6 @@ function execReport2(req, res, stories, mode, story, callback) {
 			worldParam += jsParam[i]
 		}
 	}
-	console.log('worldParam', worldParam)
 
 	let cmd;
 	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
@@ -394,12 +386,6 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 	if (mode === 'group') {
 		cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
-	/*let file = '';
-	for (let index in stories) {
-		console.log(worldParam[index])
-		file = `features/${cleanFileName(stories[index].title)}.feature `
-		cmd = `${path.normalize(path1)} ${file} --format json:${path.normalize(path3)} --world-parameters ${worldParam[index]}`;
-	}*/
 	}
 
 	console.log(`Executing: ${cmd}`);
