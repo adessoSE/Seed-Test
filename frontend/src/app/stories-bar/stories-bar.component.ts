@@ -94,6 +94,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     @Output()
     GroupChosen: EventEmitter<any> = new EventEmitter();
 
+    @Output() report: EventEmitter<any> = new EventEmitter();
+
     /**
      * View Child Modals
      */
@@ -213,6 +215,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     runGroup(group: Group){
         let id = localStorage.getItem('id')
         this.apiService.runGroup(id, group._id, null).subscribe(ret => {
+            this.report.emit(ret)
             console.log('Group report, No Frontend Yet')
         })
     }
@@ -291,5 +294,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             console.log(ret)
         })
     }
+
+
 
 }

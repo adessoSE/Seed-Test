@@ -34,6 +34,8 @@ export class ParentComponent implements OnInit {
    */
   isStoryEditorActive = true;
 
+  report;
+
   /**
    * Constructor
    * @param apiService 
@@ -93,5 +95,9 @@ export class ParentComponent implements OnInit {
    */
   setEditor(event){
     this.isStoryEditorActive = !this.isStoryEditorActive;
+  }
+
+  viewReport($event){
+    this.report = $event
   }
 }
