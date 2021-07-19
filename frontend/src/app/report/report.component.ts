@@ -28,19 +28,12 @@ export class ReportComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
-        console.log(this.report)
-        const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-        iframe.srcdoc = this.report.htmlFile;
     }
 
-    /**
-     * Gets the report and sets the iframe to it
-     * @param reportName name of the report
-     */
-    getReport(reportName: string) {
+    ngOnChanges() {
+        console.log(this.report.htmlFile)
         const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-        this.reportReceived = true;
-
+        iframe.srcdoc = this.report.htmlFile
     }
 
 }
