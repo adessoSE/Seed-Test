@@ -1,6 +1,7 @@
 import {Component, OnInit, Input} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
+import {saveAs} from 'file-saver';
 
 /**
  * Component to show the report
@@ -11,9 +12,30 @@ import {ActivatedRoute} from '@angular/router';
     styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
-    reportReceived: Boolean = false;
+
+    /**
+     * if the test is done
+     */
+    testDone: boolean = false;
+
 
     @Input() report
+
+
+
+    reportId
+
+    reportIsSaved
+
+    /**
+     * html report of the result
+     */
+    htmlReport: BlobPart;
+
+    /**
+     * If the results should be shown
+     */
+    showResults: boolean = false;
 
 
     /**
@@ -32,8 +54,60 @@ export class ReportComponent implements OnInit {
 
     ngOnChanges() {
         console.log(this.report.htmlFile)
+        this.reportId = this.report.reportId
+        this.htmlReport = this.report.htmlFile
+        this.testDone = true;
+        this.reportIsSaved = false;
         const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
         iframe.srcdoc = this.report.htmlFile
+        this.showResults = true;
+        setTimeout(function () {
+            iframe.scrollIntoView();
+        }, 10);
+    }
+
+    /**
+     * Hide the test results
+     */
+    hideResults() {
+        this.showResults = !this.showResults;
+    }
+
+    /**
+     * Mark the report as not saved
+     * @param reportId
+     * @returns
+     */
+    unsaveReport(reportId){
+        this.reportIsSaved = false;
+        return new Promise<void>((resolve, reject) => {this.apiService
+            .unsaveReport(reportId)
+            .subscribe(_resp => {
+                resolve()
+            });})
+    }
+
+    /**
+     * Mark the report as saved
+     * @param reportId
+     * @returns
+     */
+    saveReport(reportId){
+        this.reportIsSaved = true;
+        return new Promise<void>((resolve, reject) => {this.apiService
+            .saveReport(reportId)
+            .subscribe(_resp => {
+                resolve()
+            });})
+    }
+
+    /**
+     * Download the test report
+     */
+    downloadFile() {
+        const blob = new Blob([this.htmlReport], {type: 'text/html'});
+        //todo find better name
+        saveAs(blob, this.reportId + '.html');
     }
 
 }
