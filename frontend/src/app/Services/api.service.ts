@@ -678,12 +678,24 @@ export class ApiService {
      * @param background 
      * @returns 
      */
-    updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
+
+    public updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
+            }));
+    }
+
+
+    public addFirstScenario(storyID, storySource: string): Observable<Scenario>{
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
 
