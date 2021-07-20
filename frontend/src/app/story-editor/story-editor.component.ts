@@ -204,6 +204,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       }
     }
 
+
     /**
      * retrieves the saved block from the session storage
      */
@@ -249,6 +250,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                   this.selectedStory.background.saved = false;
             }
         });
+        this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName))
     }
 
     /**
@@ -859,5 +861,36 @@ export class StoryEditorComponent implements OnInit, DoCheck {
           resolve()
       });})
   }
+    /**
+     * Opens the Modal to rename the story
+     * @param newStoryTitle 
+     */
+  changeStoryTitle(){
+    this.modalsComponent.openRenameStoryModal(this.selectedStory.title)
+   }
+    /**
+     * Renames the story
+     * @param newStoryTitle 
+     */
+   renameStory(newStoryTitle) {
+    if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+        this.selectedStory.title = newStoryTitle;
+    }
+    this.updateStory()
+   }
 
+   /**
+     * Updates the story
+     * 
+     */
+    updateStory(){  
+        {this.apiService
+            .updateStory(this.selectedStory)
+            .subscribe(_resp => {
+                this.toastr.success('successfully saved', 'Story')
+            });}
+    }
 }
+
+
+

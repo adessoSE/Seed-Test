@@ -45,9 +45,16 @@
                 The following template is recommended:
                 As a <...>, I want <...> so that <...>
               </span>
-          </dfn>
+          </dfn>      
       </div>
       <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
+      <div *ngIf="db"> 
+        <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
+        <button id="story_change_title" class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip 
+        title="Change Story Title">
+        <em class="material-icons">edit</em>
+      </button>    
+        </div>
     </div>
     <!--Description-->
     <div class="title" (click)="openDescription();">

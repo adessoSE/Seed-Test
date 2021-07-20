@@ -75,6 +75,11 @@ export class ApiService {
      */
     public renameScenarioEvent = new EventEmitter();
 
+     /**
+     * Event emitter to rename the story
+     */
+      public renameStoryEvent = new EventEmitter();
+
     /**
      * Event emitter to delete the scenario
      */
@@ -124,6 +129,14 @@ export class ApiService {
      */
     renameScenarioEmit(newTitle){
         this.renameScenarioEvent.emit(newTitle);
+    }
+
+    /**
+     * Emits the rename story event
+     * @param newStoryTitle 
+     */
+     renameStoryEmit(newStoryTitle){
+        this.renameStoryEvent.emit(newStoryTitle);
     }
 
     /**
@@ -337,7 +350,7 @@ export class ApiService {
     public updateStory(story: Story): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .put<Story>(this.apiServer + '/story', story, ApiService.getOptions())
+            .put<Story>(this.apiServer + '/story/' + story._id, story, ApiService.getOptions())
             .pipe(tap(resp =>{
             }));
     }
