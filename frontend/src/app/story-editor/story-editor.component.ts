@@ -79,9 +79,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     testRunning: boolean = false;
 
+
     /**
      * html report of the result
      */
+        // @ts-ignore
     htmlReport: BlobPart;
 
     /**

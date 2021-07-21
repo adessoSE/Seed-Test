@@ -94,4 +94,9 @@ export const ROUTES = [
         path: 'resetpasswordconfirm',
         component: ConfirmResetPasswordComponent
     },
+
+    {
+        path: 'story/:id',
+        component: ParentComponent
+    }
 ];

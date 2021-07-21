@@ -3,6 +3,7 @@ import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import {ActivatedRoute} from "@angular/router";
 
 /**
  * Component containing the Story-Bar and Story Editor
@@ -38,7 +39,7 @@ export class ParentComponent implements OnInit {
    * Constructor
    * @param apiService 
    */
-  constructor(public apiService: ApiService) {
+  constructor(public apiService: ApiService, public route: ActivatedRoute) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -54,6 +55,7 @@ export class ParentComponent implements OnInit {
    */
   ngOnInit() {
     this.apiService.getRepositories().subscribe();
+
   }
 
   /**
@@ -68,7 +70,19 @@ export class ParentComponent implements OnInit {
       .getStories(repository)
       .subscribe((resp: Story[]) => {
         this.stories = resp;
+        this.showStory()
     });
+  }
+
+  showStory() {
+    const storyid = this.route.paramMap.subscribe(params => {
+      if(params.get('id')){
+        const id = params.get('id')
+        this.selectedStory = this.stories.find(o => o._id === id)
+        this.setSelectedScenario(this.selectedStory.scenarios[0])// could throw error without scenarios
+        console.log('id is', id, this.stories, this.selectedStory)
+      }
+    })
   }
 
   /**
