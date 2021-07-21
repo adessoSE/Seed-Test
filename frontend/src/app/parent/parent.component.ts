@@ -4,6 +4,7 @@ import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import {ActivatedRoute} from "@angular/router";
+import {group} from "@angular/animations";
 
 /**
  * Component containing the Story-Bar and Story Editor
@@ -70,17 +71,21 @@ export class ParentComponent implements OnInit {
       .getStories(repository)
       .subscribe((resp: Story[]) => {
         this.stories = resp;
-        this.showStory()
+        this.routing()
     });
   }
 
-  showStory() {
-    const storyid = this.route.paramMap.subscribe(params => {
-      if(params.get('id')){
-        const id = params.get('id')
-        this.selectedStory = this.stories.find(o => o._id === id)
-        this.setSelectedScenario(this.selectedStory.scenarios[0])// could throw error without scenarios
-        console.log('id is', id, this.stories, this.selectedStory)
+  routing() {
+    const routeMap = this.route.paramMap.subscribe(params => {
+      if(params.has('story_id')){
+        const story_id = params.get('story_id')
+        this.selectedStory = this.stories.find(o => o._id === story_id)
+        if(params.has('scenario_id')){
+          const scenario_id = params.get('scenario_id')
+          this.setSelectedScenario(this.selectedStory.scenarios.find(o => o.scenario_id.toString() === scenario_id))
+        } else {
+          this.setSelectedScenario(this.selectedStory.scenarios[0])
+        }
       }
     })
   }

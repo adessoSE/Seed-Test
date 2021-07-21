@@ -96,7 +96,13 @@ export const ROUTES = [
     },
 
     {
-        path: 'story/:id',
+        path: 'story/:story_id',
         component: ParentComponent
-    }
+    },
+
+    {
+        path: 'story/:story_id/:scenario_id',
+        component: ParentComponent
+    },
+
 ];
