@@ -625,7 +625,9 @@ async function createReport(res, reportName) {
 	reporter.generate(report.reportOptions);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-	res.sendFile(`/${reportName}.html`, { root: rootPath });
+	fs.readFile(`features/${reportName}.html`,'utf8',(err, data) => {
+		res.json({htmlFile: data, reportId: report._id})
+	})
 }
 
 function updateScenarioTestStatus(testPassed, scenarioTagName, story) {

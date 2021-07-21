@@ -186,7 +186,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         if (this.apiServer) {
             const str = this.apiServer + '/run/report/' + reportName;
-            return this.http.get(str,  { responseType: 'text', withCredentials: true})
+            return this.http.get(str,  { responseType: 'json', withCredentials: true})
                 .pipe(tap(resp => {}),
                 catchError(ApiService.handleError));
         }

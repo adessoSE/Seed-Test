@@ -44,6 +44,17 @@ export class ReportComponent implements OnInit {
      * @param route
      */
     constructor(public apiService: ApiService, public route: ActivatedRoute) {
+        this.route.params.subscribe(params => {
+            if(params.reportName){
+                if(!localStorage.getItem('url_backend')){
+                    this.apiService.getBackendInfo().then(value => {
+                        this.getReport(params.reportName);
+                    })
+                } else {
+                    this.getReport(params.reportName)
+                }
+            }
+        })
     }
 
     /**
@@ -109,5 +120,16 @@ export class ReportComponent implements OnInit {
         //todo find better name
         saveAs(blob, this.reportId + '.html');
     }
+
+    getReport(reportName: string) {
+        this.apiService.getReport(reportName).subscribe(resp => {
+            console.log('report', resp)
+            this.report = resp
+            this.ngOnChanges()
+            //const iframe: HTMLIFrameElement = document.getElementById('reportFrame') as HTMLIFrameElement;
+            //iframe.srcdoc = resp
+        })
+    }
+
 
 }
