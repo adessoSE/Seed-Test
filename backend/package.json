@@ -29,7 +29,6 @@
     "express-flash": "0.0.2",
     "express-limit": "0.1.0",
     "express-session": "^1.17.1",
-    "file-saver": "^2.0.2",
     "geckodriver": "^1.22.3",
     "imagesloaded": "^4.1.4",
     "jquery": "^3.5.1",

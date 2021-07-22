@@ -2,7 +2,7 @@ const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor
 } = require('@cucumber/cucumber');
 const webdriver = require('selenium-webdriver');
-const fs = require('file-saver');
+const fs = require('fs');
 const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
