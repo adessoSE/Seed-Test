@@ -170,7 +170,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @returns
      */
     getSortedStories() {
-        if (this.stories) {
+        return this.stories
+        /*if (this.stories) {
             return this.stories.sort(function (a, b) {
                 if (a.issue_number < b.issue_number) {
                     return -1;
@@ -180,7 +181,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 }
                 return 0;
             });
-        }
+        }*/
     }
 
     getSortedGroups() {
@@ -268,7 +269,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.modalsComponent.openUpdateGroupModal(group)
     }
 
-    dropStory(event: CdkDragDrop<string[]>, s) {
+    dropScenario(event: CdkDragDrop<string[]>, s) {
         let source = localStorage.getItem('source')
         let index = this.stories.findIndex(o => o._id === s._id)
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);

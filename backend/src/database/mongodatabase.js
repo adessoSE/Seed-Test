@@ -868,6 +868,7 @@ async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName
 async function updateStoriesArrayInRepo(repoId, storiesArray) {
   let db
   try {
+    storiesArray = storiesArray.map(s => ObjectId(s))
     db = await connectDb();
     let collection = await selectRepositoryCollection(db);
     return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })

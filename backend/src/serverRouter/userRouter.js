@@ -216,7 +216,8 @@ router.get('/stories', async (req, res) => {
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
 		const tmpStories = [];
-		const storiesArray = [];
+		const tmpStoriesArray = [];
+
 		let repo;
 		// get Issues from GitHub .
 		const headers = {
@@ -244,20 +245,24 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-				let entry = await helper.fuseStoriesWithDb(story, issue.id)
+				let entry = await helper.fuseStoryWithDb(story, issue.id)
 				tmpStories.push(entry);
-				storiesArray.push(entry._id)
+				tmpStoriesArray.push(entry._id)
 			}
-		}
-		Promise.all(storiesArray)
-			.then((result) => {
+			console.log(repo, tmpStoriesArray)
+
+			Promise.all(tmpStoriesArray).then( array => {
+				let myset = new Set(tmpStoriesArray.concat(repo.stories).map(i => i.toString()));
+				for(const i of repo.stories){
+					myset.delete(i.toString())
+				}
+				console.log('myset', myset)
+
 				if (repo !== null) {
-					mongo.updateStoriesArrayInRepo(repo._id, result) 
+					mongo.updateStoriesArrayInRepo(repo._id, repo.stories.concat([...myset]))
 				}
 			})
-			.catch((e) => {
-				console.log(e);
-			});
+		}
 		Promise.all(tmpStories)
 			.then((results) => {
 				res.status(200)
@@ -314,7 +319,7 @@ router.get('/stories', async (req, res) => {
 									story.assignee = 'unassigned';
 									story.assignee_avatar_url = null;
 								}
-								let entry = await helper.fuseStoriesWithDb(story, issue.id)
+								let entry = await helper.fuseStoryWithDb(story, issue.id)
 								tmpStories.push(entry);
 								storiesArray.push(entry._id)
 							}
