@@ -21,6 +21,9 @@ chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
 // chromeOptions.addArguments('--start-fullscreen');
+
+chromeOptions.setUserPreferences({ 'download.default_directory': 'C:\\Users\\Public\\seed_Downloads' });
+
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
 
