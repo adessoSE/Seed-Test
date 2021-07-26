@@ -11,8 +11,8 @@
         </span></dfn>
     </div>
     <hr>
-    <ul uk-accordion>
-      <li *ngFor="let s of getSortedStories(); let i = index " (cdkDropListDropped)="dropScenario($event, s)" cdkDropList>
+    <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList>
+      <li *ngFor="let s of getSortedStories(); let i = index " (cdkDropListDropped)="dropScenario($event, s)" cdkDrag cdkDropList>
         <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
             <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
               {{s.issue_number}}. {{s.title}}

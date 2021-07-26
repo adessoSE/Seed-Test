@@ -246,26 +246,12 @@ router.get('/stories', async (req, res) => {
 					story.assignee_avatar_url = null;
 				}
 				let entry = await helper.fuseStoryWithDb(story, issue.id)
-				console.log('story', entry, story, issue.id)
 				tmpStories.set(entry._id.toString(), entry);
 				tmpStoriesArray.push(entry._id)
 			}
-			console.log(repo, tmpStoriesArray)
 
 			Promise.all(tmpStoriesArray).then( array => {
-				let mySet = new Set(array.concat(repo.stories).map(i => i.toString()));
-				for(const i of repo.stories){
-					mySet.delete(i.toString())
-				}
-				console.log('mySet', mySet)
-				const storyList = repo.stories.concat([...mySet])
-
-				if (repo !== null) {
-					mongo.updateStoriesArrayInRepo(repo._id, storyList)
-				}
-
-				// todo this is wrong the Stories should be taken from the DB
-				let orderedStories = storyList.map(i => tmpStories.get(i.toString()))
+				const orderedStories = matchOrder(array, tmpStories, repo)
 				res.status(200).json(orderedStories)
 
 			}).catch((e) => {
@@ -282,7 +268,7 @@ router.get('/stories', async (req, res) => {
 			.toString('base64');
 		const cookieJar = request.jar();
 		let repo;
-		const tmpStories = [];
+		const tmpStories = new Map();
 		const storiesArray = [];
 		const options = {
 			method: 'GET',
@@ -321,7 +307,7 @@ router.get('/stories', async (req, res) => {
 									story.assignee_avatar_url = null;
 								}
 								let entry = await helper.fuseStoryWithDb(story, issue.id)
-								tmpStories.push(entry);
+								tmpStories.set(entry._id.toString(), entry)
 								storiesArray.push(entry._id)
 							}
 						}
@@ -329,18 +315,9 @@ router.get('/stories', async (req, res) => {
 						console.log('Jira Error 2:', e)
 					}
 					Promise.all(storiesArray)
-						.then((result) => {
-							if (repo !== null) {
-								mongo.updateStoriesArrayInRepo(repo_id, result) 
-							}
-						})
-						.catch((e) => {
-							console.log(e);
-						});
-					Promise.all(tmpStories)
-						.then((results) => {
-							res.status(200)
-								.json(results);
+						.then(array => {
+							const orderedStories = matchOrder(array, tmpStories, repo)
+							res.status(200).json(orderedStories)
 						})
 						.catch((e) => {
 							console.log(e);
@@ -354,7 +331,28 @@ router.get('/stories', async (req, res) => {
 		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id)
 		res.status(200).json(result)
 	} else res.sendStatus(401);
+
+	function matchOrder(storiesIdList, storiesArray, repo) {
+		let mySet = new Set(storiesIdList.concat(repo.stories).map(i => i.toString()));
+		for(const i of repo.stories){
+			mySet.delete(i.toString())
+		}
+		const storyList = repo.stories.concat([...mySet])
+
+		if (repo !== null) {
+			mongo.updateStoriesArrayInRepo(repo._id, storyList)
+		}
+
+		let orderedStories = storyList.map(i => storiesArray.get(i.toString()))
+		return orderedStories
+
+	}
 });
+
+router.put('/stories/:_id', async (req, res) => {
+	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body)
+	res.status(200).json(result)
+})
 
 router.get('/callback', (req, res) => {
 	let code = req.query.code;
