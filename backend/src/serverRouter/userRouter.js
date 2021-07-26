@@ -215,7 +215,7 @@ router.get('/stories', async (req, res) => {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-		const tmpStories = [];
+		const tmpStories = new Map();
 		const tmpStoriesArray = [];
 
 		let repo;
@@ -246,31 +246,32 @@ router.get('/stories', async (req, res) => {
 					story.assignee_avatar_url = null;
 				}
 				let entry = await helper.fuseStoryWithDb(story, issue.id)
-				tmpStories.push(entry);
+				console.log('story', entry, story, issue.id)
+				tmpStories.set(entry._id.toString(), entry);
 				tmpStoriesArray.push(entry._id)
 			}
 			console.log(repo, tmpStoriesArray)
 
 			Promise.all(tmpStoriesArray).then( array => {
-				let myset = new Set(tmpStoriesArray.concat(repo.stories).map(i => i.toString()));
+				let mySet = new Set(array.concat(repo.stories).map(i => i.toString()));
 				for(const i of repo.stories){
-					myset.delete(i.toString())
+					mySet.delete(i.toString())
 				}
-				console.log('myset', myset)
+				console.log('mySet', mySet)
+				const storyList = repo.stories.concat([...mySet])
 
 				if (repo !== null) {
-					mongo.updateStoriesArrayInRepo(repo._id, repo.stories.concat([...myset]))
+					mongo.updateStoriesArrayInRepo(repo._id, storyList)
 				}
-			})
-		}
-		Promise.all(tmpStories)
-			.then((results) => {
-				res.status(200)
-					.json(results);
-			})
-			.catch((e) => {
+
+				// todo this is wrong the Stories should be taken from the DB
+				let orderedStories = storyList.map(i => tmpStories.get(i.toString()))
+				res.status(200).json(orderedStories)
+
+			}).catch((e) => {
 				console.log(e);
 			});
+		}
 	} catch (err) {
 		res.status(503).send(err.message);
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {

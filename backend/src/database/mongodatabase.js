@@ -338,7 +338,7 @@ async function getOneStory(storyId, storySource) {
     let story = await collection.findOne({ _id: ObjectId(storyId), storySource: storySource })
     // TODO remove later when all used stories have the tag storySource
     if (!story) {
-      story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined })
+      story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined });
     }
     return story
   } catch (e) {
@@ -1298,6 +1298,7 @@ module.exports = {
   deleteStory,
   insertStoryIdIntoRepo,
   getOneStory,
+  getOneStoryByStoryId,
   upsertEntry,
   updateStory,
   createUser,

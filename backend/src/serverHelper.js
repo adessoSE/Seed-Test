@@ -400,7 +400,7 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 }
 
 async function fuseStoryWithDb(story, issueId) {
-	const result = await mongo.getOneStory(parseInt(issueId), story.storySource);
+	const result = await mongo.getOneStoryByStoryId(parseInt(story.story_id), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
