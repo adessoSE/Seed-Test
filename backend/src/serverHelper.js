@@ -570,8 +570,8 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 	return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token, ownerId, githubId);
 }
 
-async function fuseStoriesWithDb(story, issueId) {
-	const result = await mongo.getOneStory(parseInt(issueId), story.storySource);
+async function fuseStoryWithDb(story, issueId) {
+	const result = await mongo.getOneStoryByStoryId(parseInt(story.story_id), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -794,7 +794,7 @@ module.exports = {
 	getScenarioContent,
 	writeFile,
 	ownRepositories,
-	fuseStoriesWithDb,
+	fuseStoryWithDb: fuseStoryWithDb,
 	updateJira,
 	getExamples,
 	getSteps,

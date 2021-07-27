@@ -78,6 +78,7 @@ router.delete('/:repo_id/:_id', async (req, res)=>{
 router.patch('/:story_id/:source', async (req, res) => {
     try {
         await mongo.updateScenarioList(req.params.story_id, req.params.source, req.body)
+        await helper.updateFeatureFile(req.params.story_id, req.params.source)
     } catch (e) {
         handleError(res, e, e, 500);
     }

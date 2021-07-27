@@ -813,17 +813,18 @@ async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName
 }
 
 async function updateStoriesArrayInRepo(repoId, storiesArray) {
-	let db;
-	try {
-		db = await connectDb();
-		const collection = await selectRepositoryCollection(db);
-		return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true });
-	} catch (e) {
-		console.log(`UPS!!!! FEHLER in updateStoriesArrayInRepo${e}`);
-		throw e;
-	} finally {
-		if (db) db.close();
-	}
+  let db
+  try {
+    storiesArray = storiesArray.map(s => ObjectId(s))
+    db = await connectDb();
+    let collection = await selectRepositoryCollection(db);
+    return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
+  } catch (e) {
+    console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
+  throw e;
+} finally {
+    if (db) db.close()
+  }
 }
 
 async function upsertEntry(storyId, updatedContent, storySource) {
@@ -1239,6 +1240,7 @@ module.exports = {
   deleteStory,
   insertStoryIdIntoRepo,
   getOneStory,
+  getOneStoryByStoryId,
   upsertEntry,
   updateStory,
   createUser,

@@ -172,7 +172,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @returns
      */
     getSortedStories() {
-        if (this.stories) {
+        return this.stories
+        /*if (this.stories) {
             return this.stories.sort(function (a, b) {
                 if (a.issue_number < b.issue_number) {
                     return -1;
@@ -182,7 +183,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 }
                 return 0;
             });
-        }
+        }*/
     }
 
     getSortedGroups() {
@@ -278,20 +279,21 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.modalsComponent.openUpdateGroupModal(group)
     }
 
-    dropStory(event: CdkDragDrop<string[]>, s) {
-        let source = localStorage.getItem('source')
-        let index = this.stories.findIndex(o => o._id === s._id)
-        moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-        this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(ret => {
-            console.log(ret)
+    dropStory(event: CdkDragDrop<string[]>) {
+        const source = localStorage.getItem('source')
+        const repo_id = localStorage.getItem('id')
+        moveItemInArray(this.stories, event.previousIndex, event.currentIndex);
+        this.apiService.updateStoryList(repo_id, source, this.stories.map(s => s._id)).subscribe(ret => {
+            //console.log(ret)
         })
     }
 
-    dropGroup(event: CdkDragDrop<string[]>, g) {
-        let index = this.groups.findIndex(o => o._id === g._id)
-        moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
-        this.apiService.updateGroup(localStorage.getItem('id'), g._id, this.groups[index]).subscribe(ret => {
-            console.log(ret)
+    dropScenario(event: CdkDragDrop<string[]>, s) {
+        const source = localStorage.getItem('source')
+        const index = this.stories.findIndex(o => o._id === s._id)
+        moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
+        this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(ret => {
+            //console.log(ret)
         })
     }
 

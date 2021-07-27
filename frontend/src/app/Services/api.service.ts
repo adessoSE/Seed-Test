@@ -576,6 +576,18 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
+    //only affects repo
+    updateStoryList(repo_id, source, storiesList) {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .put(this.apiServer + '/user/stories/' + repo_id , storiesList, ApiService.getOptions())
+            .pipe(tap(resp => {
+                //console.log('update order res', resp);
+            }));
+    }
+
+
+
     /**
      * Creates a jira account
      * @param request

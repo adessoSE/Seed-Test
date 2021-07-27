@@ -215,8 +215,9 @@ router.get('/stories', async (req, res) => {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-		const tmpStories = [];
-		const storiesArray = [];
+		const tmpStories = new Map();
+		const tmpStoriesArray = [];
+
 		let repo;
 		// get Issues from GitHub .
 		const headers = {
@@ -244,31 +245,19 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-				console.log('fuse pre')
-				let entry = await helper.fuseStoriesWithDb(story, issue.id)
-				console.log('fuse',entry)
-				tmpStories.push(entry);
-				storiesArray.push(entry._id)
+				let entry = await helper.fuseStoryWithDb(story, issue.id)
+				tmpStories.set(entry._id.toString(), entry);
+				tmpStoriesArray.push(entry._id)
 			}
+
+			Promise.all(tmpStoriesArray).then( array => {
+				const orderedStories = matchOrder(array, tmpStories, repo)
+				res.status(200).json(orderedStories)
+
+			}).catch((e) => {
+				console.log(e);
+			});
 		}
-		Promise.all(storiesArray)
-			.then((result) => {
-				console.log('promise', result)
-				if (repo !== null) {
-					mongo.updateStoriesArrayInRepo(repo._id, result) 
-				}
-			})
-			.catch((e) => {
-				console.log(e);
-			});
-		Promise.all(tmpStories)
-			.then((results) => {
-				res.status(200)
-					.json(results);
-			})
-			.catch((e) => {
-				console.log(e);
-			});
 	} catch (err) {
 		res.status(503).send(err.message);
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
@@ -279,7 +268,7 @@ router.get('/stories', async (req, res) => {
 			.toString('base64');
 		const cookieJar = request.jar();
 		let repo;
-		const tmpStories = [];
+		const tmpStories = new Map();
 		const storiesArray = [];
 		const options = {
 			method: 'GET',
@@ -317,8 +306,8 @@ router.get('/stories', async (req, res) => {
 									story.assignee = 'unassigned';
 									story.assignee_avatar_url = null;
 								}
-								let entry = await helper.fuseStoriesWithDb(story, issue.id)
-								tmpStories.push(entry);
+								let entry = await helper.fuseStoryWithDb(story, issue.id)
+								tmpStories.set(entry._id.toString(), entry)
 								storiesArray.push(entry._id)
 							}
 						}
@@ -326,18 +315,9 @@ router.get('/stories', async (req, res) => {
 						console.log('Jira Error 2:', e)
 					}
 					Promise.all(storiesArray)
-						.then((result) => {
-							if (repo !== null) {
-								mongo.updateStoriesArrayInRepo(repo_id, result) 
-							}
-						})
-						.catch((e) => {
-							console.log(e);
-						});
-					Promise.all(tmpStories)
-						.then((results) => {
-							res.status(200)
-								.json(results);
+						.then(array => {
+							const orderedStories = matchOrder(array, tmpStories, repo)
+							res.status(200).json(orderedStories)
 						})
 						.catch((e) => {
 							console.log(e);
@@ -351,7 +331,28 @@ router.get('/stories', async (req, res) => {
 		let result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id)
 		res.status(200).json(result)
 	} else res.sendStatus(401);
+
+	function matchOrder(storiesIdList, storiesArray, repo) {
+		let mySet = new Set(storiesIdList.concat(repo.stories).map(i => i.toString()));
+		for(const i of repo.stories){
+			mySet.delete(i.toString())
+		}
+		const storyList = repo.stories.concat([...mySet])
+
+		if (repo !== null) {
+			mongo.updateStoriesArrayInRepo(repo._id, storyList)
+		}
+
+		let orderedStories = storyList.map(i => storiesArray.get(i.toString()))
+		return orderedStories
+
+	}
 });
+
+router.put('/stories/:_id', async (req, res) => {
+	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body)
+	res.status(200).json(result)
+})
 
 router.get('/callback', (req, res) => {
 	let code = req.query.code;
