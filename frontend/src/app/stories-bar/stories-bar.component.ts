@@ -172,7 +172,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @returns
      */
     getSortedStories() {
-        console.log('getSortedStories', this.stories)
         return this.stories
         /*if (this.stories) {
             return this.stories.sort(function (a, b) {

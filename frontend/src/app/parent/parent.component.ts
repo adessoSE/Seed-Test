@@ -3,6 +3,7 @@ import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import {Group} from "../model/Group";
 
 /**
  * Component containing the Story-Bar and Story Editor
@@ -33,6 +34,8 @@ export class ParentComponent implements OnInit {
    * If the story Editor is shown or the report history
    */
   isStoryEditorActive = true;
+
+  groups: Group[]
 
   report;
 
@@ -71,6 +74,11 @@ export class ParentComponent implements OnInit {
       .subscribe((resp: Story[]) => {
         this.stories = resp;
     });
+    this.apiService
+        .getGroups(_id)
+        .subscribe((resp: Group[]) => {
+          this.groups = resp;
+        });
   }
 
   /**
