@@ -300,7 +300,7 @@ async function jiraProjects(user) {
 						let names = [];
 						if (Object.keys(json).length !== 0) {
 							for (const repo of json) {
-								const result = await mongo.createJiraRepoIfNonenExists(repo.name, source);
+								const result = await mongo.createJiraRepoIfNoneExists(repo.name, source);
 								names.push({ name: repo.name, _id: result });
 							}
 							names = names.map((value) => ({
@@ -370,7 +370,7 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 				const data = JSON.parse(xmlrequest.responseText);
 				const projects = [];
 				for (const repo of data) {
-					const mongoRepoId = await mongo.createGitOwnerRepoIfNonenExists(ownerId, githubId, repo.owner.id, repo.full_name, 'github');
+					const mongoRepoId = await mongo.createGitOwnerRepoIfNoneExists(ownerId, githubId, repo.owner.id, repo.full_name, 'github');
 					const repoName = repo.full_name;
 					const proj = {
 						_id: mongoRepoId,
