@@ -45,7 +45,6 @@ async function createResetRequest(request) {
 }
 
 async function getResetRequest(id) {
-	let db;
 	try {
 		const db = await connectDb();
 		const dbo = db.db(dbName);
@@ -63,7 +62,7 @@ async function getResetRequest(id) {
 async function getResetRequestByEmail(mail) {
 	let db;
 	try {
-		const db = await connectDb();
+		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(PwResetReqCollection);
 		const result = await collection.findOne({ email: mail });
@@ -214,7 +213,7 @@ function connectDb() {
 	});
 }
 function selectRepositoryCollection(db) {
-	dbo = db.db(dbName);
+	const dbo = db.db(dbName);
 	return new Promise((resolve, reject) => {
 		dbo.collection(repositoriesCollection, (err, collection) => {
 			if (err) reject(err);
@@ -656,53 +655,54 @@ async function createRepo(ownerId, name) {
 	const collection = await selectRepositoryCollection(db);
 	const result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name });
 	if (result !== null) return 'Sie besitzen bereits ein Repository mit diesem Namen!';
-
 	collection.insertOne(emptyRepo);
 }
 
-async function createJiraRepoIfNonenExists(repoName, source) {
+async function createJiraRepoIfNoneExists(repoName, source) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		let result = await collection.findOne({ repoName, repoType: source });
+		// create repo / project if there is none
 		if (result === null) {
-			const myObjt = {
+			const repo = {
 				owner: '', repoName, stories: [], repoType: source, customBlocks: []
 			};
-			result = await collection.insertOne(myObjt);
+			result = await collection.insertOne(repo);
 			return result.insertedId;
 		}
 		return result._id;
 	} catch (e) {
-		console.log(`UPS!!!! FEHLER in createJiraRepoIfNonenExists${e}`);
+		console.log(`ERROR in createJiraRepoIfNoneExists ${e}`);
 		throw e;
 	} finally {
 		db.close();
 	}
 }
 
-async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName, source) {
+async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, repoName, source) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne({ owner: ObjectId(ownerId), repoName });
 		if (result === null) {
-			let resu = await collection.findOne({ gitOwner: gOId, repoName });
-			if (resu === null) {
-				const myObjt = {
-					owner: '', gitOwner: gOId, repoName, stories: [], repoType: source, customBlocks: []
+			let repo = await collection.findOne({ gitOwner: gitOwnerId, repoName });
+			// create repo / project if there is none
+			if (repo === null) {
+				const newRepo = {
+					owner: '', gitOwner: gitOwnerId, repoName, stories: [], repoType: source, customBlocks: []
 				};
-				resu = await collection.insertOne(myObjt);
-				return resu.insertedId;
+				repo = await collection.insertOne(newRepo);
+				return repo.insertedId;
 			}
-			if (resu.gitOwner === githubId) resu.owner = ObjectId(ownerId);
-			return resu._id;
+			if (repo.gitOwner === githubId) repo.owner = ObjectId(ownerId);
+			return repo._id;
 		}
-		return resu._id;
+		return result._id;
 	} catch (e) {
-		console.log(`UPS!!!! FEHLER in createGitOwnerRepoIfNonenExists${e}`);
+		console.log(`ERROR in createGitOwnerRepoIfNoneExists${e}`);
 		throw e;
 	} finally {
 		db.close();
@@ -714,7 +714,8 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true });
+		return await collection.findOneAndUpdate({ _id: ObjectId(repoId) },
+			{ $set: { stories: storiesArray } }, { returnNewDocument: true });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoriesArrayInRepo${e}`);
 		throw e;
@@ -1144,8 +1145,8 @@ module.exports = {
 	deleteUser,
 	updateUser,
 	getUserData,
-	createGitOwnerRepoIfNonenExists,
-	createJiraRepoIfNonenExists,
+	createGitOwnerRepoIfNoneExists,
+	createJiraRepoIfNoneExists,
 	updateStoriesArrayInRepo,
 	getRepository,
 	getOneRepository,
