@@ -319,7 +319,21 @@ async function getOneStory(storyId, storySource) {
 }
 
 async function getOneStoryByStoryId(storyId, storySource) {
-	await this.getOneStory(storyId, storySource)
+	let db;
+	try {
+		db = await connectDb()
+		let collection = await selectStoriesCollection(db)
+		let story = await collection.findOne({ story_id: storyId, storySource: storySource })
+		// TODO remove later when all used stories have the tag storySource
+		if (!story) {
+			story = await collection.findOne({ story_id: storyId, storySource: undefined })
+		}
+		return story
+	} catch (e) {
+		console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
+	} finally {
+		if (db) db.close();
+	}
 }
 
 async function createStoryGroup(repo_id, name, members) {
@@ -560,6 +574,7 @@ async function updateScenarioList(storyId, source, scenarioList){
 }
 
 async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
+	console.log('getAllStoriesOfRepo', ownerId, repoName, repoId)
 	let db;
 	const storiesArray = [];
 
@@ -774,9 +789,9 @@ async function createJiraRepoIfNonenExists(repoName, source) {
 				owner: '', repoName, stories: [], repoType: source, customBlocks: []
 			};
 			result = await collection.insertOne(myObjt);
-			return result.insertedId;
+			return result;
 		}
-		return result._id;
+		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in createJiraRepoIfNonenExists${e}`);
 		throw e;
@@ -798,10 +813,10 @@ async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName
 					owner: '', gitOwner: gOId, repoName, stories: [], repoType: source, customBlocks: []
 				};
 				resu = await collection.insertOne(myObjt);
-				return resu.insertedId;
+				return resu;
 			}
 			if (resu.gitOwner === githubId) resu.owner = ObjectId(ownerId);
-			return resu._id;
+			return resu;
 		}
 		return resu._id;
 	} catch (e) {

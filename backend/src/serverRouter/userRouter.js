@@ -208,7 +208,7 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
-// get stories from github
+// get stories
 router.get('/stories', async (req, res) => {
 	const { source } = req.query;
 	if (source === 'github' || !source) try {
@@ -272,7 +272,7 @@ router.get('/stories', async (req, res) => {
 		const storiesArray = [];
 		const options = {
 			method: 'GET',
-			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}`,
+			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test`,
 			jar: cookieJar,
 			headers: {
 				'cache-control': 'no-cache',
@@ -288,8 +288,10 @@ router.get('/stories', async (req, res) => {
 					try {
 						repo = await mongo.createJiraRepoIfNonenExists(req.query.projectKey, source)
 						const json = JSON.parse(body).issues;
+						console.log('cuc-145', json)
 						for (const issue of json) {
 							if (issue.fields.labels.includes("Seed-Test")) {
+								console.log('jiraIssue',issue)
 								const story = {
 									story_id: issue.id,
 									title: issue.fields.summary,
@@ -307,6 +309,7 @@ router.get('/stories', async (req, res) => {
 									story.assignee_avatar_url = null;
 								}
 								let entry = await helper.fuseStoryWithDb(story, issue.id)
+								console.log('fuse jira', story, entry)
 								tmpStories.set(entry._id.toString(), entry)
 								storiesArray.push(entry._id)
 							}
@@ -333,6 +336,7 @@ router.get('/stories', async (req, res) => {
 	} else res.sendStatus(401);
 
 	function matchOrder(storiesIdList, storiesArray, repo) {
+		console.log('match order of', storiesIdList, storiesArray, repo)
 		let mySet = new Set(storiesIdList.concat(repo.stories).map(i => i.toString()));
 		for(const i of repo.stories){
 			mySet.delete(i.toString())

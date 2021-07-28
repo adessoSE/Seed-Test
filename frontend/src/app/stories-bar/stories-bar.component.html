@@ -57,8 +57,8 @@
         </span>
       </div>
       <div class="uk-accordion-content">
-    <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
-      <a class="Largecaption scenarioListItem">{{stor.title | titlecase}}</a>
+    <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)" (cdkDropListDropped)="dropGroupStory(g)" cdkDropList>
+      <a class="Largecaption scenarioListItem" cdkDrag>{{stor.title | titlecase}}</a>
     </li>
 </div>
 </li>
