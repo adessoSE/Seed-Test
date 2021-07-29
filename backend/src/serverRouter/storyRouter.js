@@ -46,6 +46,7 @@ router.post('/',async (req, res)=> {
     try {
         const db_id = await mongo.createStory(req.body.title, req.body.description, req.body._id);
         await mongo.insertStoryIdIntoRepo( db_id, req.body._id)
+        helper.updateFeatureFile(db_id, req.body.repo)
         res.status(200).json(db_id)
     } catch (e) {
         handleError(res, e, e, 500);
@@ -58,6 +59,7 @@ router.put('/:_id', async (req, res)=>{
     try {
         console.log(req.body)
         const story = await mongo.updateStory(req.body)
+        await helper.updateFeatureFile(req.params._id, req.body.storySource)
         res.status(200).json(story)
     } catch (e) {
         handleError(res, e, e, 500);
@@ -67,7 +69,8 @@ router.put('/:_id', async (req, res)=>{
 //delete Story
 router.delete('/:repo_id/:_id', async (req, res)=>{
    try {
-       await mongo.deleteStory(req.params.repo_id, req.params._id)
+       let story = await mongo.deleteStory(req.params.repo_id, req.params._id)
+       await helper.deleteFeatureFile(story.title)
        res.status(200).json({text: 'success'})
    } catch (e) {
        handleError(res, e, e, 500);

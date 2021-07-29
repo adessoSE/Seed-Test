@@ -45,7 +45,6 @@ async function createResetRequest(request) {
 }
 
 async function getResetRequest(id) {
-	let db;
 	try {
 		const db = await connectDb();
 		const dbo = db.db(dbName);
@@ -63,7 +62,7 @@ async function getResetRequest(id) {
 async function getResetRequestByEmail(mail) {
 	let db;
 	try {
-		const db = await connectDb();
+		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(PwResetReqCollection);
 		const result = await collection.findOne({ email: mail });
@@ -214,7 +213,7 @@ function connectDb() {
 	});
 }
 function selectRepositoryCollection(db) {
-	dbo = db.db(dbName);
+	const dbo = db.db(dbName);
 	return new Promise((resolve, reject) => {
 		dbo.collection(repositoriesCollection, (err, collection) => {
 			if (err) reject(err);
@@ -778,49 +777,51 @@ async function createRepo(ownerId, name) {
   }
 }
 
-async function createJiraRepoIfNonenExists(repoName, source) {
+async function createJiraRepoIfNoneExists(repoName, source) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		let result = await collection.findOne({ repoName, repoType: source });
+		// create repo / project if there is none
 		if (result === null) {
-			const myObjt = {
+			const repo = {
 				owner: '', repoName, stories: [], repoType: source, customBlocks: []
 			};
-			result = await collection.insertOne(myObjt);
+			result = await collection.insertOne(repo);
 			return result;
 		}
 		return result;
 	} catch (e) {
-		console.log(`UPS!!!! FEHLER in createJiraRepoIfNonenExists${e}`);
+		console.log(`ERROR in createJiraRepoIfNoneExists ${e}`);
 		throw e;
 	} finally {
 		db.close();
 	}
 }
 
-async function createGitOwnerRepoIfNonenExists(ownerId, githubId, gOId, repoName, source) {
+async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, repoName, source) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne({ owner: ObjectId(ownerId), repoName });
 		if (result === null) {
-			let resu = await collection.findOne({ gitOwner: gOId, repoName });
-			if (resu === null) {
-				const myObjt = {
-					owner: '', gitOwner: gOId, repoName, stories: [], repoType: source, customBlocks: []
+			let repo = await collection.findOne({ gitOwner: gitOwnerId, repoName });
+			// create repo / project if there is none
+			if (repo === null) {
+				const newRepo = {
+					owner: '', gitOwner: gitOwnerId, repoName, stories: [], repoType: source, customBlocks: []
 				};
-				resu = await collection.insertOne(myObjt);
-				return resu;
+				repo = await collection.insertOne(myObjt);
+				return repo;
 			}
-			if (resu.gitOwner === githubId) resu.owner = ObjectId(ownerId);
-			return resu;
+			if (repo.gitOwner === githubId) repo.owner = ObjectId(ownerId);
+			return repo;
 		}
-		return resu._id;
+		return result._id;
 	} catch (e) {
-		console.log(`UPS!!!! FEHLER in createGitOwnerRepoIfNonenExists${e}`);
+		console.log(`ERROR in createGitOwnerRepoIfNoneExists${e}`);
 		throw e;
 	} finally {
 		db.close();
@@ -876,12 +877,14 @@ async function getTestReports(storyId) {
 	let db;
 	try {
 		db = await connectDb();
-		dbo = db.db(dbName);
+		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
-		console.log('storyId', storyId);
+		console.log('Getting Report for storyId :', storyId);
 		// https://poopcode.com/how-to-return-only-specific-fields-from-a-mongodb-query/
-		const result = await collection.find({ storyId: ObjectId(storyId) }, { projection: { json: 0, reportOptions: 0 } }).toArray();
+		const result = await collection.find({ storyId: ObjectId(storyId) },
+			{ projection: { json: 0, reportOptions: 0 } }).toArray();
 		db.close();
+		console.log('Got ', result.length, ' reports for  :', storyId);
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
@@ -892,7 +895,7 @@ async function deleteReport(testReportId) {
 	let db;
 	try {
 		db = await connectDb();
-		dbo = db.db(dbName);
+		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
 		const result = await collection.deleteOne({ _id: ObjectId(testReportId) });
 		db.close();
@@ -906,9 +909,9 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 	let db;
 	try {
 		db = await connectDb();
-		dbo = db.db(dbName);
+		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
-		report = await collection.findOne({ _id: ObjectId(testReportId) });
+		const report = await collection.findOne({ _id: ObjectId(testReportId) });
 		const updatedReport = report;
 		updatedReport.isSaved = isSaved;
 		const result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) }, updatedReport, { returnOriginal: false });
@@ -923,7 +926,7 @@ async function uploadReport(reportData) {
 	let db;
 	try {
 		db = await connectDb();
-		dbo = db.db(dbName);
+		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
 		const result = await collection.insertOne(reportData);
 		db.close();
@@ -938,7 +941,7 @@ async function getReport(reportName) {
 	try {
 		const report = { reportName };
 		db = await connectDb();
-		dbo = db.db(dbName);
+		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
 		const result = await collection.findOne(report);
 		db.close();
@@ -1262,8 +1265,8 @@ module.exports = {
   deleteUser,
   updateUser,
   getUserData,
-  createGitOwnerRepoIfNonenExists,
-  createJiraRepoIfNonenExists,
+  createGitOwnerRepoIfNoneExists,
+  createJiraRepoIfNoneExists,
   updateStoriesArrayInRepo,
   getRepository,
   getOneRepository,
@@ -1277,7 +1280,6 @@ module.exports = {
   removeFromStoryGroup,
   getAllStoryGroups,
   getOneStoryGroup,
-	getOneStoryByStoryId,
   selectStoriesCollection,
   connectDb,
   createResetRequest,

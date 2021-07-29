@@ -25,9 +25,14 @@
           </span>
         </div>
 
-        <div class="uk-accordion-content">
-          <li *ngFor="let scen of s.scenarios; let c = index" cdkDrag>
-            <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}">#{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}</a>
+        <div id="scenarioList" class="uk-accordion-content">
+          <button class="SmallButton" [hidden]="hideCreateScenario" (click)="addFirstScenario()">
+            Create First Scenario
+          </button>
+          <li *ngFor="let scen of s.scenarios; let c = index">
+            <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}">
+              #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+            </a>
           </li>
         </div>
       </li>
@@ -58,16 +63,15 @@
         </span>
       </div>
       <div class="uk-accordion-content">
-    <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)" (cdkDropListDropped)="dropGroupStory(g)" cdkDropList>
-      <a class="Largecaption scenarioListItem" cdkDrag>{{stor.title | titlecase}}</a>
+        <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)" (cdkDropListDropped)="dropGroupStory(g)" cdkDropList>
+          <a class="Largecaption scenarioListItem" cdkDrag>{{stor.title | titlecase}}</a>
+        </li>
+      </div>
     </li>
-</div>
-</li>
-</ul>
+  </ul>
 <div id="createNewGroupDiv">
   <button class="normalButton" (click)="openCreateNewGroupModal()">Create New Group</button>
 </div>
-  </div>
-</div>
+
 
 <app-modals #modalsComponent></app-modals>

@@ -12,7 +12,7 @@ import {LoginComponent} from './login/login.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AuthGuard} from './guards/auth.guard';
 import {MatTableModule} from '@angular/material/table';
-import {MatListModule} from '@angular/material/list'
+import {MatListModule} from '@angular/material/list';
 import {ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
@@ -26,15 +26,15 @@ import { TermsComponent } from './terms/terms.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
 import {CookieService } from 'ngx-cookie-service';
-import { TestAccountComponent } from './test-account/test-account.component'
+import { TestAccountComponent } from './test-account/test-account.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
-import { ToastrModule } from "ngx-toastr";
+import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatCarouselModule } from '@ngbmodule/material-carousel';
-import {RunTestToast} from './runSave-toast'
+import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { ModalsComponent } from './modals/modals.component'
@@ -90,7 +90,7 @@ import { ReportHistoryComponent } from './report-history/report-history.componen
     })
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService,[{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
+  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

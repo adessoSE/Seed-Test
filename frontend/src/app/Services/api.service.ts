@@ -330,7 +330,7 @@ export class ApiService {
      */
     public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'title' : title, 'description' : description, 'repo' : repository, _id};
+        const body = {'title': title, 'description': description, 'repo': repository, '_id': _id};
         return this.http
             .post<Story>(this.apiServer + '/story/', body, ApiService.getOptions())
             .pipe(tap(resp => {
@@ -728,12 +728,24 @@ export class ApiService {
      * @param background
      * @returns
      */
-    updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
+
+    public updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Update background for story ' + storyID )
+            }));
+    }
+
+
+    public addFirstScenario(storyID, storySource: string): Observable<Scenario>{
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
 

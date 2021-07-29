@@ -6,9 +6,9 @@ import {ModalsComponent} from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import {getMatSelectNonFunctionValueError} from "@angular/material/select/select-errors";
-import {group} from "@angular/animations";
-import {find} from "rxjs/operators";
+import { ToastrService } from 'ngx-toastr';
+
+
 
 /**
  * Component of the Stories bar
@@ -19,6 +19,7 @@ import {find} from "rxjs/operators";
     styleUrls: ['./stories-bar.component.css']
 })
 export class StoriesBarComponent implements OnInit, OnDestroy {
+
     /**
      * Stories in the project
      */
@@ -43,6 +44,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * If it is the daisy version
      */
     daisyVersion: boolean = true;
+    hideCreateScenario: boolean = false;
 
     /**
      * Subscription element if a custom story should be created
@@ -105,14 +107,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Constructor
      * @param apiService
      */
-    constructor(public apiService: ApiService) {
+    constructor(public apiService: ApiService, public toastr:ToastrService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories;
             this.isCustomStory = localStorage.getItem('source') === 'db';
         });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
-            console.log('hallo constructor', groups)
         } );
 
     }
@@ -173,17 +174,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     getSortedStories() {
         return this.stories
-        /*if (this.stories) {
-            return this.stories.sort(function (a, b) {
-                if (a.issue_number < b.issue_number) {
-                    return -1;
-                }
-                if (a.issue_number > b.issue_number) {
-                    return 1;
-                }
-                return 0;
-            });
-        }*/
     }
 
     getSortedGroups() {
@@ -243,7 +233,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         if (this.stories[storyIndex].scenarios[0]) {
             this.selectScenario(this.stories[storyIndex].scenarios[0]);
         }
+        this.toggleShows();
     }
+
+
 
     /**
      * Selects a new Group
@@ -263,6 +256,25 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     openCreateNewScenarioModal() {
         this.modalsComponent.openCreateNewStoryModal()
+    }
+
+    addFirstScenario() {
+        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
+            .subscribe((resp: Scenario) => {
+                this.selectScenario(resp);
+                this.selectedStory.scenarios.push(resp);
+                this.toastr.info('Successfully added', 'Scenario');
+                this.hideCreateScenario = true;
+            });
+    }
+
+    toggleShows(): boolean {
+        if (this.selectedStory.scenarios.length === 0) {
+            this.hideCreateScenario = false;
+        } else {
+            this.hideCreateScenario = true;
+        }
+        return this.hideCreateScenario;
     }
 
     /**
