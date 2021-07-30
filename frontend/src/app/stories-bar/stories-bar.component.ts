@@ -311,11 +311,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     dropGroupStory(event: CdkDragDrop<string[]>, group) {
         const repo_id = localStorage.getItem('id')
-        moveItemInArray(group.member_stories, event.previousIndex, event.currentIndex);
-        group.member_stories = group.member_stories.map(o => o._id)
-        this.apiService.updateGroup(repo_id, group._id, group).subscribe( ret => {
+        const index = this.groups.findIndex(o=> o._id === group._id)
+        moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
+        const pass_gr = this.groups[index]
+        pass_gr.member_stories = this.groups[index].member_stories.map(o => o._id)
+        this.apiService.updateGroup(repo_id, group._id, pass_gr).subscribe( ret => {
             //console.log(ret)
-        })
+        });
     }
 
 }

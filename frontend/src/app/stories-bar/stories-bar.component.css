@@ -76,6 +76,10 @@
     padding-bottom: 15px;
   }
 
+  li{
+    list-style: none;
+  }
+
   .modal-footer{
     height: 60px;
   }
@@ -166,6 +170,11 @@
 
   .uk-accordion-title.uk-background-muted span.notPassed{
     background-color: red;
+  }
+
+  .drag-handle{
+    cursor: move;
+    color: var(--ocean-blue);
   }
   
 @media screen and (max-width: 600px) {
