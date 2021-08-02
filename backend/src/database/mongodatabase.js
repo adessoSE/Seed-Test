@@ -45,8 +45,8 @@ async function createResetRequest(request) {
 }
 
 async function getResetRequest(id) {
+	const db = await connectDb();
 	try {
-		const db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(PwResetReqCollection);
 		const result = await collection.findOne({ uuid: id });

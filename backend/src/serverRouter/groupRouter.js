@@ -30,6 +30,13 @@ router
         //console.log(_.url + JSON.stringify(_.user));
         console.log('Time of mongoDB request:', Date.now());
         next();
+    })
+    .use((req, res, next) => {
+        if (req.user)
+            next();
+        else{
+            console.log('not Authenticated')
+        }
     });
 
 //get All Groups and StoryIds
