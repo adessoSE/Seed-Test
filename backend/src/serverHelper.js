@@ -136,8 +136,10 @@ function cleanFileName(filename) {
 
 // Creates feature file
 function writeFile(dir, selectedStory) {
+	//todo filename
+	const filename = selectedStory.title + selectedStory._id
 	fs.writeFile(path.join(__dirname, '../features',
-		`${cleanFileName(selectedStory.title)}.feature`), getFeatureContent(selectedStory), (err) => {
+		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
 }
@@ -305,11 +307,13 @@ async function execReport(req, res, stories, mode, callback) {
 		if (mode == 'group'){
 			req.body.name = req.body.name.replace(' ', '_') + Date.now()
 			fs.mkdirSync(`./features/${req.body.name}`);
-			for (let story of stories)
+			for (let story of stories) {
+				await nameSchemeChange(story)
 				execReport2(req, res, stories, 'group', story, callback)
-
+			}
 		} else {
 			let story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			await nameSchemeChange(story)
 			execReport2(req, res, stories, mode, story, callback);
 		}
 	} catch (error) {
@@ -318,12 +322,20 @@ async function execReport(req, res, stories, mode, callback) {
 	}
 }
 
-async function deleteFeatureFile(storyTitle) {
+const nameSchemeChange = async(story) => {
+	if(!!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null))){
+		await updateFeatureFile(story._id, story.storySource)
+		fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, err => console.log('failed to remove file', err));
+	}
+}
+
+async function deleteFeatureFile(storyTitle, storyId) {
+	// todo filename
 	try {
-		fs.unlink(`features/${cleanFileName(storyTitle)}.feature`, (err) => {
+		fs.unlink(`features/${cleanFileName(storyTitle + storyId)}.feature`, (err) => {
 			if (err) throw err;
 			// if no error, file has been deleted successfully
-			console.log('FeatureFile deleted!', storyTitle);
+			console.log('FeatureFile deleted!', storyTitle + storyId);
 		});
 	} catch (e) {
 		console.log('File not found', e);
@@ -371,13 +383,12 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
-	const path2 = `features/${cleanFileName(story.title)}.feature`;
+	const path2 = `features/${cleanFileName(story.title + story._id)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
 	let path3 = `features/${reportName}.json`;
-	let gr_dir
 	if (mode === 'group'){
-		gr_dir = req.body.name
+		const gr_dir = req.body.name
 		path3 = `./features/${gr_dir}/${reportName}.json`;
 	}
 

@@ -525,14 +525,16 @@ async function deleteStory(repoId, storyId){
     db = await connectDb();
     let collection = await selectStoriesCollection(db);
     let repo = await selectRepositoryCollection(db)
-    await collection.findOneAndDelete({_id: ObjectId(storyId)})
+    const delStory = await collection.findOneAndDelete({_id: ObjectId(storyId)})
     await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
 
     let groups = await repo.findOne({ _id: ObjectId(repoId) }, {"projection":{"groups":1}});
     for(let index in groups.groups){
       groups.groups[index].member_stories = groups.groups[index].member_stories.filter(story => story !== storyId)
     }
-    await repo.findOneAndUpdate({_id: ObjectId(repoId)}, {$set:{"groups":groups.groups}})
+    await repo.findOneAndUpdate({_id: ObjectId(repoId)}, {$set:{"groups":groups.groups}});
+
+    return delStory
 
   } catch (e) {
     console.log("UPS!!!! FEHLER in deleteStory: " + e)

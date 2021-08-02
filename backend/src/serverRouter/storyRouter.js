@@ -70,7 +70,7 @@ router.put('/:_id', async (req, res)=>{
 router.delete('/:repo_id/:_id', async (req, res)=>{
    try {
        let story = await mongo.deleteStory(req.params.repo_id, req.params._id)
-       await helper.deleteFeatureFile(story.title)
+       await helper.deleteFeatureFile(story.title, story._id)
        res.status(200).json({text: 'success'})
    } catch (e) {
        handleError(res, e, e, 500);
