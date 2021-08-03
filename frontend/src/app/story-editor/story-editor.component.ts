@@ -793,4 +793,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     })
     return sortedStepTypes
  }
+
+  storyLink(){
+    return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id
+  }
 }
