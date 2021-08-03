@@ -68,6 +68,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     testRunning: boolean = false;
 
+
     /**
      * if the stories are loaded
      */
@@ -792,5 +793,4 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     })
     return sortedStepTypes
  }
-
 }
