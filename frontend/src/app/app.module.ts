@@ -70,7 +70,7 @@ import {ClipboardModule} from "@angular/cdk/clipboard";
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ModalsComponent,
-    ReportHistoryComponent
+    ReportHistoryComponent,
   ],
   imports: [
     NgbModule,

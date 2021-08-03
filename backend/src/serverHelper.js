@@ -136,8 +136,10 @@ function cleanFileName(filename) {
 
 // Creates feature file
 function writeFile(dir, selectedStory) {
+	//todo filename
+	const filename = selectedStory.title + selectedStory._id
 	fs.writeFile(path.join(__dirname, '../features',
-		`${cleanFileName(selectedStory.title)}.feature`), getFeatureContent(selectedStory), (err) => {
+		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
 }
@@ -174,12 +176,166 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-async function deleteFeatureFile(storyTitle) {
+
+function runReport(req, res, stories, mode, parameters) {
+	let cumulate = 0 // only used when executing multiple stories
+	execReport(req, res, stories, mode, (reportTime, story,
+										 scenarioID, reportName) => {
+
+
+		//res.sendFile(`/${reportName}.html`, { root: rootPath });
+		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
+		let testStatus = false;
+		try {
+			let path
+			let gr_dir
+			if (mode !== 'group') {
+				path = `./features/${reportName}.json`
+			} else {
+				gr_dir = req.body.name
+				path = `./features/${gr_dir}/${reportName}.json`
+			}
+			fs.readFile(path, 'utf8', async (err, data) => {
+				const json = JSON.parse(data);
+				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
+
+				let passed = 0;
+				let failed = 0;
+				let skipped = 0;
+				const scenariosTested = { passed: 0, failed: 0 };
+				try {
+					json[0].elements.forEach((d) => {
+						let scenarioPassed = 0;
+						let scenarioFailed = 0;
+						d.steps.forEach((s) => {
+							switch (s.result.status) {
+								case 'passed':
+									passed++;
+									scenarioPassed++;
+									break;
+								case 'failed':
+									failed++;
+									scenarioFailed++;
+									break;
+								case 'skipped':
+									skipped++;
+									break;
+								default:
+									console.log(`Status default: ${s.result.status}`);
+							}
+						});
+						if (testPassed(scenarioFailed, scenarioPassed)) scenariosTested.passed += 1;
+						else scenariosTested.failed += 1;
+						story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed),
+							d.tags[0].name, story);
+					});
+				} catch (error) {
+					console.log('json element in fs runReport', error);
+				}
+
+				testStatus = testPassed(failed, passed);
+
+				let reportOptions
+				let uploadedReport
+				if (mode === 'group'){
+					if(cumulate +1 < stories.length){
+						cumulate ++
+					} else {
+						reportOptions = setOptions(req.body.name, path =`features/${gr_dir}/`)
+						reporter.generate(reportOptions);
+						const report = {
+							reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
+						};
+						uploadedReport = await uploadReport(report, story._id, scenarioID);
+						fs.readFile(`./features/${gr_dir}/${gr_dir}.html`, 'utf8',(err, data) => {
+							res.json({htmlFile: data, reportId: uploadedReport.ops[0]._id})
+						})
+						setTimeout((group) => {
+							fs.rm(`./features/${group}`, {recursive: true}, () => {
+								console.log(`${group} report deleted`)
+							})
+						},reportDeletionTime * 60000, gr_dir)
+					}
+				} else {
+					reportOptions = setOptions(reportName);
+					reporter.generate(reportOptions);
+					const report = {
+						reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
+					};
+					uploadedReport = await uploadReport(report, story._id, scenarioID);
+					fs.readFile(`./features/${reportName}.html`, 'utf8',(err, data) => {
+						res.json({htmlFile: data, reportId: uploadedReport.ops[0]._id})
+					})
+					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+				}
+
+
+				if (req.params.storySource === 'github' && req.user && req.user.github) {
+					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
+						reportTime, story, scenario, mode, reportName);
+					const githubValue = parameters.repository.split('/');
+					const githubName = githubValue[0];
+					const githubRepo = githubValue[1];
+					postComment(story.issue_number, comment, githubName, githubRepo,
+						req.user.github.githubToken);
+					if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+				}
+				if (scenarioID && scenario) {
+					scenario.lastTestPassed = testStatus;
+					await mongo.updateScenario(story._id, story.storySource, scenario, () => {
+						// console.log()
+					});
+				} else if (!scenarioID) {
+					story.lastTestPassed = testStatus;
+					await mongo.updateStory(story);
+				}
+			});
+		} catch (error) {
+			console.log(`fs readfile error for file ./features/${reportName}.json`);
+		}
+	});
+}
+
+async function execReport(req, res, stories, mode, callback) {
 	try {
-		fs.unlink(`features/${cleanFileName(storyTitle)}.feature`, (err) => {
+		// console.log('DAISYAUTOLOGOUT');
+		// console.log(typeof (story.daisyAutoLogout));
+		// // does not Fail if "daisyAutoLogout" is undefined
+		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
+		//  else process.env.DAISY_AUTO_LOGOUT = false;
+		if (mode == 'group'){
+			req.body.name = req.body.name.replace(' ', '_') + Date.now()
+			fs.mkdirSync(`./features/${req.body.name}`);
+			for (let story of stories) {
+				await nameSchemeChange(story)
+				execReport2(req, res, stories, 'group', story, callback)
+			}
+		} else {
+			let story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			await nameSchemeChange(story)
+			execReport2(req, res, stories, mode, story, callback);
+		}
+	} catch (error) {
+		res.status(404)
+			.send(error);
+	}
+}
+
+const nameSchemeChange = async(story) => {
+	if(!!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null))){
+		await updateFeatureFile(story._id, story.storySource)
+		fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, err => console.log('failed to remove file', err));
+	}
+}
+
+async function deleteFeatureFile(storyTitle, storyId) {
+	// todo filename
+	try {
+		fs.unlink(`features/${cleanFileName(storyTitle + storyId)}.feature`, (err) => {
 			if (err) throw err;
 			// if no error, file has been deleted successfully
-			console.log('FeatureFile deleted!', storyTitle);
+			console.log('FeatureFile deleted!', storyTitle + storyId);
 		});
 	} catch (e) {
 		console.log('File not found', e);
@@ -187,59 +343,74 @@ async function deleteFeatureFile(storyTitle) {
 }
 
 function execReport2(req, res, stories, mode, story, callback) {
+
 	let parameters = {};
 	if (mode === 'scenario') {
 		const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioID, 10));
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
 		if (!scenario.browser) scenario.browser = 'chrome';
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
-		if (scenario.stepDefinitions.example.length <= 0) parameters = {
+		if (scenario.stepDefinitions.example.length <= 0) {
+			parameters = {
 			scenarios:
 				[{
 					browser: scenario.browser,
 					waitTime: scenario.stepWaitTime,
 					daisyAutoLogout: scenario.daisyAutoLogout
 				}]
-		};
-		else {
-			parameters = { scenarios: [] };
+			}
+		} else {
+			parameters = {scenarios: []}
 			scenario.stepDefinitions.example.forEach((examples, index) => {
-				if (index > 0) parameters.scenarios.push(
-					{
+				if (index > 0) {
+					parameters.scenarios.push({
 						browser: scenario.browser,
 						waitTime: scenario.stepWaitTime,
 						daisyAutoLogout: scenario.daisyAutoLogout
-					}
-				);
-			});
+					})
+				}
+			})
 		}
-	} else {
-		parameters = { scenarios: [] };
-		story.scenarios.forEach((scenario) => {
-			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
-			if (!scenario.browser) scenario.browser = 'chrome';
-			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
-			if (scenario.stepDefinitions.example.length <= 0) parameters.scenarios.push({ browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout });
-			 else scenario.stepDefinitions.example.forEach((examples, index) => {
-				if (index > 0) parameters.scenarios.push({ browser: scenario.browser, waitTime: scenario.stepWaitTime, daisyAutoLogout: scenario.daisyAutoLogout });
-			});
-		});
+	} else if(mode == 'feature') {
+		const prep = scenarioPrep(story.scenarios)
+		story.scenarios = prep.scenarios
+		parameters = prep.parameters
+	} else if (mode == 'group') {
+		const prep = scenarioPrep(story.scenarios)
+		story.scenarios = prep.scenarios
+		parameters = prep.parameters
 	}
 
 	const reportTime = Date.now();
 	const path1 = 'node_modules/.bin/cucumber-js';
-	const path2 = `features/${cleanFileName(story.title)}.feature`;
+	const path2 = `features/${cleanFileName(story.title + story._id)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
-	const path3 = `features/${reportName}.json`;
-	const jsParam = JSON.stringify(parameters);
-	let worldParam = '';
-	for (let i = 0; i < jsParam.length; i++) if (jsParam[i] == '"') worldParam += '\\\"';
-	else worldParam += jsParam[i];
+
+	let path3 = `features/${reportName}.json`;
+	if (mode === 'group'){
+		const gr_dir = req.body.name
+		path3 = `./features/${gr_dir}/${reportName}.json`;
+	}
+
+	let jsParam = JSON.stringify(parameters)
+	let worldParam = ''
+	for (let i = 0; i < jsParam.length; i++) {
+		if (jsParam[i] == '"')
+			worldParam += '\\\"'
+		else
+			worldParam += jsParam[i]
+	}
+
 	console.log('worldParam', worldParam);
+
 	let cmd;
 	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
 
-	else cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
+	if (mode === 'scenario') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
+
+	if (mode === 'group') {
+		cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
+	}
 
 	console.log(`Executing: ${cmd}`);
 
@@ -255,15 +426,48 @@ function execReport2(req, res, stories, mode, story, callback) {
 	});
 }
 
-async function execReport(req, res, stories, mode, callback) {
-	try {
-		const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
-		execReport2(req, res, stories, mode, story, callback);
-	} catch (error) {
-		res.status(404)
-			.send(error);
-	}
+
+function scenarioPrep(scenarios){
+	let parameters = {scenarios: []}
+	scenarios.forEach(scenario => {
+		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
+		if (!scenario.browser) scenario.browser = 'chrome'
+		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
+		if (scenario.stepDefinitions.example.length <= 0) {
+			parameters.scenarios.push({
+				browser: scenario.browser,
+				waitTime: scenario.stepWaitTime,
+				daisyAutoLogout: scenario.daisyAutoLogout
+			})
+		} else {
+			scenario.stepDefinitions.example.forEach((examples, index) => {
+				if (index > 0) {
+					parameters.scenarios.push({
+						browser: scenario.browser,
+						waitTime: scenario.stepWaitTime,
+						daisyAutoLogout: scenario.daisyAutoLogout
+					})
+				}
+			})
+		}
+	})
+	return {scenarios, parameters}
 }
+
+function setOptions(reportName, path = "features/") {
+	const myOptions = lodash.cloneDeep(options);
+	myOptions.metadata.Platform = process.platform;
+	myOptions.name = 'Seed-Test Report';
+	if (path !== "features/"){
+		myOptions.jsonDir = `${path}`
+		myOptions.jsonFile = null
+	} else
+		myOptions.jsonFile = `${path}${reportName}.json`;
+	myOptions.output = `${path}${reportName}.html`;
+	return myOptions;
+}
+
+
 
 async function jiraProjects(user) {
 	return new Promise((resolve) => {
@@ -350,15 +554,6 @@ function uniqueRepositories(repositories) {
 	)));
 }
 
-function setOptions(reportName) {
-	const myOptions = lodash.cloneDeep(options);
-	myOptions.metadata.Platform = process.platform;
-	myOptions.name = 'Seed-Test Report';
-	myOptions.jsonFile = `features/${reportName}.json`;
-	myOptions.output = `features/${reportName}.html`;
-	return myOptions;
-}
-
 async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 	return new Promise((resolve, reject) => {
 		const xmlrequest = new XMLHttpRequest();
@@ -395,8 +590,8 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 	return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token, ownerId, githubId);
 }
 
-async function fuseStoriesWithDb(story, issueId) {
-	const result = await mongo.getOneStoryByStoryId(parseInt(issueId), story.storySource);
+async function fuseStoryWithDb(story, issueId) {
+	const result = await mongo.getOneStoryByStoryId(parseInt(story.story_id), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -448,7 +643,9 @@ async function createReport(res, reportName) {
 	reporter.generate(report.reportOptions);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-	res.sendFile(`/${reportName}.html`, { root: rootPath });
+	fs.readFile(`features/${reportName}.html`,'utf8',(err, data) => {
+		res.json({htmlFile: data, reportId: report._id})
+	})
 }
 
 function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
@@ -526,127 +723,44 @@ function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumbe
 }
 
 const getGithubData = (res, req, accessToken) => {
-	request(
-		{
-			uri: `https://api.github.com/user?access_token=${accessToken}`,
-			method: 'GET',
-			headers: {
-				'User-Agent': 'SampleOAuth',
-				Authorization: `Token ${accessToken}`
-			}
-		},
-		async (err, response, body) => {
-			req.body = await JSON.parse(body);
-			req.body.githubToken = accessToken;
-			try {
-				await mongo.findOrRegister(req.body);
-				passport.authenticate('github-local', (error, user, info) => {
-					console.log('Der User in authenticate', JSON.stringify(user));
-					if (error) res.json({ error: 'Authentication Error' });
-					else if (!user) res.json({ error: 'Authentication Error' });
-
-					req.logIn(user, async (err) => {
-						if (err) res.json({ error: 'Login Error' });
-						else {
-							res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
-							res.header('Access-Control-Allow-Credentials', 'true');
-							res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-							res.json({ login: user.github.login, id: user.github.id });
-						}
-					});
-				})(req, res);
-			} catch (error) {
-				console.log('getGithubData error:', error);
-				res.sendStatus(400);
-			}
-		}
-	);
-};
-
-function runReport(req, res, stories, mode, parameters) {
-	execReport(req, res, stories, mode, (reportTime, story,
-		scenarioID, reportName) => {
-		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-		setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-		const reportOptions = setOptions(reportName);
-		reporter.generate(reportOptions);
-
-		// res.sendFile(`/${reportName}.html`, { root: rootPath });
-		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
-		let testStatus = false;
-		try {
-			fs.readFile(`./features/${reportName}.json`, 'utf8', async (err, data) => {
-				const json = JSON.parse(data);
-				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
-
-				let passed = 0;
-				let failed = 0;
-				let skipped = 0;
-				const scenariosTested = { passed: 0, failed: 0 };
-				try {
-					json[0].elements.forEach((d) => {
-						let scenarioPassed = 0;
-						let scenarioFailed = 0;
-						d.steps.forEach((s) => {
-							switch (s.result.status) {
-								case 'passed':
-									passed++;
-									scenarioPassed++;
-									break;
-								case 'failed':
-									failed++;
-									scenarioFailed++;
-									break;
-								case 'skipped':
-									skipped++;
-									break;
-								default:
-									console.log(`Status default: ${s.result.status}`);
-							}
-						});
-						if (testPassed(scenarioFailed, scenarioPassed)) scenariosTested.passed += 1;
-						else scenariosTested.failed += 1;
-						story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed),
-							d.tags[0].name, story);
-					});
-				} catch (error) {
-					console.log('json element in fs runReport', error);
-				}
-
-				testStatus = testPassed(failed, passed);
-				console.log('storyId', story._id);
-				const report = {
-					reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
-				};
-
-				const uploadedReport = await uploadReport(report, story._id, scenarioID);
-				fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-					res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
-				});
-				if (req.params.storySource === 'github' && req.user && req.user.github) {
-					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
-						reportTime, story, scenario, mode, reportName);
-					const githubValue = parameters.repository.split('/');
-					const githubName = githubValue[0];
-					const githubRepo = githubValue[1];
-					postComment(story.issue_number, comment, githubName, githubRepo,
-						req.user.github.githubToken);
-					if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-				}
-				if (scenarioID && scenario) {
-					scenario.lastTestPassed = testStatus;
-					mongo.updateScenario(story._id, story.storySource, scenario, () => {
-						// console.log()
-					});
-				} else if (!scenarioID) {
-					story.lastTestPassed = testStatus;
-					mongo.updateStory(story);
-				}
-			});
-		} catch (error) {
-			console.log(`fs readfile error for file ./features/${reportName}.json`);
-		}
-	});
+  request(
+    {
+      uri: `https://api.github.com/user?access_token=${accessToken}`,
+      method: "GET",
+      headers: {
+        "User-Agent": "SampleOAuth",
+        "Authorization": `Token ${accessToken}`
+      }
+    },
+    async function(err, response, body){
+      req.body = await JSON.parse(body)
+      req.body.githubToken = accessToken;
+      try{
+        await mongo.findOrRegister(req.body)
+        passport.authenticate('github-local', function (error, user, info) {
+                  console.log("Der User in authenticate", JSON.stringify(user))
+                  if(error){
+                    res.json({error: 'Authentication Error'})
+                  } else if(!user){
+                    res.json({error: 'Authentication Error'})
+                  }
+                  req.logIn(user, async function(err){
+                      if(err){
+                          res.json({error: 'Login Error'})
+                      }else {
+                        res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL );
+		                    res.header('Access-Control-Allow-Credentials', 'true');
+		                    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
+                        res.json({login: user.github.login, id: user.github.id})
+                      }
+                  });
+              })(req,res);
+      }catch(error){
+          console.log('getGithubData error:', error)
+          res.sendStatus(400)
+      }
+    }
+  )
 }
 
 async function deleteOldReports(storyId, scenarioID) {
@@ -699,7 +813,7 @@ module.exports = {
 	getScenarioContent,
 	writeFile,
 	ownRepositories,
-	fuseStoriesWithDb,
+	fuseStoryWithDb: fuseStoryWithDb,
 	updateJira,
 	getExamples,
 	getSteps,

@@ -1,9 +1,10 @@
 <div class="grid"  >
     <div class="storiesBar">
-        <app-stories-bar #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);"></app-stories-bar>
+        <app-stories-bar #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);" (report)="viewReport($event);" ></app-stories-bar>
     </div>
     <div class="storyEditor">
-        <app-story-editor *ngIf="this.isStoryEditorActive" (changeEditor)="setEditor($event);"  [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario" [newStories]="stories"></app-story-editor>
-        <app-report-history *ngIf="!this.isStoryEditorActive" (changeEditor)="setEditor($event);" [newSelectedStory]="selectedStory"  ></app-report-history>
+        <app-story-editor *ngIf="this.isStoryEditorActive" (report)="viewReport($event);" (changeEditor)="setEditor($event);"  [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario" [newStories]="stories" ></app-story-editor>
+        <app-report-history *ngIf="!this.isStoryEditorActive" (changeEditor)="setEditor($event);" [newSelectedStory]="selectedStory" ></app-report-history>
+        <app-report *ngIf="report" [report]="report"></app-report>
     </div>
 </div>

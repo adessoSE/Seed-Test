@@ -22,6 +22,13 @@ router
     .use((_, __, next) => {
         console.log('Time of user request:', Date.now());
         next();
+    })
+    .use((req, res, next) => {
+        if (req.user)
+            next();
+        else{
+            console.log('not Authenticated')
+        }
     });
 
 // Handling response errors
@@ -70,11 +77,21 @@ router.put('/:_id', async (req, res)=>{
 router.delete('/:repo_id/:_id', async (req, res)=>{
    try {
        let story = await mongo.deleteStory(req.params.repo_id, req.params._id)
-       await helper.deleteFeatureFile(story.title)
+       await helper.deleteFeatureFile(story.title, story._id)
        res.status(200).json({text: 'success'})
    } catch (e) {
        handleError(res, e, e, 500);
    }
+});
+
+//update only Scenariolist
+router.patch('/:story_id/:source', async (req, res) => {
+    try {
+        await mongo.updateScenarioList(req.params.story_id, req.params.source, req.body)
+        await helper.updateFeatureFile(req.params.story_id, req.params.source)
+    } catch (e) {
+        handleError(res, e, e, 500);
+    }
 });
 
 // get one scenario

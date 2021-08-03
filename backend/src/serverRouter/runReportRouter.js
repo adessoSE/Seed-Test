@@ -16,6 +16,13 @@ router
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
 		next();
+	})
+	.use((req, res, next) => {
+		if (req.user)
+			next();
+		else{
+			console.log('not Authenticated')
+		}
 	});
 
 // run single Feature
@@ -27,6 +34,20 @@ router.post('/Feature/:issueID/:storySource', (req, res) => {
 router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
 	helper.runReport(req, res, stories, 'scenario', req.body);
 });
+
+// run one Group
+router.post('/Group/:repoID/:groupID', async (req, res) => {
+	//console.log('runGroup Not Implemented yet')
+	//res.sendStatus(501)
+	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID)
+	let mystories = []
+	for(let id of group.member_stories){
+		mystories.push(await mongo.getOneStory(id, 'db'))
+	}
+	req.body = group
+
+	await helper.runReport(req, res, mystories, 'group', req.body)
+})
 
 router.get('/report/:reportName', (req, res) => {
 	helper.createReport(res, req.params.reportName);

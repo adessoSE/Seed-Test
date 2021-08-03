@@ -207,7 +207,7 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
-// get stories from github
+// get stories
 router.get('/stories', async (req, res) => {
 	const { source } = req.query;
 	// get GitHub Repo / Projects
@@ -215,8 +215,10 @@ router.get('/stories', async (req, res) => {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-		const tmpStories = [];
-		const storyIdArray = [];
+
+		const tmpStories = new Map();
+		const tmpStoriesArray = [];
+
 		let repo;
 		// get Issues from GitHub .
 		const headers = {
@@ -245,40 +247,35 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-				let entry = await helper.fuseStoriesWithDb(story, issue.id);
-				tmpStories.push(entry);
-				storyIdArray.push(entry._id);
+
+				let entry = await helper.fuseStoryWithDb(story, issue.id)
+				tmpStories.set(entry._id.toString(), entry);
+				tmpStoriesArray.push(entry._id)
 			}
+
+			Promise.all(tmpStoriesArray).then( array => {
+				const orderedStories = matchOrder(array, tmpStories, repo)
+				res.status(200).json(orderedStories)
+
+			}).catch((e) => {
+				console.log(e);
+			});
 		}
-		Promise.all(storyIdArray)
-			.then((result) => {
-				if (repo !== null) mongo.updateStoriesArrayInRepo(repo._id, result);
-			})
-			.catch((e) => {
-				console.log(e);
-			});
-		Promise.all(tmpStories)
-			.then((results) => {
-				res.status(200)
-					.json(results);
-			})
-			.catch((e) => {
-				console.log(e);
-			});
 	} catch (err) {
 		res.status(503).send(err.message);
 
 	// get Jira Repo / Projects
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
-		const tmpStories = [];
-		const storyIdArray = [];
 		const { projectKey } = req.query;
 		let { Host, AccountName, Password } = req.user.jira;
 		Password = helper.decryptPassword(Password);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
 		const cookieJar = request.jar();
+
+		const tmpStories = new Map();
+		const storiesArray = [];
 		const options = {
 			method: 'GET',
 			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`,
@@ -295,47 +292,40 @@ router.get('/stories', async (req, res) => {
 				if (error2) res.status(500).json(error2);
 				else {
 					try {
-						repo = await mongo.createJiraRepoIfNoneExists(req.query.projectKey, source);
-						// get issues
-						const { issues } = JSON.parse(body);
-						// iterate through issues
-						for (const issue of issues) {
-							// if (issue.fields.labels.includes('Seed-Test')) {
-							const story = {
-								story_id: issue.id,
-								title: issue.fields.summary,
-								body: issue.fields.description,
-								state: issue.fields.status.name,
-								issue_number: issue.key,
-								storySource: 'jira'
-							};
-							if (issue.fields.assignee !== null) {
-								// skip in case of "unassigned"
-								story.assignee = issue.fields.assignee.name;
-								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
-							} else {
-								story.assignee = 'unassigned';
-								story.assignee_avatar_url = null;
+						repo = await mongo.createJiraRepoIfNoneExists(req.query.projectKey, source)
+						const json = JSON.parse(body).issues;
+						for (const issue of json) {
+							if (issue.fields.labels.includes("Seed-Test")) {
+								console.log('jiraIssue', issue)
+								const story = {
+									story_id: issue.id,
+									title: issue.fields.summary,
+									body: issue.fields.description,
+									state: issue.fields.status.name,
+									issue_number: issue.key,
+									storySource: 'jira'
+								};
+								if (issue.fields.assignee !== null) {
+									// skip in case of "unassigned"
+									story.assignee = issue.fields.assignee.name;
+									story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
+								} else {
+									story.assignee = 'unassigned';
+									story.assignee_avatar_url = null;
+								}
+								let entry = await helper.fuseStoryWithDb(story, issue.id)
+								console.log('fuse jira', story, entry)
+								tmpStories.set(entry._id.toString(), entry)
+								storiesArray.push(entry._id)
 							}
-							let entry = await helper.fuseStoriesWithDb(story, issue.id);
-							tmpStories.push(entry);
-							storyIdArray.push(entry._id);
-							// }
 						}
 					} catch (e) {
 						console.log('Jira Error while getting issues:', e);
 					}
-					Promise.all(storyIdArray)
-						.then((result) => {
-							if (repo !== null) mongo.updateStoriesArrayInRepo(repo._id, result);
-						})
-						.catch((e) => {
-							console.log(e);
-						});
-					Promise.all(tmpStories)
-						.then((results) => {
-							res.status(200)
-								.json(results);
+					Promise.all(storiesArray)
+						.then(array => {
+							const orderedStories = matchOrder(array, tmpStories, repo)
+							res.status(200).json(orderedStories)
 						})
 						.catch((e) => {
 							console.log(e);
@@ -351,7 +341,29 @@ router.get('/stories', async (req, res) => {
 		const result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id);
 		res.status(200).json(result);
 	} else res.sendStatus(401);
+
+	function matchOrder(storiesIdList, storiesArray, repo) {
+		console.log('match order of', storiesIdList, storiesArray, repo)
+		let mySet = new Set(storiesIdList.concat(repo.stories).map(i => i.toString()));
+		for(const i of repo.stories){
+			mySet.delete(i.toString())
+		}
+		const storyList = repo.stories.concat([...mySet])
+
+		if (repo !== null) {
+			mongo.updateStoriesArrayInRepo(repo._id, storyList)
+		}
+
+		let orderedStories = storyList.map(i => storiesArray.get(i.toString()))
+		return orderedStories
+
+	}
 });
+
+router.put('/stories/:_id', async (req, res) => {
+	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body)
+	res.status(200).json(result)
+})
 
 router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
