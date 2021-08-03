@@ -79,9 +79,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     testRunning: boolean = false;
 
+
     /**
      * html report of the result
      */
+        // @ts-ignore
     htmlReport: BlobPart;
 
     /**
@@ -858,6 +860,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       .subscribe(_resp => {
           resolve()
       });})
+  }
+
+  storyLink(){
+      return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id
   }
 
 }
