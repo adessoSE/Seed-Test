@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase')
+const AdmZip = require('adm-zip');
 
 const router = express.Router();
 
@@ -140,6 +141,35 @@ router.delete('/:story_id/:source/:_id', async (req, res) => {
         res.status(200)
             .json({text: 'success'});
     } catch (error) {
+        handleError(res, error, error, 500);
+    }
+});
+
+router.get('/download/story/:source/:_id', async (req, res) => {
+    try {
+        console.log('download featurefile', req.params.source, req.params._id)
+        const story = mongo.getOneStory(req.params._id, req.params.source)
+        story.then( story =>{
+            res.download(`./features/${helper.cleanFileName(story.title + story._id.toString())}.feature`)
+        })
+    } catch (error) {
+        handleError(res, error, error, 500);
+    }
+})
+
+router.get('/download/project/:source/:repo_id', async (req, res) => {
+    try {
+        console.log('download project featurefiles', req.params.repo_id)
+        const stories = mongo.getAllStoriesOfRepo(null, null, req.params.repo_id, )
+        stories.then(stories => {
+            console.log(stories)
+            const zip = new AdmZip()
+            stories.forEach( story => {
+                zip.addLocalFile(`features/${helper.cleanFileName(story.title + story._id.toString())}.feature`);
+            })
+            res.send(zip.toBuffer())
+        })
+    } catch (e) {
         handleError(res, error, error, 500);
     }
 });
