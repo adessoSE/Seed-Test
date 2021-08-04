@@ -911,7 +911,16 @@ export class ApiService {
     getGroups(repoId: string): Observable<Group[]>{
         return this.http
             .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions())
+    }
 
+    downloadStoryFeatureFile(source, _id):Observable<Blob>{
+        return this.http
+            .get<Blob>(this.apiServer + '/story/download/story/' + source + '/' + _id, {withCredentials: true, responseType: "blob" as "json"})
+    }
+
+    downloadProjectFeatureFiles(source, repo_id): Observable<Blob>{
+        return this.http
+            .get<Blob>(this.apiServer + '/story/download/project/' + source + '/' + repo_id, {withCredentials: true, responseType: "blob" as "json"})
     }
 
     // public changeDaisy(){

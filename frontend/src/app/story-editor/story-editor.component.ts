@@ -13,6 +13,7 @@ import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
+import {saveAs} from 'file-saver';
 
 /**
  * Empty background
@@ -796,5 +797,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   storyLink(){
     return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id
+  }
+
+  downloadFeature(){
+      const source = this.selectedStory.storySource
+      const id = this.selectedStory._id
+      this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+          saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature')
+      })
   }
 }
