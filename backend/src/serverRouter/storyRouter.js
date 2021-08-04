@@ -99,7 +99,6 @@ router.patch('/:story_id/:source', async (req, res) => {
 router.get('/:story_id/:source/:_id', async (req, res)=>{
     try {
         const scenario = await mongo.getOneScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10))
-        console.log(scenario)
         res.status(200).json(scenario)
     } catch (e) {
         handleError(res, e, e, 500)
@@ -165,7 +164,8 @@ router.get('/download/project/:source/:repo_id', async (req, res) => {
             console.log(stories)
             const zip = new AdmZip()
             stories.forEach( story => {
-                zip.addLocalFile(`features/${helper.cleanFileName(story.title + story._id.toString())}.feature`);
+                try{ zip.addLocalFile(`features/${helper.cleanFileName(story.title + story._id.toString())}.feature`)}
+                catch (e) {console.log('file not found')}
             })
             res.send(zip.toBuffer())
         })

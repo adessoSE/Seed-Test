@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ModalsComponent } from "../modals/modals.component";
+import {saveAs} from 'file-saver';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -23,7 +24,12 @@ export class AccountManagementComponent implements OnInit {
     /**
      * Repositories or projects of this user
      */
-    repositories: RepositoryContainer[];
+
+    dbRepos: RepositoryContainer[];
+
+    githubRepos: RepositoryContainer[];
+
+    jiraRepos: RepositoryContainer[];
 
     /**
      * Email of the user
@@ -53,12 +59,37 @@ export class AccountManagementComponent implements OnInit {
     constructor(public apiService: ApiService, public router: Router) {
         router.events.forEach((event) => {
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
-                this.updateSite('Successful');
+                this.updateSite('Successful'); //
             }
         });
-        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-            this.repositories = repositories;
-        });
+        if(!router.events){
+            this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+                this.seperateRepos(repositories)
+                console.log('first load')
+            });
+        }
+    }
+
+    seperateRepos(repos){
+        const dbRepos = []
+        const githubRepos = []
+        const jiraRepos = []
+        for (const repo of repos) {
+            switch (repo.source) {
+                case 'db':
+                    dbRepos.push(repo);
+                    break;
+                case 'github':
+                    githubRepos.push(repo);
+                    break;
+                case 'jira':
+                    jiraRepos.push(repo);
+                    break;
+            }
+        }
+        this.dbRepos = dbRepos
+        this.githubRepos = githubRepos
+        this.jiraRepos = jiraRepos
     }
 
     /**
@@ -120,7 +151,8 @@ export class AccountManagementComponent implements OnInit {
             });
 
             this.apiService.getRepositories().subscribe((repositories) => {
-                this.repositories = repositories;
+                this.seperateRepos(repositories)
+                console.log('update')
             });
         }
     }
@@ -161,4 +193,14 @@ export class AccountManagementComponent implements OnInit {
         localStorage.setItem('id', userRepository._id)
         this.router.navigate(['']);
     }
+
+    downloadProjectFeatures(userRepo: RepositoryContainer){
+        const source = userRepo.source
+        const id = userRepo._id
+        this.apiService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
+            saveAs(ret, userRepo.value + '.zip')
+        })
+    }
+
+
 }

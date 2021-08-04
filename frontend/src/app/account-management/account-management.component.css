@@ -182,6 +182,13 @@ h2, h1{
     margin-left: 5px;;
 }
 
+.dw-button{
+    font-size: medium;
+    border: 2px solid var(--ocean-blue);
+    background-color: white;
+    color: var(--ocean-blue);
+}
+
 .customRepoContainer{
     display: flex;
     justify-content: space-between;
