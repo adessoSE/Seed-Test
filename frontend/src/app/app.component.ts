@@ -108,8 +108,7 @@ export class AppComponent implements OnInit {
     if(this.router.url !== '/'){
       this.router.navigate(['']);
     } else {
-      this.apiService.getStories(userRepository).subscribe((resp) => {
-      });
+      window.location.reload()
     }
   }
 

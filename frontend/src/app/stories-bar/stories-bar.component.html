@@ -1,44 +1,87 @@
 <div class="grid">
-  <br>
-  <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
-    <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
-      <span rel="def">A user story describes requirements for a software system.
-        It is consciously kept in short sentences and simple words.
-        A story includes several scenarios.
-        The following template is recommended:
-        As a <...>, I want <...> so that <...>
-      </span>
-    </dfn>
-  </div>
-  <hr>
+  <div>
+    <br>
+      <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
+      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+        <span rel="def">A user story describes requirements for a software system.
+          It is consciously kept in short sentences and simple words.
+          A story includes several scenarios.
+          The following template is recommended:
+          As a <...>, I want <...> so that <...>
+        </span></dfn>
+    </div>
+    <hr>
+    <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
+      <li *ngFor="let s of getSortedStories(); let i = index " cdkDrag>
+        <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
+          <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+              {{s.issue_number}}. {{s.title}}
+            </a>
+          <span class="github-avatar">
+            <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
+            <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+            <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+          </span>
+        </div>
 
-  <ul uk-accordion>
-    <li *ngFor="let s of getSortedStories(); let i = index ">
-      <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
-        <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
-          {{s.issue_number}}. {{s.title}}
-        </a>
-        <span class="github-avatar">
-          <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
-          <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
-          <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
-        </span>
-      </div>
-      <div id="scenarioList" class="uk-accordion-content">
-        <button class="SmallButton" [hidden]="hideCreateScenario" (click)="addFirstScenario()">
-          Create First Scenario
-        </button>
-        <li *ngFor="let scen of s.scenarios; let c = index">
-          <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}">
-            #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+        <div id="scenarioList" class="uk-accordion-content">
+          <button class="SmallButton" [hidden]="hideCreateScenario" (click)="addFirstScenario()">
+            Create First Scenario
+          </button>
+          <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
+            <li *ngFor="let scen of s.scenarios; let c = index">
+              <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
+                <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+    <div *ngIf="isCustomStory" id="createNewStoryDiv">
+      <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
+    </div>
+
+
+    <br>
+    <hr>
+    <div class="uk-card-title"><span class="MediumCategory1" id="groupHeader">Groups</span>
+      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+        <span rel="def">ToDo</span>
+      </dfn>
+    </div>
+    <hr>
+    <ul uk-accordion>
+      <li *ngFor="let g of getSortedGroups(); let i = index ">
+        <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
+          <a class="storyListLink" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
+             title="{{g.name}}">
+            {{g.name}}
           </a>
-        </li>
-      </div>
-    </li>
-  </ul>
-  <div *ngIf="isCustomStory" id="createNewStoryDiv">
-    <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
+          <span>
+            <em class="material-icons" (click)="runGroup(g)" id="groupPlay">play_arrow</em>
+            <em class="material-icons" (click)="openUpdateGroupModal(g)" id="groupEdit">edit</em>
+          </span>
+        </div>
+
+        <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
+          <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
+            <a class="Largecaption scenarioListItem" cdkDrag>
+              <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+              {{stor.title | titlecase}}
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <div id="createNewGroupDiv">
+      <button class="normalButton" (click)="openCreateNewGroupModal()">Create New Group</button>
+    </div>
   </div>
 </div>
 <app-story-editor (deleteStoryEvent)= "deleteStory($event);" ></app-story-editor>
+
+
 <app-modals #modalsComponent></app-modals>

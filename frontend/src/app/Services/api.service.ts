@@ -9,6 +9,7 @@ import {Background} from '../model/Background';
 import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
+import {Group} from "../model/Group";
 
 /**
  * Service to communicate between components and the backend
@@ -94,6 +95,12 @@ export class ApiService {
      * Event emitter to create a custom story
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
+
+    public createCustomGroupEmitter: EventEmitter<any> = new EventEmitter();
+
+    public updateGroupEmitter: EventEmitter<any> = new EventEmitter();
+
+    public deleteGroupEmitter: EventEmitter<any> = new EventEmitter();
 
     /**
      * Gets api headers
@@ -204,7 +211,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         if (this.apiServer) {
             const str = this.apiServer + '/run/report/' + reportName;
-            return this.http.get(str,  { responseType: 'text', withCredentials: true})
+            return this.http.get(str,  { responseType: 'json', withCredentials: true})
                 .pipe(tap(resp => {}),
                 catchError(ApiService.handleError));
         }
@@ -381,6 +388,14 @@ export class ApiService {
            console.log('Delete story console')
     }
 
+    public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any>{
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .patch(this.apiServer + '/story/' + story_id + '/' + source, scenario_list, ApiService.getOptions())
+            .pipe(tap(resp =>{
+            }));
+    }
+
 /*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
     /**
      * Requests a password request
@@ -515,6 +530,29 @@ export class ApiService {
     }
 
     /**
+     * Emitts the create group event
+     * @param group
+     */
+    createGroupEvent(group){
+        this.createCustomGroupEmitter.emit(group)
+    }
+
+    /**
+     * Emitts the create group event
+     * @param group
+     */
+    updateGroupEvent(group){
+        this.updateGroupEmitter.emit(group)
+    }
+
+    /**
+     * Emits the delete scenario event
+     */
+    public deleteGroupEvent(values){
+        this.deleteGroupEmitter.emit(values)
+    }
+
+    /**
      * Retrieves the backend info for all api request necessary
      * @returns
      */
@@ -563,6 +601,18 @@ export class ApiService {
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
     }
+
+    //only affects repo
+    updateStoryList(repo_id, source, storiesList) {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .put(this.apiServer + '/user/stories/' + repo_id , storiesList, ApiService.getOptions())
+            .pipe(tap(resp => {
+                //console.log('update order res', resp);
+            }));
+    }
+
+
 
     /**
      * Creates a jira account
@@ -845,6 +895,14 @@ export class ApiService {
             .post(this.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
+    runGroup(repoID, groupID, params) {
+        this.apiServer = localStorage.getItem('url_backend');
+        let timeout = 600000;
+        return this.http
+            .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })})
+    }
+
+
 
     /**
      * Retrieves the report history of a story
@@ -857,6 +915,28 @@ export class ApiService {
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
+    }
+
+    createGroup(title: string,repoId: string, member_stories): Observable<any>{
+        console.log('createGroup', title, repoId)
+        return this.http
+            .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories}, ApiService.getOptions())
+    }
+
+    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any>{
+        return this.http
+            .put(this.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions())
+    }
+
+    deleteGroup(repoId: string, groupId:string){
+        return this.http
+            .delete(this.apiServer + '/group/' + repoId + '/' + groupId, ApiService.getOptions())
+    }
+
+    getGroups(repoId: string): Observable<Group[]>{
+        return this.http
+            .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions())
+
     }
 
     // public changeDaisy(){

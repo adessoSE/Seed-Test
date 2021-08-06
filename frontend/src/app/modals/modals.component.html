@@ -371,3 +371,56 @@
         <button type="button" class="normalButton" (click)="createNewStory($event); modal.close('Save click');">Save</button>
     </div>
 </ng-template>
+
+<!--Create New Group -->
+<ng-template #createNewGroupModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Create New Group</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <label class="uk-form-label"  style="color: grey;"></label>
+                <input [(ngModel)]="groupTitle" placeholder=" Title" name="title">
+                <br><br>
+                <label class="uk-form-label" style="color: grey;"></label>
+                <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
+                    <option *ngFor="let story of stories" [value]="story._id">{{story.title}}</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="createNewGroup($event); modal.close('Save click')">Save</button>
+    </div>
+</ng-template>
+
+<!--Create New Group -->
+<ng-template #updateGroupModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Update Group</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <label class="uk-form-label"  style="color: grey;"></label>
+                <input [(ngModel)]="groupTitle" name="title">
+                <br><br>
+                <label class="uk-form-label" style="color: grey;"></label>
+                <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
+                    <option *ngFor="let story of stories" [value]="story._id">{{story.title}}</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="deleteGroup($event)" style="background: red">Delete</button>
+        <button type="button" class="normalButton" (click)="updateGroup($event); modal.close('Save click')">Update</button>
+    </div>
+</ng-template>

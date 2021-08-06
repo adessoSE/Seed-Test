@@ -2,7 +2,7 @@ const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor
 } = require('@cucumber/cucumber');
 const webdriver = require('selenium-webdriver');
-const fs = require('file-saver');
+const fs = require('fs');
 const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
@@ -113,21 +113,20 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 	await driver.wait(async () => driver.executeScript('return document.readyState')
 		.then(async (readyState) => readyState === 'complete'));
 	try {
-		if (element !== '') {
+		if (element !== '') try {
+			await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@id='${element}']`)));
+		} catch (e2) {
 			try {
-				await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@id='${element}']`)));
-			} catch (e2) {
+				await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@*='${element}']`)));
+			} catch (e3) {
 				try {
-					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@*='${element}']`)));
-				} catch (e3) {
-					try {
-						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[contains(@id, '${element}')]`)));
-					} catch (e4) {
-						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`${element}`)));
-					}
+					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[contains(@id, '${element}')]`)));
+				} catch (e4) {
+					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`${element}`)));
 				}
 			}
 		}
+
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -622,6 +621,11 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 			// Todo: pathingtool (path.normalize)serverhelper
 			const path = `${directory}\\${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
+			const timestamp = Date.now();
+			// Rename the downloaded file, so a new Run of the Test will not check the old file
+			await fs.promises.rename(path, `${directory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
+				if (err) console.log(`ERROR: ${err}`);
+			});
 		} catch (e) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');

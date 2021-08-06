@@ -11,8 +11,9 @@ const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
-const workgroupsRouter = require('./serverRouter/workgroups');
-const storyRouter = require('./serverRouter/storyRouter');
+const groupRouter = require('./serverRouter/groupRouter')
+const workgroupsRouter = require('./serverRouter/workgroups')
+const storyRouter = require('./serverRouter/storyRouter')
 require('./database/mongodatabase');
 
 const app = express();
@@ -75,6 +76,7 @@ app
 	.use('/api/mongo', mongoRouter)
 	.use('/api/jira', jiraRouter)
 	.use('/api/user', userRouter)
+	.use('/api/group', groupRouter)
 	.use('/api/workgroups', workgroupsRouter)
 	.use('/api/story', storyRouter)
 	.get('/api', (_, res) => {
