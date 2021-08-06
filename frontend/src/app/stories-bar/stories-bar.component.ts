@@ -5,6 +5,8 @@ import { Scenario } from '../model/Scenario';
 import { ModalsComponent } from '../modals/modals.component';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs/internal/Subscription';
+import { DeleteStoryToast } from '../deleteStory-toast';
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 
 
@@ -60,6 +62,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   @Output()
   scenarioChosen: EventEmitter<any> = new EventEmitter();
 
+   /**
+     * View child of the scenario editor
+     */
+    @ViewChild('storyChild') storyChild;
+
   /**
    * View Child Modals
    */
@@ -71,10 +78,16 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    */
   constructor(public apiService: ApiService, private toastr: ToastrService) {
     this.apiService.getStoriesEvent.subscribe(stories => {
-      this.stories = stories;
+      var filtered = stories.filter(function(a){return a != null;});
+      this.stories = filtered;
       this.isCustomStory = localStorage.getItem('source') === 'db' ;
     } );
+    this.apiService.deleteStoryEvent.subscribe(() => {
+      this.deleteStory()
+  });
+    
   }
+  
 
   /**
    * Checks if this is the daisy version
@@ -94,8 +107,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
           this.stories = resp;
         });
       });
+     
     });
   }
+
+
 
   ngOnDestroy() {
     if (this.createStoryEmitter) {
@@ -166,4 +182,31 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
     return this.hideCreateScenario;
   }
+
+  /**
+  * Deletes story
+  * @param story
+  */ 
+  deleteStory() {  
+    let repository=localStorage.getItem('id');
+    console.log("Repos:" ,repository)
+    console.log("Story", this.selectedStory)
+    { this.apiService
+       .deleteStory(repository,this.selectedStory._id)
+       .subscribe(resp => {
+           this.storyDeleted();
+           this.toastr.error('', 'Story deleted');
+        });}
+  }
+
+  /**
+  * Removes the selected story
+  */ 
+  storyDeleted(){
+    if (this.stories.find(x => x == this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1);       
+    };
+  }
+
 }
+

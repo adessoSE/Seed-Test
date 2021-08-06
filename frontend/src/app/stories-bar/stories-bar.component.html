@@ -40,5 +40,5 @@
     <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
   </div>
 </div>
-
+<app-story-editor (deleteStoryEvent)= "deleteStory($event);" ></app-story-editor>
 <app-modals #modalsComponent></app-modals>

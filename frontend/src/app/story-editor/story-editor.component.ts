@@ -14,6 +14,9 @@ import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
+import { DeleteStoryToast } from '../deleteStory-toast';
+import { RepositoryContainer } from '../model/RepositoryContainer';
+
 
 /**
  * Empty background
@@ -170,6 +173,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     @Output()
     changeEditor: EventEmitter<any> = new EventEmitter();
 
+    @Output()
+    deleteStoryEvent: EventEmitter<any>= new EventEmitter();
+
     /**
      * Constructor
      * @param apiService
@@ -198,6 +204,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.apiService.deleteScenarioEvent.subscribe(() => {
           this.deleteScenario(this.selectedScenario)
       });
+    
 
       if (this.apiService.urlReceived) {
           this.loadStepTypes();
@@ -251,6 +258,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             }
         });
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName))
+       
     }
 
     /**
@@ -497,6 +505,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
            this.toastr.info('', 'Scenario added');
         });
   }
+    
 
   /**
    * Drag and drop event in the background
@@ -865,7 +874,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Opens the Modal to rename the story
      * @param newStoryTitle 
      */
-  changeStoryTitle(){
+     changeStoryTitle(){
     this.modalsComponent.openRenameStoryModal(this.selectedStory.title)
    }
     /**
@@ -889,8 +898,32 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Story')
             });}
-    }
+        }
+
+    // const storyIndex = this.stories.indexOf(this.selectedStory);
+    //  if (storyIndex !== -1) {
+     //     this.stories.splice(storyIndex, 1);
+    //  } 
+  
+
+  showDeleteStoryToast(story: Story) {
+    this.toastr.warning('', 'Do you really want to delete this story?', {
+        toastComponent: DeleteStoryToast
+    });
+  }
+
+  /**
+     * Emitts the delete story event
+     * @param event 
+     */
+   deleteStory(event){
+    this.deleteStoryEvent.emit(this.selectedStory);
 }
+  
+
+  
 
 
+
+}
 

@@ -85,6 +85,11 @@ export class ApiService {
      */
     public deleteScenarioEvent = new EventEmitter();
 
+     /**
+     * Event emitter to delete the story
+     */
+      public deleteStoryEvent = new EventEmitter();
+
     /**
      * Event emitter to create a custom story
      */
@@ -111,6 +116,13 @@ export class ApiService {
      */
     public deleteScenarioEmitter(){
         this.deleteScenarioEvent.emit()
+    }
+
+     /**
+     * Emits the delete story event
+     */
+      public deleteStoryEmitter(){
+        this.deleteStoryEvent.emit()
     }
 
     /**
@@ -359,13 +371,14 @@ export class ApiService {
      * deletes a Story
      * @param _id StoryID
      */
-    public deleteStory(_id): Observable<any>{
+    public deleteStory(repository, _id): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'_id' : _id};
+        const body = {'repo_id' : repository, '_id' : _id};
         return this.http
-            .delete<any>(this.apiServer + '/story/' + _id, ApiService.getOptions())
+            .delete<any>(this.apiServer + '/story/' + repository + '/'+ _id,  ApiService.getOptions())
             .pipe(tap(resp =>{
             }));
+           console.log('Delete story console')
     }
 
 /*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/

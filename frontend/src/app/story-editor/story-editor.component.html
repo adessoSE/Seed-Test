@@ -53,9 +53,12 @@
         <button id="story_change_title" class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip 
         title="Change Story Title">
         <em class="material-icons">edit</em>
-      </button>    
+      </button> 
         </div>
-    </div>
+    <button (click)= showDeleteStoryToast($event);> delete
+    <em class="material-icons">delete</em> </button>
+      
+    </div>  
     <!--Description-->
     <div class="title" (click)="openDescription();">
       <div class="expand SmallHeadline5">
@@ -210,7 +213,7 @@
 
     <!--Scenario Header-->
 
-    <app-scenario-editor #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="deleteScenario($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
+    <app-scenario-editor #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
     <app-save-block-form #saveBlockForm></app-save-block-form>
     <app-add-block-form #addBlockForm></app-add-block-form>
 
@@ -253,5 +256,4 @@
     </div>
   </div>
 </div>
-
 <app-modals #modalsComponent></app-modals>
