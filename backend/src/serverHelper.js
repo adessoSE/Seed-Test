@@ -136,7 +136,6 @@ function cleanFileName(filename) {
 
 // Creates feature file
 function writeFile(dir, selectedStory) {
-	//todo filename
 	const filename = selectedStory.title + selectedStory._id
 	fs.writeFile(path.join(__dirname, '../features',
 		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
@@ -323,14 +322,16 @@ async function execReport(req, res, stories, mode, callback) {
 }
 
 const nameSchemeChange = async(story) => {
-	if(!!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null))){
+	// if new scheme doesn't exist
+	if (!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title + story._id.toString())}.feature`).catch(() => null)))
 		await updateFeatureFile(story._id, story.storySource)
+
+	// if old scheme still exists
+	if(!!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null)))
 		fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, err => console.log('failed to remove file', err));
-	}
 }
 
 async function deleteFeatureFile(storyTitle, storyId) {
-	// todo filename
 	try {
 		fs.unlink(`features/${cleanFileName(storyTitle + storyId)}.feature`, (err) => {
 			if (err) throw err;
@@ -814,6 +815,7 @@ module.exports = {
 	writeFile,
 	ownRepositories,
 	fuseStoryWithDb: fuseStoryWithDb,
+	nameSchemeChange,
 	updateJira,
 	getExamples,
 	getSteps,

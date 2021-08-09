@@ -146,9 +146,10 @@ router.delete('/:story_id/:source/:_id', async (req, res) => {
 
 router.get('/download/story/:source/:_id', async (req, res) => {
     try {
-        console.log('download featurefile', req.params.source, req.params._id)
+        console.log('download feature-file', req.params.source, req.params._id)
         const story = mongo.getOneStory(req.params._id, req.params.source)
-        story.then( story =>{
+        story.then( story => {
+            helper.nameSchemeChange(story)
             res.download(`./features/${helper.cleanFileName(story.title + story._id.toString())}.feature`)
         })
     } catch (error) {
@@ -158,12 +159,13 @@ router.get('/download/story/:source/:_id', async (req, res) => {
 
 router.get('/download/project/:source/:repo_id', async (req, res) => {
     try {
-        console.log('download project featurefiles', req.params.repo_id)
-        const stories = mongo.getAllStoriesOfRepo(null, null, req.params.repo_id, )
+        console.log('download project feature-files', req.params.repo_id)
+        const stories = mongo.getAllStoriesOfRepo(null, null, req.params.repo_id)
         stories.then(stories => {
             console.log(stories)
             const zip = new AdmZip()
             stories.forEach( story => {
+                helper.nameSchemeChange(story)
                 try{ zip.addLocalFile(`features/${helper.cleanFileName(story.title + story._id.toString())}.feature`)}
                 catch (e) {console.log('file not found')}
             })
