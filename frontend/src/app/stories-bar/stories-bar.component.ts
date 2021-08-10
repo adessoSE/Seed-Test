@@ -117,7 +117,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
         } );
-
+        this.apiService.deleteStoryEvent.subscribe(() => {
+          this.deleteStory()
+        });
     }
 
     /**
@@ -328,8 +330,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   */ 
   deleteStory() {  
     let repository=localStorage.getItem('id');
-    console.log("Repos:" ,repository)
-    console.log("Story", this.selectedStory)
     { this.apiService
        .deleteStory(repository,this.selectedStory._id)
        .subscribe(resp => {

@@ -476,3 +476,10 @@
   margin: 0px 5px;
 }
 
+#story_delete > em{
+  color: var(--ocean-blue);
+  font-size: 20px;
+  margin: 0px 5px;
+}
+
+

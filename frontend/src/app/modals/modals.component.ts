@@ -36,6 +36,7 @@ export class ModalsComponent {
     @ViewChild('saveBlockFormModal') saveBlockFormModal: any;
     @ViewChild('newStepRequestModal') newStepRequestModal: any;
     @ViewChild('renameScenarioModal') renameScenarioModal: any;
+    @ViewChild('renameStoryModal') renameStoryModal: any;
     @ViewChild('workgroupEditModal') workgroupEditModal: any;
     @ViewChild('createNewStoryModal') createNewStoryModal: any;
     @ViewChild('createNewGroupModal') createNewGroupModal: any;
@@ -458,6 +459,25 @@ export class ModalsComponent {
     }
 
     // rename Scenario
+
+/**
+ * Opens the rename scenario Modal
+ * @param oldTitle old scenario title
+ */
+openRenameScenarioModal(oldTitle: string) {
+    this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
+    let name = document.getElementById('newTitle') as HTMLInputElement
+    name.placeholder = oldTitle
+}
+
+/**
+ * Submits the new name for the scenario
+ */
+submitRenameScenario() {
+    let name = (document.getElementById('newTitle') as HTMLInputElement).value;
+    this.apiService.renameScenarioEmit(name)
+}
+
 
 // rename Story
 
