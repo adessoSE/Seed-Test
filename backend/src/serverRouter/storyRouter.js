@@ -3,7 +3,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase')
-const AdmZip = require('adm-zip');
 
 const router = express.Router();
 
@@ -147,11 +146,9 @@ router.delete('/:story_id/:source/:_id', async (req, res) => {
 router.get('/download/story/:source/:_id', async (req, res) => {
     try {
         console.log('download feature-file', req.params.source, req.params._id)
-        const story = mongo.getOneStory(req.params._id, req.params.source)
-        story.then( story => {
-            helper.nameSchemeChange(story)
-            res.download(`./features/${helper.cleanFileName(story.title + story._id.toString())}.feature`)
-        })
+        const file = await helper.exportSingleFeatureFile(req.params._id, req.params.source)
+        console.log(file)
+        res.send(file)
     } catch (error) {
         handleError(res, error, error, 500);
     }
@@ -160,18 +157,10 @@ router.get('/download/story/:source/:_id', async (req, res) => {
 router.get('/download/project/:source/:repo_id', async (req, res) => {
     try {
         console.log('download project feature-files', req.params.repo_id)
-        const stories = mongo.getAllStoriesOfRepo(null, null, req.params.repo_id)
-        stories.then(stories => {
-            console.log(stories)
-            const zip = new AdmZip()
-            stories.forEach( story => {
-                helper.nameSchemeChange(story)
-                try{ zip.addLocalFile(`features/${helper.cleanFileName(story.title + story._id.toString())}.feature`)}
-                catch (e) {console.log('file not found')}
-            })
-            res.send(zip.toBuffer())
-        })
-    } catch (e) {
+        const file = await helper.exportProjectFeatureFiles(req.params.repo_id)
+        console.log(file)
+        res.send(file)
+    } catch (error) {
         handleError(res, error, error, 500);
     }
 });

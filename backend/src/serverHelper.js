@@ -5,6 +5,7 @@ const path = require('path');
 const request = require('request');
 const reporter = require('cucumber-html-reporter');
 const lodash = require('lodash');
+const AdmZip = require('adm-zip');
 const crypto = require('crypto');
 const passport = require('passport');
 const mongo = require('./database/mongodatabase');
@@ -796,6 +797,39 @@ async function deleteOldReports(storyId, scenarioID) {
 	});
 }
 
+async function exportSingleFeatureFile(_id, source) {
+	const story = mongo.getOneStory(_id, source)
+	return await story.then(async story => {
+		await this.nameSchemeChange(story)
+		return new Promise ( (resolve, reject) => {
+			fs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, "utf8", (err, data) => {
+				if (err) {
+					console.log('couldn`t read File')
+					reject()
+				}
+				resolve(data)
+			})
+		})
+	})
+}
+
+async function exportProjectFeatureFiles(repo_id) {
+	const stories = mongo.getAllStoriesOfRepo(null, null, repo_id)
+	return stories.then( async stories => {
+		console.log(stories)
+		const zip = new AdmZip()
+		return await Promise.all( stories.map( async story => {
+			await this.nameSchemeChange(story)
+			try{
+				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`)
+				console.log('add FF')
+			}
+			catch (e) {console.log('file not found')}
+		})
+		).then(()=>{return zip.toBuffer()})
+	})
+}
+
 module.exports = {
 	deleteOldReports,
 	getReportHistory,
@@ -825,6 +859,8 @@ module.exports = {
 	getValues,
 	updateFeatureFile,
 	deleteFeatureFile,
+	exportSingleFeatureFile,
+	exportProjectFeatureFiles,
 	runReport,
 	starredRepositories,
 	dbProjects
