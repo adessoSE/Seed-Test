@@ -97,7 +97,7 @@ export class ApiService {
      * @returns
      */
     public static getOptions() {
-        return { withCredentials: true};
+        return { withCredentials: true };
     }
 
     /**
@@ -243,7 +243,7 @@ export class ApiService {
      */
     loginGithubToken(login: string, id): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/user/githubLogin';
+        const str = this.apiServer + '/user/githubLogin';
         const user = {login, id};
 
         return this.http.post<any>(str, user, ApiService.getOptions())
@@ -262,7 +262,7 @@ export class ApiService {
      */
     loginUser(user): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/user/login';
+        const str = this.apiServer + '/user/login';
 
         return this.http.post<any>(str, user, ApiService.getOptions())
           .pipe(tap(resp => {
@@ -670,9 +670,9 @@ export class ApiService {
      */
     mergeAccountGithub(userId: string, login: string, id: any) {
         const str = this.apiServer + '/user/mergeGithub';
-        const obj = {userId, login, id};
+        const body = {userId, login, id};
 
-        return this.http.post<any>(str, obj, ApiService.getOptions())
+        return this.http.post<any>(str, body, ApiService.getOptions())
         .pipe(tap(resp => {
           // this.getStoriesEvent.emit(resp);
         }),
@@ -700,7 +700,7 @@ export class ApiService {
     addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, ApiService.getOptions())
+            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, {}, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
@@ -762,10 +762,10 @@ export class ApiService {
 
     /**
      * Updates the scenario
-     * @param storyID 
-     * @param storySource 
+     * @param storyID
+     * @param storySource
      * @param scenario updatedScenario
-     * @returns 
+     * @returns
      */
     updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -921,7 +921,7 @@ export class ApiService {
 
     /**
      * If the user is logged in
-     * @returns 
+     * @returns
      */
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;
@@ -932,8 +932,8 @@ export class ApiService {
 
     /**
      * If the repo is github repo
-     * @param repo 
-     * @returns 
+     * @param repo
+     * @returns
      */
     isGithubRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'github');
@@ -941,8 +941,8 @@ export class ApiService {
 
     /**
      * If the repo is a jira repo
-     * @param repo 
-     * @returns 
+     * @param repo
+     * @returns
      */
     isJiraRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'jira');
@@ -950,8 +950,8 @@ export class ApiService {
 
     /**
      * If the repo is a custom project
-     * @param repo 
-     * @returns 
+     * @param repo
+     * @returns
      */
     isCustomRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'db');
