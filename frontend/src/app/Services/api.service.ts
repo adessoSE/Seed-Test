@@ -152,7 +152,7 @@ export class ApiService {
 
     /**
      * Emits the rename story event
-     * @param newStoryTitle 
+     * @param newStoryTitle
      */
      renameStoryEmit(newStoryTitle){
         this.renameStoryEvent.emit(newStoryTitle);
@@ -938,11 +938,6 @@ export class ApiService {
             .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions())
 
     }
-
-    // public changeDaisy(){
-    //    this.apiServer = localStorage.getItem('url_backend');
-    //    return this.http.get(this.apiServer + '/user/daisy')
-    // }
 
     /**
      * If the user is logged in
