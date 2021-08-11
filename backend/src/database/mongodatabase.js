@@ -341,7 +341,11 @@ async function createStoryGroup(repo_id, name, members) {
     db = await connectDb()
     let collection = await selectRepositoryCollection(db);
 
-    let groups = await collection.findOneAndUpdate({_id:ObjectId(repo_id)}, {$push:{groups: {_id: new ObjectId() , 'name': name, 'member_stories': members?members:[]}}}, {projection:{groups:1}, returnOriginal: false});
+    let groups = await collection.findOneAndUpdate(
+    	{_id:ObjectId(repo_id)},
+		{$push:{groups: {_id: new ObjectId() , 'name': name, 'member_stories': members?members:[]}}},
+		{upsert: true, projection:{groups:1}, returnOriginal: false}
+	);
     return groups.value.groups.slice(-1)._id
   } catch (e) {
     console.log("UPS!!!! FEHLER in createStoryGroup: " + e)
