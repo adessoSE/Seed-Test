@@ -425,6 +425,22 @@ async function getAllStoryGroups(repo_id) {
     if (db) db.close();
   }
 }
+
+async function updateStoryGroupsArray(repo_id, groupsArray) {
+	let db;
+	try {
+		db = await connectDb()
+		let collection = await selectRepositoryCollection(db)
+		let groups = await collection.findOneAndUpdate({_id:ObjectId(repo_id)},{$set:{groups: groupsArray}},{projection:{"groups":1}})
+		return groups
+	} catch (e) {
+		console.log("UPS!!!! FEHLER in updateStoryGroupsArray: " + e)
+	} finally {
+		if (db) db.close();
+	}
+}
+
+
 async function getOneStoryGroup(repo_id, group_id) {
   try {
     let groups = await getAllStoryGroups(repo_id)
@@ -1286,6 +1302,7 @@ module.exports = {
   removeFromStoryGroup,
   getAllStoryGroups,
   getOneStoryGroup,
+  updateStoryGroupsArray,
   selectStoriesCollection,
   connectDb,
   createResetRequest,

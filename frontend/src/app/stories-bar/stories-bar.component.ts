@@ -184,7 +184,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     mergeById(groups, stories) {
         let myMap = new Map
-        for(let story of stories)
+        for(const story of stories)
             myMap.set(story._id, story.title)
 
         let ret = []
@@ -204,7 +204,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     runGroup(group: Group){
-        let id = localStorage.getItem('id')
+        const id = localStorage.getItem('id')
         this.apiService.runGroup(id, group._id, null).subscribe(ret => {
             this.report.emit(ret)
             console.log('Group report, No Frontend Yet')
@@ -247,7 +247,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     selectStoryOfGroup(id){
-        let story = this.stories.find(o => o._id === id)
+        const story = this.stories.find(o => o._id === id)
         this.selectStoryScenario(story)
     }
 
@@ -306,6 +306,18 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
         this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(ret => {
             //console.log(ret)
+        })
+    }
+
+    dropGroup(event: CdkDragDrop<string[]>){
+        const repo_id = localStorage.getItem('id')
+        moveItemInArray(this.groups, event.previousIndex, event.currentIndex);
+        let pass_arr = JSON.parse(JSON.stringify(this.groups)) // deepCopy
+        for(const groupIndex in pass_arr){
+            pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id)
+        }
+        this.apiService.updateGroupsArray(repo_id, pass_arr).subscribe(ret => {
+            console.log(ret)
         })
     }
 
