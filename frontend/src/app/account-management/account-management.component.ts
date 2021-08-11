@@ -51,6 +51,12 @@ export class AccountManagementComponent implements OnInit {
      */
     id: string;
 
+    searchInput: string
+
+    searchList: RepositoryContainer[]
+
+    downloadRepoID: string
+
     /**
      * Constructor
      * @param apiService Connection to the api service
@@ -90,6 +96,8 @@ export class AccountManagementComponent implements OnInit {
         this.dbRepos = dbRepos
         this.githubRepos = githubRepos
         this.jiraRepos = jiraRepos
+
+        this.searchList = (!this.searchList)? repos: this.searchList
     }
 
     /**
@@ -194,13 +202,25 @@ export class AccountManagementComponent implements OnInit {
         this.router.navigate(['']);
     }
 
-    downloadProjectFeatures(userRepo: RepositoryContainer){
-        const source = userRepo.source
-        const id = userRepo._id
-        this.apiService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
-            saveAs(ret, userRepo.value + '.zip')
-        })
+    downloadProjectFeatures(repo_id){
+        if(repo_id) {
+            const userRepo = this.searchList.find(repo => repo._id == repo_id)
+            console.log(userRepo)
+            const source = userRepo.source
+            const id = userRepo._id
+            this.apiService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
+                saveAs(ret, userRepo.value + '.zip')
+            })
+        }
     }
 
+    searchRepos(value){
+        console.log(this.searchInput)
+        this.searchInput = this.searchInput? this.searchInput:''
+        this.searchList = [].concat(this.dbRepos, this.githubRepos, this.jiraRepos).filter(repo => {
+            if(repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0)
+                return repo
+        })
+    }
 
 }

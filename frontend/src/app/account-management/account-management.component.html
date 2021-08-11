@@ -33,22 +33,28 @@
                                 <img class="repo_img" src="../assets/database-5-32.png">
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                             </div>
-                            <div class="uk-button-group">
-                                <button *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Manage Team</button>
-                                <button class="dw-button material-icons" (click)="downloadProjectFeatures(repository)">download</button>
-                            </div>
+                            <button *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Manage Team</button>
                         </li>
                     </ng-container>
                 </ul>
             </div>
         </div>
-        <!--<div class="repositories" *ngIf="apiService.isLoggedIn()">
-            <label>Project to download</label>
-            <select class="uk-autocomplete uk-form" data-uk-autocomplete="repositories" >
-                <option *ngFor="let repo of dbRepos">{{repo.value}}</option>
-            </select>
-            <button></button>
-        </div>-->
+        <div class="repositories" *ngIf="apiService.isLoggedIn()">
+            <div>
+                <label>Project to download</label>
+                <dfn class="def">
+                    <span class="infoIcon" uk-icon="info"></span>
+                    <span rel="def">Download all Feature files of a Project in a zip File</span>
+                </dfn>
+            </div>
+            <div class="uk-search uk-search-default">
+                <input class="uk-search-input" type="text" #searchbar (keyup)="searchRepos($event)"  [(ngModel)]="searchInput" placeholder="Search Repository names" />
+                <select [(ngModel)]="downloadRepoID" class="uk-select">
+                    <option *ngFor="let repo of searchList" [value]="repo._id">{{repo.value}}</option>
+                </select>
+                <button (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>
+            </div>
+        </div>
 
         <!-----------------Erase your Account-------------->
         <div class="grid_eraseAccount repositories" *ngIf="apiService.isLoggedIn() && email">
@@ -90,7 +96,6 @@
                         <li>
                             <img class="repo_img" src="../assets/GitHub-Mark-32px.png">
                             <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                            <button class="dw-button material-icons" (click)="downloadProjectFeatures(repository)">download</button>
                         </li>
                     </ng-container>
                 </ul>
@@ -124,7 +129,6 @@
                         <li>
                             <img class="repo_img" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
                             <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                            <button class="dw-button material-icons" (click)="downloadProjectFeatures(repository)">download</button>
                         </li>
                     </ng-container>
                 </ul>
