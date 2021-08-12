@@ -936,7 +936,11 @@ export class ApiService {
     getGroups(repoId: string): Observable<Group[]>{
         return this.http
             .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions())
+    }
 
+    updateGroupsArray(repoId: string, groupsArray){
+        return this.http
+            .put(this.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions())
     }
 
     /**
