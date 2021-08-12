@@ -204,7 +204,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.apiService.deleteScenarioEvent.subscribe(() => {
           this.deleteScenario(this.selectedScenario)
       });
-    
+
 
       if (this.apiService.urlReceived) {
           this.loadStepTypes();
@@ -258,7 +258,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             }
         });
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName))
-       
+
     }
 
     /**
@@ -505,7 +505,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
            this.toastr.info('', 'Scenario added');
         });
   }
-    
+
 
   /**
    * Drag and drop event in the background
@@ -872,14 +872,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   }
     /**
      * Opens the Modal to rename the story
-     * @param newStoryTitle 
+     * @param newStoryTitle
      */
      changeStoryTitle(){
     this.modalsComponent.openRenameStoryModal(this.selectedStory.title)
    }
     /**
      * Renames the story
-     * @param newStoryTitle 
+     * @param newStoryTitle
      */
    renameStory(newStoryTitle) {
     if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
@@ -890,9 +890,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
    /**
      * Updates the story
-     * 
+     *
      */
-    updateStory(){  
+    updateStory(){
         {this.apiService
             .updateStory(this.selectedStory)
             .subscribe(_resp => {
@@ -900,14 +900,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             });}
         }
 
-    storyLink(){
-        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id   
+    storyLink() {
+        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
     }
-    
+
   /**
    * Opens the delete story toast
    * @param story
-   */       
+   */
   showDeleteStoryToast(story: Story) {
     this.toastr.warning('', 'Do you really want to delete this story?', {
         toastComponent: DeleteStoryToast
@@ -916,14 +916,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
   /**
      * Emitts the delete story event
-     * @param event 
+     * @param event
      */
    deleteStory(event){
     this.deleteStoryEvent.emit(this.selectedStory);
     }
-  
 
-  
+
+
 
 
 

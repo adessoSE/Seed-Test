@@ -45,19 +45,19 @@
                 The following template is recommended:
                 As a <...>, I want <...> so that <...>
               </span>
-          </dfn>      
+          </dfn>
       </div>
       <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
-      <div *ngIf="db"> 
+      <div *ngIf="db">
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
-        <button id="story_change_title" class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip 
+        <button id="story_change_title" class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip
         title="Change Story Title">
         <em class="material-icons">edit</em>
-      </button> 
+      </button>
     <button id= "story_delete" class= "storyTitle" (click)= showDeleteStoryToast($event) uk-tooltip="Delete Story">
     <em class="material-icons">delete</em> </button>
   </div>
-    </div>  
+    </div>
     <!--Description-->
     <div class="title" (click)="openDescription();">
       <div class="expand SmallHeadline5">
@@ -193,10 +193,11 @@
           <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
             <option value="chrome">Chrome</option>
             <option *ngIf="!this.daisyVersion" value="firefox">Firefox</option>
-          </select> 
+          </select>
       </div>
-      <div class="storyInfoRight">
+      <div class="storyInfoRight uk-button-group">
         <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
+        <button class="button, material-icons" [cdkCopyToClipboard]="storyLink()" style="background-color: var(--ocean-blue); color: white">add_link</button>
         <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
           uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
         <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-up"
