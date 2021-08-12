@@ -19,6 +19,7 @@ chromeOptions.addArguments('--disable-dev-shm-usage');
 // chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
+chromeOptions.addArguments('--lang=de');
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -674,54 +675,15 @@ async function clickButton(button) {
 		.then(async (readyState) => readyState === 'complete'));
 }
 
-async function daisyLogout() {
-	await driver.sleep(200);
-	try {
-		await clickButton('Abmelden');
-		await driver.sleep(200);
-	} catch (e) {
-		try {
-			await clickButton('Zurück zum Portal');
-			await driver.sleep(200);
-			await clickButton('Abmelden');
-			await driver.sleep(200);
-		} catch (e2) {
-			await clickButton('Abbrechen');
-			await driver.sleep(200);
-			await clickButton('Zurück zum Portal');
-			await driver.sleep(200);
-			await clickButton('Abmelden');
-			await driver.sleep(200);
-		}
-	}
-}
-
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async () => {
-	// console.log(currentParameters.daisyAutoLogout);
-	// console.log(typeof (currentParameters.daisyAutoLogout));
-	// currentParameters.daisyAutoLogout == 'true' ||
-	if (currentParameters && currentParameters.daisyAutoLogout === true) {
-		console.log('Trying DaisyAutoLogout');
-		try {
-			await daisyLogout();
-			await driver.sleep(500);
-			await driver.quit();
-		} catch (e) {
-			console.log('Failed DaisyAutoLogout');
-			await driver.sleep(500);
-			await driver.quit();
-		}
-	}
 	scenarioIndex += 1;
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
-	if (process.env.NODE_ENV) {
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
-		driver.quit();
-	}
+	const condition = until.elementLocated(By.name('loader'));
+	driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
+	driver.quit();
 });
 
 // selenium sleeps for a certain amount of time

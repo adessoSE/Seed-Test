@@ -76,10 +76,20 @@ export class ApiService {
      */
     public renameScenarioEvent = new EventEmitter();
 
+     /**
+     * Event emitter to rename the story
+     */
+      public renameStoryEvent = new EventEmitter();
+
     /**
      * Event emitter to delete the scenario
      */
     public deleteScenarioEvent = new EventEmitter();
+
+     /**
+     * Event emitter to delete the story
+     */
+      public deleteStoryEvent = new EventEmitter();
 
     /**
      * Event emitter to create a custom story
@@ -97,7 +107,7 @@ export class ApiService {
      * @returns
      */
     public static getOptions() {
-        return { withCredentials: true};
+        return { withCredentials: true };
     }
 
     /**
@@ -113,6 +123,13 @@ export class ApiService {
      */
     public deleteScenarioEmitter(){
         this.deleteScenarioEvent.emit()
+    }
+
+     /**
+     * Emits the delete story event
+     */
+      public deleteStoryEmitter(){
+        this.deleteStoryEvent.emit()
     }
 
     /**
@@ -131,6 +148,14 @@ export class ApiService {
      */
     renameScenarioEmit(newTitle){
         this.renameScenarioEvent.emit(newTitle);
+    }
+
+    /**
+     * Emits the rename story event
+     * @param newStoryTitle
+     */
+     renameStoryEmit(newStoryTitle){
+        this.renameStoryEvent.emit(newStoryTitle);
     }
 
     /**
@@ -243,7 +268,7 @@ export class ApiService {
      */
     loginGithubToken(login: string, id): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/user/githubLogin';
+        const str = this.apiServer + '/user/githubLogin';
         const user = {login, id};
 
         return this.http.post<any>(str, user, ApiService.getOptions())
@@ -262,7 +287,7 @@ export class ApiService {
      */
     loginUser(user): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/user/login';
+        const str = this.apiServer + '/user/login';
 
         return this.http.post<any>(str, user, ApiService.getOptions())
           .pipe(tap(resp => {
@@ -353,13 +378,14 @@ export class ApiService {
      * deletes a Story
      * @param _id StoryID
      */
-    public deleteStory(_id): Observable<any>{
+    public deleteStory(repository, _id): Observable<any>{
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'_id' : _id};
+        const body = {'repo_id' : repository, '_id' : _id};
         return this.http
-            .delete<any>(this.apiServer + '/story/' + _id, ApiService.getOptions())
+            .delete<any>(this.apiServer + '/story/' + repository + '/'+ _id,  ApiService.getOptions())
             .pipe(tap(resp =>{
             }));
+           console.log('Delete story console')
     }
 
     public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any>{
@@ -670,9 +696,9 @@ export class ApiService {
      */
     mergeAccountGithub(userId: string, login: string, id: any) {
         const str = this.apiServer + '/user/mergeGithub';
-        const obj = {userId, login, id};
+        const body = {userId, login, id};
 
-        return this.http.post<any>(str, obj, ApiService.getOptions())
+        return this.http.post<any>(str, body, ApiService.getOptions())
         .pipe(tap(resp => {
           // this.getStoriesEvent.emit(resp);
         }),
@@ -700,7 +726,17 @@ export class ApiService {
     addScenario(storyID: any, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, ApiService.getOptions())
+            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, {}, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Add new scenario in story ' + storyID + '!', resp)
+            }));
+    }
+
+    public addFirstScenario(storyID, storySource: string): Observable<Scenario>{
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
                 // console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
@@ -738,17 +774,6 @@ export class ApiService {
             }));
     }
 
-
-    public addFirstScenario(storyID, storySource: string): Observable<Scenario>{
-        this.apiServer = localStorage.getItem('url_backend');
-
-        return this.http
-            .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
-            .pipe(tap(resp => {
-                // console.log('Add new scenario in story ' + storyID + '!', resp)
-            }));
-    }
-
     /**
      * Submitts an issue to github to create a new step
      * @param obj
@@ -762,10 +787,10 @@ export class ApiService {
 
     /**
      * Updates the scenario
-     * @param storyID 
-     * @param storySource 
+     * @param storyID
+     * @param storySource
      * @param scenario updatedScenario
-     * @returns 
+     * @returns
      */
     updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
@@ -918,14 +943,9 @@ export class ApiService {
             .put(this.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions())
     }
 
-    // public changeDaisy(){
-    //    this.apiServer = localStorage.getItem('url_backend');
-    //    return this.http.get(this.apiServer + '/user/daisy')
-    // }
-
     /**
      * If the user is logged in
-     * @returns 
+     * @returns
      */
     isLoggedIn(): boolean {
         // if (this.cookieService.check('connect.sid')) return true;
@@ -936,8 +956,8 @@ export class ApiService {
 
     /**
      * If the repo is github repo
-     * @param repo 
-     * @returns 
+     * @param repo
+     * @returns
      */
     isGithubRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'github');
@@ -945,8 +965,8 @@ export class ApiService {
 
     /**
      * If the repo is a jira repo
-     * @param repo 
-     * @returns 
+     * @param repo
+     * @returns
      */
     isJiraRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'jira');
@@ -954,8 +974,8 @@ export class ApiService {
 
     /**
      * If the repo is a custom project
-     * @param repo 
-     * @returns 
+     * @param repo
+     * @returns
      */
     isCustomRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'db');

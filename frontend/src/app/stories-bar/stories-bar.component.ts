@@ -7,6 +7,8 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
+import { DeleteStoryToast } from '../deleteStory-toast';
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 
 
@@ -115,7 +117,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
         } );
-
+        this.apiService.deleteStoryEvent.subscribe(() => {
+          this.deleteStory()
+        });
     }
 
     /**
@@ -332,4 +336,28 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
     }
 
+  /**
+  * Deletes story
+  * @param story
+  */ 
+  deleteStory() {  
+    let repository=localStorage.getItem('id');
+    { this.apiService
+       .deleteStory(repository,this.selectedStory._id)
+       .subscribe(resp => {
+           this.storyDeleted();
+           this.toastr.error('', 'Story deleted');
+        });}
+  }
+
+  /**
+  * Removes the selected story
+  */ 
+  storyDeleted(){
+    if (this.stories.find(x => x == this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1);       
+    };
+  }
+
 }
+

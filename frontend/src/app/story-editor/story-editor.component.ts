@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
+import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -13,6 +14,9 @@ import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
+import { DeleteStoryToast } from '../deleteStory-toast';
+import { RepositoryContainer } from '../model/RepositoryContainer';
+
 
 /**
  * Empty background
@@ -54,6 +58,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     showEditor: boolean = false;
 
     /**
+     * If the results should be shown
+     */
+    showResults: boolean = false;
+
+    /**
      * If the description should be shown
      */
     showDescription: boolean = false;
@@ -64,10 +73,19 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     showBackground: boolean = false;
 
     /**
+     * if the test is done
+     */
+    testDone: boolean = false;
+
+    /**
      * If the test is running
      */
     testRunning: boolean = false;
 
+    /**
+     * html report of the result
+     */
+    htmlReport: BlobPart;
 
     /**
      * if the stories are loaded
@@ -124,6 +142,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     daisyVersion: boolean = false;
 
+    /**
+     * if the report is saved
+     */
+    reportIsSaved: boolean = false;
 
     /**
      * Object id of the current report
@@ -151,10 +173,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     @Output()
     changeEditor: EventEmitter<any> = new EventEmitter();
 
-    /**
-     * Even emitter to display latest report
-     */
-    @Output() report: EventEmitter<any> = new EventEmitter();
+    @Output()
+    deleteStoryEvent: EventEmitter<any>= new EventEmitter();
 
     /**
      * Constructor
@@ -184,11 +204,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.apiService.deleteScenarioEvent.subscribe(() => {
           this.deleteScenario(this.selectedScenario)
       });
+    
 
       if (this.apiService.urlReceived) {
           this.loadStepTypes();
       }
     }
+
 
     /**
      * retrieves the saved block from the session storage
@@ -235,6 +257,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                   this.selectedStory.background.saved = false;
             }
         });
+        this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName))
+       
     }
 
     /**
@@ -481,6 +505,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
            this.toastr.info('', 'Scenario added');
         });
   }
+    
 
   /**
    * Drag and drop event in the background
@@ -644,7 +669,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    */
   selectScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
+      this.showResults = false;
       this.showEditor = true;
+      this.testDone = false;
   }
 
   /**
@@ -652,6 +679,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * @param story
    */
   selectStoryScenario(story: Story) {
+      this.showResults = false;
       this.selectedStory = story;
       this.showEditor = true;
       const storyIndex = this.stories.indexOf(this.selectedStory);
@@ -736,9 +764,16 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                         //daisyAutoLogout: daisyAutoLogout
                     })
                 .subscribe((resp: any) => {
-                    this.report.emit(resp)
+                    this.reportId = resp.reportId;
+                    iframe.srcdoc = resp.htmlFile;
                     // console.log("This is the response: " + resp);
+                    this.htmlReport = resp.htmlFile;
+                    this.testDone = true;
+                    this.showResults = true;
                     this.testRunning = false;
+                    setTimeout(function () {
+                        iframe.scrollIntoView();
+                    }, 10);
                     this.toastr.info('', 'Test is done')
                     this.runUnsaved = false;
                 });
@@ -750,6 +785,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             })
         }
     }
+
+    /**
+     * Download the test report
+     */
+  downloadFile() {
+      const blob = new Blob([this.htmlReport], {type: 'text/html'});
+      saveAs(blob, this.selectedStory.title + '.html');
+  }
 
   /**
    * Set the time to wait between the steps
@@ -773,6 +816,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.selectedScenario.saved = false;
     }
 
+    /**
+     * Hide the test results
+     */
+  hideResults() {
+      this.showResults = !this.showResults;
+  }
 
   /**
    * If the story is saved
@@ -794,7 +843,89 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     return sortedStepTypes
  }
 
-  storyLink(){
-    return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id
+ /**
+  * Mark the report as not saved
+  * @param reportId
+  * @returns
+  */
+ unsaveReport(reportId){
+    this.reportIsSaved = false;
+    return new Promise<void>((resolve, reject) => {this.apiService
+      .unsaveReport(reportId)
+      .subscribe(_resp => {
+          resolve()
+      });})
   }
+
+  /**
+   * Mark the report as saved
+   * @param reportId
+   * @returns
+   */
+  saveReport(reportId){
+    this.reportIsSaved = true;
+    return new Promise<void>((resolve, reject) => {this.apiService
+      .saveReport(reportId)
+      .subscribe(_resp => {
+          resolve()
+      });})
+  }
+    /**
+     * Opens the Modal to rename the story
+     * @param newStoryTitle 
+     */
+     changeStoryTitle(){
+    this.modalsComponent.openRenameStoryModal(this.selectedStory.title)
+   }
+    /**
+     * Renames the story
+     * @param newStoryTitle 
+     */
+   renameStory(newStoryTitle) {
+    if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+        this.selectedStory.title = newStoryTitle;
+    }
+    this.updateStory()
+   }
+
+   /**
+     * Updates the story
+     * 
+     */
+    updateStory(){  
+        {this.apiService
+            .updateStory(this.selectedStory)
+            .subscribe(_resp => {
+                this.toastr.success('successfully saved', 'Story')
+            });}
+        }
+
+    storyLink(){
+        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id   
+    }
+    
+  /**
+   * Opens the delete story toast
+   * @param story
+   */       
+  showDeleteStoryToast(story: Story) {
+    this.toastr.warning('', 'Do you really want to delete this story?', {
+        toastComponent: DeleteStoryToast
+    });
+  }
+
+  /**
+     * Emitts the delete story event
+     * @param event 
+     */
+   deleteStory(event){
+    this.deleteStoryEvent.emit(this.selectedStory);
+    }
+  
+
+  
+
+
+
 }
+
