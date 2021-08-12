@@ -61,7 +61,7 @@ export class ParentComponent implements OnInit {
    * Requests the repositories on init
    */
   ngOnInit() {
-    this.apiService.getRepositories().subscribe();
+    //this.apiService.getRepositories().subscribe();
 
   }
 

@@ -242,6 +242,7 @@ export class ApiService {
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
+            sessionStorage.setItem('repositories', JSON.stringify(resp))
             this.getRepositoriesEvent.emit(resp);
           }),
             catchError(ApiService.handleError));

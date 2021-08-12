@@ -58,7 +58,20 @@ export class AccountManagementComponent implements OnInit {
         });
         this.apiService.getRepositoriesEvent.subscribe((repositories) => {
             this.repositories = repositories;
+            sessionStorage.setItem('repositories', JSON.stringify(repositories))
         });
+    }
+
+    private storageEventListener(event: StorageEvent) {
+        console.log('storageEventListener')
+        if (event.storageArea == sessionStorage && event.key == 'repositories') {
+            console.log('sessionStorage')
+            try {
+                this.repositories = JSON.parse(event.newValue);
+            } catch (e) {
+                console.log("could'nt interpret: ", event.newValue)
+            }
+        }
     }
 
     /**
@@ -118,9 +131,11 @@ export class AccountManagementComponent implements OnInit {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                 }
             });
-
+            if(!this.repositories)
+                this.repositories = JSON.parse(sessionStorage.getItem('repositories'));
             this.apiService.getRepositories().subscribe((repositories) => {
                 this.repositories = repositories;
+                sessionStorage.setItem('repositories', JSON.stringify(repositories))
             });
         }
     }
@@ -130,6 +145,8 @@ export class AccountManagementComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
+        window.addEventListener("storage", this.storageEventListener);
+        console.log('addListener')
     }
 
     /**

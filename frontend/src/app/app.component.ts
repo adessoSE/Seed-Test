@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
   constructor(public apiService: ApiService, public router: Router) {
     this.apiService.getRepositoriesEvent.subscribe((repositories) => {
       this.repositories = repositories;
+      sessionStorage.setItem('repositories', JSON.stringify(repositories))
     });
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
@@ -88,6 +89,7 @@ export class AppComponent implements OnInit {
     if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length <= 0)) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
+
         console.log('repositories', this.repositories);
       }, (err) => {
         this.error = err.error;
