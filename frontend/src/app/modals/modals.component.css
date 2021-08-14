@@ -226,13 +226,17 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 }
 
 .groupstoryselection{
-    resize: both;
-    width: 50%;
-    height: 30%;
-    min-width: 100px;
-    min-height: 100px;
-    max-width: 100%;
-    max-height: 200px;
+    display: table;
+    table-layout: fixed;
+}
+.groupinput{
+    display: table-cell;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.groupouterdiv{
+    overflow: hidden;
 }
 
 @media screen and (max-height: 800px) {
