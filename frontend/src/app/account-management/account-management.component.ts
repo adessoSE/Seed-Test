@@ -1,8 +1,9 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ModalsComponent } from "../modals/modals.component";
+import {Subscription} from "rxjs/internal/Subscription";
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -45,33 +46,31 @@ export class AccountManagementComponent implements OnInit {
      */
     id: string;
 
+
+    routeSub: Subscription
+
     /**
      * Constructor
      * @param apiService Connection to the api service
      * @param router router to handle url changes
      */
     constructor(public apiService: ApiService, public router: Router) {
-        router.events.forEach((event) => {
+        /*window.addEventListener("storage", (event) => {
+            console.log('storage listener')
+            if (event.storageArea == window.sessionStorage && event.key == 'repositories') {
+                console.log('sessionStorage')
+                try {
+                    this.repositories = JSON.parse(event.newValue);
+                } catch (e) {
+                    console.log("could'nt interpret: ", event.newValue)
+                }
+            }
+        },false);*/
+        this.routeSub = router.events.subscribe(event => {
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful');
             }
         });
-        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-            this.repositories = repositories;
-            sessionStorage.setItem('repositories', JSON.stringify(repositories))
-        });
-    }
-
-    private storageEventListener(event: StorageEvent) {
-        console.log('storageEventListener')
-        if (event.storageArea == sessionStorage && event.key == 'repositories') {
-            console.log('sessionStorage')
-            try {
-                this.repositories = JSON.parse(event.newValue);
-            } catch (e) {
-                console.log("could'nt interpret: ", event.newValue)
-            }
-        }
     }
 
     /**
@@ -131,12 +130,15 @@ export class AccountManagementComponent implements OnInit {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                 }
             });
-            if(!this.repositories)
-                this.repositories = JSON.parse(sessionStorage.getItem('repositories'));
-            this.apiService.getRepositories().subscribe((repositories) => {
-                this.repositories = repositories;
-                sessionStorage.setItem('repositories', JSON.stringify(repositories))
-            });
+            const seSto = sessionStorage.getItem('repositories')
+            if(!seSto) {
+                this.apiService.getRepositories().subscribe((repositories) => {
+                    this.repositories = repositories;
+                    sessionStorage.setItem('repositories', JSON.stringify(repositories))
+                });
+            } else {
+                this.repositories = JSON.parse(seSto)
+            }
         }
     }
 
@@ -145,8 +147,12 @@ export class AccountManagementComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
-        window.addEventListener("storage", this.storageEventListener);
-        console.log('addListener')
+
+    }
+
+    ngOnDestroy() {
+        //window.removeEventListener("storage", this.storageEventListener)
+        this.routeSub.unsubscribe()
     }
 
     /**

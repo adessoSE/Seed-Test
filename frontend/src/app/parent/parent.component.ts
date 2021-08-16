@@ -61,8 +61,11 @@ export class ParentComponent implements OnInit {
    * Requests the repositories on init
    */
   ngOnInit() {
-    //this.apiService.getRepositories().subscribe();
-
+    if(!sessionStorage.getItem('repositories')) {
+      this.apiService.getRepositories().subscribe(() => {
+        console.log('parent get Repos')
+      });
+    }
   }
 
   /**

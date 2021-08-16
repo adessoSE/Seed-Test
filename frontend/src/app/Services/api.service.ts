@@ -597,8 +597,6 @@ export class ApiService {
         return this.http
             .get<Story[]>(this.apiServer + '/user/stories/', {params, withCredentials: true})
             .pipe(tap(resp => {
-                console.log('Resp');
-                console.log(resp);
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
     }
