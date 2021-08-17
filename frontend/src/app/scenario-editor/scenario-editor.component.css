@@ -95,8 +95,9 @@ em.dragIcon{
 }
 
 .checkbox{
+  margin-top: 5px;
   margin-right: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   margin-left: 3px
 }
 
@@ -109,6 +110,8 @@ em.dragIcon{
 }
 
 #checkbox_all{
+  margin-top: 2px;
+  margin-bottom: 2px;
   margin-left: 6px;
 }
 .scenarioBarContainer{
