@@ -230,13 +230,19 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 .groupstoryselection{
     display: table;
+    width: 100%;
+    table-layout: fixed;
+    text-align: left;
 }
 .groupinput{
     display: table-cell;
-    max-width: 170vh;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.groupstoryselectionouter{
+    overflow: hidden;
 }
 
 @media screen and (max-height: 800px) {
