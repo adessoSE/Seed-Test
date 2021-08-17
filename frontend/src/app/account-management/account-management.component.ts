@@ -25,11 +25,7 @@ export class AccountManagementComponent implements OnInit {
      * Repositories or projects of this user
      */
 
-    dbRepos: RepositoryContainer[];
-
-    githubRepos: RepositoryContainer[];
-
-    jiraRepos: RepositoryContainer[];
+    repositories: RepositoryContainer[]
 
     /**
      * Email of the user
@@ -77,7 +73,7 @@ export class AccountManagementComponent implements OnInit {
     }
 
     seperateRepos(repos){
-        const dbRepos = []
+        /*const dbRepos = []
         const githubRepos = []
         const jiraRepos = []
         for (const repo of repos) {
@@ -95,8 +91,9 @@ export class AccountManagementComponent implements OnInit {
         }
         this.dbRepos = dbRepos
         this.githubRepos = githubRepos
-        this.jiraRepos = jiraRepos
+        this.jiraRepos = jiraRepos*/
 
+        this.repositories = repos
         this.searchList = (!this.searchList)? repos: this.searchList
     }
 
@@ -217,7 +214,7 @@ export class AccountManagementComponent implements OnInit {
     searchRepos(value){
         console.log(this.searchInput)
         this.searchInput = this.searchInput? this.searchInput:''
-        this.searchList = [].concat(this.dbRepos, this.githubRepos, this.jiraRepos).filter(repo => {
+        this.searchList = [].concat(this.repositories).filter(repo => {
             if(repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0)
                 return repo
         })
