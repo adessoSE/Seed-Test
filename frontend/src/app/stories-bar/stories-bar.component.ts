@@ -285,14 +285,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Opens a create New group Modal
      */
     openCreateNewGroupModal(){
-        this.modalsComponent.openCreateNewGroupModal()
+        console.log(this.groups)
+        this.modalsComponent.openCreateNewGroupModal(this.groups)
     }
 
     /**
      * Opens a update group Modal
      */
     openUpdateGroupModal(group: Group){
-        this.modalsComponent.openUpdateGroupModal(group)
+        this.modalsComponent.openUpdateGroupModal(group, this.groups)
     }
 
     dropStory(event: CdkDragDrop<string[]>) {

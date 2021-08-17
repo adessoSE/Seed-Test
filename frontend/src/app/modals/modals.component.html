@@ -384,7 +384,7 @@
         <form>
             <div class="form-group">
                 <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="groupTitle" placeholder=" Title" name="title">
+                <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
                 <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
@@ -394,7 +394,7 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="createNewGroup($event); modal.close('Save click')">Save</button>
+        <button id="groupSave" type="button" class="normalButton" disabled (click)="createNewGroup($event); modal.close('Save click')">Save</button>
     </div>
 </ng-template>
 
@@ -410,7 +410,7 @@
         <form>
             <div class="form-group">
                 <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="groupTitle" name="title">
+                <input [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
                 <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
@@ -420,7 +420,7 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="deleteGroup($event)" style="background: red">Delete</button>
-        <button type="button" class="normalButton" (click)="updateGroup($event); modal.close('Save click')">Update</button>
+        <button type="button" class="normalButton" (click)="deleteGroup($event); modal.dismiss()" style="background: red">Delete</button>
+        <button id="groupUpdate" type="button" class="normalButton" (click)="updateGroup($event); modal.close('Save click')">Update</button>
     </div>
 </ng-template>

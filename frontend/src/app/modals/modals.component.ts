@@ -169,6 +169,13 @@ export class ModalsComponent {
      */
     stories: Story[]
 
+    /**
+     * Existing Groups
+     */
+    groups: Group[]
+
+    scrGroup: Group
+
     selectedStories: string[]
 
     groupTitle: string
@@ -592,18 +599,19 @@ submitRenameScenario() {
     /**
      * Opens the create new group modal
      */
-    openCreateNewGroupModal() {
+    openCreateNewGroupModal(groups: Group[]) {
+        this.groups = groups
         this.groupId = undefined
-        this.groupTitle = undefined
+        this.groupTitle = ""
         this.selectedStories = undefined
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id')
-        const source = 'db';
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         this.apiService.getStories(repositoryContainer).subscribe(res =>{
             this.stories = res
         })
-        this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+        this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'})
     }
 
     /**
@@ -615,7 +623,7 @@ submitRenameScenario() {
         const member_stories = this.selectedStories
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id')
-        const source = 'db';
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         let group = {title, member_stories}
         this.apiService.createGroupEvent({repositoryContainer, group})
@@ -624,10 +632,12 @@ submitRenameScenario() {
     /**
      * Opens the create new group modal
      */
-    openUpdateGroupModal(group: Group) {
+    openUpdateGroupModal(group: Group, groups: Group[]) {
+        this.groups = groups
+        this.scrGroup = group
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id')
-        const source = 'db';
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         this.apiService.getStories(repositoryContainer).subscribe(res =>{
             this.stories = res
@@ -645,7 +655,7 @@ submitRenameScenario() {
         event.stopPropagation();
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id')
-        const source = 'db';
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         let group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories}
         this.apiService.updateGroupEvent({repositoryContainer, group})
@@ -655,5 +665,18 @@ submitRenameScenario() {
         event.stopPropagation()
         const repo_id = localStorage.getItem('id')
         this.apiService.deleteGroupEvent({'repo_id':repo_id, 'group_id': this.groupId})
+    }
+
+    groupUnique(event, input: String, array: Group[], group?: Group){
+        array = array ? array : []
+        input = input ? input : ""
+
+        let button = (group? document.getElementById('groupUpdate'):document.getElementById('groupSave')) as HTMLButtonElement
+        if((input && !array.find(i => i.name == input)) || (group?array.find(g=> g._id == group._id && g.name == input):false)){
+            button.disabled = false
+        } else {
+            button.disabled = true
+            this.toastr.error('Choose another Group-name')
+        }
     }
 }
