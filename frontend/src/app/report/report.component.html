@@ -1,5 +1,29 @@
-<div *ngIf="!this.reportReceived">
+<!--<div *ngIf="!this.reportReceived">
     <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
-</div>
+</div>-->
+<div class="uk-card uk-card-default padding">
+    <div id="report-header" class="uk-card-header">
+        <h3 class="title">Test Results</h3>
+    </div>
+    <div class="uk-button-group" style="text-align: right">
+        <!--  class="uk-button-group uk-align-right" doesn't work -->
+        <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
+                uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
+        <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-up"
+                uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
+        <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button" uk-icon="icon:download"
+                uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
+        <button *ngIf="!this.reportIsSaved" id="not_favorite_report_scenario" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
+                uk-tooltip="Report is currently not Saved" type="button" (click)=" saveReport(this.reportId);"><em class="material-icons">star_border</em></button>
+        <button *ngIf="this.reportIsSaved" id="favorite_report_scenario" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
+                uk-tooltip="Report is currently Saved" type="button" (click)=" unsaveReport(this.reportId);"><em class="material-icons">star</em></button>
+    </div>
+    <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
+        <div id="report-body" class="uk-card-body">
+            <div id="chartcontainer" class="chart-container" >
+                <iframe title="Test Report" id="testFrame" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
+            </div>
+        </div>
+    </div>
 
-<iframe title="Test Report" id="testFrame" width="100%" height="1000" name="SELFHTML_in_a_box"></iframe>
+</div>

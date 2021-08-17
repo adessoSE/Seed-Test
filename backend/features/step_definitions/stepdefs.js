@@ -164,15 +164,6 @@ When('I click the button: {string}', async function clickButton(button) {
 	const world = this;
 	await driver.getCurrentUrl()
 		.then(async (currentUrl) => {
-			// for daisy only: don't throw an error and end the testcase if "Alte Sitzung Beenden" is not found
-			if (button === 'Alte Sitzung beenden') {
-				try {
-					await driver.wait(until.elementLocated(By.xpath(`//*[@name='kill-session']`)), 3 * 1000).click();
-				} catch (e) {
-					console.log('Button "Alte Sitzung Beenden" not found. Skipping the Step...');
-				}
-				return;
-			}
 			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
 			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
 				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
@@ -687,53 +678,9 @@ async function clickButton(button) {
 		.then(async (readyState) => readyState === 'complete'));
 }
 
-async function daisyLogout() {
-	await driver.sleep(200);
-	try {
-		await driver.getCurrentUrl().then(async (currentUrl) => {
-			const url = currentUrl.split('.de')[0];
-			driver.get(url + '/redirect_uri?logout=/');
-		});
-	} catch (e) {
-		try {
-			await clickButton('Abmelden');
-			await driver.sleep(200);
-		} catch (e2) {
-			try {
-				await clickButton('Zurück zum Portal');
-				await driver.sleep(200);
-				await clickButton('Abmelden');
-				await driver.sleep(200);
-			} catch (e3) {
-				await clickButton('Abbrechen');
-				await driver.sleep(200);
-				await clickButton('Zurück zum Portal');
-				await driver.sleep(200);
-				await clickButton('Abmelden');
-				await driver.sleep(200);
-			}
-		}
-	}
-}
-
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async () => {
-	// console.log(currentParameters.daisyAutoLogout);
-	// console.log(typeof (currentParameters.daisyAutoLogout));
-	// currentParameters.daisyAutoLogout == 'true' ||
-	if (currentParameters && currentParameters.daisyAutoLogout === true) {
-		console.log('Trying DaisyAutoLogout');
-		try {
-			await daisyLogout();
-			await driver.sleep(500);
-			await driver.quit();
-		} catch (e) {
-			console.log('Failed DaisyAutoLogout');
-			await driver.sleep(500);
-			await driver.quit();
-		}
-	}
 	scenarioIndex += 1;
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560

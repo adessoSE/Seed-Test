@@ -225,6 +225,20 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     max-height: 200px;
 }
 
+.groupstoryselection{
+    display: table;
+    table-layout: fixed;
+}
+.groupinput{
+    display: table-cell;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.groupouterdiv{
+    overflow: hidden;
+}
+
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;

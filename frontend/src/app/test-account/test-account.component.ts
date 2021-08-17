@@ -3,6 +3,7 @@ import { ParentComponent } from '../parent/parent.component';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import {ActivatedRoute} from "@angular/router";
 
 
 /**
@@ -19,8 +20,8 @@ export class TestAccountComponent extends ParentComponent implements OnInit {
    * Constructor
    * @param apiService 
    */
-  constructor(public apiService: ApiService) {
-    super(apiService);
+  constructor(public apiService: ApiService, public route: ActivatedRoute) {
+    super(apiService, route);
     this.loadStories()
   }
 

@@ -16,8 +16,11 @@
   #storyHeader{
     grid-area: storyHeader;
   }
+  #groupHeader{
+    grid-area: storyHeader;
+  }
 
-  #infoIcon{
+  .infoIcon{
     grid-area: storyHeader;
     color: #999;
     padding-top: 3px;
@@ -54,6 +57,9 @@
   #createNewStoryDiv{
     text-align: right;
   }
+  #createNewGroupDiv{
+    text-align: right;
+  }
 
   .modal-title{
     color: var(--white);
@@ -68,6 +74,10 @@
     padding-left: 30px;
     padding-right: 30px;
     padding-bottom: 15px;
+  }
+
+  li{
+    list-style: none;
   }
 
   .modal-footer{
@@ -86,10 +96,11 @@
   a.storyListLink {
     transition: 0.2s;
     display: inline-block;
-    max-width: 80%;
+    max-width: 77%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: middle;
   }
 
   .normalButton{
@@ -104,6 +115,23 @@
     grid-area: storyList;
     font-size: smaller;
     transition: 0.1s;
+    display: block;
+    white-space: nowrap;
+  }
+  #groupList{
+    grid-area: groupList;
+    font-size: smaller;
+    transition: 0.1s;
+  }
+  #groupEdit{
+    float: right;
+    color: var(--ocean-blue);
+    cursor: pointer;
+  }
+  #groupPlay{
+    float: right;
+    color: var(--ocean-blue);
+    cursor: pointer;
   }
 
   #storyList:hover{
@@ -145,6 +173,13 @@
 
   .uk-accordion-title.uk-background-muted span.notPassed{
     background-color: red;
+  }
+
+  .drag-handle{
+    cursor: move;
+    color: var(--ocean-blue);
+    display: inline-block;
+    vertical-align: middle;
   }
   
 @media screen and (max-width: 600px) {
