@@ -42,7 +42,8 @@ import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
-import {ClipboardModule} from '@angular/cdk/clipboard';
+import {ClipboardModule} from "@angular/cdk/clipboard";
+import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 
 @NgModule({
   declarations: [
@@ -89,6 +90,11 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
     ClipboardModule,
     MatProgressSpinnerModule,
     MatCarouselModule.forRoot(),
+    LoggerModule.forRoot({
+      serverLoggingUrl: '/api/logs',
+      level: NgxLoggerLevel.DEBUG,
+      serverLogLevel: NgxLoggerLevel.ERROR
+    }),
     ToastrModule.forRoot({
       timeOut: 3000
     })

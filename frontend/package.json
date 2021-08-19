@@ -41,12 +41,14 @@
     "ngx-cookie-service": "10.1.1",
     "ngx-take-until-destroy": "^5.4.0",
     "ngx-toastr": "13.1.0",
+    "ngx-logger": "~4.3.3",
     "node-fetch": "^2.6.1",
     "node-sass": "^5.0.0",
     "request": "^2.88.2",
     "set-value": "3.0.2",
     "uikit": "^3.5.9",
-    "zone.js": "~0.11.3"
+
+    "zone.js": "~0.10.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.1102.14",
