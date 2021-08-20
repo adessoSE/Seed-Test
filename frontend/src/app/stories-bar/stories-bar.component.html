@@ -53,11 +53,12 @@
       </dfn>
     </div>
     <hr>
-    <ul uk-accordion>
-      <li *ngFor="let g of getSortedGroups(); let i = index ">
+    <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
+      <li *ngFor="let g of getSortedGroups(); let i = index " cdkDrag>
         <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
           <a class="storyListLink" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
              title="{{g.name}}">
+            <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
             {{g.name}}
           </a>
           <span style="white-space:nowrap; float: right;">

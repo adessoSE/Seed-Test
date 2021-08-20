@@ -42,7 +42,7 @@ import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
-import {ClipboardModule} from "@angular/cdk/clipboard";
+import {ClipboardModule} from '@angular/cdk/clipboard';
 
 @NgModule({
   declarations: [
