@@ -15,7 +15,6 @@ import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
 import { DeleteStoryToast } from '../deleteStory-toast';
-import { RepositoryContainer } from '../model/RepositoryContainer';
 
 
 /**
@@ -202,14 +201,17 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       });
 
       this.apiService.deleteScenarioEvent.subscribe(() => {
-          this.deleteScenario(this.selectedScenario)
-      });
-
+        this.deleteScenario(this.selectedScenario)
+    });
 
       if (this.apiService.urlReceived) {
           this.loadStepTypes();
       }
-    }
+
+      this.apiService.deleteStoryEvent.subscribe(() => {
+        this.showEditor=false;
+    });
+    } 
 
 
     /**
@@ -258,7 +260,6 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             }
         });
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName))
-
     }
 
     /**
@@ -278,7 +279,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.activeActionBar = false;
         this.allChecked = false;
     }
-
+  
     /**
      * set new stories
      */
@@ -922,6 +923,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     this.deleteStoryEvent.emit(this.selectedStory);
     }
 
+    getUniqueStoryTitle(){
+        return this.selectedStory.title
+    }
 
 
 
