@@ -60,9 +60,9 @@
              title="{{g.name}}">
             {{g.name}}
           </a>
-          <span>
-            <em class="material-icons" (click)="runGroup(g)" id="groupPlay">play_arrow</em>
-            <em class="material-icons" (click)="openUpdateGroupModal(g)" id="groupEdit">edit</em>
+          <span style="white-space:nowrap; float: right;">
+            <em class="material-icons" (click)="runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
+            <em class="material-icons" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
           </span>
         </div>
 

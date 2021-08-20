@@ -122,6 +122,8 @@
     grid-area: groupList;
     font-size: smaller;
     transition: 0.1s;
+    display: block;
+    white-space: nowrap;
   }
   #groupEdit{
     float: right;
