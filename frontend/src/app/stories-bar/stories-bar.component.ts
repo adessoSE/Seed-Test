@@ -111,7 +111,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     constructor(public apiService: ApiService, public toastr:ToastrService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
-            this.stories = stories;
+            this.stories = stories.filter(s => s!=null);
             this.isCustomStory = localStorage.getItem('source') === 'db';
         });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
@@ -136,7 +136,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
-                    this.stories = resp;
+                    this.stories = resp.filter(s => s!=null);
                 });
             });
         });
