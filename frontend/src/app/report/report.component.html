@@ -2,10 +2,10 @@
     <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
 </div>-->
 <div class="uk-card uk-card-default padding">
-    <div id="report-header" class="uk-card-header">
-        <h3 class="title">Test Results</h3>
-    </div>
-    <div class="uk-button-group" style="text-align: right">
+    <div id="report-header" class="uk-card-header"style="white-space: nowrap;">
+        <h3 class="title"style="display: inline-block">Test Results</h3>
+    
+    <div class="uk-button-group" style="text-align: right; float: right;">
         <!--  class="uk-button-group uk-align-right" doesn't work -->
         <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
                 uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
@@ -18,6 +18,7 @@
         <button *ngIf="this.reportIsSaved" id="favorite_report_scenario" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
                 uk-tooltip="Report is currently Saved" type="button" (click)=" unsaveReport(this.reportId);"><em class="material-icons">star</em></button>
     </div>
+</div>
     <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
         <div id="report-body" class="uk-card-body">
             <div id="chartcontainer" class="chart-container" >
