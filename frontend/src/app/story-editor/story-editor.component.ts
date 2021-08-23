@@ -14,6 +14,7 @@ import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
+import {saveAs} from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 
@@ -908,6 +909,15 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     });
   }
 
+
+  downloadFeature(){
+      const source = this.selectedStory.storySource
+      const id = this.selectedStory._id
+      this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+          saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature')
+      })
+  }
+
   /**
      * Emitts the delete story event
      * @param event
@@ -915,11 +925,5 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    deleteStory(event){
     this.deleteStoryEvent.emit(this.selectedStory);
     }
-
-
-
-
-
-
 }
 
