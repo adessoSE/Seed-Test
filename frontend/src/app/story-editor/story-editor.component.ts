@@ -16,7 +16,6 @@ import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
 import {saveAs} from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
-import { RepositoryContainer } from '../model/RepositoryContainer';
 
 
 /**
@@ -236,14 +235,17 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       });
 
       this.apiService.deleteScenarioEvent.subscribe(() => {
-          this.deleteScenario(this.selectedScenario)
-      });
-
+        this.deleteScenario(this.selectedScenario)
+    });
 
       if (this.apiService.urlReceived) {
           this.loadStepTypes();
       }
-    }
+
+      this.apiService.deleteStoryEvent.subscribe(() => {
+        this.showEditor=false;
+    });
+    } 
 
 
     /**
@@ -292,7 +294,45 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             }
         });
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName))
+    }
 
+    /**
+     * Stories bar component
+     */
+    @Input() storiesBar: StoriesBarComponent;
+
+    /**
+     * set new currently selected scenario
+     */
+    @Input()
+    set newSelectedScenario(scenario: Scenario) {
+        this.selectedScenario = scenario;
+        if (this.selectedStory) {
+            this.selectScenario(scenario);
+        }
+        this.activeActionBar = false;
+        this.allChecked = false;
+    }
+  
+    /**
+     * set new stories
+     */
+    @Input()
+    set newStories(stories: Story[]) {
+          if (stories) {
+              this.stories = stories;
+          }
+    }
+
+    /**
+     * set new currently selected story
+     */
+    @Input()
+    set newSelectedStory(story: Story) {
+        this.selectedStory = story;
+        this.showEditor = true;
+        this.activeActionBar = false;
+        this.allChecked = false;
     }
 
     /**
@@ -925,5 +965,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    deleteStory(event){
     this.deleteStoryEvent.emit(this.selectedStory);
     }
+
+    getUniqueStoryTitle(){
+        return this.selectedStory.title
+    }
+
 }
 

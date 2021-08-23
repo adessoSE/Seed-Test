@@ -7,8 +7,7 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteStoryToast } from '../deleteStory-toast';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+
 
 
 
@@ -355,9 +354,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   */ 
   storyDeleted(){
     if (this.stories.find(x => x == this.selectedStory)) {
-      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1);       
+      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1); 
     };
   }
-
+  
 }
-
