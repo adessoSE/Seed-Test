@@ -16,6 +16,9 @@
     padding-left: 30px;
     padding-right: 30px;
     padding-bottom: 15px;
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .modal-footer{
@@ -71,6 +74,9 @@ table {
 
 .mat-cell, .mat-header-cell {
     text-align: center;
+}
+.normalButton:disabled{
+    opacity: 20%;
 }
 
 td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
@@ -226,13 +232,20 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 }
 
 .groupstoryselection{
-    resize: both;
-    width: 50%;
-    height: 30%;
-    min-width: 100px;
-    min-height: 100px;
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    text-align: left;
+}
+.groupinput{
+    display: table-cell;
     max-width: 100%;
-    max-height: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.groupstoryselectionouter{
+    overflow: hidden;
 }
 
 @media screen and (max-height: 800px) {

@@ -96,10 +96,11 @@
   a.storyListLink {
     transition: 0.2s;
     display: inline-block;
-    max-width: 80%;
+    max-width: 77%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: middle;
   }
 
   .normalButton{
@@ -114,11 +115,23 @@
     grid-area: storyList;
     font-size: smaller;
     transition: 0.1s;
+    display: block;
+    white-space: nowrap;
   }
   #groupList{
     grid-area: groupList;
     font-size: smaller;
     transition: 0.1s;
+    display: block;
+    white-space: nowrap;
+    position: relative;
+  }
+  .groupLinkList{
+    position: absolute;
+  }
+  .groupIconSpan{
+    white-space: nowrap;
+    float: right;
   }
   #groupEdit{
     float: right;
@@ -175,6 +188,8 @@
   .drag-handle{
     cursor: move;
     color: var(--ocean-blue);
+    display: inline-block;
+    vertical-align: middle;
   }
   
 @media screen and (max-width: 600px) {

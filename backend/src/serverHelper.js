@@ -5,6 +5,7 @@ const path = require('path');
 const request = require('request');
 const reporter = require('cucumber-html-reporter');
 const lodash = require('lodash');
+const AdmZip = require('adm-zip');
 const crypto = require('crypto');
 const passport = require('passport');
 const mongo = require('./database/mongodatabase');
@@ -136,7 +137,6 @@ function cleanFileName(filename) {
 
 // Creates feature file
 function writeFile(dir, selectedStory) {
-	//todo filename
 	const filename = selectedStory.title + selectedStory._id
 	fs.writeFile(path.join(__dirname, '../features',
 		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
@@ -323,14 +323,16 @@ async function execReport(req, res, stories, mode, callback) {
 }
 
 const nameSchemeChange = async(story) => {
-	if(!!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null))){
+	// if new scheme doesn't exist
+	if (!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title + story._id.toString())}.feature`).catch(() => null)))
 		await updateFeatureFile(story._id, story.storySource)
+
+	// if old scheme still exists
+	if(!!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null)))
 		fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, err => console.log('failed to remove file', err));
-	}
 }
 
 async function deleteFeatureFile(storyTitle, storyId) {
-	// todo filename
 	try {
 		fs.unlink(`features/${cleanFileName(storyTitle + storyId)}.feature`, (err) => {
 			if (err) throw err;
@@ -795,6 +797,39 @@ async function deleteOldReports(storyId, scenarioID) {
 	});
 }
 
+async function exportSingleFeatureFile(_id, source) {
+	const story = mongo.getOneStory(_id, source)
+	return await story.then(async story => {
+		await this.nameSchemeChange(story)
+		return new Promise ( (resolve, reject) => {
+			fs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, "utf8", (err, data) => {
+				if (err) {
+					console.log('couldn`t read File')
+					reject()
+				}
+				resolve(data)
+			})
+		})
+	})
+}
+
+async function exportProjectFeatureFiles(repo_id) {
+	const stories = mongo.getAllStoriesOfRepo(null, null, repo_id)
+	return stories.then( async stories => {
+		console.log(stories)
+		const zip = new AdmZip()
+		return await Promise.all( stories.map( async story => {
+			await this.nameSchemeChange(story)
+			try{
+				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`)
+				console.log('add FF')
+			}
+			catch (e) {console.log('file not found')}
+		})
+		).then(()=>{return zip.toBuffer()})
+	})
+}
+
 module.exports = {
 	deleteOldReports,
 	getReportHistory,
@@ -814,6 +849,7 @@ module.exports = {
 	writeFile,
 	ownRepositories,
 	fuseStoryWithDb: fuseStoryWithDb,
+	nameSchemeChange,
 	updateJira,
 	getExamples,
 	getSteps,
@@ -823,6 +859,8 @@ module.exports = {
 	getValues,
 	updateFeatureFile,
 	deleteFeatureFile,
+	exportSingleFeatureFile,
+	exportProjectFeatureFiles,
 	runReport,
 	starredRepositories,
 	dbProjects

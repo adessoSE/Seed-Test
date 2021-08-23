@@ -382,23 +382,26 @@
     </div>
     <div class="modal-body">
         <form>
-            <div class="form-group">
+            <div class="form-group groupouterdiv">
                 <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="groupTitle" placeholder=" Title" name="title">
+                <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
-                <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
-                    <option *ngFor="let story of stories" [value]="story._id">{{story.title}}</option>
-                </select>
+                <div *ngFor="let story of stories; let i = index" class="groupstoryselection">
+                    <label class="groupinput">
+                    <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
+                    {{story.title}}
+                    </label>
+                </div>
             </div>
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="createNewGroup($event); modal.close('Save click')">Save</button>
+        <button id="groupSave" type="button" class="normalButton" disabled (click)="createNewGroup($event); modal.close('Save click')">Save</button>
     </div>
 </ng-template>
 
-<!--Create New Group -->
+<!--Update Group -->
 <ng-template #updateGroupModal let-modal>
     <div class="modal-header">
         <h4 class="modal-title">Update Group</h4>
@@ -408,19 +411,22 @@
     </div>
     <div class="modal-body">
         <form>
-            <div class="form-group">
+            <div class="form-group groupstoryselectionouter">
                 <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="groupTitle" name="title">
+                <input [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
-                <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
-                    <option *ngFor="let story of stories" [value]="story._id">{{story.title}}</option>
-                </select>
+                <div *ngFor="let story of stories; let i = index" class="groupstoryselection">
+                    <label class="groupinput">
+                    <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
+                    {{story.title}}
+                    </label>
+                </div>
             </div>
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="deleteGroup($event)" style="background: red">Delete</button>
-        <button type="button" class="normalButton" (click)="updateGroup($event); modal.close('Save click')">Update</button>
+        <button type="button" class="normalButton" (click)="deleteGroup($event); modal.dismiss()" style="background: red">Delete</button>
+        <button id="groupUpdate" type="button" class="normalButton" (click)="updateGroup($event); modal.close('Save click')">Update</button>
     </div>
 </ng-template>

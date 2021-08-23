@@ -14,15 +14,15 @@
     <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
       <li *ngFor="let s of getSortedStories(); let i = index " cdkDrag>
         <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
-          <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
-              {{s.issue_number}}. {{s.title}}
-            </a>
           <span class="github-avatar">
             <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
             <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
             <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
           </span>
+          <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+              {{s.issue_number}}. {{s.title}}
+            </a>
         </div>
 
         <div id="scenarioList" class="uk-accordion-content">
@@ -53,18 +53,20 @@
       </dfn>
     </div>
     <hr>
-    <ul uk-accordion>
-      <li *ngFor="let g of getSortedGroups(); let i = index ">
+    <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
+      <li *ngFor="let g of getSortedGroups(); let i = index " cdkDrag>
         <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
-          <a class="storyListLink" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
+          <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
              title="{{g.name}}">
+            <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
             {{g.name}}
-          </a>
-          <span>
-            <em class="material-icons" (click)="runGroup(g)" id="groupPlay">play_arrow</em>
-            <em class="material-icons" (click)="openUpdateGroupModal(g)" id="groupEdit">edit</em>
+          </a> 
+          <span class="groupIconSpan">
+            <em class="material-icons" (click)="runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
+            <em class="material-icons" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
           </span>
         </div>
+        
 
         <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
           <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
