@@ -329,6 +329,8 @@
 
   .storyTitle{
     color: var(--ocean-blue);
+    background: var(--white);
+    border: none;
   }
   
   .marginLeft{
@@ -467,3 +469,17 @@
 .dropdown:hover .dropdown-content {
   display: block;
 }
+
+#story_change_title > em {
+  color: var(--ocean-blue);
+  font-size: 20px;
+  margin: 0px 5px;
+}
+
+#story_delete > em{
+  color: var(--ocean-blue);
+  font-size: 20px;
+  margin: 0px 5px;
+}
+
+

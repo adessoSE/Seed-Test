@@ -36,6 +36,7 @@ export class ModalsComponent {
     @ViewChild('saveBlockFormModal') saveBlockFormModal: any;
     @ViewChild('newStepRequestModal') newStepRequestModal: any;
     @ViewChild('renameScenarioModal') renameScenarioModal: any;
+    @ViewChild('renameStoryModal') renameStoryModal: any;
     @ViewChild('workgroupEditModal') workgroupEditModal: any;
     @ViewChild('createNewStoryModal') createNewStoryModal: any;
     @ViewChild('createNewGroupModal') createNewGroupModal: any;
@@ -459,23 +460,46 @@ export class ModalsComponent {
 
     // rename Scenario
 
-    /**
-     * Opens the rename scenario Modal
-     * @param oldTitle old scenario title
-     */
-    openRenameScenarioModal(oldTitle: string) {
-        this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
-        let name = document.getElementById('newTitle') as HTMLInputElement
-        name.placeholder = oldTitle
-    }
+/**
+ * Opens the rename scenario Modal
+ * @param oldTitle old scenario title
+ */
+openRenameScenarioModal(oldTitle: string) {
+    this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
+    let name = document.getElementById('newTitle') as HTMLInputElement
+    name.placeholder = oldTitle
+}
 
-    /**
-     * Submits the new name for the scenario
-     */
-    submitRenameScenario() {
-        let name = (document.getElementById('newTitle') as HTMLInputElement).value;
-        this.apiService.renameScenarioEmit(name)
-    }
+/**
+ * Submits the new name for the scenario
+ */
+submitRenameScenario() {
+    let name = (document.getElementById('newTitle') as HTMLInputElement).value;
+    this.apiService.renameScenarioEmit(name)
+}
+
+
+// rename Story
+
+  /**
+   * Opens the rename story Modal
+   * @param oldTitle old story title
+   */
+   openRenameStoryModal(oldTitle: string) {
+    this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+    let title = document.getElementById('newStoryTitle') as HTMLInputElement
+    title.placeholder = oldTitle
+  }
+
+  /**
+   * Submits the new name for the story
+   */
+  submitRenameStory() {
+    let title = (document.getElementById('newStoryTitle') as HTMLInputElement).value ;
+    this.apiService.renameStoryEmit(title)
+  }
+
+  // workgroup Edit Modal
 
 
     // workgroup Edit Modal
@@ -618,6 +642,7 @@ export class ModalsComponent {
     }
 
     updateGroup($event) {
+        console.log("selectedStories:", this.selectedStories)
         event.stopPropagation();
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id')
@@ -631,5 +656,35 @@ export class ModalsComponent {
         event.stopPropagation()
         const repo_id = localStorage.getItem('id')
         this.apiService.deleteGroupEvent({'repo_id':repo_id, 'group_id': this.groupId})
+    }
+
+    /**
+     * Fuctionality for adding and removing Stories from a Group with a Checklist
+     * @param story 
+     */
+    selectStory(story){
+        if (this.isStoryChecked(story)){
+            this.selectedStories = this.selectedStories.filter(item => item !== story._id)
+        } else {
+            this.selectedStories.push(story._id);
+        }
+    }
+
+    /**
+     * Functionality for showing if Story is in Group for Checklist
+     * Checks wether the Story is already added
+     * @param story 
+     */
+    isStoryChecked(story){
+        if (this.selectedStories == undefined){
+            this.selectedStories = new Array<string>();
+            return false
+        }
+        let exists = this.selectedStories.find(function(x){return x==story._id});
+        if (exists == undefined){
+            return false
+        } 
+        return true
+        
     }
 }

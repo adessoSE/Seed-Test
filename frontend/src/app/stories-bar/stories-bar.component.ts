@@ -7,6 +7,8 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
+import { DeleteStoryToast } from '../deleteStory-toast';
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 
 
@@ -115,7 +117,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
         } );
-
+        this.apiService.deleteStoryEvent.subscribe(() => {
+          this.deleteStory()
+        });
     }
 
     /**
@@ -184,7 +188,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     mergeById(groups, stories) {
         let myMap = new Map
-        for(let story of stories)
+        for(const story of stories)
             myMap.set(story._id, story.title)
 
         let ret = []
@@ -204,7 +208,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     runGroup(group: Group){
-        let id = localStorage.getItem('id')
+        const id = localStorage.getItem('id')
         this.apiService.runGroup(id, group._id, null).subscribe(ret => {
             this.report.emit(ret)
             console.log('Group report, No Frontend Yet')
@@ -247,7 +251,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     selectStoryOfGroup(id){
-        let story = this.stories.find(o => o._id === id)
+        const story = this.stories.find(o => o._id === id)
         this.selectStoryScenario(story)
     }
 
@@ -309,6 +313,18 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         })
     }
 
+    dropGroup(event: CdkDragDrop<string[]>){
+        const repo_id = localStorage.getItem('id')
+        moveItemInArray(this.groups, event.previousIndex, event.currentIndex);
+        let pass_arr = JSON.parse(JSON.stringify(this.groups)) // deepCopy
+        for(const groupIndex in pass_arr){
+            pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id)
+        }
+        this.apiService.updateGroupsArray(repo_id, pass_arr).subscribe(ret => {
+            console.log(ret)
+        })
+    }
+
     dropGroupStory(event: CdkDragDrop<string[]>, group) {
         const repo_id = localStorage.getItem('id')
         const index = this.groups.findIndex(o=> o._id === group._id)
@@ -320,4 +336,28 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
     }
 
+  /**
+  * Deletes story
+  * @param story
+  */ 
+  deleteStory() {  
+    let repository=localStorage.getItem('id');
+    { this.apiService
+       .deleteStory(repository,this.selectedStory._id)
+       .subscribe(resp => {
+           this.storyDeleted();
+           this.toastr.error('', 'Story deleted');
+        });}
+  }
+
+  /**
+  * Removes the selected story
+  */ 
+  storyDeleted(){
+    if (this.stories.find(x => x == this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1);       
+    };
+  }
+
 }
+
