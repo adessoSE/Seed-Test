@@ -1,8 +1,9 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { ModalsComponent } from '../modals/modals.component';
+import { ModalsComponent } from "../modals/modals.component";
+import {Subscription} from "rxjs/internal/Subscription";
 import { saveAs } from 'file-saver';
 
 /**
@@ -47,6 +48,8 @@ export class AccountManagementComponent implements OnInit {
      */
     id: string;
 
+    routeSub: Subscription
+
     searchInput: string;
 
     searchList: RepositoryContainer[];
@@ -59,7 +62,18 @@ export class AccountManagementComponent implements OnInit {
      * @param router router to handle url changes
      */
     constructor(public apiService: ApiService, public router: Router) {
-        router.events.forEach((event) => {
+        /*window.addEventListener("storage", (event) => {
+            console.log('storage listener')
+            if (event.storageArea == window.sessionStorage && event.key == 'repositories') {
+                console.log('sessionStorage')
+                try {
+                    this.repositories = JSON.parse(event.newValue);
+                } catch (e) {
+                    console.log("could'nt interpret: ", event.newValue)
+                }
+            }
+        },false);*/
+        this.routeSub = router.events.subscribe(event => {
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
             }
@@ -154,11 +168,15 @@ export class AccountManagementComponent implements OnInit {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                 }
             });
-
-            this.apiService.getRepositories().subscribe((repositories) => {
-                this.seperateRepos(repositories);
-                console.log('update');
-            });
+            const seSto = sessionStorage.getItem('repositories')
+            if(!seSto) {
+                this.apiService.getRepositories().subscribe((repositories) => {
+                    this.repositories = repositories;
+                    sessionStorage.setItem('repositories', JSON.stringify(repositories))
+                });
+            } else {
+                this.repositories = JSON.parse(seSto)
+            }
         }
     }
 
@@ -167,6 +185,12 @@ export class AccountManagementComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
+
+    }
+
+    ngOnDestroy() {
+        //window.removeEventListener("storage", this.storageEventListener)
+        this.routeSub.unsubscribe()
     }
 
     /**

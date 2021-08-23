@@ -242,6 +242,7 @@ export class ApiService {
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
+            sessionStorage.setItem('repositories', JSON.stringify(resp))
             this.getRepositoriesEvent.emit(resp);
           }),
             catchError(ApiService.handleError));
@@ -596,8 +597,6 @@ export class ApiService {
         return this.http
             .get<Story[]>(this.apiServer + '/user/stories/', {params, withCredentials: true})
             .pipe(tap(resp => {
-                console.log('Resp');
-                console.log(resp);
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
     }
