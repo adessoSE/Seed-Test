@@ -16,6 +16,9 @@
     padding-left: 30px;
     padding-right: 30px;
     padding-bottom: 15px;
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .modal-footer{
@@ -227,15 +230,18 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 .groupstoryselection{
     display: table;
+    width: 100%;
     table-layout: fixed;
+    text-align: left;
 }
 .groupinput{
     display: table-cell;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.groupouterdiv{
+.groupstoryselectionouter{
     overflow: hidden;
 }
 

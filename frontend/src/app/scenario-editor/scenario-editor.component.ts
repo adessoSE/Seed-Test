@@ -582,6 +582,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
         this.activeActionBar = false;
+        this.toastr.success('successfully copied', 'Step(s)');
     }
 
     /**
