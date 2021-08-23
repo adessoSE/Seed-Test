@@ -49,6 +49,7 @@
     "selenium-webdriver": "^4.0.0-beta.2",
     "uikit": "^3.5.9",
     "uuid": "^8.3.1",
+    "winston": "^3.3.3",
     "xmlhttprequest": "^1.8.0",
     "zlib": "^1.0.5"
   },
