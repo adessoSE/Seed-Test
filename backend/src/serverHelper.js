@@ -176,24 +176,21 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-
 function runReport(req, res, stories, mode, parameters) {
-	let cumulate = 0 // only used when executing multiple stories
-	execReport(req, res, stories, mode, (reportTime, story,
-										 scenarioID, reportName) => {
-
+	let cumulate = 0; // only used when executing multiple stories
+	execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
 
 		//res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		let testStatus = false;
 		try {
-			let path
-			let gr_dir
+			let path;
+			let gr_dir;
 			if (mode !== 'group') {
-				path = `./features/${reportName}.json`
+				path = `./features/${reportName}.json`;
 			} else {
-				gr_dir = req.body.name
-				path = `./features/${gr_dir}/${reportName}.json`
+				gr_dir = req.body.name;
+				path = `./features/${gr_dir}/${reportName}.json`;
 			}
 			fs.readFile(path, 'utf8', async (err, data) => {
 				const json = JSON.parse(data);
@@ -235,21 +232,21 @@ function runReport(req, res, stories, mode, parameters) {
 
 				testStatus = testPassed(failed, passed);
 
-				let reportOptions
-				let uploadedReport
-				if (mode === 'group'){
-					if(cumulate +1 < stories.length){
-						cumulate ++
+				let reportOptions;
+				let uploadedReport;
+				if (mode === 'group') {
+					if (cumulate + 1 < stories.length) {
+						cumulate++;
 					} else {
-						reportOptions = setOptions(req.body.name, path =`features/${gr_dir}/`)
+						reportOptions = setOptions(req.body.name, path = `features/${gr_dir}/`);
 						reporter.generate(reportOptions);
 						const report = {
 							reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 						};
 						uploadedReport = await uploadReport(report, story._id, scenarioID);
 						fs.readFile(`./features/${gr_dir}/${gr_dir}.html`, 'utf8',(err, data) => {
-							res.json({htmlFile: data, reportId: uploadedReport.ops[0]._id})
-						})
+							res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
+						});
 						setTimeout((group) => {
 							fs.rm(`./features/${group}`, {recursive: true}, () => {
 								console.log(`${group} report deleted`)
@@ -304,16 +301,16 @@ async function execReport(req, res, stories, mode, callback) {
 		// // does not Fail if "daisyAutoLogout" is undefined
 		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
 		//  else process.env.DAISY_AUTO_LOGOUT = false;
-		if (mode == 'group'){
-			req.body.name = req.body.name.replace(' ', '_') + Date.now()
+		if (mode === 'group') {
+			req.body.name = req.body.name.replace(' ', '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			for (let story of stories) {
-				await nameSchemeChange(story)
-				execReport2(req, res, stories, 'group', story, callback)
+				await nameSchemeChange(story);
+				execReport2(req, res, stories, 'group', story, callback);
 			}
 		} else {
 			let story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
-			await nameSchemeChange(story)
+			await nameSchemeChange(story);
 			execReport2(req, res, stories, mode, story, callback);
 		}
 	} catch (error) {
@@ -322,15 +319,15 @@ async function execReport(req, res, stories, mode, callback) {
 	}
 }
 
-const nameSchemeChange = async(story) => {
+const nameSchemeChange = async (story) => {
 	// if new scheme doesn't exist
 	if (!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title + story._id.toString())}.feature`).catch(() => null)))
-		await updateFeatureFile(story._id, story.storySource)
+		await updateFeatureFile(story._id, story.storySource);
 
 	// if old scheme still exists
 	if(!!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null)))
 		fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, err => console.log('failed to remove file', err));
-}
+};
 
 async function deleteFeatureFile(storyTitle, storyId) {
 	try {
@@ -360,59 +357,57 @@ function execReport2(req, res, stories, mode, story, callback) {
 					waitTime: scenario.stepWaitTime,
 					daisyAutoLogout: scenario.daisyAutoLogout
 				}]
-			}
+			};
 		} else {
-			parameters = {scenarios: []}
+			parameters = { scenarios: [] };
 			scenario.stepDefinitions.example.forEach((examples, index) => {
 				if (index > 0) {
 					parameters.scenarios.push({
 						browser: scenario.browser,
 						waitTime: scenario.stepWaitTime,
 						daisyAutoLogout: scenario.daisyAutoLogout
-					})
+					});
 				}
-			})
+			});
 		}
-	} else if(mode == 'feature') {
-		const prep = scenarioPrep(story.scenarios)
-		story.scenarios = prep.scenarios
-		parameters = prep.parameters
-	} else if (mode == 'group') {
-		const prep = scenarioPrep(story.scenarios)
-		story.scenarios = prep.scenarios
-		parameters = prep.parameters
+	} else if (mode === 'feature') {
+		const prep = scenarioPrep(story.scenarios);
+		story.scenarios = prep.scenarios;
+		parameters = prep.parameters;
+	} else if (mode === 'group') {
+		const prep = scenarioPrep(story.scenarios);
+		story.scenarios = prep.scenarios;
+		parameters = prep.parameters;
 	}
 
 	const reportTime = Date.now();
-	const path1 = 'node_modules/.bin/cucumber-js';
-	const path2 = `features/${cleanFileName(story.title + story._id)}.feature`;
+	const cucePath = 'node_modules/.bin/cucumber-js';
+	const featurePath = `features/${cleanFileName(story.title + story._id)}.feature`;
 	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
-	let path3 = `features/${reportName}.json`;
-	if (mode === 'group'){
-		const gr_dir = req.body.name
-		path3 = `./features/${gr_dir}/${reportName}.json`;
+	let jsonPath = `features/${reportName}.json`;
+	if (mode === 'group') {
+		const gr_dir = req.body.name;
+		jsonPath = `./features/${gr_dir}/${reportName}.json`;
 	}
 
-	let jsParam = JSON.stringify(parameters)
-	let worldParam = ''
+	const jsParam = JSON.stringify(parameters);
+	let worldParam = '';
 	for (let i = 0; i < jsParam.length; i++) {
 		if (jsParam[i] == '"')
-			worldParam += '\\\"'
+			worldParam += '\\\"';
 		else
-			worldParam += jsParam[i]
+			worldParam += jsParam[i];
 	}
 
 	console.log('worldParam', worldParam);
 
 	let cmd;
-	if (mode === 'feature') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
+	if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
 
-	if (mode === 'scenario') cmd = `${path.normalize(path1)} ${path.normalize(path2)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
+	if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
 
-	if (mode === 'group') {
-		cmd = `${path.normalize(path1)} ${path.normalize(path2)} --format json:${path.normalize(path3)} --world-parameters ${worldParam}`;
-	}
+	if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
 
 	console.log(`Executing: ${cmd}`);
 
@@ -428,19 +423,18 @@ function execReport2(req, res, stories, mode, story, callback) {
 	});
 }
 
-
-function scenarioPrep(scenarios){
-	let parameters = {scenarios: []}
-	scenarios.forEach(scenario => {
-		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0
-		if (!scenario.browser) scenario.browser = 'chrome'
-		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false
+function scenarioPrep(scenarios) {
+	let parameters = { scenarios: [] };
+	scenarios.forEach((scenario) => {
+		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
+		if (!scenario.browser) scenario.browser = 'chrome';
+		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
 		if (scenario.stepDefinitions.example.length <= 0) {
 			parameters.scenarios.push({
 				browser: scenario.browser,
 				waitTime: scenario.stepWaitTime,
 				daisyAutoLogout: scenario.daisyAutoLogout
-			})
+			});
 		} else {
 			scenario.stepDefinitions.example.forEach((examples, index) => {
 				if (index > 0) {
@@ -448,28 +442,26 @@ function scenarioPrep(scenarios){
 						browser: scenario.browser,
 						waitTime: scenario.stepWaitTime,
 						daisyAutoLogout: scenario.daisyAutoLogout
-					})
+					});
 				}
-			})
+			});
 		}
-	})
-	return {scenarios, parameters}
+	});
+	return { scenarios, parameters };
 }
 
-function setOptions(reportName, path = "features/") {
+function setOptions(reportName, path = 'features/') {
 	const myOptions = lodash.cloneDeep(options);
 	myOptions.metadata.Platform = process.platform;
 	myOptions.name = 'Seed-Test Report';
-	if (path !== "features/"){
-		myOptions.jsonDir = `${path}`
-		myOptions.jsonFile = null
+	if (path !== 'features/') {
+		myOptions.jsonDir = `${path}`;
+		myOptions.jsonFile = null;
 	} else
 		myOptions.jsonFile = `${path}${reportName}.json`;
 	myOptions.output = `${path}${reportName}.html`;
 	return myOptions;
 }
-
-
 
 async function jiraProjects(user) {
 	return new Promise((resolve) => {
@@ -646,8 +638,8 @@ async function createReport(res, reportName) {
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 	fs.readFile(`features/${reportName}.html`,'utf8',(err, data) => {
-		res.json({htmlFile: data, reportId: report._id})
-	})
+		res.json({ htmlFile: data, reportId: report._id });
+	});
 }
 
 function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
@@ -675,7 +667,6 @@ function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, 
 function postComment(issueNumber, comment, githubName, githubRepo, password) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
 	const body = { body: comment };
-	const request = new XMLHttpRequest();
 	request.open('POST', link, true, githubName, password);
 	request.send(JSON.stringify(body));
 	request.onreadystatechange = function () {
@@ -688,7 +679,6 @@ function postComment(issueNumber, comment, githubName, githubRepo, password) {
 function addLabelToIssue(githubName, githubRepo, password, issueNumber, label) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`;
 	const body = { labels: [label] };
-	const request = new XMLHttpRequest();
 	request.open('POST', link, true, githubName, password);
 	request.send(JSON.stringify(body));
 	request.onreadystatechange = function () {
@@ -725,7 +715,7 @@ function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumbe
 }
 
 const getGithubData = (res, req, accessToken) => {
-  request(
+	request(
     {
       uri: `https://api.github.com/user?access_token=${accessToken}`,
       method: "GET",
@@ -798,36 +788,35 @@ async function deleteOldReports(storyId, scenarioID) {
 }
 
 async function exportSingleFeatureFile(_id, source) {
-	const story = mongo.getOneStory(_id, source)
-	return await story.then(async story => {
-		await this.nameSchemeChange(story)
-		return new Promise ( (resolve, reject) => {
+	const story = mongo.getOneStory(_id, source);
+	return await story.then(async (story) => {
+		await this.nameSchemeChange(story);
+		return new Promise((resolve, reject) => {
 			fs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, "utf8", (err, data) => {
 				if (err) {
-					console.log('couldn`t read File')
-					reject()
+					console.log('couldn`t read File');
+					reject();
 				}
-				resolve(data)
-			})
-		})
-	})
+				resolve(data);
+			});
+		});
+	});
 }
 
 async function exportProjectFeatureFiles(repo_id) {
 	const stories = mongo.getAllStoriesOfRepo(null, null, repo_id)
-	return stories.then( async stories => {
-		console.log(stories)
-		const zip = new AdmZip()
-		return await Promise.all( stories.map( async story => {
-			await this.nameSchemeChange(story)
-			try{
+	return stories.then(async (stories) => {
+		console.log(stories);
+		const zip = new AdmZip();
+		return await Promise.all(stories.map(async (story) => {
+			await this.nameSchemeChange(story);
+			try {
 				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`)
-				console.log('add FF')
-			}
-			catch (e) {console.log('file not found')}
-		})
-		).then(()=>{return zip.toBuffer()})
-	})
+				console.log('add FF');
+			} catch (e) { console.log('file not found'); }
+		})).then(() => { return zip.toBuffer();
+		});
+	});
 }
 
 module.exports = {
