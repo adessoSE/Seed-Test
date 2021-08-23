@@ -652,6 +652,7 @@ submitRenameScenario() {
     }
 
     updateGroup($event) {
+        console.log("selectedStories:", this.selectedStories)
         event.stopPropagation();
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id')
@@ -678,5 +679,33 @@ submitRenameScenario() {
             button.disabled = true
             this.toastr.error('Choose another Group-name')
         }
+      
+    /**
+     * Fuctionality for adding and removing Stories from a Group with a Checklist
+     * @param story 
+     */
+    selectStory(story){
+        if (this.isStoryChecked(story)){
+            this.selectedStories = this.selectedStories.filter(item => item !== story._id)
+        } else {
+            this.selectedStories.push(story._id);
+        }
+    }
+
+    /**
+     * Functionality for showing if Story is in Group for Checklist
+     * Checks wether the Story is already added
+     * @param story 
+     */
+    isStoryChecked(story){
+        if (this.selectedStories == undefined){
+            this.selectedStories = new Array<string>();
+            return false
+        }
+        let exists = this.selectedStories.find(function(x){return x==story._id});
+        if (exists == undefined){
+            return false
+        } 
+        return true
     }
 }

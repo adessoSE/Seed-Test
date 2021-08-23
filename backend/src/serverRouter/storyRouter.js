@@ -98,7 +98,6 @@ router.patch('/:story_id/:source', async (req, res) => {
 router.get('/:story_id/:source/:_id', async (req, res)=>{
     try {
         const scenario = await mongo.getOneScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10))
-        console.log(scenario)
         res.status(200).json(scenario)
     } catch (e) {
         handleError(res, e, e, 500)
@@ -139,6 +138,28 @@ router.delete('/:story_id/:source/:_id', async (req, res) => {
         await helper.updateFeatureFile(req.params.story_id, req.params.source);
         res.status(200)
             .json({text: 'success'});
+    } catch (error) {
+        handleError(res, error, error, 500);
+    }
+});
+
+router.get('/download/story/:source/:_id', async (req, res) => {
+    try {
+        console.log('download feature-file', req.params.source, req.params._id)
+        const file = await helper.exportSingleFeatureFile(req.params._id, req.params.source)
+        console.log(file)
+        res.send(file)
+    } catch (error) {
+        handleError(res, error, error, 500);
+    }
+})
+
+router.get('/download/project/:source/:repo_id', async (req, res) => {
+    try {
+        console.log('download project feature-files', req.params.repo_id)
+        const file = await helper.exportProjectFeatureFiles(req.params.repo_id)
+        console.log(file)
+        res.send(file)
     } catch (error) {
         handleError(res, error, error, 500);
     }
