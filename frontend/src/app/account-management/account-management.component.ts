@@ -2,8 +2,8 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { ModalsComponent } from "../modals/modals.component";
-import {saveAs} from 'file-saver';
+import { ModalsComponent } from '../modals/modals.component';
+import { saveAs } from 'file-saver';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -25,7 +25,7 @@ export class AccountManagementComponent implements OnInit {
      * Repositories or projects of this user
      */
 
-    repositories: RepositoryContainer[]
+    repositories: RepositoryContainer[];
 
     /**
      * Email of the user
@@ -47,11 +47,11 @@ export class AccountManagementComponent implements OnInit {
      */
     id: string;
 
-    searchInput: string
+    searchInput: string;
 
-    searchList: RepositoryContainer[]
+    searchList: RepositoryContainer[];
 
-    downloadRepoID: string
+    downloadRepoID: string;
 
     /**
      * Constructor
@@ -64,15 +64,15 @@ export class AccountManagementComponent implements OnInit {
                 this.updateSite('Successful'); //
             }
         });
-        if(!router.events){
+        if (!router.events) {
             this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-                this.seperateRepos(repositories)
-                console.log('first load')
+                this.seperateRepos(repositories);
+                console.log('first load');
             });
         }
     }
 
-    seperateRepos(repos){
+    seperateRepos(repos) {
         /*const dbRepos = []
         const githubRepos = []
         const jiraRepos = []
@@ -93,8 +93,8 @@ export class AccountManagementComponent implements OnInit {
         this.githubRepos = githubRepos
         this.jiraRepos = jiraRepos*/
 
-        this.repositories = repos
-        this.searchList = (!this.searchList)? repos: this.searchList
+        this.repositories = repos;
+        this.searchList = (!this.searchList) ? repos : this.searchList;
     }
 
     /**
@@ -104,7 +104,7 @@ export class AccountManagementComponent implements OnInit {
         localStorage.setItem('userId', this.id);
         this.apiService.githubLogin();
     }
-    
+
     /**
      * Opens Modal to create a new custom project
      */
@@ -118,7 +118,7 @@ export class AccountManagementComponent implements OnInit {
     jiraLogin() {
         this.modalComponent.openChangeJiraAccountModal('Jira');
     }
- 
+
     /**
      * Opens Modal to delete the Seed-Test account
      */
@@ -133,16 +133,16 @@ export class AccountManagementComponent implements OnInit {
     workGroupEdit(project: RepositoryContainer){
         this.modalComponent.openWorkgroupEditModal(project);
     }
-    
+
     /**
      * Fills the Account data
-     * @param report 
+     * @param report
      */
     updateSite(report: String) {
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {
                 this.id = user._id;
-                console.log(user)
+                console.log(user);
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];
                 }
@@ -156,13 +156,13 @@ export class AccountManagementComponent implements OnInit {
             });
 
             this.apiService.getRepositories().subscribe((repositories) => {
-                this.seperateRepos(repositories)
-                console.log('update')
+                this.seperateRepos(repositories);
+                console.log('update');
             });
         }
     }
 
-   
+
     /**
      * @ignore
      */
@@ -188,36 +188,35 @@ export class AccountManagementComponent implements OnInit {
 
     /**
      * Selects the repository and redirects the user to the story editor
-     * @param userRepository 
+     * @param userRepository
      */
     selectRepository(userRepository: RepositoryContainer) {
         const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
         ref.href = 'https://github.com/' + userRepository.value;
-        localStorage.setItem('repository', userRepository.value)
-        localStorage.setItem('source', userRepository.source)
-        localStorage.setItem('id', userRepository._id)
+        localStorage.setItem('repository', userRepository.value);
+        localStorage.setItem('source', userRepository.source);
+        localStorage.setItem('id', userRepository._id);
         this.router.navigate(['']);
     }
 
-    downloadProjectFeatures(repo_id){
-        if(repo_id) {
-            const userRepo = this.searchList.find(repo => repo._id == repo_id)
-            console.log(userRepo)
-            const source = userRepo.source
-            const id = userRepo._id
+    downloadProjectFeatures(repo_id) {
+        if (repo_id) {
+            const userRepo = this.searchList.find(repo => repo._id == repo_id);
+            console.log(userRepo);
+            const source = userRepo.source;
+            const id = userRepo._id;
             this.apiService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
-                saveAs(ret, userRepo.value + '.zip')
-            })
+                saveAs(ret, userRepo.value + '.zip');
+            });
         }
     }
 
-    searchRepos(value){
-        console.log(this.searchInput)
-        this.searchInput = this.searchInput? this.searchInput:''
+    searchRepos(value) {
+        console.log(this.searchInput);
+        this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
-            if(repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0)
-                return repo
-        })
+            if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0)
+                return repo;
+        });
     }
-
 }
