@@ -382,14 +382,17 @@
     </div>
     <div class="modal-body">
         <form>
-            <div class="form-group">
+            <div class="form-group groupouterdiv">
                 <label class="uk-form-label"  style="color: grey;"></label>
                 <input [(ngModel)]="groupTitle" placeholder=" Title" name="title">
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
-                <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
-                    <option *ngFor="let story of stories" [value]="story._id">{{story.title}}</option>
-                </select>
+                <div *ngFor="let story of stories; let i = index" class="groupstoryselection">
+                    <label class="groupinput">
+                    <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
+                    {{story.title}}
+                    </label>
+                </div>
             </div>
         </form>
     </div>
@@ -398,7 +401,7 @@
     </div>
 </ng-template>
 
-<!--Create New Group -->
+<!--Update Group -->
 <ng-template #updateGroupModal let-modal>
     <div class="modal-header">
         <h4 class="modal-title">Update Group</h4>
@@ -408,14 +411,17 @@
     </div>
     <div class="modal-body">
         <form>
-            <div class="form-group">
+            <div class="form-group groupouterdiv">
                 <label class="uk-form-label"  style="color: grey;"></label>
                 <input [(ngModel)]="groupTitle" name="title">
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
-                <select multiple [(ngModel)]="selectedStories" name="stories" class="groupstoryselection">
-                    <option *ngFor="let story of stories" [value]="story._id">{{story.title}}</option>
-                </select>
+                <div *ngFor="let story of stories; let i = index" class="groupstoryselection">
+                    <label class="groupinput">
+                    <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
+                    {{story.title}}
+                    </label>
+                </div>
             </div>
         </form>
     </div>
