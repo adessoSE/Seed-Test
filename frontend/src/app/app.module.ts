@@ -44,6 +44,7 @@ import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-intercep
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from "@angular/cdk/clipboard";
 import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
+import {HttpLoggerService} from "./Services/http-logger.service";
 
 @NgModule({
   declarations: [
@@ -91,16 +92,16 @@ import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
     MatProgressSpinnerModule,
     MatCarouselModule.forRoot(),
     LoggerModule.forRoot({
-      serverLoggingUrl: '/api/logs',
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.ERROR
+      serverLogLevel: NgxLoggerLevel.DEBUG
     }),
     ToastrModule.forRoot({
       timeOut: 3000
     })
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
+  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }],[{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerService, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
