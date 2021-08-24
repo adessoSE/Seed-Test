@@ -13,6 +13,7 @@
   "private": true,
   "dependencies": {
     "@cucumber/cucumber": "^7.2.1",
+    "adm-zip": "^0.4.16",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",

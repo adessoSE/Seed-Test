@@ -7,8 +7,7 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteStoryToast } from '../deleteStory-toast';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+
 
 
 
@@ -111,7 +110,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     constructor(public apiService: ApiService, public toastr:ToastrService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
-            this.stories = stories;
+            this.stories = stories.filter(s => s!=null);
             this.isCustomStory = localStorage.getItem('source') === 'db';
         });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
@@ -136,7 +135,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
-                    this.stories = resp;
+                    this.stories = resp.filter(s => s!=null);
                 });
             });
         });
@@ -285,14 +284,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Opens a create New group Modal
      */
     openCreateNewGroupModal(){
-        this.modalsComponent.openCreateNewGroupModal()
+        console.log(this.groups)
+        this.modalsComponent.openCreateNewGroupModal(this.groups)
     }
 
     /**
      * Opens a update group Modal
      */
     openUpdateGroupModal(group: Group){
-        this.modalsComponent.openUpdateGroupModal(group)
+        this.modalsComponent.openUpdateGroupModal(group, this.groups)
     }
 
     dropStory(event: CdkDragDrop<string[]>) {
@@ -355,9 +355,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   */ 
   storyDeleted(){
     if (this.stories.find(x => x == this.selectedStory)) {
-      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1);       
+      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1); 
     };
   }
-
+  
 }
-

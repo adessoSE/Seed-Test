@@ -43,11 +43,10 @@
     "ngx-toastr": "13.1.0",
     "ngx-logger": "~4.3.3",
     "node-fetch": "^2.6.1",
-    "node-sass": "^5.0.0",
     "request": "^2.88.2",
+    "sass": "^1.38.0",
     "set-value": "3.0.2",
     "uikit": "^3.5.9",
-
     "zone.js": "~0.10.3"
   },
   "devDependencies": {
@@ -57,7 +56,7 @@
     "@angular/compiler-cli": "^10.2.3",
     "@angular/language-service": "^10.2.3",
     "@angular/material": "^10.2.7",
-    "@compodoc/compodoc": "^1.1.11",
+    "@compodoc/compodoc": "^1.1.14",
     "@types/jasmine": "~3.6.1",
     "@types/jasminewd2": "^2.0.8",
     "@types/node": "^14.14.7",

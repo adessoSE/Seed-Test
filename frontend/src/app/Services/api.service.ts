@@ -242,6 +242,7 @@ export class ApiService {
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
+            sessionStorage.setItem('repositories', JSON.stringify(resp))
             this.getRepositoriesEvent.emit(resp);
           }),
             catchError(ApiService.handleError));
@@ -596,8 +597,6 @@ export class ApiService {
         return this.http
             .get<Story[]>(this.apiServer + '/user/stories/', {params, withCredentials: true})
             .pipe(tap(resp => {
-                console.log('Resp');
-                console.log(resp);
                 this.getStoriesEvent.emit(resp);
             }), catchError(this.handleStoryError));
     }
@@ -936,6 +935,16 @@ export class ApiService {
     getGroups(repoId: string): Observable<Group[]>{
         return this.http
             .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions())
+    }
+
+    downloadStoryFeatureFile(source, _id): Observable<Blob> {
+        return this.http
+            .get<Blob>(this.apiServer + '/story/download/story/' + source + '/' + _id, {withCredentials: true, responseType: "blob" as "json"})
+    }
+
+    downloadProjectFeatureFiles(source, repo_id): Observable<Blob> {
+        return this.http
+            .get<Blob>(this.apiServer + '/story/download/project/' + source + '/' + repo_id, {withCredentials: true, responseType: "blob" as "json"})
     }
 
     updateGroupsArray(repoId: string, groupsArray){

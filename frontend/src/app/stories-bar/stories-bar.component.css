@@ -122,6 +122,16 @@
     grid-area: groupList;
     font-size: smaller;
     transition: 0.1s;
+    display: block;
+    white-space: nowrap;
+    position: relative;
+  }
+  .groupLinkList{
+    position: absolute;
+  }
+  .groupIconSpan{
+    white-space: nowrap;
+    float: right;
   }
   #groupEdit{
     float: right;

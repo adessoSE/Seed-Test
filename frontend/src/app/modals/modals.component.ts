@@ -6,9 +6,8 @@ import {Block} from '../model/Block';
 import {StepType} from '../model/StepType';
 import {NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
-import {Story} from "../model/Story";
-import {Group} from "../model/Group";
-import {group} from "@angular/animations";
+import {Story} from '../model/Story';
+import {Group} from '../model/Group';
 
 /**
  * Component of all Modals
@@ -146,12 +145,12 @@ export class ModalsComponent {
     /**
      * List of all members in the workgroup
      */
-    workgroupList = []
+    workgroupList = [];
 
     /**
      * Owner of the workgroup
      */
-    workgroupOwner = ''
+    workgroupOwner = '';
 
     /**
      * Error if the request was not successful
@@ -167,13 +166,20 @@ export class ModalsComponent {
     /**
      * selectable Stories when create Group
      */
-    stories: Story[]
+    stories: Story[];
 
-    selectedStories: string[]
+    /**
+     * Existing Groups
+     */
+    groups: Group[];
 
-    groupTitle: string
+    scrGroup: Group;
 
-    groupId: string
+    selectedStories: string[];
+
+    groupTitle: string;
+
+    groupId: string;
 
 
 
@@ -229,10 +235,10 @@ export class ModalsComponent {
         const name = (document.getElementById('repo_name') as HTMLInputElement).value;
         if (!this.isEmptyOrSpaces(name)) {
             this.apiService.createRepository(name).subscribe(resp => {
-                this.toastr.info('', 'Project created')
+                this.toastr.info('', 'Project created');
                 this.apiService.getRepositories().subscribe(res => {
                     //
-                })
+                });
             });
         }
     }
@@ -261,11 +267,11 @@ export class ModalsComponent {
      * Deletes The Seed-Test account
      */
     deleteAccount() {
-        let insertedEmail = (document.getElementById('insertedEmail') as HTMLInputElement).value;
+        const insertedEmail = (document.getElementById('insertedEmail') as HTMLInputElement).value;
         if (insertedEmail == this.email) {
             this.apiService.deleteUser().subscribe(resp => {
-                this.toastr.info('', 'User Deleted')
-                this.apiService.logoutEvent.emit()
+                this.toastr.info('', 'User Deleted');
+                this.apiService.logoutEvent.emit();
             });
         } else {
             this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
@@ -281,10 +287,10 @@ export class ModalsComponent {
      * @param repoId id of the current repository / project
      */
     openAddBlockFormModal(correspondingComponent: string, repoId: string) {
-        this.getAllBlocks(repoId)
+        this.getAllBlocks(repoId);
         this.correspondingComponent = correspondingComponent;
         this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
-        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
     }
 
     /**
@@ -293,7 +299,7 @@ export class ModalsComponent {
      */
     getAllBlocks(repoId: string) {
         this.apiService.getBlocks(repoId).subscribe((resp) => {
-            this.blocks = resp
+            this.blocks = resp;
         });
     }
 
@@ -302,15 +308,15 @@ export class ModalsComponent {
      * @param event
      */
     changeBlockSelection(event) {
-        this.selectedBlock = this.selectedBlockList[0]
-        this.selectedBlockList = []
+        this.selectedBlock = this.selectedBlockList[0];
+        this.selectedBlockList = [];
 
-        this.stepList = []
+        this.stepList = [];
         Object.keys(this.selectedBlock.stepDefinitions).forEach((key, index) => {
             this.selectedBlock.stepDefinitions[key].forEach((step: StepType) => {
-                this.stepList.push(step)
-            })
-        })
+                this.stepList.push(step);
+            });
+        });
     }
 
     /**
@@ -318,7 +324,7 @@ export class ModalsComponent {
      */
     copiedBlock() {
         if (this.clipboardBlock) {
-            this.apiService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent)
+            this.apiService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent);
         }
     }
 
@@ -326,7 +332,7 @@ export class ModalsComponent {
      * Adds a block to saved blocks
      */
     addBlockFormSubmit() {
-        this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent)
+        this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent);
     }
 
     /**
@@ -338,14 +344,14 @@ export class ModalsComponent {
     deleteBlock(event, rowIndex: number, block: Block) {
         event.stopPropagation();
         this.apiService.deleteBlock(block._id).subscribe(resp => {
-            this.blocks.splice(rowIndex, 1)
-            this.stepList = []
-            this.selectedBlock = null
-        })
+            this.blocks.splice(rowIndex, 1);
+            this.stepList = [];
+            this.selectedBlock = null;
+        });
     }
 
 
-    //save block form modal
+    // save block form modal
 
     /**
      * Opens save block form modal
@@ -360,7 +366,7 @@ export class ModalsComponent {
         if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
             this.exampleBlock = true;
         }
-        this.createStepList()
+        this.createStepList();
         this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -368,12 +374,12 @@ export class ModalsComponent {
      * Creates a new step list
      */
     createStepList() {
-        this.stepListSaveBlock = []
+        this.stepListSaveBlock = [];
         Object.keys(this.block.stepDefinitions).forEach((key, index) => {
             this.block.stepDefinitions[key].forEach((step: StepType) => {
-                this.stepListSaveBlock.push(step)
-            })
-        })
+                this.stepListSaveBlock.push(step);
+            });
+        });
     }
 
     /**
@@ -383,12 +389,12 @@ export class ModalsComponent {
     exampleCheck(event) {
         this.exampleChecked = !this.exampleChecked;
         if (this.exampleChecked) {
-            this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock))
+            this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock));
             this.stepListSaveBlock = this.stepListSaveBlock.filter(step => {
-                return step.stepType == "example";
-            })
+                return step.stepType == 'example';
+            });
         } else {
-            this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete))
+            this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete));
         }
     }
 
@@ -397,15 +403,15 @@ export class ModalsComponent {
      */
     submitSaveBlock() {
         if (this.exampleBlock) {
-            this.parentComponent.checkAllExampleSteps(null, false)
+            this.parentComponent.checkAllExampleSteps(null, false);
         } else {
-            this.parentComponent.checkAllSteps(null, false)
+            this.parentComponent.checkAllSteps(null, false);
         }
         let title = (document.getElementById('blockNameInput') as HTMLInputElement).value;
         if (title.length === 0) {
             title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
         }
-        this.block.name = title
+        this.block.name = title;
         this.block.repository = localStorage.getItem('repository');
         this.block.source = localStorage.getItem('source');
         this.block.repositoryId = localStorage.getItem('id');
@@ -437,8 +443,8 @@ export class ModalsComponent {
             title = (document.getElementById('label_form') as HTMLInputElement).placeholder;
         }
         const type = 'Type: '.concat((document.getElementById('type_form') as HTMLSelectElement).value, '\n');
-        let description = 'Description: '.concat(form.value.description_form, '\n')
-        let email = 'Email: '.concat(form.value.email, '\n')
+        const description = 'Description: '.concat(form.value.description_form, '\n');
+        const email = 'Email: '.concat(form.value.email, '\n');
         const body = type.concat(description, email);
         const obj = {
             'title': title,
@@ -466,16 +472,16 @@ export class ModalsComponent {
  */
 openRenameScenarioModal(oldTitle: string) {
     this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
-    let name = document.getElementById('newTitle') as HTMLInputElement
-    name.placeholder = oldTitle
+    const name = document.getElementById('newTitle') as HTMLInputElement;
+    name.placeholder = oldTitle;
 }
 
 /**
  * Submits the new name for the scenario
  */
 submitRenameScenario() {
-    let name = (document.getElementById('newTitle') as HTMLInputElement).value;
-    this.apiService.renameScenarioEmit(name)
+    const name = (document.getElementById('newTitle') as HTMLInputElement).value;
+    this.apiService.renameScenarioEmit(name);
 }
 
 
@@ -487,37 +493,33 @@ submitRenameScenario() {
    */
    openRenameStoryModal(oldTitle: string) {
     this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
-    let title = document.getElementById('newStoryTitle') as HTMLInputElement
-    title.placeholder = oldTitle
+    const title = document.getElementById('newStoryTitle') as HTMLInputElement;
+    title.placeholder = oldTitle;
   }
 
   /**
    * Submits the new name for the story
    */
   submitRenameStory() {
-    let title = (document.getElementById('newStoryTitle') as HTMLInputElement).value ;
-    this.apiService.renameStoryEmit(title)
+    const title = (document.getElementById('newStoryTitle') as HTMLInputElement).value ;
+    this.apiService.renameStoryEmit(title);
   }
 
   // workgroup Edit Modal
-
-
-    // workgroup Edit Modal
-
     /**
      * Opens the workgroup edit modal
      */
     openWorkgroupEditModal(project: RepositoryContainer) {
-        this.workgroupList = []
-        this.workgroupProject = project
+        this.workgroupList = [];
+        this.workgroupProject = project;
         this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
-        let header = document.getElementById('workgroupHeader') as HTMLSpanElement
-        header.textContent = 'Project: ' + project.value
+        const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
+        header.textContent = 'Project: ' + project.value;
 
         this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
-            this.workgroupList = res.member
-            this.workgroupOwner = res.owner.email
-        })
+            this.workgroupList = res.member;
+            this.workgroupOwner = res.owner.email;
+        });
     }
 
     /**
@@ -525,19 +527,19 @@ submitRenameScenario() {
      * @param form
      */
     workgroupInvite(form: NgForm) {
-        let email = form.value.email;
-        let canEdit = form.value.canEdit
-        if (!canEdit) canEdit = false;
-        let user = {email, canEdit}
-        this.workgroupError = ''
+        const email = form.value.email;
+        let canEdit = form.value.canEdit;
+        if (!canEdit) { canEdit = false; }
+        const user = {email, canEdit};
+        this.workgroupError = '';
         this.apiService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-            let originList = JSON.parse(JSON.stringify(this.workgroupList))
-            originList.push(user)
-            this.workgroupList = []
-            this.workgroupList = originList
+            const originList = JSON.parse(JSON.stringify(this.workgroupList));
+            originList.push(user);
+            this.workgroupList = [];
+            this.workgroupList = originList;
         }, (error) => {
             this.workgroupError = error.error.error;
-        })
+        });
     }
 
     /**
@@ -547,7 +549,7 @@ submitRenameScenario() {
     removeFromWorkgroup(user) {
         this.apiService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
             this.workgroupList = res.member;
-        })
+        });
     }
 
     /**
@@ -556,10 +558,10 @@ submitRenameScenario() {
      * @param user
      */
     checkEditUser(event, user) {
-        user.canEdit = !user.canEdit
+        user.canEdit = !user.canEdit;
         this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
             this.workgroupList = res.member;
-        })
+        });
     }
 
 
@@ -580,11 +582,11 @@ submitRenameScenario() {
         const title = (document.getElementById('storytitle') as HTMLInputElement).value;
         const description = (document.getElementById('storydescription') as HTMLInputElement).value;
         const value = localStorage.getItem('repository');
-        const _id = localStorage.getItem('id')
+        const _id = localStorage.getItem('id');
         const source = 'db';
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        let story = {title, description}
-        this.apiService.createCustomStoryEvent({repositoryContainer, story})
+        const story = {title, description};
+        this.apiService.createCustomStoryEvent({repositoryContainer, story});
     }
 
     // createNewStoryModal
@@ -592,17 +594,18 @@ submitRenameScenario() {
     /**
      * Opens the create new group modal
      */
-    openCreateNewGroupModal() {
-        this.groupId = undefined
-        this.groupTitle = undefined
-        this.selectedStories = undefined
+    openCreateNewGroupModal(groups: Group[]) {
+        this.groups = groups;
+        this.groupId = undefined;
+        this.groupTitle = '';
+        this.selectedStories = undefined;
         const value = localStorage.getItem('repository');
-        const _id = localStorage.getItem('id')
-        const source = 'db';
+        const _id = localStorage.getItem('id');
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        this.apiService.getStories(repositoryContainer).subscribe(res =>{
-            this.stories = res
-        })
+        this.apiService.getStories(repositoryContainer).subscribe(res => {
+            this.stories = res;
+        });
         this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -611,60 +614,75 @@ submitRenameScenario() {
      */
     createNewGroup(event) {
         event.stopPropagation();
-        const title = this.groupTitle
-        const member_stories = this.selectedStories
+        const title = this.groupTitle;
+        const member_stories = this.selectedStories;
         const value = localStorage.getItem('repository');
-        const _id = localStorage.getItem('id')
-        const source = 'db';
+        const _id = localStorage.getItem('id');
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        let group = {title, member_stories}
-        this.apiService.createGroupEvent({repositoryContainer, group})
+        const group = {title, member_stories};
+        this.apiService.createGroupEvent({repositoryContainer, group});
     }
 
     /**
      * Opens the create new group modal
      */
-    openUpdateGroupModal(group: Group) {
+    openUpdateGroupModal(group: Group, groups: Group[]) {
+        this.groups = groups;
+        this.scrGroup = group;
         const value = localStorage.getItem('repository');
-        const _id = localStorage.getItem('id')
-        const source = 'db';
+        const _id = localStorage.getItem('id');
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        this.apiService.getStories(repositoryContainer).subscribe(res =>{
-            this.stories = res
-        })
-        this.groupId = group._id
-        this.groupTitle = group.name
-        this.selectedStories = []
-        for (let s of group.member_stories){
-            this.selectedStories.push(s._id)
+        this.apiService.getStories(repositoryContainer).subscribe(res => {
+            this.stories = res;
+        });
+        this.groupId = group._id;
+        this.groupTitle = group.name;
+        this.selectedStories = [];
+        for (const s of group.member_stories) {
+            this.selectedStories.push(s._id);
         }
         this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
     updateGroup($event) {
-        console.log("selectedStories:", this.selectedStories)
+        console.log('selectedStories:', this.selectedStories);
         event.stopPropagation();
         const value = localStorage.getItem('repository');
-        const _id = localStorage.getItem('id')
-        const source = 'db';
+        const _id = localStorage.getItem('id');
+        const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        let group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories}
-        this.apiService.updateGroupEvent({repositoryContainer, group})
+        const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories};
+        this.apiService.updateGroupEvent({repositoryContainer, group});
     }
 
-    deleteGroup($event){
-        event.stopPropagation()
-        const repo_id = localStorage.getItem('id')
-        this.apiService.deleteGroupEvent({'repo_id':repo_id, 'group_id': this.groupId})
+    deleteGroup($event) {
+        event.stopPropagation();
+        const repo_id = localStorage.getItem('id');
+        this.apiService.deleteGroupEvent({'repo_id': repo_id, 'group_id': this.groupId});
+    }
+
+    groupUnique(event, input: String, array: Group[], group?: Group) {
+        array = array ? array : [];
+        input = input ? input : '';
+
+        const button = (group ? document.getElementById('groupUpdate') : document.getElementById('groupSave')) as HTMLButtonElement;
+        if ((input && !array.find(i => i.name == input)) || (group ? array.find(g => g._id == group._id && g.name == input) : false)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('Choose another Group-name');
+        }
     }
 
     /**
      * Fuctionality for adding and removing Stories from a Group with a Checklist
-     * @param story 
+     * @param story
      */
-    selectStory(story){
-        if (this.isStoryChecked(story)){
-            this.selectedStories = this.selectedStories.filter(item => item !== story._id)
+    selectStory(story) {
+        if (this.isStoryChecked(story)) {
+            this.selectedStories = this.selectedStories.filter(item => item !== story._id);
         } else {
             this.selectedStories.push(story._id);
         }
@@ -673,18 +691,14 @@ submitRenameScenario() {
     /**
      * Functionality for showing if Story is in Group for Checklist
      * Checks wether the Story is already added
-     * @param story 
+     * @param story
      */
-    isStoryChecked(story){
-        if (this.selectedStories == undefined){
+    isStoryChecked(story) {
+        if (this.selectedStories === undefined) {
             this.selectedStories = new Array<string>();
-            return false
+            return false;
         }
-        let exists = this.selectedStories.find(function(x){return x==story._id});
-        if (exists == undefined){
-            return false
-        } 
-        return true
-        
+        const exists = this.selectedStories.find(function(x) {return x == story._id; });
+        return exists !== undefined;
     }
 }
