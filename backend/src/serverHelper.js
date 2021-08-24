@@ -302,7 +302,7 @@ async function execReport(req, res, stories, mode, callback) {
 		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
 		//  else process.env.DAISY_AUTO_LOGOUT = false;
 		if (mode === 'group') {
-			req.body.name = req.body.name.replace(' ', '_') + Date.now();
+			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			for (let story of stories) {
 				await nameSchemeChange(story);
