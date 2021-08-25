@@ -37,7 +37,7 @@ setDefaultTimeout(30 * 1000);
 
 Before(async function () {
 	currentParameters = this.parameters.scenarios[scenarioIndex];
-	driver = new webdriver.Builder()
+	driver = await new webdriver.Builder()
 		.forBrowser(currentParameters.browser)
 		.setChromeOptions(chromeOptions)
 		.build();
@@ -682,8 +682,8 @@ After(async () => {
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	const condition = until.elementLocated(By.name('loader'));
-	driver.wait(async drive => condition.fn(drive), 1000, 'Loading failed.');
-	driver.quit();
+	driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+	await driver.quit();
 });
 
 // selenium sleeps for a certain amount of time

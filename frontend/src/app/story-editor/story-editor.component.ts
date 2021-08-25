@@ -1,22 +1,19 @@
 import { Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
-import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
+import { saveAs } from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
-import { RepositoryContainer } from '../model/RepositoryContainer';
-
 
 /**
  * Empty background
@@ -33,44 +30,39 @@ const emptyBackground: Background = {stepDefinitions: {when: []}};
 })
 export class StoryEditorComponent implements OnInit, DoCheck {
 
+  /**
+   * set new currently selected scenario
+   */
+  @Input()
+  set newSelectedScenario(scenario: Scenario) {
+      this.selectedScenario = scenario;
+      if (this.selectedStory) {
+          this.selectScenario(scenario);
+      }
+      this.activeActionBar = false;
+      this.allChecked = false;
+  }
 
-    /**
-     * set new currently selected scenario
-     */
-    @Input()
-    set newSelectedScenario(scenario: Scenario) {
-        this.selectedScenario = scenario;
-        if (this.selectedStory) {
-            this.selectScenario(scenario);
+  /**
+   * set new stories
+   */
+  @Input()
+  set newStories(stories: Story[]) {
+        if (stories) {
+            this.stories = stories;
         }
-        this.activeActionBar = false;
-        this.allChecked = false;
-    }
+  }
 
-    /**
-     * set new stories
-     */
-    @Input()
-    set newStories(stories: Story[]) {
-          if (stories) {
-              this.stories = stories;
-          }
-    }
-
-    /**
-     * set new currently selected story
-     */
-    @Input()
-    set newSelectedStory(story: Story) {
-        this.selectedStory = story;
-        this.showEditor = true;
-        this.activeActionBar = false;
-        this.allChecked = false;
-    }
-    @Input()
-    set testRunningForGroup(groupRunning: boolean){
-        this.testRunningGroup = groupRunning;
-    }
+  /**
+   * set new currently selected story
+   */
+  @Input()
+  set newSelectedStory(story: Story) {
+      this.selectedStory = story;
+      this.showEditor = true;
+      this.activeActionBar = false;
+      this.allChecked = false;
+  }
     /**
      * Original step types
      */
@@ -214,7 +206,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     changeEditor: EventEmitter<any> = new EventEmitter();
 
     @Output()
-    deleteStoryEvent: EventEmitter<any>= new EventEmitter();
+    deleteStoryEvent: EventEmitter<any> = new EventEmitter();
 
     /**
      * Stories bar component
@@ -240,13 +232,16 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       });
 
       this.apiService.deleteScenarioEvent.subscribe(() => {
-          this.deleteScenario(this.selectedScenario)
-      });
-
+        this.deleteScenario(this.selectedScenario);
+    });
 
       if (this.apiService.urlReceived) {
           this.loadStepTypes();
       }
+
+      this.apiService.deleteStoryEvent.subscribe(() => {
+        this.showEditor = false;
+    });
     }
 
 
@@ -295,8 +290,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                   this.selectedStory.background.saved = false;
             }
         });
-        this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName))
-
+        this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
     }
 
     /**
@@ -873,8 +867,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Opens the Modal to rename the story
      * @param newStoryTitle
      */
-     changeStoryTitle(){
-    this.modalsComponent.openRenameStoryModal(this.selectedStory.title)
+     changeStoryTitle() {
+    this.modalsComponent.openRenameStoryModal(this.selectedStory.title);
    }
     /**
      * Renames the story
@@ -884,25 +878,25 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
         this.selectedStory.title = newStoryTitle;
     }
-    this.updateStory()
+    this.updateStory();
    }
 
    /**
      * Updates the story
      *
      */
-    updateStory(){
+    updateStory() {
         {this.apiService
             .updateStory(this.selectedStory)
             .subscribe(_resp => {
-                this.toastr.success('successfully saved', 'Story')
-            });}
+                this.toastr.success('successfully saved', 'Story');
+            }); }
         }
 
     storyLink() {
         return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
     }
-    showStoryLinkToast(){
+    showStoryLinkToast() {
         this.toastr.success('', 'Successfully added Link to Clipboard!');
     }
 
@@ -916,18 +910,26 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     });
   }
 
+
+  downloadFeature() {
+      const source = this.selectedStory.storySource;
+      const id = this.selectedStory._id;
+      this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+          saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
+      });
+  }
+
   /**
      * Emitts the delete story event
      * @param event
      */
-   deleteStory(event){
+   deleteStory(event) {
     this.deleteStoryEvent.emit(this.selectedStory);
     }
 
-
-
-
-
+    getUniqueStoryTitle() {
+        return this.selectedStory.title;
+    }
 
 }
 
