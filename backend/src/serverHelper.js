@@ -250,7 +250,7 @@ function runReport(req, res, stories, mode, parameters) {
 							};
 							uploadedReport = await uploadReport(report, story._id, scenarioID);
 							// set response
-							fs.readFile(`./features/${grpNameDir}/${grpNameDir}.html`, 'utf8',(err, data) => {
+							fs.readFile(`./features/${grpNameDir}/${grpNameDir}.html`, 'utf8', (err, data) => {
 								res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
 							});
 						});
@@ -633,10 +633,10 @@ async function createReport(res, reportName) {
 	fs.writeFileSync(resolvedPath, JSON.stringify(report.jsonReport),
 		(err) => { console.log('Error:', err); });
 	// console.log('report options', report)
-	reporter.generate(report.reportOptions);
+	reporter.generate(setOptions(reportName));
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-	fs.readFile(`features/${reportName}.html`,'utf8',(err, data) => {
+	fs.readFile(`features/${reportName}.html`, 'utf8', (err, data) => {
 		res.json({ htmlFile: data, reportId: report._id });
 	});
 }
