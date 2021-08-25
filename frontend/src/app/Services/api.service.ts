@@ -386,7 +386,6 @@ export class ApiService {
             .delete<any>(this.apiServer + '/story/' + repository + '/' + _id,  ApiService.getOptions())
             .pipe(tap(resp => {
             }));
-           console.log('Delete story console');
     }
 
     public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any> {
