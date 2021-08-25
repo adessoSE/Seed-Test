@@ -241,12 +241,18 @@ function runReport(req, res, stories, mode, parameters) {
 					} else {
 						reportOptions = setOptions(req.body.name, reportPath = `features/${grpNameDir}/`);
 						reporter.generate(reportOptions);
-						const report = {
-							reportTime, reportName: grpNameDir, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
-						};
-						uploadedReport = await uploadReport(report, story._id, scenarioID);
-						fs.readFile(`./features/${grpNameDir}/${grpNameDir}.html`, 'utf8',(err, data) => {
-							res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
+
+						// upload report JSON to DB
+						fs.readFile(`features/${grpNameDir}/${grpNameDir}.html.json`, 'utf8', async (err, data) => {
+							const grpJson = JSON.parse(data);
+							const report = {
+								reportTime, reportName: grpNameDir, reportOptions, jsonReport: grpJson, storyId: story._id, mode, scenarioId: scenarioID, testStatus
+							};
+							uploadedReport = await uploadReport(report, story._id, scenarioID);
+							// set response
+							fs.readFile(`./features/${grpNameDir}/${grpNameDir}.html`, 'utf8',(err, data) => {
+								res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
+							});
 						});
 						setTimeout((group) => {
 							fs.rm(`./features/${group}`, { recursive: true }, () => {
