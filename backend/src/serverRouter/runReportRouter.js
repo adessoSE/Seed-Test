@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
+
 const router = express.Router();
 const stories = [];
 // This router is used for accessing Cucumber/Selenium Reports
@@ -18,11 +19,8 @@ router
 		next();
 	})
 	.use((req, res, next) => {
-		if (req.user)
-			next();
-		else{
-			console.log('not Authenticated')
-		}
+		if (req.user) next();
+		else console.log('not Authenticated');
 	});
 
 // run single Feature
@@ -35,75 +33,74 @@ router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
 	helper.runReport(req, res, stories, 'scenario', req.body);
 });
 
-// run one Group
+// run one Group and return report
 router.post('/Group/:repoID/:groupID', async (req, res) => {
-	//console.log('runGroup Not Implemented yet')
-	//res.sendStatus(501)
-	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID)
-	let mystories = []
-	for(let id of group.member_stories){
-		mystories.push(await mongo.getOneStory(id, 'db'))
-	}
-	req.body = group
-
-	await helper.runReport(req, res, mystories, 'group', req.body)
-})
+	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
+	const mystories = [];
+	for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id, 'db'));
+	req.body = group;
+	await helper.runReport(req, res, mystories, 'group', req.body);
+});
 
 router.get('/report/:reportName', (req, res) => {
 	helper.createReport(res, req.params.reportName);
 });
 
 router.get('/reportHistory/:storyId', async (req, res) => {
-	let storyId = req.params.storyId;
-	let history = await helper.getReportHistory(storyId);
-	let storyReports = [];
-	let scenarioReports = [];
-	history.forEach(element => {
-		if (element.mode =='feature'){
-			storyReports.push(element)
-		}else{
-			scenarioReports.push(element)
+	const { storyId } = req.params;
+	const history = await helper.getReportHistory(storyId);
+	const storyReports = [];
+	const scenarioReports = [];
+	const groupReports = [];
+	history.forEach((element) => {
+		if (element.mode === 'feature') {
+			storyReports.push(element);
+			console.log(`Feature Reports: ${storyReports.length}`);
 		}
+		if (element.mode === 'scenario') {
+			scenarioReports.push(element);
+			console.log(`Scenario Reports: ${scenarioReports.length}`);
+		} else groupReports.push(element);
 	});
-	let reportContainer = {storyReports, scenarioReports}
-	//console.log('reportContainer', reportContainer)
+	const reportContainer = { storyReports, scenarioReports, groupReports };
+	console.log('reportContainer', reportContainer);
 	res.status(200).json(reportContainer);
 });
 
-//delete a report
+// delete a report
 router.delete('/report/:reportId', async (req, res) => {
 	try {
 		// TODO: Authenticate user
-		console.log('params', req.params.reportId)
+		console.log('params', req.params.reportId);
 		const result = await mongo.deleteReport(req.params.reportId);
 		res.status(200).json(result);
 	} catch (error) {
-		console.log('error in delete report', error)
+		console.log('error in delete report', error);
 		res.sendStatus(401);
 	}
 });
 
-//save Report
+// save Report
 router.get('/saveReport/:reportId', async (req, res) => {
 	try {
 		// TODO: Authenticate user
 		const result = await mongo.setIsSavedTestReport(req.params.reportId, true);
 		res.status(200).json(result);
 	} catch (error) {
-		console.log('error in saveReport', error)
+		console.log('error in saveReport', error);
 
 		res.sendStatus(401);
 	}
 });
 
-//unsave Report
+// unsave Report
 router.get('/unsaveReport/:reportId', async (req, res) => {
 	try {
 		// TODO: Authenticate user
 		const result = await mongo.setIsSavedTestReport(req.params.reportId, false);
 		res.status(200).json(result);
 	} catch (error) {
-		console.log('error in unsaveReport', error)
+		console.log('error in unsaveReport', error);
 
 		res.sendStatus(401);
 	}

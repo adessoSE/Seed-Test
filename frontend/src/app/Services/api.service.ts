@@ -9,7 +9,7 @@ import {Background} from '../model/Background';
 import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
-import {Group} from "../model/Group";
+import {Group} from '../model/Group';
 
 /**
  * Service to communicate between components and the backend
@@ -111,28 +111,6 @@ export class ApiService {
     }
 
     /**
-     * Emits the run save option
-     * @param option
-     */
-    public runSaveOption(option: String){
-        this.runSaveOptionEvent.emit(option)
-    }
-
-    /**
-     * Emits the delete scenario event
-     */
-    public deleteScenarioEmitter(){
-        this.deleteScenarioEvent.emit()
-    }
-
-     /**
-     * Emits the delete story event
-     */
-      public deleteStoryEmitter(){
-        this.deleteStoryEvent.emit()
-    }
-
-    /**
      * Handles http error
      * @param error
      * @returns
@@ -143,10 +121,32 @@ export class ApiService {
     }
 
     /**
+     * Emits the run save option
+     * @param option
+     */
+    public runSaveOption(option: String) {
+        this.runSaveOptionEvent.emit(option);
+    }
+
+    /**
+     * Emits the delete scenario event
+     */
+    public deleteScenarioEmitter() {
+        this.deleteScenarioEvent.emit();
+    }
+
+     /**
+     * Emits the delete story event
+     */
+      public deleteStoryEmitter() {
+        this.deleteStoryEvent.emit();
+    }
+
+    /**
      * Emits the rename scenario event
      * @param newTitle
      */
-    renameScenarioEmit(newTitle){
+    renameScenarioEmit(newTitle) {
         this.renameScenarioEvent.emit(newTitle);
     }
 
@@ -154,7 +154,7 @@ export class ApiService {
      * Emits the rename story event
      * @param newStoryTitle
      */
-     renameStoryEmit(newStoryTitle){
+     renameStoryEmit(newStoryTitle) {
         this.renameStoryEvent.emit(newStoryTitle);
     }
 
@@ -175,8 +175,8 @@ export class ApiService {
      * @param block
      * @param correspondingComponent
      */
-    addBlockToScenario(block: Block, correspondingComponent: string){
-        this.addBlockToScenarioEvent.emit([correspondingComponent, block])
+    addBlockToScenario(block: Block, correspondingComponent: string) {
+        this.addBlockToScenarioEvent.emit([correspondingComponent, block]);
     }
 
     /**
@@ -194,7 +194,7 @@ export class ApiService {
      * @param code
      * @returns
      */
-    githubCallback(code: string): Observable<any>{
+    githubCallback(code: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         const str = this.apiServer + '/user/callback?code=' + code;
         return this.http.get(str, {withCredentials: true})
@@ -242,7 +242,7 @@ export class ApiService {
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
-            sessionStorage.setItem('repositories', JSON.stringify(resp))
+            sessionStorage.setItem('repositories', JSON.stringify(resp));
             this.getRepositoriesEvent.emit(resp);
           }),
             catchError(ApiService.handleError));
@@ -337,7 +337,7 @@ export class ApiService {
      * @param source repoSource
      * @return single Story object
      */
-    public getStory(_id, source): Observable<any>{
+    public getStory(_id, source): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -371,7 +371,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .put<Story>(this.apiServer + '/story/' + story._id, story, ApiService.getOptions())
-            .pipe(tap(resp =>{
+            .pipe(tap(resp => {
             }));
     }
 
@@ -379,21 +379,20 @@ export class ApiService {
      * deletes a Story
      * @param _id StoryID
      */
-    public deleteStory(repository, _id): Observable<any>{
+    public deleteStory(repository, _id): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         const body = {'repo_id' : repository, '_id' : _id};
         return this.http
-            .delete<any>(this.apiServer + '/story/' + repository + '/'+ _id,  ApiService.getOptions())
-            .pipe(tap(resp =>{
+            .delete<any>(this.apiServer + '/story/' + repository + '/' + _id,  ApiService.getOptions())
+            .pipe(tap(resp => {
             }));
-           console.log('Delete story console')
     }
 
-    public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any>{
+    public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .patch(this.apiServer + '/story/' + story_id + '/' + source, scenario_list, ApiService.getOptions())
-            .pipe(tap(resp =>{
+            .pipe(tap(resp => {
             }));
     }
 
@@ -435,7 +434,7 @@ export class ApiService {
      * @param user
      * @returns
      */
-    addToWorkgroup(_id: string, user){
+    addToWorkgroup(_id: string, user) {
         return this.http
         .post<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
         .pipe(tap(resp => {
@@ -449,7 +448,7 @@ export class ApiService {
      * @param user
      * @returns
      */
-    updateWorkgroupUser(_id: string, user){
+    updateWorkgroupUser(_id: string, user) {
         return this.http
         .put<any>(this.apiServer + '/workgroups/wgmembers/' + _id, user, ApiService.getOptions())
         .pipe(tap(resp => {
@@ -462,7 +461,7 @@ export class ApiService {
      * @param _id
      * @returns
      */
-    getWorkgroup(_id: string){
+    getWorkgroup(_id: string) {
         return this.http
         .get<any>(this.apiServer + '/workgroups/wgmembers/' + _id, ApiService.getOptions())
         .pipe(tap(resp => {
@@ -476,8 +475,8 @@ export class ApiService {
      * @param email
      * @returns
      */
-    removeFromWorkgroup(_id: string, email: string){
-        let user = {email}
+    removeFromWorkgroup(_id: string, email: string) {
+        const user = {email};
         return this.http
         .post<any>(this.apiServer + '/workgroups/deletemember/' + _id, user, ApiService.getOptions())
         .pipe(tap(resp => {
@@ -490,7 +489,7 @@ export class ApiService {
      * @param block
      * @returns
      */
-    saveBlock(block: Block){
+    saveBlock(block: Block) {
         return this.http
         .post<any>(this.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
         .pipe(tap(resp => {
@@ -526,31 +525,31 @@ export class ApiService {
      * Emitts the create custom story event
      * @param story
      */
-    createCustomStoryEvent(story){
-        this.createCustomStoryEmitter.emit(story)
+    createCustomStoryEvent(story) {
+        this.createCustomStoryEmitter.emit(story);
     }
 
     /**
      * Emitts the create group event
      * @param group
      */
-    createGroupEvent(group){
-        this.createCustomGroupEmitter.emit(group)
+    createGroupEvent(group) {
+        this.createCustomGroupEmitter.emit(group);
     }
 
     /**
      * Emitts the create group event
      * @param group
      */
-    updateGroupEvent(group){
-        this.updateGroupEmitter.emit(group)
+    updateGroupEvent(group) {
+        this.updateGroupEmitter.emit(group);
     }
 
     /**
      * Emits the delete scenario event
      */
-    public deleteGroupEvent(values){
-        this.deleteGroupEmitter.emit(values)
+    public deleteGroupEvent(values) {
+        this.deleteGroupEmitter.emit(values);
     }
 
     /**
@@ -601,13 +600,13 @@ export class ApiService {
             }), catchError(this.handleStoryError));
     }
 
-    //only affects repo
+    // only affects repo
     updateStoryList(repo_id, source, storiesList) {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .put(this.apiServer + '/user/stories/' + repo_id , storiesList, ApiService.getOptions())
             .pipe(tap(resp => {
-                //console.log('update order res', resp);
+                // console.log('update order res', resp);
             }));
     }
 
@@ -623,7 +622,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/jira/user/create/', request, ApiService.getOptions())
             .pipe(tap(resp => {
-                //console.log(resp.body);
+                // console.log(resp.body);
             }));
     }
 
@@ -654,9 +653,9 @@ export class ApiService {
             .pipe(tap(resp => {
             }), catchError((err, caught) => {
                 return new Observable(subscriber => {
-                    subscriber.next(err)
+                    subscriber.next(err);
                     subscriber.complete();
-                })
+                });
             }));
     }
 
@@ -731,7 +730,7 @@ export class ApiService {
             }));
     }
 
-    public addFirstScenario(storyID, storySource: string): Observable<Scenario>{
+    public addFirstScenario(storyID, storySource: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
@@ -806,7 +805,7 @@ export class ApiService {
      * @returns
      */
     deleteReport(reportId): Observable<any> {
-        console.log('delete reportId', reportId)
+        console.log('delete reportId', reportId);
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .delete<any>(this.apiServer + '/run/report/' + reportId, ApiService.getOptions())
@@ -885,7 +884,7 @@ export class ApiService {
      */
     runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        let timeout = 600000;
+        const timeout = 600000;
         if (scenarioID) {
             return this.http
                 .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
@@ -896,9 +895,9 @@ export class ApiService {
 
     runGroup(repoID, groupID, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        let timeout = 600000;
+        const timeout = 600000;
         return this.http
-            .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })})
+            .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
 
@@ -908,7 +907,7 @@ export class ApiService {
      * @param storyId
      * @returns
      */
-    getReportHistory(storyId: string){
+    getReportHistory(storyId: string) {
         return this.http
             .get<any>(this.apiServer + '/run/reportHistory/' + storyId, ApiService.getOptions())
             .pipe(tap(resp => {
@@ -916,40 +915,40 @@ export class ApiService {
             }));
     }
 
-    createGroup(title: string,repoId: string, member_stories): Observable<any>{
-        console.log('createGroup', title, repoId)
+    createGroup(title: string, repoId: string, member_stories): Observable<any> {
+        console.log('createGroup', title, repoId);
         return this.http
-            .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories}, ApiService.getOptions())
+            .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories}, ApiService.getOptions());
     }
 
-    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any>{
+    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> {
         return this.http
-            .put(this.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions())
+            .put(this.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
     }
 
-    deleteGroup(repoId: string, groupId:string){
+    deleteGroup(repoId: string, groupId: string) {
         return this.http
-            .delete(this.apiServer + '/group/' + repoId + '/' + groupId, ApiService.getOptions())
+            .delete(this.apiServer + '/group/' + repoId + '/' + groupId, ApiService.getOptions());
     }
 
-    getGroups(repoId: string): Observable<Group[]>{
+    getGroups(repoId: string): Observable<Group[]> {
         return this.http
-            .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions())
+            .get<Group[]>( this.apiServer + '/group/' + repoId, ApiService.getOptions());
     }
 
     downloadStoryFeatureFile(source, _id): Observable<Blob> {
         return this.http
-            .get<Blob>(this.apiServer + '/story/download/story/' + source + '/' + _id, {withCredentials: true, responseType: "blob" as "json"})
+            .get<Blob>(this.apiServer + '/story/download/story/' + source + '/' + _id, {withCredentials: true, responseType: 'blob' as 'json'});
     }
 
     downloadProjectFeatureFiles(source, repo_id): Observable<Blob> {
         return this.http
-            .get<Blob>(this.apiServer + '/story/download/project/' + source + '/' + repo_id, {withCredentials: true, responseType: "blob" as "json"})
+            .get<Blob>(this.apiServer + '/story/download/project/' + source + '/' + repo_id, {withCredentials: true, responseType: 'blob' as 'json'});
     }
 
-    updateGroupsArray(repoId: string, groupsArray){
+    updateGroupsArray(repoId: string, groupsArray) {
         return this.http
-            .put(this.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions())
+            .put(this.apiServer + '/group/' + repoId, groupsArray, ApiService.getOptions());
     }
 
     /**

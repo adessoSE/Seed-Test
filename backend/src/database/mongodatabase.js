@@ -902,7 +902,6 @@ async function getTestReports(storyId) {
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
 		console.log('Getting Report for storyId :', storyId);
-		// https://poopcode.com/how-to-return-only-specific-fields-from-a-mongodb-query/
 		const result = await collection.find({ storyId: ObjectId(storyId) },
 			{ projection: { json: 0, reportOptions: 0 } }).toArray();
 		db.close();
@@ -936,7 +935,8 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 		const report = await collection.findOne({ _id: ObjectId(testReportId) });
 		const updatedReport = report;
 		updatedReport.isSaved = isSaved;
-		const result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) }, updatedReport, { returnOriginal: false });
+		const result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
+			updatedReport, { returnOriginal: false });
 		db.close();
 		return result;
 	} catch (e) {
@@ -994,7 +994,7 @@ async function createUser(user) {
 async function deleteUser(userID) {
 	let db;
 	try {
-		oId = ObjectId(userID);
+		const oId = ObjectId(userID);
 		const myObjt = { _id: oId };
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);
@@ -1021,7 +1021,7 @@ async function deleteUser(userID) {
 async function updateUser(userID, updatedUser) {
 	let db;
 	try {
-		oId = ObjectId(userID);
+		const oId = ObjectId(userID);
 		const myObjt = { _id: oId };
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);

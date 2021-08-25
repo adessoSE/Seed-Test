@@ -1,15 +1,15 @@
 <div class="grid">
   <div class="formular">
     <h1 id="headerFont" class="LargeHeadline3">Registration</h1>
-     
+
     <!--Formular-->
     <form #registrationForm="ngForm" novalidate (ngSubmit)="registerUser(registrationForm);" appPasswordConfirmed>
-     
+
       <hr>
       <p class="wrongLogin" *ngIf="error">{{error}}</p>
       <!--Input Email-->
       <label class="uk-form-label"></label>
-      <input #email ngModel id="email" type="email" name="email" [class.wrongEmail]="registrationForm.controls.email == undefined || (registrationForm.controls.email.invalid && registrationForm.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Email*" class="uk-form-controls input" required>
+      <input #email ngModel id="email" type="email" name="email" [class.wrongEmail]="registrationForm.controls.email == undefined || (registrationForm.controls.email.invalid && registrationForm.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,5}$" placeholder="Email*" class="uk-form-controls input" required>
 
       <!--Cross Validation-->
         <div class="cross-validation" [class.cross-validation-error]="registrationForm.controls.password == undefined || registrationForm.errors?.passwordConfirmed || (registrationForm.controls.password.invalid && registrationForm.controls.password.dirty)">
@@ -21,7 +21,7 @@
               <i id="passwordLengthInfo">Password must be at least 8 characters long</i>
           <!--Confirm Password-->
             <label for="confirmPassword" class="uk-form-label"></label>
-                  <input id="confirmPassword" type="password" name="confirmPassword"  placeholder="Confirm Password*" 
+                  <input id="confirmPassword" type="password" name="confirmPassword"  placeholder="Confirm Password*"
                   minlength="8" #confirmPassword ngModel class="uk-form-controls input" #name="ngModel" required>
           <!--P and CP don't match-->
           <div *ngIf="registrationForm.errors?.passwordConfirmed" class="cross-validation-error-message alert alert-danger">
@@ -35,4 +35,3 @@
     </form>
   </div>
 </div>
-    
