@@ -267,7 +267,6 @@ function runReport(req, res, stories, mode, parameters) {
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 				}
 
-
 				if (req.params.storySource === 'github' && req.user && req.user.github) {
 					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
@@ -296,18 +295,13 @@ function runReport(req, res, stories, mode, parameters) {
 
 async function execReport(req, res, stories, mode, callback) {
 	try {
-		// console.log('DAISYAUTOLOGOUT');
-		// console.log(typeof (story.daisyAutoLogout));
-		// // does not Fail if "daisyAutoLogout" is undefined
-		// if (story.daisyAutoLogout) process.env.DAISY_AUTO_LOGOUT = story.daisyAutoLogout;
-		//  else process.env.DAISY_AUTO_LOGOUT = false;
 		if (mode === 'group') {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			for (let story of stories) {
 				await nameSchemeChange(story);
-				execReport2(req, res, stories, 'group', story, callback);
 			}
+			execReport2(req, res, stories, 'group', story, callback);
 		} else {
 			let story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 			await nameSchemeChange(story);
@@ -342,7 +336,6 @@ async function deleteFeatureFile(storyTitle, storyId) {
 }
 
 function execReport2(req, res, stories, mode, story, callback) {
-
 	let parameters = {};
 	if (mode === 'scenario') {
 		const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioID, 10));
@@ -351,7 +344,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
 		if (scenario.stepDefinitions.example.length <= 0) {
 			parameters = {
-			scenarios:
+				scenarios:
 				[{
 					browser: scenario.browser,
 					waitTime: scenario.stepWaitTime,
@@ -387,8 +380,8 @@ function execReport2(req, res, stories, mode, story, callback) {
 
 	let jsonPath = `features/${reportName}.json`;
 	if (mode === 'group') {
-		const gr_dir = req.body.name;
-		jsonPath = `./features/${gr_dir}/${reportName}.json`;
+		const grpDir = req.body.name;
+		jsonPath = `./features/${grpDir}/${reportName}.json`;
 	}
 
 	const jsParam = JSON.stringify(parameters);
@@ -453,12 +446,11 @@ function scenarioPrep(scenarios) {
 function setOptions(reportName, path = 'features/') {
 	const myOptions = lodash.cloneDeep(options);
 	myOptions.metadata.Platform = process.platform;
-	myOptions.name = 'Seed-Test Report';
+	myOptions.name = `Seed-Test Report: ${reportName}`;
 	if (path !== 'features/') {
 		myOptions.jsonDir = `${path}`;
 		myOptions.jsonFile = null;
-	} else
-		myOptions.jsonFile = `${path}${reportName}.json`;
+	} else myOptions.jsonFile = `${path}${reportName}.json`;
 	myOptions.output = `${path}${reportName}.html`;
 	return myOptions;
 }
@@ -613,7 +605,7 @@ function deleteReport(jsonReport) {
 }
 
 async function getReportHistory(storyId) {
-	return await mongo.getTestReports(storyId);
+	return mongo.getTestReports(storyId);
 }
 
 async function uploadReport(report, storyId, scenarioID) {
@@ -760,8 +752,9 @@ async function deleteOldReports(storyId, scenarioID) {
 	// all reports for Story AND Scenario:
 	const reportHistoryJSON = await getReportHistory(storyId);
 	const reportHistory = JSON.parse(JSON.stringify(reportHistoryJSON));
-	let featureReports = reportHistory.filter((element) => element.mode == 'feature');
-	let scenarioReports = reportHistory.filter((element) => element.mode == 'scenario');
+	let featureReports = reportHistory.filter((element) => element.mode === 'feature');
+	let scenarioReports = reportHistory.filter((element) => element.mode === 'scenario');
+	let groupReports = reportHistory.filter((element) => element.mode === 'group');
 
 	// sort Reports by timestamp
 	featureReports.sort((a, b) => b.reportTime - a.reportTime);
@@ -783,6 +776,17 @@ async function deleteOldReports(storyId, scenarioID) {
 	scenarioReports.splice(0, keepReportAmount);
 	// then delete the remaining old reports:
 	scenarioReports.forEach((element) => {
+		mongo.deleteReport(element._id);
+	});
+
+	// sort Reports by timestamp
+	groupReports.sort((a, b) => b.reportTime - a.reportTime);
+	// exclude saved / favorite Reports from deleting
+	groupReports = groupReports.filter((elem) => !elem.isSaved);
+	// exclude the a given amount fo the last run reports
+	groupReports.splice(0, keepReportAmount);
+	// then delete the remaining old reports:
+	groupReports.forEach((element) => {
 		mongo.deleteReport(element._id);
 	});
 }
