@@ -64,6 +64,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     @Output()
     scenarioChosen: EventEmitter<any> = new EventEmitter();
 
+    @Output()
+    testRunningGroup: EventEmitter<any> = new EventEmitter();
+
 
 
     /**
@@ -208,13 +211,23 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     runGroup(group: Group){
         const id = localStorage.getItem('id')
+        this.testRunningGroup.emit(true);
         this.apiService.runGroup(id, group._id, null).subscribe(ret => {
             this.report.emit(ret)
             console.log('Group report, No Frontend Yet')
+            this.testRunningGroup.emit(false);
         })
     }
 
-
+    /**
+     * Select the first Story of a Group
+     * @param group 
+     */
+    selectFirstStoryofGroup(group: Group){
+        let story = group.member_stories[0];
+        story = this.stories.find(o => o._id === story._id);
+        this.selectStoryScenario(story);
+    }
 
     /**
      * Selects a new scenario

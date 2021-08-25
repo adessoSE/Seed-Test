@@ -63,6 +63,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.activeActionBar = false;
       this.allChecked = false;
   }
+  @Input()
+  set testRunningForGroup(groupRunning: boolean){
+      this.testRunningGroup = groupRunning;
+  }
     /**
      * Original step types
      */
@@ -112,6 +116,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * If the test is running
      */
     testRunning = false;
+    testRunningGroup: boolean;
 
     /**
      * html report of the result

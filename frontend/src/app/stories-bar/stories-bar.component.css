@@ -128,10 +128,13 @@
   }
   .groupLinkList{
     position: absolute;
+    z-index: 50;
   }
   .groupIconSpan{
     white-space: nowrap;
     float: right;
+    z-index: 100;
+    position: relative;
   }
   #groupEdit{
     float: right;

@@ -38,6 +38,8 @@ export class ParentComponent implements OnInit {
    */
   isStoryEditorActive = true;
 
+  testRunningForGroup = false;
+
   groups: Group[]
 
   report;
@@ -130,5 +132,10 @@ export class ParentComponent implements OnInit {
 
   viewReport($event){
     this.report = $event
+  }
+
+  testRunningGroup($event){
+    this.isStoryEditorActive = true;
+    this.testRunningForGroup = $event
   }
 }
