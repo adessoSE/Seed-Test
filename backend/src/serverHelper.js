@@ -184,15 +184,15 @@ function runReport(req, res, stories, mode, parameters) {
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		let testStatus = false;
 		try {
-			let path;
-			let gr_dir;
+			let reportPath;
+			let grpNameDir;
 			if (mode !== 'group') {
-				path = `./features/${reportName}.json`;
+				reportPath = `./features/${reportName}.json`;
 			} else {
-				gr_dir = req.body.name;
-				path = `./features/${gr_dir}/${reportName}.json`;
+				grpNameDir = req.body.name;
+				reportPath = `./features/${grpNameDir}/${reportName}.json`;
 			}
-			fs.readFile(path, 'utf8', async (err, data) => {
+			fs.readFile(reportPath, 'utf8', async (err, data) => {
 				const json = JSON.parse(data);
 				const scenario = story.scenarios.find(s => s.scenario_id == scenarioID);
 
@@ -232,26 +232,27 @@ function runReport(req, res, stories, mode, parameters) {
 
 				testStatus = testPassed(failed, passed);
 
+				// generate HTML Report and Upload it
 				let reportOptions;
 				let uploadedReport;
 				if (mode === 'group') {
 					if (cumulate + 1 < stories.length) {
 						cumulate++;
 					} else {
-						reportOptions = setOptions(req.body.name, path = `features/${gr_dir}/`);
+						reportOptions = setOptions(req.body.name, reportPath = `features/${grpNameDir}/`);
 						reporter.generate(reportOptions);
 						const report = {
-							reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
+							reportTime, reportName: grpNameDir, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 						};
 						uploadedReport = await uploadReport(report, story._id, scenarioID);
-						fs.readFile(`./features/${gr_dir}/${gr_dir}.html`, 'utf8',(err, data) => {
+						fs.readFile(`./features/${grpNameDir}/${grpNameDir}.html`, 'utf8',(err, data) => {
 							res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
 						});
 						setTimeout((group) => {
-							fs.rm(`./features/${group}`, {recursive: true}, () => {
-								console.log(`${group} report deleted`)
-							})
-						},reportDeletionTime * 60000, gr_dir)
+							fs.rm(`./features/${group}`, { recursive: true }, () => {
+								console.log(`${group} report deleted`);
+							});
+						}, reportDeletionTime * 60000, grpNameDir);
 					}
 				} else {
 					reportOptions = setOptions(reportName);
@@ -260,9 +261,9 @@ function runReport(req, res, stories, mode, parameters) {
 						reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 					};
 					uploadedReport = await uploadReport(report, story._id, scenarioID);
-					fs.readFile(`./features/${reportName}.html`, 'utf8',(err, data) => {
-						res.json({htmlFile: data, reportId: uploadedReport.ops[0]._id})
-					})
+					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+						res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
+					});
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 				}
@@ -300,8 +301,8 @@ async function execReport(req, res, stories, mode, callback) {
 			fs.mkdirSync(`./features/${req.body.name}`);
 			for (let story of stories) {
 				await nameSchemeChange(story);
+				execReport2(req, res, stories, 'group', story, callback);
 			}
-			execReport2(req, res, stories, 'group', story, callback);
 		} else {
 			let story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 			await nameSchemeChange(story);
