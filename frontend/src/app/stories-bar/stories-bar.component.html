@@ -1,7 +1,8 @@
 <div class="grid">
   <div>
     <br>
-      <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
+    <div class="storySearchBarWrapper">
+      <div class="uk-card-title storyBar"><span class="MediumCategory1" id="storyHeader">Stories</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
         <span rel="def">A user story describes requirements for a software system.
           It is consciously kept in short sentences and simple words.
@@ -10,6 +11,11 @@
           As a <...>, I want <...> so that <...>
         </span></dfn>
     </div>
+    <span class="searchBar">
+      <em class="material-icons" id="searchBarIcons">search</em>
+      <input [(ngModel)]="searchTerm" (ngModelChange)="onSearchTermChange()"/>
+    </span>
+  </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
       <li *ngFor="let s of getSortedStories(); let i = index " cdkDrag>

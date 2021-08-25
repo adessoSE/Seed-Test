@@ -92,6 +92,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     deleteGroupEmitter: Subscription;
 
     /**
+     * SearchTerm for story title search
+     */
+    searchTerm: string;
+    /**
+     * Stories filtered for searchterm
+     */
+    filteredStories: Story[];
+
+    /**
      * Emits a new chosen Group
      */
     @Output()
@@ -111,6 +120,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     constructor(public apiService: ApiService, public toastr:ToastrService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s!=null);
+            this.filteredStories = this.stories;
             this.isCustomStory = localStorage.getItem('source') === 'db';
         });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
@@ -136,6 +146,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
                     this.stories = resp.filter(s => s!=null);
+                    this.filteredStories = this.stories;
+                    this.onSearchTermChange();
                 });
             });
         });
@@ -173,9 +185,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     /**
      * Sorts the stories after issue_number
+     * Displays filterd stories if searchterm was given
      * @returns
      */
     getSortedStories() {
+        if (this.searchTerm){
+            return this.filteredStories
+        }
         return this.stories
     }
 
@@ -357,6 +373,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     if (this.stories.find(x => x == this.selectedStory)) {
       this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1); 
     };
+  }
+
+  /**
+   * Filters stories for searchterm
+   */
+  onSearchTermChange(){
+    this.filteredStories = this.stories.filter(story => story.title.toLowerCase().includes(this.searchTerm.toLowerCase()));
   }
   
 }

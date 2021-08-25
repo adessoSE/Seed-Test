@@ -191,6 +191,20 @@
     display: inline-block;
     vertical-align: middle;
   }
+
+  .storySearchBarWrapper{
+    display: block;
+  }
+  .storyBar{
+    display: inline-block;
+  }
+  .searchBar{
+    float: right;
+  }
+  #searchBarIcons{
+    color: var(--brown-grey);
+    vertical-align: middle;
+  }
   
 @media screen and (max-width: 600px) {
   .grid{
