@@ -228,9 +228,16 @@ function stepDefs() {
 		pre: 'I take a screenshot (optionally: Focus the page on the element',
 		mid: ')',
 		values: ['']
-
+	},
+	{
+		id: 0,
+		stepType: 'then',
+		type: 'Checkbox',
+		pre: 'So the checkbox',
+		mid: 'is set to ',
+		post: '(true/false)',
+		values: ['', '']
 	}
 	];
 }
-
 module.exports = stepDefs;

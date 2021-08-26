@@ -1,5 +1,5 @@
 const {
-	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor
+	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
 const webdriver = require('selenium-webdriver');
 const fs = require('fs');
@@ -34,6 +34,12 @@ setWorldConstructor(CustomWorld);
 
 // Cucumber default timer for timeout
 setDefaultTimeout(30 * 1000);
+
+defineParameterType({
+	name: 'boolean',
+	regexp: /true|false/,
+	transformer: (b) => Boolean(b)
+});
 
 Before(async function () {
 	currentParameters = this.parameters.scenarios[scenarioIndex];
@@ -662,6 +668,43 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 			world.attach(buffer, 'image/png');
 		});
 		throw Error(e);
+	}
+	await driver.sleep(currentParameters.waitTime);
+});
+
+// Check if a checkbox is set (true) or not (false)
+Then('So the checkbox {string} is set to {boolean} (true\\/false)', async function checkIfTextIsMissing(checkboxName, checked) {
+	const world = this;
+	try {
+		// this one works, even if the element is not clickable (due to other elements blocking it):
+		await driver.findElement(By.xpath(`//*[@type="checkbox" and @*="${checkboxName}"]`)).then(async (box) => {
+			expect(checked).to.equal(box.isSelected());
+		});
+	} catch (e) {
+		try {
+			// this one works, for a text label next to the actual checkbox
+			await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}')]//parent::label`)).then(async (box) => {
+				expect(checked).to.equal(box.isSelected());
+			});
+		} catch (e2) {
+			// default
+			try {
+				await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`)).then(async (box) => {
+					expect(checked).to.equal(box.isSelected());
+				});
+			} catch (e3) {
+				try {
+					await driver.findElement(By.xpath(`${checkboxName}`)).then(async (box) => {
+						expect(checked).to.equal(box.isSelected());
+					});
+				} catch (e4) {
+					await driver.takeScreenshot().then(async (buffer) => {
+						world.attach(buffer, 'image/png');
+					});
+					throw Error(e);
+				}
+			}
+		}
 	}
 	await driver.sleep(currentParameters.waitTime);
 });
