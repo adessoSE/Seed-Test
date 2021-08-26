@@ -231,25 +231,44 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).sendKeys(value);
 				} catch (e4) {
 					try {
-						await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
-						await driver.findElement(By.xpath(`//*[@id='${label}']`)).sendKeys(value);
+						await driver.findElement(By.xpath(`//textarea[@*='${label}']`)).clear();
+						await driver.findElement(By.xpath(`//textarea[@*='${label}']`)).sendKeys(value);
 					} catch (e5) {
 						try {
-							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
-							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+							await driver.findElement(By.xpath(`//textarea[contains(@*='${label}')]`)).clear();
+							await driver.findElement(By.xpath(`//textarea[contains(@*='${label}')]`)).sendKeys(value);
 						} catch (e6) {
 							try {
-								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
-								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+								await driver.findElement(By.xpath(`//*[@id='${label}']`))
+									.clear();
+								await driver.findElement(By.xpath(`//*[@id='${label}']`))
+									.sendKeys(value);
 							} catch (e7) {
 								try {
-									await driver.findElement(By.xpath(`${label}`)).clear();
-									await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+									await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`))
+										.clear();
+									await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`))
+										.sendKeys(value);
 								} catch (e8) {
-									await driver.takeScreenshot().then(async (buffer) => {
-										world.attach(buffer, 'image/png');
-									});
-									throw Error(e);
+									try {
+										await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`))
+											.clear();
+										await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`))
+											.sendKeys(value);
+									} catch (e9) {
+										try {
+											await driver.findElement(By.xpath(`${label}`))
+												.clear();
+											await driver.findElement(By.xpath(`${label}`))
+												.sendKeys(value);
+										} catch (e10) {
+											await driver.takeScreenshot()
+												.then(async (buffer) => {
+													world.attach(buffer, 'image/png');
+												});
+											throw Error(e);
+										}
+									}
 								}
 							}
 						}
