@@ -835,15 +835,27 @@ function getLogger(){
 		return this.logger
 	} else{
 		//Winston config
+		const myformat = winston.format.combine(
+			winston.format.colorize(),
+			winston.format.timestamp(),
+			winston.format.align(),
+			winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+		);
 		const logConfiguration = {
 			transports: [
 				new winston.transports.Console({
-					level: 'warn'
+					level: 'debug',
+					format: myformat
 				}),
 				new winston.transports.File({
-					level: 'error',
-					// Create the log directory if it does not exist
-					filename: './logs/backend.log'
+					level: 'warn',
+					filename: './logs/backend_warn.log',
+					format: myformat
+				}),
+				new winston.transports.File({
+					level: 'debug',
+					filename: './logs/backend_debug.log',
+					format: myformat
 				})
 			]
 		};
