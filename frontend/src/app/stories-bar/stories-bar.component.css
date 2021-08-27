@@ -192,14 +192,16 @@
     vertical-align: middle;
   }
 
-  .storySearchBarWrapper{
+  .searchBarWrapper{
     display: block;
   }
   .storyBar{
     display: inline-block;
+    vertical-align: middle;
   }
   .searchBar{
-    float: right;
+    vertical-align: middle;
+    margin-left: 18px;
   }
   #searchBarIcons{
     color: var(--brown-grey);

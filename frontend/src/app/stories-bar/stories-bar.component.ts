@@ -94,11 +94,21 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * SearchTerm for story title search
      */
-    searchTerm: string;
+    storyString: string;
+
+        /**
+     * SearchTerm for group title search
+     */
+    groupString: string;
     /**
      * Stories filtered for searchterm
      */
     filteredStories: Story[];
+
+        /**
+     * Groups filtered for searchterm
+     */
+    filteredGroups: Group[];
 
     /**
      * Emits a new chosen Group
@@ -147,7 +157,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
                     this.stories = resp.filter(s => s!=null);
                     this.filteredStories = this.stories;
-                    this.onSearchTermChange();
+                    this.storyTermChange();
                 });
             });
         });
@@ -189,7 +199,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @returns
      */
     getSortedStories() {
-        if (this.searchTerm){
+        if (this.storyString){
             return this.filteredStories
         }
         return this.stories
@@ -198,6 +208,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     getSortedGroups() {
         if (this.groups && this.stories) {
             return this.mergeById(this.groups, this.stories)
+        }
+        if (this.groupString){
+            return this.filteredGroups
         }
     }
 
@@ -378,8 +391,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   /**
    * Filters stories for searchterm
    */
-  onSearchTermChange(){
-    this.filteredStories = this.stories.filter(story => story.title.toLowerCase().includes(this.searchTerm.toLowerCase()));
+  storyTermChange(){
+    this.filteredStories = this.stories.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
   }
+
+    /**
+   * Filters group for searchterm
+   */
+    groupTermChange(){
+    this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+    }
   
 }

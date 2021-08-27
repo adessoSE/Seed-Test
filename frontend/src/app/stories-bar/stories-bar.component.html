@@ -1,7 +1,7 @@
 <div class="grid">
   <div>
     <br>
-    <div class="storySearchBarWrapper">
+    <div class="searchBarWrapper">
       <div class="uk-card-title storyBar"><span class="MediumCategory1" id="storyHeader">Stories</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
         <span rel="def">A user story describes requirements for a software system.
@@ -13,7 +13,7 @@
     </div>
     <span class="searchBar">
       <em class="material-icons" id="searchBarIcons">search</em>
-      <input [(ngModel)]="searchTerm" (ngModelChange)="onSearchTermChange()"/>
+      <input [(ngModel)]="storyString" (ngModelChange)="storyTermChange()"/>
     </span>
   </div>
     <hr>
@@ -53,10 +53,16 @@
 
     <br>
     <hr>
-    <div class="uk-card-title"><span class="MediumCategory1" id="groupHeader">Groups</span>
-      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-        <span rel="def">ToDo</span>
-      </dfn>
+    <div class="searchBarWrapper">
+      <div class="uk-card-title storyBar"><span class="MediumCategory1" id="groupHeader">Groups</span>
+        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+          <span rel="def">ToDo</span>
+        </dfn>
+      </div>
+      <span class="searchBar">
+        <em class="material-icons" id="searchBarIcons">search</em>
+        <input [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"/>
+      </span>
     </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
