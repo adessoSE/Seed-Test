@@ -101,7 +101,7 @@ import {HttpLoggerService} from "./Services/http-logger.service";
     })
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }],[{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerService, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
+  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true },{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerService, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
