@@ -69,7 +69,7 @@ export class ReportComponent implements OnInit {
         this.htmlReport = this.report.htmlFile
         this.testDone = true;
         this.reportIsSaved = false;
-        const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+        const iframe: HTMLIFrameElement = document.getElementById('testFrameReport') as HTMLIFrameElement;
         iframe.srcdoc = this.report.htmlFile
         this.showResults = true;
         setTimeout(function () {

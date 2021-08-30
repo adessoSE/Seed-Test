@@ -63,9 +63,15 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.activeActionBar = false;
       this.allChecked = false;
   }
+
+  /**
+   * show loading when tests of groups run
+   * hide result of story
+   */
   @Input()
   set testRunningForGroup(groupRunning: boolean){
       this.testRunningGroup = groupRunning;
+      this.showResults = false;
   }
     /**
      * Original step types
@@ -211,6 +217,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     @Output()
     deleteStoryEvent: EventEmitter<any> = new EventEmitter();
+
+    /**
+     * Event emitter to show or hide global TestResult
+     */
+    @Output() report: EventEmitter<any> = new EventEmitter();
 
     /**
      * Stories bar component
@@ -745,6 +756,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     runTests(scenario_id) {
         if (this.storySaved()) {
             this.testRunning = true;
+            this.report.emit(false);
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
             const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
