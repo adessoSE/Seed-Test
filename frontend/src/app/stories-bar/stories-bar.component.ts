@@ -166,6 +166,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
+                    this.filteredGroups = this.groups;
+                    this.groupTermChange();
                 });
             });
         });
@@ -206,11 +208,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     getSortedGroups() {
-        if (this.groups && this.stories) {
-            return this.mergeById(this.groups, this.stories)
-        }
         if (this.groupString){
             return this.filteredGroups
+        }
+        if (this.groups && this.stories) {
+            return this.mergeById(this.groups, this.stories)
         }
     }
 
