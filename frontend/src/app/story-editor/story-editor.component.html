@@ -239,7 +239,7 @@
     </div>
 
     <div id="loading">
-      <div class="loading" *ngIf="testRunning || testRunningGroup">
+      <div class="loading" [hidden]="!testRunning && !testRunningGroup">
        <!-- Loading . . . -->
        <mat-spinner></mat-spinner>
       </div>
