@@ -41,10 +41,10 @@ import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
+import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from "@angular/cdk/clipboard";
 import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
-import {HttpLoggerService} from "./Services/http-logger.service";
 
 @NgModule({
   declarations: [
@@ -90,6 +90,7 @@ import {HttpLoggerService} from "./Services/http-logger.service";
     DragDropModule,
     ClipboardModule,
     MatProgressSpinnerModule,
+    HttpClientModule,
     MatCarouselModule.forRoot(),
     LoggerModule.forRoot({
       serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
@@ -101,7 +102,7 @@ import {HttpLoggerService} from "./Services/http-logger.service";
     })
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true },{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerService, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
+  providers: [ApiService, AuthGuard, CookieService, { provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true },{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }, { provide: DEFAULT_TIMEOUT, useValue: 120000 }],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
