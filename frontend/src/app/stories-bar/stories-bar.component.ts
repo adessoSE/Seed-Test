@@ -403,5 +403,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     groupTermChange(){
     this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
     }
+
+    /**
+     * Delete Search Term
+     * @param varToErase either group or story
+     */
+    eraseSearchTerm(varToErase: string){
+        if (varToErase == 'story'){
+            this.storyString = null
+        } else if(varToErase = 'group'){
+            this.groupString = null
+        }
+    }
   
 }

@@ -13,7 +13,8 @@
     </div>
     <span class="searchBar">
       <em class="material-icons" id="searchBarIcons">search</em>
-      <input [(ngModel)]="storyString" (ngModelChange)="storyTermChange()"/>
+      <input class="searchInput" [(ngModel)]="storyString" (ngModelChange)="storyTermChange()"/>
+      <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('story')">close</em>
     </span>
   </div>
     <hr>
@@ -61,7 +62,8 @@
       </div>
       <span class="searchBar">
         <em class="material-icons" id="searchBarIcons">search</em>
-        <input [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"/>
+        <input class="searchInput" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"/>
+        <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>
       </span>
     </div>
     <hr>
