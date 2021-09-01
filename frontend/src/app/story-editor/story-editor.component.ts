@@ -72,8 +72,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   set testRunningForGroup(groupRunning: boolean){
       this.testRunningGroup = groupRunning;
       this.showResults = false;
-      const loadingScreen: HTMLElement = document.getElementById('loading');
-      loadingScreen.scrollIntoView();
+      try {
+        const loadingScreen: HTMLElement = document.getElementById('loading');
+        loadingScreen.scrollIntoView();
+      } catch (error) {
+      }
   }
     /**
      * Original step types
