@@ -194,6 +194,44 @@
     display: inline-block;
     vertical-align: middle;
   }
+
+  .searchBarWrapper{
+    display: flex;
+    white-space: nowrap;
+  }
+  .storyBar{
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .searchBar{
+    vertical-align: middle;
+    margin-left: 18px;
+    white-space: nowrap;
+    display: flex;
+    justify-content: end;
+    align-self: center;
+  }
+  #eraseIcon{
+    color: var(--brown-grey);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--brown-grey);
+  }
+  #eraseIcon:hover{
+    cursor: pointer;
+  }
+  .searchInput{
+    border: none;
+    border-bottom: 1px solid var(--brown-grey);
+    font-weight: normal;
+    width: 50%;
+  }
+  .searchInput:focus{
+    outline: none;
+  }
+  #searchBarIcons{
+    color: var(--brown-grey);
+    vertical-align: middle;
+  }
   
 @media screen and (max-width: 600px) {
   .grid{

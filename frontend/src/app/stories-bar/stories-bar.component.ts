@@ -95,6 +95,25 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     deleteGroupEmitter: Subscription;
 
     /**
+     * SearchTerm for story title search
+     */
+    storyString: string;
+
+        /**
+     * SearchTerm for group title search
+     */
+    groupString: string;
+    /**
+     * Stories filtered for searchterm
+     */
+    filteredStories: Story[];
+
+        /**
+     * Groups filtered for searchterm
+     */
+    filteredGroups: Group[];
+
+    /**
      * Emits a new chosen Group
      */
     @Output()
@@ -114,6 +133,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     constructor(public apiService: ApiService, public toastr:ToastrService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s!=null);
+            this.filteredStories = this.stories;
             this.isCustomStory = localStorage.getItem('source') === 'db';
         });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
@@ -139,6 +159,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
                     this.stories = resp.filter(s => s!=null);
+                    this.filteredStories = this.stories;
+                    this.storyTermChange();
                 });
             });
         });
@@ -147,6 +169,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
+                    this.filteredGroups = this.groups;
+                    this.groupTermChange();
                 });
             });
         });
@@ -176,13 +200,20 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     /**
      * Sorts the stories after issue_number
+     * Displays filterd stories if searchterm was given
      * @returns
      */
     getSortedStories() {
+        if (this.storyString){
+            return this.filteredStories
+        }
         return this.stories
     }
 
     getSortedGroups() {
+        if (this.groupString){
+            return this.filteredGroups
+        }
         if (this.groups && this.stories) {
             return this.mergeById(this.groups, this.stories)
         }
@@ -371,5 +402,31 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
       this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1); 
     };
   }
+
+  /**
+   * Filters stories for searchterm
+   */
+  storyTermChange(){
+    this.filteredStories = this.stories.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+  }
+
+    /**
+   * Filters group for searchterm
+   */
+    groupTermChange(){
+    this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+    }
+
+    /**
+     * Delete Search Term
+     * @param varToErase either group or story
+     */
+    eraseSearchTerm(varToErase: string){
+        if (varToErase == 'story'){
+            this.storyString = null
+        } else if(varToErase = 'group'){
+            this.groupString = null
+        }
+    }
   
 }
