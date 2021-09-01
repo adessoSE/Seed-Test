@@ -113,6 +113,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     filteredGroups: Group[];
 
+    isFilterActive = false;
+    showFilter = false;
+
     /**
      * Emits a new chosen Group
      */
@@ -204,7 +207,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @returns
      */
     getSortedStories() {
-        if (this.storyString){
+        if (this.storyString || this.isFilterActive){
             return this.filteredStories
         }
         return this.stories
@@ -427,6 +430,62 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         } else if(varToErase = 'group'){
             this.groupString = null
         }
+    }
+
+    filterAssignee(assignee: string){
+        let filter = []
+        if(assignee==undefined){
+            this.isFilterActive = false;
+            filter = this.stories;
+        } else{
+            this.isFilterActive = true;
+            filter = this.stories.filter(story => story.assignee.toLowerCase().includes(assignee.toLowerCase()));
+        }
+        if(this.storyString){
+            this.filteredStories = filter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+        } else{
+            this.filteredStories = filter;
+        }
+    }
+
+    filterTestPassed(testPassed: string){
+        this.isFilterActive = true;
+        let filter = []
+        switch (testPassed) {
+            case 'true':
+                filter = this.stories.filter(story => story.lastTestPassed === true);
+                break;
+            case 'false':
+                filter = this.stories.filter(story => story.lastTestPassed === false);
+            default:
+                filter = this.stories
+                this.isFilterActive = false;
+                break;
+        }
+
+        if(this.storyString){
+            this.filteredStories = filter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+        } else{
+            this.filteredStories = filter;
+        }
+    }
+
+    createDistictList(filter: string){
+        if(this.stories){
+        switch (filter) {
+            case 'assignee':
+                return this.stories.map(story => story.assignee).filter((value, index, self) => self.indexOf(value) === index);
+            case 'lastTestPassed':
+                return ['true','false'];
+            default:
+                return this.stories;
+        }} else{
+            return this.stories;
+        }
+    }
+
+    showFilterClick(){
+        this.showFilter = !this.showFilter
     }
   
 }

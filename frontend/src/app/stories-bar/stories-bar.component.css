@@ -232,6 +232,37 @@
     color: var(--brown-grey);
     vertical-align: middle;
   }
+
+  .filterFormField{
+    width: 45%;
+  }
+  .rightFilterFormField{
+    float: right;
+  }
+
+  ::ng-deep .mat-focused .mat-form-field-label {
+    /*change color of label*/
+    color: var(--ocean-blue) !important;
+   }
+  
+   ::ng-deep.mat-form-field-underline {
+    /*change color of underline*/
+    background-color: var(--ocean-blue) !important;
+  } 
+  
+  ::ng-deep.mat-form-field-ripple {
+   /*change color of underline when focused*/
+   background-color: var(--ocean-blue) !important;
+  }
+  ::ng-deep .mat-option.mat-selected:not(.mat-option-disabled){
+    color: var(--ocean-blue) !important;
+  }
+  ::ng-deep.mat-form-field.mat-focused .mat-select-arrow{
+    color: var(--ocean-blue) !important;
+  }
+  /* ::ng-deep.mat-option-text:checked{
+    color: green !important;
+  } */
   
 @media screen and (max-width: 600px) {
   .grid{

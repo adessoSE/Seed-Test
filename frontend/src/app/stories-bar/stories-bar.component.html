@@ -17,6 +17,31 @@
       <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('story')">close</em>
     </span>
   </div>
+  <div>
+    <em id="searchBarIcons" class="material-icons">filter_alt</em>
+    <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
+    <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
+  </div>
+  <div [hidden]="!showFilter">
+    <mat-form-field appearance="standard" class="filterFormField">
+      <mat-label>Assignee</mat-label>
+        <mat-select (selectionChange)="filterAssignee($event.value)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let assignee of createDistictList('assignee')" [value]="assignee">
+            {{assignee}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
+      <mat-label>TestPassed</mat-label>
+        <mat-select (selectionChange)="filterTestPassed($event.value)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
+            {{testPassed}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+  </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
       <li *ngFor="let s of getSortedStories(); let i = index " cdkDrag>
