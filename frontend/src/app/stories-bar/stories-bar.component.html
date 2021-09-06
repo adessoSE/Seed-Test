@@ -21,11 +21,13 @@
     <em id="searchBarIcons" class="material-icons">filter_alt</em>
     <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
     <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
+
+    <em id="searchBarIcons" (click)="clearAllFilter()">Clear Filter</em>
   </div>
   <div [hidden]="!showFilter">
     <mat-form-field appearance="standard" class="filterFormField">
       <mat-label>Assignee</mat-label>
-        <mat-select (selectionChange)="filterAssignee($event.value)">
+        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter($event)">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let assignee of createDistictList('assignee')" [value]="assignee">
             {{assignee}}
@@ -34,7 +36,7 @@
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
       <mat-label>TestPassed</mat-label>
-        <mat-select (selectionChange)="filterTestPassed($event.value)">
+        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter($event)">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
             {{testPassed}}

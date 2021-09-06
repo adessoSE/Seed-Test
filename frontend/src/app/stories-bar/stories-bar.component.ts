@@ -115,6 +115,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     isFilterActive = false;
     showFilter = false;
+    assigneeModel;
+    testPassedModel;
 
     /**
      * Emits a new chosen Group
@@ -409,8 +411,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   /**
    * Filters stories for searchterm
    */
-  storyTermChange(){
-    this.filteredStories = this.stories.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+  storyTermChange(storiesToFilter = this.stories){
+    this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
   }
 
     /**
@@ -432,44 +434,51 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         }
     }
 
-    filterAssignee(assignee: string){
-        let filter = []
-        if(assignee==undefined){
-            this.isFilterActive = false;
-            filter = this.stories;
-        } else{
-            this.isFilterActive = true;
-            filter = this.stories.filter(story => story.assignee.toLowerCase().includes(assignee.toLowerCase()));
-        }
-        if(this.storyString){
-            this.filteredStories = filter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
-        } else{
-            this.filteredStories = filter;
-        }
-    }
-
-    filterTestPassed(testPassed: string){
+    filter(){
         this.isFilterActive = true;
         let filter = []
-        switch (testPassed) {
+
+        // filter for last test passed
+        switch (this.testPassedModel) {
             case 'true':
                 filter = this.stories.filter(story => story.lastTestPassed === true);
                 break;
             case 'false':
                 filter = this.stories.filter(story => story.lastTestPassed === false);
+                break;
             default:
                 filter = this.stories
-                this.isFilterActive = false;
                 break;
         }
 
-        if(this.storyString){
-            this.filteredStories = filter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+        // filter for assignee in testPassed filter result
+        if (this.assigneeModel == undefined){
+            
         } else{
-            this.filteredStories = filter;
+            filter = filter.filter(story => story.assignee.toLowerCase().includes(this.assigneeModel.toLowerCase()));
         }
+
+        // check if no filter is active and apply search term
+        if (this.assigneeModel == undefined && this.testPassedModel == undefined){
+            this.isFilterActive = false;
+            if (this.storyString){
+                this.storyTermChange()
+            }
+        } else {
+            if (this.storyString){
+                this.storyTermChange(filter)
+            } else {
+                this.filteredStories = filter;
+            }
+        }
+
     }
 
+    /**
+     * Create List for Filter Selection
+     * @param filter case for which filter the selection list should be created
+     * @returns 
+     */
     createDistictList(filter: string){
         if(this.stories){
         switch (filter) {
@@ -484,8 +493,27 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Show or Hide Filter
+     */
     showFilterClick(){
         this.showFilter = !this.showFilter
+    }
+
+    /**
+     * Clear Filter
+     */
+    clearAllFilter(){
+        // overwrite filterdStories
+        if(this.storyString){
+            this.storyTermChange()
+        } else {
+            this.filteredStories = this.stories;
+        }
+
+        this.assigneeModel="--"
+        this.testPassedModel="--"
+        this.isFilterActive = false;
     }
   
 }
