@@ -22,7 +22,7 @@
     <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
     <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
 
-    <em id="searchBarIcons" (click)="clearAllFilter()">Clear Filter</em>
+    <button style="float:right; white-space: nowrap;" (click)="clearAllFilter()">Clear Filter</button>
   </div>
   <div [hidden]="!showFilter">
     <mat-form-field appearance="standard" class="filterFormField">
@@ -40,6 +40,15 @@
           <mat-option>--</mat-option>
           <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
             {{testPassed}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="filterFormField">
+      <mat-label>Group</mat-label>
+        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter($event)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let group of createDistictList('group')" [value]="group">
+            {{group}}
           </mat-option>
         </mat-select>
     </mat-form-field>

@@ -117,6 +117,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     showFilter = false;
     assigneeModel;
     testPassedModel;
+    groupModel;
 
     /**
      * Emits a new chosen Group
@@ -451,6 +452,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 break;
         }
 
+        if (this.groupModel == undefined) {
+
+        } else {
+            let group = this.groups.filter(group => group.name == this.groupModel)[0]
+            let storiesIds = group.member_stories.map(story => story._id)
+            filter = filter.filter(story => storiesIds.includes(story._id))
+            console.log(filter)
+        }
+
         // filter for assignee in testPassed filter result
         if (this.assigneeModel == undefined){
             
@@ -459,7 +469,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         }
 
         // check if no filter is active and apply search term
-        if (this.assigneeModel == undefined && this.testPassedModel == undefined){
+        if (this.assigneeModel == undefined && this.testPassedModel == undefined && this.groupModel == undefined){
             this.isFilterActive = false;
             if (this.storyString){
                 this.storyTermChange()
@@ -486,6 +496,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 return this.stories.map(story => story.assignee).filter((value, index, self) => self.indexOf(value) === index);
             case 'lastTestPassed':
                 return ['true','false'];
+            case 'group':
+                return this.groups.map(group => group.name)
             default:
                 return this.stories;
         }} else{
@@ -513,6 +525,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
         this.assigneeModel="--"
         this.testPassedModel="--"
+        this.groupModel="--"
         this.isFilterActive = false;
     }
   
