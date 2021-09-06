@@ -36,9 +36,9 @@ setWorldConstructor(CustomWorld);
 setDefaultTimeout(30 * 1000);
 
 defineParameterType({
-	name: 'boolean',
+	name: 'Bool',
 	regexp: /true|false/,
-	transformer: (b) => Boolean(b)
+	transformer: (b) => (b === 'true')
 });
 
 Before(async function () {
@@ -672,31 +672,37 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 	await driver.sleep(currentParameters.waitTime);
 });
 
+// // Check if a checkbox is set (true) or not (false)
+// // eslint-disable-next-line prefer-template
+// Then('So the checkbox {string} is set to {string} [true OR false]', async function checkBoxIsChecked(checkboxName, checked1) {
+// 	const world = this;
+// 	const checked = (checked1 === 'true');
+// 	console.log(`checked ${checked} ${typeof (checked)}`);
+// 	const isChecked = await driver.findElement(By.xpath(`${checkboxName}`)).isSelected();
+// 	expect(isChecked).to.equal(checked);
+// });
+
 // Check if a checkbox is set (true) or not (false)
-Then('So the checkbox {string} is set to {boolean} (true\\/false)', async function checkIfTextIsMissing(checkboxName, checked) {
+// eslint-disable-next-line prefer-template
+Then('So the checkbox {string} is set to {string} [true OR false]', async function checkBoxIsChecked(checkboxName, checked1) {
 	const world = this;
+	const checked = (checked1 === 'true');
+	console.log(`checked ${checked} ${typeof (checked)}`);
+	let isChecked;
 	try {
 		// this one works, even if the element is not clickable (due to other elements blocking it):
-		await driver.findElement(By.xpath(`//*[@type="checkbox" and @*="${checkboxName}"]`)).then(async (box) => {
-			expect(checked).to.equal(box.isSelected());
-		});
+		isChecked = await driver.findElement(By.xpath(`//*[@type='checkbox' and @*='${checkboxName}']`)).isSelected();
 	} catch (e) {
 		try {
 			// this one works, for a text label next to the actual checkbox
-			await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}')]//parent::label`)).then(async (box) => {
-				expect(checked).to.equal(box.isSelected());
-			});
+			isChecked = await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}')]//parent::label`)).isSelected();
 		} catch (e2) {
 			// default
 			try {
-				await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`)).then(async (box) => {
-					expect(checked).to.equal(box.isSelected());
-				});
+				isChecked = await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`)).isSelected();
 			} catch (e3) {
 				try {
-					await driver.findElement(By.xpath(`${checkboxName}`)).then(async (box) => {
-						expect(checked).to.equal(box.isSelected());
-					});
+					isChecked = await driver.findElement(By.xpath(`${checkboxName}`)).isSelected();
 				} catch (e4) {
 					await driver.takeScreenshot().then(async (buffer) => {
 						world.attach(buffer, 'image/png');
@@ -706,6 +712,7 @@ Then('So the checkbox {string} is set to {boolean} (true\\/false)', async functi
 			}
 		}
 	}
+	expect(isChecked).to.equal(checked);
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -745,10 +752,11 @@ After(async () => {
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	const condition = until.elementLocated(By.name('loader'));
 	driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
-	await driver.quit();
+	// await driver.quit();
 });
 
 // selenium sleeps for a certain amount of time
 async function waitMs(ms) {
 	await driver.sleep(parseInt(ms, 10));
 }
+

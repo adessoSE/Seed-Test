@@ -235,7 +235,7 @@ function stepDefs() {
 		type: 'Checkbox',
 		pre: 'So the checkbox',
 		mid: 'is set to ',
-		post: '(true/false)',
+		post: '[true OR false]',
 		values: ['', '']
 	}
 	];

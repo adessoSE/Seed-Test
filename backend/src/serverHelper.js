@@ -82,10 +82,17 @@ function getSteps(steps, stepType) {
 	for (const step of steps) {
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
+
 		// TODO: If Given contains Background (Background>0): Add Background (method)
-		if ((step.values[0]) != null && (step.values[0]) !== 'User') data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)} \n`;
-		else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'\n`;
-		else data += `${step.pre} ${step.mid}${getValues(step.values)} \n`;
+		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
+			data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)}`;
+			if (step.post !== undefined) data += ` ${step.post}`;
+		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
+		else {
+			data += `${step.pre} ${step.mid}${getValues(step.values)} ${step.post}`;
+			if (step.post !== undefined) data += ` ${step.post}`;
+		}
+		data += '\n';
 	}
 	return data;
 }
@@ -137,7 +144,7 @@ function cleanFileName(filename) {
 
 // Creates feature file
 function writeFile(dir, selectedStory) {
-	const filename = selectedStory.title + selectedStory._id
+	const filename = selectedStory.title + selectedStory._id;
 	fs.writeFile(path.join(__dirname, '../features',
 		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
