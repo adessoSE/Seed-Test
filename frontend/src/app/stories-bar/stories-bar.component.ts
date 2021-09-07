@@ -441,10 +441,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
         // filter for last test passed
         switch (this.testPassedModel) {
-            case 'true':
+            case 'Passed':
                 filter = this.stories.filter(story => story.lastTestPassed === true);
                 break;
-            case 'false':
+            case 'Failed':
                 filter = this.stories.filter(story => story.lastTestPassed === false);
                 break;
             default:
@@ -495,7 +495,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             case 'assignee':
                 return this.stories.map(story => story.assignee).filter((value, index, self) => self.indexOf(value) === index);
             case 'lastTestPassed':
-                return ['true','false'];
+                return ['Passed','Failed'];
             case 'group':
                 return this.groups.map(group => group.name)
             default:

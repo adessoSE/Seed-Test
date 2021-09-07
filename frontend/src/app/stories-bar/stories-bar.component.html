@@ -39,7 +39,7 @@
         </mat-select>
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
-      <mat-label>TestPassed</mat-label>
+      <mat-label>Status Of Story</mat-label>
         <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter($event)">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
