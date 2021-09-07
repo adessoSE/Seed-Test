@@ -5,6 +5,8 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ModalsComponent } from "../modals/modals.component";
 import {Subscription} from "rxjs/internal/Subscription";
 import { saveAs } from 'file-saver';
+import {interval} from "rxjs";
+import {map} from "rxjs/operators";
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -106,7 +108,6 @@ export class AccountManagementComponent implements OnInit {
         this.dbRepos = dbRepos
         this.githubRepos = githubRepos
         this.jiraRepos = jiraRepos*/
-
         this.repositories = repos;
         this.searchList = (!this.searchList) ? repos : this.searchList;
     }
@@ -170,10 +171,14 @@ export class AccountManagementComponent implements OnInit {
             });
             const seSto = sessionStorage.getItem('repositories')
             if(!seSto) {
-                this.apiService.getRepositories().subscribe((repositories) => {
-                    this.repositories = repositories;
-                    sessionStorage.setItem('repositories', JSON.stringify(repositories))
-                });
+                const repositories = interval(500)
+                    .pipe(map(() => sessionStorage.getItem('repositories')))
+                    .subscribe(data => {
+                        if(data){
+                            this.repositories = JSON.parse(data)
+                            repositories.unsubscribe()
+                        }
+                    })
             } else {
                 this.repositories = JSON.parse(seSto)
             }
