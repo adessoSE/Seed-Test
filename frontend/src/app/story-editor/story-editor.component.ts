@@ -610,6 +610,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
           id: newId,
           mid: obj.mid,
           pre: obj.pre,
+          post: obj.post,
           stepType: obj.stepType,
           type: obj.type,
           values: obj.values
