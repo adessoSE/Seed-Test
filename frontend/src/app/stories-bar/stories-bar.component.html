@@ -19,10 +19,14 @@
   </div>
   <div>
     <em id="searchBarIcons" class="material-icons">filter_alt</em>
+    <span id="clickableIcon">
     <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
     <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
-
-    <button style="float:right; white-space: nowrap;" (click)="clearAllFilter()">Clear Filter</button>
+    </span>
+    <span id="clickableIcon" style="float: right;">
+    <em id="searchBarIcons" class="material-icons-outlined" (click)="clearAllFilter()">filter_alt</em>
+    <em id="searchBarIcons" class="material-icons" style="margin-left: -8px; font-size: 17px; vertical-align: bottom;" (click)="clearAllFilter()">close</em>
+    </span>
   </div>
   <div [hidden]="!showFilter">
     <mat-form-field appearance="standard" class="filterFormField">
