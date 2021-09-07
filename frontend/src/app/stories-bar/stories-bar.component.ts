@@ -95,6 +95,31 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     deleteGroupEmitter: Subscription;
 
     /**
+     * SearchTerm for story title search
+     */
+    storyString: string;
+
+        /**
+     * SearchTerm for group title search
+     */
+    groupString: string;
+    /**
+     * Stories filtered for searchterm
+     */
+    filteredStories: Story[];
+
+        /**
+     * Groups filtered for searchterm
+     */
+    filteredGroups: Group[];
+
+    isFilterActive = false;
+    showFilter = false;
+    assigneeModel;
+    testPassedModel;
+    groupModel;
+
+    /**
      * Emits a new chosen Group
      */
     @Output()
@@ -114,6 +139,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     constructor(public apiService: ApiService, public toastr:ToastrService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s!=null);
+            this.filteredStories = this.stories;
             this.isCustomStory = localStorage.getItem('source') === 'db';
         });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
@@ -139,6 +165,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
                     this.stories = resp.filter(s => s!=null);
+                    this.filteredStories = this.stories;
+                    this.storyTermChange();
                 });
             });
         });
@@ -147,6 +175,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
+                    this.filteredGroups = this.groups;
+                    this.groupTermChange();
                 });
             });
         });
@@ -176,13 +206,20 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     /**
      * Sorts the stories after issue_number
+     * Displays filterd stories if searchterm was given
      * @returns
      */
     getSortedStories() {
+        if (this.storyString || this.isFilterActive){
+            return this.filteredStories
+        }
         return this.stories
     }
 
     getSortedGroups() {
+        if (this.groupString){
+            return this.filteredGroups
+        }
         if (this.groups && this.stories) {
             return this.mergeById(this.groups, this.stories)
         }
@@ -371,5 +408,125 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
       this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1); 
     };
   }
+
+  /**
+   * Filters stories for searchterm
+   */
+  storyTermChange(storiesToFilter = this.stories){
+    this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+  }
+
+    /**
+   * Filters group for searchterm
+   */
+    groupTermChange(){
+    this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+    }
+
+    /**
+     * Delete Search Term
+     * @param varToErase either group or story
+     */
+    eraseSearchTerm(varToErase: string){
+        if (varToErase == 'story'){
+            this.storyString = null
+        } else if(varToErase = 'group'){
+            this.groupString = null
+        }
+    }
+
+    filter(){
+        this.isFilterActive = true;
+        let filter = []
+
+        // filter for last test passed
+        switch (this.testPassedModel) {
+            case 'Passed':
+                filter = this.stories.filter(story => story.lastTestPassed === true);
+                break;
+            case 'Failed':
+                filter = this.stories.filter(story => story.lastTestPassed === false);
+                break;
+            default:
+                filter = this.stories
+                break;
+        }
+
+        if (this.groupModel == undefined) {
+
+        } else {
+            let group = this.groups.filter(group => group.name == this.groupModel)[0]
+            let storiesIds = group.member_stories.map(story => story._id)
+            filter = filter.filter(story => storiesIds.includes(story._id))
+            console.log(filter)
+        }
+
+        // filter for assignee in testPassed filter result
+        if (this.assigneeModel == undefined){
+            
+        } else{
+            filter = filter.filter(story => story.assignee.toLowerCase().includes(this.assigneeModel.toLowerCase()));
+        }
+
+        // check if no filter is active and apply search term
+        if (this.assigneeModel == undefined && this.testPassedModel == undefined && this.groupModel == undefined){
+            this.isFilterActive = false;
+            if (this.storyString){
+                this.storyTermChange()
+            }
+        } else {
+            if (this.storyString){
+                this.storyTermChange(filter)
+            } else {
+                this.filteredStories = filter;
+            }
+        }
+
+    }
+
+    /**
+     * Create List for Filter Selection
+     * @param filter case for which filter the selection list should be created
+     * @returns 
+     */
+    createDistictList(filter: string){
+        if(this.stories){
+        switch (filter) {
+            case 'assignee':
+                return this.stories.map(story => story.assignee).filter((value, index, self) => self.indexOf(value) === index);
+            case 'lastTestPassed':
+                return ['Passed','Failed'];
+            case 'group':
+                return this.groups.map(group => group.name)
+            default:
+                return this.stories;
+        }} else{
+            return this.stories;
+        }
+    }
+
+    /**
+     * Show or Hide Filter
+     */
+    showFilterClick(){
+        this.showFilter = !this.showFilter
+    }
+
+    /**
+     * Clear Filter
+     */
+    clearAllFilter(){
+        // overwrite filterdStories
+        if(this.storyString){
+            this.storyTermChange()
+        } else {
+            this.filteredStories = this.stories;
+        }
+
+        this.assigneeModel="--"
+        this.testPassedModel="--"
+        this.groupModel="--"
+        this.isFilterActive = false;
+    }
   
 }
