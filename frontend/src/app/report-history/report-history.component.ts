@@ -115,6 +115,7 @@ export class ReportHistoryComponent implements OnInit {
           const newReports = JSON.parse(JSON.stringify(this.reports));
           newReports.storyReports = newReports.storyReports.filter((rep) => rep._id != report._id);
           newReports.scenarioReports = newReports.scenarioReports.filter((rep) => rep._id != report._id);
+          newReports.groupReports = newReports.groupReports.filter((rep) => rep._id != report._id);
           this.reports = newReports;
       });
   }

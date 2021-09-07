@@ -30,7 +30,7 @@ router.post('/user/create/', (req, res) => {
 		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
 			.toString('base64');
 		const cookieJar = request.jar();
-		const options =  {
+		const options = {
 			method: 'GET',
 			url: `http://${jiraHost}/rest/auth/1/session`,
 			jar: cookieJar,
@@ -68,12 +68,12 @@ router.post('/user/create/', (req, res) => {
 
 router.post('/login', (req, res) => {
 	if (typeof req.body.jiraAccountName !== 'undefined') {
-		const {jiraAccountName, jiraPassword, jiraServer} = req.body;
+		const { jiraAccountName, jiraPassword, jiraServer } = req.body;
 		// console.log(jiraAccountName, jiraPassword, jiraServer);
 		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
 			.toString('base64');
 		const cookieJar = request.jar();
-		const options =  {
+		const options = {
 			method: 'GET',
 			url: `http://${jiraServer}/rest/auth/1/session`,
 			jar: cookieJar,
@@ -90,21 +90,19 @@ router.post('/login', (req, res) => {
 			if (error) {
 				res.status(500);
 				console.error('Cant connect to Jira Server');
-			} else {
-				if (response.headers["set-cookie"] !== undefined){
-					// req.user.JiraSession = response.headers["set-cookie"][0];
-					res.status(200)
-						.json(response.headers["set-cookie"][0]);
-
-				} else{
-					res.status(401);
-					console.log("Jira-Login failed")
-				}
+			} else
+			if (response.headers['set-cookie'] !== undefined)
+				// req.user.JiraSession = response.headers["set-cookie"][0];
+				res.status(200)
+					.json(response.headers['set-cookie'][0]);
+			else {
+				res.status(401);
+				console.log('Jira-Login failed');
 			}
 		});
 	} else {
 		res.status(500);
-		console.log("No Jira Account sent")
+		console.log('No Jira Account sent');
 	}
 });
 

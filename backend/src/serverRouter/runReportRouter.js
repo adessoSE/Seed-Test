@@ -55,15 +55,15 @@ router.get('/reportHistory/:storyId', async (req, res) => {
 	history.forEach((element) => {
 		if (element.mode === 'feature') {
 			storyReports.push(element);
-			console.log(`Feature Reports: ${storyReports.length}`);
+			// console.log(`Feature Reports: ${storyReports.length}`);
 		}
 		if (element.mode === 'scenario') {
 			scenarioReports.push(element);
-			console.log(`Scenario Reports: ${scenarioReports.length}`);
+			// console.log(`Scenario Reports: ${scenarioReports.length}`);
 		} else groupReports.push(element);
 	});
 	const reportContainer = { storyReports, scenarioReports, groupReports };
-	console.log('reportContainer', reportContainer);
+	// console.log('reportContainer', reportContainer);
 	res.status(200).json(reportContainer);
 });
 

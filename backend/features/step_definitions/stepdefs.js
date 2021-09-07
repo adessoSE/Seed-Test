@@ -672,16 +672,6 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 	await driver.sleep(currentParameters.waitTime);
 });
 
-// // Check if a checkbox is set (true) or not (false)
-// // eslint-disable-next-line prefer-template
-// Then('So the checkbox {string} is set to {string} [true OR false]', async function checkBoxIsChecked(checkboxName, checked1) {
-// 	const world = this;
-// 	const checked = (checked1 === 'true');
-// 	console.log(`checked ${checked} ${typeof (checked)}`);
-// 	const isChecked = await driver.findElement(By.xpath(`${checkboxName}`)).isSelected();
-// 	expect(isChecked).to.equal(checked);
-// });
-
 // Check if a checkbox is set (true) or not (false)
 // eslint-disable-next-line prefer-template
 Then('So the checkbox {string} is set to {string} [true OR false]', async function checkBoxIsChecked(checkboxName, checked1) {
@@ -716,34 +706,6 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 	await driver.sleep(currentParameters.waitTime);
 });
 
-// clicks a button if found in html code with xpath,
-// timeouts if not found after 3 sec, waits for next page to be loaded
-async function clickButton(button) {
-	try {
-		// first check for the exact id
-		await driver.findElement(By.xpath(`//*[@id='${button}']`)).click();
-	} catch (e) {
-		try {
-			// check for an id with the substring using contains
-			await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
-		} catch (e2) {
-			try {
-				// text() looks for a text node (inside an element like button
-				await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
-			} catch (e3) {
-				try {
-					// check for any element containing the string
-					await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
-				} catch (e4) {
-					await driver.findElement(By.xpath(`${button}`)).click();
-				}
-			}
-		}
-	}
-	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async (readyState) => readyState === 'complete'));
-}
-
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async () => {
@@ -752,11 +714,5 @@ After(async () => {
 	// https://github.com/SeleniumHQ/selenium/issues/5560
 	const condition = until.elementLocated(By.name('loader'));
 	driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
-	// await driver.quit();
+	await driver.quit();
 });
-
-// selenium sleeps for a certain amount of time
-async function waitMs(ms) {
-	await driver.sleep(parseInt(ms, 10));
-}
-

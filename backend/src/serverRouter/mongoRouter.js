@@ -174,6 +174,4 @@ router.delete('/deleteBlock/:blockId', async (req, res) => {
 	}
 });
 
-
-
 module.exports = router;
