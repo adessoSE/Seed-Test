@@ -97,7 +97,7 @@
     <div class="searchBarWrapper">
       <div class="uk-card-title storyBar"><span class="MediumCategory1" id="groupHeader">Groups</span>
         <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-          <span rel="def">ToDo</span>
+          <span rel="def">Create a Group and add Stories to run multiple Stories at once!</span>
         </dfn>
       </div>
       <span class="searchBar">
@@ -114,13 +114,13 @@
              title="{{g.name}}">
             <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
             {{g.name}}
-          </a> 
+          </a>
           <span class="groupIconSpan">
             <em class="material-icons" (click)="selectFirstStoryofGroup(g);runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
             <em class="material-icons" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
           </span>
         </div>
-        
+
 
         <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
           <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
