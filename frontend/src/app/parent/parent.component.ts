@@ -5,7 +5,6 @@ import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import {Group} from "../model/Group";
 import {ActivatedRoute} from "@angular/router";
-import {group} from "@angular/animations";
 
 
 /**
@@ -38,6 +37,9 @@ export class ParentComponent implements OnInit {
    */
   isStoryEditorActive = true;
 
+  /**
+   * If currently group test is running
+   */
   testRunningForGroup = false;
 
   groups: Group[]
@@ -136,6 +138,9 @@ export class ParentComponent implements OnInit {
 
   testRunningGroup($event){
     this.isStoryEditorActive = true;
-    this.testRunningForGroup = $event
+    this.testRunningForGroup = $event;
+    if (this.testRunningForGroup == true){
+      this.report = false;
+    }
   }
 }
