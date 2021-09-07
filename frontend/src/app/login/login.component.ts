@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to handle the client login
@@ -29,6 +30,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     isLoadingRepositories: boolean;
 
+    currentTheme : String;
+
+    isDark: boolean;
+
     /**
      * Tutorial slides
      */
@@ -53,7 +58,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @param route 
      * @param cdr 
      */
-    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
+    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
+            public themeService : ThemingService) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
            if (params.code){
@@ -74,6 +80,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 })
             }
         })
+        this.themeService.getCurrentTheme().subscribe(newTheme => this.currentTheme = newTheme);
+        this.isDark = this.themeService.isDarkMode();
     }
 
     /**
@@ -87,6 +95,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @ignore
      */
     ngOnInit() {
+        this.themeService.themeChanged.subscribe(newTheme => this.currentTheme = newTheme);
     }
 
     /**
@@ -202,4 +211,13 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.isLoadingRepositories = true;
         this.apiService.githubLogin();
     }
+
+    update() {
+        this.isDark = this.themeService.isDarkMode();
+      }
+    
+      onDark() : boolean {
+        this.update();
+        return this.isDark
+      }
 }

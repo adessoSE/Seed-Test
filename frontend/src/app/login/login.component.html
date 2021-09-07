@@ -1,5 +1,5 @@
-<div class="loginGrid">
-  <div class="howToStart">
+<div [class.darkTheme] = "onDark()" class="loginGrid">
+  <div [class.darkTheme] = "onDark()" class="howToStart">
     <div class="mat">
       <mat-carousel
           timings="1000ms ease-in"
@@ -91,7 +91,7 @@
       </mat-carousel>
     </div>
   </div>
-  <div class="formular">
+  <div [class.darkTheme] = "onDark()" class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
     <h1  class="LargeHeadline2 loginFont">Login</h1>
@@ -131,7 +131,7 @@
       </div>
    </a>
    <br>
-   <div class="uk-card default" id="noAccountDiv">
+   <div [class.darkTheme] = "onDark()" class="uk-card default" id="noAccountDiv">
     <span class="noAccount">No account yet? <br>
     <button class="linkButton" routerLink="/register">Register</button>
     or

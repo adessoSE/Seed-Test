@@ -5,6 +5,7 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ModalsComponent } from "../modals/modals.component";
 import {Subscription} from "rxjs/internal/Subscription";
 import { saveAs } from 'file-saver';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -56,12 +57,16 @@ export class AccountManagementComponent implements OnInit {
 
     downloadRepoID: string;
 
+    currentTheme:string;
+
+    isDark : boolean;
+
     /**
      * Constructor
      * @param apiService Connection to the api service
      * @param router router to handle url changes
      */
-    constructor(public apiService: ApiService, public router: Router) {
+    constructor(public apiService: ApiService, public router: Router, public themeService : ThemingService) {
         /*window.addEventListener("storage", (event) => {
             console.log('storage listener')
             if (event.storageArea == window.sessionStorage && event.key == 'repositories') {
@@ -84,6 +89,9 @@ export class AccountManagementComponent implements OnInit {
                 console.log('first load');
             });
         }
+        this.themeService.getCurrentTheme()
+    .subscribe(currentTheme => this.currentTheme = currentTheme);
+    this.isDark = this.themeService.isDarkMode();
     }
 
     seperateRepos(repos) {
@@ -185,6 +193,8 @@ export class AccountManagementComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
+        this.themeService.themeChanged
+    .subscribe(changedTheme =>  this.currentTheme = changedTheme ==='light' ? 'light' : 'dark');
 
     }
 
@@ -243,4 +253,13 @@ export class AccountManagementComponent implements OnInit {
                 return repo;
         });
     }
+
+    update() {
+        this.isDark = this.themeService.isDarkMode();
+      }
+    
+      onDark() : boolean {
+        this.update();
+        return this.isDark
+      }
 }

@@ -1,5 +1,5 @@
 <div class="grid">
-  <div class="topnav">
+  <div [class.darkThemeBalk]= "isDark" class="topnav">
     <!--left-->
     <div class="uk-inline dropdown">
       <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
@@ -14,7 +14,7 @@
                      <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
                      <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
                      <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
-                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
+                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
                       routerLink=''>{{repository.value}}</a>
                    </li>
                   </ul>
@@ -44,6 +44,8 @@
     <!--right-->
     <div class="topnavRight">
       <div>
+        <mat-slide-toggle (click)="toggleDarkMode()" class="rightButton mat-button-toggle mat-button-toggle-checked" 
+        title="Switch to dark mode">Dark Mode</mat-slide-toggle>
         <a routerLink="/feedback">
           <button class="rightButton">Feedback</button>
         </a>
@@ -59,11 +61,11 @@
     </div>
   </div>
 
-  <div class="router">
+  <div [class.darkTheme]="isDark" class="router">
     <router-outlet></router-outlet>
   </div>
 
-  <footer id="footer" class="footer">
+  <footer [class.darkThemeBalk]= "isDark" id="footer" class="footer">
     <div class="footerCenter">
       <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
       <p class="terms" (click)="openTerms()">Terms</p>

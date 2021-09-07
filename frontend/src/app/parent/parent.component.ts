@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -6,6 +6,7 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 import {Group} from "../model/Group";
 import {ActivatedRoute} from "@angular/router";
 import {group} from "@angular/animations";
+import { ThemingService } from '../Services/theming.service';
 
 
 /**
@@ -42,11 +43,18 @@ export class ParentComponent implements OnInit {
 
   report;
 
+  currentTheme:string;
+
+  isDark:boolean;
+
+
+
   /**
    * Constructor
    * @param apiService 
+   * @param themeService
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute) {
+  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -55,6 +63,9 @@ export class ParentComponent implements OnInit {
     }else {
       this.apiService.getBackendInfo()
     }
+    this.themeService.getCurrentTheme()
+    .subscribe(currentTheme => this.currentTheme = currentTheme);
+    this.isDark = this.themeService.isDarkMode();
    }
 
   /**
@@ -66,6 +77,8 @@ export class ParentComponent implements OnInit {
         console.log('parent get Repos')
       });
     }
+    this.themeService.themeChanged
+    .subscribe(changedTheme =>  this.currentTheme = changedTheme ==='light' ? 'light' : 'dark');
   }
 
   /**
@@ -131,4 +144,14 @@ export class ParentComponent implements OnInit {
   viewReport($event){
     this.report = $event
   }
+
+  update() {
+    this.isDark = this.themeService.isDarkMode();
+  }
+
+  onDark() : boolean {
+    this.update();
+    return this.isDark
+  }
+
 }

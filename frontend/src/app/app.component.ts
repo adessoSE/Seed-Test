@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, HostBinding, OnInit, Output } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
+import { ThemingService } from './Services/theming.service';
+import { Observable, of } from 'rxjs';
+
 
 /**
  * Master Component
@@ -33,12 +36,17 @@ export class AppComponent implements OnInit {
    */
   error: string;
 
+  themeMode : string;
+
+  isDark : boolean;
+  
   /**
    * Constructor
    * @param apiService 
    * @param router 
+   * @param themeService
    */
-  constructor(public apiService: ApiService, public router: Router) {
+  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
     /*this.apiService.getRepositoriesEvent.subscribe((repositories) => {
       this.repositories = repositories;
       sessionStorage.setItem('repositories', JSON.stringify(repositories))
@@ -54,8 +62,11 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.getRepositories();
     if(!this.apiService.urlReceived) {
-      this.apiService.getBackendInfo()
+      this.apiService.getBackendInfo();
     }
+    this.themeService.updateTheme();
+    this.themeService.getCurrentTheme().subscribe(currentTheme => this.themeMode = currentTheme);
+    this.isDark = this.themeService.isDarkMode();
   }
 
   /**
@@ -122,6 +133,12 @@ export class AppComponent implements OnInit {
     this.apiService.logoutUser().subscribe(resp => {
     });
     this.router.navigate(['/login']);
-  }
-  
+  }  
+
+  toggleDarkMode() {
+    this.themeService.setNewTheme();
+    this.isDark = this.themeService.isDarkMode(); 
+    this.themeService.getCurrentTheme().subscribe(change => this.themeMode = change);
+   }
+
 }

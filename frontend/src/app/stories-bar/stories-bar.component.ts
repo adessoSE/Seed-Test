@@ -1,4 +1,4 @@
-import {Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy} from '@angular/core';
+import {Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Story} from '../model/Story';
 import {Scenario} from '../model/Scenario';
@@ -7,6 +7,7 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from "../model/Group";
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
+import { ThemingService } from '../Services/theming.service';
 
 
 
@@ -64,8 +65,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     @Output()
     scenarioChosen: EventEmitter<any> = new EventEmitter();
 
-
-
     /**
      * groups in the project
      */
@@ -91,6 +90,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     deleteGroupEmitter: Subscription;
 
+    @Input() isDark: boolean;
+
+
     /**
      * Emits a new chosen Group
      */
@@ -98,6 +100,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     GroupChosen: EventEmitter<any> = new EventEmitter();
 
     @Output() report: EventEmitter<any> = new EventEmitter();
+
 
     /**
      * View Child Modals
@@ -107,8 +110,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Constructor
      * @param apiService
+     * @param ThemingService
      */
-    constructor(public apiService: ApiService, public toastr:ToastrService) {
+    constructor(public apiService: ApiService, public toastr:ToastrService, public themeService : ThemingService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s!=null);
             this.isCustomStory = localStorage.getItem('source') === 'db';
@@ -161,6 +165,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 });
             });
         });
+        this.themeService.isDarkMode();
     }
 
     ngOnDestroy() {
