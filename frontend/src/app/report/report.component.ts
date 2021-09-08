@@ -62,13 +62,13 @@ export class ReportComponent implements OnInit {
     }
 
     ngOnChanges() {
-        console.log(this.report.htmlFile);
+        // console.log(this.report.htmlFile);
         this.reportId = this.report.reportId;
         this.htmlReport = this.report.htmlFile;
         this.testDone = true;
         this.reportIsSaved = false;
         const iframe: HTMLIFrameElement = document.getElementById('testFrameReport') as HTMLIFrameElement;
-        iframe.srcdoc = this.report.htmlFile
+        iframe.srcdoc = this.report.htmlFile;
         this.showResults = true;
         setTimeout(function () {
             iframe.scrollIntoView();
