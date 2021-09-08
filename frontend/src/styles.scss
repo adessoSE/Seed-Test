@@ -77,7 +77,7 @@ $dark-theme: mat-dark-theme((
 .darkTheme {
   //@include angular-material-theme($dark-theme);
   background-color: var(--grey) !important; 
-  color: var(--pale);
+  color: var(--pale) !important; 
 }
 
 .darkThemeButton {
@@ -88,6 +88,10 @@ $dark-theme: mat-dark-theme((
 .darkThemeBalk {
   background-color:  var(--black) !important;
   color:var(--pale) !important;
+}
+
+.darkThemeLink {
+  color:var(--light-blue) !important;
 }
 
 /* You can add global styles to this file, and also import other style files */
@@ -147,6 +151,7 @@ $dark-theme: mat-dark-theme((
       --grey: #505555;
       --dark-grey: #857971;
       --light-grey: #E8E4E1;
+      --light-blue: #a0d9ff;
   }
 
   .LargeHeadline1 {
@@ -664,14 +669,6 @@ $dark-theme: mat-dark-theme((
 
 .deleteButton:hover{
   background: var(--grape-purple);
-}
-
-.mat-button-toggle {
-  background-color: var(--grey-blue) !important;
-}
-
-.mat-button-toggle-checked {
-  background-color: var(--ocean-blue) !important;
 }
 
 html, body { height: 100%; }

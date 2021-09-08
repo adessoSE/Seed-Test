@@ -47,15 +47,18 @@
   flex-direction: row;
   justify-content: flex-end;
   align-content: center;
+  height: 51px;
 }
 
 .topnavCenter{
   grid-area: center;
   align-self: center;
+  height: 51px;
 }
 
 .topnavRight a{
   padding: 12px;
+  height: 51px;
 }
 
 
@@ -192,6 +195,7 @@ a:hover{
 .dropdown{
   position: relative;
   display: inline-block;
+  height: 51px;
 }
 
 .dropdown-list{

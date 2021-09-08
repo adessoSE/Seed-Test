@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { Observable, of } from 'rxjs';
+import { FormControl, Validators } from '@angular/forms';
 
 
 /**
@@ -139,6 +140,6 @@ export class AppComponent implements OnInit {
     this.themeService.setNewTheme();
     this.isDark = this.themeService.isDarkMode(); 
     this.themeService.getCurrentTheme().subscribe(change => this.themeMode = change);
-   }
+   } 
 
 }

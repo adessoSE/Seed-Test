@@ -94,7 +94,7 @@
   <div [class.darkTheme] = "onDark()" class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
-    <h1  class="LargeHeadline2 loginFont">Login</h1>
+    <h1  [class.darkThemeLink] = "isDark" class="LargeHeadline2 loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <br>
       <hr>
@@ -110,13 +110,13 @@
       <br>
       <br>
       <!-- Button Login -->
-      <button class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
+      <button [class.darkThemeButton] = "isDark" class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
       <div id="loadingSpinner" *ngIf="this.isLoadingRepositories">
         <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
     <div>
-      <button class="linkButton" routerLink='/resetpassword'>Forgot Password?</button>
+      <button [class.darkThemeLink] = "isDark" class="linkButton" routerLink='/resetpassword'>Forgot Password?</button>
     </div>
     <p>or</p>
     <hr>
@@ -133,9 +133,9 @@
    <br>
    <div [class.darkTheme] = "onDark()" class="uk-card default" id="noAccountDiv">
     <span class="noAccount">No account yet? <br>
-    <button class="linkButton" routerLink="/register">Register</button>
+    <button [class.darkThemeLink] = "isDark" class="linkButton" routerLink="/register">Register</button>
     or
-    <button class="linkButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
+    <button [class.darkThemeLink] = "isDark" class="linkButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
        (no account required)
     </span>
     <br>

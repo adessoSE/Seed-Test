@@ -26,7 +26,7 @@
         </div>
 
         <div id="scenarioList" class="uk-accordion-content">
-          <button class="SmallButton" [hidden]="hideCreateScenario" (click)="addFirstScenario()">
+          <button [class.darkThemeButton] = "isDark" class="SmallButton" [hidden]="hideCreateScenario" (click)="addFirstScenario()">
             Create First Scenario
           </button>
           <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">

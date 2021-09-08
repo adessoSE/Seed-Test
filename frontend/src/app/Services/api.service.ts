@@ -10,6 +10,7 @@ import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
 import {Group} from "../model/Group";
+import { FormControl } from '@angular/forms';
 
 /**
  * Service to communicate between components and the backend
@@ -505,6 +506,7 @@ export class ApiService {
     logoutUser() {
         const url = this.apiServer + '/user/logout';
         localStorage.removeItem('login');
+        localStorage.removeItem('user-theme')
         return  this.http.get<string[]>(url, ApiService.getOptions())
           .pipe(tap(resp => {
           }),
