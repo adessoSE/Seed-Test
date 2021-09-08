@@ -643,7 +643,10 @@ async function createReport(res, reportName) {
 	reporter.generate(setOptions(reportName));
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-	fs.readFile(`features/${reportName}.html`, 'utf8', (err, data) => {
+
+	const htmlPath = `features/${reportName}.html`;
+	const resolvedHtmlPath = path.resolve(htmlPath);
+	fs.readFile(resolvedHtmlPath, 'utf8', (err, data) => {
 		res.json({ htmlFile: data, reportId: report._id });
 	});
 }

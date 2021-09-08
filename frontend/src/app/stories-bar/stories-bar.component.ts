@@ -197,10 +197,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.createStoryEmitter ? this.createStoryEmitter.unsubscribe() : null;
-        this.createGroupEmitter ? this.createGroupEmitter.unsubscribe() : null;
-        this.updateGroupEmitter ? this.updateGroupEmitter.unsubscribe() : null;
-        this.deleteGroupEmitter ? this.deleteGroupEmitter.unsubscribe() : null;
+        this.createStoryEmitter.unsubscribe();
+        this.createGroupEmitter.unsubscribe();
+        this.updateGroupEmitter.unsubscribe();
+        this.deleteGroupEmitter.unsubscribe();
     }
 
 

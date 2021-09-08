@@ -194,8 +194,7 @@ export class AccountManagementComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        //window.removeEventListener("storage", this.storageEventListener)
-        this.routeSub.unsubscribe()
+        this.routeSub.unsubscribe();
     }
 
     /**
