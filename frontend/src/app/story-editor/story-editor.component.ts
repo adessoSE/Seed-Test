@@ -1,24 +1,24 @@
 import { Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import {saveAs} from 'file-saver';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
-import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
+import { saveAs } from 'file-saver';
+import { DeleteStoryToast } from '../deleteStory-toast';
 
 /**
  * Empty background
  */
-const emptyBackground:Background = {stepDefinitions: {when: []}};
+const emptyBackground: Background = {stepDefinitions: {when: []}};
 
 /**
  * Component for the Story editor
@@ -29,6 +29,55 @@ const emptyBackground:Background = {stepDefinitions: {when: []}};
   styleUrls: ['./story-editor.component.css']
 })
 export class StoryEditorComponent implements OnInit, DoCheck {
+
+  /**
+   * set new currently selected scenario
+   */
+  @Input()
+  set newSelectedScenario(scenario: Scenario) {
+      this.selectedScenario = scenario;
+      if (this.selectedStory) {
+          this.selectScenario(scenario);
+      }
+      this.activeActionBar = false;
+      this.allChecked = false;
+  }
+
+  /**
+   * set new stories
+   */
+  @Input()
+  set newStories(stories: Story[]) {
+        if (stories) {
+            this.stories = stories;
+        }
+  }
+
+  /**
+   * set new currently selected story
+   */
+  @Input()
+  set newSelectedStory(story: Story) {
+      this.selectedStory = story;
+      this.showEditor = true;
+      this.activeActionBar = false;
+      this.allChecked = false;
+  }
+
+  /**
+   * show loading when tests of groups run
+   * hide result of story
+   */
+  @Input()
+  set testRunningForGroup(groupRunning: boolean){
+      this.testRunningGroup = groupRunning;
+      this.showResults = false;
+      try {
+        const loadingScreen: HTMLElement = document.getElementById('loading');
+        loadingScreen.scrollIntoView();
+      } catch (error) {
+      }
+  }
     /**
      * Original step types
      */
@@ -52,32 +101,33 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     /**
      * If the story editor should be shown
      */
-    showEditor: boolean = false;
+    showEditor = false;
 
     /**
      * If the results should be shown
      */
-    showResults: boolean = false;
+    showResults = false;
 
     /**
      * If the description should be shown
      */
-    showDescription: boolean = false;
+    showDescription = false;
 
     /**
      * If the background should be shown
      */
-    showBackground: boolean = false;
+    showBackground = false;
 
     /**
      * if the test is done
      */
-    testDone: boolean = false;
+    testDone = false;
 
     /**
      * If the test is running
      */
-    testRunning: boolean = false;
+    testRunning = false;
+    testRunningGroup: boolean;
 
     /**
      * html report of the result
@@ -87,22 +137,22 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     /**
      * if the stories are loaded
      */
-    storiesLoaded: boolean = false;
+    storiesLoaded = false;
 
     /**
      * If there is a error in the stories request
      */
-    storiesError: boolean = false;
+    storiesError = false;
 
     /**
      * If the repository is a custom project
      */
-    db: boolean = false;
+    db = false;
 
     /**
      * If the test should run without saving the story or scenario
      */
-    runUnsaved: boolean = false;
+    runUnsaved = false;
 
     /**
      * id of the story which is currently getting tested
@@ -117,17 +167,17 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     /**
      * If the action bar is active
      */
-    activeActionBar: boolean = false;
+    activeActionBar = false;
 
     /**
      * If all steps are checked
      */
-    allChecked: boolean = false;
+    allChecked = false;
 
     /**
      * if the background should be saved and then the test run
      */
-    saveBackgroundAndRun: boolean = false;
+    saveBackgroundAndRun = false;
 
     /**
      * Block saved to clipboard
@@ -137,12 +187,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     /**
      * if the daisy version is currently used
      */
-    daisyVersion: boolean = false;
+    daisyVersion = false;
 
     /**
      * if the report is saved
      */
-    reportIsSaved: boolean = false;
+    reportIsSaved = false;
 
     /**
      * Object id of the current report
@@ -170,10 +220,16 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     @Output()
     changeEditor: EventEmitter<any> = new EventEmitter();
 
+    @Output()
+    deleteStoryEvent: EventEmitter<any> = new EventEmitter();
+
     /**
-     * Constructor
-     * @param apiService
-     * @param toastr
+     * Event emitter to show or hide global TestResult
+     */
+    @Output() report: EventEmitter<any> = new EventEmitter();
+
+    /**
+     * Stories bar component
      */
     constructor(
         public apiService: ApiService,
@@ -196,19 +252,24 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       });
 
       this.apiService.deleteScenarioEvent.subscribe(() => {
-          this.deleteScenario(this.selectedScenario)
-      });
+        this.deleteScenario(this.selectedScenario);
+    });
 
       if (this.apiService.urlReceived) {
           this.loadStepTypes();
       }
+
+      this.apiService.deleteStoryEvent.subscribe(() => {
+        this.showEditor = false;
+    });
     }
+
 
     /**
      * retrieves the saved block from the session storage
      */
     ngDoCheck(): void {
-          this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
+          this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
     }
 
     /**
@@ -242,52 +303,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                 Object.keys(block.stepDefinitions).forEach((key, index) => {
                     if (key === 'when') {
                         block.stepDefinitions[key].forEach((step: StepType) => {
-                          this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                          this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
                         });
                     }
                 });
                   this.selectedStory.background.saved = false;
             }
         });
-    }
-
-    /**
-     * Stories bar component
-     */
-    @Input() storiesBar: StoriesBarComponent;
-
-    /**
-     * set new currently selected scenario
-     */
-    @Input()
-    set newSelectedScenario(scenario: Scenario) {
-        this.selectedScenario = scenario;
-        if (this.selectedStory) {
-            this.selectScenario(scenario);
-        }
-        this.activeActionBar = false;
-        this.allChecked = false;
-    }
-
-    /**
-     * set new stories
-     */
-    @Input()
-    set newStories(stories: Story[]) {
-          if (stories) {
-              this.stories = stories;
-          }
-    }
-
-    /**
-     * set new currently selected story
-     */
-    @Input()
-    set newSelectedStory(story: Story) {
-        this.selectedStory = story;
-        this.showEditor = true;
-        this.activeActionBar = false;
-        this.allChecked = false;
+        this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
     }
 
     /**
@@ -302,8 +325,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Runs the test without saving it
      */
     runOption() {
-        let tmpScenarioSaved = this.scenarioChild.scenarioSaved;
-        let tmpBackgroundSaved = this.selectedStory.background.saved;
+        const tmpScenarioSaved = this.scenarioChild.scenarioSaved;
+        const tmpBackgroundSaved = this.selectedStory.background.saved;
         this.scenarioChild.scenarioSaved = true;
         this.selectedStory.background.saved = true;
         this.runTests(this.currentTestScenarioId);
@@ -336,7 +359,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   /**
    * Change to the report history component
    */
-    openReportHistory(){
+    openReportHistory() {
         this.changeEditor.emit();
     }
 
@@ -363,7 +386,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.allChecked = !this.allChecked;
         }
         if (this.allChecked) {
-            for (let prop in this.selectedStory.background.stepDefinitions) {
+            for (const prop in this.selectedStory.background.stepDefinitions) {
                 for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
                     this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], true);
                 }
@@ -371,7 +394,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.activeActionBar = true;
             this.allChecked = true;
         } else {
-            for (let prop in this.selectedStory.background.stepDefinitions) {
+            for (const prop in this.selectedStory.background.stepDefinitions) {
                 for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
                     this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], false);
                 }
@@ -387,7 +410,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * @param step
      * @param checkValue
      */
-    checkStep(event, step, checkValue: boolean){
+    checkStep(event, step, checkValue: boolean) {
         if (checkValue != null) {
             step.checked = checkValue;
         } else {
@@ -396,7 +419,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         let checkCount = 0;
         let stepCount = 0;
 
-        for (let prop in this.selectedStory.background.stepDefinitions) {
+        for (const prop in this.selectedStory.background.stepDefinitions) {
             for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
                 stepCount++;
                 if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
@@ -421,7 +444,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Removes a step from the background
      */
     removeStepFromBackground() {
-        for (let prop in this.selectedStory.background.stepDefinitions) {
+        for (const prop in this.selectedStory.background.stepDefinitions) {
             for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
                 if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
                     this.selectedStory.background.stepDefinitions[prop].splice(i, 1);
@@ -437,14 +460,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Deactivates all checked steps
      */
     deactivateStep() {
-        for (let prop in this.selectedStory.background.stepDefinitions) {
-            for (let s in this.selectedStory.background.stepDefinitions[prop]) {
+        for (const prop in this.selectedStory.background.stepDefinitions) {
+            for (const s in this.selectedStory.background.stepDefinitions[prop]) {
                 if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
-                    this.selectedStory.background.stepDefinitions[prop][s].deactivated = !this.selectedStory.background.stepDefinitions[prop][s].deactivated
+                    this.selectedStory.background.stepDefinitions[prop][s].deactivated = !this.selectedStory.background.stepDefinitions[prop][s].deactivated;
                 }
             }
         }
-        //this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated = !this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated
+        // this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated = !this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated
         this.selectedStory.background.saved = false;
     }
 
@@ -491,10 +514,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         .subscribe((resp: Scenario) => {
            this.selectScenario(resp);
            this.selectedStory.scenarios.push(resp);
-           this.storiesBar.selectScenario(resp);
            this.toastr.info('', 'Scenario added');
         });
   }
+
 
   /**
    * Drag and drop event in the background
@@ -503,6 +526,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    */
   onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
       moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
+      this.selectedStory.background.saved = false;
   }
 
   /**
@@ -533,17 +557,17 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
         this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
             delete step.checked;
-            if(step.outdated){
+            if (step.outdated) {
                 step.outdated = false;
             }
-        })
-    })
+        });
+    });
       this.apiService
           .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
           .subscribe(resp => {
-            this.toastr.success('successfully saved', 'Background')
-            if(this.saveBackgroundAndRun){
-                this.apiService.runSaveOption('saveScenario')
+            this.toastr.success('successfully saved', 'Background');
+            if (this.saveBackgroundAndRun) {
+                this.apiService.runSaveOption('saveScenario');
                 this.saveBackgroundAndRun = false;
             }
         });
@@ -582,7 +606,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * @param step
    */
   addStepToBackground(storyID: string, step: StepType) {
-      const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions)
+      const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions);
       if (newStep.stepType == 'when') {
           this.selectedStory.background.stepDefinitions.when.push(newStep);
       }
@@ -595,13 +619,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * @param stepDefinitions
    * @returns
    */
-  createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType{
-      const obj = JSON.parse(JSON.stringify(step))
+  createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType {
+      const obj = JSON.parse(JSON.stringify(step));
       const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
       const newStep: StepType = {
           id: newId,
           mid: obj.mid,
           pre: obj.pre,
+          post: obj.post,
           stepType: obj.stepType,
           type: obj.type,
           values: obj.values
@@ -681,17 +706,17 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Save the block background
      * @param event
      */
-    saveBlockBackground(event){
-        let saveBlock: any = {when: []};
-        for (let prop in this.selectedStory.background.stepDefinitions) {
-            for(let s in this.selectedStory.background.stepDefinitions[prop]){
-               if(this.selectedStory.background.stepDefinitions[prop][s].checked){
-                   saveBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s])
+    saveBlockBackground(event) {
+        const saveBlock: any = {when: []};
+        for (const prop in this.selectedStory.background.stepDefinitions) {
+            for (const s in this.selectedStory.background.stepDefinitions[prop]) {
+               if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
+                   saveBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
                }
             }
         }
 
-        let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
+        const block: Block = {name: 'TEST', stepDefinitions: saveBlock};
         this.modalsComponent.openSaveBlockFormModal(block, this);
     }
 
@@ -699,20 +724,20 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Copy a block
      * @param event
      */
-    copyBlock(event){
-        let copyBlock: any = {given: [], when: [], then: [], example:[]};
-        for (let prop in this.selectedStory.background.stepDefinitions) {
-            if(prop !== 'example'){
-                for(let s in this.selectedStory.background.stepDefinitions[prop]){
-                    if(this.selectedStory.background.stepDefinitions[prop][s].checked){
-                        this.selectedStory.background.stepDefinitions[prop][s].checked = false
-                        copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s])
+    copyBlock(event) {
+        const copyBlock: any = {given: [], when: [], then: [], example: []};
+        for (const prop in this.selectedStory.background.stepDefinitions) {
+            if (prop !== 'example') {
+                for (const s in this.selectedStory.background.stepDefinitions[prop]) {
+                    if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
+                        this.selectedStory.background.stepDefinitions[prop][s].checked = false;
+                        copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
                     }
                 }
             }
         }
-        let block: Block = {stepDefinitions: copyBlock}
-        sessionStorage.setItem('copiedBlock', JSON.stringify(block))
+        const block: Block = {stepDefinitions: copyBlock};
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block));
         this.allChecked = false;
         this.activeActionBar = false;
     }
@@ -720,12 +745,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     /**
      * Insert a block to the background
      */
-    insertCopiedBlock(){
+    insertCopiedBlock() {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-                this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
-            })
-        })
+                this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+            });
+        });
           this.selectedScenario.saved = false;
     }
 
@@ -737,11 +762,12 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     runTests(scenario_id) {
         if (this.storySaved()) {
             this.testRunning = true;
+            this.report.emit(false);
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
             const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
-            //const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
-            //const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
+            // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
+            // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
 
             loadingScreen.scrollIntoView();
             this.apiService
@@ -749,8 +775,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                     {browser: browserSelect,
                         repository: localStorage.getItem('repository'),
                         source: localStorage.getItem('source')
-                        //waitTime: defaultWaitTimeInput,
-                        //daisyAutoLogout: daisyAutoLogout
+                        // waitTime: defaultWaitTimeInput,
+                        // daisyAutoLogout: daisyAutoLogout
                     })
                 .subscribe((resp: any) => {
                     this.reportId = resp.reportId;
@@ -763,15 +789,15 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                     setTimeout(function () {
                         iframe.scrollIntoView();
                     }, 10);
-                    this.toastr.info('', 'Test is done')
+                    this.toastr.info('', 'Test is done');
                     this.runUnsaved = false;
                 });
-        }else{
+        } else {
             this.currentTestScenarioId = scenario_id;
             this.currentTestStoryId = this.selectedStory.story_id;
             this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
                 toastComponent: RunTestToast
-            })
+            });
         }
     }
 
@@ -788,8 +814,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * @param event
    * @param newTime
    */
-  setStepWaitTime(event, newTime){
-        if(this.selectedScenario){
+  setStepWaitTime(event, newTime) {
+        if (this.selectedScenario) {
             this.selectedScenario.stepWaitTime = newTime;
             this.selectedScenario.saved = false;
         }
@@ -800,7 +826,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * @param event
      * @param newBrowser
      */
-    setBrowser(event, newBrowser){
+    setBrowser(event, newBrowser) {
         this.selectedScenario.browser = newBrowser;
         this.selectedScenario.saved = false;
     }
@@ -816,20 +842,20 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * If the story is saved
    * @returns
    */
-  storySaved(){
-    return this.runUnsaved ||((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved))
+  storySaved() {
+    return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
   }
 
   /**
    * sort the step types
    * @returns
    */
-  sortedStepTypes(){
-    let sortedStepTypes =  this.originalStepTypes;
+  sortedStepTypes() {
+    const sortedStepTypes = this.originalStepTypes;
     sortedStepTypes.sort((a, b) => {
         return a.id - b.id;
-    })
-    return sortedStepTypes
+    });
+    return sortedStepTypes;
  }
 
  /**
@@ -837,13 +863,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
   * @param reportId
   * @returns
   */
- unsaveReport(reportId){
+ unsaveReport(reportId) {
     this.reportIsSaved = false;
     return new Promise<void>((resolve, reject) => {this.apiService
       .unsaveReport(reportId)
       .subscribe(_resp => {
-          resolve()
-      });})
+          resolve();
+      }); });
   }
 
   /**
@@ -851,13 +877,81 @@ export class StoryEditorComponent implements OnInit, DoCheck {
    * @param reportId
    * @returns
    */
-  saveReport(reportId){
+  saveReport(reportId) {
     this.reportIsSaved = true;
     return new Promise<void>((resolve, reject) => {this.apiService
       .saveReport(reportId)
       .subscribe(_resp => {
-          resolve()
-      });})
+          resolve();
+      }); });
+  }
+    /**
+     * Opens the Modal to rename the story
+     * @param newStoryTitle
+     */
+     changeStoryTitle() {
+    this.modalsComponent.openRenameStoryModal(this.selectedStory.title);
+   }
+    /**
+     * Renames the story
+     * @param newStoryTitle
+     */
+   renameStory(newStoryTitle) {
+    if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+        this.selectedStory.title = newStoryTitle;
+    }
+    this.updateStory();
+   }
+
+   /**
+     * Updates the story
+     *
+     */
+    updateStory() {
+        {this.apiService
+            .updateStory(this.selectedStory)
+            .subscribe(_resp => {
+                this.toastr.success('successfully saved', 'Story');
+            }); }
+        }
+
+    storyLink() {
+        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
+    }
+    showStoryLinkToast() {
+        this.toastr.success('', 'Successfully added Link to Clipboard!');
+    }
+
+  /**
+   * Opens the delete story toast
+   * @param story
+   */
+  showDeleteStoryToast(story: Story) {
+    this.toastr.warning('', 'Do you really want to delete this story?', {
+        toastComponent: DeleteStoryToast
+    });
   }
 
+
+  downloadFeature() {
+      const source = this.selectedStory.storySource;
+      const id = this.selectedStory._id;
+      this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+          saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
+      });
+  }
+
+  /**
+     * Emitts the delete story event
+     * @param event
+     */
+   deleteStory(event) {
+    this.deleteStoryEvent.emit(this.selectedStory);
+    }
+
+    getUniqueStoryTitle() {
+        return this.selectedStory.title;
+    }
+
 }
+

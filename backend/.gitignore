@@ -33,12 +33,14 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
-.feature
-/features/*.json
-/features/*.html
+
+/features/*
+!/features/step_definitions/*
+
 # System Files
 .DS_Store
 Thumbs.db
 
 #Db Backup
 dbbackups/
+features/Group_Nr.

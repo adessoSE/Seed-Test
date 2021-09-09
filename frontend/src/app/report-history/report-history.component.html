@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="disclaimerContainer">
-        <p class="SmallHeadline5" >Disclaimer: Currently only the last 1 report per scenario and story will be saved. If you want to keep the reports longer, you have to download the report or mark it as saved.</p>
+        <p class="SmallHeadline5" >Disclaimer: Currently only the last 3 reports per scenario / story will be saved. To save your report persistently, either download the report or mark it as favourite</p>
     </div>
     <div class="storyReportsContainer">
         <div class="sectionHeader">
@@ -67,6 +67,30 @@
                           <em class="material-icons">star_border</em>
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="reports"class="groupReportContainer">
+        <div class="sectionHeader">
+            <p class="Largeaccordeon2 reportsHeader">Group Reports:</p>
+        </div>
+        <div *ngIf="reports" class="reportContainer">
+            <div *ngFor="let grprep of reports.groupReports; let i = index" class="report">
+                <a [class.notPassed]="!grprep.testStatus" [class.passed]="grprep.testStatus" [routerLink]="'/report/' + grprep.reportName" target="_blank">{{stringifyReportTime(grprep.reportTime)}}</a>
+                <div class="reportButtons">
+                    <button  a class="actionButton" uk-tooltip title="Delete Report" (click)="deleteReport(grprep);">
+                        <em class="material-icons">delete</em>
+                    </button>
+                    <button a *ngIf="grprep.isSaved" class="actionButton" uk-tooltip title="Report is currently Saved"
+                            (click)="unsaveReport(grprep);">
+                        <em class="material-icons">star</em>
+                    </button>
+                    <button a *ngIf="!grprep.isSaved"
+                            class="actionButton" uk-tooltip title="Report is currently not Saved"
+                            (click)="saveReport(grprep);">
+                        <em class="material-icons">star_border</em>
+                    </button>
                 </div>
             </div>
         </div>

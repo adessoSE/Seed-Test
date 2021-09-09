@@ -33,12 +33,12 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     selectedScenario: Scenario;
 
       /**
-     * if the arrow left should be shown 
+     * if the arrow left should be shown
      */
     arrowLeft: boolean = true;
 
     /**
-     * if the arrow right should be shown 
+     * if the arrow right should be shown
      */
     arrowRight: boolean = true;
 
@@ -95,8 +95,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Constructor
-     * @param apiService 
-     * @param toastr 
+     * @param apiService
+     * @param toastr
      */
     constructor(
         public apiService: ApiService,
@@ -104,7 +104,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     ) { }
 
     /**
-     * retrieves the saved block from the session storage 
+     * retrieves the saved block from the session storage
      */
     ngDoCheck(): void {
         this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
@@ -167,7 +167,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * If a step from the example should be removed
-     * @param index 
+     * @param index
      */
     @Input()
     removeRowIndex(index: number) {
@@ -177,7 +177,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks for an example step
-     * @param index 
+     * @param index
      */
     @Input()
     checkRowIndex(index: number) {
@@ -243,9 +243,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Drag and drop event for a step in the scenario
-     * @param event 
-     * @param stepDefs 
-     * @param stepIndex 
+     * @param event
+     * @param stepDefs
+     * @param stepIndex
      */
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         /*if (!this.editorLocked) {*/
@@ -255,17 +255,17 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     /**
-     * Gets the steps list 
-     * @param stepDefs 
-     * @param i 
-     * @returns 
+     * Gets the steps list
+     * @param stepDefs
+     * @param i
+     * @returns
      */
     getStepsList(stepDefs: StepDefinition, i: number) {
-        if (i == 0) {
+        if (i === 0) {
             return stepDefs.given;
-        } else if (i == 1) {
+        } else if (i === 1) {
             return stepDefs.when;
-        } else if (i == 2) {
+        } else if (i === 2) {
             return stepDefs.then;
         } else {
             return stepDefs.example;
@@ -274,8 +274,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * gets the types of the steps
-     * @param stepDefs 
-     * @returns 
+     * @param stepDefs
+     * @returns
      */
     getKeysList(stepDefs: StepDefinition) {
         if (stepDefs != null) {
@@ -288,34 +288,34 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     /**
      * Insert a copied block to the scenario
      */
-    insertCopiedBlock(){
+    insertCopiedBlock() {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-                if (key == 'example'){
+                if (key == 'example') {
                     if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))){
-                        this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                        this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
                     }
-                    if (j == 0){
+                    if (j == 0) {
                         step.values.forEach(el => {
-                            let s = '<' + el + '>'
-                            if(!this.uncutInputs.includes(s)){
-                                this.uncutInputs.push(s)
+                            let s = '<' + el + '>';
+                            if(!this.uncutInputs.includes(s)) {
+                                this.uncutInputs.push(s);
                             }
-                        })
+                        });
                     }
                     this.exampleChild.updateTable();
-                }else{
-                    this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                } else {
+                    this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
                 }
-            })
-        })
+            });
+        });
           this.selectedScenario.saved = false;
     }
 
 
     /**
      * update a scenario
-     * @returns 
+     * @returns
      */
     updateScenario() {
         this.allChecked = false;
@@ -323,14 +323,14 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         this.activeActionBar = false;
 
         delete this.selectedScenario.saved;
-        let steps = this.selectedScenario.stepDefinitions["given"];
-        steps = steps.concat(this.selectedScenario.stepDefinitions["when"]);
-        steps = steps.concat(this.selectedScenario.stepDefinitions["then"]);
-        steps = steps.concat(this.selectedScenario.stepDefinitions["example"]);
+        let steps = this.selectedScenario.stepDefinitions['given'];
+        steps = steps.concat(this.selectedScenario.stepDefinitions['when']);
+        steps = steps.concat(this.selectedScenario.stepDefinitions['then']);
+        steps = steps.concat(this.selectedScenario.stepDefinitions['example']);
 
         let undefined_steps = [];
         for (let i = 0; i < steps.length; i++) {
-            if (String(steps[i]["type"]).includes("Undefined Step")) {
+            if (String(steps[i]['type']).includes('Undefined Step')) {
                 undefined_steps = undefined_steps.concat(steps[i]);
             }
         }
@@ -338,11 +338,11 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         Object.keys(this.selectedScenario.stepDefinitions).forEach((key, index) => {
             this.selectedScenario.stepDefinitions[key].forEach((step: StepType) => {
                 delete step.checked;
-                if(step.outdated){
+                if (step.outdated) {
                     step.outdated = false;
                 }
-            })
-        })
+            });
+        });
 
         if (undefined_steps.length != 0) {
             console.log("There are undefined steps here");
@@ -351,14 +351,15 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         return new Promise<void>((resolve, reject) => {this.apiService
             .updateScenario(this.selectedStory._id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
-                this.toastr.success('successfully saved', 'Scenario')
-                resolve()
-            });})
+                this.toastr.success('successfully saved', 'Scenario');
+                resolve();
+            });
+        });
     }
 
     /**
      * Emitts the add a scenario to the story event
-     * @param storyID 
+     * @param storyID
      */
     addScenarioToStory(storyID: any) {
         this.addScenarioEvent.emit(storyID);
@@ -366,7 +367,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Emitts the delete scenario event
-     * @param event 
+     * @param event
      */
     deleteScenario(event){
         this.deleteScenarioEvent.emit(this.selectedScenario);
@@ -374,14 +375,14 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Adds a step to the scenario
-     * @param storyID 
-     * @param step 
+     * @param storyID
+     * @param step
      */
     addStepToScenario(storyID: any, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
-        if(newStep['type'] === this.newStepName){
+        if (newStep['type'] === this.newStepName) {
             this.modalsComponent.openNewStepRequestModal(newStep['stepType']);
-        }else{
+        } else {
             switch (newStep.stepType) {
                 case 'given':
                     this.selectedScenario.stepDefinitions.given.push(newStep);
@@ -404,11 +405,11 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Adds an example step
-     * @param step 
+     * @param step
      */
-    addExampleStep(step: StepType){
+    addExampleStep(step: StepType) {
         if (this.selectedScenario.stepDefinitions.example.length > 0) {
-            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
             this.selectedScenario.stepDefinitions.example.push(newStep);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
             for (let j = 1; j < len; j++) {
@@ -421,18 +422,19 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Creates a new step
-     * @param step 
-     * @param stepDefinitions 
-     * @param stepType 
-     * @returns 
+     * @param step
+     * @param stepDefinitions
+     * @param stepType
+     * @returns
      */
-    createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground, stepType?: string): StepType{
+    createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground, stepType?: string): StepType {
         const obj = JSON.parse(JSON.stringify(step));
         const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
         const newStep: StepType = {
             id: newId,
             mid: obj.mid,
             pre: obj.pre,
+            post: obj.post,
             stepType: stepType === 'example' ? stepType : obj.stepType,
             type: obj.type,
             values: stepType === 'example' ? ['value'] : obj.values
@@ -442,9 +444,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
   /**
    * Gets the last id in the steps
-   * @param stepDefs 
-   * @param stepStepType 
-   * @returns 
+   * @param stepDefs
+   * @param stepStepType
+   * @returns
    */
     getLastIDinStep(stepDefs: any, stepStepType: string): number {
         switch (stepStepType) {
@@ -461,8 +463,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
    * gets the id of the step
-   * @param step 
-   * @returns 
+   * @param step
+   * @returns
    */
     buildID(step): number {
         if (step.length !== 0) {
@@ -502,8 +504,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Check all steps
-     * @param event 
-     * @param checkValue 
+     * @param event
+     * @param checkValue
      */
     checkAllSteps(event, checkValue: boolean){
         if(checkValue!= null){
@@ -536,7 +538,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Opens add block form modal
-     * @param event 
+     * @param event
      */
     addBlock(event){
         let id = localStorage.getItem('id');
@@ -545,7 +547,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Save a new block
-     * @param event 
+     * @param event
      */
     saveBlock(event){
         let saveBlock: any = {given: [], when: [], then: []};
@@ -563,8 +565,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     }
 
     /**
-     * Copy block 
-     * @param event 
+     * Copy block
+     * @param event
      */
     copyBlock(event){
         let copyBlock: any = {given: [], when: [], then: [], example:[]};
@@ -582,11 +584,12 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         sessionStorage.setItem('copiedBlock', JSON.stringify(block))
         this.allChecked = false;
         this.activeActionBar = false;
+        this.toastr.success('successfully copied', 'Step(s)');
     }
 
     /**
      * Copy a block of examples
-     * @param event 
+     * @param event
      */
     copyBlockExample(event){
         let copyBlock: any = {given: [], when: [], then: [], example:[]};
@@ -608,7 +611,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Save an example block
-     * @param event 
+     * @param event
      */
     saveExampleBlock(event){
         let saveBlock: any = {given:[], when: [], then: [], example: []};
@@ -625,13 +628,13 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks if an example step is included in the steps
-     * @param step 
-     * @returns 
+     * @param step
+     * @returns
      */
-    includesExampleStep(step: StepType){
+    includesExampleStep(step: StepType) {
         let includesExample = false;
         step.values.forEach(element => {
-            if (element[0] == '<' && element[element.length -1] == '>') {
+            if (element[0] == '<' && element[element.length - 1] == '>') {
                 includesExample = true;
             }
         });
@@ -640,8 +643,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks all example steps
-     * @param event 
-     * @param checkValue 
+     * @param event
+     * @param checkValue
      */
     checkAllExampleSteps(event, checkValue: boolean){
         if(checkValue!= null){
@@ -667,9 +670,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks a step
-     * @param $event 
-     * @param step 
-     * @param checkValue 
+     * @param $event
+     * @param step
+     * @param checkValue
      */
     checkStep($event, step, checkValue: boolean){
         if(checkValue != null){
@@ -705,9 +708,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks an example step
-     * @param $event 
-     * @param step 
-     * @param checkValue 
+     * @param $event
+     * @param step
+     * @param checkValue
      */
     checkExampleStep($event, step, checkValue: boolean){
         if(checkValue != null){
@@ -773,11 +776,11 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Adds a value to the step
-     * @param input 
-     * @param stepType 
-     * @param step 
-     * @param stepIndex 
-     * @param valueIndex 
+     * @param input
+     * @param stepType
+     * @param step
+     * @param stepIndex
+     * @param valueIndex
      */
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
         this.checkForExamples(input, step, valueIndex);
@@ -800,9 +803,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks the input if an example should be generated or removed
-     * @param input 
-     * @param step 
-     * @param valueIndex 
+     * @param input
+     * @param step
+     * @param valueIndex
      */
     checkForExamples(input: string, step: StepType, valueIndex: number) {
         // removes example if new input is not in example syntax < >
@@ -838,10 +841,10 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * If the example got removed <>
-     * @param input 
-     * @param step 
-     * @param valueIndex 
-     * @returns 
+     * @param input
+     * @param step
+     * @param valueIndex
+     * @returns
      */
     inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
         return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && (!input.startsWith('<') || !input.endsWith('>'))
@@ -849,8 +852,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * If the Input has now an example
-     * @param input 
-     * @returns 
+     * @param input
+     * @returns
      */
     inputHasExample(input: string): boolean{
         return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input)
@@ -859,9 +862,9 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Creates an example
-     * @param input 
-     * @param step 
-     * @param valueIndex 
+     * @param input
+     * @param step
+     * @param valueIndex
      */
     createExample(input: string, step: StepType, valueIndex: number){
         const cutInput = input.substr(1, input.length - 2);
@@ -870,10 +873,10 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Handles the update for examples
-     * @param input 
-     * @param cutInput 
-     * @param step 
-     * @param valueIndex 
+     * @param input
+     * @param cutInput
+     * @param step
+     * @param valueIndex
      */
     handleExamples(input: string, cutInput: string, step: StepType, valueIndex: number) {
         // changes example header name if the name is just changed in step
@@ -896,8 +899,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Creates the first example of the scenario
-     * @param cutInput 
-     * @param step 
+     * @param cutInput
+     * @param step
      */
     createFirstExample(cutInput: string, step: StepType){
         for (let i = 0; i <= 2; i++) {
@@ -912,8 +915,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Fill all example values after an example step was added
-     * @param cutInput 
-     * @param step 
+     * @param cutInput
+     * @param step
      */
     fillExamples(cutInput: string, step: StepType){
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
@@ -936,10 +939,10 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * if the example header got changed
-     * @param input 
-     * @param step 
-     * @param valueIndex 
-     * @returns 
+     * @param input
+     * @param step
+     * @param valueIndex
+     * @returns
      */
     exampleHeaderChanged(input: string, step: StepType, valueIndex: number): boolean{
         return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
@@ -947,7 +950,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Renames the scenario
-     * @param newTitle 
+     * @param newTitle
      */
     renameScenario(newTitle) {
         if (newTitle && newTitle.replace(/\s/g, '').length > 0) {
@@ -958,7 +961,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Selects a scenario
-     * @param scenario 
+     * @param scenario
      */
     selectScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
@@ -968,7 +971,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks if there exists a scenario before this one
-     * @returns 
+     * @returns
      */
     checkArrowLeft(): boolean {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
@@ -977,7 +980,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Checks if there exists a scenario after this one
-     * @returns 
+     * @returns
      */
     checkArrowRight(): boolean {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
@@ -1016,7 +1019,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * if the scenario is saved
-     * @returns 
+     * @returns
      */
     scenarioSaved(){
         return this.testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined
@@ -1024,8 +1027,8 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Sets the daisy auto logout
-     * @param $event 
-     * @param checkValue 
+     * @param $event
+     * @param checkValue
      */
     setDaisyAutoLogout($event: Event,  checkValue: boolean) {
         this.selectedScenario.daisyAutoLogout = checkValue;
@@ -1034,7 +1037,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Change the comment
-     * @param newComment 
+     * @param newComment
      */
     commentChange(newComment){
         this.selectedScenario.comment = newComment;
@@ -1043,7 +1046,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
 
     /**
      * Sort the step types for its id
-     * @returns 
+     * @returns
      */
     sortedStepTypes(){
         if (this.originalStepTypes){
@@ -1061,4 +1064,4 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     changeScenarioTitle(){
         this.modalsComponent.openRenameScenarioModal(this.selectedScenario.name)
     }
-}  
+}

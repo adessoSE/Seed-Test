@@ -1,8 +1,8 @@
 const {
-	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor
+	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
 const webdriver = require('selenium-webdriver');
-const fs = require('file-saver');
+const fs = require('fs');
 const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
@@ -19,6 +19,7 @@ chromeOptions.addArguments('--disable-dev-shm-usage');
 // chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
+chromeOptions.addArguments('--lang=de');
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -34,9 +35,15 @@ setWorldConstructor(CustomWorld);
 // Cucumber default timer for timeout
 setDefaultTimeout(30 * 1000);
 
+defineParameterType({
+	name: 'Bool',
+	regexp: /true|false/,
+	transformer: (b) => (b === 'true')
+});
+
 Before(async function () {
 	currentParameters = this.parameters.scenarios[scenarioIndex];
-	driver = new webdriver.Builder()
+	driver = await new webdriver.Builder()
 		.forBrowser(currentParameters.browser)
 		.setChromeOptions(chromeOptions)
 		.build();
@@ -112,21 +119,20 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 	await driver.wait(async () => driver.executeScript('return document.readyState')
 		.then(async (readyState) => readyState === 'complete'));
 	try {
-		if (element !== '') {
+		if (element !== '') try {
+			await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@id='${element}']`)));
+		} catch (e2) {
 			try {
-				await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@id='${element}']`)));
-			} catch (e2) {
+				await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@*='${element}']`)));
+			} catch (e3) {
 				try {
-					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@*='${element}']`)));
-				} catch (e3) {
-					try {
-						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[contains(@id, '${element}')]`)));
-					} catch (e4) {
-						await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`${element}`)));
-					}
+					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[contains(@id, '${element}')]`)));
+				} catch (e4) {
+					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`${element}`)));
 				}
 			}
 		}
+
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
@@ -231,25 +237,44 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).sendKeys(value);
 				} catch (e4) {
 					try {
-						await driver.findElement(By.xpath(`//*[@id='${label}']`)).clear();
-						await driver.findElement(By.xpath(`//*[@id='${label}']`)).sendKeys(value);
+						await driver.findElement(By.xpath(`//textarea[@*='${label}']`)).clear();
+						await driver.findElement(By.xpath(`//textarea[@*='${label}']`)).sendKeys(value);
 					} catch (e5) {
 						try {
-							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).clear();
-							await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`)).sendKeys(value);
+							await driver.findElement(By.xpath(`//textarea[contains(@*='${label}')]`)).clear();
+							await driver.findElement(By.xpath(`//textarea[contains(@*='${label}')]`)).sendKeys(value);
 						} catch (e6) {
 							try {
-								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).clear();
-								await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`)).sendKeys(value);
+								await driver.findElement(By.xpath(`//*[@id='${label}']`))
+									.clear();
+								await driver.findElement(By.xpath(`//*[@id='${label}']`))
+									.sendKeys(value);
 							} catch (e7) {
 								try {
-									await driver.findElement(By.xpath(`${label}`)).clear();
-									await driver.findElement(By.xpath(`${label}`)).sendKeys(value);
+									await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`))
+										.clear();
+									await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`))
+										.sendKeys(value);
 								} catch (e8) {
-									await driver.takeScreenshot().then(async (buffer) => {
-										world.attach(buffer, 'image/png');
-									});
-									throw Error(e);
+									try {
+										await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`))
+											.clear();
+										await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`))
+											.sendKeys(value);
+									} catch (e9) {
+										try {
+											await driver.findElement(By.xpath(`${label}`))
+												.clear();
+											await driver.findElement(By.xpath(`${label}`))
+												.sendKeys(value);
+										} catch (e10) {
+											await driver.takeScreenshot()
+												.then(async (buffer) => {
+													world.attach(buffer, 'image/png');
+												});
+											throw Error(e);
+										}
+									}
 								}
 							}
 						}
@@ -612,6 +637,11 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 			// Todo: pathingtool (path.normalize)serverhelper
 			const path = `${directory}\\${fileName}`;
 			await fs.promises.access(path, fs.constants.F_OK);
+			const timestamp = Date.now();
+			// Rename the downloaded file, so a new Run of the Test will not check the old file
+			await fs.promises.rename(path, `${directory}\\Seed_Download-${timestamp.toString()}_${fileName}`, (err) => {
+				if (err) console.log(`ERROR: ${err}`);
+			});
 		} catch (e) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
@@ -642,85 +672,47 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 	await driver.sleep(currentParameters.waitTime);
 });
 
-// clicks a button if found in html code with xpath,
-// timeouts if not found after 3 sec, waits for next page to be loaded
-async function clickButton(button) {
+// Check if a checkbox is set (true) or not (false)
+// eslint-disable-next-line prefer-template
+Then('So the checkbox {string} is set to {string} [true OR false]', async function checkBoxIsChecked(checkboxName, checked1) {
+	const world = this;
+	const checked = (checked1 === 'true');
+	console.log(`checked ${checked} ${typeof (checked)}`);
+	let isChecked;
 	try {
-		// first check for the exact id
-		await driver.findElement(By.xpath(`//*[@id='${button}']`)).click();
+		// this one works, even if the element is not clickable (due to other elements blocking it):
+		isChecked = await driver.findElement(By.xpath(`//*[@type='checkbox' and @*='${checkboxName}']`)).isSelected();
 	} catch (e) {
 		try {
-			// check for an id with the substring using contains
-			await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
+			// this one works, for a text label next to the actual checkbox
+			isChecked = await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}')]//parent::label`)).isSelected();
 		} catch (e2) {
+			// default
 			try {
-				// text() looks for a text node (inside an element like button
-				await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
+				isChecked = await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`)).isSelected();
 			} catch (e3) {
 				try {
-					// check for any element containing the string
-					await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
+					isChecked = await driver.findElement(By.xpath(`${checkboxName}`)).isSelected();
 				} catch (e4) {
-					await driver.findElement(By.xpath(`${button}`)).click();
+					await driver.takeScreenshot().then(async (buffer) => {
+						world.attach(buffer, 'image/png');
+					});
+					throw Error(e);
 				}
 			}
 		}
 	}
-	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async (readyState) => readyState === 'complete'));
-}
-
-async function daisyLogout() {
-	await driver.sleep(200);
-	try {
-		await clickButton('Abmelden');
-		await driver.sleep(200);
-	} catch (e) {
-		try {
-			await clickButton('Zurück zum Portal');
-			await driver.sleep(200);
-			await clickButton('Abmelden');
-			await driver.sleep(200);
-		} catch (e2) {
-			await clickButton('Abbrechen');
-			await driver.sleep(200);
-			await clickButton('Zurück zum Portal');
-			await driver.sleep(200);
-			await clickButton('Abmelden');
-			await driver.sleep(200);
-		}
-	}
-}
+	expect(isChecked).to.equal(checked);
+	await driver.sleep(currentParameters.waitTime);
+});
 
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async () => {
-	// console.log(currentParameters.daisyAutoLogout);
-	// console.log(typeof (currentParameters.daisyAutoLogout));
-	// currentParameters.daisyAutoLogout == 'true' ||
-	if (currentParameters && currentParameters.daisyAutoLogout === true) {
-		console.log('Trying DaisyAutoLogout');
-		try {
-			await daisyLogout();
-			await driver.sleep(500);
-			await driver.quit();
-		} catch (e) {
-			console.log('Failed DaisyAutoLogout');
-			await driver.sleep(500);
-			await driver.quit();
-		}
-	}
 	scenarioIndex += 1;
 	// Without Timeout driver quit is happening too quickly. Need a better solution
 	// https://github.com/SeleniumHQ/selenium/issues/5560
-	if (process.env.NODE_ENV) {
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
-		driver.quit();
-	}
+	const condition = until.elementLocated(By.name('loader'));
+	driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+	await driver.quit();
 });
-
-// selenium sleeps for a certain amount of time
-async function waitMs(ms) {
-	await driver.sleep(parseInt(ms, 10));
-}

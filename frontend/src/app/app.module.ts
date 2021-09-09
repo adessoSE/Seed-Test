@@ -39,8 +39,11 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
+import { DeleteStoryToast } from './deleteStory-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
+import {ClipboardModule} from '@angular/cdk/clipboard';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -66,13 +69,14 @@ import { ReportHistoryComponent } from './report-history/report-history.componen
     ReportComponent,
     RunTestToast,
     DeleteScenarioToast,
+    DeleteStoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ModalsComponent,
-    ReportHistoryComponent
+    ReportHistoryComponent,
   ],
   imports: [
-      NgbModule,
+    NgbModule,
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
@@ -80,9 +84,11 @@ import { ReportHistoryComponent } from './report-history/report-history.componen
     HttpClientModule,
     MatTableModule,
     MatListModule,
+    MatSelectModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
     DragDropModule,
+    ClipboardModule,
     MatProgressSpinnerModule,
     MatCarouselModule.forRoot(),
     ToastrModule.forRoot({

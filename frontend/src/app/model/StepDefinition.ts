@@ -1,4 +1,4 @@
-import { StepType } from "./StepType";
+import { StepType } from './StepType';
 
 /**
  * Interface of a Step definition
