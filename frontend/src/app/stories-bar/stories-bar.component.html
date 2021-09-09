@@ -1,7 +1,8 @@
 <div class="grid">
   <div>
     <br>
-      <div class="uk-card-title"><span class="MediumCategory1" id="storyHeader">Stories</span>
+    <div class="searchBarWrapper">
+      <div class="uk-card-title storyBar"><span class="MediumCategory1" id="storyHeader">Stories</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
         <span rel="def">A user story describes requirements for a software system.
           It is consciously kept in short sentences and simple words.
@@ -10,6 +11,52 @@
           As a <...>, I want <...> so that <...>
         </span></dfn>
     </div>
+    <span class="searchBar">
+      <em class="material-icons" id="searchBarIcons">search</em>
+      <input class="searchInput" [(ngModel)]="storyString" (ngModelChange)="storyTermChange()"/>
+      <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('story')">close</em>
+    </span>
+  </div>
+  <div>
+    <em id="searchBarIcons" class="material-icons">filter_alt</em>
+    <span id="clickableIcon">
+    <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
+    <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
+    </span>
+    <span id="clickableIcon" style="float: right;">
+    <em id="searchBarIcons" class="material-icons-outlined" (click)="clearAllFilter()">filter_alt</em>
+    <em id="searchBarIcons" class="material-icons" style="margin-left: -8px; font-size: 17px; vertical-align: bottom;" (click)="clearAllFilter()">close</em>
+    </span>
+  </div>
+  <div [hidden]="!showFilter">
+    <mat-form-field appearance="standard" class="filterFormField">
+      <mat-label>Assignee</mat-label>
+        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter($event)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let assignee of createDistictList('assignee')" [value]="assignee">
+            {{assignee}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
+      <mat-label>Status Of Story</mat-label>
+        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter($event)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
+            {{testPassed}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="standard" class="filterFormField">
+      <mat-label>Group</mat-label>
+        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter($event)">
+          <mat-option>--</mat-option>
+          <mat-option *ngFor="let group of createDistictList('group')" [value]="group">
+            {{group}}
+          </mat-option>
+        </mat-select>
+    </mat-form-field>
+  </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
       <li *ngFor="let s of getSortedStories(); let i = index " cdkDrag>
@@ -47,25 +94,33 @@
 
     <br>
     <hr>
-    <div class="uk-card-title"><span class="MediumCategory1" id="groupHeader">Groups</span>
-      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-        <span rel="def">ToDo</span>
-      </dfn>
+    <div class="searchBarWrapper">
+      <div class="uk-card-title storyBar"><span class="MediumCategory1" id="groupHeader">Groups</span>
+        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+          <span rel="def">Create a Group and add Stories to run multiple Stories at once!</span>
+        </dfn>
+      </div>
+      <span class="searchBar">
+        <em class="material-icons" id="searchBarIcons">search</em>
+        <input class="searchInput" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"/>
+        <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>
+      </span>
     </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
       <li *ngFor="let g of getSortedGroups(); let i = index " cdkDrag>
-        <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted">
-          <a class="storyListLink" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
+        <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" (click)="selectFirstStoryofGroup(g)">
+          <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
              title="{{g.name}}">
             <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
             {{g.name}}
           </a>
-          <span>
-            <em class="material-icons" (click)="runGroup(g)" id="groupPlay">play_arrow</em>
-            <em class="material-icons" (click)="openUpdateGroupModal(g)" id="groupEdit">edit</em>
+          <span class="groupIconSpan">
+            <em class="material-icons" (click)="selectFirstStoryofGroup(g);runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
+            <em class="material-icons" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
           </span>
         </div>
+
 
         <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
           <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
@@ -82,7 +137,5 @@
     </div>
   </div>
 </div>
-<app-story-editor (deleteStoryEvent)= "deleteStory($event);" ></app-story-editor>
-
 
 <app-modals #modalsComponent></app-modals>

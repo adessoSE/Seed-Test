@@ -16,16 +16,13 @@ export class ReportComponent implements OnInit {
     /**
      * if the test is done
      */
-    testDone: boolean = false;
+    testDone = false;
 
+    @Input() report;
 
-    @Input() report
+    reportId;
 
-
-
-    reportId
-
-    reportIsSaved
+    reportIsSaved;
 
     /**
      * html report of the result
@@ -35,7 +32,7 @@ export class ReportComponent implements OnInit {
     /**
      * If the results should be shown
      */
-    showResults: boolean = false;
+    showResults = false;
 
 
     /**
@@ -45,16 +42,16 @@ export class ReportComponent implements OnInit {
      */
     constructor(public apiService: ApiService, public route: ActivatedRoute) {
         this.route.params.subscribe(params => {
-            if(params.reportName){
-                if(!localStorage.getItem('url_backend')){
+            if (params.reportName) {
+                if (!localStorage.getItem('url_backend')) {
                     this.apiService.getBackendInfo().then(value => {
                         this.getReport(params.reportName);
-                    })
+                    });
                 } else {
-                    this.getReport(params.reportName)
+                    this.getReport(params.reportName);
                 }
             }
-        })
+        });
     }
 
     /**
@@ -64,13 +61,12 @@ export class ReportComponent implements OnInit {
     }
 
     ngOnChanges() {
-        console.log(this.report.htmlFile)
-        this.reportId = this.report.reportId
-        this.htmlReport = this.report.htmlFile
+        this.reportId = this.report.reportId;
+        this.htmlReport = this.report.htmlFile;
         this.testDone = true;
         this.reportIsSaved = false;
-        const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-        iframe.srcdoc = this.report.htmlFile
+        const iframe: HTMLIFrameElement = document.getElementById('testFrameReport') as HTMLIFrameElement;
+        iframe.srcdoc = this.report.htmlFile;
         this.showResults = true;
         setTimeout(function () {
             iframe.scrollIntoView();
@@ -89,13 +85,13 @@ export class ReportComponent implements OnInit {
      * @param reportId
      * @returns
      */
-    unsaveReport(reportId){
+    unsaveReport(reportId) {
         this.reportIsSaved = false;
         return new Promise<void>((resolve, reject) => {this.apiService
             .unsaveReport(reportId)
             .subscribe(_resp => {
-                resolve()
-            });})
+                resolve();
+            }); });
     }
 
     /**
@@ -103,13 +99,13 @@ export class ReportComponent implements OnInit {
      * @param reportId
      * @returns
      */
-    saveReport(reportId){
+    saveReport(reportId) {
         this.reportIsSaved = true;
         return new Promise<void>((resolve, reject) => {this.apiService
             .saveReport(reportId)
             .subscribe(_resp => {
-                resolve()
-            });})
+                resolve();
+            }); });
     }
 
     /**
@@ -117,19 +113,16 @@ export class ReportComponent implements OnInit {
      */
     downloadFile() {
         const blob = new Blob([this.htmlReport], {type: 'text/html'});
-        //todo find better name
         saveAs(blob, this.reportId + '.html');
     }
 
     getReport(reportName: string) {
         this.apiService.getReport(reportName).subscribe(resp => {
-            console.log('report', resp)
-            this.report = resp
-            this.ngOnChanges()
-            //const iframe: HTMLIFrameElement = document.getElementById('reportFrame') as HTMLIFrameElement;
-            //iframe.srcdoc = resp
-        })
+            console.log('report', resp);
+            this.report = resp;
+            this.ngOnChanges();
+            // const iframe: HTMLIFrameElement = document.getElementById('reportFrame') as HTMLIFrameElement;
+            // iframe.srcdoc = resp
+        });
     }
-
-
 }

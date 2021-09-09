@@ -35,13 +35,10 @@ export class AppComponent implements OnInit {
 
   /**
    * Constructor
-   * @param apiService 
-   * @param router 
+   * @param apiService
+   * @param router
    */
   constructor(public apiService: ApiService, public router: Router) {
-    this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-      this.repositories = repositories;
-    });
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
   });
@@ -52,8 +49,8 @@ export class AppComponent implements OnInit {
    */
   ngOnInit() {
     this.getRepositories();
-    if(!this.apiService.urlReceived) {
-      this.apiService.getBackendInfo()
+    if (!this.apiService.urlReceived) {
+      this.apiService.getBackendInfo();
     }
   }
 
@@ -72,7 +69,7 @@ export class AppComponent implements OnInit {
   /**
    * Opens the impressum section
    */
-  openImpressum(){
+  openImpressum() {
     this.showTerms = false;
     this.showImpressum = !this.showImpressum;
     if(this.showImpressum) {
@@ -88,6 +85,7 @@ export class AppComponent implements OnInit {
     if (this.apiService.isLoggedIn() && (typeof this.repositories === 'undefined' || this.repositories.length <= 0)) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
+        sessionStorage.setItem('repositories', JSON.stringify(resp));
         console.log('repositories', this.repositories);
       }, (err) => {
         this.error = err.error;
@@ -97,18 +95,18 @@ export class AppComponent implements OnInit {
 
   /**
    * Selects a project from the project list
-   * @param userRepository 
+   * @param userRepository
    */
   selectRepository(userRepository: RepositoryContainer) {
     const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
     ref.href = 'https://github.com/' + userRepository.value;
-    localStorage.setItem('repository', userRepository.value)
-    localStorage.setItem('source', userRepository.source)
-    localStorage.setItem('id', userRepository._id)
-    if(this.router.url !== '/'){
+    localStorage.setItem('repository', userRepository.value);
+    localStorage.setItem('source', userRepository.source);
+    localStorage.setItem('id', userRepository._id);
+    if(this.router.url !== '/') {
       this.router.navigate(['']);
     } else {
-      window.location.reload()
+      window.location.reload();
     }
   }
 
@@ -121,5 +119,4 @@ export class AppComponent implements OnInit {
     });
     this.router.navigate(['/login']);
   }
-  
 }

@@ -23,7 +23,7 @@
           title="Change Scenario Title">
           <em class="material-icons">edit</em>
         </button>
-      
+
           <button id="scenario_shift_right" class="scenarioTitle" *ngIf="!arrowRight" data-uk-tooltip
           title="Next Scenario" (click)="scenarioShiftRight();">
           <em class="material-icons">keyboard_arrow_right</em>
@@ -134,8 +134,8 @@
                    {{currentStep.mid}}
                   <input id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
                    type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" />
+                  {{currentStep.post}}
                 </p>
-                {{currentStep.post}}
                 <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
                   type="text" value="{{value}}" on-input="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" />
                   <div *ngIf="currentStep.outdated">

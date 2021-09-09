@@ -1,8 +1,12 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { ModalsComponent } from "../modals/modals.component";
+import { ModalsComponent } from '../modals/modals.component';
+import {Subscription} from 'rxjs/internal/Subscription';
+import { saveAs } from 'file-saver';
+import {interval} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -23,6 +27,7 @@ export class AccountManagementComponent implements OnInit {
     /**
      * Repositories or projects of this user
      */
+
     repositories: RepositoryContainer[];
 
     /**
@@ -45,20 +50,36 @@ export class AccountManagementComponent implements OnInit {
      */
     id: string;
 
+    routeSub: Subscription;
+
+    searchInput: string;
+
+    searchList: RepositoryContainer[];
+
+    downloadRepoID: string;
+
     /**
      * Constructor
      * @param apiService Connection to the api service
      * @param router router to handle url changes
      */
     constructor(public apiService: ApiService, public router: Router) {
-        router.events.forEach((event) => {
+        this.routeSub = router.events.subscribe(event => {
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
-                this.updateSite('Successful');
+                this.updateSite('Successful'); //
             }
         });
-        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-            this.repositories = repositories;
-        });
+        if (!router.events) {
+            this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+                this.seperateRepos(repositories);
+                console.log('first load');
+            });
+        }
+    }
+
+    seperateRepos(repos) {
+        this.repositories = repos;
+        this.searchList = (!this.searchList) ? repos : this.searchList;
     }
 
     /**
@@ -68,7 +89,7 @@ export class AccountManagementComponent implements OnInit {
         localStorage.setItem('userId', this.id);
         this.apiService.githubLogin();
     }
-    
+
     /**
      * Opens Modal to create a new custom project
      */
@@ -82,7 +103,7 @@ export class AccountManagementComponent implements OnInit {
     jiraLogin() {
         this.modalComponent.openChangeJiraAccountModal('Jira');
     }
- 
+
     /**
      * Opens Modal to delete the Seed-Test account
      */
@@ -94,19 +115,40 @@ export class AccountManagementComponent implements OnInit {
      * Opens Modal to edit the workgroup
      * @param project
      */
-    workGroupEdit(project: RepositoryContainer){
+    workGroupEdit(project: RepositoryContainer) {
         this.modalComponent.openWorkgroupEditModal(project);
     }
-    
+
+    /**
+     * gets repositories from Session storage if available
+     * if not available, it requests them from backend in 500 ms interval
+     * finally: sets this.repositories
+     */
+    getSessionStorage() {
+        const seSto = sessionStorage.getItem('repositories');
+        if (!seSto) {
+            const repositories = interval(500)
+              .pipe(map(() => sessionStorage.getItem('repositories')))
+              .subscribe(data => {
+                  if (data) {
+                      this.repositories = JSON.parse(data);
+                      repositories.unsubscribe();
+                  }
+              });
+        } else {
+            this.repositories = JSON.parse(seSto);
+        }
+    }
+
     /**
      * Fills the Account data
-     * @param report 
+     * @param report
      */
     updateSite(report: String) {
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {
                 this.id = user._id;
-                console.log(user)
+                console.log(user);
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];
                 }
@@ -118,18 +160,20 @@ export class AccountManagementComponent implements OnInit {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                 }
             });
-
-            this.apiService.getRepositories().subscribe((repositories) => {
-                this.repositories = repositories;
-            });
+            this.getSessionStorage();
         }
     }
 
-   
+
     /**
      * @ignore
      */
     ngOnInit() {
+
+    }
+
+    ngOnDestroy() {
+        this.routeSub.unsubscribe();
     }
 
     /**
@@ -151,14 +195,36 @@ export class AccountManagementComponent implements OnInit {
 
     /**
      * Selects the repository and redirects the user to the story editor
-     * @param userRepository 
+     * @param userRepository
      */
     selectRepository(userRepository: RepositoryContainer) {
         const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
         ref.href = 'https://github.com/' + userRepository.value;
-        localStorage.setItem('repository', userRepository.value)
-        localStorage.setItem('source', userRepository.source)
-        localStorage.setItem('id', userRepository._id)
+        localStorage.setItem('repository', userRepository.value);
+        localStorage.setItem('source', userRepository.source);
+        localStorage.setItem('id', userRepository._id);
         this.router.navigate(['']);
+    }
+
+    downloadProjectFeatures(repo_id) {
+        if (repo_id) {
+            const userRepo = this.searchList.find(repo => repo._id == repo_id);
+            console.log(userRepo);
+            const source = userRepo.source;
+            const id = userRepo._id;
+            this.apiService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
+                saveAs(ret, userRepo.value + '.zip');
+            });
+        }
+    }
+
+    searchRepos(value) {
+        console.log(this.searchInput);
+        this.searchInput = this.searchInput ? this.searchInput : '';
+        this.searchList = [].concat(this.repositories).filter(repo => {
+            if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
+                return repo;
+            }
+        });
     }
 }

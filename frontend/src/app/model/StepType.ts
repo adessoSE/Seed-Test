@@ -15,12 +15,17 @@ export interface StepType {
     /**
      * Text before the first input field
      */
-    pre: string
+    pre: string;
 
     /**
      * Text after the first input field
      */
     mid: string;
+
+    /**
+     * Text after the second input field (text at end of step)
+     */
+    post: string;
 
     /**
      * Selection currently not used

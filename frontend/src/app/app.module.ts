@@ -43,6 +43,7 @@ import { DeleteStoryToast } from './deleteStory-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
     HttpClientModule,
     MatTableModule,
     MatListModule,
+    MatSelectModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
     DragDropModule,

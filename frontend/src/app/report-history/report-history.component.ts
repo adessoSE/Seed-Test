@@ -4,6 +4,7 @@ import { ReportContainer } from '../model/ReportContainer';
 import { Scenario } from '../model/Scenario';
 import { Story } from '../model/Story';
 import { ApiService } from '../Services/api.service';
+import {Group} from '../model/Group';
 
 /**
  * Component of the report history
@@ -19,6 +20,11 @@ export class ReportHistoryComponent implements OnInit {
    * Currently selected story
    */
   selectedStory: Story = null;
+
+  /**
+   * groups in the project
+   */
+  groups: Group[];
 
   /**
    * Reports of the selected story
@@ -47,7 +53,7 @@ export class ReportHistoryComponent implements OnInit {
   @Input()
   set newSelectedStory(story: Story) {
       this.selectedStory = story;
-      if (this.selectedStory){
+      if (this.selectedStory) {
         this.getReports();
       }
   }
@@ -55,7 +61,7 @@ export class ReportHistoryComponent implements OnInit {
   /**
    * Retrieves the reports of the story
    */
-  getReports(){
+  getReports() {
     this.reports = null;
     this.apiService.getReportHistory(this.selectedStory._id).subscribe(resp => {
         this.reports = resp;
@@ -67,23 +73,23 @@ export class ReportHistoryComponent implements OnInit {
    * @param scenario currently regarded scenario
    * @returns list of reports of this scenario
    */
-   filterScenarioReports(scenario: Scenario){
-    return this.reports.scenarioReports.filter((elem) => parseInt(elem.scenarioId) == scenario.scenario_id)
+   filterScenarioReports(scenario: Scenario) {
+    return this.reports.scenarioReports.filter((elem) => parseInt(elem.scenarioId) == scenario.scenario_id);
   }
 
   /**
    * Sorts the reports depending on their report time
    * @param reps reports
-   * @returns 
+   * @returns
    */
-  sortReportsTime(reps){
-    return reps.sort((a, b) => a.reportTime > b.reportTime)
+  sortReportsTime(reps) {
+    return reps.sort((a, b) => a.reportTime > b.reportTime);
   }
 
   /**
    * Returns to story editor
    */
-  goBackToStoryEditor(){
+  goBackToStoryEditor() {
     this.changeEditor.emit();
   }
 
@@ -92,32 +98,33 @@ export class ReportHistoryComponent implements OnInit {
    * @param time report time
    * @returns Name of the report with the date
    */
-  stringifyReportTime(time: number){
-    let date = new Date(time).toLocaleDateString("de")
-    let t = new Date(time).toLocaleTimeString("de")
-    return "Report: " + date + " " + t
+  stringifyReportTime(time: number) {
+    const date = new Date(time).toLocaleDateString('de');
+    const t = new Date(time).toLocaleTimeString('de');
+    return 'Report: ' + date + ' ' + t;
   }
 
   /**
    * Deletes a report of the list
    * @param report report to be deleted
    */
-  deleteReport(report: Report){
+  deleteReport(report: Report) {
     this.apiService
       .deleteReport(report._id)
       .subscribe(_resp => {
-          let newReports = JSON.parse(JSON.stringify(this.reports));
+          const newReports = JSON.parse(JSON.stringify(this.reports));
           newReports.storyReports = newReports.storyReports.filter((rep) => rep._id != report._id);
           newReports.scenarioReports = newReports.scenarioReports.filter((rep) => rep._id != report._id);
+          newReports.groupReports = newReports.groupReports.filter((rep) => rep._id != report._id);
           this.reports = newReports;
       });
   }
 
   /**
    * Set the report to not be saved
-   * @param report 
+   * @param report
    */
-  unsaveReport(report: Report){
+  unsaveReport(report: Report) {
     report.isSaved = false;
     this.apiService
       .unsaveReport(report._id)
@@ -127,9 +134,9 @@ export class ReportHistoryComponent implements OnInit {
 
   /**
    * Sets the report to be saved
-   * @param report 
+   * @param report
    */
-  saveReport(report: Report){
+  saveReport(report: Report) {
     report.isSaved = true;
     this.apiService
       .saveReport(report._id)

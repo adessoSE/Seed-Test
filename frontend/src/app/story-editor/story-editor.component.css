@@ -300,9 +300,15 @@
     margin: 5px;
   }
 
-  .loading{
-    text-align: center;
-    font-size: 40px;
+  #loading{
+    /* text-align: center;
+    font-size: 40px; */
+    display: flex;
+    justify-content: center;
+  }
+
+  ::ng-deep .mat-progress-spinner circle, .mat-spinner circle {
+    stroke: var(--ocean-blue);
   }
 
   .showButton{
@@ -331,6 +337,8 @@
     color: var(--ocean-blue);
     background: var(--white);
     border: none;
+    text-align: center; margin: 0px auto;
+    margin-right: 2px;
   }
   
   .marginLeft{
@@ -472,14 +480,14 @@
 
 #story_change_title > em {
   color: var(--ocean-blue);
-  font-size: 20px;
-  margin: 0px 5px;
+  font-size: 24px;
+  padding-left: 4px;
 }
 
 #story_delete > em{
   color: var(--ocean-blue);
-  font-size: 20px;
-  margin: 0px 5px;
+   font-size: 24px;
+
 }
 
 

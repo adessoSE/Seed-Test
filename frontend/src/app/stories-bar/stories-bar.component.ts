@@ -4,11 +4,10 @@ import {Story} from '../model/Story';
 import {Scenario} from '../model/Scenario';
 import {ModalsComponent} from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
-import {Group} from "../model/Group";
+import {Group} from '../model/Group';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteStoryToast } from '../deleteStory-toast';
-import { RepositoryContainer } from '../model/RepositoryContainer';
+
 
 
 
@@ -40,13 +39,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * If it is a custom story
      */
-    isCustomStory: boolean = false;
+    isCustomStory = false;
 
     /**
      * If it is the daisy version
      */
-    daisyVersion: boolean = true;
-    hideCreateScenario: boolean = false;
+    daisyVersion = true;
+    hideCreateScenario = false;
 
     /**
      * Subscription element if a custom story should be created
@@ -64,6 +63,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     @Output()
     scenarioChosen: EventEmitter<any> = new EventEmitter();
+
+    @Output()
+    testRunningGroup: EventEmitter<any> = new EventEmitter();
 
 
 
@@ -93,6 +95,31 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     deleteGroupEmitter: Subscription;
 
     /**
+     * SearchTerm for story title search
+     */
+    storyString: string;
+
+        /**
+     * SearchTerm for group title search
+     */
+    groupString: string;
+    /**
+     * Stories filtered for searchterm
+     */
+    filteredStories: Story[];
+
+        /**
+     * Groups filtered for searchterm
+     */
+    filteredGroups: Group[];
+
+    isFilterActive = false;
+    showFilter = false;
+    assigneeModel;
+    testPassedModel;
+    groupModel;
+
+    /**
      * Emits a new chosen Group
      */
     @Output()
@@ -109,16 +136,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Constructor
      * @param apiService
      */
-    constructor(public apiService: ApiService, public toastr:ToastrService) {
+    constructor(public apiService: ApiService, public toastr: ToastrService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
-            this.stories = stories;
+            this.stories = stories.filter(s => s != null);
+            this.filteredStories = this.stories;
             this.isCustomStory = localStorage.getItem('source') === 'db';
         });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
         } );
         this.apiService.deleteStoryEvent.subscribe(() => {
-          this.deleteStory()
+          this.deleteStory();
         });
     }
 
@@ -126,7 +154,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Checks if this is the daisy version
      */
     ngOnInit() {
-        let version = localStorage.getItem('version')
+        const version = localStorage.getItem('version');
         if (version == 'DAISY' || !version) {
             this.daisyVersion = true;
         } else {
@@ -136,7 +164,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
-                    this.stories = resp;
+                    this.stories = resp.filter(s => s != null);
+                    this.filteredStories = this.stories;
+                    this.storyTermChange();
                 });
             });
         });
@@ -145,6 +175,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
+                    this.filteredGroups = this.groups;
+                    this.groupTermChange();
                 });
             });
         });
@@ -165,57 +197,75 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.createStoryEmitter? this.createStoryEmitter.unsubscribe():null;
-        this.createGroupEmitter? this.createGroupEmitter.unsubscribe():null;
-        this.updateGroupEmitter? this.updateGroupEmitter.unsubscribe():null;
-        this.deleteGroupEmitter? this.deleteGroupEmitter.unsubscribe():null;
+        this.createStoryEmitter.unsubscribe();
+        this.createGroupEmitter.unsubscribe();
+        this.updateGroupEmitter.unsubscribe();
+        this.deleteGroupEmitter.unsubscribe();
     }
 
 
     /**
      * Sorts the stories after issue_number
+     * Displays filterd stories if searchterm was given
      * @returns
      */
     getSortedStories() {
-        return this.stories
+        if (this.storyString || this.isFilterActive) {
+            return this.filteredStories;
+        }
+        return this.stories;
     }
 
     getSortedGroups() {
+        if (this.groupString) {
+            return this.filteredGroups;
+        }
         if (this.groups && this.stories) {
-            return this.mergeById(this.groups, this.stories)
+            return this.mergeById(this.groups, this.stories);
         }
     }
 
     mergeById(groups, stories) {
-        let myMap = new Map
-        for(const story of stories)
-            myMap.set(story._id, story.title)
+        const myMap = new Map;
+        for (const story of stories) {
+            myMap.set(story._id, story.title);
+        }
 
-        let ret = []
-        for(let group of groups){
-            let gr = group
-            for (let index in group.member_stories) {
-                if(!group.member_stories[index].title){
+        const ret = [];
+        for (const group of groups) {
+            const gr = group;
+            for (const index in group.member_stories) {
+                if (!group.member_stories[index].title) {
                     gr.member_stories[index] = {
                         'title': myMap.get(group.member_stories[index]),
                         '_id': group.member_stories[index]
-                    }
+                    };
                 }
             }
-            ret.push(gr)
+            ret.push(gr);
         }
         return ret;
     }
 
-    runGroup(group: Group){
-        const id = localStorage.getItem('id')
+    runGroup(group: Group) {
+        const id = localStorage.getItem('id');
+        this.testRunningGroup.emit(true);
         this.apiService.runGroup(id, group._id, null).subscribe(ret => {
-            this.report.emit(ret)
-            console.log('Group report, No Frontend Yet')
-        })
+            this.report.emit(ret);
+            console.log('Group report, No Frontend Yet');
+            this.testRunningGroup.emit(false);
+        });
     }
 
-
+    /**
+     * Select the first Story of a Group
+     * @param group
+     */
+    selectFirstStoryofGroup(group: Group) {
+        let story = group.member_stories[0];
+        story = this.stories.find(o => o._id === story._id);
+        this.selectStoryScenario(story);
+    }
 
     /**
      * Selects a new scenario
@@ -250,16 +300,16 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.selectedGroup = group;
     }
 
-    selectStoryOfGroup(id){
-        const story = this.stories.find(o => o._id === id)
-        this.selectStoryScenario(story)
+    selectStoryOfGroup(id) {
+        const story = this.stories.find(o => o._id === id);
+        this.selectStoryScenario(story);
     }
 
     /**
      * Opens a create New scenario Modal
      */
     openCreateNewScenarioModal() {
-        this.modalsComponent.openCreateNewStoryModal()
+        this.modalsComponent.openCreateNewStoryModal();
     }
 
     addFirstScenario() {
@@ -284,80 +334,198 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Opens a create New group Modal
      */
-    openCreateNewGroupModal(){
-        this.modalsComponent.openCreateNewGroupModal()
+    openCreateNewGroupModal() {
+        console.log(this.groups);
+        this.modalsComponent.openCreateNewGroupModal(this.groups);
     }
 
     /**
      * Opens a update group Modal
      */
-    openUpdateGroupModal(group: Group){
-        this.modalsComponent.openUpdateGroupModal(group)
+    openUpdateGroupModal(group: Group) {
+        this.modalsComponent.openUpdateGroupModal(group, this.groups);
     }
 
     dropStory(event: CdkDragDrop<string[]>) {
-        const source = localStorage.getItem('source')
-        const repo_id = localStorage.getItem('id')
+        const source = localStorage.getItem('source');
+        const repo_id = localStorage.getItem('id');
         moveItemInArray(this.stories, event.previousIndex, event.currentIndex);
         this.apiService.updateStoryList(repo_id, source, this.stories.map(s => s._id)).subscribe(ret => {
-            //console.log(ret)
-        })
+            // console.log(ret)
+        });
     }
 
     dropScenario(event: CdkDragDrop<string[]>, s) {
-        const source = localStorage.getItem('source')
-        const index = this.stories.findIndex(o => o._id === s._id)
+        const source = localStorage.getItem('source');
+        const index = this.stories.findIndex(o => o._id === s._id);
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
         this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(ret => {
-            //console.log(ret)
-        })
+            // console.log(ret)
+        });
     }
 
-    dropGroup(event: CdkDragDrop<string[]>){
-        const repo_id = localStorage.getItem('id')
+    dropGroup(event: CdkDragDrop<string[]>) {
+        const repo_id = localStorage.getItem('id');
         moveItemInArray(this.groups, event.previousIndex, event.currentIndex);
-        let pass_arr = JSON.parse(JSON.stringify(this.groups)) // deepCopy
-        for(const groupIndex in pass_arr){
-            pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id)
+        const pass_arr = JSON.parse(JSON.stringify(this.groups)); // deepCopy
+        for (const groupIndex in pass_arr) {
+            pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id);
         }
         this.apiService.updateGroupsArray(repo_id, pass_arr).subscribe(ret => {
-            console.log(ret)
-        })
+            console.log(ret);
+        });
     }
 
     dropGroupStory(event: CdkDragDrop<string[]>, group) {
-        const repo_id = localStorage.getItem('id')
-        const index = this.groups.findIndex(o=> o._id === group._id)
+        const repo_id = localStorage.getItem('id');
+        const index = this.groups.findIndex(o => o._id === group._id);
         moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
-        const pass_gr = this.groups[index]
-        pass_gr.member_stories = this.groups[index].member_stories.map(o => o._id)
+        const pass_gr = this.groups[index];
+        pass_gr.member_stories = this.groups[index].member_stories.map(o => o._id);
         this.apiService.updateGroup(repo_id, group._id, pass_gr).subscribe( ret => {
-            //console.log(ret)
+            // console.log(ret)
         });
     }
 
   /**
   * Deletes story
   * @param story
-  */ 
-  deleteStory() {  
-    let repository=localStorage.getItem('id');
+  */
+  deleteStory() {
+    const repository = localStorage.getItem('id');
     { this.apiService
-       .deleteStory(repository,this.selectedStory._id)
+       .deleteStory(repository, this.selectedStory._id)
        .subscribe(resp => {
            this.storyDeleted();
            this.toastr.error('', 'Story deleted');
-        });}
+        }); }
   }
 
   /**
   * Removes the selected story
-  */ 
-  storyDeleted(){
-    if (this.stories.find(x => x == this.selectedStory)) {
-      this.stories.splice(this.stories.findIndex(x => x == this.selectedStory), 1);       
-    };
+  */
+  storyDeleted() {
+    if (this.stories.find(x => x === this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
+    }
   }
 
-}
+  /**
+   * Filters stories for searchterm
+   */
+  storyTermChange(storiesToFilter = this.stories) {
+    this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+  }
 
+    /**
+   * Filters group for searchterm
+   */
+    groupTermChange() {
+    this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+    }
+
+    /**
+     * Delete Search Term
+     * @param varToErase either group or story
+     */
+    eraseSearchTerm(varToErase: string) {
+        if (varToErase === 'story') {
+            this.storyString = null;
+        } else if (varToErase === 'group') {
+            this.groupString = null;
+        }
+    }
+
+    filter() {
+        this.isFilterActive = true;
+        let filter = [];
+
+        // filter for last test passed
+        switch (this.testPassedModel) {
+            case 'Passed':
+                filter = this.stories.filter(story => story.lastTestPassed === true);
+                break;
+            case 'Failed':
+                filter = this.stories.filter(story => story.lastTestPassed === false);
+                break;
+            default:
+                filter = this.stories;
+                break;
+        }
+        if (this.groupModel !== undefined) {
+            const group = this.groups.filter(grp => grp.name == this.groupModel)[0];
+            const storiesIds = group.member_stories.map(story => story._id);
+            filter = filter.filter(story => storiesIds.includes(story._id));
+            console.log(filter);
+        }
+
+        // filter for assignee in testPassed filter result
+        if (this.assigneeModel !== undefined) {
+            filter = filter.filter(story => story.assignee.toLowerCase().includes(this.assigneeModel.toLowerCase()));
+        }
+
+        // check if no filter is active and apply search term
+        if (this.assigneeModel === undefined && this.testPassedModel === undefined && this.groupModel === undefined) {
+            this.isFilterActive = false;
+            if (this.storyString) {
+                this.storyTermChange();
+            }
+        } else {
+            if (this.storyString) {
+                this.storyTermChange(filter);
+            } else {
+                this.filteredStories = filter;
+            }
+        }
+
+    }
+
+    /**
+     * Create List for Filter Selection
+     * @param filter case for which filter the selection list should be created
+     * @returns
+     */
+    createDistictList(filter: string) {
+        if (this.stories) {
+        switch (filter) {
+            case 'assignee':
+                return this.stories.map(story => story.assignee).filter((value, index, self) => self.indexOf(value) === index);
+            case 'lastTestPassed':
+                return ['Passed', 'Failed'];
+            case 'group':
+                if (this.groups) {
+                    return this.groups.map(group => group.name);
+                }
+                break;
+            default:
+                return this.stories;
+        }} else {
+            return this.stories;
+        }
+    }
+
+    /**
+     * Show or Hide Filter
+     */
+    showFilterClick() {
+        this.showFilter = !this.showFilter;
+    }
+
+    /**
+     * Clear Filter
+     */
+    clearAllFilter() {
+        // overwrite filterdStories
+        if (this.storyString) {
+            this.storyTermChange();
+        } else {
+            this.filteredStories = this.stories;
+        }
+
+        this.assigneeModel = '--';
+        this.testPassedModel = '--';
+        this.groupModel = '--';
+        this.isFilterActive = false;
+    }
+
+}
