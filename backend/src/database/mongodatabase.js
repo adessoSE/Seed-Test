@@ -31,11 +31,10 @@ const WorkgroupsCollection = 'Workgroups';
 async function createResetRequest(request) {
 	let db;
 	try {
-		const db = await connectDb();
+		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(PwResetReqCollection);
-		const result = await collection.insertOne(request);
-		return result;
+		return await collection.insertOne(request);
 	} catch (e) {
 		console.log(`UPS!!!!FEHLER im ResetRequest: ${e}`);
 		throw e;
@@ -49,8 +48,7 @@ async function getResetRequest(id) {
 	try {
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(PwResetReqCollection);
-		const result = await collection.findOne({ uuid: id });
-		return result;
+		return await collection.findOne({ uuid: id });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getResetRequest: ${e}`);
 		throw e;
@@ -65,8 +63,7 @@ async function getResetRequestByEmail(mail) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(PwResetReqCollection);
-		const result = await collection.findOne({ email: mail });
-		return result;
+		return await collection.findOne({ email: mail });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getResetRequestByEmail: ${e}`);
 		throw e;
@@ -78,7 +75,7 @@ async function getResetRequestByEmail(mail) {
 async function deleteRequest(mail) {
 	let db;
 	try {
-		const db = await connectDb();
+		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(PwResetReqCollection);
 		const result = await collection.deleteOne({ email: mail });
@@ -112,11 +109,10 @@ async function registerUser(user) {
 async function registerGithubUser(user) {
 	let db;
 	try {
-		const db = await connectDb();
+		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(userCollection);
-		const result = await collection.insertOne({ github: user });
-		return result;
+		return await collection.insertOne({ github: user });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in registerGithubUser: ${e}`);
 		throw e;
@@ -128,7 +124,7 @@ async function registerGithubUser(user) {
 async function mergeGithub(userId, login, id) {
 	let db;
 	try {
-		const db = await connectDb();
+		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(userCollection);
 		const githubAccount = await getUserByGithub(login, id);
@@ -139,12 +135,8 @@ async function mergeGithub(userId, login, id) {
 		if (githubAccount.email) {
 			delete githubAccount.github;
 			await replaceUser(githubAccount, collection);
-		} else {
-			const deletedGithub = await deleteUser(githubAccount._id);
-		}
-
-		const result = await replaceUser(seedAccount, collection);
-		return result;
+		} else await deleteUser(githubAccount._id);
+		return await replaceUser(seedAccount, collection);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in mergeGithub: ${e}`);
 		throw e;
@@ -156,11 +148,10 @@ async function mergeGithub(userId, login, id) {
 async function getUserByEmail(email) {
 	let db;
 	try {
-		const db = await connectDb();
+		db = await connectDb();
 		const dbo = await db.db(dbName);
 		const collection = await dbo.collection(userCollection);
-		const result = await collection.findOne({ email });
-		return result;
+		return await collection.findOne({ email });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getUserByEmail: ${e}`);
 		throw e;
@@ -222,7 +213,7 @@ function selectRepositoryCollection(db) {
 	});
 }
 function selectStoriesCollection(db) {
-	dbo = db.db(dbName);
+	const dbo = db.db(dbName);
 	return new Promise((resolve, reject) => {
 		dbo.collection(storiesCollection, (err, collection) => {
 			if (err) reject(err);
@@ -231,7 +222,7 @@ function selectStoriesCollection(db) {
 	});
 }
 function selectUsersCollection(db) {
-	dbo = db.db(dbName);
+	const dbo = db.db(dbName);
 	return new Promise((resolve, reject) => {
 		dbo.collection(userCollection, (err, collection) => {
 			if (err) reject(err);
@@ -268,8 +259,7 @@ async function disconnectGithub(user) {
 	const db = await connectDb();
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
-	const removedUser = await replaceUser(user, collection);
-	return removedUser;
+	return await replaceUser(user, collection);
 }
 
 function replaceUser(newUser, collection) {
@@ -288,8 +278,7 @@ async function updateStory(updatedStuff) {
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await replace(updatedStuff, collection);
-		return story;
+		return await replace(updatedStuff, collection);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER updateStory: ${e}`);
 		throw e;
@@ -307,7 +296,6 @@ async function getOneStory(storyId, storySource) {
 		let story = await collection.findOne({ _id: ObjectId(storyId), storySource });
 		// TODO remove later when all used stories have the tag storySource
 		if (!story) story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined });
-
 		return story;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneStory: ${e}`);
@@ -325,7 +313,6 @@ async function getOneStoryByStoryId(storyId, storySource) {
 		let story = await collection.findOne({ story_id: storyId, storySource });
 		// TODO remove later when all used stories have the tag storySource
 		if (!story) story = await collection.findOne({ story_id: storyId, storySource: undefined });
-
 		return story;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneStoryByStoryId: ${e}`);
@@ -334,14 +321,14 @@ async function getOneStoryByStoryId(storyId, storySource) {
 	}
 }
 
-async function createStoryGroup(repo_id, name, members) {
+async function createStoryGroup(repoID, name, members) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 
 		const groups = await collection.findOneAndUpdate(
-			{ _id: ObjectId(repo_id) },
+			{ _id: ObjectId(repoID) },
 			{ $push: { groups: { _id: ObjectId(), name, member_stories: members || [] } } },
 			{ upsert: true, projection: { groups: 1 }, returnOriginal: false }
 		);
@@ -353,16 +340,17 @@ async function createStoryGroup(repo_id, name, members) {
 	}
 }
 
-async function updateStoryGroup(repo_id, group_id, updatedGroup) {
+async function updateStoryGroup(repoId, groupId, updatedGroup) {
 	let db;
 	try {
 		db = await connectDb();
 		updatedGroup._id = ObjectId(updatedGroup._id);
 		const collection = await selectRepositoryCollection(db);
-		const repo = await collection.findOne({ _id: ObjectId(repo_id) });
-		const index = repo.groups.findIndex((o) => o._id == group_id);// leave with double equal
+		const repo = await collection.findOne({ _id: ObjectId(repoId) });
+		// leave with double equal:
+		const index = repo.groups.findIndex((o) => o._id == groupId);
 		repo.groups[index] = updatedGroup;
-		await collection.updateOne({ _id: ObjectId(repo_id) }, { $set: repo });
+		await collection.updateOne({ _id: ObjectId(repoId) }, { $set: repo });
 		return updatedGroup;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroup: ${e}`);
@@ -371,15 +359,16 @@ async function updateStoryGroup(repo_id, group_id, updatedGroup) {
 	}
 }
 
-async function deleteStoryGroup(repo_id, group_id) {
+async function deleteStoryGroup(repoId, groupId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const repo = await collection.findOne({ _id: ObjectId(repo_id) });
-		const index = repo.groups.findIndex((o) => o._id == group_id);// leave with double equal
+		const repo = await collection.findOne({ _id: ObjectId(repoId) });
+		// leave with double equal:
+		const index = repo.groups.findIndex((o) => o._id == groupId);
 		repo.groups.splice(index, 1);
-		await collection.updateOne({ _id: ObjectId(repo_id) }, { $set: repo });
+		await collection.updateOne({ _id: ObjectId(repoId) }, { $set: repo });
 		return null;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteStoryGroup: ${e}`);
@@ -388,22 +377,22 @@ async function deleteStoryGroup(repo_id, group_id) {
 	}
 }
 
-async function addToStoryGroup(repo_id, group_id, story_id) {
+async function addToStoryGroup(repoId, groupId, storyId) {
 	try {
-		const group = await getOneStoryGroup(repo_id, group_id);
-		group.member_stories.push(story_id);
-		await updateStoryGroup(repo_id, group_id, group);
+		const group = await getOneStoryGroup(repoId, groupId);
+		group.member_stories.push(storyId);
+		await updateStoryGroup(repoId, groupId, group);
 		return group;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in AddToStoryGroup: ${e}`);
 	}
 }
 
-async function removeFromStoryGroup(repo_id, group_id, story_id) {
+async function removeFromStoryGroup(repoId, groudId, storyId) {
 	try {
-		const group = await getOneStoryGroup(repo_id, group_id);
-		group.member_stories.splice(group.indexOf(story_id), 1);
-		await updateStoryGroup(repo_id, group_id, group);
+		const group = await getOneStoryGroup(repoId, groudId);
+		group.member_stories.splice(group.indexOf(storyId), 1);
+		await updateStoryGroup(repoId, groudId, group);
 		return group;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in removeFromStoryGroup: ${e}`);
@@ -415,8 +404,7 @@ async function getAllStoryGroups(repoId) {
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const groups = await collection.findOne({ _id: ObjectId(repoId) }, { projection: { groups: 1 } });
-		return groups;
+		return await collection.findOne({ _id: ObjectId(repoId) }, { projection: { groups: 1 } });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getAllStoryGroups: ${e}`);
 	} finally {
@@ -429,8 +417,7 @@ async function updateStoryGroupsArray(repoId, groupsArray) {
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const groups = await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { groups: groupsArray } }, { projection: { groups: 1 } });
-		return groups;
+		return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { groups: groupsArray } }, { projection: { groups: 1 } });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroupsArray: ${e}`);
 	} finally {
@@ -447,7 +434,7 @@ async function getOneStoryGroup(repoId, groupId) {
 	}
 }
 
-// GET all  Steptypes
+// GET all StepTypes
 async function showSteptypes() {
 	let db;
 	try {
@@ -703,8 +690,8 @@ async function getRepository(userID) {
 		const dbo = db.db(dbName);
 		const wGCollection = await dbo.collection(WorkgroupsCollection);
 		const repoCollection = await selectRepositoryCollection(db);
-		const userCollection = await selectUsersCollection(db);
-		const user = await userCollection.findOne({ _id: ObjectId(userID) });
+		const usersCollection = await selectUsersCollection(db);
+		const user = await usersCollection.findOne({ _id: ObjectId(userID) });
 		const positiveWorkgroups = await wGCollection.find({ Members: { $elemMatch: { email: user.email, canEdit: true } } }).toArray();
 		const PWgArray = positiveWorkgroups.map((entry) => ObjectId(entry.Repo));
 		const PWgRepos = await repoCollection.find({ _id: { $in: PWgArray } }).toArray();
@@ -1130,10 +1117,10 @@ async function addMember(id, user) {
 		if (check) return 'Dieser User ist bereits in der Workgroup';
 		const rCollection = await dbo.collection(repositoriesCollection);
 		const repo = await rCollection.findOne({ _id: ObjectId(id) });
-		const userCollection = await selectUsersCollection(db);
-		const owner = await userCollection.findOne({ _id: repo.owner });
-		const result = await wGCollection.findOne({ Repo: ObjectId(id) });
-		if (!result) {
+		const usersCollection = await selectUsersCollection(db);
+		const owner = await usersCollection.findOne({ _id: repo.owner });
+		const workGroup = await wGCollection.findOne({ Repo: ObjectId(id) });
+		if (!workGroup) {
 			await wGCollection.insertOne({
 				name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
 			});
@@ -1143,6 +1130,7 @@ async function addMember(id, user) {
 			result.member = wG.Members;
 			return result;
 		}
+		// if there is a workGroup already:
 		await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
 		const result = { owner: {}, member: [] };
 		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
@@ -1165,12 +1153,12 @@ async function updateMemberStatus(repoId, user) {
 		const wGCollection = await dbo.collection(WorkgroupsCollection);
 		const rCollection = await dbo.collection(repositoriesCollection);
 		const repo = await rCollection.findOne({ _id: ObjectId(repoId) });
-		const userCollection = await selectUsersCollection(db);
-		const owner = await userCollection.findOne({ _id: repo.owner });
+		const usersCollection = await selectUsersCollection(db);
+		const owner = await usersCollection.findOne({ _id: repo.owner });
 		const updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { 'Members.$[elem].canEdit': user.canEdit } }, { arrayFilters: [{ 'elem.email': user.email }] });
 		if (updatedWG) {
-			wG = await wGCollection.findOne({ Repo: ObjectId(repoId) });
-			result = { owner: {}, member: [] };
+			const wG = await wGCollection.findOne({ Repo: ObjectId(repoId) });
+			const result = { owner: {}, member: [] };
 			result.owner = { email: owner.email, canEdit: true };
 			result.member = wG.Members;
 			return result;
@@ -1191,9 +1179,9 @@ async function getMembers(id) {
 		const wGCollection = await dbo.collection(WorkgroupsCollection);
 		const rCollection = await dbo.collection(repositoriesCollection);
 		const repo = await rCollection.findOne({ _id: ObjectId(id) });
-		const userCollection = await selectUsersCollection(db);
-		const owner = await userCollection.findOne({ _id: repo.owner });
-		wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+		const usersCollection = await selectUsersCollection(db);
+		const owner = await usersCollection.findOne({ _id: repo.owner });
+		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
 		if (!wG) return { owner: { email: owner.email, canEdit: true }, member: [] };
 		const result = { owner: {}, member: [] };
 		result.owner = { email: owner.email, canEdit: true };
@@ -1215,12 +1203,12 @@ async function removeFromWorkgroup(id, user) {
 		const wGcollection = await dbo.collection(WorkgroupsCollection);
 		const rCollection = await dbo.collection(repositoriesCollection);
 		const repo = await rCollection.findOne({ _id: ObjectId(id) });
-		const userCollection = await selectUsersCollection(db);
-		const owner = await userCollection.findOne({ _id: repo.owner });
-		let result = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } });
-		if (result) {
-			wG = await wGcollection.findOne({ Repo: ObjectId(id) });
-			result = { owner: {}, member: [] };
+		const usersCollection = await selectUsersCollection(db);
+		const owner = await usersCollection.findOne({ _id: repo.owner });
+		const workGroup = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } });
+		if (workGroup) {
+			const wG = await wGcollection.findOne({ Repo: ObjectId(id) });
+			const result = { owner: {}, member: [] };
 			result.owner = { email: owner.email, canEdit: true };
 			result.member = wG.Members;
 			return result;
