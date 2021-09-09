@@ -18,7 +18,6 @@ export class ReportComponent implements OnInit {
      */
     testDone = false;
 
-
     @Input() report;
 
     reportId;
@@ -62,7 +61,6 @@ export class ReportComponent implements OnInit {
     }
 
     ngOnChanges() {
-        // console.log(this.report.htmlFile);
         this.reportId = this.report.reportId;
         this.htmlReport = this.report.htmlFile;
         this.testDone = true;
@@ -115,7 +113,6 @@ export class ReportComponent implements OnInit {
      */
     downloadFile() {
         const blob = new Blob([this.htmlReport], {type: 'text/html'});
-        // todo find better name
         saveAs(blob, this.reportId + '.html');
     }
 
@@ -128,6 +125,4 @@ export class ReportComponent implements OnInit {
             // iframe.srcdoc = resp
         });
     }
-
-
 }

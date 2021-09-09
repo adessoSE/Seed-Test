@@ -3,8 +3,8 @@ import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import {Group} from "../model/Group";
-import {ActivatedRoute} from "@angular/router";
+import {Group} from '../model/Group';
+import {ActivatedRoute} from '@angular/router';
 
 
 /**
@@ -48,16 +48,16 @@ export class ParentComponent implements OnInit {
 
   /**
    * Constructor
-   * @param apiService 
+   * @param apiService
    */
   constructor(public apiService: ApiService, public route: ActivatedRoute) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
-    if(this.apiService.urlReceived) {
+    if (this.apiService.urlReceived) {
       this.loadStories();
-    }else {
-      this.apiService.getBackendInfo()
+    } else {
+      this.apiService.getBackendInfo();
     }
    }
 
@@ -65,9 +65,9 @@ export class ParentComponent implements OnInit {
    * Requests the repositories on init
    */
   ngOnInit() {
-    if(!sessionStorage.getItem('repositories')) {
+    if (!sessionStorage.getItem('repositories')) {
       this.apiService.getRepositories().subscribe(() => {
-        console.log('parent get Repos')
+        console.log('parent get Repos');
       });
     }
   }
@@ -76,15 +76,15 @@ export class ParentComponent implements OnInit {
    * Leads the stories of the current selected repository
    */
   loadStories() {
-    let value: string = localStorage.getItem('repository');
-    let source: string = localStorage.getItem('source');
-    let _id: string = localStorage.getItem('id');
-    let repository: RepositoryContainer = {value, source, _id};
+    const value: string = localStorage.getItem('repository');
+    const source: string = localStorage.getItem('source');
+    const _id: string = localStorage.getItem('id');
+    const repository: RepositoryContainer = {value, source, _id};
     this.apiService
       .getStories(repository)
       .subscribe((resp: Story[]) => {
         this.stories = resp;
-        this.routing()
+        this.routing();
     });
     this.apiService
         .getGroups(_id)
@@ -94,33 +94,33 @@ export class ParentComponent implements OnInit {
   }
 
   routing() {
-    const routeMap = this.route.paramMap.subscribe(params => {
-      if(params.has('story_id')){
-        const story_id = params.get('story_id')
-        this.selectedStory = this.stories.find(o => o._id === story_id)
-        if(params.has('scenario_id')){
-          const scenario_id = params.get('scenario_id')
+    this.route.paramMap.subscribe(params => {
+      if (params.has('story_id')) {
+        const story_id = params.get('story_id');
+        this.selectedStory = this.stories.find(o => o._id === story_id);
+        if (params.has('scenario_id')) {
+          const scenario_id = params.get('scenario_id');
           this.setSelectedScenario(this.selectedStory.scenarios.find(o => o.scenario_id.toString() === scenario_id))
         } else {
-          this.setSelectedScenario(this.selectedStory.scenarios[0])
+          this.setSelectedScenario(this.selectedStory.scenarios[0]);
         }
       }
-    })
+    });
   }
 
   /**
    * Sets the currently selected story
-   * @param story 
+   * @param story
    */
-  setSelectedStory(story: Story){
+  setSelectedStory(story: Story) {
     this.selectedStory = story;
   }
 
   /**
    * Sets the currently selected scenario
-   * @param scenario 
+   * @param scenario
    */
-  setSelectedScenario(scenario: Scenario){
+  setSelectedScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
   }
 
@@ -128,18 +128,18 @@ export class ParentComponent implements OnInit {
    * Change the editor to report history or story editor
    * @param event event
    */
-  setEditor(event){
+  setEditor(event) {
     this.isStoryEditorActive = !this.isStoryEditorActive;
   }
 
-  viewReport($event){
-    this.report = $event
+  viewReport($event) {
+    this.report = $event;
   }
 
-  testRunningGroup($event){
+  testRunningGroup($event) {
     this.isStoryEditorActive = true;
     this.testRunningForGroup = $event;
-    if (this.testRunningForGroup == true){
+    if (this.testRunningForGroup === true) {
       this.report = false;
     }
   }

@@ -12,7 +12,7 @@ function handleError(res, reason, statusMessage, code) {
 		.json({ error: statusMessage });
 }
 
-// router for all mongo requests
+// router for all requests regarding groups
 router
 	.use(cors())
 	.use(bodyParser.json({ limit: '100kb' }))
@@ -27,7 +27,6 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		// console.log(_.url + JSON.stringify(_.user));
 		console.log('Time of mongoDB request:', Date.now());
 		next();
 	})
@@ -50,10 +49,9 @@ router.get('/:repo_id', async (req, res) => {
 // create Group
 router.post('/:repo_id', async (req, res) => {
 	console.log('Create StoryGroup ', req.params.repo_id);
-	// res.sendStatus(501)
 	try {
-		const gr_id = await mongo.createStoryGroup(req.params.repo_id, req.body.name, req.body.member_stories);
-		res.status(200).json({ group_id: gr_id });
+		const groupID = await mongo.createStoryGroup(req.params.repo_id, req.body.name, req.body.member_stories);
+		res.status(200).json({ group_id: groupID });
 	} catch (e) {
 		handleError(res, e, e, 500);
 	}
@@ -68,19 +66,17 @@ router.put('/:repo_id/:group_id', async (req, res) => {
 	} catch (e) {
 		handleError(res, e, e, 500);
 	}
-	// res.sendStatus(501)
 });
 
 // delete Group
 router.delete('/:repo_id/:group_id', async (req, res) => {
 	console.log('Delete StoryGroup ', req.params.repo_id, req.params.group_id);
 	try {
-		const gr_id = await mongo.deleteStoryGroup(req.params.repo_id, req.params.group_id);
+		await mongo.deleteStoryGroup(req.params.repo_id, req.params.group_id);
 		res.status(200).json({ text: 'success' });
 	} catch (e) {
 		handleError(res, e, e, 500);
 	}
-	// res.sendStatus(501)
 });
 
 // add Story to Group

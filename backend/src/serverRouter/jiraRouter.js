@@ -90,12 +90,12 @@ router.post('/login', (req, res) => {
 			if (error) {
 				res.status(500);
 				console.error('Cant connect to Jira Server');
-			} else
-			if (response.headers['set-cookie'] !== undefined)
+			}
+			if (response.headers['set-cookie'] !== undefined) {
 				// req.user.JiraSession = response.headers["set-cookie"][0];
 				res.status(200)
 					.json(response.headers['set-cookie'][0]);
-			else {
+			} else {
 				res.status(401);
 				console.log('Jira-Login failed');
 			}

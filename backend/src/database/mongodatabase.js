@@ -320,134 +320,131 @@ async function getOneStory(storyId, storySource) {
 async function getOneStoryByStoryId(storyId, storySource) {
 	let db;
 	try {
-		db = await connectDb()
-		let collection = await selectStoriesCollection(db)
-		let story = await collection.findOne({ story_id: storyId, storySource: storySource })
+		db = await connectDb();
+		const collection = await selectStoriesCollection(db);
+		let story = await collection.findOne({ story_id: storyId, storySource });
 		// TODO remove later when all used stories have the tag storySource
-		if (!story) {
-			story = await collection.findOne({ story_id: storyId, storySource: undefined })
-		}
-		return story
+		if (!story) story = await collection.findOne({ story_id: storyId, storySource: undefined });
+
+		return story;
 	} catch (e) {
-		console.log("UPS!!!! FEHLER in getOneStoryByStoryId: " + e)
+		console.log(`UPS!!!! FEHLER in getOneStoryByStoryId: ${e}`);
 	} finally {
 		if (db) db.close();
 	}
 }
 
 async function createStoryGroup(repo_id, name, members) {
-  let db;
-  try {
-    db = await connectDb()
-    let collection = await selectRepositoryCollection(db);
-
-    let groups = await collection.findOneAndUpdate(
-    	{_id:ObjectId(repo_id)},
-		{$push:{groups: {_id: new ObjectId() , 'name': name, 'member_stories': members?members:[]}}},
-		{upsert: true, projection:{groups:1}, returnOriginal: false}
-	);
-    return groups.value.groups.slice(-1)._id
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in createStoryGroup: " + e)
-  } finally {
-    if (db) db.close();
-  }
-}
-
-async function updateStoryGroup(repo_id, group_id, updatedGroup) {
-  let db;
-  try {
-    db = await connectDb();
-    updatedGroup._id = ObjectId(updatedGroup._id)
-    let collection = await selectRepositoryCollection(db);
-    let repo = await collection.findOne({_id:ObjectId(repo_id)});
-    let index = repo.groups.findIndex(o => o._id == group_id);// leave with double equal
-    repo.groups[index] = updatedGroup
-    await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
-    return updatedGroup
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in updateStoryGroup: " + e)
-  } finally {
-    if (db) db.close();
-  }
-}
-
-async function deleteStoryGroup(repo_id, group_id) {
-  let db;
-  try {
-    db = await connectDb()
-    let collection = await selectRepositoryCollection(db)
-    let repo = await collection.findOne({_id:ObjectId(repo_id)})
-    let index = repo.groups.findIndex(o => o._id == group_id)// leave with double equal
-    repo.groups.splice(index, 1)
-    await collection.updateOne({_id:ObjectId(repo_id)},{$set: repo})
-    return null
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in deleteStoryGroup: " + e)
-  } finally {
-    if (db) db.close();
-  }
-}
-
-async function addToStoryGroup(repo_id, group_id, story_id) {
-  try {
-    let group = await getOneStoryGroup(repo_id, group_id)
-    group.member_stories.push(story_id)
-    await updateStoryGroup(repo_id, group_id, group)
-    return group
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in AddToStoryGroup: " + e)
-  }
-}
-
-async function removeFromStoryGroup(repo_id, group_id, story_id) {
-  try {
-    let group = await getOneStoryGroup(repo_id, group_id)
-    group.member_stories.splice(group.indexOf(story_id),1)
-    await updateStoryGroup(repo_id, group_id, group)
-    return group
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in removeFromStoryGroup: " + e)
-  }
-}
-
-async function getAllStoryGroups(repo_id) {
-  //throw new Error("Not implemented")
-  let db;
-  try {
-    db = await connectDb()
-    let collection = await selectRepositoryCollection(db)
-    let groups = await collection.findOne({_id:ObjectId(repo_id)},{projection:{"groups":1}})
-    return groups
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in getAllStoryGroups: " + e)
-  } finally {
-    if (db) db.close();
-  }
-}
-
-async function updateStoryGroupsArray(repo_id, groupsArray) {
 	let db;
 	try {
-		db = await connectDb()
-		let collection = await selectRepositoryCollection(db)
-		let groups = await collection.findOneAndUpdate({_id:ObjectId(repo_id)},{$set:{groups: groupsArray}},{projection:{"groups":1}})
-		return groups
+		db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+
+		const groups = await collection.findOneAndUpdate(
+			{ _id: ObjectId(repo_id) },
+			{ $push: { groups: { _id: ObjectId(), name, member_stories: members || [] } } },
+			{ upsert: true, projection: { groups: 1 }, returnOriginal: false }
+		);
+		return groups.value.groups.slice(-1)._id;
 	} catch (e) {
-		console.log("UPS!!!! FEHLER in updateStoryGroupsArray: " + e)
+		console.log(`UPS!!!! FEHLER in createStoryGroup: ${e}`);
 	} finally {
 		if (db) db.close();
 	}
 }
 
+async function updateStoryGroup(repo_id, group_id, updatedGroup) {
+	let db;
+	try {
+		db = await connectDb();
+		updatedGroup._id = ObjectId(updatedGroup._id);
+		const collection = await selectRepositoryCollection(db);
+		const repo = await collection.findOne({ _id: ObjectId(repo_id) });
+		const index = repo.groups.findIndex((o) => o._id == group_id);// leave with double equal
+		repo.groups[index] = updatedGroup;
+		await collection.updateOne({ _id: ObjectId(repo_id) }, { $set: repo });
+		return updatedGroup;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in updateStoryGroup: ${e}`);
+	} finally {
+		if (db) db.close();
+	}
+}
 
-async function getOneStoryGroup(repo_id, group_id) {
-  try {
-    let groups = await getAllStoryGroups(repo_id)
-    return groups.groups.find(o => o._id == group_id)
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in getOneStoryGroup: " + e)
-  }
+async function deleteStoryGroup(repo_id, group_id) {
+	let db;
+	try {
+		db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+		const repo = await collection.findOne({ _id: ObjectId(repo_id) });
+		const index = repo.groups.findIndex((o) => o._id == group_id);// leave with double equal
+		repo.groups.splice(index, 1);
+		await collection.updateOne({ _id: ObjectId(repo_id) }, { $set: repo });
+		return null;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in deleteStoryGroup: ${e}`);
+	} finally {
+		if (db) db.close();
+	}
+}
+
+async function addToStoryGroup(repo_id, group_id, story_id) {
+	try {
+		const group = await getOneStoryGroup(repo_id, group_id);
+		group.member_stories.push(story_id);
+		await updateStoryGroup(repo_id, group_id, group);
+		return group;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in AddToStoryGroup: ${e}`);
+	}
+}
+
+async function removeFromStoryGroup(repo_id, group_id, story_id) {
+	try {
+		const group = await getOneStoryGroup(repo_id, group_id);
+		group.member_stories.splice(group.indexOf(story_id), 1);
+		await updateStoryGroup(repo_id, group_id, group);
+		return group;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in removeFromStoryGroup: ${e}`);
+	}
+}
+
+async function getAllStoryGroups(repoId) {
+	let db;
+	try {
+		db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+		const groups = await collection.findOne({ _id: ObjectId(repoId) }, { projection: { groups: 1 } });
+		return groups;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in getAllStoryGroups: ${e}`);
+	} finally {
+		if (db) db.close();
+	}
+}
+
+async function updateStoryGroupsArray(repoId, groupsArray) {
+	let db;
+	try {
+		db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+		const groups = await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { groups: groupsArray } }, { projection: { groups: 1 } });
+		return groups;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in updateStoryGroupsArray: ${e}`);
+	} finally {
+		if (db) db.close();
+	}
+}
+
+async function getOneStoryGroup(repoId, groupId) {
+	try {
+		const groups = await getAllStoryGroups(repoId);
+		return groups.groups.find((o) => o._id == groupId);
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in getOneStoryGroup: ${e}`);
+	}
 }
 
 // GET all  Steptypes
@@ -455,10 +452,9 @@ async function showSteptypes() {
 	let db;
 	try {
 		db = await connectDb();
-		dbo = db.db(dbName);
+		const dbo = db.db(dbName);
 		const collection = await dbo.collection(steptypesCollection);
-		const result = await collection.find({}).toArray();
-		return result;
+		return await collection.find({}).toArray();
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in showSteptypes: ${e}`);
 		throw e;
@@ -475,8 +471,7 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 		const collection = await selectStoriesCollection(db);
 		const story = await findStory(storyId, storySource, collection);
 		story.background = updatedBackground;
-		const result = await replace(story, collection);
-		return result;
+		return await replace(story, collection);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateBackground: ${e}`);
 		throw e;
@@ -493,8 +488,7 @@ async function deleteBackground(storyId, storySource) {
 		const collection = await selectStoriesCollection(db);
 		const story = await findStory(storyId, storySource, collection);
 		story.background = emptyBackground();
-		const result = await replace(story, collection);
-		return result;
+		return await replace(story, collection);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteBackground: ${e}`);
 		throw e;
@@ -540,28 +534,25 @@ async function createStory(storyTitel, storyDescription, repoId) {
 	}
 }
 
-async function deleteStory(repoId, storyId){
-  try {
-    db = await connectDb();
-    let collection = await selectStoriesCollection(db);
-    let repo = await selectRepositoryCollection(db)
-    const delStory = await collection.findOneAndDelete({_id: ObjectId(storyId)})
-    await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } })
+async function deleteStory(repoId, storyId) {
+	let db;
+	try {
+		db = await connectDb();
+		const collection = await selectStoriesCollection(db);
+		const repo = await selectRepositoryCollection(db);
+		const delStory = await collection.findOneAndDelete({ _id: ObjectId(storyId) });
+		await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $pull: { stories: ObjectId(storyId) } });
 
-    let groups = await repo.findOne({ _id: ObjectId(repoId) }, {"projection":{"groups":1}});
-    for(let index in groups.groups){
-      groups.groups[index].member_stories = groups.groups[index].member_stories.filter(story => story !== storyId)
-    }
-    await repo.findOneAndUpdate({_id: ObjectId(repoId)}, {$set:{"groups":groups.groups}});
-
-    return delStory
-
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in deleteStory: " + e)
-    throw e
-} finally {
-    if (db) db.close()
-  }
+		const groups = await repo.findOne({ _id: ObjectId(repoId) }, { projection: { groups: 1 } });
+		for (const index in groups.groups) groups.groups[index].member_stories = groups.groups[index].member_stories.filter((story) => story !== storyId);
+		await repo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { groups: groups.groups } });
+		return delStory;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in deleteStory: ${e}`);
+		throw e;
+	} finally {
+		if (db) db.close();
+	}
 }
 
 async function insertStoryIdIntoRepo(storyId, repoId) {
@@ -569,8 +560,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 	try {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
-		const resultRepo = await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: ObjectId(storyId) } });
-		return resultRepo;
+		return await collectionRepo.findOneAndUpdate({ _id: ObjectId(repoId) }, { $push: { stories: ObjectId(storyId) } });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
 		throw e;
@@ -579,26 +569,24 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 	}
 }
 
-async function updateScenarioList(storyId, source, scenarioList){
-  let db
-  try {
-    db = await connectDb()
-    let collection = await selectStoriesCollection(db)
-    let ret = await collection.findOneAndUpdate({ _id: ObjectId(storyId)}, { $set: { scenarios: scenarioList }})
-    return ret
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in insertStoryIdIntoRepo: " + e)
-    throw e;
-  } finally {
-    if (db) db.close()
-  }
+async function updateScenarioList(storyId, source, scenarioList) {
+	let db;
+	try {
+		db = await connectDb();
+		const collection = await selectStoriesCollection(db);
+		return await collection.findOneAndUpdate({ _id: ObjectId(storyId) }, { $set: { scenarios: scenarioList } });
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
+		throw e;
+	} finally {
+		if (db) db.close();
+	}
 }
 
 async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
-	console.log('getAllStoriesOfRepo', ownerId, repoName, repoId)
+	console.log('getAllStoriesOfRepo', ownerId, repoName, repoId);
 	let db;
 	const storiesArray = [];
-
 	try {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
@@ -608,7 +596,6 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
 			const story = await collectionStories.findOne({ _id: ObjectId(entry) });
 			storiesArray.push(story);
 		}
-
 		return storiesArray;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getAllStoriesOfRepo: ${e}`);
@@ -625,8 +612,7 @@ async function getOneScenario(storyId, storySource, scenarioId) {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
 		const scenarios = await collection.findOne({ _id: ObjectId(storyId), storySource, 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
-		const ret = scenarios.scenarios.find((o) => o.scenario_id === scenarioId);
-		return ret;
+		return scenarios.scenarios.find((o) => o.scenario_id === scenarioId);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneScenario: ${e}`);
 		throw e;
@@ -694,8 +680,9 @@ async function deleteScenario(storyId, storySource, scenarioID) {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
 		const story = await findStory(storyId, storySource, collection);
-		for (let i = 0; i < story.scenarios.length; i++) if (story.scenarios[i].scenario_id === scenarioID) story.scenarios.splice(i, 1);
-
+		for (let i = 0; i < story.scenarios.length; i++) {
+			if (story.scenarios[i].scenario_id === scenarioID) story.scenarios.splice(i, 1);
+		}
 		const result = await replace(story, collection);
 		db.close();
 		return result;
@@ -749,10 +736,9 @@ async function deleteRepositorys(ownerID) {
 	let db;
 	try {
 		const myObjt = { owner: ObjectId(ownerID) };
-		const db = await connectDb();
+		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const result = await collection.deleteMany(myObjt);
-		return result;
+		return await collection.deleteMany(myObjt);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteRepositorys${e}`);
 		throw e;
@@ -763,10 +749,10 @@ async function deleteRepositorys(ownerID) {
 
 async function getOneRepository(ownerId, name) {
 	try {
-		const myObjt = { owner: ObjectId(ownerId), repoName: name };
+		const repo = { owner: ObjectId(ownerId), repoName: name };
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const result = await collection.findOne(myObjt);
+		const result = await collection.findOne(repo);
 		db.close();
 		return result;
 	} catch (e) {
@@ -788,15 +774,15 @@ async function getOneGitRepository(name) {
 }
 
 async function createRepo(ownerId, name) {
-  let emptyRepo = { owner: ownerId, repoName: name, stories: [], repoType: "db", customBlocks: [] , groups: []}
-  let db = await connectDb();
-  let collection = await selectRepositoryCollection(db);
-  let result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name })
-  if (result !== null) {
-    return "Sie besitzen bereits ein Repository mit diesem Namen!"
-  } else {
-    collection.insertOne(emptyRepo);
-  }
+	const emptyRepo = {
+		owner: ownerId, repoName: name, stories: [], repoType: 'db', customBlocks: [], groups: []
+	};
+	const db = await connectDb();
+	const collection = await selectRepositoryCollection(db);
+	const result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name });
+	if (result !== null) return 'Sie besitzen bereits ein Repository mit diesem Namen!';
+
+	collection.insertOne(emptyRepo);
 }
 
 async function createJiraRepoIfNoneExists(repoName, source) {
@@ -835,7 +821,7 @@ async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, rep
 				const newRepo = {
 					owner: '', gitOwner: gitOwnerId, repoName, stories: [], repoType: source, customBlocks: []
 				};
-				repo = await collection.insertOne(myObjt);
+				repo = await collection.insertOne(newRepo);
 				return repo;
 			}
 			if (repo.gitOwner === githubId) repo.owner = ObjectId(ownerId);
@@ -851,18 +837,18 @@ async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, rep
 }
 
 async function updateStoriesArrayInRepo(repoId, storiesArray) {
-  let db
-  try {
-    storiesArray = storiesArray.map(s => ObjectId(s))
-    db = await connectDb();
-    let collection = await selectRepositoryCollection(db);
-    return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: storiesArray } }, { returnNewDocument: true })
-  } catch (e) {
-    console.log("UPS!!!! FEHLER in updateStoriesArrayInRepo" + e)
-  throw e;
-} finally {
-    if (db) db.close()
-  }
+	let db;
+	try {
+		const sortedStoriesArray = storiesArray.map((s) => ObjectId(s));
+		db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+		return await collection.findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { stories: sortedStoriesArray } }, { returnNewDocument: true });
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in updateStoriesArrayInRepo${e}`);
+		throw e;
+	} finally {
+		if (db) db.close();
+	}
 }
 
 async function upsertEntry(storyId, updatedContent, storySource) {
@@ -932,8 +918,7 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
-		const report = await collection.findOne({ _id: ObjectId(testReportId) });
-		const updatedReport = report;
+		const updatedReport = await collection.findOne({ _id: ObjectId(testReportId) });
 		updatedReport.isSaved = isSaved;
 		const result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
 			updatedReport, { returnOriginal: false });
@@ -1008,7 +993,7 @@ async function deleteUser(userID) {
 			const resultUser = await collection.deleteOne(myObjt);
 			return resultUser + resultRepo;
 		}
-		return result;
+		return null;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteUser: ${e}`);
 		throw e;
@@ -1043,8 +1028,7 @@ async function getUserData(userID) {
 		const myObjt = { _id: oId };
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);
-		const result = await collection.findOne(myObjt);
-		return result;
+		return await collection.findOne(myObjt);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLERin getUserData: ${e}`);
 		throw e;
@@ -1060,8 +1044,7 @@ async function saveBlock(block) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(CustomBlocksCollection);
-		const result = await collection.insertOne(block);
-		return result;
+		return await collection.insertOne(block);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in saveBlock: ${e}`);
 		throw e;
@@ -1072,12 +1055,12 @@ async function saveBlock(block) {
 
 async function updateBlock(name, updatedBlock) {
 	let db;
-	const myObjt = { name };
+	const oldBlock = { name };
 	try {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(CustomBlocksCollection);
-		await collection.findOneAndReplace(myObjt, updatedBlock, { returnOriginal: false });
+		await collection.findOneAndReplace(oldBlock, updatedBlock, { returnOriginal: false });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateBlock: ${e}`);
 		throw e;
@@ -1093,8 +1076,7 @@ async function getBlocks(userId, repoId) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(CustomBlocksCollection);
-		const result = await collection.find({ repositoryId: ObjectId(repoId) }).toArray();
-		return result;
+		return await collection.find({ repositoryId: ObjectId(repoId) }).toArray();
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getBlocks: ${e}`);
 		throw e;
@@ -1129,8 +1111,7 @@ async function getWorkgroup(id) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(WorkgroupsCollection);
-		const result = await collection.findOne({ Repo: ObjectId(id) });
-		return result;
+		return await collection.findOne({ Repo: ObjectId(id) });
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getWorkgroup: ${e}`);
 		throw e;
@@ -1157,18 +1138,17 @@ async function addMember(id, user) {
 				name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
 			});
 			const result = { owner: {}, member: [] };
-			wG = await wGCollection.findOne({ Repo: ObjectId(id) });
-			result.owner = { email: owner.email, canEdit: true };
-			result.member = wG.Members;
-			return result;
-		} else {
-			await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
-			const result = { owner: {}, member: [] };
-			wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+			const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
 			result.owner = { email: owner.email, canEdit: true };
 			result.member = wG.Members;
 			return result;
 		}
+		await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
+		const result = { owner: {}, member: [] };
+		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+		result.owner = { email: owner.email, canEdit: true };
+		result.member = wG.Members;
+		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in addMember: ${e}`);
 		throw e;
@@ -1255,67 +1235,67 @@ async function removeFromWorkgroup(id, user) {
 
 module.exports = {
 
-  setIsSavedTestReport,
-  deleteReport,
-  getTestReports,
-  getReport,
-  uploadReport,
-  disconnectGithub,
-  mergeGithub,
-  findOrRegister,
-  getUserByGithub,
-  getUserById,
-  registerUser,
-  getUserByEmail,
-  showSteptypes,
-  //createBackground,
-  deleteBackground,
-  updateBackground,
-  getOneScenario,
-  createScenario,
-  updateScenario,
-  deleteScenario,
-  updateScenarioList,
-  createStory,
-  deleteStory,
-  insertStoryIdIntoRepo,
-  getOneStory,
-  getOneStoryByStoryId,
-  upsertEntry,
-  updateStory,
-  createUser,
-  deleteUser,
-  updateUser,
-  getUserData,
-  createGitOwnerRepoIfNoneExists,
-  createJiraRepoIfNoneExists,
-  updateStoriesArrayInRepo,
-  getRepository,
-  getOneRepository,
-  getOneGitRepository,
-  getAllStoriesOfRepo,
-  createRepo,
-  createStoryGroup,
-  updateStoryGroup,
-  deleteStoryGroup,
-  addToStoryGroup,
-  removeFromStoryGroup,
-  getAllStoryGroups,
-  getOneStoryGroup,
-  updateStoryGroupsArray,
-  selectStoriesCollection,
-  connectDb,
-  createResetRequest,
-  getResetRequest,
-  deleteRequest,
-  getResetRequestByEmail,
-  saveBlock,
-  updateBlock,
-  getBlocks,
-  deleteBlock,
-  getWorkgroup,
-  addMember,
-  updateMemberStatus,
-  getMembers,
-  removeFromWorkgroup,
+	setIsSavedTestReport,
+	deleteReport,
+	getTestReports,
+	getReport,
+	uploadReport,
+	disconnectGithub,
+	mergeGithub,
+	findOrRegister,
+	getUserByGithub,
+	getUserById,
+	registerUser,
+	getUserByEmail,
+	showSteptypes,
+	// createBackground,
+	deleteBackground,
+	updateBackground,
+	getOneScenario,
+	createScenario,
+	updateScenario,
+	deleteScenario,
+	updateScenarioList,
+	createStory,
+	deleteStory,
+	insertStoryIdIntoRepo,
+	getOneStory,
+	getOneStoryByStoryId,
+	upsertEntry,
+	updateStory,
+	createUser,
+	deleteUser,
+	updateUser,
+	getUserData,
+	createGitOwnerRepoIfNoneExists,
+	createJiraRepoIfNoneExists,
+	updateStoriesArrayInRepo,
+	getRepository,
+	getOneRepository,
+	getOneGitRepository,
+	getAllStoriesOfRepo,
+	createRepo,
+	createStoryGroup,
+	updateStoryGroup,
+	deleteStoryGroup,
+	addToStoryGroup,
+	removeFromStoryGroup,
+	getAllStoryGroups,
+	getOneStoryGroup,
+	updateStoryGroupsArray,
+	selectStoriesCollection,
+	connectDb,
+	createResetRequest,
+	getResetRequest,
+	deleteRequest,
+	getResetRequestByEmail,
+	saveBlock,
+	updateBlock,
+	getBlocks,
+	deleteBlock,
+	getWorkgroup,
+	addMember,
+	updateMemberStatus,
+	getMembers,
+	removeFromWorkgroup
 };

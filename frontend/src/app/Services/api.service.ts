@@ -377,15 +377,14 @@ export class ApiService {
 
     /**
      * deletes a Story
+     * @param repository Specifies the repository where a Story should be deleted
      * @param _id StoryID
      */
     public deleteStory(repository, _id): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const body = {'repo_id' : repository, '_id' : _id};
         return this.http
             .delete<any>(this.apiServer + '/story/' + repository + '/' + _id,  ApiService.getOptions())
-            .pipe(tap(resp => {
-            }));
+            .pipe(tap());
     }
 
     public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any> {
@@ -396,7 +395,6 @@ export class ApiService {
             }));
     }
 
-/*for RESET URL GET von FRONTEND??? console logn neeeded? Get from frontend not backend / Get URLS BAckend??*/
     /**
      * Requests a password request
      * @param email
@@ -498,7 +496,7 @@ export class ApiService {
     }
 
     /**
-     * Loggs out the user
+     * Logs out the user
      * @returns
      */
     logoutUser() {
@@ -522,7 +520,7 @@ export class ApiService {
     }
 
     /**
-     * Emitts the create custom story event
+     * Emits the create custom story event
      * @param story
      */
     createCustomStoryEvent(story) {
@@ -530,7 +528,7 @@ export class ApiService {
     }
 
     /**
-     * Emitts the create group event
+     * Emits the create group event
      * @param group
      */
     createGroupEvent(group) {
@@ -605,12 +603,8 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .put(this.apiServer + '/user/stories/' + repo_id , storiesList, ApiService.getOptions())
-            .pipe(tap(resp => {
-                // console.log('update order res', resp);
-            }));
+            .pipe(tap());
     }
-
-
 
     /**
      * Creates a jira account
@@ -621,9 +615,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .post<any>(this.apiServer + '/jira/user/create/', request, ApiService.getOptions())
-            .pipe(tap(resp => {
-                // console.log(resp.body);
-            }));
+            .pipe(tap());
     }
 
     /**
@@ -726,7 +718,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, {}, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Add new scenario in story ' + storyID + '!', resp)
+                console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
 
@@ -736,7 +728,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Add new scenario in story ' + storyID + '!', resp)
+                console.log('Add new scenario in story ' + storyID + '!', resp)
             }));
     }
 
@@ -751,7 +743,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenarioID, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Get scenario in story ' + storyID + '!', resp)
+                console.log('Get scenario in story ' + storyID + '!', resp)
             }));
     }
 
@@ -768,7 +760,7 @@ export class ApiService {
         return this.http
             .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Update background for story ' + storyID )
+                console.log('Update background for story ' + storyID )
             }));
     }
 

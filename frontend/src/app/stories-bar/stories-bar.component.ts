@@ -452,19 +452,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 filter = this.stories;
                 break;
         }
-
-        if (this.groupModel === undefined) {
-
-        } else {
-            const group = this.groups.filter(group => group.name == this.groupModel)[0];
+        if (this.groupModel !== undefined) {
+            const group = this.groups.filter(grp => grp.name == this.groupModel)[0];
             const storiesIds = group.member_stories.map(story => story._id);
             filter = filter.filter(story => storiesIds.includes(story._id));
             console.log(filter);
         }
 
         // filter for assignee in testPassed filter result
-        if (this.assigneeModel === undefined) {
-        } else {
+        if (this.assigneeModel !== undefined) {
             filter = filter.filter(story => story.assignee.toLowerCase().includes(this.assigneeModel.toLowerCase()));
         }
 
@@ -500,6 +496,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 if (this.groups) {
                     return this.groups.map(group => group.name);
                 }
+                break;
             default:
                 return this.stories;
         }} else {

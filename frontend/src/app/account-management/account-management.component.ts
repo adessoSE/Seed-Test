@@ -2,11 +2,11 @@ import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { ModalsComponent } from "../modals/modals.component";
-import {Subscription} from "rxjs/internal/Subscription";
+import { ModalsComponent } from '../modals/modals.component';
+import {Subscription} from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
-import {interval} from "rxjs";
-import {map} from "rxjs/operators";
+import {interval} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -50,7 +50,7 @@ export class AccountManagementComponent implements OnInit {
      */
     id: string;
 
-    routeSub: Subscription
+    routeSub: Subscription;
 
     searchInput: string;
 
@@ -64,17 +64,6 @@ export class AccountManagementComponent implements OnInit {
      * @param router router to handle url changes
      */
     constructor(public apiService: ApiService, public router: Router) {
-        /*window.addEventListener("storage", (event) => {
-            console.log('storage listener')
-            if (event.storageArea == window.sessionStorage && event.key == 'repositories') {
-                console.log('sessionStorage')
-                try {
-                    this.repositories = JSON.parse(event.newValue);
-                } catch (e) {
-                    console.log("could'nt interpret: ", event.newValue)
-                }
-            }
-        },false);*/
         this.routeSub = router.events.subscribe(event => {
             if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
@@ -89,25 +78,6 @@ export class AccountManagementComponent implements OnInit {
     }
 
     seperateRepos(repos) {
-        /*const dbRepos = []
-        const githubRepos = []
-        const jiraRepos = []
-        for (const repo of repos) {
-            switch (repo.source) {
-                case 'db':
-                    dbRepos.push(repo);
-                    break;
-                case 'github':
-                    githubRepos.push(repo);
-                    break;
-                case 'jira':
-                    jiraRepos.push(repo);
-                    break;
-            }
-        }
-        this.dbRepos = dbRepos
-        this.githubRepos = githubRepos
-        this.jiraRepos = jiraRepos*/
         this.repositories = repos;
         this.searchList = (!this.searchList) ? repos : this.searchList;
     }
@@ -145,8 +115,29 @@ export class AccountManagementComponent implements OnInit {
      * Opens Modal to edit the workgroup
      * @param project
      */
-    workGroupEdit(project: RepositoryContainer){
+    workGroupEdit(project: RepositoryContainer) {
         this.modalComponent.openWorkgroupEditModal(project);
+    }
+
+    /**
+     * gets repositories from Session storage if available
+     * if not available, it requests them from backend in 500 ms interval
+     * finally: sets this.repositories
+     */
+    getSessionStorage() {
+        const seSto = sessionStorage.getItem('repositories');
+        if (!seSto) {
+            const repositories = interval(500)
+              .pipe(map(() => sessionStorage.getItem('repositories')))
+              .subscribe(data => {
+                  if (data) {
+                      this.repositories = JSON.parse(data);
+                      repositories.unsubscribe();
+                  }
+              });
+        } else {
+            this.repositories = JSON.parse(seSto);
+        }
     }
 
     /**
@@ -169,19 +160,7 @@ export class AccountManagementComponent implements OnInit {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                 }
             });
-            const seSto = sessionStorage.getItem('repositories')
-            if(!seSto) {
-                const repositories = interval(500)
-                    .pipe(map(() => sessionStorage.getItem('repositories')))
-                    .subscribe(data => {
-                        if(data){
-                            this.repositories = JSON.parse(data)
-                            repositories.unsubscribe()
-                        }
-                    })
-            } else {
-                this.repositories = JSON.parse(seSto)
-            }
+            this.getSessionStorage();
         }
     }
 
@@ -243,8 +222,9 @@ export class AccountManagementComponent implements OnInit {
         console.log(this.searchInput);
         this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
-            if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0)
+            if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
                 return repo;
+            }
         });
     }
 }
