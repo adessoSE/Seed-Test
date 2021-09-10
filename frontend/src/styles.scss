@@ -33,10 +33,10 @@ $cucumber-frontend-theme: mat-light-theme((
 // that you are using.
 @include angular-material-theme($cucumber-frontend-theme);
 
-
+/*
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
-@import '~@angular/material/theming';
+@import '~@angular/material/_theming.scss';
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
@@ -61,22 +61,22 @@ $cucumber-frontend-theme: mat-light-theme((
     accent: $cucumber-frontend-accent,
     warn: $cucumber-frontend-warn,
   )
-));
+));*/
 
 // Define a dark theme
-$dark-primary: mat-palette($mat-teal);
-$dark-accent: mat-palette($mat-pink, A200,A100,A400);
+$dark-primary: mat-palette($mat-indigo, 500);
+$dark-accent: mat-palette($mat-pink, A200, A100, A400);
+
 $dark-theme: mat-dark-theme((
  color: (
-  primary: $dark-primary,
-  accent: $dark-accent,
-  warn: $cucumber-frontend-warn,
+   primary: $dark-primary,
+   accent: $dark-accent,
  )
 ));
 
 .darkTheme {
-  //@include angular-material-theme($dark-theme);
-  background-color: var(--grey) !important; 
+  @include angular-material-theme($dark-theme);
+  background-color: var(--deep-grey) !important; 
   color: var(--pale) !important; 
 }
 
@@ -86,12 +86,16 @@ $dark-theme: mat-dark-theme((
 }
 
 .darkThemeBalk {
-  background-color:  var(--black) !important;
+  background-color:  var(--ocean-blue) !important;
   color:var(--pale) !important;
 }
 
 .darkThemeLink {
   color:var(--light-blue) !important;
+}
+
+.darkThemeIcon {
+  background-color: var(--pale) !important;
 }
 
 /* You can add global styles to this file, and also import other style files */
@@ -147,11 +151,12 @@ $dark-theme: mat-dark-theme((
       --pale: #e8e4e1;
       --grape-purple: #40171d;
       --dark-forest-green: #002e19;
-      --violet: #750bb3;
+      --violet: #7e4654;
       --grey: #505555;
       --dark-grey: #857971;
       --light-grey: #E8E4E1;
       --light-blue: #a0d9ff;
+      --deep-grey : #60767b;
   }
 
   .LargeHeadline1 {
@@ -669,6 +674,18 @@ $dark-theme: mat-dark-theme((
 
 .deleteButton:hover{
   background: var(--grape-purple);
+}
+
+.mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+  background-color: rgb(255 249 210 / 54%) !important;
+}
+
+.mat-checked .mat-slide-toggle-thumb {
+  background-color: bisque !important;
+}
+
+.mat-icon {
+  vertical-align: middle;
 }
 
 html, body { height: 100%; }

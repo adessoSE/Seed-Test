@@ -165,7 +165,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 });
             });
         });
-        this.themeService.isDarkMode();
     }
 
     ngOnDestroy() {

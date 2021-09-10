@@ -1,4 +1,4 @@
-import { Component, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit, Output } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -43,9 +43,7 @@ export class ParentComponent implements OnInit {
 
   report;
 
-  currentTheme:string;
-
-  isDark:boolean;
+  isDark: boolean;
 
 
 
@@ -63,9 +61,12 @@ export class ParentComponent implements OnInit {
     }else {
       this.apiService.getBackendInfo()
     }
-    this.themeService.getCurrentTheme()
-    .subscribe(currentTheme => this.currentTheme = currentTheme);
+
     this.isDark = this.themeService.isDarkMode();
+    this.themeService.themeChanged
+    .subscribe((currentTheme) => {
+      this.isDark = this.themeService.isDarkMode()
+    });
    }
 
   /**
@@ -77,8 +78,6 @@ export class ParentComponent implements OnInit {
         console.log('parent get Repos')
       });
     }
-    this.themeService.themeChanged
-    .subscribe(changedTheme =>  this.currentTheme = changedTheme ==='light' ? 'light' : 'dark');
   }
 
   /**
@@ -143,15 +142,6 @@ export class ParentComponent implements OnInit {
 
   viewReport($event){
     this.report = $event
-  }
-
-  update() {
-    this.isDark = this.themeService.isDarkMode();
-  }
-
-  onDark() : boolean {
-    this.update();
-    return this.isDark
   }
 
 }

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, HostBinding, Output, ViewChild} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
@@ -8,6 +8,8 @@ import {NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import {Story} from '../model/Story';
 import {Group} from '../model/Group';
+import { ThemingService } from '../Services/theming.service';
+import { OverlayContainer } from 'ngx-toastr';
 
 /**
  * Component of all Modals
@@ -186,7 +188,8 @@ export class ModalsComponent {
     /**
      * @ignore
      */
-    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
+    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService,
+        public themeService : ThemingService, private overlay : OverlayContainer) {
     }
 
     // change Jira Account modal
@@ -606,6 +609,7 @@ submitRenameScenario() {
         this.apiService.getStories(repositoryContainer).subscribe(res => {
             this.stories = res;
         });
+        this.changeContainerTheme();
         this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -643,6 +647,7 @@ submitRenameScenario() {
         for (const s of group.member_stories) {
             this.selectedStories.push(s._id);
         }
+        
         this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -701,4 +706,18 @@ submitRenameScenario() {
         const exists = this.selectedStories.find(function(x) {return x == story._id; });
         return exists !== undefined;
     }
+
+    isDark = true;
+    @HostBinding('class') modeName = 'light';
+    
+    changeContainerTheme() {
+        const overlayContainerClasses = this.overlay.getContainerElement().classList;
+        if (this.isDark) {
+          overlayContainerClasses.remove('light');
+          overlayContainerClasses.add(this.modeName);
+        } else {
+          overlayContainerClasses.remove('dark');
+          overlayContainerClasses.add(this.modeName);
+        }
+      }
 }

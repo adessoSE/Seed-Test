@@ -14,11 +14,11 @@ export class ThemingService {
   constructor() { }
 
 
-  updateTheme () {
+  loadTheme () {
     if (localStorage.getItem('user-theme')) {
       this.currentTheme = localStorage.getItem('user-theme');
     } else {
-      return this.currentTheme = 'light'
+      this.currentTheme = 'light';
     }
   }
 
@@ -29,12 +29,12 @@ export class ThemingService {
   setNewTheme () {
     if(this.currentTheme === 'light') {
       this.currentTheme = 'dark';
-      localStorage.setItem('user-theme', 'dark');
+      localStorage.setItem('user-theme', this.currentTheme);
     } else if (this.currentTheme === 'dark'){
       this.currentTheme = 'light';
-      localStorage.setItem('user-theme', 'light');
-    this.themeChanged.emit(this.currentTheme);
+      localStorage.setItem('user-theme', this.currentTheme);
     }
+    this.themeChanged.emit(this.currentTheme);
   }
 
   isDarkMode() {

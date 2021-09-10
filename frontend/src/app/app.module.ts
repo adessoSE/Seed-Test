@@ -45,6 +45,7 @@ import { ReportHistoryComponent } from './report-history/report-history.componen
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
 
 
 
@@ -97,6 +98,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
       timeOut: 3000
     }),
     MatSlideToggleModule,
+    MatIconModule,
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],

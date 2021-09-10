@@ -21,6 +21,8 @@ export class ReportComponent implements OnInit {
 
     @Input() report
 
+    @Input() isDark: boolean;
+
 
 
     reportId

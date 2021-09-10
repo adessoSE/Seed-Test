@@ -25,6 +25,8 @@ export class ReportHistoryComponent implements OnInit {
    */
   reports: ReportContainer = null;
 
+  @Input() isDark: boolean;
+
   /**
    * Event emiter to change the editor to story editor
    */

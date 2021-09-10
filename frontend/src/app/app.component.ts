@@ -3,8 +3,7 @@ import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
-import { Observable, of } from 'rxjs';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 
 
 /**
@@ -37,9 +36,10 @@ export class AppComponent implements OnInit {
    */
   error: string;
 
-  themeMode : string;
-
   isDark : boolean;
+
+  toggleControl = new FormControl(false);
+
   
   /**
    * Constructor
@@ -65,9 +65,11 @@ export class AppComponent implements OnInit {
     if(!this.apiService.urlReceived) {
       this.apiService.getBackendInfo();
     }
-    this.themeService.updateTheme();
-    this.themeService.getCurrentTheme().subscribe(currentTheme => this.themeMode = currentTheme);
+    this.themeService.loadTheme();
     this.isDark = this.themeService.isDarkMode();
+    this.themeService.themeChanged.subscribe((changedTheme) => { 
+      this.isDark = this.themeService.isDarkMode();
+    }); 
   }
 
   /**
@@ -138,8 +140,6 @@ export class AppComponent implements OnInit {
 
   toggleDarkMode() {
     this.themeService.setNewTheme();
-    this.isDark = this.themeService.isDarkMode(); 
-    this.themeService.getCurrentTheme().subscribe(change => this.themeMode = change);
    } 
 
 }
