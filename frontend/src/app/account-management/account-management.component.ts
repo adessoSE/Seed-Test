@@ -125,6 +125,7 @@ export class AccountManagementComponent implements OnInit {
      */
     newRepository() {
         this.modalComponent.openCreateCustomProjectModal();
+        this.updateRepos();
     }
 
     /**
@@ -249,10 +250,24 @@ export class AccountManagementComponent implements OnInit {
         });
     }
 
+    /**
+     * Delete a custom repository
+     * @param repository the repository to delete
+     */
     deleteCustomRepo(repository){
         console.log(repository)
-        this.apiService.deleteRepository(repository).subscribe(ret =>{
-            console.log(ret),
-            console.log('in subscribe')})
+        this.apiService.deleteRepository(repository).subscribe(() =>{
+            this.updateRepos();
+    })
+    }
+
+    /**
+     * Update Repositories after change
+     */
+    updateRepos(){
+        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+            console.log(repositories),
+            this.seperateRepos(repositories);
+        });
     }
 }

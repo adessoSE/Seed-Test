@@ -248,6 +248,11 @@ export class ApiService {
             catchError(ApiService.handleError));
     }
 
+    /**
+     * Delete one Repository
+     * @param repo
+     * @returns 
+     */
     deleteRepository(repo: RepositoryContainer){
         this.apiServer = localStorage.getItem('url_backend');
 
