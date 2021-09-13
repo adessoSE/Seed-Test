@@ -248,6 +248,17 @@ export class ApiService {
             catchError(ApiService.handleError));
     }
 
+    deleteRepository(repo: RepositoryContainer){
+        this.apiServer = localStorage.getItem('url_backend');
+
+        const str = this.apiServer + '/user/repositories/' + repo._id;
+        return this.http.delete<any>(str, ApiService.getOptions())
+        .pipe(tap(resp => {
+
+        }),
+          catchError(ApiService.handleError));
+    }
+
     /**
      * Disconnects the user from github
      * @returns

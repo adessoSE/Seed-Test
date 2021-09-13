@@ -207,6 +207,18 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
+router.delete('/repositories/:repo_id', async (req, res) => {
+	try {
+		await mongo
+			.deleteRepository(req.params.repo_id, req.params.source, parseInt(req.params._id, 10));
+		res.status(200)
+			.json({ text: 'success' });
+	} catch (error) {
+		res.status(400).json('Wrong Github name or Token');
+		console.error(`Get Repositories Error: ${error}`);
+	}
+});
+
 // get stories
 router.get('/stories', async (req, res) => {
 	const { source } = req.query;

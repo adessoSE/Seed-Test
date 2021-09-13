@@ -248,4 +248,11 @@ export class AccountManagementComponent implements OnInit {
                 return repo;
         });
     }
+
+    deleteCustomRepo(repository){
+        console.log(repository)
+        this.apiService.deleteRepository(repository).subscribe(ret =>{
+            console.log(ret),
+            console.log('in subscribe')})
+    }
 }

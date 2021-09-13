@@ -761,6 +761,23 @@ async function deleteRepositorys(ownerID) {
 	}
 }
 
+async function deleteRepository(repoId) {
+	let db;
+	try {
+		const myObjt = { _id: ObjectId(repoId) };
+		const db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+		const repo = await collection.findOne(myObjt);
+		const result = await collection.deleteOne(repo);
+		return result;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in deleteRepository${e}`);
+		throw e;
+	} finally {
+		db.close();
+	}
+}
+
 async function getOneRepository(ownerId, name) {
 	try {
 		const myObjt = { owner: ObjectId(ownerId), repoName: name };
