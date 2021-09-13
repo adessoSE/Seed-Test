@@ -255,18 +255,16 @@ export class AccountManagementComponent implements OnInit {
      * @param repository the repository to delete
      */
     deleteCustomRepo(repository){
-        console.log(repository)
-        this.apiService.deleteRepository(repository).subscribe(() =>{
+        this.apiService.deleteRepository(repository).subscribe(ret =>{
             this.updateRepos();
-    })
+        })
     }
 
     /**
      * Update Repositories after change
      */
     updateRepos(){
-        this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-            console.log(repositories),
+        this.apiService.getRepositories().subscribe((repositories) => {
             this.seperateRepos(repositories);
         });
     }
