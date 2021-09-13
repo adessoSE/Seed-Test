@@ -207,6 +207,7 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
+// delete repository
 router.delete('/repositories/:repo_id', async (req, res) => {
 	try {
 		await mongo
@@ -214,8 +215,7 @@ router.delete('/repositories/:repo_id', async (req, res) => {
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {
-		res.status(400).json('Wrong Github name or Token');
-		console.error(`Get Repositories Error: ${error}`);
+		handleError(res, e, e, 500);
 	}
 });
 

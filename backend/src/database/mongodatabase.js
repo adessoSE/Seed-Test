@@ -764,17 +764,16 @@ async function deleteRepositorys(ownerID) {
 async function deleteRepository(repoId) {
 	let db;
 	try {
-		const myObjt = { _id: ObjectId(repoId) };
-		const db = await connectDb();
-		const collection = await selectRepositoryCollection(db);
-		const repo = await collection.findOne(myObjt);
-		const result = await collection.deleteOne(repo);
+		db = await connectDb();
+		const collectionRepo = await selectRepositoryCollection(db);
+		const repo = await collectionRepo.findOne({ _id: ObjectId(repoId) });
+		const result = await collectionRepo.deleteOne(repo);
 		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteRepository${e}`);
 		throw e;
 	} finally {
-		db.close();
+		if (db) db.close();
 	}
 }
 
@@ -1308,6 +1307,7 @@ module.exports = {
   createJiraRepoIfNoneExists,
   updateStoriesArrayInRepo,
   getRepository,
+  deleteRepository,
   getOneRepository,
   getOneGitRepository,
   getAllStoriesOfRepo,
