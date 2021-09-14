@@ -193,15 +193,6 @@ h2, h1{
     justify-content: space-between;
 }
 
-#deleteButton{
-    color: var(--grape);
-    vertical-align: middle;
-}
-#deleteButton:hover{
-    color: var(--grape-purple);
-    cursor: pointer;
-}
-
 @media screen and (max-width: 600px) {
     .grid{
         display: grid;

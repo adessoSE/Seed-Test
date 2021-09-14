@@ -162,6 +162,12 @@ export class ModalsComponent {
      */
     workgroupProject: RepositoryContainer;
 
+    /**
+     * Email and id of the active user
+     */
+    userEmail = '';
+    userId = '';
+
 
     /**
      * selectable Stories when create Group
@@ -236,9 +242,7 @@ export class ModalsComponent {
         if (!this.isEmptyOrSpaces(name)) {
             this.apiService.createRepository(name).subscribe(resp => {
                 this.toastr.info('', 'Project created');
-                this.apiService.getRepositories().subscribe(res => {
-                    //
-                });
+                this.updateRepos();
             });
         }
     }
@@ -509,7 +513,9 @@ submitRenameScenario() {
     /**
      * Opens the workgroup edit modal
      */
-    openWorkgroupEditModal(project: RepositoryContainer) {
+    openWorkgroupEditModal(project: RepositoryContainer, userEmail, userId) {
+        this.userEmail = userEmail;
+        this.userId = userId;
         this.workgroupList = [];
         this.workgroupProject = project;
         this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
@@ -562,6 +568,22 @@ submitRenameScenario() {
         this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
             this.workgroupList = res.member;
         });
+    }
+
+    /**
+     * Delete a custom repository
+     */
+     deleteCustomRepo(){
+        if(this.userEmail == this.workgroupOwner) {
+            this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{this.updateRepos();})
+        }
+    }
+
+    /**
+     * Update Repositories after change
+     */
+     updateRepos(){
+        this.apiService.getRepositories().subscribe((repositories) => {});
     }
 
 

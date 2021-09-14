@@ -208,10 +208,10 @@ router.get('/repositories', (req, res) => {
 });
 
 // delete repository
-router.delete('/repositories/:repo_id', async (req, res) => {
+router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
 		await mongo
-			.deleteRepository(req.params.repo_id, req.params.source, parseInt(req.params._id, 10));
+			.deleteRepository(req.params.repo_id, req.params.owner_id, req.params.source, parseInt(req.params._id, 10));
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {

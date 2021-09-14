@@ -761,12 +761,12 @@ async function deleteRepositorys(ownerID) {
 	}
 }
 
-async function deleteRepository(repoId) {
+async function deleteRepository(repoId, ownerId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
-		const repo = await collectionRepo.findOne({ _id: ObjectId(repoId) });
+		const repo = await collectionRepo.findOne({owner: ObjectId(ownerId), _id: ObjectId(repoId) })
 		const result = await collectionRepo.deleteOne(repo);
 		return result;
 	} catch (e) {
