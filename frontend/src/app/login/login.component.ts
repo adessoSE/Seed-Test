@@ -125,6 +125,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         // const response = await 
         this.apiService.loginUser(user).subscribe(resp =>{
             localStorage.setItem('login', 'true');
+            this.apiService.updateRepositoryEmitter();
             this.getRepositories();
         })
         // if (response.status === 'error') {
