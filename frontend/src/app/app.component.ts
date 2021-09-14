@@ -86,7 +86,6 @@ export class AppComponent implements OnInit {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
         sessionStorage.setItem('repositories', JSON.stringify(resp));
-        console.log('repositories', this.repositories);
       }, (err) => {
         this.error = err.error;
       });
