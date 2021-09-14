@@ -251,6 +251,9 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 .deleteProjectButton{
     background-color: var(--grape);
 }
+.deleteProjectButton:hover{
+    background-color: var(--grape-purple);
+}
 
 @media screen and (max-height: 800px) {
     .tableContainer{
