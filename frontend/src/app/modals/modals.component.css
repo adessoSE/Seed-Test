@@ -248,6 +248,10 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     overflow: hidden;
 }
 
+.deleteProjectButton{
+    background-color: var(--grape);
+}
+
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;
