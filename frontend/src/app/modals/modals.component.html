@@ -342,7 +342,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton deleteProjectButton" (click)="deleteCustomRepo();modal.close('Save click')">Delete Project
+        <button *ngIf="userEmail==workgroupOwner" type="button" class="normalButton deleteProjectButton" (click)="showDeleteRepositoryToast()">Delete Project
         </button>
         <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
         </button>

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
 import {Block} from '../model/Block';
@@ -8,6 +8,7 @@ import {NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import {Story} from '../model/Story';
 import {Group} from '../model/Group';
+import { DeleteRepositoryToast } from '../deleteRepository-toast';
 
 /**
  * Component of all Modals
@@ -168,6 +169,11 @@ export class ModalsComponent {
     userEmail = '';
     userId = '';
 
+    /**
+     * Model Reference for closing
+     */
+    modalReference: NgbModalRef;
+
 
     /**
      * selectable Stories when create Group
@@ -193,6 +199,9 @@ export class ModalsComponent {
      * @ignore
      */
     constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
+        this.apiService.deleteRepositoryEvent.subscribe(() => {
+            this.deleteCustomRepo();
+          });
     }
 
     // change Jira Account modal
@@ -242,7 +251,7 @@ export class ModalsComponent {
         if (!this.isEmptyOrSpaces(name)) {
             this.apiService.createRepository(name).subscribe(resp => {
                 this.toastr.info('', 'Project created');
-                this.updateRepos();
+                this.apiService.updateRepositoryEmitter();
             });
         }
     }
@@ -518,7 +527,7 @@ submitRenameScenario() {
         this.userId = userId;
         this.workgroupList = [];
         this.workgroupProject = project;
-        this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
+        this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
         const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
         header.textContent = 'Project: ' + project.value;
 
@@ -575,15 +584,22 @@ submitRenameScenario() {
      */
      deleteCustomRepo(){
         if(this.userEmail == this.workgroupOwner) {
-            this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{this.updateRepos();})
+            this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
+                this.apiService.deleteRepositoryEmitter();
+                this.modalReference.close();
+                this.apiService.updateRepositoryEmitter();
+            })
         }
     }
 
     /**
-     * Update Repositories after change
+     * Opens the delete repository toast
      */
-     updateRepos(){
-        this.apiService.getRepositories().subscribe((repositories) => {});
+    showDeleteRepositoryToast() {
+        if(this.userEmail == this.workgroupOwner){
+        this.toastr.warning('', 'Do you really want to delete this repository?', {
+            toastComponent: DeleteRepositoryToast
+        });}
     }
 
 

@@ -40,6 +40,7 @@ import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-
 import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
+import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -70,6 +71,7 @@ import {MatSelectModule} from '@angular/material/select';
     RunTestToast,
     DeleteScenarioToast,
     DeleteStoryToast,
+    DeleteRepositoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ModalsComponent,
