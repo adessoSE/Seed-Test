@@ -585,9 +585,8 @@ submitRenameScenario() {
      deleteCustomRepo(){
         if(this.userEmail == this.workgroupOwner) {
             this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
-                this.apiService.deleteRepositoryEmitter();
-                this.modalReference.close();
                 this.apiService.updateRepositoryEmitter();
+                this.modalReference.close();
             })
         }
     }
@@ -596,10 +595,9 @@ submitRenameScenario() {
      * Opens the delete repository toast
      */
     showDeleteRepositoryToast() {
-        if(this.userEmail == this.workgroupOwner){
         this.toastr.warning('', 'Do you really want to delete this repository?', {
             toastComponent: DeleteRepositoryToast
-        });}
+        });
     }
 
 
