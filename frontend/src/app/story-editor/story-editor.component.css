@@ -12,6 +12,10 @@
   border-top: 1px solid #e5e5e5;
  }
 
+ .darkTheme.storyInfoContainer {
+    border-top: 1px solid black;
+ }
+
  @media all and (min-width: 800px) {
   /* We invert order of first sidebar and main
    * And tell the main element to take twice as much width as the other two sidebars 
@@ -77,10 +81,6 @@
     color: #999;
     padding: 10px;
   } 
-  
-  .darkTheme.emptyStories {
-    color: white;
-  }
 
   .emptyStories h1{
     color: #999;
@@ -194,6 +194,10 @@
     border-bottom: 1px solid #999;
   }
 
+  .darkTheme #Story {
+    border: #78909C;
+  }
+
   
   #infoIcon{
     color: #999;
@@ -207,9 +211,13 @@
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    /* background: var(--ocean-blue); */
+    background: var(--ocean-blue); 
     border: none;
     line-height: 25px;
+  }
+
+  .darkTheme .button {
+    background: var(--dark-grey);
   }
 
   .material-icons{
@@ -326,6 +334,10 @@
     font-size: 40px;
   }
 
+  .darkTheme.loading {
+    color: white;
+  }
+
   .showButton{
     padding-right: 40px;
   }
@@ -356,9 +368,8 @@
     margin-right: 2px;
   }
 
-  .darkTheme span.MediumSubline1H4.storyTitle {
-    color: var(--lightblue);
-    background: transparent;
+  .darkTheme .storyTitle {
+    color: var(--light-blue);
   }
   
   .marginLeft{
@@ -406,11 +417,15 @@
     cursor: pointer;
   }
   
-.scenarioBarContainer{
+/* .scenarioBarContainer{
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
+  background-color: #f8f8f8; 
+} */
+
+.darkTheme.scenarioBarContainer {
+  border-bottom: 1px solid black;
 }
 
 .exampleBarContainer{
@@ -510,7 +525,7 @@
 
 }
 
-.uk-card-default {
+.darkTheme.uk-card-default {
   background: none;
 }
 

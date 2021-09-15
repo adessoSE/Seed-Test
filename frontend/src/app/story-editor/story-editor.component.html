@@ -23,17 +23,17 @@
     <div id="firstStoryText"><p>... create your first story!</p></div>
   </div>
 </div>
-<div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
+<div [class.darkTheme]="isDark" class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
   <h1 class="LargeHeadline2">Loading Stories ...</h1>
 </div>
 
-<div class="emptyStories" *ngIf="storiesError">
+<div [class.darkTheme]="isDark" class="emptyStories" *ngIf="storiesError">
   <h1 class="LargeHeadline2">You are not authorized to use this project</h1>
 </div>
 
 <div *ngIf="stories && (showEditor === true)">
   <!--Story-->
-  <div class="uk-card uk-card-default padding" id="story">
+  <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story">
     <div class="storyHeaderContainer">
       <div>
           <span id="storyHeader" class="SmallCategory1" >Story</span>
@@ -238,7 +238,8 @@
         </div>
     </div>
 
-    <div id="loading">
+    <!-- Doubled loading see above -->
+    <div [class.darkTheme]="isDark" id="loading">
       <div class="loading" *ngIf="testRunning">
        Loading . . .
       </div>

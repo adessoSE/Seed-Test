@@ -57,8 +57,6 @@ export class AccountManagementComponent implements OnInit {
 
     downloadRepoID: string;
 
-    currentTheme:string;
-
     isDark : boolean;
 
     /**
@@ -89,9 +87,6 @@ export class AccountManagementComponent implements OnInit {
                 console.log('first load');
             });
         }
-        this.themeService.getCurrentTheme()
-    .subscribe(currentTheme => this.currentTheme = currentTheme);
-    this.isDark = this.themeService.isDarkMode();
     }
 
     seperateRepos(repos) {
@@ -193,8 +188,10 @@ export class AccountManagementComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
-        this.themeService.themeChanged
-    .subscribe(changedTheme =>  this.currentTheme = changedTheme ==='light' ? 'light' : 'dark');
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged.subscribe((changedTheme) => { 
+            this.isDark = this.themeService.isDarkMode();
+    });
 
     }
 

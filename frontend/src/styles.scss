@@ -86,7 +86,8 @@ $dark-theme: mat-dark-theme((
 }
 
 .darkTheme button {
-  background: var(--dark-grey)
+  background: var(--dark-grey);
+  color: white;
 }
 
 .darkTheme span {
@@ -118,7 +119,11 @@ $dark-theme: mat-dark-theme((
 }
 
 .darkTheme hr {
-  border-color: #78909C;
+  border: 1px solid #78909C;
+}
+
+.darkTheme .uk-card-default {
+  background: none;
 }
 
 
@@ -696,6 +701,10 @@ $dark-theme: mat-dark-theme((
   background: var(--grape);
 }
 
+.darkTheme .deleteButton {
+  background: var(--grape);
+}
+
 .deleteButton:hover{
   background: var(--grape-purple);
 }
@@ -717,9 +726,6 @@ $dark-theme: mat-dark-theme((
   vertical-align: middle;
 }
 
-.uk-card-default {
-  background: transparent;
-}
 
 .uk-button-group {
   border: transparent;
