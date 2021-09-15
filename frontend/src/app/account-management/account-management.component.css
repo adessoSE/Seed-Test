@@ -8,7 +8,7 @@
     grid-template-rows: auto;
     grid-template-columns: 1fr 1fr 1fr;
     grid-column-gap: 20px;
-    background-color: rgb(255, 255, 255);
+   /*  background-color: rgb(255, 255, 255); */
     padding-bottom: 100px;
     border: 1px solid #999;
 }
@@ -178,6 +178,10 @@ h2, h1{
     border-top: 1px solid #999;
 }
 
+.uk-card-default {
+    background-color:transparent;
+}
+
 .repo_img{
     margin-left: 5px;
     margin-right: 5px;
@@ -224,3 +228,15 @@ h2, h1{
 .def:hover span[rel=def] {
     display: block;
 }
+
+.darkTheme h1.LargeHeadline1 {
+    color: var(--light-blue); 
+  }
+
+.darkTheme label {
+    color: var(--light-blue);
+  }
+
+  .darkTheme label#noEmail {
+    color: var(--light-blue);
+  }

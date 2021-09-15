@@ -80,7 +80,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 })
             }
         })
-        this.themeService.getCurrentTheme().subscribe(newTheme => this.currentTheme = newTheme);
         this.isDark = this.themeService.isDarkMode();
     }
 
@@ -95,7 +94,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @ignore
      */
     ngOnInit() {
-        this.themeService.themeChanged.subscribe(newTheme => this.currentTheme = newTheme);
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged
+        .subscribe((currentTheme) => {
+            this.isDark = this.themeService.isDarkMode()
+    });
     }
 
     /**
@@ -211,13 +214,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.isLoadingRepositories = true;
         this.apiService.githubLogin();
     }
-
-    update() {
-        this.isDark = this.themeService.isDarkMode();
-      }
     
       onDark() : boolean {
-        this.update();
-        return this.isDark
+        return localStorage.getItem('user-theme')==='dark';
       }
 }

@@ -2,6 +2,7 @@ import {Component, OnInit, Input} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to show the report
@@ -20,9 +21,6 @@ export class ReportComponent implements OnInit {
 
 
     @Input() report
-
-    @Input() isDark: boolean;
-
 
 
     reportId

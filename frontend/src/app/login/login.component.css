@@ -14,7 +14,7 @@ h1{
     "howToStart formular"
     "howToStart repositories"
     / 1fr 1fr;
-    background-color: var(--white);
+    /* background-color: var(--white); */
     place-items: center;
 }
 
@@ -23,13 +23,25 @@ h1{
     grid-row: 2 / 3;
     grid-column: 3 / 4;
     text-align: center;
-    background-color: var(--white);
+    background-color: var(--white); 
     margin-top: auto;
     margin-right: auto;
     margin-left: 10%;
     margin-bottom: auto;
     text-align: center;
     padding: 40px 20px 40px 40px;
+}
+
+.darkTheme .formular {
+    background-color: #60767b;
+}
+
+.darkTheme button.linkButton {
+    color: var(--light-blue);
+}
+
+.darkTheme h1.LargeHeadline2 {
+    color: var(--light-blue);
 }
 
 .repositories{
@@ -61,6 +73,10 @@ h1{
     width: 830px;
     height: 500px;
     position: relative;
+}
+
+.darkTheme .howToStart {
+    background-color: #60767b;
 }
 
 .welcomeSlide{
@@ -180,7 +196,7 @@ a.repoLink:hover{
     margin-top: 30px;
     border: 0.25px solid #999;
     padding: 10px;
-    background-color: rgb(247, 247, 247);
+    /* background-color: rgb(247, 247, 247); */
   }
 
 #loadingSpinner{
@@ -240,6 +256,10 @@ a.repoLink:hover{
         padding: 15px;
         background-color:rgb(224, 224, 224);
         border: 1px solid #999;
+    }
+
+    .darkTheme button {
+        color: var(--light-blue);
     }
     
 }

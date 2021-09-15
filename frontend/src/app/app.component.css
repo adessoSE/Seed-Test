@@ -4,7 +4,7 @@
 }
 /* Refactor this*/
 .grid{
-  background-color: var(--light-grey);
+  /* background-color: var(--light-grey); */ 
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
@@ -19,7 +19,7 @@
 
 .router{
   grid-area: router;
-  background-color: var(--light-grey);
+  /* background-color: var(--light-grey); */
 }
 
 
@@ -210,6 +210,10 @@ a:hover{
   overflow-y: auto;
   max-height: 70%;
   height: auto;
+}
+
+.darkTheme .dropdown-list {
+  background-color: #60767b;
 }
 
 .dropdown-list a{

@@ -1,29 +1,29 @@
-<div [class.darkTheme]="onDark()" class="grid-container uk-card uk-card-default">
+<div [class.darkTheme]= "isDark" class="grid-container uk-card uk-card-default">
     <div>
         <a routerLink="/" class="title">
             <button class="backButton" title="Back to Projects">
-                <img [class.darkIcon]="onDark()" id="backImage" src ="../assets/left.svg">
+                <img id="backImage" src ="../assets/left.svg">
             </button>
         </a>
     </div>
     <div >
-        <h1 [class.darkTheme]="onDark()" class="LargeHeadline1">Account Settings</h1>
+        <h1 class="LargeHeadline1 darkTheme" id="darkThemeH1">Account Settings</h1>
     </div>
-    <div [class.darkThemeBalk]="onDark()" class="grid_seedTest uk-card uk-card-default">
-        <h2 [class.darkTheme]="onDark()" class="LargeHeadline3">Seed-Test Account</h2>
+    <div class="grid_seedTest uk-card uk-card-default">
+        <h2 class="LargeHeadline3">Seed-Test Account</h2>
         <div *ngIf="email">
             <p class="SmallHeadline5">Email: </p>
-            <label [class.darkThemeLink]="onDark()" id="emailLabel" class="active MediumBody2">{{email}}</label>
+            <label id="emailLabel" class="active MediumBody2">{{email}}</label>
             <hr>
-            <p [class.darkTheme]="onDark()" id="needCustomRepo" class="LargeBody2">Need a new Custom Project?</p>
-            <p><button [class.darkThemeButton]="onDark()" class="normalButton" (click)="newRepository()">Create Custom Project</button></p>
+            <p id="needCustomRepo" class="LargeBody2">Need a new Custom Project?</p>
+            <p><button class="normalButton" (click)="newRepository()">Create Custom Project</button></p>
         </div>
         <div *ngIf="!email">
             <label id="noEmail">- no email deposited -</label>
-            <p><button [class.darkThemeButton]="onDark()" class="normalButton" title="register" (click)="navToRegistration();">Register</button></p>
+            <p><button class="normalButton" title="register" (click)="navToRegistration();">Register</button></p>
         </div>
         <!------------------Repositories DB------------------->
-        <div [class.darkTheme]="onDark()" class="grid_customRepos repositories" *ngIf="repositories">
+        <div class="grid_customRepos repositories" *ngIf="repositories">
             <div id="DBRepositoriesList">
                 <label class="MediumHeadline5">Custom Projects:</label>
                 <ul class="uk-list">
@@ -31,9 +31,9 @@
                         <li class="customRepoContainer" *ngIf="this.apiService.isCustomRepo(repository)">
                             <div>
                                 <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)" src="../assets/database-5-32.png">
-                                <a [class.darkThemeLink]="onDark()" class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                                <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                             </div>
-                            <button [class.darkThemeButton]="onDark()" *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Manage Team</button>
+                            <button *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Manage Team</button>
                         </li>
                     </ng-container>
                 </ul>
@@ -41,9 +41,9 @@
         </div>
         <div class="repositories" *ngIf="apiService.isLoggedIn()">
             <div>
-                <label [class.darkTheme]="onDark()">Download Project</label>
+                <label>Download Project</label>
                 <dfn class="def">
-                    <span [class.darkThemeIcon]="onDark()" class="infoIcon" uk-icon="info"></span>
+                    <span class="infoIcon" uk-icon="info"></span>
                     <span rel="def">Download all Tests as Feature files of a Project in a zip File</span>
                 </dfn>
             </div>
@@ -54,24 +54,24 @@
                 </select>
             </div>
             <div>
-            <button [class.darkThemeButton]="onDark()" (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>
+            <button (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>
             </div>
         </div>
 
         <!-----------------Erase your Account-------------->
         <div class="grid_eraseAccount repositories" *ngIf="apiService.isLoggedIn() && email">
             <div class="uk-form-horizontal">
-                <button [class.darkThemeButton]="onDark()" class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test Account</button>
+                <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test Account</button>
             </div>
         </div>
     </div>
     <!------------------------------------->
     <hr>
-    <div [class.darkThemeBalk]="onDark()" class="grid_github uk-card uk-card-default">
+    <div class="grid_github uk-card uk-card-default">
         <h2 class="LargeHeadline3">Github</h2>
         <div *ngIf="github">
-            <p [class.darkTheme]="onDark()" class="SmallHeadline5">Github-Account: </p>
-            <label [class.darkThemeLink]="onDark()" class="active MediumBody2">{{github['login']}}</label>
+            <p class="SmallHeadline5">Github-Account: </p>
+            <label class="active MediumBody2">{{github['login']}}</label>
             <div>
                 <a class="githubLoginContainer" (click)="disconnectGithub();">
                     <div class="githubLogin" >
@@ -90,14 +90,14 @@
              </a>
         </div>
         <!------------------Repositories GITHUB------------------->
-        <div [class.darkTheme]="onDark()" class="grid_githubRepos repositories" *ngIf="repositories">
+        <div class="grid_githubRepos repositories" *ngIf="repositories">
             <div id="GitHubRepositoriesList">
                 <label class="MediumHeadline5">Github Projects:</label>
                 <ul class="uk-list">
                     <ng-container *ngFor="let repository of repositories; let i = index">
                         <li *ngIf="this.apiService.isGithubRepo(repository)">
                             <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
-                            <a [class.darkThemeLink]="onDark()" class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                            <a class="MediumBody2 repoLink" id="github_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                         </li>
                     </ng-container>
                 </ul>
@@ -105,32 +105,32 @@
         </div>
     </div>
     <!------------------------------------->
-    <div [class.darkThemeBalk]="onDark()" class="grid_jira uk-card uk-card-default">
+    <div class="grid_jira uk-card uk-card-default">
         <h2 class="LargeHeadline3">Jira</h2>
         <div>
             <div id="jiraDiv" *ngIf="jira">
                 <div class="uk-form-horizontal">
-                    <p [class.darkTheme]="onDark()" class="SmallHeadline5">Jira-Name: </p>
-                    <label [class.darkThemeLink]="onDark()" class="active MediumBody2">{{jira['AccountName']}}</label>
+                    <p class="SmallHeadline5">Jira-Name: </p>
+                    <label class="active MediumBody2">{{jira['AccountName']}}</label>
                 </div>
                 <div class="uk-form-horizontal">
-                    <p [class.darkTheme]="onDark()" class="SmallHeadline5">Jira-Server: </p>
-                    <label [class.darkThemeLink]="onDark()" class="active MediumBody2">{{jira['Host']}}</label>
+                    <p class="SmallHeadline5">Jira-Server: </p>
+                    <label class="active MediumBody2">{{jira['Host']}}</label>
                 </div>
             </div>
             <div id="ChangeJiraDiv">
-                <button [class.darkThemeButton]="onDark()" class="normalButton" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
+                <button class="normalButton" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
             </div>
         </div>
         <!------------------Repositories JIRA------------------->
-        <div [class.darkTheme]="onDark()" class="grid_jiraRepos repositories" *ngIf="repositories">
+        <div class="grid_jiraRepos repositories" *ngIf="repositories">
             <div id="JiraRepositoriesList">
                 <label class="MediumHeadline5">Jira Projects:</label>
                 <ul class="uk-list">
                     <ng-container *ngFor="let repository of repositories; let i = index">
                         <li *ngIf="this.apiService.isJiraRepo(repository)">
                             <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
-                            <a [class.darkThemeLink]="onDark()" class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                            <a class="MediumBody2 repoLink" id="jira_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                         </li>
                     </ng-container>
                 </ul>

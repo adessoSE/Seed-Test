@@ -165,6 +165,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 });
             });
         });
+
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged
+        .subscribe((currentTheme) => {
+            this.isDark = this.themeService.isDarkMode()
+    });
     }
 
     ngOnDestroy() {
@@ -242,8 +248,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         }
         this.toggleShows();
     }
-
-
 
     /**
      * Selects a new Group

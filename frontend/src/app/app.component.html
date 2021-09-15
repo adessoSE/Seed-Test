@@ -1,5 +1,5 @@
-<div [class.darkTheme]= "isDark" class="grid mat-app-background">
-  <div [class.darkThemeBalk]= "isDark" class="topnav">
+<div [class.darkTheme]="isDark" class="grid mat-app-background">
+  <div class="topnav">
     <!--left-->
     <div class="uk-inline dropdown">
       <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
@@ -45,7 +45,8 @@
     <div class="topnavRight">
       <div>
         <mat-icon class="mr-8">brightness_5</mat-icon>
-        <mat-slide-toggle [checked] = "isDark" [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}" 
+        <mat-slide-toggle [formControl]="toggleControl" 
+        [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}" 
         [ngClass] = "{'mat-checked mat-slide-toggle-bar':isDark}"
         (click)="toggleDarkMode()" class="rightButton" 
         title="Switch to dark/light mode"></mat-slide-toggle>
@@ -55,9 +56,9 @@
         </a>
         <div class="dropdown">
           <button class="rightButton">Help</button>
-            <div [class.darkThemeBalk]= "isDark" class="dropdown-list">
-              <a [class.darkThemeBalk]= "isDark" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
-              <a [class.darkThemeBalk]= "isDark" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
+            <div class="dropdown-list">
+              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
+              <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
             </div>
         </div>
         <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
@@ -65,11 +66,11 @@
     </div>
   </div>
 
-  <div [class.darkTheme]="isDark" class="router">
+  <div class="router">
     <router-outlet></router-outlet>
   </div>
 
-  <footer [class.darkThemeBalk]= "isDark" id="footer" class="footer">
+  <footer id="footer" class="footer">
     <div class="footerCenter">
       <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
       <p class="terms" (click)="openTerms()">Terms</p>

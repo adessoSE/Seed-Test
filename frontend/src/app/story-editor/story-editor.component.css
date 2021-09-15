@@ -76,9 +76,18 @@
   .emptyStories{
     color: #999;
     padding: 10px;
+  } 
+  
+  .darkTheme.emptyStories {
+    color: white;
   }
+
   .emptyStories h1{
     color: #999;
+  }
+
+  .darkTheme.emptyStories h1 {
+    color: white;
   }
   
   .emptyStories a {
@@ -191,14 +200,14 @@
     margin-left: 5px;
     margin-right: 5px;
   }
-
+  /* double button see styles */
   .button {
     margin-right: 3px;
     color:var(--white);
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    background: var(--ocean-blue);
+    /* background: var(--ocean-blue); */
     border: none;
     line-height: 25px;
   }
@@ -223,7 +232,7 @@
 
   .uk-button-group{
     border-radius:4px;
-    border:2px solid var(--white);
+    /* border:2px solid var(--white); */
   }
   
   .padding{
@@ -256,10 +265,22 @@
     background: var(--white) !important;
     font-style: italic;
   }
+
+  .darkTheme .disabled {
+    background: transparent;
+  }
+
+  .darkTheme .scenarioListItem:hover {
+    background-color: var(--brown-grey);
+  }
   
   .scenarioBarContainer .disabled em{
     color: gray !important;
     background: #f8f8f8 !important;
+  }
+
+  .darkTheme .scenarioBarContainer .disabled em{
+    background: transparent;
   }
   
   .dragIconContainer{
@@ -329,10 +350,15 @@
 
   .storyTitle{
     color: var(--ocean-blue);
-    background: var(--white);
+    /* background: var(--white); */
     border: none;
     text-align: center; margin: 0px auto;
     margin-right: 2px;
+  }
+
+  .darkTheme span.MediumSubline1H4.storyTitle {
+    color: var(--lightblue);
+    background: transparent;
   }
   
   .marginLeft{
@@ -483,5 +509,14 @@
    font-size: 24px;
 
 }
+
+.uk-card-default {
+  background: none;
+}
+
+.darkTheme p {
+  color:white;
+}
+
 
 

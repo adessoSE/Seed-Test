@@ -122,6 +122,10 @@ em.dragIcon{
   margin: 0px 20px;
 }
 
+.darkTheme.scenarioBarContainer {
+  background-color: #60767b;
+}
+
 .exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
@@ -213,6 +217,10 @@ em.dragIcon{
   border: none;
 }
 
+.darkTheme, .scenarioTitle {
+  background: transparent;
+}
+
 .scenarioTitle > em{
   color:  var(--ocean-blue);
   font-size: 20px;
@@ -262,9 +270,17 @@ em.dragIcon{
   text-decoration: line-through;
 }
 
+.darkTheme .disabled {
+  background: transparent;
+}
+
 .scenarioBarContainer .disabled em{
-  color: gray !important;
-  background: #f8f8f8 !important;
+  color: gray /* !important */;
+  background: #f8f8f8 /* !important */;
+}
+
+.darkTheme, .scenarioBarContainer .disabled em {
+  background:transparent !important;
 }
 
 .uk-card-footer{
@@ -274,6 +290,10 @@ em.dragIcon{
 .disabledButton{
   visibility: hidden;
   background:#dddddd
+}
+
+.darkTheme, .disabledButton {
+  background: transparent;
 }
 
 table {
@@ -317,4 +337,20 @@ table {
 .stepsListContainer button{
   border: none;
   background: none;
+}
+
+.darkTheme em {
+  background: transparent;
+}
+
+.darkTheme input {
+  background: transparent;
+}
+
+.darkTheme span {
+  background: transparent;
+}
+
+.darkTheme button {
+  background: transparent;
 }

@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import {ApiService} from '../Services/api.service';
 import {Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to reset the password
@@ -19,6 +20,8 @@ export class ResetPasswordComponent{
    * Error during reset password
    */
   error: string;
+
+
 
   /**
    * @ignore

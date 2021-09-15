@@ -61,12 +61,6 @@ export class ParentComponent implements OnInit {
     }else {
       this.apiService.getBackendInfo()
     }
-
-    this.isDark = this.themeService.isDarkMode();
-    this.themeService.themeChanged
-    .subscribe((currentTheme) => {
-      this.isDark = this.themeService.isDarkMode()
-    });
    }
 
   /**
@@ -78,6 +72,11 @@ export class ParentComponent implements OnInit {
         console.log('parent get Repos')
       });
     }
+    this.isDark = this.themeService.isDarkMode();
+    this.themeService.themeChanged
+    .subscribe((currentTheme) => {
+      this.isDark = this.themeService.isDarkMode()
+    });
   }
 
   /**

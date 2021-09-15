@@ -13,7 +13,6 @@ export class ThemingService {
 
   constructor() { }
 
-
   loadTheme () {
     if (localStorage.getItem('user-theme')) {
       this.currentTheme = localStorage.getItem('user-theme');

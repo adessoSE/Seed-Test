@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
 
   isDark : boolean;
 
-  toggleControl = new FormControl(false);
+  toggleControl:any;
 
   
   /**
@@ -70,6 +70,7 @@ export class AppComponent implements OnInit {
     this.themeService.themeChanged.subscribe((changedTheme) => { 
       this.isDark = this.themeService.isDarkMode();
     }); 
+    this.toggleControl = new FormControl(this.isDark);
   }
 
   /**
@@ -141,5 +142,6 @@ export class AppComponent implements OnInit {
   toggleDarkMode() {
     this.themeService.setNewTheme();
    } 
+
 
 }

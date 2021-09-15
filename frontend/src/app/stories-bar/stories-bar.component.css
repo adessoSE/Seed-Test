@@ -12,6 +12,15 @@
     background-color: var(--white);
   }
 
+  .darkTheme.grid {
+    background-color: #60767b;
+    border-color: #78909C;
+  }
+
+  .uk-background-muted {
+    background-color:transparent;
+  }
+
 
   #storyHeader{
     grid-area: storyHeader;
@@ -191,7 +200,7 @@
     display: inline-block;
     vertical-align: middle;
   }
-  
+ 
 @media screen and (max-width: 600px) {
   .grid{
       display: grid;

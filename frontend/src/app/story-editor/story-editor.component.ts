@@ -247,7 +247,6 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     });
     }
 
-
     /**
      * retrieves the saved block from the session storage
      */
@@ -294,10 +293,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             }
         });
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-        this.isDark = this.themeService.isDarkMode();
+        /* this.isDark = this.themeService.isDarkMode();
         this.themeService.themeChanged.subscribe((changedTheme) => { 
             this.isDark = this.themeService.isDarkMode();
-    });
+    }); */
     }
 
     /**
