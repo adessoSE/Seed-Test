@@ -1,4 +1,5 @@
-<div [class.darkTheme] ="isDark" class="grid darkTheme">
+<div [ngModel]= "isDarkModeOn()" (ngModelChange)="setMode($event)"
+[class.darkTheme] ="isDark" class="grid">
   <div class="formular">
     <h1 id="headerFont" class="LargeHeadline3">Registration</h1>
      
