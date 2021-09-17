@@ -414,7 +414,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * Filters stories for searchterm
    */
   storyTermChange(storiesToFilter = this.stories) {
-    this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+    if(this.storyString){
+        this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+    } else {
+        this.filteredStories = storiesToFilter;
+    }
   }
 
     /**
