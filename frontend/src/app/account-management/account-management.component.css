@@ -27,7 +27,7 @@
 }
 
 .darkTheme .grid_seedTest {
-    background: #60767b;
+    background: #455A64;
 }
 
 .grid_customRepos {
@@ -50,7 +50,7 @@
 }
 
 .darkTheme .grid_github {
-    background: #60767b;
+    background: #455A64;
 }
 
 .grid_githubRepos {
@@ -68,7 +68,7 @@
 }
 
 .darkTheme .grid_jira {
-    background: #60767b; 
+    background: #455A64; 
 }
 
 .grid_jiraRepos {
@@ -115,6 +115,10 @@ h2{
     background-color: var(--dark-grey);
     padding-bottom: 10px;
     margin-bottom: 30px;
+}
+
+.darkTheme h2 {
+    background-color:#000000;
 }
 
 label{
@@ -172,8 +176,8 @@ label{
     border: 1px solid grey;
 }
 
-.darkTheme.uk-card {
-    border: 1px solid #78909C;
+.darkTheme.uk-card, .darkTheme .uk-card {
+    border: 1px solid #60767b;
 }
 
 a.repoLink{
@@ -199,6 +203,10 @@ h2, h1{
     padding: 15px;
     background-color: transparent;
     border-top: 1px solid #999;
+}
+
+.darkTheme .repositories {
+    border-top: 1px solid #60767b;
 }
 
 .repo_img{

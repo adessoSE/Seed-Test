@@ -1,7 +1,7 @@
 <!--<div *ngIf="!this.reportReceived">
     <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
 </div>-->
-<div class="uk-card uk-card-default padding mat-app-background">
+<div [class.darkTheme]="isDark" class="uk-card uk-card-default padding mat-app-background">
     <div id="report-header" class="uk-card-header"style="white-space: nowrap;">
         <h3 class="title"style="display: inline-block">Test Results</h3>
     

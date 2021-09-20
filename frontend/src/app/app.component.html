@@ -43,14 +43,16 @@
     </div>
     <!--right-->
     <div class="topnavRight">
-      <div>
+      <div class="slide-toggle-container">
         <mat-icon class="mr-8">brightness_5</mat-icon>
         <mat-slide-toggle [formControl]="toggleControl" 
         [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}" 
         [ngClass] = "{'mat-checked mat-slide-toggle-bar':isDark}"
-        (click)="toggleDarkMode()" class="rightButton" 
+        (click)="toggleDarkMode()" 
         title="Switch to dark/light mode"></mat-slide-toggle>
         <mat-icon>bedtime</mat-icon>
+      </div>
+      <div style="width: 44%;">
         <a routerLink="/feedback">
           <button class="rightButton">Feedback</button>
         </a>

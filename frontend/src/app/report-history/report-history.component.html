@@ -1,5 +1,6 @@
 <br>
-<div class="reportHistoryContainer">
+<div [ngModel]= "isDarkModeOn()" (ngModelChange)="setMode($event)" [class.darkTheme]="isDark"
+class="reportHistoryContainer">
     <div class="reportHistoryTitleContainer">
         <div>
             <a class="title">

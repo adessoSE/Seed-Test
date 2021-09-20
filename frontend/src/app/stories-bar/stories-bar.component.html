@@ -13,7 +13,7 @@
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
       <li *ngFor="let s of getSortedStories(); let i = index " cdkDrag>
-        <div d="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
+        <div [class.darkTheme]="isDark" d="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
           <span class="github-avatar">
             <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
             <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">

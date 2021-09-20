@@ -37,13 +37,16 @@ export class ReportComponent implements OnInit {
      */
     showResults: boolean = false;
 
+    isDark:boolean;
+
 
     /**
      * Retrieves the report
      * @param apiService
      * @param route
      */
-    constructor(public apiService: ApiService, public route: ActivatedRoute) {
+    constructor(public apiService: ApiService, public route: ActivatedRoute, 
+        private themeService: ThemingService) {
         this.route.params.subscribe(params => {
             if(params.reportName){
                 if(!localStorage.getItem('url_backend')){
@@ -61,6 +64,11 @@ export class ReportComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged
+        .subscribe((currentTheme) => {
+            this.isDark = this.themeService.isDarkMode()
+    });
     }
 
     ngOnChanges() {

@@ -68,7 +68,7 @@ $cucumber-frontend-theme: mat-light-theme((
 // Define a dark theme
 $dark-primary: mat-palette($mat-blue-grey);
 $dark-accent: mat-palette($mat-light-blue, 400,500,600);
-$dark-background-color: #000000;
+$dark-background-color: map-get($mat-blue-grey, 800);
 
 $mat-dark-theme-background: map_merge($mat-dark-theme-background, (background: $dark-background-color));
 
@@ -108,6 +108,7 @@ $dark-theme: mat-dark-theme((
 
 .darkTheme em {
   color: var(--light-blue) !important;
+  background: transparent !important;
 }
 
 .darkTheme .dropdown-list {
@@ -119,7 +120,7 @@ $dark-theme: mat-dark-theme((
 }
 
 .darkTheme hr {
-  border: 1px solid #78909C;
+  border: 1px solid #60767b;
 }
 
 .darkTheme .uk-card-default {
@@ -448,6 +449,11 @@ $dark-theme: mat-dark-theme((
     letter-spacing: normal;
     color: var(--ocean-blue);
   }
+
+  .darkTheme .Largeaccordeon2 {
+    color: var(--light-blue);
+  }
+
   .Largenavigation1 {
     font-family: Klavika, sans-serif;
     font-size: 18px;
@@ -540,6 +546,11 @@ $dark-theme: mat-dark-theme((
     letter-spacing: normal;
     color: var(--ocean-blue);
   }
+
+  .darkTheme .Mediumaccordeon2 {
+    color: var(--light-blue);
+  }
+
   .Mediumnavigation1 {
     font-family: Klavika, sans-serif;
     font-size: 16px;
@@ -709,26 +720,16 @@ $dark-theme: mat-dark-theme((
   background: var(--grape-purple);
 }
 
-.mat-slide-toggle {
-  margin-left: 8px;
-  margin-right: 8px;
-}
-
-.mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
-  background-color: rgb(255 249 210 / 54%) !important;
-}
-
-.mat-checked .mat-slide-toggle-thumb {
-  background-color: bisque !important;
-}
-
-.mat-icon {
-  vertical-align: middle;
-}
-
-
 .uk-button-group {
   border: transparent;
+}
+
+.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+  background-color: rgb(96, 125, 139, 54%);
+}
+
+.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+  background-color: #90A4AE;
 }
 
 

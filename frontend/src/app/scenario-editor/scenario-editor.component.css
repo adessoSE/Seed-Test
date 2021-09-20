@@ -70,8 +70,9 @@ em.dragIcon{
   border: 1px solid #999;
 }
 
-.darkTheme #scenario {
-  border:1px solid black;
+.darkTheme#scenario {
+  border:1px solid #60767b;
+  background: #546E7A;
 }
 
 .uk-card-title {
@@ -122,12 +123,13 @@ em.dragIcon{
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
-  /* background-color: #f8f8f8; */
+  background-color: #f8f8f8;
   margin: 0px 20px;
 }
 
-.darkTheme.scenarioBarContainer {
-  background-color: #60767b;
+.darkTheme .scenarioBarContainer {
+  background-color: #546E7A;
+  border-bottom: 1px solid #B0BEC5;
 }
 
 .exampleBarContainer{
@@ -278,8 +280,12 @@ em.dragIcon{
 }
 
 .scenarioBarContainer .disabled em{
-  color: gray /* !important */;
+  color: gray !important;
   /* background: #f8f8f8 /* !important; */
+}
+
+.darkTheme .scenarioBarContainer .disabled em {
+  color: gray 
 }
 
 .darkTheme.scenarioBarContainer button {
@@ -334,16 +340,13 @@ table {
 }
 
 .stepsListContainer .disabled em{
-  color: gray;
+  color: gray !important;
 }
+
 
 .stepsListContainer button{
   border: none;
   background: none;
-}
-
-.darkTheme em {
-  background: transparent;
 }
 
 .darkTheme input {

@@ -12,8 +12,8 @@
   border-top: 1px solid #e5e5e5;
  }
 
- .darkTheme.storyInfoContainer {
-    border-top: 1px solid black;
+ .darkTheme .storyInfoContainer {
+    border-top: 1px solid #B0BEC5;
  }
 
  @media all and (min-width: 800px) {
@@ -188,14 +188,23 @@
     display: block;
   }
 
+  .darkTheme .def:hover span {
+    background-color: #90A4AE;
+  }
+
   #story{
     border-top: 1px solid #999;
     border-left: 1px solid #999;
     border-bottom: 1px solid #999;
+    background: white;
+
   }
 
-  .darkTheme #Story {
-    border: #78909C;
+  .darkTheme#story {
+    border-top: 1px solid #60767b;
+    border-left: 1px solid #60767b;
+    border-bottom: 1px solid #60767b;
+    background: #455A64;
   }
 
   
@@ -227,9 +236,17 @@
   .uk-card-footer{
     padding: 15px 0px;
   }
+
+  .darkTheme .uk-card-footer {
+    border-top: 1px solid #B0BEC5;
+  }
   
   .button:hover {
     background: var(--marine-blue);
+  }
+
+  .darkTheme .button:hover {
+    background-color: #263238;
   }
 
   .button:active {
@@ -347,6 +364,10 @@
     transition: 0.3s;
     cursor: pointer;
   }
+
+  .darkTheme .expand:hover {
+    background-color: #90A4AE;
+  }
   
   .backgroundContainer{
     margin-bottom: 20px;
@@ -360,9 +381,14 @@
     padding: 15px 30px;
   }
 
+  .darkTheme .title {
+    color: white;
+  }
+
   .storyTitle{
     color: var(--ocean-blue);
     /* background: var(--white); */
+    background: none;
     border: none;
     text-align: center; margin: 0px auto;
     margin-right: 2px;
@@ -507,6 +533,8 @@
 
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {background-color: #f1f1f1}
+
+.darkTheme .dropdown-content a:hover {background-color: #90A4AE;}
 
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {
