@@ -44,7 +44,7 @@
     "node-fetch": "^2.6.1",
     "request": "^2.88.2",
     "sass": "^1.38.0",
-    "set-value": "3.0.2",
+    "set-value": "4.0.1",
     "uikit": "^3.5.9",
     "zone.js": "~0.11.3"
   },
