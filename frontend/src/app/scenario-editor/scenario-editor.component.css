@@ -284,9 +284,9 @@ em.dragIcon{
   /* background: #f8f8f8 /* !important; */
 }
 
-.darkTheme .scenarioBarContainer .disabled em {
+/* .darkTheme .scenarioBarContainer .disabled em {
   color: gray 
-}
+} */
 
 .darkTheme.scenarioBarContainer button {
   background:#60767b;

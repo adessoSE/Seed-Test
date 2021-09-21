@@ -403,7 +403,7 @@
     display:inline-block;
   }
 
-  span.notPassed{
+/*   span.notPassed{
     background-color: red;
   }
 
@@ -411,13 +411,21 @@
     background-color: green;
   }
 
+  .darkTheme span.passed {
+    background-color: #4CAF50;
+  }
+
   a.passed{
     color: green;
   }
 
+  .darkTheme a.passed {
+    color: #4CAF50;
+  }
+
   a.notPassed{
     color: red;
-  }
+  } */
 
   .dot {
     height: 20px;
