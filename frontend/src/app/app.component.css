@@ -52,7 +52,6 @@
   justify-content: flex-end;
   align-content: center;
   height: 51px;
-  width: 100%; /* option */
 }
 
 .topnavCenter{
@@ -311,8 +310,13 @@ a:hover{
 }
 
 .slide-toggle-container {
-  width: 19%;
   margin: 12px;
+}
+
+@media screen and (max-width: 848px) {
+  .slide-toggle-container {
+    display: none;
+  }
 }
 
 .mat-slide-toggle {
