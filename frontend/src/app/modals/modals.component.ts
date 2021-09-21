@@ -625,6 +625,8 @@ submitRenameScenario() {
         event.stopPropagation();
         const title = this.storyTitle; //(document.getElementById('storytitle') as HTMLInputElement).value;
         const description = this.storyDescription; //(document.getElementById('storydescription') as HTMLInputElement).value;
+        this.storyTitle = null;
+        this.storyDescription = null;
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = 'db';
