@@ -392,6 +392,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   * @param story
   */
   deleteStory() {
+    if(this.stories.find(x => x === this.selectedStory)){
     const repository = localStorage.getItem('id');
     { this.apiService
        .deleteStory(repository, this.selectedStory._id)
@@ -399,7 +400,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
            this.storyDeleted();
            this.toastr.error('', 'Story deleted');
         }); }
-  }
+  }}
 
   /**
   * Removes the selected story
