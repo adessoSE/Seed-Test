@@ -95,11 +95,11 @@ $dark-theme: mat-dark-theme((
 }
 
 .darkTheme a {
-  color:var(--light-blue) /* !important */;
+  color:var(--light-blue) !important;
 }
 
 .darkTheme a:hover {
-  color:var(--white) /* !important */;
+  color:var(--white) !important;
 }
 
 .darkTheme svg {
@@ -475,6 +475,11 @@ $dark-theme: mat-dark-theme((
     letter-spacing: normal;
     color: var(--black);
   }
+
+  .darkTheme .MediumHeadline5 {
+    color: white;
+  }
+
   .Smallaccordeon1 {
     font-family: Klavika, sans-serif;
     font-size: 18px;
@@ -597,6 +602,11 @@ $dark-theme: mat-dark-theme((
     letter-spacing: normal;
     color: var(--black);
   }
+
+  .darkTheme .LargeBody2 {
+    color: var(--white);
+  }
+
   .SmallBody1compact {
     font-family: Klavika, sans-serif;
     font-size: 16px;
@@ -617,6 +627,10 @@ $dark-theme: mat-dark-theme((
     letter-spacing: normal;
     color: var(--black);
   }
+  .darkTheme .SmallBody1regularLH {
+    color: white;
+  }
+  
   .MediumButton1 {
     font-family: Klavika, sans-serif;
     font-size: 14px;
@@ -738,27 +752,27 @@ $dark-theme: mat-dark-theme((
 }
 
 span.notPassed{
-  background-color: red;
+  background-color: red !important;
 }
 
 span.passed{
-  background-color: green;
+  background-color: green !important;
 }
 
 .darkTheme span.passed {
-  background-color: #4CAF50;
+  background-color: #4CAF50 !important;
 }
 
 a.passed{
-  color: green;
+  color: green !important;
 }
 
 .darkTheme a.passed {
-  color: #4CAF50;
+  color: #4CAF50 !important;
 }
 
 a.notPassed{
-  color: red;
+  color: red !important;
 }
 
 

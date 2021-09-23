@@ -86,6 +86,10 @@
     color: var(--ocean-blue);
 }
 
+.darkTheme .active {
+    color: var(--light-blue);
+}
+
 #emailLabel{
     margin-bottom: 25px;
 }
@@ -255,10 +259,6 @@ h2, h1{
 .def:hover span[rel=def] {
     display: block;
 }
-
-.darkTheme label {
-    color: var(--light-blue);
-  }
 
 .darkTheme label#noEmail {
     color: var(--light-blue);

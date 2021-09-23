@@ -175,7 +175,8 @@
   }
 
   .darkTheme .scenarioListItem:hover {
-    background-color: #90A4AE;
+    background-color: #CFD8DC;
+    color: #000000 !important;
   }
 
   .uk-accordion{
@@ -190,31 +191,35 @@
     color: #56595e;
   }
 
+  .darkTheme .uk-accordion-content a{
+    color:#90A4AE !important;
+  }
+
   .uk-accordion-content .passed,
   .uk-accordion-title.uk-background-muted .passed{
-    color: green /* !important */;
+    color: green !important;
   }
 
   .darkTheme .uk-accordion-content .passed,
   .uk-accordion-title.uk-background-muted .passed{
-    color: #4CAF50 /* !important */;
+    color: #4CAF50 !important;
   }
   
   .uk-accordion-content .notPassed,
   .uk-accordion-title.uk-background-muted .notPassed{
-    color: red /* !important */;
+    color: red !important;
   }
 
   .uk-accordion-title.uk-background-muted span.passed{
-    background-color: green/*  !important */;
+    background-color: green !important;
   }
 
   .darkTheme .uk-accordion-title.uk-background-muted span.passed {
-    background-color: #4CAF50 /* !important */;
+    background-color: #4CAF50 !important;
   }
 
   .uk-accordion-title.uk-background-muted span.notPassed{
-    background-color: red /* !important */;
+    background-color: red !important;
   }
 
   .drag-handle{

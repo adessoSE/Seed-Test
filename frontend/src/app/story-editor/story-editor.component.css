@@ -95,9 +95,19 @@
   }
 
   
-  .disabled input{
+  /* .disabled input{
     color: gray;
     border-bottom: none;
+  } */
+
+  :host ::ng-deep .disabled input{
+    color: gray;
+    border-bottom: 1px solid gray;
+  }
+  
+  :host ::ng-deep .darkTheme .disabled input {
+    color:#B0BEC5;
+    border-bottom: 1px solid #B0BEC5;
   }
 
   #noStoriesHeader{
@@ -160,7 +170,7 @@
       display: none;
   }
 
-  input[type="text"]{
+  :host ::ng-deep input[type="text"]{
     margin: 1px;
     padding: 1px;
     border: none;
@@ -169,6 +179,12 @@
     top: -2px;
     width: auto;
     min-width: 5px;
+  }
+
+  :host ::ng-deep .darkTheme input {
+    background: transparent;
+    color: white;
+    border-bottom: 1px solid #60767b;
   }
   
   .storyHeaderContainer{
@@ -265,7 +281,7 @@
   }
   
   #saveButton.iconButton_unsaved em{
-    color: red;
+    color: red !important;
   }
   
   .uk-dropdown{
@@ -285,27 +301,26 @@
       color: gray;
   }
   
-  .disabled {
+ /*  .disabled {
     color: gray !important;
     background: var(--white) !important;
     font-style: italic;
-  }
+  } */
 
-  .darkTheme .disabled {
-    background: transparent;
+  :host ::ng-deep .disabled {
+    color: gray !important;
+    /* background: var(--white) !important; */
+    font-style: italic;
+    text-decoration: line-through;
   }
 
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
   }
   
-  .scenarioBarContainer .disabled em{
+  :host ::ng-deep .scenarioBarContainer .disabled em{
     color: gray !important;
-    background: #f8f8f8 !important;
-  }
-
-  .darkTheme .scenarioBarContainer .disabled em{
-    background: transparent;
+    /* background: #f8f8f8 !important; */
   }
   
   .dragIconContainer{
@@ -456,8 +471,8 @@
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8; 
-} */
-
+}  */
+/* 
 .darkTheme.scenarioBarContainer {
   border-bottom: 1px solid black;
 }
@@ -508,6 +523,76 @@
 }
 
 .scenarioButton em:active {
+  background-color: var(--ocean-blue);
+  color: var(--white);
+} */
+
+:host ::ng-deep .scenarioBarContainer{
+  display: flex;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  margin: 0px 20px;
+}
+
+:host ::ng-deep .darkTheme .scenarioBarContainer {
+  background-color: #546E7A;
+  border-bottom: 1px solid #B0BEC5;
+}
+
+:host ::ng-deep .exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+:host ::ng-deep .scenarioBarContainer button,
+.exampleBarContainer button{
+  border: none;
+  background: none;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+:host ::ng-deep .scenarioBarContainer > div,
+.exampleBarContainer{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px 15px;
+  display: flex;
+  height: 40px;
+}
+
+:host ::ng-deep .scenarioButton {
+  margin-right: 10px;
+}
+
+:host ::ng-deep .actionBarButtonGroup{
+  margin-left: 3px;
+}
+
+:host ::ng-deep .actionButton{
+  margin-left: 10px;
+}
+
+:host ::ng-deep .actionButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+:host ::ng-deep .darkTheme .actionButton > em {
+  color:#000000 !important;
+}
+
+:host ::ng-deep .scenarioButton em{
+  color:  var(--ocean-blue);
+} 
+
+:host ::ng-deep .darkTheme.scenarioButton em{
+  color:  var(--ocean-blue);
+}
+
+:host ::ng-deep .scenarioButton em:active {
   background-color: var(--ocean-blue);
   color: var(--white);
 }
@@ -567,6 +652,10 @@
 
 .darkTheme p {
   color:white;
+}
+
+.uk-icon {
+  background-color: transparent !important;
 }
 
 
