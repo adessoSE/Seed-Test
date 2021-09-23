@@ -425,7 +425,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * Filters group for searchterm
    */
     groupTermChange() {
-    this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+      if(this.groupString){
+        this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+      } else {
+          this.filteredGroups = this.groups;
+      }
     }
 
     /**
