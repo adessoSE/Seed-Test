@@ -1,56 +1,123 @@
-<div class="grid">
+<div class="loginGrid">
   <div class="howToStart">
-      <div class="uk-text-secondary instructionText">
-        <h3>Welcome to seed-test!</h3>
-        <p id="info">If you don't have an account yet, you have two options to log in and start testing:</p><br>
-        <h6 class="req"><b>1. Create a seed-test account<br>(no requirements)</b></h6>
-        <p>Register <button class="linkButton" (click)="navToRegistration();">here</button> and log in with your created account data.
-          You will be forwarded to the account settings where you can create new projects (repositories) or connect your account with your GitHub account or connect to your Jira server to load existing projects.
-        </p>
-        <br>
-        <h6 class="req"><b>2. Login via GitHub Account<br>(GitHub Account required)</b></h6>
-        <p>If you already have a GitHub account, you can connect directly via the GitHub Login and access your GitHub projects directly as repositories.
-        Additionally you can connect to Jira or create new seed-test projects (repositories) using the account settings.
-        </p>
-        <br>
-        <p><i>The settings and connections can be edited using the account settings via the menu.</i></p>
-        <br>
-        <hr>
-        <p>If you have questions, feel free to contact us: seed-test@adesso.de</p>
-        <br>
-        <p>You can find a detailed tutorial <a class="linkButton" rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">here.</a>
-        </p>
-      </div>
+    <div class="mat">
+      <mat-carousel
+          timings="1000ms ease-in"
+          [autoplay]="true"
+          [hideArrows]="false"
+          [hideIndicators]="true"
+          [loop]="true"
+          interval="5000"
+          proportion="50"
+          color="white">
+        <!--<mat-carousel-slide>
+            <div class="welcomeSlide">
+              <h1>Welcome to seed-test!</h1>
+              <h4 id="info">HOW TO START</h4>
+              <img id="arrowRight" src ="../assets/arrow.png" >
+            </div>
+        </mat-carousel-slide>-->
+        <mat-carousel-slide
+          *ngFor="let slide of slide0;"
+          [image]="slide.image0"
+          [hideOverlay]="true">
+        </mat-carousel-slide>
+        <mat-carousel-slide
+            *ngFor="let slide of slide01;"
+            [image]="slide.image01"
+            [hideOverlay]="true">
+          <p class="slideDescription">Login to Seed-Test via GitHub or create a new Seed-Test Account by registering.<br>Alternatively you can try Seed-Test without an account, by trying our Demo.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide02;"
+          [image]="slide.image02"
+          [hideOverlay]="true">
+            <p class="slideDescription">After the login via GitHub you can see your repositories.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide03;"
+          [image]="slide.image03"
+          [hideOverlay]="true">
+            <p class="slideDescription">Else you can just register yourself using your E-Mail.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide04;"
+          [image]="slide.image04"
+          [hideOverlay]="true">
+          <p class="slideDescription">After the first Login of your Seed-Test account, you can create your own custom Repositories <br>or connect an existing GitHub Account or Jira Server.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide05;"
+          [image]="slide.image05"
+          [hideOverlay]="true">
+          <p class="slideDescription">Name your custom Project and save it.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide06;"
+          [image]="slide.image06"
+          [hideOverlay]="true">
+          <p class="slideDescription">Select your newly created Project to continue.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide07;"
+          [image]="slide.image07"
+          [hideOverlay]="true">
+          <p class="slideDescription">With a new Custom Project you can create your own stories.<br>If you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide08;"
+          [image]="slide.image08"
+          [hideOverlay]="true">
+          <p class="slideDescription">Enter a name and description for your new story.</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide09;"
+          [image]="slide.image09"
+          [hideOverlay]="true">
+          <p class="slideDescription">Now you can add steps to create your first Test!<br>Usually you want to start by using the Given-Step: "Website".</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide10;"
+          [image]="slide.image10"
+          [hideOverlay]="true">
+          <p class="slideDescription">Run your Test by clickling on "Run Scenario".</p>
+        </mat-carousel-slide>
+        <mat-carousel-slide
+          *ngFor="let slide of slide11;"
+          [image]="slide.image11"
+          [hideOverlay]="true">
+          <p class="slideDescription">For help and further information click on Help and check out our Tutorial.</p>
+        </mat-carousel-slide>
+      </mat-carousel>
     </div>
+  </div>
   <div class="formular">
     <p class="wrongLogin" *ngIf="error">{{error}}</p>
     <!-- Formular -->
-    <h1 id="loginFont">Login</h1>
+    <h1  class="LargeHeadline2 loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
       <br>
       <hr>
       <br>
-      <!-- Github Name -->
+      <!-- E-Mail -->
       <label for="email" class="uk-form-label" style="color: grey;"></label>
       <input id="email" type="username" name="email" placeholder=" Email" #email ngModel class="uk-form-controls" required>
       <br>
-      <!-- Token -->
+      <!-- Token (Password) -->
       <label for="password" class="uk-form-label" style="color: grey;"></label>
       <br>
       <input id="password" type="password" name="password" placeholder=" Password" #password ngModel class="uk-form-controls" required>
       <br>
       <br>
       <!-- Button Login -->
-      <!--<div class="stayLoggedInContainer">
-        <input type="checkbox" id="stayLoggedIn" name="stayLoggedIn" ngModel>
-        <label for="stayLoggedIn">Keep me signed in for 2 weeks</label>
-      </div>-->
-      <button class="loginButton" type="submit" [disabled]="form.invalid">Login</button>
-      <div id="loadingSpinner" *ngIf="this.repositoriesLoading">
+      <button class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
+      <div id="loadingSpinner" *ngIf="this.isLoadingRepositories">
         <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
-    <br>
+    <div>
+      <button class="linkButton" routerLink='/resetpassword'>Forgot Password?</button>
+    </div>
     <p>or</p>
     <hr>
     <!--<p class="noAccount">No account?
@@ -66,9 +133,9 @@
    <br>
    <div class="uk-card default" id="noAccountDiv">
     <span class="noAccount">No account yet? <br>
-    <button class="registerButton" title="register" (click)="navToRegistration();">Register</button>
+    <button class="linkButton" routerLink="/register">Register</button>
     or
-    <button class="registerButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
+    <button class="linkButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
        (no account required)
     </span>
     <br>
@@ -78,14 +145,14 @@
   <!-- Repositories -->
   <div class="repositories" *ngIf="repositories">
     <div id="repositoriesList">
-      <label class="selectRepository">Select Your Repository:</label>
+      <label class="MediumSubline1H4">Select Your Project:</label>
       <br>
-      <ul class="uk-list">
+      <ul class="repositoryList">
         <li *ngFor="let repository of repositories; let i = index" >
           <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
           <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
           <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
-          <a class="repoLink" id="{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+          <a class="MediumBody2 repoLink" id="{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
         </li>
       </ul>
     </div>

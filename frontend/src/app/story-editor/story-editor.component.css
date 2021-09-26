@@ -1,8 +1,65 @@
  * {
    margin: 0;
    padding: 0;
+
  }
 
+ .storyInfoContainer{
+  display: flex;  
+  flex-flow: row wrap;
+  font-weight: bold;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
+ }
+
+ @media all and (min-width: 800px) {
+  /* We invert order of first sidebar and main
+   * And tell the main element to take twice as much width as the other two sidebars 
+   */
+  .storyInfoLeft { order: 1; }
+  .storyInfoCenter    { 
+    flex: 2 0px; 
+    order: 2; 
+  }
+  .storyInfoRight { order: 3; }
+
+}
+  .storyInfoLeft{
+    display: flex;
+    justify-content: flex-start;
+    padding: 5px;
+    align-items: center;
+  }
+
+ .storyInfoRight{
+    padding: 5px;
+ }
+
+.button > em{
+  color: var(--white);
+  font-size: 18px;
+  vertical-align: text-top;
+}
+
+ .storyInfoCenter{
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px;
+    align-items: center;
+ }
+
+ .selectLabel{
+   margin-right: 3px;
+ }
+
+ .select {
+   width: 120px;
+ }
+
+ .waitTime {
+   width: 70px;
+   margin-right: 5px;
+ }
  .arrowLeft{
    width: 130px;
    float: left;
@@ -27,22 +84,19 @@
   .emptyStories a {
     display: block;
   }
-  .outdated {
-    background-color: #F9A7A7;
-  }
-  #storyHeader{
-    font-size: 1.25rem;
-    line-height: 1.4;
+
+  
+  .disabled input{
+    color: gray;
+    border-bottom: none;
   }
 
-  .material-icons{
-    width: 100px;
-    height: 100px;
-    font-size: 60px;
+  #noStoriesHeader{
+    padding: 20px;
   }
 
   .tutorial{
-    color: #0099CC;
+    color: var(--ocean-blue);
   }
 
   .tutorialDiv{
@@ -73,7 +127,7 @@
 
   #infoList{
     padding-left: 10px;
-    color: #0099CC;
+    color: var(--ocean-blue);
     list-style-type: none;
   }
 
@@ -84,15 +138,6 @@
 
   #noStoriesHeader{
     padding-bottom: 5px;
-  }
-
-  .firstStoryDiv{
-    margin-top: 7px;
-    padding: 6px;
-    height: 95px;
-    width: 220px;
-    color: white;
-    background-color: rgba(153, 153, 153, 0.726);
   }
 
   .def {
@@ -124,7 +169,7 @@
 
   .def:hover span[rel=def] {
     font-size: small;
-    color: white;
+    color: var(--white);
     background-color: rgb(109, 109, 109);
     position: absolute;
     bottom: 2em;
@@ -134,12 +179,6 @@
     display: block;
   }
 
-  #storyHeader{
-      color: #999;
-      font-size: 20px;
-      font-weight: bold;
-  }
-  
   #story{
     border-top: 1px solid #999;
     border-left: 1px solid #999;
@@ -155,13 +194,17 @@
 
   .button {
     margin-right: 3px;
-    color:#ffffff;
+    color:var(--white);
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    border: solid 1px #0099CC;
-    background: #0099CC;
-    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+    background: var(--ocean-blue);
+    border: none;
+    line-height: 25px;
+  }
+
+  .material-icons{
+    font-size: 24px;
   }
 
   .uk-card-footer{
@@ -169,7 +212,7 @@
   }
   
   .button:hover {
-    background: rgb(2, 111, 161);
+    background: var(--marine-blue);
   }
 
   .button:active {
@@ -180,41 +223,17 @@
 
   .uk-button-group{
     border-radius:4px;
-    border:2px solid rgb(255, 255, 255);
+    border:2px solid var(--white);
   }
   
   .padding{
     padding: 20px;
   }
   
-  .iconButton {
-    border: none;
-    background-color: #ffffff;
-    padding: 0px;
-    border-radius: 10%;
-  }
-  
-  .iconButton em{
-    vertical-align:middle;
-    color: #0099CC;
-    border-radius: 10%;
-  }
-
-  .iconButton_unsaved em{
-    vertical-align:middle;
+  #saveButton.iconButton_unsaved em{
     color: red;
-    border-radius: 10%;
-    border: none;
-    background-color: #ffffff;
-    padding: 0px;
-    border-radius: 10%;
   }
   
-  .iconButton em:active {
-    background-color: rgb(0, 153, 204);
-    color: #ffffff;
-  }
-
   .uk-dropdown{
     padding: 15px;
   }
@@ -225,27 +244,22 @@
   }
   
   .uk-nav > li > .dropdownStep {
-    color:#0099CC;
+    color: var(--ocean-blue);
   }  
     
   .uk-nav > li > span:hover {
       color: gray;
   }
   
-  .buttonGroup{
-    text-align: center;
-    margin-left: 10px;
-    color: #0099CC;
-  }
-  
   .disabled {
     color: gray !important;
-    background: white !important;
+    background: var(--white) !important;
+    font-style: italic;
   }
   
-  .disabled em{
+  .scenarioBarContainer .disabled em{
     color: gray !important;
-    background: white !important;
+    background: #f8f8f8 !important;
   }
   
   .dragIconContainer{
@@ -253,17 +267,15 @@
     cursor: move;
   }
   
-  .dragIcon{
-    position: relative;
-    top: -2px;
+  em.dragIcon{
+    font-size: 18px;
+    color: black;
+    background-color: var(--white);
+    margin-top:3px
   }
   
   .text-inline{
     display: flex;
-    flex-direction: row;
-    align-content: center;
-    font-weight: normal;
-    justify-self: start;
   }
   
   .text-inline > button{
@@ -284,23 +296,19 @@
     background:#dddddd
   }
 
-
-  .descriptionText{
-    font-weight: 100;
-  }
-  
-  .backgroundItems{
-    padding-right:40px;
+  input.backgroundName{
+    margin: 5px;
   }
 
-  .backgroundButtons{
-    float: right;
-    padding-right:40px;
+  #loading{
+    /* text-align: center;
+    font-size: 40px; */
+    display: flex;
+    justify-content: center;
   }
-  
-  .loading{
-    text-align: center;
-    font-size: 40px;
+
+  ::ng-deep .mat-progress-spinner circle, .mat-spinner circle {
+    stroke: var(--ocean-blue);
   }
 
   .showButton{
@@ -313,6 +321,10 @@
     cursor: pointer;
   }
   
+  .backgroundContainer{
+    margin-bottom: 20px;
+  }
+
   .title {
     color: #333;
     font-size: medium;
@@ -322,9 +334,11 @@
   }
 
   .storyTitle{
-    color: #0099CC;
-    font-weight: bold;
-    font-size: 17px;
+    color: var(--ocean-blue);
+    background: var(--white);
+    border: none;
+    text-align: center; margin: 0px auto;
+    margin-right: 2px;
   }
   
   .marginLeft{
@@ -340,6 +354,14 @@
     background-color: green;
   }
 
+  a.passed{
+    color: green;
+  }
+
+  a.notPassed{
+    color: red;
+  }
+
   .dot {
     height: 20px;
     width: 20px;
@@ -353,3 +375,119 @@
   .lastTestText {
     margin-right: 10px;
   }
+
+  .checkbox{
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 3px
+  }
+  
+  .checkbox:hover{
+    cursor: pointer;
+  }
+  
+.scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+}
+
+.exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+.scenarioBarContainer button,
+.exampleBarContainer button{
+  border: none;
+  background: #f8f8f8;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+.scenarioBarContainer > div,
+.exampleBarContainer{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px 15px;
+  display: flex;
+  height: 40px;
+}
+
+.actionBarButtonGroup{
+  margin-left: 3px;
+}
+
+.scenarioButton {
+  margin-right: 10px;
+}
+
+.actionButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+.actionButton{
+  margin-left: 10px;
+}
+
+.scenarioButton em{
+  color:  var(--ocean-blue);
+}
+
+.scenarioButton em:active {
+  background-color: var(--ocean-blue);
+  color: var(--white);
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropup{
+  bottom: 100%;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+#story_change_title > em {
+  color: var(--ocean-blue);
+  font-size: 24px;
+  padding-left: 4px;
+}
+
+#story_delete > em{
+  color: var(--ocean-blue);
+   font-size: 24px;
+
+}
+
+

@@ -1,3 +1,11 @@
+import { StepType } from "./StepType";
+
+/**
+ * Interface of the Step definition of the background
+ */
 export interface StepDefinitionBackground {
-    when: any;
+    /**
+     * When Steps
+     */
+    when: StepType[];
 }

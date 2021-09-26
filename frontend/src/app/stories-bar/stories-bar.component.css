@@ -1,25 +1,26 @@
   .grid {
-    display: grid;
+    /*display: grid;
     grid-template-columns: 100%;
     grid-template-rows: auto;
-    grid-template-areas: "storyHeader" "storyList";
+    grid-template-areas: "storyHeader" "storyList";*/
     margin-top: 24px;
     border: 1px solid #999;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 1px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
-    background-color: white;
+    background-color: var(--white);
   }
+
 
   #storyHeader{
     grid-area: storyHeader;
-    color: #999;
-    float: left;
-    margin-bottom: 10px;
+  }
+  #groupHeader{
+    grid-area: storyHeader;
   }
 
-  #infoIcon{
+  .infoIcon{
     grid-area: storyHeader;
     color: #999;
     padding-top: 3px;
@@ -50,42 +51,21 @@
     display: block;
   }
 
-  #storyList{
-    grid-area: storyList;
-    color: #0099CC;
-    font-size: small;
-  }
+ 
+
 
   #createNewStoryDiv{
     text-align: right;
   }
-
-  .newStoryButton{
-    margin: 20px;
-    color:#ffffff;
-    padding: 5px 10px;
-    font-size: 15px;
-    cursor: pointer;
-    border: solid 1px #0099CC;
-    background: #0099CC;
-    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
-}
-
-  .newStoryButton:focus {outline:0 !important;}
-
-  .newStoryButton:hover {
-    background: rgb(2, 111, 161);
-  }
-
-  .newStoryButton:active {
-    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
+  #createNewGroupDiv{
+    text-align: right;
   }
 
   .modal-title{
-    color: white;
+    color: var(--white);
   }
   .modal-header{
-    background-color: #0099CC;
+    background-color: var(--ocean-blue);
   }
 
   .modal-body{
@@ -94,6 +74,10 @@
     padding-left: 30px;
     padding-right: 30px;
     padding-bottom: 15px;
+  }
+
+  li{
+    list-style: none;
   }
 
   .modal-footer{
@@ -109,20 +93,69 @@
     float: right;
   }
 
-  .github-avatar img{
-    margin-right: 5px;
+  a.storyListLink {
+    transition: 0.2s;
+    display: inline-block;
+    max-width: 77%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
   }
 
-  a {
-    color: black;
-    transition: 0.3s;
-    font-size: 1em;
+  .normalButton{
+    margin-bottom: 10px;
   }
-  
-  a:hover, a:focus {
-    font-size: 1.2em;
-    font-weight: bold;
-    text-decoration: none;
+
+  a.storyListLink:hover{
+    color: var(--dark-grey);
+  }
+
+  #storyList{
+    grid-area: storyList;
+    font-size: smaller;
+    transition: 0.1s;
+    display: block;
+    white-space: nowrap;
+  }
+  #groupList{
+    grid-area: groupList;
+    font-size: smaller;
+    transition: 0.1s;
+    display: block;
+    white-space: nowrap;
+    position: relative;
+  }
+  .groupLinkList{
+    position: absolute;
+    z-index: 50;
+  }
+  .groupIconSpan{
+    white-space: nowrap;
+    float: right;
+    z-index: 100;
+    position: relative;
+  }
+  #groupEdit{
+    float: right;
+    color: var(--ocean-blue);
+    cursor: pointer;
+  }
+  #groupPlay{
+    float: right;
+    color: var(--ocean-blue);
+    cursor: pointer;
+  }
+
+  #storyList:hover{
+    cursor: pointer;
+    background-color: #f1f1f1;
+  }
+  .scenarioListItem{
+    display: block;
+  }
+  .scenarioListItem:hover{
+    background-color: #f1f1f1;
   }
 
   .uk-accordion{
@@ -154,6 +187,86 @@
   .uk-accordion-title.uk-background-muted span.notPassed{
     background-color: red;
   }
+
+  .drag-handle{
+    cursor: move;
+    color: var(--ocean-blue);
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .searchBarWrapper{
+    display: flex;
+    white-space: nowrap;
+  }
+  .storyBar{
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .searchBar{
+    vertical-align: middle;
+    margin-left: 18px;
+    white-space: nowrap;
+    display: flex;
+    justify-content: end;
+    align-self: center;
+  }
+  #eraseIcon{
+    color: var(--brown-grey);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--brown-grey);
+  }
+  #eraseIcon:hover{
+    cursor: pointer;
+  }
+  .searchInput{
+    border: none;
+    border-bottom: 1px solid var(--brown-grey);
+    font-weight: normal;
+    width: 50%;
+  }
+  .searchInput:focus{
+    outline: none;
+  }
+  #searchBarIcons{
+    color: var(--brown-grey);
+    vertical-align: middle;
+  }
+
+  .filterFormField{
+    width: 45%;
+  }
+  .rightFilterFormField{
+    float: right;
+  }
+
+  #clickableIcon:hover{
+    cursor: pointer;
+  }
+
+  ::ng-deep .mat-focused .mat-form-field-label {
+    /*change color of label*/
+    color: var(--ocean-blue) !important;
+   }
+  
+   ::ng-deep.mat-form-field-underline {
+    /*change color of underline*/
+    background-color: var(--ocean-blue) !important;
+  } 
+  
+  ::ng-deep.mat-form-field-ripple {
+   /*change color of underline when focused*/
+   background-color: var(--ocean-blue) !important;
+  }
+  ::ng-deep .mat-option.mat-selected:not(.mat-option-disabled){
+    color: var(--ocean-blue) !important;
+  }
+  ::ng-deep.mat-form-field.mat-focused .mat-select-arrow{
+    color: var(--ocean-blue) !important;
+  }
+  /* ::ng-deep.mat-option-text:checked{
+    color: green !important;
+  } */
   
 @media screen and (max-width: 600px) {
   .grid{

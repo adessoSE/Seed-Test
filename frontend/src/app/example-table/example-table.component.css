@@ -3,13 +3,15 @@ table {
     width: 100%;
 }
 
-.headerRow{
-  font-weight: bold;
-  font-size: 1.1em;
-  color: #56595e;
-
+.deactivated{
+  color: gray;
+  font-style: italic;
 }
 
 .valueRow{
   font-weight: normal;
+}
+
+.mat-table{
+  font-family: Klavika, sans-serif;
 }

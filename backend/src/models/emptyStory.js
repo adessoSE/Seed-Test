@@ -1,24 +1,22 @@
-const emptyBackground = require('./models/emptyBackground');
+const emptyBackground = require('./emptyBackground');
+const emptyScenario = require('./emptyScenario')
 
 
 function emptyStory() {
   return {
-    story_id: '',
+    story_id: 0,
+    assignee: 'unassigned',
+    title: undefined,
+    body: undefined,
+    issue_number: undefined,
     background: emptyBackground(),
-    scenarios: [
-      {
-        scenario_id: 1,
-        name: '',
-        stepDefinitions: [
-          {
-            given: [],
-            when: [],
-            then: [],
-            example: [],
-          },
-        ],
-      },
-    ],
+    scenarios: [emptyScenario()],
+    storySource: 'db',
+    repo_type: 'db',
+    state: 'open',
+    assignee_avatar_url: null,
+    lastTestPassed: null,
+    oneDriver: false
   };
 }
 module.exports = emptyStory;

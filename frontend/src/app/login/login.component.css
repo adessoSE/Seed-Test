@@ -7,12 +7,14 @@ h1{
     margin: 5px;
 }
 
-.grid{
+
+.loginGrid{
     display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-areas: "howToStart" "formular" "repositories";
-    background-color: white;
+    grid-template:
+    "howToStart formular"
+    "howToStart repositories"
+    / 1fr 1fr;
+    background-color: var(--white);
     place-items: center;
 }
 
@@ -21,43 +23,79 @@ h1{
     grid-row: 2 / 3;
     grid-column: 3 / 4;
     text-align: center;
-    background-color: white;
-    padding: 80px 50px 20px;
-    margin-bottom: 80px;
+    background-color: var(--white);
+    margin-top: auto;
+    margin-right: auto;
+    margin-left: 10%;
+    margin-bottom: auto;
     text-align: center;
+    padding: 40px 20px 40px 40px;
 }
 
 .repositories{
     grid-area: repositories;
     grid-row: 3 / 4;
     grid-column: 3 / 4;
-    width: 400px;
+    /*width: 400px;*/
     text-align: center;
-    margin-left: auto;
     margin-right: auto;
-    margin-bottom: 80px;
-    padding: 15px;
+    margin-bottom: 5%;
+    margin-left: auto;
+    padding: 25px;
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
 }
+
 
 .howToStart {
     grid-area: howToStart;
     grid-row: 2 / 3;
     grid-column: 2 / 3;
-    background-color: white;
-    padding: 50px 10px 50px;
+    background-color: var(--white);
     text-align: center;
     font-size: small;
-
+    margin-top: auto;
+    margin-bottom: 10%;
+    margin-right: auto;
+    margin-left: auto;
+    width: 830px;
+    height: 500px;
+    position: relative;
 }
 
-.stayLoggedInContainer label{
-    margin-left: 5px;
+.welcomeSlide{
+    background-color: var(--white);
+    height: 100%;
+    text-align: center;
+    margin: auto;
+    padding: 70px;
 }
 
-.stayLoggedInContainer {
-    margin: 5px;
+.welcomeSlide h1{
+    margin-bottom: 50px;
+}
+
+.mat-carousel{
+    z-index: auto;
+    position: absolute;
+    width: 100%; 
+    height: 100px;
+}
+
+.mat{
+    width: 850px;
+    margin-top: 70px;
+    border: 12px solid #999;
+}
+
+.slideDescription{
+    margin-top: 340px;
+    background-color: #999;
+    color: var(--white);
+    height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .repo_img{
@@ -66,110 +104,32 @@ h1{
     max-height: 18px;
 }
 
-#instructionFont{
-    color:#0099CC;
-    font-size: 15pt;
-    font-weight: bold;
-}
-
-.instructionText{
-    width: 350px;
-    border: double 5px #999;
-    padding: 30px;
-}
-
-.req{
-    text-decoration: underline;
-}
-
+/*
 #info{
     color: #0099CC;
     font-weight: bold;
+}*/
+.repositoryList{
+    list-style: none;
 }
 
-.expand{
-    text-align: center;
+a.repoLink{
+    color: var(--ocean-blue);
+    transition: 0.2s;
 }
 
-.expand:hover {
-    background-color: lightgrey;
-    transition: 0.3s;
-    cursor: pointer;
-  }
-
-.selectRepository{
-    font-weight: bold;
-    color: grey;
-    font-size: 20px;
-}
-
-a:not([href]):not([tabindex]).repoLink {
-    color: grey;
-}
-
-a:not([href]):not([tabindex]).repoLink:hover {
-    color: #0099CC;
-    text-decoration: none;
+a.repoLink:hover{
+    color: var(--marine-blue);
 }
 
 .wrongLogin{
-    background-color: rgb(228, 92, 92);
+    background-color: var(--grape);
     text-align: center;
 }
 
-#startFont{
-    color:#0099CC;
-    font-size: 15pt;
-    font-weight: bold;
-    text-align: center;
+.loginFont{
+    color:var(--ocean-blue);
 }
-
-#loginFont{
-    color:#0099CC;
-    font-size: 22pt;
-    font-weight: bold;
-}
-
-.loginButton{
-    color:#ffffff;
-    padding: 5px 10px;
-    font-size: 15px;
-    cursor: pointer;
-    border: solid 1px #0099CC;
-    background: #0099CC;
-    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
-}
-
-.loginButton:focus {outline:0 !important;}
-
-.loginButton:hover {
-    background: rgb(2, 111, 161);
-    }
-
-.loginButton:active {
-    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
-    }
-
-.testAccount{
-    margin: 5px;
-    color:#ffffff;
-    padding: 5px 31px;
-    font-size: 15px;
-    cursor: pointer;
-    border: solid 1px #999;
-    background: #999;
-    background: -moz-linear-gradient(top,  #999,  rgb(117, 117, 117));
-}
-
-.testAccount:hover {
-    background: rgb(117, 117, 117);
-    }
-
-.testAccount:active {
-    background: -moz-linear-gradient(top,  rgb(117, 117, 117),  #999);
-    }
-
-.testAccount:focus {outline:0 !important;}
 
 .noAccount{
     font-size: 13px;
@@ -177,7 +137,7 @@ a:not([href]):not([tabindex]).repoLink:hover {
 }
 
 .githubLogin{
-    color: #fff;
+    color: var(--white);
     padding: 5px 10px;
     background-color: black;
     border: none;
@@ -203,80 +163,32 @@ a:not([href]):not([tabindex]).repoLink:hover {
     padding: 5px 5px 5px 5px;
 }
 
-.register{
-    font-size: 100%;
-    font-style: inherit;
-    border: 0px;
-    background-color: white;
-    color: #56595e;
-    outline: none;
-    text-decoration: underline;
-}
-
-.registerButton{
-    font-style: inherit;
-    border: 0px;
-    background-color: rgb(247, 247, 247);
-    color:#0099CC;
-    font-size: 10pt;
-    font-weight: bold;
-    outline: none;
-}
-
 .linkButton{
     font-style: inherit;
-    border: 0px;
-    background-color: rgb(255, 255, 255);
-    color:#0099CC;
+    border: none;
+    background-color: transparent;
+    color: var(--ocean-blue);
+    transition: 0.2s;
     font-size: 10pt;
-    font-weight: bold;
-    outline: none;
 }
 
-.demoButton{
-    font-style: inherit;
-    border: 0px;
-    background-color: rgba(0, 153, 204, 0.001);
-    color:#000000;
-    font-size: 10pt;
-    font-weight: bold;
-    outline: none;
-    text-decoration: underline;
+.linkButton:hover{
+    color: var(--marine-blue);
 }
-
-/*
-.register{
-    width: 400px;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 80px;
-    padding: 15px;
-    background-color:rgb(224, 224, 224);
-    border: 1px solid #999;
-}*/
 
 #noAccountDiv{
     margin-top: 30px;
-    border-top: 0.25px solid #999;
-    border-left: 0.25px solid #999;
-    border-right: 0.25px solid #999;
-    border-bottom: 0.25px solid #999;
+    border: 0.25px solid #999;
     padding: 10px;
     background-color: rgb(247, 247, 247);
   }
 
-.register:hover{
-    color: #0099CC;
-  }
-
 #loadingSpinner{
-    margin-left:36%;
-    margin-right:34%;
+    margin-left:38%;
 }
 
 :host ::ng-deep .loadingSpinner circle{
-    stroke: rgb(2, 111, 161);
+    stroke: var(--marine-blue);
 }
 
 @media screen and (max-width: 600px) {
@@ -285,4 +197,49 @@ a:not([href]):not([tabindex]).repoLink:hover {
         grid-template-rows: auto;
         grid-template-areas: "formular" "repositories";
     }
+}
+
+@media screen and (min-width: 1600px) {
+    .howToStart {
+        grid-area: howToStart;
+        grid-row: 2 / 3;
+        grid-column: 2 / 3;
+        background-color: var(--white);
+        text-align: center;
+        font-size: small;
+        margin-top: 80px;
+        margin-bottom: 180px;
+        margin-right: 150px;
+        margin-left: 100px;
+        width: 830px;
+        height: 500px;
+        position: relative;
+    }
+
+    .formular{
+        grid-area: formular;
+        grid-row: 2 / 3;
+        grid-column: 3 / 4;
+        text-align: center;
+        background-color: var(--white);
+        margin-top: 80px;
+        margin-right: 100px;
+        margin-bottom: 100px;
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .repositories{
+        grid-area: repositories;
+        grid-row: 3 / 4;
+        grid-column: 3 / 4;
+        width: 400px;
+        text-align: center;
+        margin-right: 100px;
+        margin-bottom: 80px;
+        padding: 15px;
+        background-color:rgb(224, 224, 224);
+        border: 1px solid #999;
+    }
+    
 }

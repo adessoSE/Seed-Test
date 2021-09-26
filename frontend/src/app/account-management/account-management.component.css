@@ -3,7 +3,7 @@
     margin: 0px;
 }
 
-.grid-container{
+.grid-container {
     display: grid;
     grid-template-rows: auto;
     grid-template-columns: 1fr 1fr 1fr;
@@ -13,17 +13,8 @@
     border: 1px solid #999;
 }
 
-.header{
-    grid-row: 1 / 2;
-    grid-column: 2 / 3;
-}
-
-#create_db_repo{
-    margin-top: 40px;
-}
-
 #noEmail{
-    color: rgba(153, 153, 153);
+    color: var(--ocean-blue);
 }
 
 .grid_seedTest{
@@ -36,6 +27,11 @@
 
 .grid_customRepos {
     grid-row: 3 / 4;
+    grid-column: 1 / 2;
+}
+
+.grid_eraseAccount {
+    grid-row: 5 / 6;
     grid-column: 1 / 2;
 }
 
@@ -65,21 +61,26 @@
     grid-column: 3 / 4;
 }
 
-.formular{
-    grid-area: formular;
-    grid-row: 1 / 2;
-    grid-column: 1 / 2;
-    text-align: center;
-    background-color: white;
-    padding: 80px 50px 20px;
+.infoIcon {
+    color: #999;
+    padding-top: 3px;
+    margin-left: 7px;
 }
 
 .active{
-    color: #999;
+    color: var(--ocean-blue);
+}
+
+#emailLabel{
+    margin-bottom: 25px;
+}
+
+#needCustomRepo{
+    margin-top: 25px;
 }
 
 h1{
-    color:#0099CC;
+    color:var(--ocean-blue);
     font-size: 22pt;
     font-weight: bold;
     text-align: center;
@@ -89,9 +90,10 @@ h1{
 
 h2{
     padding-top: 10px;
-    color: white;
+    color: var(--white);
     font-size: 20px;
-    background-color: rgba(153, 153, 153, 0.63);
+    /*background-color: rgba(153, 153, 153, 0.63);*/
+    background-color: var(--dark-grey);
     padding-bottom: 10px;
     margin-bottom: 30px;
 }
@@ -101,78 +103,79 @@ label{
     font-weight: bold;
 }
 
-
-.githubLoginContainer{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.githubButton{
-    margin-top: 30px;
-    margin-bottom: 10px;
-    align-content: center;
-    align-items: center;
-    text-align: center;
-    color: #ffffff;
+.githubLogin{
+    color: var(--white);
     padding: 5px 10px;
     background-color: black;
+    border: none;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    max-width: 200px;
-    max-height: 40px;
+    align-items: center;
 }
 
+.githubLoginContainer{
+    margin: 10px;
+    display:inline-block;
+}
 
-.button{
+.githubLogin img{
+    margin-right: 5px;
+    width: 17px;
+    height: 17px;
+}
+
+.backButton{
+    background: none;
+    width: 50px;
+    height: 50px;
     margin-top: 30px;
-    margin-bottom: 10px;
-    color:#ffffff;
-    padding: 5px 10px;
+    margin-left: 20px;
     font-size: 15px;
     cursor: pointer;
-    border: solid 1px #0099CC;
-    background: #0099CC;
-    background: -moz-linear-gradient(top,  #0099CC,  rgb(2, 111, 161));
+    border: none;
 }
 
-.button:focus {outline:0 !important;}
+.backButton:focus {
+    outline:0 !important;
+}
 
-.button:hover {
-    background: rgb(2, 111, 161);
-    }
 
-.button:active {
-    background: -moz-linear-gradient(top,  rgb(2, 111, 161),  #0099CC);
-    }
+#backImage{
+    width: 40px;
+}
 
-.uk-form-controls{
-    border-radius: 3px;
-    padding: 5px 5px 5px 5px;
+#change-jira{
+    margin-top: 30px;
 }
 
 .uk-card{
     border: 1px solid grey;
 }
 
+a.repoLink{
+    color: var(--ocean-blue);
+    transition: 0.2s;
+}
+
+a.repoLink:hover{
+    color: var(--marine-blue);
+}
+
+h2, h1{
+    font-family: Klavika, sans-serif;
+}
+
 .repositories{
-    width: 300px;
+    width: 90%;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 60px;
     margin-top: 60px;
     padding: 15px;
-    background-color:rgb(255, 255, 255);
+    background-color: transparent;
     border-top: 1px solid #999;
-}
-
-.selectRepository{
-    font-weight: bold;
-    color: grey;
-    font-size: 18px;
-    padding-bottom: 5px;
 }
 
 .repo_img{
@@ -181,10 +184,43 @@ label{
     max-height: 18px;
 }
 
+.editRepoButton{
+    margin-left: 5px;;
+}
+
+.customRepoContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
 @media screen and (max-width: 600px) {
     .grid{
         display: grid;
         grid-template-rows: auto;
-        grid-template-areas: "test acc" "github" "jira" "database rep";
+        grid-template-columns: 1fr;
     }
+}
+
+.def {
+    color: #999;
+    cursor: help;
+    top: -2px;
+    z-index: 2;
+    position: relative;
+}
+
+.def span[rel=def] {
+    font-size: small;
+    color: white;
+    background-color: rgb(109, 109, 109);
+    position: absolute;
+    bottom: 2em;
+    left: 2em;
+    width: 30em;
+    padding: 0.5em;
+    display: none;
+}
+
+.def:hover span[rel=def] {
+    display: block;
 }

@@ -1,13 +1,13 @@
 <div class="grid">
   <div class="topnav">
     <!--left-->
-    <div class="uk-inline">
+    <div class="uk-inline dropdown">
       <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
-      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: click">
-        <ul class="menulist">
+      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: hover">
+        <ul class="dropdown-list">
           <li>
             <div *ngIf="this.repositories" class="dropdown">
-              <button class="menuSelection" title="Select Repository">Repositories</button>
+              <button class="menuSelection" title="Select Project">Projects</button>
                 <div uk-dropdown="mode: click">
                   <ul class="dropdown-list">
                    <li *ngFor="let repository of repositories; let i = index" class="list-item">
@@ -15,21 +15,21 @@
                      <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
                      <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
                      <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
-                      href="#">{{repository.value}}</a>
+                      routerLink=''>{{repository.value}}</a>
                    </li>
                   </ul>
                 </div>
             </div>
           </li>
           <li>
-            <button id="manageAccount" class="menuSelection" title="Account Settings" (click)="manageAccount();">Account Settings</button>
+            <button id="manageAccount" class="menuSelection" title="Account Settings" routerLink='/accountManagement'>Account Settings</button>
           </li>
           <li>
             <button class="menuSelection"  id="logout" title="Logout" (click)="logout();">Logout</button>
           </li>
         </ul>
       </div>
-      <p id="version">Version 1.2.1</p>
+      <p id="version" class="Largecaption">Version 1.4.0</p>
     </div>
 
 

@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ParentComponent } from '../parent/parent.component';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
-import { ActivatedRoute } from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import {ActivatedRoute} from "@angular/router";
 
 
-// here is the same template used as in the parent component
+/**
+ * Component of the TestAccountComponent
+ */
 @Component({
   selector: 'app-test-account',
   templateUrl: '../parent/parent.component.html',
@@ -14,14 +16,23 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 })
 export class TestAccountComponent extends ParentComponent implements OnInit {
 
-  constructor(public apiService: ApiService) {
-    super(apiService);
+  /**
+   * Constructor
+   * @param apiService 
+   */
+  constructor(public apiService: ApiService, public route: ActivatedRoute) {
+    super(apiService, route);
     this.loadStories()
   }
 
-  ngOnInit() {
-  }
+  /**
+   * @ignore
+   */
+  ngOnInit() {}
 
+  /**
+   * Loads the stories from the test account
+   */
   loadStories() {
     let repository: RepositoryContainer = {value: '', source: 'testaccount'}
     this.apiService
