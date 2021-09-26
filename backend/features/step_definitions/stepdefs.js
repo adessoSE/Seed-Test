@@ -9,6 +9,7 @@ require('geckodriver');
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
 
+
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
@@ -42,12 +43,32 @@ defineParameterType({
 });
 
 Before(async function () {
-	currentParameters = this.parameters.scenarios[scenarioIndex];
-	driver = await new webdriver.Builder()
-		.forBrowser(currentParameters.browser)
-		.setChromeOptions(chromeOptions)
-		.build();
+	currentParameters = this.parameters.scenarios[scenarioIndex]
+	if (currentParameters.oneDriver) {
+		if (currentParameters.oneDriver === true) {
+			if (driver) {
+				console.log("Es gibt bereits einen Treiber")
+			} else {
+				driver = new webdriver.Builder()
+					.forBrowser(currentParameters.browser)
+					.setChromeOptions(chromeOptions)
+					.build();
+			}
+		}
+	} else {
+
+		driver = new webdriver.Builder()
+			.forBrowser(currentParameters.browser)
+			.setChromeOptions(chromeOptions)
+			.build();
+	}
+
 });
+
+
+// driver = new webdriver.Builder().forBrowser("chrome").setChromeOptions(chromeOptions).build();
+
+
 
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {

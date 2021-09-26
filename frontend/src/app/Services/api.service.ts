@@ -980,4 +980,12 @@ export class ApiService {
     isCustomRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'db');
     }
+
+    public changeOneDriver(oneDriver: boolean, storyID: any) {
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
+    }
+    
 }
