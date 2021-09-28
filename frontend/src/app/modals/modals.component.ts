@@ -194,6 +194,14 @@ export class ModalsComponent {
     groupId: string;
 
 
+    /**
+     * ngModal for Create Story
+     */
+    storyTitle: string;
+
+    storyDescription: string;
+
+
 
     /**
      * @ignore
@@ -615,8 +623,10 @@ submitRenameScenario() {
      */
     createNewStory(event) {
         event.stopPropagation();
-        const title = (document.getElementById('storytitle') as HTMLInputElement).value;
-        const description = (document.getElementById('storydescription') as HTMLInputElement).value;
+        const title = this.storyTitle; //(document.getElementById('storytitle') as HTMLInputElement).value;
+        const description = this.storyDescription; //(document.getElementById('storydescription') as HTMLInputElement).value;
+        this.storyTitle = null;
+        this.storyDescription = null;
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = 'db';
