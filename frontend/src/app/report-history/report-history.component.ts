@@ -26,7 +26,7 @@ export class ReportHistoryComponent implements OnInit {
    */
   reports: ReportContainer = null;
 
-  isDark: boolean;
+  isDark: boolean = this.themeService.isDarkMode();
 
   /**
    * Event emiter to change the editor to story editor
@@ -142,11 +142,7 @@ export class ReportHistoryComponent implements OnInit {
 
   isDarkModeOn () {
     this.isDark = this.themeService.isDarkMode();
-    return this.isDark
-  }
-
-  setMode (){
-    this.isDark = !this.isDark;
+    return this.isDark;
   }
 
 }

@@ -127,6 +127,9 @@ $dark-theme: mat-dark-theme((
   background: none;
 }
 
+.darkTheme ::placeholder {
+  color: rgb(255,255,255,70%)
+}
 
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/uikit/src/scss/variables-theme.scss";

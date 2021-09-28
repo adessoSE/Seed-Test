@@ -297,7 +297,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.isDark = this.themeService.isDarkMode();
         this.themeService.themeChanged.subscribe((changedTheme) => { 
             this.isDark = this.themeService.isDarkMode();
-            console.log('Changed to'+changedTheme)
+            console.log('Changed to '+changedTheme)
         });
  
     }

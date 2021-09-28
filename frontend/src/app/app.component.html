@@ -1,4 +1,4 @@
-<div [class.darkTheme]="isDark" class="grid mat-app-background">
+<div class="grid mat-app-background" [class.darkTheme]="isDark">
   <div class="topnav">
     <!--left-->
     <div class="uk-inline dropdown">
@@ -44,11 +44,11 @@
     <!--right-->
     <div class="topnavRight">
       <div class="slide-toggle-container">
-        <mat-icon class="mr-8">brightness_5</mat-icon>
+        <mat-icon>brightness_5</mat-icon>
         <mat-slide-toggle [formControl]="toggleControl" 
         [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}" 
         [ngClass] = "{'mat-checked mat-slide-toggle-bar':isDark}"
-        (click)="toggleDarkMode()" 
+        
         title="Switch to dark/light mode"></mat-slide-toggle>
         <mat-icon>bedtime</mat-icon>
       </div>

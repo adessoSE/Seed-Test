@@ -169,7 +169,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.isDark = this.themeService.isDarkMode();
         this.themeService.themeChanged
         .subscribe((currentTheme) => {
-            this.isDark = this.themeService.isDarkMode()
+            this.isDark = this.themeService.isDarkMode();
     });
     }
 

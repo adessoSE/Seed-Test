@@ -21,7 +21,7 @@ export class ResetPasswordComponent{
    */
   error: string;
 
-  isDark :boolean;
+  isDark :boolean = this.themeService.isDarkMode();
 
   /**
    * @ignore
@@ -52,7 +52,4 @@ export class ResetPasswordComponent{
     return this.isDark
   }
 
-  setMode (){
-    this.isDark = !this.isDark;
-  }
 }

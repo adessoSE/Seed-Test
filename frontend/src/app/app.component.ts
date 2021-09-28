@@ -38,7 +38,9 @@ export class AppComponent implements OnInit {
 
   isDark : boolean;
 
-  toggleControl:any;
+ /*  @HostBinding('class') className = '';  */
+
+  toggleControl = new FormControl(false);
 
   
   /**
@@ -67,10 +69,14 @@ export class AppComponent implements OnInit {
     }
     this.themeService.loadTheme();
     this.isDark = this.themeService.isDarkMode();
-    this.themeService.themeChanged.subscribe((changedTheme) => { 
-      this.isDark = this.themeService.isDarkMode();
-    }); 
-    this.toggleControl = new FormControl(this.isDark);
+    if (this.isDark) {
+      this.toggleControl.setValue(this.isDark);
+    }
+    this.toggleControl.valueChanges.subscribe(val => {
+      this.setModeOnToggle(val);
+      this.isDark = val;
+      /* this.className = val ? 'darkTheme' : ''; */
+    });
   }
 
   /**
@@ -139,9 +145,7 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/login']);
   }  
 
-  toggleDarkMode() {
-    this.themeService.setNewTheme();
-   } 
-
-
+  setModeOnToggle(isDark:boolean) {
+    this.themeService.setNewTheme(isDark);
+  } 
 }

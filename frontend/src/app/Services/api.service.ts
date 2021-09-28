@@ -506,7 +506,6 @@ export class ApiService {
     logoutUser() {
         const url = this.apiServer + '/user/logout';
         localStorage.removeItem('login');
-        localStorage.removeItem('user-theme')
         return  this.http.get<string[]>(url, ApiService.getOptions())
           .pipe(tap(resp => {
           }),

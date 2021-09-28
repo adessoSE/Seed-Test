@@ -21,7 +21,7 @@ export class RegistrationComponent implements OnInit {
      */
     error: string;
 
-    isDark:boolean;
+    isDark:boolean = this.themeService.isDarkMode();
 
     /**
      * @ignore
@@ -58,7 +58,4 @@ export class RegistrationComponent implements OnInit {
         return this.isDark
       }
     
-      setMode (){
-        this.isDark = !this.isDark;
-      }
 }

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostBinding, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ViewChild, ViewEncapsulation} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
@@ -8,8 +8,7 @@ import {NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import {Story} from '../model/Story';
 import {Group} from '../model/Group';
-import { ThemingService } from '../Services/theming.service';
-import { OverlayContainer } from 'ngx-toastr';
+
 
 /**
  * Component of all Modals
@@ -17,7 +16,8 @@ import { OverlayContainer } from 'ngx-toastr';
 @Component({
     selector: 'app-modals',
     templateUrl: './modals.component.html',
-    styleUrls: ['./modals.component.css']
+    styleUrls: ['./modals.component.css'],
+    /* encapsulation: ViewEncapsulation.None, */
 })
 export class ModalsComponent {
 
@@ -183,14 +183,15 @@ export class ModalsComponent {
 
     groupId: string;
 
+    @Input() isDark:boolean;
+
+
 
 
     /**
      * @ignore
      */
-    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService,
-        public themeService : ThemingService, private overlay : OverlayContainer) {
-    }
+    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
 
     // change Jira Account modal
 
@@ -609,7 +610,6 @@ submitRenameScenario() {
         this.apiService.getStories(repositoryContainer).subscribe(res => {
             this.stories = res;
         });
-        this.changeContainerTheme();
         this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -707,17 +707,4 @@ submitRenameScenario() {
         return exists !== undefined;
     }
 
-    isDark = true;
-    @HostBinding('class') modeName = 'light';
-    
-    changeContainerTheme() {
-        const overlayContainerClasses = this.overlay.getContainerElement().classList;
-        if (this.isDark) {
-          overlayContainerClasses.remove('light');
-          overlayContainerClasses.add(this.modeName);
-        } else {
-          overlayContainerClasses.remove('dark');
-          overlayContainerClasses.add(this.modeName);
-        }
-      }
 }
