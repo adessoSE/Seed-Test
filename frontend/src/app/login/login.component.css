@@ -19,7 +19,7 @@ h1{
 }
 
 .darkTheme.loginGrid {
-    background-color: #455A64;
+    background-color: #37474F;
 }
 
 .formular{
@@ -60,6 +60,11 @@ h1{
     padding: 25px;
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
+}
+
+.darkTheme .repositories {
+    background: #455A64;
+    border: 1px solid #60767b
 }
 
 
@@ -137,9 +142,17 @@ a.repoLink{
     color: var(--ocean-blue);
     transition: 0.2s;
 }
-
+  
+.darkTheme a.repoLink {
+    color: var(--light-blue);
+}
+  
 a.repoLink:hover{
     color: var(--marine-blue);
+}
+  
+.darkTheme a.repoLink:hover {
+    color: white;
 }
 
 .wrongLogin{
@@ -183,6 +196,10 @@ a.repoLink:hover{
     padding: 5px 5px 5px 5px;
 }
 
+/* .darkTheme .uk-form-controls {
+    background: transparent;
+} */
+
 .linkButton{
     font-style: inherit;
     border: none;
@@ -213,6 +230,10 @@ a.repoLink:hover{
 
 :host ::ng-deep .loadingSpinner circle{
     stroke: var(--marine-blue);
+}
+
+:host ::ng-deep .darkTheme .loadingSpinner circle{
+    stroke: white;
 }
 
 @media screen and (max-width: 600px) {
@@ -265,14 +286,22 @@ a.repoLink:hover{
         background-color:rgb(224, 224, 224);
         border: 1px solid #999;
     }
-
-    .darkTheme .repositories {
-        background-color: #455A64;
-        border:#60767b;
-    }
-
-    .darkTheme button {
-        color: var(--light-blue);
-    }
     
+}
+
+.darkTheme .repositories {
+    background-color: #37474F;
+    border-color:#60767b;
+}
+
+/* .darkTheme button {
+    color: var(--light-blue);
+} */
+
+.darkTheme .formular{
+    background-color: transparent;
+}
+
+.darkTheme .howToStart{
+    background-color: transparent;
 }

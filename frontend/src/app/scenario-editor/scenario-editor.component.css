@@ -259,37 +259,37 @@ em.dragIcon{
   padding: 15px;
 }
 
-.darkTheme .uk-dropdown {
+/* .darkTheme .uk-dropdown {
   background-color: #60767b;
-}
+} */
 
-.uk-nav > li > span{
+/* .uk-nav > li > span{
   padding: 1px;
   cursor: pointer;
-}
+} */
 
-.uk-nav > li > .dropdownStep {
+/* .uk-nav > li > .dropdownStep {
   color:var(--ocean-blue);
-}
+} */
 
-.darkTheme .uk-nav > li > .dropdownStep {
-  color: #00B0FF;
-}
+/* .darkTheme .uk-nav > li > .dropdownStep {
+  color: #40C4FF;
+} */
 
-.uk-nav > li > span:hover {
+/* .uk-nav > li > span:hover {
     color: gray;
-}
+} */
 
-.darkTheme .uk-nav > li > span:hover {
+/* .darkTheme .uk-nav > li > span:hover {
   color: white;
-}
+} */
 
 .uk-nav > li > .dropdownStepUndefined {
   color:var(--marine-blue);
 }
 
 .darkTheme .uk-nav > li > .dropdownStepUndefined {
-  color:var(--ocean-blue);
+  color:#00B0FF;
 }
 
 /* .disabled {

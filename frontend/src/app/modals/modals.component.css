@@ -44,9 +44,8 @@
     outline: none;
   }
 
-  ::ng-deep .darkTheme .close, ::ng-deep .darkTheme input {
+  ::ng-deep .darkTheme .close{
     background-color: transparent;
-    color: white;
   }
 
 .uk-card-title {
@@ -76,7 +75,9 @@ input.wrongEmail {
 
 ::ng-deep .darkTheme textarea {
     background: transparent;
-}
+    border-color: #60767b;
+    color: white;
+} 
 
 .padding_top{
     padding-top: 10px;
@@ -153,13 +154,17 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     justify-content: space-between;
 }
 
+::ng-deep .darkTheme .modal-content{
+    background: #455A64;
+}
+
 .savedBlocksContainer, .previewContainer{
     border: 1px solid #e0e0e0;
     flex: 1;
     overflow-y: auto;
 }
 
-::ng-deep .darkTheme .savedBlocksContainer, .previewContainer {
+::ng-deep .darkTheme .savedBlocksContainer, ::ng-deep .darkTheme .previewContainer {
     border: 1px solid #60767b;
 }
 

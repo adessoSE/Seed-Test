@@ -188,9 +188,17 @@ a.repoLink{
     color: var(--ocean-blue);
     transition: 0.2s;
 }
-
+  
+.darkTheme a.repoLink {
+    color: var(--light-blue);
+}
+  
 a.repoLink:hover{
     color: var(--marine-blue);
+}
+  
+.darkTheme a.repoLink:hover {
+    color: white;
 }
 
 h2, h1{

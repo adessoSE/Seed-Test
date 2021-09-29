@@ -94,13 +94,32 @@ $dark-theme: mat-dark-theme((
   color: var(--white);
 }
 
+/* a.repoLink{
+  color: var(--ocean-blue);
+  transition: 0.2s;
+}
+
+.darkTheme a.repoLink {
+  color: var(--light-blue);
+}
+
+a.repoLink:hover{
+  color: var(--marine-blue);
+}
+
+.darkTheme a.repoLink:hover {
+  color: white;
+} */
+
+
+/* 
 .darkTheme a {
   color:var(--light-blue) !important;
 }
 
 .darkTheme a:hover {
   color:var(--white) !important;
-}
+} */
 
 .darkTheme svg {
   color: var(--white);
@@ -372,6 +391,10 @@ $dark-theme: mat-dark-theme((
     letter-spacing: normal;
     color: var(--black);
   }
+  .darkTheme .MediumSubline1H4 {
+    color: white;
+  }
+
   .LargeHeadline5 {
     font-family: Klavika, sans-serif;
     font-size: 20px;
@@ -382,6 +405,7 @@ $dark-theme: mat-dark-theme((
     letter-spacing: normal;
     color: var(--black);
   }
+
   .Mediumaccordeon1 {
     font-family: Klavika, sans-serif;
     font-size: 20px;
@@ -662,6 +686,10 @@ $dark-theme: mat-dark-theme((
     background: var(--marine-blue);
   }
 
+  .darkTheme .SmallButton:hover {
+    background: #424242;
+  }
+
   .SmallIcontext {
     font-family: Klavika, sans-serif;
     font-size: 14px;
@@ -730,16 +758,20 @@ $dark-theme: mat-dark-theme((
   background: var(--marine-blue);
 }
 
-.deleteButton{
-  background: var(--grape);
+.darkTheme .normalButton:hover {
+  background: #424242;
 }
 
-.darkTheme .deleteButton {
+.deleteButton{
   background: var(--grape);
 }
 
 .deleteButton:hover{
   background: var(--grape-purple);
+}
+
+.darkTheme .deleteButton {
+  background: var(--grape);
 }
 
 .uk-button-group {
@@ -777,6 +809,19 @@ a.passed{
 a.notPassed{
   color: red !important;
 }
+
+.darkTheme .uk-dropdown {
+  background: #546E7A;
+  color: var(--light-blue);
+}
+
+.darkTheme select, .darkTheme input, .darkTheme textarea {
+  background: transparent;
+  border-color: #60767b;
+  color: white;
+}
+
+
 
 
 html, body { height: 100%; }
