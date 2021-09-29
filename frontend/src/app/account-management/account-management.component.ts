@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild, EventEmitter} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
@@ -75,6 +75,7 @@ export class AccountManagementComponent implements OnInit {
                 console.log('first load');
             });
         }
+        this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepos());
     }
 
     seperateRepos(repos) {
@@ -115,8 +116,8 @@ export class AccountManagementComponent implements OnInit {
      * Opens Modal to edit the workgroup
      * @param project
      */
-    workGroupEdit(project: RepositoryContainer) {
-        this.modalComponent.openWorkgroupEditModal(project);
+    workGroupEdit(project: RepositoryContainer){
+        this.modalComponent.openWorkgroupEditModal(project, this.email, this.id);
     }
 
     /**
@@ -226,5 +227,12 @@ export class AccountManagementComponent implements OnInit {
                 return repo;
             }
         });
+    }
+
+    /**
+     * Update Repositories after change
+     */
+    updateRepos(){
+        this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
     }
 }

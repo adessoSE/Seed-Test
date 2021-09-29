@@ -313,6 +313,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
     }
 
+    ngOnDestroy(){
+        this.apiService.runSaveOptionEvent.unsubscribe();
+    }
+
     /**
      * Opens add block modal
      * @param event

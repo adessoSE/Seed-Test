@@ -342,6 +342,8 @@
         </div>
     </div>
     <div class="modal-footer">
+        <button *ngIf="userEmail==workgroupOwner" type="button" class="normalButton deleteProjectButton" (click)="showDeleteRepositoryToast()">Delete Project
+        </button>
         <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
         </button>
     </div>
@@ -360,10 +362,10 @@
         <form>
             <div class="form-group">
                 <label class="uk-form-label"  style="color: grey;"></label>
-                <input id="storytitle" placeholder=" Title">
+                <input [(ngModel)]="storyTitle" name="storytitle" id="storytitle" placeholder=" Title">
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
-                <textarea id="storydescription" placeholder=" Description"></textarea>
+                <textarea [(ngModel)]="storyDescription" name="storydescription" id="storydescription" placeholder=" Description"></textarea>
             </div>
         </form>
     </div>
