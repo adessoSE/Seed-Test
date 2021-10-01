@@ -118,68 +118,65 @@ em.dragIcon{
   margin-bottom: 2px;
   margin-left: 6px;
 }
-.scenarioBarContainer{
-  justify-content: space-between;
-}
 
-.darkTheme .scenarioBarContainer {
+/* .darkTheme .scenarioBarContainer, .darkTheme .exampleBarContainer {
   background-color: #546E7A;
   border-bottom: 1px solid #B0BEC5;
-}
+} */
 
-.exampleBarContainer{
+/* .exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
   display: flex;
-}
+} */
 
-.scenarioBarContainer button,
+/* .scenarioBarContainer button,
 .exampleBarContainer button{
   border: none;
   background: none;
   transform: translate(0px, -3px);
   height: 24px;
   border-radius: 10%;
-}
+} */
 
-.scenarioBarContainer > div,
+/* .scenarioBarContainer > div,
 .exampleBarContainer{
   margin-top: 5px;
   margin-bottom: 5px;
   padding: 10px 15px;
   display: flex;
   height: 40px;
-}
+} */
 
-.scenarioButton {
+/* .scenarioButton {
   margin-right: 10px;
-}
+} */
 
-.actionButton{
+/* .actionButton{
   margin-left: 10px;
-}
+} */
 
-.actionButton > em{
+/* .actionButton > em{
   color: #333;
   font-size: 22px;
-}
+} */
 
-.darkTheme .actionButton > em {
+/* .darkTheme .actionButton > em {
   color:#000000 !important;
-}
+} */
 
-.scenarioButton em{
+/* .scenarioButton em{
   color:  var(--ocean-blue);
-} 
+}  */
 
-.darkTheme.scenarioButton em{
+/* .darkTheme.scenarioButton em{
   color:  var(--ocean-blue);
-}
+} */
 
-.scenarioButton em:active {
+/* .scenarioButton em:active {
   background-color: var(--ocean-blue);
   color: var(--white);
-} */
+}  */
 
 .button {
   margin-right: 3px;

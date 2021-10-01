@@ -104,10 +104,10 @@
     color: gray;
     border-bottom: 1px solid gray;
   }
-  
-  :host ::ng-deep .darkTheme .disabled input {
-    color:#B0BEC5;
-    border-bottom: 1px solid #B0BEC5;
+
+  ::ng-deep .darkTheme .disabled input {
+    color: var(--buttonDisabled) !important;
+    border-color: var(--border);
   }
 
   #noStoriesHeader{
@@ -242,7 +242,7 @@
   }
 
   .darkTheme .button {
-    background: var(--dark-grey);
+    background: #607D8B;
   }
 
   .material-icons{
@@ -262,7 +262,7 @@
   }
 
   .darkTheme .button:hover {
-    background-color: #263238;
+    background-color: #546E7A;
   }
 
   .button:active {
@@ -322,6 +322,10 @@
     text-decoration: line-through;
   }
 
+  ::ng-deep .darkTheme .disabled {
+    color: var(--buttonDisabled) !important;
+  }
+
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
   }
@@ -329,6 +333,10 @@
   :host ::ng-deep .scenarioBarContainer .disabled em{
     color: gray !important;
     /* background: #f8f8f8 !important; */
+  }
+
+  ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+    color: var(--buttonDisabled) !important;
   }
   
   .dragIconContainer{
@@ -363,6 +371,10 @@
   .disabledButton{
     visibility: hidden;
     background:#dddddd
+  }
+
+  .darkTheme .disabledButton {
+    background: var(--buttonDisabled) !important;
   }
 
   input.backgroundName{
@@ -537,14 +549,16 @@
 
 :host ::ng-deep .scenarioBarContainer{
   display: flex;
+  justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
   margin: 0px 20px;
 }
 
-:host ::ng-deep .darkTheme .scenarioBarContainer {
-  background-color: #546E7A;
-  border-bottom: 1px solid #B0BEC5;
+:host ::ng-deep .darkTheme .scenarioBarContainer,
+::ng-deep .darkTheme .exampleBarContainer{
+  background-color: #546E7A !important;
+  border-bottom: 1px solid #B0BEC5 !important;
 }
 
 :host ::ng-deep .exampleBarContainer{

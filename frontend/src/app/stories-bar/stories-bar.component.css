@@ -135,7 +135,7 @@
   }
   #groupList{
     grid-area: groupList;
-    font-size: smaller;
+    /* font-size: smaller; */
     transition: 0.1s;
     display: block;
     white-space: nowrap;

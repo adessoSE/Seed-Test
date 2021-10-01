@@ -86,7 +86,7 @@ $dark-theme: mat-dark-theme((
 }
 
 .darkTheme button {
-  background: var(--dark-grey);
+  background: var(--button);
   color: white;
 }
 
@@ -147,7 +147,7 @@ a.repoLink:hover{
 }
 
 .darkTheme ::placeholder {
-  color: rgb(255,255,255,70%)
+  color: rgb(255,255,255,70%) !important;
 }
 
 /* You can add global styles to this file, and also import other style files */
@@ -209,6 +209,11 @@ a.repoLink:hover{
       --light-grey: #E8E4E1;
       --light-blue: #a0d9ff;
       --deep-grey : #60767b;
+      /* selfdefined dark theme button palette */
+      --button : #607d8b;
+      --buttonHover : #546E7A;
+      --buttonDisabled: #90A4AE;
+      --border : #B0BEC5;
   }
 
   .LargeHeadline1 {
@@ -687,7 +692,7 @@ a.repoLink:hover{
   }
 
   .darkTheme .SmallButton:hover {
-    background: #424242;
+    background : var(--buttonHover);
   }
 
   .SmallIcontext {
@@ -752,14 +757,14 @@ a.repoLink:hover{
     transition: 0.2s;
     background: var(--ocean-blue);
     border: none;
-}
+  }
 
 .normalButton:hover{
   background: var(--marine-blue);
 }
 
 .darkTheme .normalButton:hover {
-  background: #424242;
+  background: var(--buttonHover);
 }
 
 .deleteButton{
@@ -821,7 +826,19 @@ a.notPassed{
   color: white;
 }
 
+.darkTheme .uk-active {
+  background-color: #90A4AE;
+}
 
+.darkTheme .uk-select {
+  background-color: transparent;
+  color: white;
+}
+
+.darkTheme select > option {
+  background-color: #60767b;
+  color: white !important;
+}
 
 
 html, body { height: 100%; }
