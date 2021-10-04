@@ -279,14 +279,14 @@
                 <form>
                     <div class="padding_top">
                         <label class="SmallHeadline5 padding_right">New Title:</label>
-                        <input type="text" id="newStoryTitle" placeholder="New Title">                    
+                        <input [(ngModel)]="storytitle" id="newStoryTitle" name="storytitle" (keyup)="storyUnique($event, storytitle, stories, story)" required> 
                     </div>
                 </form>
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="submitRenameStory(); modal.close('Save click')">Submit
+        <button type="button" id= "submitRenameStory" class="normalButton" (click)="submitRenameStory(); modal.close('Save click')">Submit
         </button>
     </div>
 </ng-template>
@@ -360,7 +360,7 @@
         <form>
             <div class="form-group">
                 <label class="uk-form-label"  style="color: grey;"></label>
-                <input id="storytitle" placeholder=" Title">
+                <input [(ngModel)]="storytitle" placeholder=" Title" name="storytitle" (keyup)="storyUnique($event, storytitle, stories)" required>
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
                 <textarea id="storydescription" placeholder=" Description"></textarea>
@@ -368,7 +368,7 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="createNewStory($event); modal.close('Save click');">Save</button>
+        <button type="button" id="createNewStory" class="normalButton" (click)="createNewStory($event); modal.close('Save click');">Save</button>
     </div>
 </ng-template>
 

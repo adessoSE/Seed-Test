@@ -308,8 +308,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Opens a create New scenario Modal
      */
-    openCreateNewScenarioModal() {
-        this.modalsComponent.openCreateNewStoryModal();
+    openCreateNewStoryModal() {
+        this.modalsComponent.openCreateNewStoryModal(this.stories);
     }
 
     addFirstScenario() {

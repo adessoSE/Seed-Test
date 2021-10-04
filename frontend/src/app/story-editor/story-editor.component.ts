@@ -261,6 +261,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
       this.apiService.deleteStoryEvent.subscribe(() => {
         this.showEditor = false;
+        this.storyDeleted();
     });
     }
 
@@ -890,7 +891,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * @param newStoryTitle
      */
      changeStoryTitle() {
-    this.modalsComponent.openRenameStoryModal(this.selectedStory.title);
+    this.modalsComponent.openRenameStoryModal(this.stories,this.selectedStory);
    }
     /**
      * Renames the story
@@ -949,9 +950,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     this.deleteStoryEvent.emit(this.selectedStory);
     }
 
-    getUniqueStoryTitle() {
-        return this.selectedStory.title;
+      /**
+  * Removes the selected story
+  */
+  storyDeleted() {
+    if (this.stories.find(x => x === this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
     }
+  }
 
 }
 
