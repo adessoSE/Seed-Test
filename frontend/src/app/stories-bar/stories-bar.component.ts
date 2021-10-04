@@ -392,6 +392,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   * @param story
   */
   deleteStory() {
+    if(this.stories.find(x => x === this.selectedStory)){
     const repository = localStorage.getItem('id');
     { this.apiService
        .deleteStory(repository, this.selectedStory._id)
@@ -399,7 +400,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
            this.storyDeleted();
            this.toastr.error('', 'Story deleted');
         }); }
-  }
+  }}
 
   /**
   * Removes the selected story
@@ -414,14 +415,22 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * Filters stories for searchterm
    */
   storyTermChange(storiesToFilter = this.stories) {
-    this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+    if(this.storyString){
+        this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
+    } else {
+        this.filteredStories = storiesToFilter;
+    }
   }
 
     /**
    * Filters group for searchterm
    */
     groupTermChange() {
-    this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+      if(this.groupString){
+        this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
+      } else {
+          this.filteredGroups = this.groups;
+      }
     }
 
     /**
