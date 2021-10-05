@@ -259,7 +259,7 @@ export class ModalsComponent {
         if (!this.isEmptyOrSpaces(name)) {
             this.apiService.createRepository(name).subscribe(resp => {
                 this.toastr.info('', 'Project created');
-                this.apiService.updateRepositoryEmitter();
+                this.apiService.getRepositoriesEmitter();
             });
         }
     }
@@ -593,7 +593,7 @@ submitRenameScenario() {
      deleteCustomRepo(){
         if(this.userEmail == this.workgroupOwner) {
             this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
-                this.apiService.updateRepositoryEmitter();
+                this.apiService.getRepositoriesEmitter();
                 this.modalReference.close();
             })
         }

@@ -125,7 +125,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         // const response = await 
         this.apiService.loginUser(user).subscribe(resp =>{
             localStorage.setItem('login', 'true');
-            this.apiService.updateRepositoryEmitter();
+            //this.apiService.updateRepositoryEmitter();
             this.getRepositories();
         })
         // if (response.status === 'error') {
@@ -168,8 +168,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             resp.forEach((elem) => {
                 if(elem.value == repository.value && elem.source == repository.source && elem._id == repository._id){
                     this.router.navigate(['']);
-                }
-            })
+            }})
             this.repositories = resp;
             this.isLoadingRepositories = false;
             setTimeout(() => {

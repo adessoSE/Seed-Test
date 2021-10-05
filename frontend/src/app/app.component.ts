@@ -42,7 +42,8 @@ export class AppComponent implements OnInit {
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
   });
-    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
+    this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
+    this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
   }
 
   /**
@@ -86,11 +87,20 @@ export class AppComponent implements OnInit {
     if (this.apiService.isLoggedIn()) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
-        sessionStorage.setItem('repositories', JSON.stringify(resp));
       }, (err) => {
         this.error = err.error;
       });
     }
+  }
+
+   /**
+     * Update Repositories after change
+     */
+    updateRepositories(){
+      //this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
+      let value = sessionStorage.getItem('repositories')
+      let repository: RepositoryContainer[] = JSON.parse(value)
+      this.repositories = repository
   }
 
   /**
