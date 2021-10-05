@@ -8,6 +8,7 @@ const { expect } = require('chai');
 require('geckodriver');
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
+const { Console } = require('console');
 
 
 let driver;
@@ -30,6 +31,7 @@ function CustomWorld({ attach, parameters }) {
 	this.parameters = parameters;
 }
 let scenarioIndex = 0;
+let testLength;
 
 setWorldConstructor(CustomWorld);
 
@@ -43,7 +45,8 @@ defineParameterType({
 });
 
 Before(async function () {
-	currentParameters = this.parameters.scenarios[scenarioIndex]
+	testLength = this.parameters.scenarios.length;
+	currentParameters = this.parameters.scenarios[scenarioIndex];
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) {
 			if (driver) {
@@ -62,7 +65,6 @@ Before(async function () {
 			.setChromeOptions(chromeOptions)
 			.build();
 	}
-
 });
 
 
@@ -730,10 +732,21 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async () => {
-	scenarioIndex += 1;
-	// Without Timeout driver quit is happening too quickly. Need a better solution
-	// https://github.com/SeleniumHQ/selenium/issues/5560
-	const condition = until.elementLocated(By.name('loader'));
-	driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
-	await driver.quit();
+	if (currentParameters.oneDriver) {
+		scenarioIndex += 1;
+		if (scenarioIndex === testLength) {
+			// Without Timeout driver quit is happening too quickly. Need a better solution
+			// https://github.com/SeleniumHQ/selenium/issues/5560
+			const condition = until.elementLocated(By.name('loader'));
+			driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+			await driver.quit();
+		}
+	} else {
+		scenarioIndex += 1;
+		// Without Timeout driver quit is happening too quickly. Need a better solution
+		// https://github.com/SeleniumHQ/selenium/issues/5560
+		const condition = until.elementLocated(By.name('loader'));
+		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+		await driver.quit();
+	}
 });

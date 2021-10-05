@@ -273,7 +273,6 @@ function replaceUser(newUser, collection) {
 }
 
 async function updateStory(updatedStuff) {
-	console.log('updateStuff', updatedStuff);
 	let db;
 	try {
 		db = await connectDb();
@@ -1301,6 +1300,6 @@ module.exports = {
 	addMember,
 	updateMemberStatus,
 	getMembers,
-	removeFromWorkgroup
-  updateOneDriver,
+	removeFromWorkgroup,
+	updateOneDriver
 };

@@ -783,7 +783,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                     {browser: browserSelect,
                         repository: localStorage.getItem('repository'),
                         source: localStorage.getItem('source'),
-                        oneDriver: this.oneDriver
+                        oneDriver: this.selectedStory.oneDriver
                         //waitTime: defaultWaitTimeInput,
                         //daisyAutoLogout: daisyAutoLogout
                     })

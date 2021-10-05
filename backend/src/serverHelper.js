@@ -284,7 +284,7 @@ function runReport(req, res, stories, mode, parameters) {
 							});
 						});
 						setTimeout((group) => {
-							fs.rm(`./features/${group}`, { recursive: true }, () => {
+							fs.rmdir(`./features/${group}`, { recursive: true }, () => {
 								console.log(`${group} report deleted`);
 							});
 						}, reportDeletionTime * 60000, grpNameDir);
@@ -400,7 +400,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 			});
 		}
 	} else if (mode === 'feature' || mode === 'group') {
-		const prep = scenarioPrep(story.scenarios);
+		const prep = scenarioPrep(story.scenarios, story.oneDriver);
 		story.scenarios = prep.scenarios;
 		parameters = prep.parameters;
 	}
@@ -447,7 +447,7 @@ function execReport2(req, res, stories, mode, story, callback) {
 	});
 }
 
-function scenarioPrep(scenarios) {
+function scenarioPrep(scenarios, driver) {
 	const parameters = { scenarios: [] };
 	scenarios.forEach((scenario) => {
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
@@ -457,7 +457,8 @@ function scenarioPrep(scenarios) {
 			parameters.scenarios.push({
 				browser: scenario.browser,
 				waitTime: scenario.stepWaitTime,
-				daisyAutoLogout: scenario.daisyAutoLogout
+				daisyAutoLogout: scenario.daisyAutoLogout,
+				oneDriver: driver
 			});
 		} else {
 			scenario.stepDefinitions.example.forEach((examples, index) => {
@@ -465,7 +466,8 @@ function scenarioPrep(scenarios) {
 					parameters.scenarios.push({
 						browser: scenario.browser,
 						waitTime: scenario.stepWaitTime,
-						daisyAutoLogout: scenario.daisyAutoLogout
+						daisyAutoLogout: scenario.daisyAutoLogout,
+						oneDriver: driver
 					});
 				}
 			});
