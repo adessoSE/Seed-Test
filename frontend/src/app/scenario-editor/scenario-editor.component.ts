@@ -155,6 +155,12 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
     }
 
+    ngOnDestroy(){
+        this.apiService.runSaveOptionEvent.unsubscribe();
+        this.apiService.addBlockToScenarioEvent.unsubscribe();
+        this.apiService.renameScenarioEvent.unsubscribe();
+    }
+
     /**
      * Original step types not sorted or changed
      */

@@ -39,20 +39,27 @@ export class AppComponent implements OnInit {
    * @param router
    */
   constructor(public apiService: ApiService, public router: Router) {
-    this.apiService.logoutEvent.subscribe(_ => {
-      this.logout();
-  });
-    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
+    
   }
 
   /**
    * Retrieves Repositories
    */
   ngOnInit() {
+    this.apiService.logoutEvent.subscribe(_ => {
+      this.logout();
+    });
+    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
+
     this.getRepositories();
     if (!this.apiService.urlReceived) {
       this.apiService.getBackendInfo();
     }
+  }
+
+  ngOnDestroy(){
+    this.apiService.logoutEvent.unsubscribe();
+    this.apiService.updateRepositoryEvent.unsubscribe();
   }
 
   /**

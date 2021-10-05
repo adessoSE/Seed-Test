@@ -63,19 +63,28 @@ export class AccountManagementComponent implements OnInit {
      * @param apiService Connection to the api service
      * @param router router to handle url changes
      */
-    constructor(public apiService: ApiService, public router: Router) {
-        this.routeSub = router.events.subscribe(event => {
-            if (event instanceof NavigationEnd && router.url === '/accountManagement') {
+    constructor(public apiService: ApiService, public router: Router) {}
+
+    ngOnInit() {
+        this.routeSub = this.router.events.subscribe(event => {
+            if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
             }
         });
-        if (!router.events) {
+        if (!this.router.events) {
             this.apiService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
                 console.log('first load');
             });
         }
         this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepos());
+
+    }
+
+    ngOnDestroy() {
+        this.routeSub.unsubscribe();
+        this.apiService.getRepositoriesEvent.unsubscribe();
+        this.apiService.updateRepositoryEvent.unsubscribe();
     }
 
     seperateRepos(repos) {
@@ -165,17 +174,6 @@ export class AccountManagementComponent implements OnInit {
         }
     }
 
-
-    /**
-     * @ignore
-     */
-    ngOnInit() {
-
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
-    }
 
     /**
      * Removes Github connection from Seed-Test Account

@@ -234,7 +234,20 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
-    ) {
+    ) {}
+
+
+    /**
+     * retrieves the saved block from the session storage
+     */
+    ngDoCheck(): void {
+          this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    }
+
+    /**
+     * Subscribes to all necessary events
+     */
+    ngOnInit() {
         this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
             this.storiesLoaded = true;
             this.storiesError = false;
@@ -249,33 +262,20 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
         this.apiService.getBackendUrlEvent.subscribe(() => {
           this.loadStepTypes();
-      });
+        });
 
-      this.apiService.deleteScenarioEvent.subscribe(() => {
-        this.deleteScenario(this.selectedScenario);
-    });
+        this.apiService.deleteScenarioEvent.subscribe(() => {
+            this.deleteScenario(this.selectedScenario);
+        });
 
-      if (this.apiService.urlReceived) {
-          this.loadStepTypes();
-      }
+        if (this.apiService.urlReceived) {
+            this.loadStepTypes();
+        }
 
-      this.apiService.deleteStoryEvent.subscribe(() => {
-        this.showEditor = false;
-    });
-    }
+        this.apiService.deleteStoryEvent.subscribe(() => {
+            this.showEditor = false;
+        });
 
-
-    /**
-     * retrieves the saved block from the session storage
-     */
-    ngDoCheck(): void {
-          this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
-    }
-
-    /**
-     * Subscribes to all necessary events
-     */
-    ngOnInit() {
         if (this.selectedStory) {
             this.storiesLoaded = true;
             this.storiesError = false;
@@ -315,6 +315,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     ngOnDestroy(){
         this.apiService.runSaveOptionEvent.unsubscribe();
+        this.apiService.renameStoryEvent.unsubscribe();
+        this.apiService.addBlockToScenarioEvent.unsubscribe();
+        this.apiService.getStoriesEvent.unsubscribe();
+        this.apiService.storiesErrorEvent.unsubscribe();
+        this.apiService.getBackendUrlEvent.unsubscribe();
+        this.apiService.deleteScenarioEvent.unsubscribe();
+        this.apiService.deleteStoryEvent.unsubscribe();
     }
 
     /**

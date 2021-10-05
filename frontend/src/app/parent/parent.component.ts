@@ -50,7 +50,12 @@ export class ParentComponent implements OnInit {
    * Constructor
    * @param apiService
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute) {
+  constructor(public apiService: ApiService, public route: ActivatedRoute) {}
+
+  /**
+   * Requests the repositories on init
+   */
+  ngOnInit() {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -59,17 +64,16 @@ export class ParentComponent implements OnInit {
     } else {
       this.apiService.getBackendInfo();
     }
-   }
 
-  /**
-   * Requests the repositories on init
-   */
-  ngOnInit() {
     if (!sessionStorage.getItem('repositories')) {
       this.apiService.getRepositories().subscribe(() => {
         console.log('parent get Repos');
       });
     }
+  }
+
+  ngOnDestroy(){
+    this.apiService.getBackendUrlEvent.unsubscribe();
   }
 
   /**

@@ -206,10 +206,16 @@ export class ModalsComponent {
     /**
      * @ignore
      */
-    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
+    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
+
+    ngOnInit(){
         this.apiService.deleteRepositoryEvent.subscribe(() => {
             this.deleteCustomRepo();
           });
+    }
+
+    ngOnDestroy(){
+        this.apiService.deleteRepositoryEvent.unsubscribe();
     }
 
     // change Jira Account modal
