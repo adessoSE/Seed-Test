@@ -64,6 +64,21 @@ export class StoryEditorComponent implements OnInit, DoCheck {
       this.activeActionBar = false;
       this.allChecked = false;
   }
+
+  /**
+   * show loading when tests of groups run
+   * hide result of story
+   */
+  @Input()
+  set testRunningForGroup(groupRunning: boolean){
+      this.testRunningGroup = groupRunning;
+      this.showResults = false;
+      try {
+        const loadingScreen: HTMLElement = document.getElementById('loading');
+        loadingScreen.scrollIntoView();
+      } catch (error) {
+      }
+  }
     /**
      * Original step types
      */
@@ -113,6 +128,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * If the test is running
      */
     testRunning = false;
+    testRunningGroup: boolean;
 
     /**
      * html report of the result
@@ -211,6 +227,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     deleteStoryEvent: EventEmitter<any> = new EventEmitter();
 
     /**
+     * Event emitter to show or hide global TestResult
+     */
+    @Output() report: EventEmitter<any> = new EventEmitter();
+
+    /**
      * Stories bar component
      */
     constructor(
@@ -300,6 +321,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             console.log('Changed to '+changedTheme)
         });
  
+    }
+
+    ngOnDestroy(){
+        this.apiService.runSaveOptionEvent.unsubscribe();
     }
 
     /**
@@ -615,6 +640,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
           id: newId,
           mid: obj.mid,
           pre: obj.pre,
+          post: obj.post,
           stepType: obj.stepType,
           type: obj.type,
           values: obj.values
@@ -750,6 +776,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     runTests(scenario_id) {
         if (this.storySaved()) {
             this.testRunning = true;
+            this.report.emit(false);
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
             const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;

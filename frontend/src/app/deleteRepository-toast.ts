@@ -1,3 +1,4 @@
+import { AccountManagementComponent } from './account-management/account-management.component';
 import {
     animate,
     keyframes,
@@ -9,13 +10,31 @@ import {
 import { Component} from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
-
+  
 /**
  * Component of the Delete Story toasts
  */
   @Component({
     selector: '[pink-toast-component]',
-    styles: [`
+    //styles: [`
+    //  :host {
+    //    background-color: #FF69B4;
+    //    position: relative;
+    //    overflow: hidden;
+    //    margin: 0 0 6px;
+    //    padding: 10px 10px 10px 10px;
+    //    width: 300px;
+    //    border-radius: 3px 3px 3px 3px;
+    //    color: #FFFFFF;
+    //    pointer-events: all;
+    //    cursor: pointer;
+    //  }
+    //  .btn-pink {
+    //    -webkit-backface-visibility: hidden;
+    //    -webkit-transform: translateZ(0);
+    //  }
+    //`],
+    styles:[`
         a {
             background: #388196;
             margin: 2px;
@@ -24,7 +43,7 @@ import { ApiService } from './Services/api.service';
         .deleteButton{
           background: darkred;
         }
-
+        
         a:hover {
             color: black;
         }
@@ -95,7 +114,8 @@ import { ApiService } from './Services/api.service';
     ],
     preserveWhitespaces: false,
   })
-  export class DeleteStoryToast extends Toast {
+  export class DeleteRepositoryToast extends Toast {
+    
     /**
      * Name of the delete button
      */
@@ -104,28 +124,29 @@ import { ApiService } from './Services/api.service';
      * Name of the cancel button
      */
     cancelString = 'Cancel';
+
     /**
      * Constructor
-     * @param toastrService
-     * @param toastPackage
-     * @param apiService
+     * @param toastrService 
+     * @param toastPackage 
+     * @param apiService 
      * constructor is only necessary when not using AoT
      */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
-      public apiService: ApiService
+      public apiService: ApiService,
     ) {
       super(toastrService, toastPackage);
     }
-
+    
     /**
-     * Creates a toast and deltes the story
-     * @param event
+     * Creates a toast and deletes the repository
+     * @param event 
      */
-    deleteToast(event: Event) {
+    deleteToast(event: Event){
         event.stopPropagation();
-        this.apiService.deleteStoryEmitter();
+        this.apiService.deleteRepositoryEmitter();
         this.remove();
     }
   }

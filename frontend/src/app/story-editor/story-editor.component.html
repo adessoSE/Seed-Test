@@ -238,10 +238,10 @@
         </div>
     </div>
 
-    <!-- Doubled loading see above -->
-    <div [class.darkTheme]="isDark" id="loading">
-      <div class="loading" *ngIf="testRunning">
-       Loading . . .
+    <div id="loading" [class.darkTheme]="isDark">
+      <div class="loading" [hidden]="!testRunning && !testRunningGroup">
+       <!-- Loading . . . -->
+       <mat-spinner></mat-spinner>
       </div>
     </div>
 

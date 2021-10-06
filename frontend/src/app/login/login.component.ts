@@ -134,14 +134,19 @@ export class LoginComponent implements OnInit, AfterViewInit {
             password: form.value.password,
             stayLoggedIn: form.value.stayLoggedIn
         };
-        const response = await this.apiService.loginUser(user).toPromise()
-        if (response.status === 'error') {
-            this.isLoadingRepositories = false;
-            this.error = response.message;
-        } else {
+        // const response = await 
+        this.apiService.loginUser(user).subscribe(resp =>{
             localStorage.setItem('login', 'true');
+            this.apiService.updateRepositoryEmitter();
             this.getRepositories();
-        }
+        })
+        // if (response.status === 'error') {
+        //     this.isLoadingRepositories = false;
+        //     this.error = response.message;
+        // } else {
+        //     localStorage.setItem('login', 'true');
+        //     this.getRepositories();
+        // }
     }
 
 
@@ -168,7 +173,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
             loadingSpinner.scrollIntoView();
         }
         this.apiService.getRepositories().subscribe((resp: RepositoryContainer[]) => {
-            console.log(resp)
             if(resp.length <= 0){
                 console.log('repositories empty')
                 this.router.navigate(['/accountManagement'])

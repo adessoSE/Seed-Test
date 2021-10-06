@@ -1,5 +1,5 @@
-import {Component, EventEmitter, Input, Output, ViewChild, ViewEncapsulation} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
 import {Block} from '../model/Block';
@@ -8,6 +8,7 @@ import {NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import {Story} from '../model/Story';
 import {Group} from '../model/Group';
+import { DeleteRepositoryToast } from '../deleteRepository-toast';
 
 
 /**
@@ -164,6 +165,17 @@ export class ModalsComponent {
      */
     workgroupProject: RepositoryContainer;
 
+    /**
+     * Email and id of the active user
+     */
+    userEmail = '';
+    userId = '';
+
+    /**
+     * Model Reference for closing
+     */
+    modalReference: NgbModalRef;
+
 
     /**
      * selectable Stories when create Group
@@ -187,11 +199,23 @@ export class ModalsComponent {
 
 
 
+    /**
+     * ngModal for Create Story
+     */
+    storyTitle: string;
+
+    storyDescription: string;
+
+
 
     /**
      * @ignore
      */
-    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
+    constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
+        this.apiService.deleteRepositoryEvent.subscribe(() => {
+            this.deleteCustomRepo();
+          });
+    }
 
     // change Jira Account modal
 
@@ -240,9 +264,7 @@ export class ModalsComponent {
         if (!this.isEmptyOrSpaces(name)) {
             this.apiService.createRepository(name).subscribe(resp => {
                 this.toastr.info('', 'Project created');
-                this.apiService.getRepositories().subscribe(res => {
-                    //
-                });
+                this.apiService.updateRepositoryEmitter();
             });
         }
     }
@@ -513,10 +535,12 @@ submitRenameScenario() {
     /**
      * Opens the workgroup edit modal
      */
-    openWorkgroupEditModal(project: RepositoryContainer) {
+    openWorkgroupEditModal(project: RepositoryContainer, userEmail, userId) {
+        this.userEmail = userEmail;
+        this.userId = userId;
         this.workgroupList = [];
         this.workgroupProject = project;
-        this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
+        this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-title'});
         const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
         header.textContent = 'Project: ' + project.value;
 
@@ -568,6 +592,27 @@ submitRenameScenario() {
         });
     }
 
+    /**
+     * Delete a custom repository
+     */
+     deleteCustomRepo(){
+        if(this.userEmail == this.workgroupOwner) {
+            this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
+                this.apiService.updateRepositoryEmitter();
+                this.modalReference.close();
+            })
+        }
+    }
+
+    /**
+     * Opens the delete repository toast
+     */
+    showDeleteRepositoryToast() {
+        this.toastr.warning('', 'Do you really want to delete this repository?', {
+            toastComponent: DeleteRepositoryToast
+        });
+    }
+
 
     // createNewStoryModal
 
@@ -583,8 +628,10 @@ submitRenameScenario() {
      */
     createNewStory(event) {
         event.stopPropagation();
-        const title = (document.getElementById('storytitle') as HTMLInputElement).value;
-        const description = (document.getElementById('storydescription') as HTMLInputElement).value;
+        const title = this.storyTitle; //(document.getElementById('storytitle') as HTMLInputElement).value;
+        const description = this.storyDescription; //(document.getElementById('storydescription') as HTMLInputElement).value;
+        this.storyTitle = null;
+        this.storyDescription = null;
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = 'db';

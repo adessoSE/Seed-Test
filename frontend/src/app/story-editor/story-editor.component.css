@@ -381,9 +381,15 @@
     margin: 5px;
   }
 
-  .loading{
-    text-align: center;
-    font-size: 40px;
+  #loading{
+    /* text-align: center;
+    font-size: 40px; */
+    display: flex;
+    justify-content: center;
+  }
+
+  ::ng-deep .mat-progress-spinner circle, .mat-spinner circle {
+    stroke: var(--ocean-blue);
   }
 
   .darkTheme.loading {
