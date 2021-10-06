@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostBinding, OnInit, Output } from '@angular/core';
+import {Component, EventEmitter, HostBinding, OnDestroy, OnInit, Output} from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
@@ -14,7 +14,7 @@ import { FormControl } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
   /**
    * Currently retrieved projects
@@ -42,11 +42,11 @@ export class AppComponent implements OnInit {
 
   toggleControl = new FormControl(false);
 
-  
+
   /**
    * Constructor
-   * @param apiService 
-   * @param router 
+   * @param apiService
+   * @param router
    * @param themeService
    */
 
@@ -146,9 +146,9 @@ export class AppComponent implements OnInit {
     this.apiService.logoutUser().subscribe(resp => {
     });
     this.router.navigate(['/login']);
-  }  
+  }
 
   setModeOnToggle(isDark:boolean) {
     this.themeService.setNewTheme(isDark);
-  } 
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output } from '@angular/core';
+import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -29,7 +29,7 @@ const emptyBackground: Background = {stepDefinitions: {when: []}};
   templateUrl: './story-editor.component.html',
   styleUrls: ['./story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit, DoCheck {
+export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
 
   /**
    * set new currently selected scenario
@@ -237,7 +237,7 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService,
-        public themeService : ThemingService
+        public themeService: ThemingService
     ) {}
 
     /**
@@ -316,11 +316,11 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
 
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged.subscribe((changedTheme) => { 
+        this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
-            console.log('Changed to '+changedTheme)
+            console.log('Changed to ' + changedTheme);
         });
- 
+
     }
 
     ngOnDestroy(){

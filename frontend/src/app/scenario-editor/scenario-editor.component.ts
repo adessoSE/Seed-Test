@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, DoCheck } from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -20,7 +20,7 @@ import { ModalsComponent } from '../modals/modals.component';
     styleUrls: ['./scenario-editor.component.css'],
 })
 
-export class ScenarioEditorComponent implements OnInit, DoCheck {
+export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Currently selected story

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
@@ -20,7 +20,7 @@ import { DeleteRepositoryToast } from '../deleteRepository-toast';
     styleUrls: ['./modals.component.css'],
     /* encapsulation: ViewEncapsulation.None, */
 })
-export class ModalsComponent {
+export class ModalsComponent implements OnInit, OnDestroy {
 
     /**
      * Emits a response after the jira account got created
@@ -700,7 +700,7 @@ submitRenameScenario() {
         for (const s of group.member_stories) {
             this.selectedStories.push(s._id);
         }
-        
+
         this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 

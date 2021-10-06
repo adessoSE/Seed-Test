@@ -1,11 +1,10 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import {Group} from '../model/Group';
 import {ActivatedRoute} from '@angular/router';
-import {group} from "@angular/animations";
 import { ThemingService } from '../Services/theming.service';
 
 
@@ -17,7 +16,7 @@ import { ThemingService } from '../Services/theming.service';
   templateUrl: './parent.component.html',
   styleUrls: ['./parent.component.css']
 })
-export class ParentComponent implements OnInit {
+export class ParentComponent implements OnInit, OnDestroy {
 
   /**
    * Stories in the selected project

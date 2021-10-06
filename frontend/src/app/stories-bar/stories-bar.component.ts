@@ -10,8 +10,6 @@ import { ToastrService } from 'ngx-toastr';
 import { ThemingService } from '../Services/theming.service';
 
 
-
-
 /**
  * Component of the Stories bar
  */
