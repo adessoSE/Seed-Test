@@ -82,6 +82,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      */
     showDaisyAutoLogout: boolean = false;
 
+    @Input() isDark : boolean;
     /**
      * View child of the example table
      */

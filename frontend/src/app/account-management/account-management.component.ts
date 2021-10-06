@@ -5,6 +5,7 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ModalsComponent } from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
+import { ThemingService } from '../Services/theming.service';
 import {interval} from 'rxjs';
 import {map} from 'rxjs/operators';
 
@@ -58,6 +59,8 @@ export class AccountManagementComponent implements OnInit {
 
     downloadRepoID: string;
 
+    isDark : boolean;
+
     /**
      * Constructor
      * @param apiService Connection to the api service
@@ -67,7 +70,7 @@ export class AccountManagementComponent implements OnInit {
 
     ngOnInit() {
         this.routeSub = this.router.events.subscribe(event => {
-            if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
+            if (event instanceof NavigationEnd && router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
             }
         });
@@ -176,6 +179,15 @@ export class AccountManagementComponent implements OnInit {
 
 
     /**
+     * @ignore
+     */
+    ngOnInit() {
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged.subscribe((changedTheme) => { 
+            this.isDark = this.themeService.isDarkMode();
+    });
+
+    /**
      * Removes Github connection from Seed-Test Account
      */
     disconnectGithub() {
@@ -226,6 +238,14 @@ export class AccountManagementComponent implements OnInit {
             }
         });
     }
+
+    update() {
+        this.isDark = this.themeService.isDarkMode();
+      }
+      onDark() : boolean {
+        this.update();
+        return this.isDark
+      }
 
     /**
      * Update Repositories after change

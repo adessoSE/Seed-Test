@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import {ApiService} from '../Services/api.service';
 import {Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to reset the password
@@ -20,10 +21,12 @@ export class ResetPasswordComponent{
    */
   error: string;
 
+  isDark :boolean = this.themeService.isDarkMode();
+
   /**
    * @ignore
    */
-  constructor(public apiService: ApiService, private router: Router) {    
+  constructor(public apiService: ApiService, private router: Router, public themeService:ThemingService) {    
   }
 
   /**
@@ -43,4 +46,10 @@ export class ResetPasswordComponent{
   redirectToRegister(){
     this.router.navigate(['/register']);
   }
+
+  isDarkModeOn () {
+    this.isDark = this.themeService.isDarkMode();
+    return this.isDark
+  }
+
 }

@@ -1,4 +1,4 @@
-<div class="grid">
+<div class="grid mat-app-background" [class.darkTheme]="isDark">
   <div class="topnav">
     <!--left-->
     <div class="uk-inline dropdown">
@@ -14,7 +14,7 @@
                      <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
                      <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
                      <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
-                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
+                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
                       routerLink=''>{{repository.value}}</a>
                    </li>
                   </ul>
@@ -43,6 +43,15 @@
     </div>
     <!--right-->
     <div class="topnavRight">
+      <div class="slide-toggle-container">
+        <mat-icon>brightness_5</mat-icon>
+        <mat-slide-toggle [formControl]="toggleControl" 
+        [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}" 
+        [ngClass] = "{'mat-checked mat-slide-toggle-bar':isDark}"
+        
+        title="Switch to dark/light mode"></mat-slide-toggle>
+        <mat-icon>bedtime</mat-icon>
+      </div>
       <div>
         <a routerLink="/feedback">
           <button class="rightButton">Feedback</button>

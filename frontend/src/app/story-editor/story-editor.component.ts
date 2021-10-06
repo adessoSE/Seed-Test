@@ -14,6 +14,7 @@ import { Block } from '../model/Block';
 import { ModalsComponent } from '../modals/modals.component';
 import { saveAs } from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Empty background
@@ -204,6 +205,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     newStepName = 'New Step';
 
+    @Input() isDark: boolean;
+
     /**
      * View child of the scenario editor
      */
@@ -233,9 +236,9 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     constructor(
         public apiService: ApiService,
-        private toastr: ToastrService
+        private toastr: ToastrService,
+        public themeService : ThemingService
     ) {}
-
 
     /**
      * retrieves the saved block from the session storage
@@ -311,6 +314,13 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             }
         });
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged.subscribe((changedTheme) => { 
+            this.isDark = this.themeService.isDarkMode();
+            console.log('Changed to '+changedTheme)
+        });
+ 
     }
 
     ngOnDestroy(){

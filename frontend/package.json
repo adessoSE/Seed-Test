@@ -19,11 +19,13 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^10.2.3",
+    "@angular/cdk": "~10.2.7",
     "@angular/common": "^10.2.3",
     "@angular/compiler": "^10.2.3",
     "@angular/core": "^10.2.3",
     "@angular/forms": "^10.2.3",
     "@angular/http": "^7.2.16",
+    "@angular/material": "~10.2.7",
     "@angular/platform-browser": "^10.2.3",
     "@angular/platform-browser-dynamic": "^10.2.3",
     "@angular/router": "^10.2.3",
@@ -44,7 +46,7 @@
     "node-fetch": "^2.6.1",
     "request": "^2.88.2",
     "sass": "^1.38.0",
-    "set-value": "3.0.2",
+    "set-value": "4.0.1",
     "uikit": "^3.5.9",
     "zone.js": "~0.11.3"
   },
