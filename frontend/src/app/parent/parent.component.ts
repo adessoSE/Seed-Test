@@ -1,11 +1,10 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import {Group} from '../model/Group';
 import {ActivatedRoute} from '@angular/router';
-import {group} from "@angular/animations";
 import { ThemingService } from '../Services/theming.service';
 
 
@@ -17,7 +16,7 @@ import { ThemingService } from '../Services/theming.service';
   templateUrl: './parent.component.html',
   styleUrls: ['./parent.component.css']
 })
-export class ParentComponent implements OnInit {
+export class ParentComponent implements OnInit, OnDestroy {
 
   /**
    * Stories in the selected project
@@ -57,7 +56,12 @@ export class ParentComponent implements OnInit {
    * @param apiService
    * @param themeService
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
+  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {}
+
+  /**
+   * Requests the repositories on init
+   */
+  ngOnInit() {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -66,12 +70,7 @@ export class ParentComponent implements OnInit {
     } else {
       this.apiService.getBackendInfo();
     }
-   }
 
-  /**
-   * Requests the repositories on init
-   */
-  ngOnInit() {
     if (!sessionStorage.getItem('repositories')) {
       this.apiService.getRepositories().subscribe(() => {
         console.log('parent get Repos');
@@ -82,6 +81,10 @@ export class ParentComponent implements OnInit {
     .subscribe((currentTheme) => {
       this.isDark = this.themeService.isDarkMode();
     });
+  }
+
+  ngOnDestroy(){
+    this.apiService.getBackendUrlEvent.unsubscribe();
   }
 
   /**

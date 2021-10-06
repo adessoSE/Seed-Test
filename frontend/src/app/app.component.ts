@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostBinding, OnInit, Output } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
@@ -14,7 +14,7 @@ import { FormControl } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
   /**
    * Currently retrieved projects
@@ -42,28 +42,26 @@ export class AppComponent implements OnInit {
 
   toggleControl = new FormControl(false);
 
-  
+
   /**
    * Constructor
-   * @param apiService 
-   * @param router 
+   * @param apiService
+   * @param router
    * @param themeService
    */
+
   constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
-    /*this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-      this.repositories = repositories;
-      sessionStorage.setItem('repositories', JSON.stringify(repositories))
-    });*/
-    this.apiService.logoutEvent.subscribe(_ => {
-      this.logout();
-  });
-    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
   }
 
   /**
    * Retrieves Repositories
    */
   ngOnInit() {
+    this.apiService.logoutEvent.subscribe(_ => {
+      this.logout();
+    });
+    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
+
     this.getRepositories();
     if (!this.apiService.urlReceived) {
       this.apiService.getBackendInfo();
@@ -78,6 +76,11 @@ export class AppComponent implements OnInit {
       this.isDark = val;
       /* this.className = val ? 'darkTheme' : ''; */
     });
+  }
+
+  ngOnDestroy(){
+    this.apiService.logoutEvent.unsubscribe();
+    this.apiService.updateRepositoryEvent.unsubscribe();
   }
 
   /**
@@ -143,9 +146,9 @@ export class AppComponent implements OnInit {
     this.apiService.logoutUser().subscribe(resp => {
     });
     this.router.navigate(['/login']);
-  }  
+  }
 
   setModeOnToggle(isDark:boolean) {
     this.themeService.setNewTheme(isDark);
-  } 
+  }
 }

@@ -19,7 +19,7 @@ import {map} from 'rxjs/operators';
 })
 
 
-export class AccountManagementComponent implements OnInit {
+export class AccountManagementComponent implements OnInit, OnDestroy {
     /**
      * Viewchild to create the modals
      */
@@ -59,26 +59,40 @@ export class AccountManagementComponent implements OnInit {
 
     downloadRepoID: string;
 
-    isDark : boolean;
+    isDark: boolean;
 
     /**
      * Constructor
      * @param apiService Connection to the api service
      * @param router router to handle url changes
+     * @param themeService
      */
-    constructor(public apiService: ApiService, public router: Router, public themeService : ThemingService) {
-        this.routeSub = router.events.subscribe(event => {
-            if (event instanceof NavigationEnd && router.url === '/accountManagement') {
+    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {}
+
+    ngOnInit() {
+        this.routeSub = this.router.events.subscribe(event => {
+            if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
             }
         });
-        if (!router.events) {
+        if (!this.router.events) {
             this.apiService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
                 console.log('first load');
             });
         }
         this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepos());
+
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged.subscribe((changedTheme) => {
+            this.isDark = this.themeService.isDarkMode();
+        });
+    }
+
+    ngOnDestroy() {
+        this.routeSub.unsubscribe();
+        this.apiService.getRepositoriesEvent.unsubscribe();
+        this.apiService.updateRepositoryEvent.unsubscribe();
     }
 
     seperateRepos(repos) {
@@ -168,22 +182,6 @@ export class AccountManagementComponent implements OnInit {
         }
     }
 
-
-    /**
-     * @ignore
-     */
-    ngOnInit() {
-        this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged.subscribe((changedTheme) => { 
-            this.isDark = this.themeService.isDarkMode();
-    });
-
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
-    }
-
     /**
      * Removes Github connection from Seed-Test Account
      */
@@ -239,15 +237,15 @@ export class AccountManagementComponent implements OnInit {
     update() {
         this.isDark = this.themeService.isDarkMode();
       }
-      onDark() : boolean {
+      onDark(): boolean {
         this.update();
-        return this.isDark
+        return this.isDark;
       }
 
     /**
      * Update Repositories after change
      */
-    updateRepos(){
+    updateRepos() {
         this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
     }
 }

@@ -10,8 +10,6 @@ import { ToastrService } from 'ngx-toastr';
 import { ThemingService } from '../Services/theming.service';
 
 
-
-
 /**
  * Component of the Stories bar
  */
@@ -140,7 +138,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @param apiService
      * @param ThemingService
      */
-    constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {
+    constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {}
+
+    /**
+     * Checks if this is the daisy version
+     */
+    ngOnInit() {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s != null);
             this.filteredStories = this.stories;
@@ -152,12 +155,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.apiService.deleteStoryEvent.subscribe(() => {
           this.deleteStory();
         });
-    }
 
-    /**
-     * Checks if this is the daisy version
-     */
-    ngOnInit() {
         const version = localStorage.getItem('version');
         if (version == 'DAISY' || !version) {
             this.daisyVersion = true;
@@ -211,6 +209,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createGroupEmitter.unsubscribe();
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
+        this.apiService.getStoriesEvent.unsubscribe();
+        this.apiService.deleteStoryEvent.unsubscribe();
     }
 
 

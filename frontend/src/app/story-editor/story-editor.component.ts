@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output } from '@angular/core';
+import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -29,7 +29,7 @@ const emptyBackground: Background = {stepDefinitions: {when: []}};
   templateUrl: './story-editor.component.html',
   styleUrls: ['./story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit, DoCheck {
+export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
 
   /**
    * set new currently selected scenario
@@ -237,8 +237,20 @@ export class StoryEditorComponent implements OnInit, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService,
-        public themeService : ThemingService
-    ) {
+        public themeService: ThemingService
+    ) {}
+
+    /**
+     * retrieves the saved block from the session storage
+     */
+    ngDoCheck(): void {
+          this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    }
+
+    /**
+     * Subscribes to all necessary events
+     */
+    ngOnInit() {
         this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
             this.storiesLoaded = true;
             this.storiesError = false;
@@ -253,32 +265,20 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
         this.apiService.getBackendUrlEvent.subscribe(() => {
           this.loadStepTypes();
-      });
+        });
 
-      this.apiService.deleteScenarioEvent.subscribe(() => {
-        this.deleteScenario(this.selectedScenario);
-    });
+        this.apiService.deleteScenarioEvent.subscribe(() => {
+            this.deleteScenario(this.selectedScenario);
+        });
 
-      if (this.apiService.urlReceived) {
-          this.loadStepTypes();
-      }
+        if (this.apiService.urlReceived) {
+            this.loadStepTypes();
+        }
 
-      this.apiService.deleteStoryEvent.subscribe(() => {
-        this.showEditor = false;
-    });
-    }
+        this.apiService.deleteStoryEvent.subscribe(() => {
+            this.showEditor = false;
+        });
 
-    /**
-     * retrieves the saved block from the session storage
-     */
-    ngDoCheck(): void {
-          this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
-    }
-
-    /**
-     * Subscribes to all necessary events
-     */
-    ngOnInit() {
         if (this.selectedStory) {
             this.storiesLoaded = true;
             this.storiesError = false;
@@ -316,15 +316,22 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
 
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged.subscribe((changedTheme) => { 
+        this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
-            console.log('Changed to '+changedTheme)
+            console.log('Changed to ' + changedTheme);
         });
- 
+
     }
 
     ngOnDestroy(){
         this.apiService.runSaveOptionEvent.unsubscribe();
+        this.apiService.renameStoryEvent.unsubscribe();
+        this.apiService.addBlockToScenarioEvent.unsubscribe();
+        this.apiService.getStoriesEvent.unsubscribe();
+        this.apiService.storiesErrorEvent.unsubscribe();
+        this.apiService.getBackendUrlEvent.unsubscribe();
+        this.apiService.deleteScenarioEvent.unsubscribe();
+        this.apiService.deleteStoryEvent.unsubscribe();
     }
 
     /**
