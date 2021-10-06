@@ -18,7 +18,11 @@
   }
 
   .uk-background-muted {
-    background-color:transparent;
+    background-color: #f8f8f8;
+  }
+
+  .darkTheme.uk-background-muted {
+      background-color: #546E7A
   }
 
 
@@ -43,11 +47,11 @@
     z-index: 2;
     top: -2px;
   }
-  
+
   .def span[rel=def] {
     display: none;
   }
-  
+
   .def:hover span[rel=def] {
     font-size: small;
     color: white;
@@ -128,7 +132,7 @@
 
   #storyList{
     grid-area: storyList;
-    font-size: smaller;
+    /*font-size: smaller;*/
     transition: 0.1s;
     display: block;
     white-space: nowrap;
@@ -182,7 +186,7 @@
   .uk-accordion{
     width: 100%;
   }
-  
+
   .uk-accordion-content {
     font-size: small;
   }
@@ -204,7 +208,7 @@
   .uk-accordion-title.uk-background-muted .passed{
     color: #4CAF50 !important;
   }
-  
+
   .uk-accordion-content .notPassed,
   .uk-accordion-title.uk-background-muted .notPassed{
     color: red !important;
@@ -228,14 +232,14 @@
     display: inline-block;
     vertical-align: middle;
   }
- 
+
 @media screen and (max-width: 600px) {
   .grid{
       display: grid;
       grid-template-areas:
       "storyHeader"
       "storyList";
-  }  
+  }
 }
 
 .darkTheme.uk-accordion-title::before {
