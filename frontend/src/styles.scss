@@ -1,3 +1,155 @@
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$cucumber-frontend-primary: mat-palette($mat-indigo);
+$cucumber-frontend-accent: mat-palette($mat-pink, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$cucumber-frontend-warn: mat-palette($mat-red);
+$cucumber-background-color: map_get($mat-brown, 50);
+
+$mat-light-theme-background: map_merge($mat-light-theme-background, (background: $cucumber-background-color));
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$cucumber-frontend-theme: mat-light-theme((
+  color: (
+    primary: $cucumber-frontend-primary,
+    accent: $cucumber-frontend-accent,
+    warn: $cucumber-frontend-warn,
+  )
+));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($cucumber-frontend-theme);
+
+/*
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/_theming.scss';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$cucumber-frontend-primary: mat-palette($mat-indigo);
+$cucumber-frontend-accent: mat-palette($mat-pink, A200, A100, A400);
+
+// The warn palette is optional (defaults to red).
+$cucumber-frontend-warn: mat-palette($mat-red);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$cucumber-frontend-theme: mat-light-theme((
+  color: (
+    primary: $cucumber-frontend-primary,
+    accent: $cucumber-frontend-accent,
+    warn: $cucumber-frontend-warn,
+  )
+));*/
+
+// Define a dark theme
+$dark-primary: mat-palette($mat-blue-grey);
+$dark-accent: mat-palette($mat-light-blue, 400,500,600);
+$dark-background-color: map-get($mat-blue-grey, 800);
+
+$mat-dark-theme-background: map_merge($mat-dark-theme-background, (background: $dark-background-color));
+
+
+$dark-theme: mat-dark-theme((
+ color: (
+   primary: $dark-primary,
+   accent: $dark-accent,
+ )
+));
+
+
+.darkTheme {
+  @include angular-material-theme($dark-theme);
+}
+
+.darkTheme button {
+  background: var(--button);
+  color: white;
+}
+
+.darkTheme span {
+  color: var(--white);
+}
+
+/* a.repoLink{
+  color: var(--ocean-blue);
+  transition: 0.2s;
+}
+
+.darkTheme a.repoLink {
+  color: var(--light-blue);
+}
+
+a.repoLink:hover{
+  color: var(--marine-blue);
+}
+
+.darkTheme a.repoLink:hover {
+  color: white;
+} */
+
+
+/* 
+.darkTheme a {
+  color:var(--light-blue) !important;
+}
+
+.darkTheme a:hover {
+  color:var(--white) !important;
+} */
+
+.darkTheme svg {
+  color: var(--white);
+}
+
+.darkTheme em {
+  color: var(--light-blue) !important;
+  background: transparent !important;
+}
+
+.darkTheme .dropdown-list {
+  background-color: transparent;
+}
+
+.darkTheme label {
+  color:var(--white);
+}
+
+.darkTheme hr {
+  border: 1px solid #60767b;
+}
+
+.darkTheme .uk-card-default {
+  background: none;
+}
+
+.darkTheme ::placeholder {
+  color: rgb(255,255,255,70%) !important;
+}
+
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/uikit/src/scss/variables-theme.scss";
 @import "../node_modules/uikit/src/scss/mixins-theme.scss";
@@ -51,9 +203,17 @@
       --pale: #e8e4e1;
       --grape-purple: #40171d;
       --dark-forest-green: #002e19;
-
+      --violet: #7e4654;
+      --grey: #505555;
       --dark-grey: #857971;
       --light-grey: #E8E4E1;
+      --light-blue: #a0d9ff;
+      --deep-grey : #60767b;
+      /* selfdefined dark theme button palette */
+      --button : #607d8b;
+      --buttonHover : #546E7A;
+      --buttonDisabled: #90A4AE;
+      --border : #B0BEC5;
   }
 
   .LargeHeadline1 {
@@ -236,6 +396,10 @@
     letter-spacing: normal;
     color: var(--black);
   }
+  .darkTheme .MediumSubline1H4 {
+    color: white;
+  }
+
   .LargeHeadline5 {
     font-family: Klavika, sans-serif;
     font-size: 20px;
@@ -246,6 +410,7 @@
     letter-spacing: normal;
     color: var(--black);
   }
+
   .Mediumaccordeon1 {
     font-family: Klavika, sans-serif;
     font-size: 20px;
@@ -316,6 +481,11 @@
     letter-spacing: normal;
     color: var(--ocean-blue);
   }
+
+  .darkTheme .Largeaccordeon2 {
+    color: var(--light-blue);
+  }
+
   .Largenavigation1 {
     font-family: Klavika, sans-serif;
     font-size: 18px;
@@ -337,6 +507,11 @@
     letter-spacing: normal;
     color: var(--black);
   }
+
+  .darkTheme .MediumHeadline5 {
+    color: white;
+  }
+
   .Smallaccordeon1 {
     font-family: Klavika, sans-serif;
     font-size: 18px;
@@ -408,6 +583,11 @@
     letter-spacing: normal;
     color: var(--ocean-blue);
   }
+
+  .darkTheme .Mediumaccordeon2 {
+    color: var(--light-blue);
+  }
+
   .Mediumnavigation1 {
     font-family: Klavika, sans-serif;
     font-size: 16px;
@@ -429,6 +609,11 @@
     letter-spacing: normal;
     color: var(--black);
   }
+
+  .darkTheme .SmallHeadline5 {
+    color: white;
+  }
+  
   .Smallnavigation1 {
     font-family: Klavika, sans-serif;
     font-size: 16px;
@@ -449,6 +634,11 @@
     letter-spacing: normal;
     color: var(--black);
   }
+
+  .darkTheme .LargeBody2 {
+    color: var(--white);
+  }
+
   .SmallBody1compact {
     font-family: Klavika, sans-serif;
     font-size: 16px;
@@ -469,6 +659,10 @@
     letter-spacing: normal;
     color: var(--black);
   }
+  .darkTheme .SmallBody1regularLH {
+    color: white;
+  }
+  
   .MediumButton1 {
     font-family: Klavika, sans-serif;
     font-size: 14px;
@@ -495,6 +689,10 @@
   }
   .SmallButton:hover{
     background: var(--marine-blue);
+  }
+
+  .darkTheme .SmallButton:hover {
+    background : var(--buttonHover);
   }
 
   .SmallIcontext {
@@ -559,10 +757,14 @@
     transition: 0.2s;
     background: var(--ocean-blue);
     border: none;
-}
+  }
 
 .normalButton:hover{
   background: var(--marine-blue);
+}
+
+.darkTheme .normalButton:hover {
+  background: var(--buttonHover);
 }
 
 .deleteButton{
@@ -572,3 +774,72 @@
 .deleteButton:hover{
   background: var(--grape-purple);
 }
+
+.darkTheme .deleteButton {
+  background: var(--grape);
+}
+
+.uk-button-group {
+  border: transparent;
+}
+
+.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+  background-color: rgb(96, 125, 139, 54%);
+}
+
+.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+  background-color: #90A4AE;
+}
+
+span.notPassed{
+  background-color: red !important;
+}
+
+span.passed{
+  background-color: green !important;
+}
+
+.darkTheme span.passed {
+  background-color: #4CAF50 !important;
+}
+
+a.passed{
+  color: green !important;
+}
+
+.darkTheme a.passed {
+  color: #4CAF50 !important;
+}
+
+a.notPassed{
+  color: red !important;
+}
+
+.darkTheme .uk-dropdown {
+  background: #546E7A;
+  color: var(--light-blue);
+}
+
+.darkTheme select, .darkTheme input, .darkTheme textarea {
+  background: transparent;
+  border-color: #60767b;
+  color: white;
+}
+
+.darkTheme .uk-active {
+  background-color: #90A4AE;
+}
+
+.darkTheme .uk-select {
+  background-color: transparent;
+  color: white;
+}
+
+.darkTheme select > option {
+  background-color: #60767b;
+  color: white !important;
+}
+
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

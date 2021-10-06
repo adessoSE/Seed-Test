@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, HostBinding, OnInit, Output } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
+import { ThemingService } from './Services/theming.service';
+import { FormControl } from '@angular/forms';
+
 
 /**
  * Master Component
@@ -33,12 +36,24 @@ export class AppComponent implements OnInit {
    */
   error: string;
 
+  isDark : boolean;
+
+ /*  @HostBinding('class') className = '';  */
+
+  toggleControl = new FormControl(false);
+
+  
   /**
    * Constructor
-   * @param apiService
-   * @param router
+   * @param apiService 
+   * @param router 
+   * @param themeService
    */
-  constructor(public apiService: ApiService, public router: Router) {
+  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
+    /*this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+      this.repositories = repositories;
+      sessionStorage.setItem('repositories', JSON.stringify(repositories))
+    });*/
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
   });
@@ -53,6 +68,16 @@ export class AppComponent implements OnInit {
     if (!this.apiService.urlReceived) {
       this.apiService.getBackendInfo();
     }
+    this.themeService.loadTheme();
+    this.isDark = this.themeService.isDarkMode();
+    if (this.isDark) {
+      this.toggleControl.setValue(this.isDark);
+    }
+    this.toggleControl.valueChanges.subscribe(val => {
+      this.setModeOnToggle(val);
+      this.isDark = val;
+      /* this.className = val ? 'darkTheme' : ''; */
+    });
   }
 
   /**
@@ -118,5 +143,9 @@ export class AppComponent implements OnInit {
     this.apiService.logoutUser().subscribe(resp => {
     });
     this.router.navigate(['/login']);
-  }
+  }  
+
+  setModeOnToggle(isDark:boolean) {
+    this.themeService.setNewTheme(isDark);
+  } 
 }

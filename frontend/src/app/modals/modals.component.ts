@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
@@ -10,13 +10,15 @@ import {Story} from '../model/Story';
 import {Group} from '../model/Group';
 import { DeleteRepositoryToast } from '../deleteRepository-toast';
 
+
 /**
  * Component of all Modals
  */
 @Component({
     selector: 'app-modals',
     templateUrl: './modals.component.html',
-    styleUrls: ['./modals.component.css']
+    styleUrls: ['./modals.component.css'],
+    /* encapsulation: ViewEncapsulation.None, */
 })
 export class ModalsComponent {
 
@@ -192,6 +194,9 @@ export class ModalsComponent {
     groupTitle: string;
 
     groupId: string;
+
+    @Input() isDark:boolean;
+
 
 
     /**
@@ -689,6 +694,7 @@ submitRenameScenario() {
         for (const s of group.member_stories) {
             this.selectedStories.push(s._id);
         }
+        
         this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -747,4 +753,5 @@ submitRenameScenario() {
         const exists = this.selectedStories.find(function(x) {return x == story._id; });
         return exists !== undefined;
     }
+
 }

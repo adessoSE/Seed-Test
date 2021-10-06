@@ -12,6 +12,10 @@
   border-top: 1px solid #e5e5e5;
  }
 
+ .darkTheme .storyInfoContainer {
+    border-top: 1px solid #B0BEC5;
+ }
+
  @media all and (min-width: 800px) {
   /* We invert order of first sidebar and main
    * And tell the main element to take twice as much width as the other two sidebars 
@@ -76,9 +80,14 @@
   .emptyStories{
     color: #999;
     padding: 10px;
-  }
+  } 
+
   .emptyStories h1{
     color: #999;
+  }
+
+  .darkTheme.emptyStories h1 {
+    color: white;
   }
   
   .emptyStories a {
@@ -86,9 +95,19 @@
   }
 
   
-  .disabled input{
+  /* .disabled input{
     color: gray;
     border-bottom: none;
+  } */
+
+  :host ::ng-deep .disabled input{
+    color: gray;
+    border-bottom: 1px solid gray;
+  }
+
+  ::ng-deep .darkTheme .disabled input {
+    color: var(--buttonDisabled) !important;
+    border-color: var(--border);
   }
 
   #noStoriesHeader{
@@ -151,7 +170,7 @@
       display: none;
   }
 
-  input[type="text"]{
+  :host ::ng-deep input[type="text"]{
     margin: 1px;
     padding: 1px;
     border: none;
@@ -161,6 +180,12 @@
     width: auto;
     min-width: 5px;
   }
+/* 
+  :host ::ng-deep .darkTheme input {
+    background: transparent;
+    color: white;
+    border-bottom: 1px solid #60767b;
+  } */
   
   .storyHeaderContainer{
     display: grid;
@@ -179,10 +204,23 @@
     display: block;
   }
 
+  .darkTheme .def:hover span {
+    background-color: #90A4AE;
+  }
+
   #story{
     border-top: 1px solid #999;
     border-left: 1px solid #999;
     border-bottom: 1px solid #999;
+    background: white;
+
+  }
+
+  .darkTheme#story {
+    border-top: 1px solid #60767b;
+    border-left: 1px solid #60767b;
+    border-bottom: 1px solid #60767b;
+    background: #455A64;
   }
 
   
@@ -191,16 +229,20 @@
     margin-left: 5px;
     margin-right: 5px;
   }
-
+  /* double button see styles */
   .button {
     margin-right: 3px;
     color:var(--white);
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    background: var(--ocean-blue);
+    background: var(--ocean-blue); 
     border: none;
     line-height: 25px;
+  }
+
+  .darkTheme .button {
+    background: #607D8B;
   }
 
   .material-icons{
@@ -210,9 +252,17 @@
   .uk-card-footer{
     padding: 15px 0px;
   }
+
+  .darkTheme .uk-card-footer {
+    border-top: 1px solid #B0BEC5;
+  }
   
   .button:hover {
     background: var(--marine-blue);
+  }
+
+  .darkTheme .button:hover {
+    background-color: #546E7A;
   }
 
   .button:active {
@@ -223,7 +273,7 @@
 
   .uk-button-group{
     border-radius:4px;
-    border:2px solid var(--white);
+    /* border:2px solid var(--white); */
   }
   
   .padding{
@@ -231,35 +281,62 @@
   }
   
   #saveButton.iconButton_unsaved em{
-    color: red;
+    color: red !important;
   }
   
   .uk-dropdown{
     padding: 15px;
   }
   
-  .uk-nav > li > span{
+  :host ::ng-deep .uk-nav > li > span{
     padding: 1px;
     cursor: pointer;
   }
   
-  .uk-nav > li > .dropdownStep {
+  :host ::ng-deep .uk-nav > li > .dropdownStep {
     color: var(--ocean-blue);
   }  
+
+  :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
+    color: var(--light-blue);
+  } 
     
-  .uk-nav > li > span:hover {
+  :host ::ng-deep .uk-nav > li > span:hover {
       color: gray;
   }
+
+  :host ::ng-deep .darkTheme .uk-nav > li > span:hover {
+    color: white;
+  }
   
-  .disabled {
+ /*  .disabled {
     color: gray !important;
     background: var(--white) !important;
     font-style: italic;
+  } */
+
+  :host ::ng-deep .disabled {
+    color: gray !important;
+    /* background: var(--white) !important; */
+    font-style: italic;
+    text-decoration: line-through;
+  }
+
+  ::ng-deep .darkTheme .disabled {
+    color: var(--buttonDisabled) !important;
+  }
+
+  .darkTheme .scenarioListItem:hover {
+    background-color: var(--brown-grey);
   }
   
-  .scenarioBarContainer .disabled em{
+  :host ::ng-deep .scenarioBarContainer .disabled em{
     color: gray !important;
-    background: #f8f8f8 !important;
+    /* background: #f8f8f8 !important; */
+  }
+
+  ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+    color: var(--buttonDisabled) !important;
   }
   
   .dragIconContainer{
@@ -296,6 +373,10 @@
     background:#dddddd
   }
 
+  .darkTheme .disabledButton {
+    background: var(--buttonDisabled) !important;
+  }
+
   input.backgroundName{
     margin: 5px;
   }
@@ -311,6 +392,10 @@
     stroke: var(--ocean-blue);
   }
 
+  .darkTheme.loading {
+    color: white;
+  }
+
   .showButton{
     padding-right: 40px;
   }
@@ -319,6 +404,10 @@
     background-color: lightgrey;
     transition: 0.3s;
     cursor: pointer;
+  }
+
+  .darkTheme .expand:hover {
+    background-color: #90A4AE;
   }
   
   .backgroundContainer{
@@ -333,12 +422,21 @@
     padding: 15px 30px;
   }
 
+  .darkTheme .title {
+    color: white;
+  }
+
   .storyTitle{
     color: var(--ocean-blue);
-    background: var(--white);
+    /* background: var(--white); */
+    background: none;
     border: none;
     text-align: center; margin: 0px auto;
     margin-right: 2px;
+  }
+
+  .darkTheme .storyTitle {
+    color: var(--light-blue);
   }
   
   .marginLeft{
@@ -346,7 +444,7 @@
     display:inline-block;
   }
 
-  span.notPassed{
+/*   span.notPassed{
     background-color: red;
   }
 
@@ -354,13 +452,21 @@
     background-color: green;
   }
 
+  .darkTheme span.passed {
+    background-color: #4CAF50;
+  }
+
   a.passed{
     color: green;
   }
 
+  .darkTheme a.passed {
+    color: #4CAF50;
+  }
+
   a.notPassed{
     color: red;
-  }
+  } */
 
   .dot {
     height: 20px;
@@ -386,11 +492,15 @@
     cursor: pointer;
   }
   
-.scenarioBarContainer{
+/* .scenarioBarContainer{
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
+  background-color: #f8f8f8; 
+}  */
+/* 
+.darkTheme.scenarioBarContainer {
+  border-bottom: 1px solid black;
 }
 
 .exampleBarContainer{
@@ -441,6 +551,78 @@
 .scenarioButton em:active {
   background-color: var(--ocean-blue);
   color: var(--white);
+} */
+
+:host ::ng-deep .scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  margin: 0px 20px;
+}
+
+:host ::ng-deep .darkTheme .scenarioBarContainer,
+::ng-deep .darkTheme .exampleBarContainer{
+  background-color: #546E7A !important;
+  border-bottom: 1px solid #B0BEC5 !important;
+}
+
+:host ::ng-deep .exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+:host ::ng-deep .scenarioBarContainer button,
+.exampleBarContainer button{
+  border: none;
+  background: none;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+:host ::ng-deep .scenarioBarContainer > div,
+.exampleBarContainer{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px 15px;
+  display: flex;
+  height: 40px;
+}
+
+:host ::ng-deep .scenarioButton {
+  margin-right: 10px;
+}
+
+:host ::ng-deep .actionBarButtonGroup{
+  margin-left: 3px;
+}
+
+:host ::ng-deep .actionButton{
+  margin-left: 10px;
+}
+
+:host ::ng-deep .actionButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+:host ::ng-deep .darkTheme .actionButton > em {
+  color:#000000 !important;
+}
+
+:host ::ng-deep .scenarioButton em{
+  color:  var(--ocean-blue);
+} 
+
+:host ::ng-deep .darkTheme.scenarioButton em{
+  color:  var(--ocean-blue);
+}
+
+:host ::ng-deep .scenarioButton em:active {
+  background-color: var(--ocean-blue);
+  color: var(--white);
 }
 
 /* The container <div> - needed to position the dropdown content */
@@ -450,13 +632,19 @@
 }
 
 /* Dropdown Content (Hidden by Default) */
-.dropdown-content {
+::ng-deep .dropdown-content {
   display: none;
   position: absolute;
   background-color: #f9f9f9;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
+}
+
+::ng-deep .darkTheme .dropdown-content {
+  background-color: #60767b;
+  color: white;
+
 }
 
 .dropup{
@@ -472,6 +660,8 @@
 
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {background-color: #f1f1f1}
+
+.darkTheme .dropdown-content a:hover {background-color: #90A4AE;}
 
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {
@@ -489,5 +679,18 @@
    font-size: 24px;
 
 }
+
+.darkTheme.uk-card-default {
+  background: none;
+}
+
+.darkTheme p {
+  color:white;
+}
+
+.uk-icon {
+  background-color: transparent !important;
+}
+
 
 
