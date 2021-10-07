@@ -39,7 +39,7 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const mystories = [];
 	for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id, 'db'));
 	req.body = group;
-	await helper.runReport(req, res, mystories, 'group', req.body);
+	helper.runReport(req, res, mystories, 'group', req.body);
 });
 
 router.get('/report/:reportName', (req, res) => {
@@ -53,17 +53,11 @@ router.get('/reportHistory/:storyId', async (req, res) => {
 	const scenarioReports = [];
 	const groupReports = [];
 	history.forEach((element) => {
-		if (element.mode === 'feature') {
-			storyReports.push(element);
-			// console.log(`Feature Reports: ${storyReports.length}`);
-		}
-		if (element.mode === 'scenario') {
-			scenarioReports.push(element);
-			// console.log(`Scenario Reports: ${scenarioReports.length}`);
-		} else groupReports.push(element);
+		if (element.mode === 'feature') storyReports.push(element);
+		if (element.mode === 'scenario') scenarioReports.push(element);
+		else groupReports.push(element);
 	});
 	const reportContainer = { storyReports, scenarioReports, groupReports };
-	// console.log('reportContainer', reportContainer);
 	res.status(200).json(reportContainer);
 });
 
@@ -88,7 +82,6 @@ router.get('/saveReport/:reportId', async (req, res) => {
 		res.status(200).json(result);
 	} catch (error) {
 		console.log('error in saveReport', error);
-
 		res.sendStatus(401);
 	}
 });

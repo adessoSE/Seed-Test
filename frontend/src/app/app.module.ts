@@ -40,9 +40,15 @@ import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-
 import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
+import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import { ThemingService } from './Services/theming.service';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
+
+
 import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
@@ -70,6 +76,7 @@ import {MatSelectModule} from '@angular/material/select';
     RunTestToast,
     DeleteScenarioToast,
     DeleteStoryToast,
+    DeleteRepositoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ModalsComponent,
@@ -87,16 +94,18 @@ import {MatSelectModule} from '@angular/material/select';
     MatSelectModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
-    DragDropModule,
     ClipboardModule,
+    DragDropModule,
     MatProgressSpinnerModule,
     MatCarouselModule.forRoot(),
     ToastrModule.forRoot({
       timeOut: 3000
-    })
+    }),
+    MatSlideToggleModule,
+    MatIconModule,
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
+  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

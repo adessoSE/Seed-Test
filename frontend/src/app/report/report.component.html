@@ -1,12 +1,8 @@
-<!--<div *ngIf="!this.reportReceived">
-    <mat-spinner style="margin:10px" [diameter]="40" class="loadingSpinner"></mat-spinner>
-</div>-->
-<div class="uk-card uk-card-default padding" id="report">
+<div [class.darkTheme]="isDark" class="uk-card uk-card-default padding mat-app-background" id="report">
     <div id="report-header" class="uk-card-header"style="white-space: nowrap;">
         <h3 class="title"style="display: inline-block">Test Results</h3>
-    
+
     <div class="uk-button-group" style="text-align: right; float: right;">
-        <!--  class="uk-button-group uk-align-right" doesn't work -->
         <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
                 uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
         <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-up"
@@ -26,5 +22,4 @@
             </div>
         </div>
     </div>
-
 </div>

@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to handle the client login
@@ -29,6 +30,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     isLoadingRepositories: boolean;
 
+    currentTheme : String;
+
+    isDark: boolean;
+
     /**
      * Tutorial slides
      */
@@ -53,7 +58,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @param route 
      * @param cdr 
      */
-    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
+    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
+            public themeService : ThemingService) {
         this.error = undefined;
         this.route.queryParams.subscribe((params) => {
            if (params.code){
@@ -74,6 +80,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 })
             }
         })
+        this.isDark = this.themeService.isDarkMode();
     }
 
     /**
@@ -87,6 +94,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @ignore
      */
     ngOnInit() {
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged
+        .subscribe((currentTheme) => {
+            this.isDark = this.themeService.isDarkMode()
+    });
     }
 
     /**
@@ -122,14 +134,19 @@ export class LoginComponent implements OnInit, AfterViewInit {
             password: form.value.password,
             stayLoggedIn: form.value.stayLoggedIn
         };
-        const response = await this.apiService.loginUser(user).toPromise()
-        if (response.status === 'error') {
-            this.isLoadingRepositories = false;
-            this.error = response.message;
-        } else {
+        // const response = await 
+        this.apiService.loginUser(user).subscribe(resp =>{
             localStorage.setItem('login', 'true');
+            this.apiService.updateRepositoryEmitter();
             this.getRepositories();
-        }
+        })
+        // if (response.status === 'error') {
+        //     this.isLoadingRepositories = false;
+        //     this.error = response.message;
+        // } else {
+        //     localStorage.setItem('login', 'true');
+        //     this.getRepositories();
+        // }
     }
 
 
@@ -156,7 +173,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
             loadingSpinner.scrollIntoView();
         }
         this.apiService.getRepositories().subscribe((resp: RepositoryContainer[]) => {
-            console.log(resp)
             if(resp.length <= 0){
                 console.log('repositories empty')
                 this.router.navigate(['/accountManagement'])
@@ -202,4 +218,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.isLoadingRepositories = true;
         this.apiService.githubLogin();
     }
+    
+      onDark() : boolean {
+        return localStorage.getItem('user-theme')==='dark';
+      }
 }

@@ -1,6 +1,6 @@
 
 <!--Change Jira-Account Modal-->
-<ng-template #changeJiraAccountModal let-modal>
+<ng-template #changeJiraAccountModal let-modal class="mat-app-background">
     <div class="modal-header">
         <h4 class="modal-title">Change Jira-Account</h4>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -342,6 +342,8 @@
         </div>
     </div>
     <div class="modal-footer">
+        <button *ngIf="userEmail==workgroupOwner" type="button" class="normalButton deleteProjectButton" (click)="showDeleteRepositoryToast()">Delete Project
+        </button>
         <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
         </button>
     </div>
@@ -360,10 +362,10 @@
         <form>
             <div class="form-group">
                 <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="storytitle" placeholder=" Title" name="storytitle" (keyup)="storyUnique($event, storytitle, stories)" required>
+                <input id="storytitle" [(ngModel)]="storytitle" placeholder=" Title" name="storytitle" (keyup)="storyUnique($event, storytitle, stories)" required>
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
-                <textarea id="storydescription" placeholder=" Description"></textarea>
+                <textarea [(ngModel)]="storyDescription" name="storydescription" id="storydescription" placeholder=" Description"></textarea>
             </div>
         </form>
     </div>
