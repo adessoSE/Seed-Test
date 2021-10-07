@@ -182,6 +182,9 @@ export class ModalsComponent implements OnInit, OnDestroy {
      */
     stories: Story[];
 
+    story: Story;
+    storytitle : string;
+
     /**
      * Existing Groups
      */
@@ -521,12 +524,14 @@ submitRenameScenario() {
 
   /**
    * Opens the rename story Modal
-   * @param oldTitle old story title
+   *
    */
-   openRenameStoryModal(oldTitle: string) {
+   openRenameStoryModal(stories : Story [], story:Story) {
+    this.stories=stories;
+    this.story=story;
     this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
     const title = document.getElementById('newStoryTitle') as HTMLInputElement;
-    title.placeholder = oldTitle;
+    title.placeholder = story.title;
   }
 
   /**
@@ -625,7 +630,8 @@ submitRenameScenario() {
     /**
      * Opens the create new story modal
      */
-    openCreateNewStoryModal() {
+    openCreateNewStoryModal(stories: Story[]) {
+        this.stories=stories;
         this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
@@ -634,8 +640,8 @@ submitRenameScenario() {
      */
     createNewStory(event) {
         event.stopPropagation();
-        const title = this.storyTitle; //(document.getElementById('storytitle') as HTMLInputElement).value;
-        const description = this.storyDescription; //(document.getElementById('storydescription') as HTMLInputElement).value;
+        const title = this.storytitle;
+        const description = (document.getElementById('storydescription') as HTMLInputElement).value;
         this.storyTitle = null;
         this.storyDescription = null;
         const value = localStorage.getItem('repository');
@@ -730,7 +736,20 @@ submitRenameScenario() {
             button.disabled = false;
         } else {
             button.disabled = true;
-            this.toastr.error('Choose another Group-name');
+            this.toastr.error('This Group Title is already in use. Please choose another Title');
+        }
+    }
+
+    storyUnique(event, input: String, array: Story[], story?: Story) {
+        array = array ? array : [];
+        input = input ? input : '';
+
+        const button = (story ? document.getElementById('submitRenameStory') : document.getElementById('createNewStory')) as HTMLButtonElement;
+        if ((input && !array.find(i => i.title == input)) || (story ? array.find(g => g._id == story._id && g.title == input) : false)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('This Story Title is already in use. Please choose another Title');
         }
     }
 

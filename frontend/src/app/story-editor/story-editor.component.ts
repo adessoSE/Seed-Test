@@ -267,9 +267,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
           this.loadStepTypes();
         });
 
+        this.apiService.deleteStoryEvent.subscribe(() => {
+          this.showEditor = false;
+          this.storyDeleted();
+          });
+
         this.apiService.deleteScenarioEvent.subscribe(() => {
-            this.deleteScenario(this.selectedScenario);
-        });
+          this.deleteScenario(this.selectedScenario);
+          });
 
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -911,7 +916,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * @param newStoryTitle
      */
      changeStoryTitle() {
-    this.modalsComponent.openRenameStoryModal(this.selectedStory.title);
+    this.modalsComponent.openRenameStoryModal(this.stories,this.selectedStory);
    }
     /**
      * Renames the story
@@ -970,9 +975,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     this.deleteStoryEvent.emit(this.selectedStory);
     }
 
-    getUniqueStoryTitle() {
-        return this.selectedStory.title;
+      /**
+  * Removes the selected story
+  */
+  storyDeleted() {
+    if (this.stories.find(x => x === this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
     }
+  }
 
 }
 
