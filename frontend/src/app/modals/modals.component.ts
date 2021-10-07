@@ -162,12 +162,12 @@ export class ModalsComponent {
      */
     workgroupProject: RepositoryContainer;
 
-    
+
     /**
      * selectable Stories when create Group
      */
     stories: Story[];
-    
+
     story: Story;
     storytitle : string;
 
@@ -492,7 +492,7 @@ submitRenameScenario() {
 
   /**
    * Opens the rename story Modal
-   * 
+   *
    */
    openRenameStoryModal(stories : Story [], story:Story) {
     this.stories=stories;
@@ -661,7 +661,7 @@ submitRenameScenario() {
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories};
         this.apiService.updateGroupEvent({repositoryContainer, group});
-    } 
+    }
 
     deleteGroup($event) {
         event.stopPropagation();
@@ -678,7 +678,7 @@ submitRenameScenario() {
             button.disabled = false;
         } else {
             button.disabled = true;
-            this.toastr.error('Choose another Group-name');
+            this.toastr.error('This Group Title is already in use. Please choose another Title');
         }
     }
 
@@ -691,7 +691,7 @@ submitRenameScenario() {
             button.disabled = false;
         } else {
             button.disabled = true;
-            this.toastr.error('Choose another Story-name');
+            this.toastr.error('This Story Title is already in use. Please choose another Title');
         }
     }
 
