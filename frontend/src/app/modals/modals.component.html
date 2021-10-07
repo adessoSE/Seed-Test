@@ -384,17 +384,49 @@
     </div>
     <div class="modal-body">
         <form>
-            <div class="form-group groupouterdiv">
-                <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
-                <br><br>
-                <label class="uk-form-label" style="color: grey;"></label>
-                <div *ngFor="let story of stories; let i = index" class="groupstoryselection">
-                    <label class="groupinput">
-                    <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
-                    {{story.title}}
-                    </label>
+           <div class="modalsContent"> 
+               <div class="form-group groupouterdiv" id="newGroupInputWrapper">
+                    <div class="lableAlign">
+                        <label class="uk-form-label" style="color: grey;">Enter unique group name: </label> 
+                        <br>
+                        <label class="uk-form-label"  style="color: grey;">Find story: </label> 
+                    </div>
+                    <!-- <br><br> -->
+                    <div class="inputAlign">            
+                        <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
+                        <br>
+                        <input (keyup)="searchOnKey($event.target.value)" placeholder="Search story"/>
+                    </div>
                 </div>
+                <div style="width: 100%;">
+                    <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
+                        <ng-container matColumnDef="story">
+                          <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
+                          <td mat-cell *matCellDef="let element"> 
+                            <div class="emailTableContainer">
+                                <label>{{element.title}} </label>
+                            </div> 
+                          </td>
+                        </ng-container>
+        
+                        <ng-container  matColumnDef="checkStory">
+                            <th class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
+                            <td mat-cell *matCellDef="let element">
+                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
+                      </table> 
+                </div>
+                <!-- <div class="storyListWrapper">
+                    <div *ngFor="let story of getSortedStories(); let i = index" class="groupstoryselection" style="margin-left: 3px;">
+                        <label class="groupinput">
+                        <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
+                        {{story.title}}
+                        </label>
+                    </div>
+                </div> -->
             </div>
         </form>
     </div>

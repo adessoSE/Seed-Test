@@ -1,14 +1,15 @@
-import {Component, EventEmitter, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
 import {Block} from '../model/Block';
 import {StepType} from '../model/StepType';
-import {NgForm} from '@angular/forms';
+import {FormControl, NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import {Story} from '../model/Story';
 import {Group} from '../model/Group';
 import { DeleteRepositoryToast } from '../deleteRepository-toast';
+import { MatTableDataSource } from '@angular/material/table';
 
 /**
  * Component of all Modals
@@ -201,6 +202,13 @@ export class ModalsComponent {
 
     storyDescription: string;
 
+    storyString: string;
+
+    filteredStories: MatTableDataSource<Story>;
+    /**
+     * Columns of the story table table
+     */
+    displayedColumnsStories: string[] = ['story', 'checkStory'];
 
 
     /**
@@ -651,8 +659,19 @@ submitRenameScenario() {
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         this.apiService.getStories(repositoryContainer).subscribe(res => {
             this.stories = res;
+            this.filteredStories = new MatTableDataSource(res);
         });
         this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+    }
+
+     /**
+   * Filters stories for searchterm
+   */
+
+    searchOnKey(filter: string) { 
+        this.filteredStories = new MatTableDataSource(this.stories);
+        /* Apply filter */
+        this.filteredStories.filter = filter.trim().toLowerCase();
     }
 
     /**

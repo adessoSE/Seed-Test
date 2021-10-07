@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
 *{
     font-family: Klavika, sans-serif;
 }
@@ -265,4 +267,31 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
         max-height: 300px;
         overflow-y: auto;
     }
+}
+
+#newGroupInputWrapper {
+    float: left;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+.modalsContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.inputAlign {
+    display: grid;
+}
+
+.lableAlign {
+    display: grid;
+    justify-items: end;
+    margin-right: 10px;
+}
+
+.mat-column-checkStory {
+    width: 10% !important;
 }
