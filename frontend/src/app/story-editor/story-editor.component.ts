@@ -271,12 +271,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
           this.showEditor = false;
           this.storyDeleted();
           });
-      
+
         this.apiService.deleteScenarioEvent.subscribe(() => {
-              this.deleteScenario(this.selectedScenario);
+          this.deleteScenario(this.selectedScenario);
           });
-    }
-        
 
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
