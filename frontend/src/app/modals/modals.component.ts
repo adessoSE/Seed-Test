@@ -10,6 +10,7 @@ import {Story} from '../model/Story';
 import {Group} from '../model/Group';
 import { DeleteRepositoryToast } from '../deleteRepository-toast';
 import { MatTableDataSource } from '@angular/material/table';
+import { passwordConfirmedValidator } from '../directives/password-confirmed.directive';
 
 /**
  * Component of all Modals
@@ -670,6 +671,7 @@ submitRenameScenario() {
 
     searchOnKey(filter: string) { 
         this.filteredStories = new MatTableDataSource(this.stories);
+        this.filteredStories.filterPredicate =  (data: Story, filter: string) => data.title.trim().toLowerCase().indexOf(filter) != -1;
         /* Apply filter */
         this.filteredStories.filter = filter.trim().toLowerCase();
     }
