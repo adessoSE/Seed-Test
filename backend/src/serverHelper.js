@@ -126,33 +126,15 @@ function getScenarioContent(scenarios, storyID) {
 	return data;
 }
 
-function getScenarioContentForComplete(scenarios, storyID) {
-	let data = '';
-	data += `@${storyID}_${scenarios[0].scenario_id}\n`;
-	data += `Scenario: ${scenarios[0].name}\n\n`;
-	for (const scenario of scenarios) {
-	  // if there are examples
-	  // if ((scenario.stepDefinitions.example.length) > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
-	  
-	  // Get Stepdefinitions
-	  if (scenario.stepDefinitions.given !== undefined) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
-	  if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
-	  if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
-	  if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
-	}
-	return data;
-  }
-
 // Building feature file story-name-content (feature file title)
-function getFeatureContent(story, status) {
+function getFeatureContent(story) {
 	let data = `Feature: ${story.title}\n\n`;
 
 	// Get background
 	if (story.background != null) data += getBackgroundContent(story.background);
 
 	// Get scenarios
-	if (status === "single") data += getScenarioContent(story.scenarios, story._id);
-	if (status === "complete") data += getScenarioContentForComplete(story.scenarios, story._id);
+	data += getScenarioContent(story.scenarios, story._id);
 	return data;
 }
 
@@ -167,10 +149,7 @@ function writeFile(dir, selectedStory) {
 		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
-	fs.writeFile(path.join(__dirname, '../features',
-		`${cleanFileName(selectedStory.title)}_complete.feature`), getFeatureContent(selectedStory,"complete"), (err) => {
-		if (err) throw err;
-	});
+
 }
 
 function encriptPassword(text) {
