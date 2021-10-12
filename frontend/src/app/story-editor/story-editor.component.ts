@@ -953,7 +953,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
    * @param story
    */
   showDeleteStoryToast(story: Story) {
-    this.toastr.warning('', 'Do you really want to delete this story?', {
+    this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
         toastComponent: DeleteStoryToast
     });
   }
