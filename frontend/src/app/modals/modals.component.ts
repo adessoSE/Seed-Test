@@ -4,11 +4,13 @@ import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
 import {Block} from '../model/Block';
 import {StepType} from '../model/StepType';
-import {NgForm} from '@angular/forms';
+import {FormControl, NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import {Story} from '../model/Story';
 import {Group} from '../model/Group';
 import { DeleteRepositoryToast } from '../deleteRepository-toast';
+import { MatTableDataSource } from '@angular/material/table';
+import { passwordConfirmedValidator } from '../directives/password-confirmed.directive';
 
 
 /**
@@ -209,6 +211,13 @@ export class ModalsComponent implements OnInit, OnDestroy {
 
     storyDescription: string;
 
+    storyString: string;
+
+    filteredStories: MatTableDataSource<Story>;
+    /**
+     * Columns of the story table table
+     */
+    displayedColumnsStories: string[] = ['story', 'checkStory'];
 
 
     /**
@@ -668,8 +677,20 @@ submitRenameScenario() {
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         this.apiService.getStories(repositoryContainer).subscribe(res => {
             this.stories = res;
+            this.filteredStories = new MatTableDataSource(res);
         });
         this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+    }
+
+     /**
+   * Filters stories for searchterm
+   */
+
+    searchOnKey(filter: string) { 
+        this.filteredStories = new MatTableDataSource(this.stories);
+        this.filteredStories.filterPredicate =  (data: Story, filter: string) => data.title.trim().toLowerCase().indexOf(filter) != -1;
+        /* Apply filter */
+        this.filteredStories.filter = filter.trim().toLowerCase();
     }
 
     /**

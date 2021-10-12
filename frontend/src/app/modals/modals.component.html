@@ -150,7 +150,7 @@
     <div class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
         <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-            <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
+            <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort.
               Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
                   </span></dfn>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -255,7 +255,7 @@
                 <form>
                     <div class="padding_top">
                         <label class="SmallHeadline5 padding_right">New Title:</label>
-                        <input type="text" id="newTitle" placeholder="New Title">                    
+                        <input type="text" id="newTitle" placeholder="New Title">
                     </div>
                 </form>
             </div>
@@ -279,7 +279,7 @@
                 <form>
                     <div class="padding_top">
                         <label class="SmallHeadline5 padding_right">New Title:</label>
-                        <input [(ngModel)]="storytitle" id="newStoryTitle" name="storytitle" (keyup)="storyUnique($event, storytitle, stories, story)" required> 
+                        <input [(ngModel)]="storytitle" id="newStoryTitle" name="storytitle" (keyup)="storyUnique($event, storytitle, stories, story)" required>
                     </div>
                 </form>
             </div>
@@ -300,15 +300,15 @@
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
             <div>
-                <form #workgroupInviteForm="ngForm" novalidate (ngSubmit)="workgroupInvite(workgroupInviteForm);"> 
+                <form #workgroupInviteForm="ngForm" novalidate (ngSubmit)="workgroupInvite(workgroupInviteForm);">
                     <p *ngIf="this.workgroupError" class="wrongEmail">{{this.workgroupError}}</p>
                     <label>Project Owner: </label>
                     <label>{{this.workgroupOwner}}</label>
 
                     <div>
                         <!--<label class="SmallHeadline5 padding_right">Member:</label>-->
-                        
-                        <input class="workGroupEmail" type="email" ngModel name="email" placeholder="Email"> 
+
+                        <input class="workGroupEmail" type="email" ngModel name="email" placeholder="Email">
                         <button type="submit" class="normalButton">Invite to Team</button>
                         <div class="canEditContainer">
                             <label class="canEditLabel" >Can add team members</label>
@@ -322,11 +322,11 @@
             <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8" aria-describedby="mydesc">
                 <ng-container matColumnDef="email">
                   <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
-                  <td mat-cell *matCellDef="let element"> 
+                  <td mat-cell *matCellDef="let element">
                     <div class="emailTableContainer">
                         <label>{{element.email}} </label>
                         <button class="normalButton deleteButton"(click)="removeFromWorkgroup(element);">Remove</button>
-                    </div> 
+                    </div>
                   </td>
                 </ng-container>
 
@@ -338,7 +338,7 @@
                   </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
-              </table> 
+              </table>
         </div>
     </div>
     <div class="modal-footer">
@@ -384,17 +384,49 @@
     </div>
     <div class="modal-body">
         <form>
-            <div class="form-group groupouterdiv">
-                <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
-                <br><br>
-                <label class="uk-form-label" style="color: grey;"></label>
-                <div *ngFor="let story of stories; let i = index" class="groupstoryselection">
-                    <label class="groupinput">
-                    <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
-                    {{story.title}}
-                    </label>
+           <div >
+               <div class="form-group groupouterdiv modalsContent">
+                    <div class="lableAlign">
+                        <label class="uk-form-label" style="color: grey;">Enter unique group name </label>
+                        <br>
+                        <label class="uk-form-label"  style="color: grey;">Find story </label>
+                    </div>
+                    <!-- <br><br> -->
+                    <div class="inputAlign">
+                        <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
+                        <br>
+                        <input (keyup)="searchOnKey($event.target.value)" placeholder="Search story"/>
+                    </div>
                 </div>
+                <div style="width: 100%;">
+                    <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
+                        <ng-container matColumnDef="story">
+                          <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
+                          <td mat-cell *matCellDef="let element">
+                            <div class="emailTableContainer">
+                                <label>{{element.title}} </label>
+                            </div>
+                          </td>
+                        </ng-container>
+
+                        <ng-container  matColumnDef="checkStory">
+                            <th id="selectStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
+                            <td mat-cell *matCellDef="let element">
+                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
+                      </table>
+                </div>
+                <!-- <div class="storyListWrapper">
+                    <div *ngFor="let story of getSortedStories(); let i = index" class="groupstoryselection" style="margin-left: 3px;">
+                        <label class="groupinput">
+                        <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
+                        {{story.title}}
+                        </label>
+                    </div>
+                </div> -->
             </div>
         </form>
     </div>
