@@ -1,10 +1,11 @@
-import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild, EventEmitter} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ModalsComponent } from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
+import { ThemingService } from '../Services/theming.service';
 import {interval} from 'rxjs';
 import {map} from 'rxjs/operators';
 
@@ -18,7 +19,7 @@ import {map} from 'rxjs/operators';
 })
 
 
-export class AccountManagementComponent implements OnInit {
+export class AccountManagementComponent implements OnInit, OnDestroy {
     /**
      * Viewchild to create the modals
      */
@@ -58,23 +59,40 @@ export class AccountManagementComponent implements OnInit {
 
     downloadRepoID: string;
 
+    isDark: boolean;
+
     /**
      * Constructor
      * @param apiService Connection to the api service
      * @param router router to handle url changes
+     * @param themeService
      */
-    constructor(public apiService: ApiService, public router: Router) {
-        this.routeSub = router.events.subscribe(event => {
-            if (event instanceof NavigationEnd && router.url === '/accountManagement') {
+    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {}
+
+    ngOnInit() {
+        this.routeSub = this.router.events.subscribe(event => {
+            if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
             }
         });
-        if (!router.events) {
+        if (!this.router.events) {
             this.apiService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
                 console.log('first load');
             });
         }
+        this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepos());
+
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged.subscribe((changedTheme) => {
+            this.isDark = this.themeService.isDarkMode();
+        });
+    }
+
+    ngOnDestroy() {
+        this.routeSub.unsubscribe();
+        this.apiService.getRepositoriesEvent.unsubscribe();
+        this.apiService.updateRepositoryEvent.unsubscribe();
     }
 
     seperateRepos(repos) {
@@ -115,8 +133,8 @@ export class AccountManagementComponent implements OnInit {
      * Opens Modal to edit the workgroup
      * @param project
      */
-    workGroupEdit(project: RepositoryContainer) {
-        this.modalComponent.openWorkgroupEditModal(project);
+    workGroupEdit(project: RepositoryContainer){
+        this.modalComponent.openWorkgroupEditModal(project, this.email, this.id);
     }
 
     /**
@@ -162,18 +180,6 @@ export class AccountManagementComponent implements OnInit {
             });
             this.getSessionStorage();
         }
-    }
-
-
-    /**
-     * @ignore
-     */
-    ngOnInit() {
-
-    }
-
-    ngOnDestroy() {
-        this.routeSub.unsubscribe();
     }
 
     /**
@@ -226,5 +232,20 @@ export class AccountManagementComponent implements OnInit {
                 return repo;
             }
         });
+    }
+
+    update() {
+        this.isDark = this.themeService.isDarkMode();
+      }
+      onDark(): boolean {
+        this.update();
+        return this.isDark;
+      }
+
+    /**
+     * Update Repositories after change
+     */
+    updateRepos() {
+        this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
     }
 }

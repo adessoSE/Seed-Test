@@ -92,6 +92,11 @@ export class ApiService {
       public deleteStoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to delete the repository
+     */
+    public deleteRepositoryEvent = new EventEmitter();
+
+    /**
      * Event emitter to create a custom story
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
@@ -101,6 +106,8 @@ export class ApiService {
     public updateGroupEmitter: EventEmitter<any> = new EventEmitter();
 
     public deleteGroupEmitter: EventEmitter<any> = new EventEmitter();
+
+    public updateRepositoryEvent: EventEmitter<any> = new EventEmitter();
 
     /**
      * Gets api headers
@@ -140,6 +147,20 @@ export class ApiService {
      */
       public deleteStoryEmitter() {
         this.deleteStoryEvent.emit();
+    }
+
+    /**
+      * Emits the delete repository event
+      */
+    public deleteRepositoryEmitter() {
+        this.deleteRepositoryEvent.emit();
+    }
+
+    /**
+     * Emits if repositories changed 
+     */
+    public updateRepositoryEmitter() {
+        this.updateRepositoryEvent.emit();
     }
 
     /**
@@ -246,6 +267,22 @@ export class ApiService {
             this.getRepositoriesEvent.emit(resp);
           }),
             catchError(ApiService.handleError));
+    }
+
+    /**
+     * Delete one Repository
+     * @param repo
+     * @returns 
+     */
+    deleteRepository(repo: RepositoryContainer, user){
+        this.apiServer = localStorage.getItem('url_backend');
+
+        const str = this.apiServer + '/user/repositories/' + repo._id + '/' + user;
+        return this.http.delete<any>(str, ApiService.getOptions())
+        .pipe(tap(resp => {
+
+        }),
+          catchError(ApiService.handleError));
     }
 
     /**

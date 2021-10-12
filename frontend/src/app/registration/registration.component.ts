@@ -3,6 +3,7 @@ import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to register a new user
@@ -20,10 +21,13 @@ export class RegistrationComponent implements OnInit {
      */
     error: string;
 
+    isDark:boolean = this.themeService.isDarkMode();
+
     /**
      * @ignore
      */
-    constructor(public apiService: ApiService, private router: Router, private toastr: ToastrService) {}
+    constructor(public apiService: ApiService, private router: Router, private toastr: ToastrService,
+        private themeService:ThemingService) {}
 
     /**
      * @ignore
@@ -48,4 +52,10 @@ export class RegistrationComponent implements OnInit {
             this.router.navigate(["/"]);
         } 
     }
+
+    isDarkModeOn () {
+        this.isDark = this.themeService.isDarkMode();
+        return this.isDark
+      }
+    
 }
