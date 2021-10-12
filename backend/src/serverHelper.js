@@ -188,7 +188,7 @@ async function updateFeatureFile(issueID, storySource) {
 function runReport(req, res, stories, mode, parameters) {
 	// only used when executing multiple stories
 	let cumulate = 0;
-	execReport(req, res, stories, mode, (reportObj) => {
+	execReport(req, res, stories, mode, parameters, (reportObj) => {
 		// res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		const reportTime = reportObj.reportTime;
@@ -313,7 +313,7 @@ function runReport(req, res, stories, mode, parameters) {
 	});
 }
 
-async function execReport(req, res, stories, mode, callback) {
+async function execReport(req, res, stories, mode, parameters, callback) {
 	try {
 		if (mode === 'group') {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
@@ -321,7 +321,7 @@ async function execReport(req, res, stories, mode, callback) {
 			for (const story of stories) {
 				await nameSchemeChange(story);
 				// if mit execution mode "parallel" or "sequential"
-				if (req.body.sequentialMode !== undefined && req.body.sequentialMode) {
+				if (parameters.isSequential !== undefined && parameters.isSequential) {
 					await executeTest(req, res, stories, mode, story)
 						.then((values) => {
 							callback(values);
@@ -760,7 +760,6 @@ const getGithubData = (res, req, accessToken) => {
 			try {
 				await mongo.findOrRegister(req.body);
 				passport.authenticate('github-local', (error, user) => {
-					console.log('Der User in authenticate', JSON.stringify(user));
 					if (error) {
 						res.json({ error: 'Authentication Error' });
 					} else if (!user) {

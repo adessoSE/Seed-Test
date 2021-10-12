@@ -186,6 +186,7 @@ export class ModalsComponent implements OnInit, OnDestroy {
 
     story: Story;
     storytitle : string;
+    isSequential: boolean;
 
     /**
      * Existing Groups
@@ -671,6 +672,7 @@ submitRenameScenario() {
         this.groupId = undefined;
         this.groupTitle = '';
         this.selectedStories = undefined;
+        this.isSequential = false;
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
@@ -700,12 +702,13 @@ submitRenameScenario() {
         event.stopPropagation();
         const title = this.groupTitle;
         const member_stories = this.selectedStories;
+        const seq = this.isSequential
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        const group = {title, member_stories};
-        this.apiService.createGroupEvent({repositoryContainer, group});
+        const group = {title, member_stories, seq};
+        this.apiService.createGroupEvent({repositoryContainer, group,});
     }
 
     /**
@@ -723,6 +726,7 @@ submitRenameScenario() {
         });
         this.groupId = group._id;
         this.groupTitle = group.name;
+        this.isSequential = group.isSequential;
         this.selectedStories = [];
         for (const s of group.member_stories) {
             this.selectedStories.push(s._id);
@@ -738,7 +742,7 @@ submitRenameScenario() {
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories};
+        const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories, isSequential: this.isSequential};
         this.apiService.updateGroupEvent({repositoryContainer, group});
     }
 
@@ -798,6 +802,10 @@ submitRenameScenario() {
         }
         const exists = this.selectedStories.find(function(x) {return x == story._id; });
         return exists !== undefined;
+    }
+
+    setSequential() {
+        this.isSequential = !this.isSequential;
     }
 
 }

@@ -5,18 +5,12 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const process = require('process');
-const fetch = require('node-fetch');
-const request = require('request');
 const passport = require('passport');
-const bcrypt = require('bcrypt');
-const { v1: uuidv1 } = require('uuid');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
-const nodeMail = require('../nodemailer');
 
 const router = express.Router();
-const salt = bcrypt.genSaltSync(10);
 
 // router for all user requests
 
