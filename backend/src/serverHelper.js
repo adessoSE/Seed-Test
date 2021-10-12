@@ -192,7 +192,7 @@ function runReport(req, res, stories, mode, parameters) {
 		// res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
 		const reportTime = reportObj.reportTime;
-		const story = reportObj.story;
+		let story = reportObj.story;
 		const scenarioID = reportObj.scenarioID;
 		const reportName = reportObj.reportName;
 

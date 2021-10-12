@@ -59,11 +59,7 @@ router.post('/Group', (req, res, next) => {
 			});
 		})(req, res, next);
 	} catch (error) {
-		if (error instanceof UserError) {
-			res.status(401).json(error);
-		} else {
-			res.status(401).json(error);
-		}
+		res.status(401).json(error);
 	}
 });
 
@@ -89,11 +85,7 @@ router.post('/Feature/:issueID/:storySource', (req, res, next) => {
 			});
 		})(req, res, next);
 	} catch (error) {
-		if (error instanceof UserError) {
-			res.status(401).json(error);
-		} else {
-			res.status(401).json(error);
-		}
+		res.status(401).json(error);
 	}
 });
 
