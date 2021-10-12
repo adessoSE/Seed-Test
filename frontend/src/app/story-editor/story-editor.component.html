@@ -187,8 +187,13 @@
         </div>
       </div>
       <div class="storyInfoCenter" *ngIf="this.selectedScenario">
-          <label class="selectLabel SmallBody1regularLH">Execute all in one Driver:</label>
+          <label class="selectLabel LargeCategory2">Run Story in one Session:</label>
           <input type="checkbox" id="oneDriverCheck" (change)= "setOneDriver($event)" [checked]="this.selectedStory.oneDriver">
+          <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
+            <span rel="def">
+            Executes all scenarios consecutively in one single Browser session.
+            </span>
+          </dfn>
           <label class="selectLabel LargeCategory2">Wait between steps (ms):</label>
           <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0 min=0 max=25000 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
           <label class="selectLabel LargeCategory2">Browser:</label>

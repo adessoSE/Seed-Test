@@ -5,7 +5,7 @@
  }
 
  .storyInfoContainer{
-  display: flex;  
+  display: flex;
   flex-flow: row wrap;
   font-weight: bold;
   text-align: center;
@@ -14,12 +14,12 @@
 
  @media all and (min-width: 800px) {
   /* We invert order of first sidebar and main
-   * And tell the main element to take twice as much width as the other two sidebars 
+   * And tell the main element to take twice as much width as the other two sidebars
    */
   .storyInfoLeft { order: 1; }
-  .storyInfoCenter    { 
-    flex: 2 0px; 
-    order: 2; 
+  .storyInfoCenter    {
+    flex: 2 0px;
+    order: 2;
   }
   .storyInfoRight { order: 3; }
 
@@ -60,6 +60,15 @@
    width: 70px;
    margin-right: 5px;
  }
+
+ #oneDriverCheck {
+   margin-right: 5px;
+ }
+
+ #oneDriverInfoIcon{
+   margin-right: 10px;
+ }
+
  .arrowLeft{
    width: 130px;
    float: left;
@@ -80,12 +89,12 @@
   .emptyStories h1{
     color: #999;
   }
-  
+
   .emptyStories a {
     display: block;
   }
 
-  
+
   .disabled input{
     color: gray;
     border-bottom: none;
@@ -100,7 +109,7 @@
   }
 
   .tutorialDiv{
-    width: 550px; 
+    width: 550px;
     background-color: rgba(153, 153, 153, 0.342);
     padding: 20px;
     margin: 20px;
@@ -134,7 +143,7 @@
   .tutorialDiv h4{
     padding-bottom: 5px;
   }
-  
+
 
   #noStoriesHeader{
     padding-bottom: 5px;
@@ -146,7 +155,7 @@
       position: relative;
       top: -2px;
   }
-  
+
   .def span[rel=def] {
       display: none;
   }
@@ -161,7 +170,7 @@
     width: auto;
     min-width: 5px;
   }
-  
+
   .storyHeaderContainer{
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
@@ -185,7 +194,7 @@
     border-bottom: 1px solid #999;
   }
 
-  
+
   #infoIcon{
     color: #999;
     margin-left: 5px;
@@ -210,7 +219,7 @@
   .uk-card-footer{
     padding: 15px 0px;
   }
-  
+
   .button:hover {
     background: var(--marine-blue);
   }
@@ -225,67 +234,67 @@
     border-radius:4px;
     border:2px solid var(--white);
   }
-  
+
   .padding{
     padding: 20px;
   }
-  
+
   #saveButton.iconButton_unsaved em{
     color: red;
   }
-  
+
   .uk-dropdown{
     padding: 15px;
   }
-  
+
   .uk-nav > li > span{
     padding: 1px;
     cursor: pointer;
   }
-  
+
   .uk-nav > li > .dropdownStep {
     color: var(--ocean-blue);
-  }  
-    
+  }
+
   .uk-nav > li > span:hover {
       color: gray;
   }
-  
+
   .disabled {
     color: gray !important;
     background: var(--white) !important;
     font-style: italic;
   }
-  
+
   .scenarioBarContainer .disabled em{
     color: gray !important;
     background: #f8f8f8 !important;
   }
-  
+
   .dragIconContainer{
     text-align: center;
     cursor: move;
   }
-  
+
   em.dragIcon{
     font-size: 18px;
     color: black;
     background-color: var(--white);
     margin-top:3px
   }
-  
+
   .text-inline{
     display: flex;
   }
-  
+
   .text-inline > button{
     margin: 0 5px;
   }
-  
+
   .text-inline > p > input{
     margin: 0 5px;
   }
-  
+
   .uk-card-title {
     font-size: medium;
     font-weight: bold;
@@ -320,7 +329,7 @@
     transition: 0.3s;
     cursor: pointer;
   }
-  
+
   .backgroundContainer{
     margin-bottom: 20px;
   }
@@ -340,7 +349,7 @@
     text-align: center; margin: 0px auto;
     margin-right: 2px;
   }
-  
+
   .marginLeft{
     margin-left: 40px;
     display:inline-block;
@@ -381,11 +390,11 @@
     margin-bottom: 5px;
     margin-left: 3px
   }
-  
+
   .checkbox:hover{
     cursor: pointer;
   }
-  
+
 .scenarioBarContainer{
   display: flex;
   justify-content: space-between;
