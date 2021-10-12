@@ -733,6 +733,22 @@ async function deleteRepositorys(ownerID) {
 	}
 }
 
+async function deleteRepository(repoId, ownerId) {
+	let db;
+	try {
+		db = await connectDb();
+		const collectionRepo = await selectRepositoryCollection(db);
+		const repo = await collectionRepo.findOne({owner: ObjectId(ownerId), _id: ObjectId(repoId) })
+		const result = await collectionRepo.deleteOne(repo);
+		return result;
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in deleteRepository${e}`);
+		throw e;
+	} finally {
+		if (db) db.close();
+	}
+}
+
 async function getOneRepository(ownerId, name) {
 	try {
 		const repo = { owner: ObjectId(ownerId), repoName: name };
@@ -1237,8 +1253,7 @@ async function updateOneDriver(id, driver) {
 
 
 module.exports = {
-
-	setIsSavedTestReport,
+  setIsSavedTestReport,
 	deleteReport,
 	getTestReports,
 	getReport,
@@ -1274,6 +1289,7 @@ module.exports = {
 	createJiraRepoIfNoneExists,
 	updateStoriesArrayInRepo,
 	getRepository,
+	deleteRepository,
 	getOneRepository,
 	getOneGitRepository,
 	getAllStoriesOfRepo,

@@ -4,6 +4,7 @@ import { ReportContainer } from '../model/ReportContainer';
 import { Scenario } from '../model/Scenario';
 import { Story } from '../model/Story';
 import { ApiService } from '../Services/api.service';
+import { ThemingService } from '../Services/theming.service';
 import {Group} from '../model/Group';
 
 /**
@@ -31,6 +32,8 @@ export class ReportHistoryComponent implements OnInit {
    */
   reports: ReportContainer = null;
 
+  isDark: boolean = this.themeService.isDarkMode();
+
   /**
    * Event emiter to change the editor to story editor
    */
@@ -40,7 +43,7 @@ export class ReportHistoryComponent implements OnInit {
   /**
    * @ignore
    */
-  constructor(public apiService: ApiService) { }
+  constructor(public apiService: ApiService, private themeService : ThemingService) { }
 
   /**
    * @ignore
@@ -142,6 +145,11 @@ export class ReportHistoryComponent implements OnInit {
       .saveReport(report._id)
       .subscribe(_resp => {
       });
+  }
+
+  isDarkModeOn () {
+    this.isDark = this.themeService.isDarkMode();
+    return this.isDark;
   }
 
 }
