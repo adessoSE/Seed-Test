@@ -7,9 +7,14 @@
   .modal-title{
     color: var(--white);
   }
-  
+
   .modal-header{
     background-color: var(--ocean-blue);
+  }
+
+  ::ng-deep .darkTheme .modal-header{
+    background-color: black;
+    border-bottom: 1px solid #60767b;
   }
 
   .modal-body{
@@ -23,13 +28,26 @@
     overflow-x: hidden;
   }
 
+  ::ng-deep .darkTheme .modal-body {
+    background-color: #455A64;
+  }
+
   .modal-footer{
     height: 60px;
+  }
+
+  ::ng-deep .darkTheme .modal-footer {
+    background-color: #455A64;
+    border-top: 1px solid #60767b;
   }
 
   .close{
     color: var(--white);
     outline: none;
+  }
+
+  ::ng-deep .darkTheme .close{
+    background-color: transparent;
   }
 
 .uk-card-title {
@@ -38,10 +56,14 @@
 
 input.wrongEmail {
     border-left: 5px solid #d15553;
-  }
+}
+
+::ng-deep .darkTheme input.wrongEmail {
+    border-left: 5px solid red;
+}
 
 ::ng-deep .modal-dialog{
-    max-width: 800px;
+    max-width: 800px !important;
 }
 
 .subHeader{
@@ -51,6 +73,12 @@ input.wrongEmail {
 #description_form{
     width: 100%;
     height: 8em;
+}
+
+::ng-deep .darkTheme textarea {
+    background: transparent;
+    border-color: #60767b;
+    color: white;
 }
 
 .padding_top{
@@ -72,7 +100,15 @@ table {
 
 .mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
-  }
+}
+
+::ng-deep .darkTheme .mat-table .mat-cell:first-child, .darkTheme .mat-table .mat-header-cell:first-child{
+    border-right: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme .mat-table{
+    background: #455A64;
+}
 
 .mat-cell, .mat-header-cell {
     text-align: center;
@@ -93,6 +129,10 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 10px;
     display: flex;
+}
+
+::ng-deep .darkTheme .blockNameContainer {
+    border-bottom: 1px solid #60767b;
 }
 
 .blockNameHeader{
@@ -116,10 +156,18 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     justify-content: space-between;
 }
 
+::ng-deep .darkTheme .modal-content{
+    background: #455A64;
+}
+
 .savedBlocksContainer, .previewContainer{
     border: 1px solid #e0e0e0;
     flex: 1;
     overflow-y: auto;
+}
+
+::ng-deep .darkTheme .savedBlocksContainer, ::ng-deep .darkTheme .previewContainer {
+    border: 1px solid #60767b;
 }
 
 ::ng-deep.mat-pseudo-checkbox{
@@ -157,6 +205,10 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     padding: 0.5em;
     display: block;
     z-index: 100;
+}
+
+::ng-deep .darkTheme .def:hover span[rel=def] {
+    background-color: white;
 }
 
 
@@ -198,6 +250,10 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     background-color: var(--grape);
 }
 
+::ng-deep .darkTheme .wrongEmail {
+    background-color: red;
+}
+
 .canEditContainer{
     display: flex;
     flex-direction: row;
@@ -226,7 +282,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 #storydescription{
     resize: both;
     width: 70%;
-    height: 20%; 
+    height: 20%;
     min-width: 100px;
     min-height: 100px;
     max-width: 100%;
@@ -287,4 +343,11 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 .mat-column-checkStory {
     width: 10% !important;
+
+::ng-deep .darkTheme br {
+    border: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme p {
+    color: white;
 }

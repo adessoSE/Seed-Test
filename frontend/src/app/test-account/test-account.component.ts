@@ -4,6 +4,7 @@ import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import {ActivatedRoute} from "@angular/router";
+import { ThemingService } from '../Services/theming.service';
 
 
 /**
@@ -20,8 +21,8 @@ export class TestAccountComponent extends ParentComponent implements OnInit {
    * Constructor
    * @param apiService 
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute) {
-    super(apiService, route);
+  constructor(public apiService: ApiService, public route: ActivatedRoute, themeService: ThemingService ) {
+    super(apiService, route, themeService);
     this.loadStories()
   }
 

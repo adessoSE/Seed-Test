@@ -2,6 +2,7 @@ import {Component, OnInit, Input} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
+import { ThemingService } from '../Services/theming.service';
 
 /**
  * Component to show the report
@@ -34,13 +35,16 @@ export class ReportComponent implements OnInit {
      */
     showResults = false;
 
+    isDark:boolean;
+
 
     /**
      * Retrieves the report
      * @param apiService
      * @param route
      */
-    constructor(public apiService: ApiService, public route: ActivatedRoute) {
+    constructor(public apiService: ApiService, public route: ActivatedRoute, 
+        private themeService: ThemingService) {
         this.route.params.subscribe(params => {
             if (params.reportName) {
                 if (!localStorage.getItem('url_backend')) {
@@ -58,6 +62,11 @@ export class ReportComponent implements OnInit {
      * @ignore
      */
     ngOnInit() {
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged
+        .subscribe((currentTheme) => {
+            this.isDark = this.themeService.isDarkMode()
+    });
     }
 
     ngOnChanges() {
