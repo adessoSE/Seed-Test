@@ -343,6 +343,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 .mat-column-checkStory {
     width: 10% !important;
+}
 
 ::ng-deep .darkTheme br {
     border: 1px solid #60767b;
