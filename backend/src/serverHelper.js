@@ -12,6 +12,7 @@ const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
+
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
@@ -202,7 +203,7 @@ function runReport(req, res, stories, mode, parameters) {
 			fs.readFile(reportPath, 'utf8', async (err, data) => {
 				const json = JSON.parse(data);
 				const scenario = story.scenarios.find((s) => s.scenario_id == scenarioID);
-
+				console.log('Hier auch noch? !!!!!!!!!!!!!!!!', reportPath);
 				let passed = 0;
 				let failed = 0;
 				let skipped = 0;
@@ -242,6 +243,7 @@ function runReport(req, res, stories, mode, parameters) {
 				// generate HTML Report and Upload it
 				let reportOptions;
 				let uploadedReport;
+				console.log('Wie sieht es hier aus? !!!!!!!!!!!!!!!!', mode);
 				if (mode === 'group') {
 					if (cumulate + 1 < stories.length) {
 						cumulate++;
@@ -253,6 +255,7 @@ function runReport(req, res, stories, mode, parameters) {
 						// upload report JSON to DB
 						fs.readFile(`features/${grpNameDir}/${grpNameDir}.html.json`, 'utf8', async (err2, data2) => {
 							const grpJson = JSON.parse(data2);
+							console.log('Der Report !!!!!!!!!!!!!!!!', grpJson);
 							const report = {
 								reportTime, reportName: grpNameDir, reportOptions, jsonReport: grpJson, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 							};
@@ -315,7 +318,7 @@ async function execReport(req, res, stories, mode, callback) {
 			fs.mkdirSync(`./features/${req.body.name}`);
 			for (const story of stories) {
 				await nameSchemeChange(story);
-				execReport2(req, res, stories, 'group', story, callback);
+				callback = await executeTest(req, res, stories, 'group', story);
 			}
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
@@ -348,6 +351,84 @@ async function deleteFeatureFile(storyTitle, storyId) {
 	} catch (e) {
 		console.log('File not found', e);
 	}
+}
+
+function executeTest(req, res, stories, mode, story) {
+	return new Promise((resolve, reject) => {
+		let parameters = {};
+		if (mode === 'scenario') {
+			const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioID, 10));
+			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
+			if (!scenario.browser) scenario.browser = 'chrome';
+			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
+			if (scenario.stepDefinitions.example.length <= 0) {
+				parameters = {
+					scenarios:
+				[{
+					browser: scenario.browser,
+					waitTime: scenario.stepWaitTime,
+					daisyAutoLogout: scenario.daisyAutoLogout
+				}]
+				};
+			} else {
+				parameters = { scenarios: [] };
+				scenario.stepDefinitions.example.forEach((examples, index) => {
+					if (index > 0) {
+						parameters.scenarios.push({
+							browser: scenario.browser,
+							waitTime: scenario.stepWaitTime,
+							daisyAutoLogout: scenario.daisyAutoLogout
+						});
+					}
+				});
+			}
+		} else if (mode === 'feature' || mode === 'group') {
+			const prep = scenarioPrep(story.scenarios, story.oneDriver);
+			story.scenarios = prep.scenarios;
+			parameters = prep.parameters;
+		}
+		const reportTime = Date.now();
+		const cucePath = 'node_modules/.bin/cucumber-js';
+		const featurePath = `features/${cleanFileName(story.title + story._id)}.feature`;
+		const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
+
+		let jsonPath = `features/${reportName}.json`;
+		if (mode === 'group') {
+			const grpDir = req.body.name;
+			jsonPath = `./features/${grpDir}/${reportName}.json`;
+		}
+
+		const jsParam = JSON.stringify(parameters);
+		let worldParam = '';
+		for (let i = 0; i < jsParam.length; i++) {
+			if (jsParam[i] == '"')
+				worldParam += '\\\"';
+			else
+				worldParam += jsParam[i];
+		}
+
+		console.log('worldParam', worldParam);
+
+		let cmd;
+		if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
+
+		if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
+
+		if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
+
+		console.log(`Executing: ${cmd}`);
+
+		exec(cmd, (error, stdout, stderr) => {
+			if (error) {
+				console.error(`exec error: ${error}`);
+				resolve(reportTime, story, req.params.scenarioID, reportName);
+				return;
+			}
+			console.log(`stdout: ${stdout}`);
+			console.log(`stderr: ${stderr}`);
+			resolve(reportTime, story, req.params.scenarioID, reportName);
+		});
+	});
 }
 
 function execReport2(req, res, stories, mode, story, callback) {

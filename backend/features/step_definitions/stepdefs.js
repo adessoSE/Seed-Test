@@ -8,8 +8,6 @@ const { expect } = require('chai');
 require('geckodriver');
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
-const { Console } = require('console');
-
 
 let driver;
 const firefoxOptions = new firefox.Options();
@@ -50,7 +48,7 @@ Before(async function () {
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) {
 			if (driver) {
-				console.log("Es gibt bereits einen Treiber")
+				console.log('OneDriver');
 			} else {
 				driver = new webdriver.Builder()
 					.forBrowser(currentParameters.browser)
