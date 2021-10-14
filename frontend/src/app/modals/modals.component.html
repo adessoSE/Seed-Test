@@ -398,6 +398,10 @@
                         <input (keyup)="searchOnKey($event.target.value)" placeholder="Search story"/>
                     </div>
                 </div>
+                <div>
+                    <label class="uk-form-label" style="color: grey;">Execute all Storys in sequence?:</label>
+                    <input type="checkbox" (change)="setSequential($event)">
+                </div>
                 <div style="width: 100%;">
                     <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
                         <ng-container matColumnDef="story">
@@ -448,6 +452,10 @@
             <div class="form-group groupstoryselectionouter">
                 <label class="uk-form-label"  style="color: grey;"></label>
                 <input [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
+                <div>
+                    <label class="uk-form-label" style="color: grey;">Execute all Storys in sequence?:</label>
+                    <input type="checkbox" [checked]="this.isSequential" (change)="setSequential($event)">
+                </div>
                 <br><br>
                 <label class="uk-form-label" style="color: grey;"></label>
                 <div *ngFor="let story of stories; let i = index" class="groupstoryselection">

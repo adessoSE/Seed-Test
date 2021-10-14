@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectID;
@@ -96,11 +97,11 @@ async function registerUser(user) {
 	let result;
 	if (dbUser !== null) throw Error('User already exists');
 	else
-	if (user.userId) result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
-	else {
-		delete user.userId;
-		result = await collection.insertOne(user);
-	}
+		if (user.userId) result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
+		else {
+			delete user.userId;
+			result = await collection.insertOne(user);
+		}
 
 	if (db) db.close();
 	return result;
@@ -273,7 +274,6 @@ function replaceUser(newUser, collection) {
 }
 
 async function updateStory(updatedStuff) {
-	console.log('updateStuff', updatedStuff);
 	let db;
 	try {
 		db = await connectDb();
@@ -321,7 +321,7 @@ async function getOneStoryByStoryId(storyId, storySource) {
 	}
 }
 
-async function createStoryGroup(repoID, name, members) {
+async function createStoryGroup(repoID, name, members, sequence) {
 	let db;
 	try {
 		db = await connectDb();
@@ -329,7 +329,13 @@ async function createStoryGroup(repoID, name, members) {
 
 		const groups = await collection.findOneAndUpdate(
 			{ _id: ObjectId(repoID) },
-			{ $push: { groups: { _id: ObjectId(), name, member_stories: members || [] } } },
+			{
+				$push: {
+					groups: {
+						_id: ObjectId(), name, member_stories: members, isSequential: sequence || []
+					}
+				}
+			},
 			{ upsert: true, projection: { groups: 1 }, returnOriginal: false }
 		);
 		return groups.value.groups.slice(-1)._id;
@@ -571,7 +577,6 @@ async function updateScenarioList(storyId, source, scenarioList) {
 }
 
 async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
-	console.log('getAllStoriesOfRepo', ownerId, repoName, repoId);
 	let db;
 	const storiesArray = [];
 	try {
@@ -739,7 +744,7 @@ async function deleteRepository(repoId, ownerId) {
 	try {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
-		const repo = await collectionRepo.findOne({owner: ObjectId(ownerId), _id: ObjectId(repoId) })
+		const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId) })
 		const result = await collectionRepo.deleteOne(repo);
 		return result;
 	} catch (e) {
@@ -1237,70 +1242,89 @@ async function removeFromWorkgroup(id, user) {
 	}
 }
 
-module.exports = {
+async function updateOneDriver(id, driver) {
+	let db;
+	try {
+		const oneDriver = !driver.oneDriver;
+		db = await connectDb();
+		const collection = await selectStoriesCollection(db);
+		const result = await collection.findOneAndUpdate(
+			{ _id: ObjectId(id) },
+			{ $set: { oneDriver } },
+			{ returnOriginal: false }
+		);
+		return result.value;
+	} catch (e) {
+		console.log('UPS!!!! FEHLER in updateOneDriver: ', e);
+	} finally {
+		if (db) db.close();
+	}
+}
 
-  setIsSavedTestReport,
-  deleteReport,
-  getTestReports,
-  getReport,
-  uploadReport,
-  disconnectGithub,
-  mergeGithub,
-  findOrRegister,
-  getUserByGithub,
-  getUserById,
-  registerUser,
-  getUserByEmail,
-  showSteptypes,
-  //createBackground,
-  deleteBackground,
-  updateBackground,
-  getOneScenario,
-  createScenario,
-  updateScenario,
-  deleteScenario,
-  updateScenarioList,
-  createStory,
-  deleteStory,
-  insertStoryIdIntoRepo,
-  getOneStory,
-  getOneStoryByStoryId,
-  upsertEntry,
-  updateStory,
-  createUser,
-  deleteUser,
-  updateUser,
-  getUserData,
-  createGitOwnerRepoIfNoneExists,
-  createJiraRepoIfNoneExists,
-  updateStoriesArrayInRepo,
-  getRepository,
-  deleteRepository,
-  getOneRepository,
-  getOneGitRepository,
-  getAllStoriesOfRepo,
-  createRepo,
-  createStoryGroup,
-  updateStoryGroup,
-  deleteStoryGroup,
-  addToStoryGroup,
-  removeFromStoryGroup,
-  getAllStoryGroups,
-  getOneStoryGroup,
-  updateStoryGroupsArray,
-  selectStoriesCollection,
-  connectDb,
-  createResetRequest,
-  getResetRequest,
-  deleteRequest,
-  getResetRequestByEmail,
-  saveBlock,
-  updateBlock,
-  getBlocks,
-  deleteBlock,
-  getWorkgroup,
-  addMember,
-  updateMemberStatus,
-  getMembers,
-  removeFromWorkgroup,
+module.exports = {
+	setIsSavedTestReport,
+	deleteReport,
+	getTestReports,
+	getReport,
+	uploadReport,
+	disconnectGithub,
+	mergeGithub,
+	findOrRegister,
+	getUserByGithub,
+	getUserById,
+	registerUser,
+	getUserByEmail,
+	showSteptypes,
+	// createBackground,
+	deleteBackground,
+	updateBackground,
+	getOneScenario,
+	createScenario,
+	updateScenario,
+	deleteScenario,
+	updateScenarioList,
+	createStory,
+	deleteStory,
+	insertStoryIdIntoRepo,
+	getOneStory,
+	getOneStoryByStoryId,
+	upsertEntry,
+	updateStory,
+	createUser,
+	deleteUser,
+	updateUser,
+	getUserData,
+	createGitOwnerRepoIfNoneExists,
+	createJiraRepoIfNoneExists,
+	updateStoriesArrayInRepo,
+	getRepository,
+	deleteRepository,
+	getOneRepository,
+	getOneGitRepository,
+	getAllStoriesOfRepo,
+	createRepo,
+	createStoryGroup,
+	updateStoryGroup,
+	deleteStoryGroup,
+	addToStoryGroup,
+	removeFromStoryGroup,
+	getAllStoryGroups,
+	getOneStoryGroup,
+	updateStoryGroupsArray,
+	selectStoriesCollection,
+	connectDb,
+	createResetRequest,
+	getResetRequest,
+	deleteRequest,
+	getResetRequestByEmail,
+	saveBlock,
+	updateBlock,
+	getBlocks,
+	deleteBlock,
+	getWorkgroup,
+	addMember,
+	updateMemberStatus,
+	getMembers,
+	removeFromWorkgroup,
+	updateOneDriver
 };
