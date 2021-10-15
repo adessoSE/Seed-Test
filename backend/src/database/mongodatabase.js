@@ -198,7 +198,7 @@ async function updateGithubToken(objId, updatedToken) {
 
 function connectDb() {
 	return new Promise((resolve, reject) => {
-		MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+		MongoClient.connect(uri, { useNewUrlParser: true , useUnifiedTopology: true }, (err, db) => {
 			if (err) reject(err);
 			else resolve(db);
 		});

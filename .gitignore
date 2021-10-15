@@ -24,6 +24,7 @@ heroku_push.bat
 .settings/
 *.sublime-workspace
 frontend/.idea
+backend/.idea
 
 # IDE - VSCode
 .vscode/*
