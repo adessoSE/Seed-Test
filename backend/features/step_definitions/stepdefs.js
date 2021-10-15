@@ -20,6 +20,7 @@ chromeOptions.addArguments('--disable-dev-shm-usage');
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
+chromeOptions.addArguments('--excludeSwitches=enable-logging')
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
