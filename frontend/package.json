@@ -2,40 +2,41 @@
   "name": "seed-test-frontend",
   "version": "1.4.1",
   "engines": {
-    "node": "10.x"
+    "node": "14.x"
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng build & node server.js",
-    "build": "ng build",
+    "start": "npm run build & node server.js",
+    "build": "ng build --configuration production",
     "test": "ng test --codeCoverage=true",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "prod": "ng serve -c production",
-    "dev": "ng serve ",
+    "dev": "ng serve",
     "heroku-postbuild": "ng build --aot --configuration=production",
     "compodoc": "./node_modules/.bin/compodoc -p tsconfig.json -w -s"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^11.2.14",
-    "@angular/cdk": "~11.2.13",
-    "@angular/common": "^11.2.14",
-    "@angular/compiler": "^11.2.14",
-    "@angular/core": "^11.2.14",
-    "@angular/forms": "^11.2.14",
-    "@angular/material": "^11.2.13",
-    "@angular/platform-browser": "^11.2.14",
-    "@angular/platform-browser-dynamic": "^11.2.14",
-    "@angular/router": "^11.2.14",
-    "@ng-bootstrap/ng-bootstrap": "^9.1.3",
+    "@angular/animations": "^12.2.10",
+    "@angular/cdk": "^12.2.10",
+    "@angular/common": "^12.2.10",
+    "@angular/compiler": "^12.2.10",
+    "@angular/core": "^12.2.10",
+    "@angular/forms": "^12.2.10",
+    "@angular/material": "^12.2.10",
+    "@angular/platform-browser": "^12.2.10",
+    "@angular/platform-browser-dynamic": "^12.2.10",
+    "@angular/router": "^12.2.10",
+    "@kdeenanauth/material-carousel": "^12.2.0",
+    "@ng-bootstrap/ng-bootstrap": "^10.0.0",
     "core-js": "^3.18.3",
     "dotenv": "^10.0.0",
     "express": "^4.16.4",
     "file-saver": "^2.0.5",
     "hammerjs": "^2.0.8",
     "jquery": "^3.6.0",
-    "ngx-cookie-service": "11.0.2",
+    "ngx-cookie-service": "12.0.3",
     "ngx-take-until-destroy": "^5.4.0",
     "ngx-toastr": "13.2.1",
     "request": "^2.88.2",
@@ -43,9 +44,9 @@
     "zone.js": "^0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.1102.14",
-    "@angular/cli": "^11.2.14",
-    "@angular/compiler-cli": "^11.2.14",
+    "@angular-devkit/build-angular": "^12.2.10",
+    "@angular/cli": "^12.2.10",
+    "@angular/compiler-cli": "^12.2.10",
     "@compodoc/compodoc": "^1.1.11",
     "codelyzer": "^6.0.2",
     "depcheck": "^1.4.2",
@@ -60,6 +61,6 @@
     "rxjs": "^6.6.3",
     "tslib": "^2.3.1",
     "tslint": "^6.1.3",
-    "typescript": "~4.0.5"
+    "typescript": "~4.3.5"
   }
 }
