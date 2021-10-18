@@ -33,7 +33,7 @@
   <div [hidden]="!showFilter">
     <mat-form-field appearance="standard" class="filterFormField">
       <mat-label>Assignee</mat-label>
-        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let assignee of createDistictList('assignee')" [value]="assignee">
             {{assignee}}
@@ -42,7 +42,7 @@
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
       <mat-label>Status Of Story</mat-label>
-        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
             {{testPassed}}
@@ -51,7 +51,7 @@
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField">
       <mat-label>Group</mat-label>
-        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let group of createDistictList('group')" [value]="group">
             {{group}}
