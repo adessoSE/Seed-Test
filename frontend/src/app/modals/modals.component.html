@@ -11,15 +11,21 @@
         <div class="submitForm">
             <div>
                 <form>
-                    <div class="form-group" id="jiraForm" *ngIf="type==='Jira'">
-                        <label class="uk-form-label" style="color: grey;"></label>
-                            <input id="jiraAccountName" placeholder=" Account Name">
-                            <br><br>
-                        <label class="uk-form-label" style="color: grey;"></label>
-                            <input id="jira_password" placeholder=" Password" type="password">
-                            <br><br>
-                        <label class="uk-form-label" style="color: grey;"></label>
-                            <input id="jiraHost" placeholder=" Server URL">
+                    <div class="form-group modalsContent" id="jiraForm" *ngIf="type==='Jira'">
+                        <div class="labelField" id="inputLabels">
+                            <label class="uk-form-label">Enter existing account name</label>
+                            <br>
+                            <label class="uk-form-label">Enter password</label>
+                            <br>
+                            <label class="uk-form-label">Enter server URL</label>
+                        </div>
+                        <div class="inputField">
+                            <input  id="jiraAccountName" placeholder=" Account name">
+                            <br>
+                            <input id="jira_password" placeholder="Password" type="password">
+                            <br>
+                            <input id="jiraHost" placeholder="URL">
+                        </div>                  
                     </div>
                     <div id="githubForm" *ngIf="type==='Github'">
                         <div class="padding_top uk-form-horizontal">
@@ -53,10 +59,13 @@
         <div class="submitForm">
             <div>
                 <form>
-                    <div class="form-group">
-                        <label>
-                            <input id="repo_name" defaultValue="YourRepoName" placeholder=" Name of Project">
-                        </label>
+                    <div class="form-group modalsContent" id="inputLabels">
+                        <div>
+                            <label class="uk-form-label labelField">Enter unique project name</label>
+                        </div>   
+                        <div class="inputField">
+                            <input id="repo_name" defaultValue="YourRepoName" placeholder=" Name of project">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -81,14 +90,19 @@
         <div class="submitForm">
             <div>
                 <form>
-                    <div class="form-group">
-                        <p style="font-size:16px;">Are you sure that you want to erase your Seed-Test Account?</p>
-                        <p style="font-size:16px;">This will also erase all of your saved repositories.</p>
-                        <p style="font-size:16px;">If you wish to erase your Seed-Account and connected data, please verify with your email:</p>
+                    <div class="form-group" id="deleteText">
+                        <p >Are you sure that you want to erase your Seed-Test Account?</p>
+                        <p >This will also erase all of your saved repositories.</p>
+                        <p >If you wish to erase your Seed-Account and connected data, please verify with your email:</p>
                         <br>
-                        <label>
-                            <input type="email" id="insertedEmail" placeholder="Your Email*">
-                        </label>
+                        <div class="modalsContent" id="inputLabels">
+                            <div class="labelField">
+                                <label class="uk-form-label">Enter your email</label>
+                            </div>
+                            <div class="inputField">
+                                <input type="email" id="insertedEmail" placeholder="Email">
+                            </div>    
+                        </div>   
                     </div>
                 </form>
             </div>
@@ -122,7 +136,7 @@
           </mat-selection-list>
         </div>
         <div class="previewContainer">
-          <p class="subHeader" *ngIf="selectedBlock == undefined">Preview:</p>
+          <p class="subHeader" *ngIf="selectedBlock == undefined">Preview</p>
           <p class="subHeader" *ngIf="selectedBlock != undefined">Preview: {{selectedBlock.name}}</p>
           <table id="savedStepTable" mat-table [dataSource]="stepList" class="mat-elevation-z8" aria-describedby="mydesc">
               <ng-container matColumnDef="stepType">
@@ -159,9 +173,14 @@
     </div>
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
-          <div class="blockNameContainer">
-            <span class="blockNameHeader LargeBody2">Name</span>
-            <input id="blockNameInput" class="blockNameInput" placeholder="Name of Block">
+          <div class="blockNameContainer modalsContent">
+              <div class="labelField padding_right uk-form-label" id="inputLabels">
+                  <!-- class="blockNameHeader LargeBody2"  consider erasing-->
+                <label>Name</label>
+              </div>
+              <div class="inputField">
+                <input id="blockNameInput" class="blockNameInput" placeholder="Name of block">
+              </div>
           </div>
           <div class="tableContainer">
             <span class="blockNameHeader blockNameHeader">Selected Steps</span>
@@ -211,27 +230,37 @@
         <div class="uk-card-title submitForm">
             <div>
                 <form #submitNewStep="ngForm" novalidate (ngSubmit)="submitNewStepRequest(submitNewStep); modal.close('Save click')">
-                    <div class="padding_top">
-                        <label class="SmallHeadline5 padding_right">Title:</label>
-                        <input id="label_form">
-                    </div>
-                    <div class="padding_top">
-                        <label class="SmallHeadline5 padding_right">Type:</label>
-                        <select id="type_form" name="type_form">
-                            <option id="type_form_given" value="given">given</option>
-                            <option id="type_form_when" value="when">when</option>
-                            <option id="type_form_then" value="then">then</option>
-                        </select>
-                    </div>
-                    <div class="padding_top">
-                        <label class="SmallHeadline5 padding_right">Description:</label>
-                        <div>
-                            <textarea id="description_form" ngModel name="description_form"></textarea>
+                    <div class="modalsContent">
+                        <div class="padding_top labelField" id="inputLabels">
+                            <label class="uk-form-label">Title</label>
+                            <br>
+                            <label class="uk-form-label">Type</label>
+                            
+                        </div>
+                        <div class="padding_top inputField">
+                            <input id="label_form">
+                            <br>
+                            <select id="type_form" name="type_form" style="width: fit-content;">
+                                <option id="type_form_given" value="given">given</option>
+                                <option id="type_form_when" value="when">when</option>
+                                <option id="type_form_then" value="then">then</option>
+                            </select>
                         </div>
                     </div>
                     <div class="padding_top">
-                        <label class="SmallHeadline5 padding_right">E-Mail:</label>
-                        <input id="email" #email ngModel type="email" name="email" [class.wrongEmail]="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Email*" class="uk-form-controls input" required>
+                        <!-- <label class="SmallHeadline5 padding_right">Description:</label> -->
+                        <!-- <div> -->
+                            <textarea id="description_form" ngModel name="description_form"
+                            placeholder="Enter detailed description of the step"></textarea>
+                       <!--  </div> -->
+                    </div>
+                    <div class="padding_top modalsContent" id="inputLabels">
+                        <div class="labelField">
+                            <label class="uk-form-label">Email</label>
+                        </div>
+                        <div class="inputField">
+                            <input id="email" #email ngModel type="email" name="email" [class.wrongEmail]="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Email*" class="uk-form-controls input" required>
+                        </div> 
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="normalButton" [disabled]="submitNewStep.invalid">Submit
@@ -253,9 +282,13 @@
         <div class="uk-card-title submitForm">
             <div>
                 <form>
-                    <div class="padding_top">
-                        <label class="SmallHeadline5 padding_right">New Title:</label>
-                        <input type="text" id="newTitle" placeholder="New Title">                    
+                    <div class="padding_top modalsContent">
+                        <div class="labelField" id="inputLabels">
+                            <label class="padding_right uk-form-label">Enter new scenario title</label>
+                        </div>
+                        <div class="inputField">
+                            <input type="text" id="newTitle" placeholder="New title">
+                        </div>                    
                     </div>
                 </form>
             </div>
@@ -277,9 +310,14 @@
         <div class="uk-card-title submitForm">
             <div>
                 <form>
-                    <div class="padding_top">
-                        <label class="SmallHeadline5 padding_right">New Title:</label>
-                        <input type="text" id="newStoryTitle" placeholder="New Title">                    
+                    <div class="padding_top modalsContent">
+                        <div class="labelField" id="inputLabels">
+                            <label class="padding_right uk-form-label">Enter new story title</label>
+                        </div>
+                        <div class="inputField">
+                            <input type="text" id="newStoryTitle" placeholder="New title">
+                        </div>
+                                            
                     </div>
                 </form>
             </div>
@@ -302,19 +340,20 @@
             <div>
                 <form #workgroupInviteForm="ngForm" novalidate (ngSubmit)="workgroupInvite(workgroupInviteForm);"> 
                     <p *ngIf="this.workgroupError" class="wrongEmail">{{this.workgroupError}}</p>
-                    <label>Project Owner: </label>
+                    <label style="margin-right: 10px;">Project Owner:</label>
                     <label>{{this.workgroupOwner}}</label>
 
-                    <div>
-                        <!--<label class="SmallHeadline5 padding_right">Member:</label>-->
+                        <div class="divWrapper">
+                            <!--<label class="SmallHeadline5 padding_right">Member:</label>-->
                         
-                        <input class="workGroupEmail" type="email" ngModel name="email" placeholder="Email"> 
-                        <button type="submit" class="normalButton">Invite to Team</button>
-                        <div class="canEditContainer">
-                            <label class="canEditLabel" >Can add team members</label>
-                            <input type="checkbox" ngModel name="canEdit" class="normalButton">
+                            <input class="workGroupEmail" type="email" ngModel name="email" placeholder="Email"> 
+                            <button type="submit" class="normalButton">Invite to Team</button>
                         </div>
-                    </div>
+                        <div class="canEditContainer divWrapper">
+                            <label class="canEditLabel addTeamMembersLabel" >Can add team members</label>
+                            <input type="checkbox" ngModel name="canEdit" 
+                            class="normalButton addTeamMembersLabel" style="align-self: center;">
+                        </div>
                 </form>
             </div>
         </div>
@@ -335,7 +374,7 @@
                     <td mat-cell *matCellDef="let element">
                         <input type="checkbox" name="canEditUser" class="normalButton" (change)="this.checkEditUser($event, element)" [checked]="element.canEdit">
                     </td>
-                  </ng-container>
+                </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedColumnsWorkgroup"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumnsWorkgroup;"></tr>
               </table> 
@@ -360,13 +399,15 @@
     </div>
     <div class="modal-body">
         <form>
-            <div class="form-group">
-                <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="storyTitle" name="storytitle" id="storytitle" placeholder=" Title">
-                <br><br>
-                <label class="uk-form-label" style="color: grey;"></label>
-                <textarea [(ngModel)]="storyDescription" name="storydescription" id="storydescription" placeholder=" Description"></textarea>
+            <div class="form-group modalsContent">
+                <div class="labelField" id="inputLabels" >
+                    <label class="uk-form-label">Enter unique story title</label>
+                </div>
+                <div class="inputField" >
+                    <input [(ngModel)]="storyTitle" name="storytitle" id="storytitle" placeholder=" Title">
+                </div>
             </div>
+            <textarea [(ngModel)]="storyDescription" name="storydescription" id="storydescription" placeholder="Enter a brief description of your test story"></textarea>
         </form>
     </div>
     <div class="modal-footer">
@@ -385,21 +426,20 @@
     <div class="modal-body">
         <form>
            <div > 
-               <div class="form-group groupouterdiv modalsContent">
-                    <div class="lableAlign">
-                        <label class="uk-form-label" style="color: grey;">Enter unique group name </label> 
+               <div class="form-group groupouterdiv modalsContent" id="inputLabels">
+                    <div class="labelField">
+                        <label class="uk-form-label">Enter unique group name </label> 
                         <br>
-                        <label class="uk-form-label"  style="color: grey;">Find story </label> 
+                        <label class="uk-form-label">Find story </label> 
                     </div>
-                    <!-- <br><br> -->
-                    <div class="inputAlign">            
+                    <div class="inputField">            
                         <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
                         <br>
-                        <input (keyup)="searchOnKey($event.target.value)" placeholder="Search story"/>
+                        <input (keyup)="searchOnKey($event.target.value)" placeholder="Story name"/>
                     </div>
                 </div>
                 <div style="width: 100%;">
-                    <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
+                    <table id="storiesTable1" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
                         <ng-container matColumnDef="story">
                           <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
                           <td mat-cell *matCellDef="let element"> 
@@ -446,21 +486,51 @@
     <div class="modal-body">
         <form>
             <div class="form-group groupstoryselectionouter">
-                <label class="uk-form-label"  style="color: grey;"></label>
-                <input [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
-                <br><br>
-                <label class="uk-form-label" style="color: grey;"></label>
+                <div class="modalsContent">
+                    <div class="inputField">
+                        <label class="uk-form-label labelField">Change group name</label>
+                        <br>
+                        <label class="uk-form-label">Find story </label> 
+                    </div>
+                    <div class="inputField">
+                        <input [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
+                        <br>
+                        <input (keyup)="searchOnKey($event.target.value)" placeholder="Story name"/>
+                    </div>
+                </div>
+                <div style="width: 100%;">
+                    <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
+                        <ng-container matColumnDef="story">
+                          <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
+                          <td mat-cell *matCellDef="let element"> 
+                            <div class="emailTableContainer">
+                                <label>{{element.title}} </label>
+                            </div> 
+                          </td>
+                        </ng-container>
+        
+                        <ng-container  matColumnDef="checkStory">
+                            <th class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
+                            <td mat-cell *matCellDef="let element">
+                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
+                      </table> 
+                </div>                
+<!--                 <label class="uk-form-label"></label>
                 <div *ngFor="let story of stories; let i = index" class="groupstoryselection">
                     <label class="groupinput">
                     <input type="checkbox" [checked]="isStoryChecked(story)"(change)="selectStory(story)" />
                     {{story.title}}
                     </label>
-                </div>
+                </div> -->
             </div>
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="deleteGroup($event); modal.dismiss()" style="background: red">Delete</button>
+        <button type="button" class="normalButton deleteButton" (click)="deleteGroup($event); modal.dismiss()">Delete</button>
         <button id="groupUpdate" type="button" class="normalButton" (click)="updateGroup($event); modal.close('Save click')">Update</button>
     </div>
 </ng-template>

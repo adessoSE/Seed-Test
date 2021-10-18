@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
 
 *{
     font-family: Klavika, sans-serif;
@@ -10,6 +10,7 @@
   
   .modal-header{
     background-color: var(--ocean-blue);
+    align-items: center;
   }
 
   .modal-body{
@@ -225,7 +226,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 #storydescription{
     resize: both;
-    width: 70%;
+    width: 100%;
     height: 20%; 
     min-width: 100px;
     min-height: 100px;
@@ -275,16 +276,40 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     justify-content: center;
 }
 
-.inputAlign {
+.inputField {
     display: grid;
 }
 
-.lableAlign {
+.labelField {
     display: grid;
     justify-items: end;
     margin-right: 10px;
+    align-content: inherit;
 }
 
 .mat-column-checkStory {
     width: 10% !important;
+}
+
+#inputLabels label {
+    margin-top: .25rem;
+    margin-bottom: .25rem;
+}
+
+.addTeamMembersLabel {
+    position: relative;
+    left: -67px;
+}
+
+.divWrapper {
+    margin: 3px;
+}
+
+div#deleteText > p {
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+}
+
+.uk-form-label {
+    color: black;
 }
