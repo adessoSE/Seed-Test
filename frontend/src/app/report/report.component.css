@@ -9,6 +9,10 @@
     line-height: 25px;
   }
 
+  .uk-card-default {
+    background: transparent;
+  }
+
   .material-icons{
     font-size: 24px;
   }

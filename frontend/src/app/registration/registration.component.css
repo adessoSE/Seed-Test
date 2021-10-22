@@ -3,7 +3,7 @@
     grid-template-rows: 1;
     grid-template-columns: 3;
     grid-template-areas: "formular";
-    background-color: var(--white);
+    /* background-color: var(--white); */
 }
 
 .formular{
@@ -13,6 +13,10 @@
     width: 500px;
     background-color: var(--white);
     padding: 80px 50px;
+}
+
+.darkTheme .formular {
+    background-color: #455A64; 
 }
 
 #infoIcon{
@@ -26,6 +30,9 @@
 
 #headerFont{
     color:var(--ocean-blue);
+}
+.darkTheme #headerFont {
+    color:var(--light-blue); 
 }
 
 .uk-form-controls{

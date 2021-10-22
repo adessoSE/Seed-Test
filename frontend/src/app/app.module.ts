@@ -1,7 +1,7 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RouterModule} from '@angular/router';
-import {ROUTES} from '../app/routes/routes';
+import {ROUTES} from './routes/routes';
 import {AppComponent} from './app.component';
 import {ScenarioEditorComponent} from './scenario-editor/scenario-editor.component';
 import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
@@ -33,7 +33,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { MatCarouselModule } from '@ngbmodule/material-carousel';
+import { MatCarouselModule } from '@kdeenanauth/material-carousel';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
@@ -44,6 +44,11 @@ import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import { ThemingService } from './Services/theming.service';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
+
+
 import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
@@ -89,16 +94,18 @@ import {MatSelectModule} from '@angular/material/select';
     MatSelectModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
-    DragDropModule,
     ClipboardModule,
+    DragDropModule,
     MatProgressSpinnerModule,
     MatCarouselModule.forRoot(),
     ToastrModule.forRoot({
       timeOut: 3000
-    })
+    }),
+    MatSlideToggleModule,
+    MatIconModule,
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
+  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

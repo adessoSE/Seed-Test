@@ -1,4 +1,4 @@
-import {Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy} from '@angular/core';
+import {Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Story} from '../model/Story';
 import {Scenario} from '../model/Scenario';
@@ -7,8 +7,7 @@ import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from '../model/Group';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
-
-
+import { ThemingService } from '../Services/theming.service';
 
 
 /**
@@ -67,8 +66,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     @Output()
     testRunningGroup: EventEmitter<any> = new EventEmitter();
 
-
-
     /**
      * groups in the project
      */
@@ -93,6 +90,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Subscription element if a custom Group should be created
      */
     deleteGroupEmitter: Subscription;
+
+    @Input() isDark: boolean;
+
 
     /**
      * SearchTerm for story title search
@@ -127,6 +127,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     @Output() report: EventEmitter<any> = new EventEmitter();
 
+
     /**
      * View Child Modals
      */
@@ -135,8 +136,14 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Constructor
      * @param apiService
+     * @param ThemingService
      */
-    constructor(public apiService: ApiService, public toastr: ToastrService) {
+    constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {}
+
+    /**
+     * Checks if this is the daisy version
+     */
+    ngOnInit() {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s != null);
             this.filteredStories = this.stories;
@@ -148,12 +155,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.apiService.deleteStoryEvent.subscribe(() => {
           this.deleteStory();
         });
-    }
 
-    /**
-     * Checks if this is the daisy version
-     */
-    ngOnInit() {
         const version = localStorage.getItem('version');
         if (version == 'DAISY' || !version) {
             this.daisyVersion = true;
@@ -172,7 +174,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createGroupEmitter = this.apiService.createCustomGroupEmitter.subscribe(custom => {
-            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
+            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.seq).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
@@ -194,6 +196,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 });
             });
         });
+
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged
+        .subscribe((currentTheme) => {
+            this.isDark = this.themeService.isDarkMode();
+    });
     }
 
     ngOnDestroy() {
@@ -201,6 +209,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createGroupEmitter.unsubscribe();
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
+        this.apiService.getStoriesEvent.unsubscribe();
+        this.apiService.deleteStoryEvent.unsubscribe();
     }
 
 
@@ -290,8 +300,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.toggleShows();
     }
 
-
-
     /**
      * Selects a new Group
      * @param Group
@@ -308,8 +316,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Opens a create New scenario Modal
      */
-    openCreateNewScenarioModal() {
-        this.modalsComponent.openCreateNewStoryModal();
+    openCreateNewStoryModal() {
+        this.modalsComponent.openCreateNewStoryModal(this.stories);
     }
 
     addFirstScenario() {
