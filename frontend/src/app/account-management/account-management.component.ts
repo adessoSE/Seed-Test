@@ -245,7 +245,10 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     /**
      * Update Repositories after change
      */
-    updateRepos() {
-        this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
+    updateRepos(){
+        //this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
+        let value = sessionStorage.getItem('repositories')
+        let repository: RepositoryContainer = JSON.parse(value)
+        this.seperateRepos(repository)
     }
 }
