@@ -102,19 +102,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
-    ) { }
-
-    /**
-     * retrieves the saved block from the session storage
-     */
-    ngDoCheck(): void {
-        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
-    }
-
-    /**
-     * Subscribes to all necessary events
-     */
-    ngOnInit() {
+    ) { 
         if (localStorage.getItem('version') == 'DAISY') {
             this.showDaisyAutoLogout = true;
         } else {
@@ -156,10 +144,24 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
     }
 
+    /**
+     * retrieves the saved block from the session storage
+     */
+    ngDoCheck(): void {
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
+    }
+
+    /**
+     * Subscribes to all necessary events
+     */
+    ngOnInit() {
+        
+    }
+
     ngOnDestroy(){
-        this.apiService.runSaveOptionEvent.unsubscribe();
-        this.apiService.addBlockToScenarioEvent.unsubscribe();
-        this.apiService.renameScenarioEvent.unsubscribe();
+        //this.apiService.runSaveOptionEvent.unsubscribe();
+        //this.apiService.addBlockToScenarioEvent.unsubscribe();
+        //this.apiService.renameScenarioEvent.unsubscribe();
     }
 
     /**

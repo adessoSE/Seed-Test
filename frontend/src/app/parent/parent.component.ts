@@ -56,12 +56,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param apiService
    * @param themeService
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {}
-
-  /**
-   * Requests the repositories on init
-   */
-  ngOnInit() {
+  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -83,8 +78,15 @@ export class ParentComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Requests the repositories on init
+   */
+  ngOnInit() {
+    
+  }
+
   ngOnDestroy(){
-    this.apiService.getBackendUrlEvent.unsubscribe();
+    //this.apiService.getBackendUrlEvent.unsubscribe();
   }
 
   /**

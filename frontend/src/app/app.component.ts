@@ -51,12 +51,6 @@ export class AppComponent implements OnInit, OnDestroy {
    */
 
   constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
-  }
-
-  /**
-   * Retrieves Repositories
-   */
-  ngOnInit() {
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
     });
@@ -78,9 +72,16 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Retrieves Repositories
+   */
+  ngOnInit() {
+    
+  }
+
   ngOnDestroy(){
-    this.apiService.logoutEvent.unsubscribe();
-    this.apiService.updateRepositoryEvent.unsubscribe();
+    //this.apiService.logoutEvent.unsubscribe();
+    //this.apiService.updateRepositoryEvent.unsubscribe();
   }
 
   /**

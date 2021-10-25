@@ -138,12 +138,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @param apiService
      * @param ThemingService
      */
-    constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {}
-
-    /**
-     * Checks if this is the daisy version
-     */
-    ngOnInit() {
+    constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {
         this.apiService.getStoriesEvent.subscribe(stories => {
             this.stories = stories.filter(s => s != null);
             this.filteredStories = this.stories;
@@ -163,6 +158,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.daisyVersion = false;
         }
 
+        
+    }
+
+    /**
+     * Checks if this is the daisy version
+     */
+    ngOnInit() {
         this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
@@ -202,6 +204,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         .subscribe((currentTheme) => {
             this.isDark = this.themeService.isDarkMode();
     });
+        
     }
 
     ngOnDestroy() {
@@ -209,8 +212,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createGroupEmitter.unsubscribe();
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
-        this.apiService.getStoriesEvent.unsubscribe();
-        this.apiService.deleteStoryEvent.unsubscribe();
+        //this.apiService.getStoriesEvent.unsubscribe();
+        //this.apiService.deleteStoryEvent.unsubscribe();
     }
 
 
