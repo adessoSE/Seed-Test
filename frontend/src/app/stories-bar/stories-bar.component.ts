@@ -94,7 +94,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Subscription element if a Story should be deleted
      */
-    deleteStoryEmitter: Subscription;
+     deleteStorySubscribtion: Subscription;
 
     @Input() isDark: boolean;
 
@@ -206,7 +206,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         .subscribe((currentTheme) => {
             this.isDark = this.themeService.isDarkMode();
     });
-    this.deleteStoryEmitter = this.apiService.deleteStoryEvent.subscribe(() => {
+
+    this.apiService.deleteStoryEvent.subscribe(() => {
         this.deleteStory();
       });
         
@@ -218,7 +219,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
         //this.apiService.getStoriesEvent.unsubscribe();
-        this.deleteStoryEmitter.unsubscribe();
+        this.apiService.deleteStoryEvent.unsubscribe();
     }
 
 
