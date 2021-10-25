@@ -75,7 +75,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         });
         if (!this.router.events) {
             this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-                console.log('load repos account man')
                 this.seperateRepos(repositories);
                 console.log('first load');
             });

@@ -113,7 +113,6 @@ export class AppComponent implements OnInit, OnDestroy {
    * Gets the repositories
    */
   getRepositories() {
-    console.log('get repos app')
     if (this.apiService.isLoggedIn()) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;

@@ -163,7 +163,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Retrieves the repositories / projects of the user
      */
      getRepositories() {
-         console.log('get repo login')
         let value = localStorage.getItem('repository')
         let source = localStorage.getItem('source')
         let _id = localStorage.getItem('id');
