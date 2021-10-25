@@ -67,9 +67,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param router router to handle url changes
      * @param themeService
      */
-    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {}
-
-    ngOnInit() {
+    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
         this.routeSub = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
@@ -77,6 +75,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         });
         if (!this.router.events) {
             this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+                console.log('load repos account man')
                 this.seperateRepos(repositories);
                 console.log('first load');
             });
@@ -89,10 +88,10 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         });
     }
 
+    ngOnInit() {
+    }
+
     ngOnDestroy() {
-        this.routeSub.unsubscribe();
-        this.apiService.getRepositoriesEvent.unsubscribe();
-        this.apiService.updateRepositoryEvent.unsubscribe();
     }
 
     seperateRepos(repos) {

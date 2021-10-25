@@ -246,31 +246,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             this.setStories(stories);
             this.db = localStorage.getItem('source') === 'db' ;
         });
-        this.apiService.storiesErrorEvent.subscribe(errorCode => {
-            this.storiesError = true;
-            this.showEditor = false;
-        });
-
-        this.apiService.getBackendUrlEvent.subscribe(() => {
-          this.loadStepTypes();
-        });
-
-        this.apiService.deleteStoryEvent.subscribe(() => {
-          this.showEditor = false;
-          this.storyDeleted();
-          });
-
-        this.apiService.deleteScenarioEvent.subscribe(() => {
-          this.deleteScenario(this.selectedScenario);
-          });
 
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
         }
-
-        this.apiService.deleteStoryEvent.subscribe(() => {
-            this.showEditor = false;
-        });
 
         if (this.selectedStory) {
             this.storiesLoaded = true;
@@ -282,37 +261,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         } else {
           this.daisyVersion = false;
         }
-        this.apiService.runSaveOptionEvent.subscribe(option => {
-            if (option === 'run') {
-                this.runUnsaved = true;
-                this.runOption();
-            }
-            if (option === 'saveRun') {
-                this.saveBackgroundAndRun = true;
-                this.updateBackground();
-          }
+
+        this.apiService.getBackendUrlEvent.subscribe(() => {
+          this.loadStepTypes();
         });
 
-        this.apiService.addBlockToScenarioEvent.subscribe(block => {
-            if (block[0] === 'background') {
-                block = block[1];
-                Object.keys(block.stepDefinitions).forEach((key, index) => {
-                    if (key === 'when') {
-                        block.stepDefinitions[key].forEach((step: StepType) => {
-                          this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                        });
-                    }
-                });
-                  this.selectedStory.background.saved = false;
-            }
-        });
-        this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-
-        this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged.subscribe((changedTheme) => {
-            this.isDark = this.themeService.isDarkMode();
-            console.log('Changed to ' + changedTheme);
-        });
+        
     }
 
     /**
@@ -326,19 +280,68 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
+        this.apiService.storiesErrorEvent.subscribe(errorCode => {
+            this.storiesError = true;
+            this.showEditor = false;
+        });
+
+        this.apiService.deleteStoryEvent.subscribe(() => {
+            this.showEditor = false;
+            this.storyDeleted();
+            });
+  
+          this.apiService.deleteScenarioEvent.subscribe(() => {
+            this.deleteScenario(this.selectedScenario);
+            });
+  
+          this.apiService.deleteStoryEvent.subscribe(() => {
+              this.showEditor = false;
+          });
+  
+          this.apiService.runSaveOptionEvent.subscribe(option => {
+              if (option === 'run') {
+                  this.runUnsaved = true;
+                  this.runOption();
+              }
+              if (option === 'saveRun') {
+                  this.saveBackgroundAndRun = true;
+                  this.updateBackground();
+            }
+          });
+  
+          this.apiService.addBlockToScenarioEvent.subscribe(block => {
+              if (block[0] === 'background') {
+                  block = block[1];
+                  Object.keys(block.stepDefinitions).forEach((key, index) => {
+                      if (key === 'when') {
+                          block.stepDefinitions[key].forEach((step: StepType) => {
+                            this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                          });
+                      }
+                  });
+                    this.selectedStory.background.saved = false;
+              }
+          });
+          this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
         
+
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged.subscribe((changedTheme) => {
+            this.isDark = this.themeService.isDarkMode();
+            console.log('Changed to ' + changedTheme);
+        });
 
     }
 
     ngOnDestroy(){
-        /*this.apiService.runSaveOptionEvent.unsubscribe();
+        //this.apiService.runSaveOptionEvent.unsubscribe();
         this.apiService.renameStoryEvent.unsubscribe();
         this.apiService.addBlockToScenarioEvent.unsubscribe();
-        this.apiService.getStoriesEvent.unsubscribe();
+        //this.apiService.getStoriesEvent.unsubscribe();
         this.apiService.storiesErrorEvent.unsubscribe();
-        this.apiService.getBackendUrlEvent.unsubscribe();
+        //this.apiService.getBackendUrlEvent.unsubscribe();
         this.apiService.deleteScenarioEvent.unsubscribe();
-        this.apiService.deleteStoryEvent.unsubscribe();*/
+        this.apiService.deleteStoryEvent.unsubscribe();
     }
 
     /**

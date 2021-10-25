@@ -54,7 +54,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
     });
-    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
+    this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
+    this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
 
     this.getRepositories();
     if (!this.apiService.urlReceived) {
@@ -112,6 +113,7 @@ export class AppComponent implements OnInit, OnDestroy {
    * Gets the repositories
    */
   getRepositories() {
+    console.log('get repos app')
     if (this.apiService.isLoggedIn()) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
