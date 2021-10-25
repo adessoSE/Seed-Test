@@ -164,6 +164,13 @@ export class ApiService {
     }
 
     /**
+     * Emits if repositories should be reloaded 
+     */
+     public getRepositoriesEmitter() {
+        this.getRepositoriesEvent.emit();
+    }
+
+    /**
      * Emits the rename scenario event
      * @param newTitle
      */
@@ -264,7 +271,7 @@ export class ApiService {
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
             sessionStorage.setItem('repositories', JSON.stringify(resp));
-            this.getRepositoriesEvent.emit(resp);
+            this.updateRepositoryEmitter()//updateRepositoryEvent.emit(resp);
           }),
             catchError(ApiService.handleError));
     }
