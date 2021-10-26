@@ -406,6 +406,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
        .deleteStory(repository, this.selectedStory._id)
        .subscribe(resp => {
            this.storyDeleted();
+           this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
+            this.groups = groups;
+        } );
            this.toastr.error('', 'Story deleted');
         }); }
   }}
@@ -544,5 +547,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.groupModel = '--';
         this.isFilterActive = false;
     }
+
+     bouncer(array: Story []) {
+        return this.stories.filter(function(stories) {
+          return stories;
+        });
+      }
 
 }
