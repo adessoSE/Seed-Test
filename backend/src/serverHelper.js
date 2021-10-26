@@ -208,41 +208,49 @@ function runReport(req, res, stories, mode, parameters) {
 			fs.readFile(reportPath, 'utf8', async (err, data) => {
 				const json = JSON.parse(data);
 				const scenario = story.scenarios.find((s) => s.scenario_id == scenarioID);
-				let passed = 0;
-				let failed = 0;
-				let skipped = 0;
+				let passedSteps = 0;
+				let failedSteps = 0;
+				let skippedSteps = 0;
 				const scenariosTested = { passed: 0, failed: 0 };
 				try {
+					// for each scenario (called element in the .json report)
 					json[0].elements.forEach((d) => {
 						let scenarioPassed = 0;
 						let scenarioFailed = 0;
+						// for each step inside a scenario
 						d.steps.forEach((s) => {
 							switch (s.result.status) {
 								case 'passed':
-									passed++;
+									passedSteps++;
 									scenarioPassed++;
 									break;
 								case 'failed':
-									failed++;
+									failedSteps++;
 									scenarioFailed++;
 									break;
 								case 'skipped':
-									skipped++;
+									skippedSteps++;
 									break;
 								default:
 									console.log(`Status default: ${s.result.status}`);
 							}
 						});
+						// set scenario status (for GitHub/Jira reporting comment)
 						if (testPassed(scenarioFailed, scenarioPassed)) scenariosTested.passed += 1;
 						else scenariosTested.failed += 1;
+
 						story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed),
 							d.tags[0].name, story);
 					});
-				} catch (error) {
-					console.log('json element in fs runReport', error);
-				}
+					// end of For Each Scenario ################################
 
-				testStatus = testPassed(failed, passed);
+					// after all Scenarios and Steps:
+					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
+					testStatus = testPassed(failedSteps, passedSteps);
+				} catch (error) {
+					testStatus = false;
+					console.log('iterating through report Json failed in serverHelper/runReport. Setting testStatus of Report to false.', error);
+				}
 
 				// generate HTML Report and Upload it
 				let reportOptions;
@@ -288,7 +296,7 @@ function runReport(req, res, stories, mode, parameters) {
 				}
 
 				if (req.params.storySource === 'github' && req.user && req.user.github) {
-					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
+					const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
 					const githubValue = parameters.repository.split('/');
 					const githubName = githubValue[0];
@@ -648,6 +656,7 @@ async function uploadReport(report, storyId, scenarioID) {
 	return uploadedReport;
 }
 
+// returns true if failed = 0 and passed > 1
 function testPassed(failed, passed) {
 	return failed <= 0 && passed >= 1;
 }

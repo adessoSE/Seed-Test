@@ -49,22 +49,13 @@ export class AppComponent implements OnInit, OnDestroy {
    * @param router
    * @param themeService
    */
-  constructor(public apiService: ApiService, public router: Router,  public themeService: ThemingService) {
-    this.apiService.logoutEvent.subscribe(_ => {
-      this.logout();
-  });
-    this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
-    this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
-  }
 
-  /**
-   * Retrieves Repositories
-   */
-  ngOnInit() {
+  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
     });
-    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
+    this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
+    this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
 
     this.getRepositories();
     if (!this.apiService.urlReceived) {
@@ -82,9 +73,16 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Retrieves Repositories
+   */
+  ngOnInit() {
+    
+  }
+
   ngOnDestroy(){
-    this.apiService.logoutEvent.unsubscribe();
-    this.apiService.updateRepositoryEvent.unsubscribe();
+    //this.apiService.logoutEvent.unsubscribe();
+    //this.apiService.updateRepositoryEvent.unsubscribe();
   }
 
   /**

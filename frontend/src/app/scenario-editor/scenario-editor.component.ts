@@ -102,7 +102,14 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
-    ) { }
+    ) { 
+        if (localStorage.getItem('version') == 'DAISY') {
+            this.showDaisyAutoLogout = true;
+        } else {
+            this.showDaisyAutoLogout = false;
+        }
+
+    }
 
     /**
      * retrieves the saved block from the session storage
@@ -115,12 +122,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        if (localStorage.getItem('version') == 'DAISY') {
-            this.showDaisyAutoLogout = true;
-        } else {
-            this.showDaisyAutoLogout = false;
-        }
-
         this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option == 'saveScenario'){
                 this.saveRunOption();
