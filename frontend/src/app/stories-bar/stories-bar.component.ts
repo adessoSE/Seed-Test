@@ -174,7 +174,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createGroupEmitter = this.apiService.createCustomGroupEmitter.subscribe(custom => {
-            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories).subscribe(respp => {
+            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.seq).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                     this.filteredGroups = this.groups;

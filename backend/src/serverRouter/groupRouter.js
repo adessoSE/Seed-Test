@@ -43,14 +43,18 @@ router.get('/:repo_id', async (req, res) => {
 	} catch (e) {
 		handleError(res, e, e, 500);
 	}
-	console.log('get story ', req.params.repo_id, req.params.group_id);
 });
 
 // create Group
 router.post('/:repo_id', async (req, res) => {
 	console.log('Create StoryGroup ', req.params.repo_id);
 	try {
-		const groupID = await mongo.createStoryGroup(req.params.repo_id, req.body.name, req.body.member_stories);
+		const groupID = await mongo.createStoryGroup(
+			req.params.repo_id,
+			req.body.name,
+			req.body.member_stories,
+			req.body.sequence
+		);
 		res.status(200).json({ group_id: groupID });
 	} catch (e) {
 		handleError(res, e, e, 500);

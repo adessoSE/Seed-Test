@@ -11,27 +11,29 @@
           As a <...>, I want <...> so that <...>
         </span></dfn>
     </div>
-    <span class="searchBar">
+    <!-- search bar here -->
+  </div>
+  <hr>
+  <div class="storyFilterWrapper">
+    <span class="searchBar" id="searchStoriesBar">
       <em class="material-icons" id="searchBarIcons">search</em>
       <input class="searchInput" [(ngModel)]="storyString" (ngModelChange)="storyTermChange()"/>
       <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('story')">close</em>
     </span>
-  </div>
-  <div>
     <em id="searchBarIcons" class="material-icons">filter_alt</em>
     <span id="clickableIcon">
     <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
     <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
     </span>
-    <span id="clickableIcon" style="float: right;">
+    <span id="clickableIcon" style="float: right; display: flex; flex-direction: row;">
     <em id="searchBarIcons" class="material-icons-outlined" (click)="clearAllFilter()">filter_alt</em>
-    <em id="searchBarIcons" class="material-icons" style="margin-left: -8px; font-size: 17px; vertical-align: bottom;" (click)="clearAllFilter()">close</em>
+    <em id="searchBarIcons" class="material-icons" style="/* margin-left: -8px; */ font-size: 17px; vertical-align: bottom;" (click)="clearAllFilter()">close</em>
     </span>
   </div>
   <div [hidden]="!showFilter">
     <mat-form-field appearance="standard" class="filterFormField">
       <mat-label>Assignee</mat-label>
-        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let assignee of createDistictList('assignee')" [value]="assignee">
             {{assignee}}
@@ -40,7 +42,7 @@
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
       <mat-label>Status Of Story</mat-label>
-        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
             {{testPassed}}
@@ -49,7 +51,7 @@
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField">
       <mat-label>Group</mat-label>
-        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let group of createDistictList('group')" [value]="group">
             {{group}}

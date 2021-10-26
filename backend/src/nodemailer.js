@@ -30,7 +30,7 @@ async function sendResetLink(email, id) {
                 Dies ist eine automatische E-Mail, bitte antworten Sie nicht darauf.<br><br><br>
                 Mit freundlichen Grüßen<br>
                 Das Seed-Test Team
-            </p>`
+                </p>`
     };
 
     transporter.sendMail(mailOptions, function (error, info) {

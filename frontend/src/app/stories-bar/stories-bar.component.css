@@ -236,6 +236,12 @@
     vertical-align: middle;
   }
 
+  .storyFilterWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
   .searchBarWrapper{
     display: flex;
     white-space: nowrap;
@@ -308,6 +314,11 @@
   /* ::ng-deep.mat-option-text:checked{
     color: green !important;
   } */
+
+  #searchStoriesBar {
+    justify-content: flex-start;
+    margin-left: 0px;
+  }
 
 @media screen and (max-width: 600px) {
   .grid{

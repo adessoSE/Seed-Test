@@ -1,7 +1,7 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RouterModule} from '@angular/router';
-import {ROUTES} from '../app/routes/routes';
+import {ROUTES} from './routes/routes';
 import {AppComponent} from './app.component';
 import {ScenarioEditorComponent} from './scenario-editor/scenario-editor.component';
 import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
@@ -33,7 +33,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { MatCarouselModule } from '@ngbmodule/material-carousel';
+import { MatCarouselModule } from '@kdeenanauth/material-carousel';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';

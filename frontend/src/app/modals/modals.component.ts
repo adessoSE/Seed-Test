@@ -4,11 +4,13 @@ import {ApiService} from '../Services/api.service';
 import {ToastrService} from 'ngx-toastr';
 import {Block} from '../model/Block';
 import {StepType} from '../model/StepType';
-import {NgForm} from '@angular/forms';
+import {FormControl, NgForm} from '@angular/forms';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import {Story} from '../model/Story';
 import {Group} from '../model/Group';
 import { DeleteRepositoryToast } from '../deleteRepository-toast';
+import { MatTableDataSource } from '@angular/material/table';
+import { passwordConfirmedValidator } from '../directives/password-confirmed.directive';
 
 
 /**
@@ -184,6 +186,7 @@ export class ModalsComponent implements OnInit, OnDestroy {
 
     story: Story;
     storytitle : string;
+    isSequential: boolean;
 
     /**
      * Existing Groups
@@ -209,6 +212,13 @@ export class ModalsComponent implements OnInit, OnDestroy {
 
     storyDescription: string;
 
+    storyString: string;
+
+    filteredStories: MatTableDataSource<Story>;
+    /**
+     * Columns of the story table table
+     */
+    displayedColumnsStories: string[] = ['story', 'checkStory'];
 
 
     /**
@@ -273,7 +283,7 @@ export class ModalsComponent implements OnInit, OnDestroy {
         if (!this.isEmptyOrSpaces(name)) {
             this.apiService.createRepository(name).subscribe(resp => {
                 this.toastr.info('', 'Project created');
-                this.apiService.updateRepositoryEmitter();
+                this.apiService.getRepositoriesEmitter();
             });
         }
     }
@@ -609,7 +619,7 @@ submitRenameScenario() {
      deleteCustomRepo(){
         if(this.userEmail == this.workgroupOwner) {
             this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
-                this.apiService.updateRepositoryEmitter();
+                this.apiService.getRepositoriesEmitter();
                 this.modalReference.close();
             })
         }
@@ -662,14 +672,27 @@ submitRenameScenario() {
         this.groupId = undefined;
         this.groupTitle = '';
         this.selectedStories = undefined;
+        this.isSequential = false;
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
         this.apiService.getStories(repositoryContainer).subscribe(res => {
             this.stories = res;
+            this.filteredStories = new MatTableDataSource(res);
         });
         this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+    }
+
+     /**
+   * Filters stories for searchterm
+   */
+
+    searchOnKey(filter: string) { 
+        this.filteredStories = new MatTableDataSource(this.stories);
+        this.filteredStories.filterPredicate =  (data: Story, filter: string) => data.title.trim().toLowerCase().indexOf(filter) != -1;
+        /* Apply filter */
+        this.filteredStories.filter = filter.trim().toLowerCase();
     }
 
     /**
@@ -679,12 +702,13 @@ submitRenameScenario() {
         event.stopPropagation();
         const title = this.groupTitle;
         const member_stories = this.selectedStories;
+        const seq = this.isSequential
         const value = localStorage.getItem('repository');
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        const group = {title, member_stories};
-        this.apiService.createGroupEvent({repositoryContainer, group});
+        const group = {title, member_stories, seq};
+        this.apiService.createGroupEvent({repositoryContainer, group,});
     }
 
     /**
@@ -702,6 +726,7 @@ submitRenameScenario() {
         });
         this.groupId = group._id;
         this.groupTitle = group.name;
+        this.isSequential = group.isSequential;
         this.selectedStories = [];
         for (const s of group.member_stories) {
             this.selectedStories.push(s._id);
@@ -717,7 +742,7 @@ submitRenameScenario() {
         const _id = localStorage.getItem('id');
         const source = localStorage.getItem('source');
         const repositoryContainer: RepositoryContainer = {value, source, _id};
-        const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories};
+        const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories, isSequential: this.isSequential};
         this.apiService.updateGroupEvent({repositoryContainer, group});
     }
 
@@ -777,6 +802,10 @@ submitRenameScenario() {
         }
         const exists = this.selectedStories.find(function(x) {return x == story._id; });
         return exists !== undefined;
+    }
+
+    setSequential() {
+        this.isSequential = !this.isSequential;
     }
 
 }

@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
 *{
     font-family: Klavika, sans-serif;
 }
@@ -5,7 +7,7 @@
   .modal-title{
     color: var(--white);
   }
-  
+
   .modal-header{
     background-color: var(--ocean-blue);
   }
@@ -77,7 +79,7 @@ input.wrongEmail {
     background: transparent;
     border-color: #60767b;
     color: white;
-} 
+}
 
 .padding_top{
     padding-top: 10px;
@@ -280,7 +282,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 #storydescription{
     resize: both;
     width: 70%;
-    height: 20%; 
+    height: 20%;
     min-width: 100px;
     min-height: 100px;
     max-width: 100%;
@@ -321,6 +323,26 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
         max-height: 300px;
         overflow-y: auto;
     }
+}
+
+.modalsContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.inputAlign {
+    display: grid;
+}
+
+.lableAlign {
+    display: grid;
+    justify-items: end;
+    margin-right: 10px;
+}
+
+.mat-column-checkStory {
+    width: 10% !important;
 }
 
 ::ng-deep .darkTheme br {

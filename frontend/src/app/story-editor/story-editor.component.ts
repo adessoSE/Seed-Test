@@ -400,6 +400,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             });
     }
 
+    setOneDriver(event) {
+        this.apiService
+        .changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
+        .subscribe((resp: any) => {
+            this.selectedStory = resp;
+        })
+    }
+
     /**
      * Checks all check boxes or unchecks
      * @param event
@@ -800,9 +808,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
                     {browser: browserSelect,
                         repository: localStorage.getItem('repository'),
-                        source: localStorage.getItem('source')
-                        // waitTime: defaultWaitTimeInput,
-                        // daisyAutoLogout: daisyAutoLogout
+                        source: localStorage.getItem('source'),
+                        oneDriver: this.selectedStory.oneDriver
+                        //waitTime: defaultWaitTimeInput,
+                        //daisyAutoLogout: daisyAutoLogout
                     })
                 .subscribe((resp: any) => {
                     this.reportId = resp.reportId;
@@ -953,7 +962,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
    * @param story
    */
   showDeleteStoryToast(story: Story) {
-    this.toastr.warning('', 'Do you really want to delete this story?', {
+    this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
         toastComponent: DeleteStoryToast
     });
   }
