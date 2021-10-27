@@ -45,6 +45,19 @@ import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-intercep
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import {MatSelectModule} from '@angular/material/select';
+import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
+import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
+import { CreateCustomProjectComponent } from './modals/create-custom-project/create-custom-project.component';
+import { DeleteAccountComponent } from './modals/delete-account/delete-account.component';
+import { AddBlockFormComponent } from './modals/add-block-form/add-block-form.component';
+import { SaveBlockFormComponent } from './modals/save-block-form/save-block-form.component';
+import { NewStepRequestComponent } from './modals/new-step-request/new-step-request.component';
+import { RenameScenarioComponent } from './modals/rename-scenario/rename-scenario.component';
+import { RenameStoryComponent } from './modals/rename-story/rename-story.component';
+import { WorkgroupEditComponent } from './modals/workgroup-edit/workgroup-edit.component';
+import { CreateNewStoryComponent } from './modals/create-new-story/create-new-story.component';
+import { UpdateGroupComponent } from './modals/update-group/update-group.component';
+import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-jira-account.component';
 
 @NgModule({
   declarations: [
@@ -76,6 +89,19 @@ import {MatSelectModule} from '@angular/material/select';
     ConfirmResetPasswordComponent,
     ModalsComponent,
     ReportHistoryComponent,
+    LayoutModalComponent,
+    CreateNewGroupComponent,
+    CreateCustomProjectComponent,
+    DeleteAccountComponent,
+    AddBlockFormComponent,
+    SaveBlockFormComponent,
+    NewStepRequestComponent,
+    RenameScenarioComponent,
+    RenameStoryComponent,
+    WorkgroupEditComponent,
+    CreateNewStoryComponent,
+    UpdateGroupComponent,
+    ChangeJiraAccountComponent,
   ],
   imports: [
     NgbModule,

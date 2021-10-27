@@ -59,7 +59,7 @@ export class ParentComponent implements OnInit {
     } else {
       this.apiService.getBackendInfo();
     }
-   }
+  }
 
   /**
    * Requests the repositories on init

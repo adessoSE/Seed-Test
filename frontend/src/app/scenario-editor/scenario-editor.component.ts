@@ -9,7 +9,10 @@ import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
-import { ModalsComponent } from '../modals/modals.component';
+import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
+import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
+import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 
 /**
  * Component of the Scenario Editor
@@ -90,7 +93,10 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     /**
      * View child of the modals component
      */
-    @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
+    @ViewChild('addBlockModal') addBlockModal : AddBlockFormComponent;
+    @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
+    @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
+    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
 
 
     /**
@@ -381,7 +387,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     addStepToScenario(storyID: any, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if (newStep['type'] === this.newStepName) {
-            this.modalsComponent.openNewStepRequestModal(newStep['stepType']);
+            this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
         } else {
             switch (newStep.stepType) {
                 case 'given':
@@ -542,7 +548,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      */
     addBlock(event){
         let id = localStorage.getItem('id');
-        this.modalsComponent.openAddBlockFormModal('scenario', id);
+        this.addBlockModal.openAddBlockFormModal('scenario', id);
     }
 
     /**
@@ -561,7 +567,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
             }
         }
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.modalsComponent.openSaveBlockFormModal(block, this);
+        this.saveBlockModal.openSaveBlockFormModal(block, this);
     }
 
     /**
@@ -623,7 +629,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
             }
         }
         let block: Block = {stepDefinitions: saveBlock}
-        this.modalsComponent.openSaveBlockFormModal(block, this);
+        this.saveBlockModal.openSaveBlockFormModal(block, this);
     }
 
     /**
@@ -1062,6 +1068,6 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      * Open Modal to rename the scenario
      */
     changeScenarioTitle(){
-        this.modalsComponent.openRenameScenarioModal(this.selectedScenario.name)
+        this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name)
     }
 }

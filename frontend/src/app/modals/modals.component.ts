@@ -218,7 +218,7 @@ export class ModalsComponent {
     constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
         this.apiService.deleteRepositoryEvent.subscribe(() => {
             this.deleteCustomRepo();
-          });
+        });
     }
 
     // change Jira Account modal
@@ -599,7 +599,7 @@ submitRenameScenario() {
     /**
      * Delete a custom repository
      */
-     deleteCustomRepo(){
+    deleteCustomRepo(){
         if(this.userEmail == this.workgroupOwner) {
             this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
                 this.apiService.updateRepositoryEmitter();

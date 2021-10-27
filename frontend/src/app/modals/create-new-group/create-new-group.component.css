@@ -1,0 +1,85 @@
+*{
+    font-family: Klavika, sans-serif;
+}
+
+.modal-title{
+    color: var(--white);
+}
+  
+.modal-header{
+    background-color: var(--ocean-blue);
+    align-items: center;
+}
+
+.modal-body{
+    text-align: center;
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 15px;
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.modal-footer{
+    height: 60px;
+}
+
+.close{
+    color: var(--white);
+    outline: none;
+}
+
+  .modalsContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.inputField {
+    display: grid;
+}
+
+.labelField {
+    display: grid;
+    justify-items: end;
+    margin-right: 10px;
+    align-content: inherit;
+}
+
+.mat-column-checkStory {
+    width: 10% !important;
+}
+
+#inputLabels label {
+    margin-top: .25rem;
+    margin-bottom: .25rem;
+}
+
+.uk-form-label {
+    color: black;
+}
+
+table {
+    width: 100%;
+    margin-top:5px;
+}
+
+.mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
+    border-right: 1px solid #e0e0e0;
+  }
+
+.mat-cell, .mat-header-cell {
+    text-align: center;
+}
+
+.emailTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.emailTableContainer > * {
+    margin-left: 15px;
+    margin-right: 15px;
+}

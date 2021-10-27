@@ -1,0 +1,51 @@
+<!--Create New Group -->
+<ng-template #createNewGroupModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">Create New Group</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form>
+           <div > 
+               <div class="form-group groupouterdiv modalsContent" id="inputLabels">
+                    <div class="labelField">
+                        <label class="uk-form-label">Enter unique group name </label> 
+                        <br>
+                        <label class="uk-form-label">Find story </label> 
+                    </div>
+                    <div class="inputField">            
+                        <input [(ngModel)]="groupTitle" placeholder=" Title" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
+                        <br>
+                        <input (keyup)="searchOnKey($event.target.value)" placeholder="Story name"/>
+                    </div>
+                </div>
+                <div style="width: 100%;">
+                    <table id="storiesTable1" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
+                        <ng-container matColumnDef="story">
+                          <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
+                          <td mat-cell *matCellDef="let element"> 
+                            <div class="emailTableContainer">
+                                <label>{{element.title}} </label>
+                            </div> 
+                          </td>
+                        </ng-container>
+        
+                        <ng-container  matColumnDef="checkStory">
+                            <th class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
+                            <td mat-cell *matCellDef="let element">
+                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                            </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
+                      </table> 
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button id="groupSave" type="button" class="normalButton" disabled (click)="createNewGroup($event); modal.close('Save click')">Save</button>
+    </div>
+</ng-template>

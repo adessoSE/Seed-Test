@@ -2,13 +2,13 @@ import {Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy} from '@an
 import {ApiService} from '../Services/api.service';
 import {Story} from '../model/Story';
 import {Scenario} from '../model/Scenario';
-import {ModalsComponent} from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from '../model/Group';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
-
-
+import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-group.component';
+import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
+import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
 
 
 /**
@@ -130,7 +130,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * View Child Modals
      */
-    @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
+    @ViewChild('createNewGroup') createNewGroup: CreateNewGroupComponent;
+    @ViewChild('createNewStory') createNewStory: CreateNewStoryComponent;
+    @ViewChild('updateGroup') updateGroup : UpdateGroupComponent;
 
     /**
      * Constructor
@@ -195,7 +197,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             });
         });
     }
-
+    /* TODO */
     ngOnDestroy() {
         this.createStoryEmitter.unsubscribe();
         this.createGroupEmitter.unsubscribe();
@@ -309,7 +311,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Opens a create New scenario Modal
      */
     openCreateNewScenarioModal() {
-        this.modalsComponent.openCreateNewStoryModal();
+        this.createNewStory.openCreateNewStoryModal();
     }
 
     addFirstScenario() {
@@ -335,15 +337,14 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Opens a create New group Modal
      */
     openCreateNewGroupModal() {
-        console.log(this.groups);
-        this.modalsComponent.openCreateNewGroupModal(this.groups);
+        this.createNewGroup.openCreateNewGroupModal(this.groups);
     }
 
     /**
      * Opens a update group Modal
      */
     openUpdateGroupModal(group: Group) {
-        this.modalsComponent.openUpdateGroupModal(group, this.groups);
+        this.updateGroup.openUpdateGroupModal(group, this.groups);
     }
 
     dropStory(event: CdkDragDrop<string[]>) {

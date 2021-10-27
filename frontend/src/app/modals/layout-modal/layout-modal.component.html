@@ -1,0 +1,15 @@
+<ng-template #layoutModal let-modal>
+    <app-create-new-group></app-create-new-group>
+    <div class="modal-header">
+        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <ng-container *ngTemplateOutlet="bodyTemplate"></ng-container>
+    </div>
+    <div class="modal-footer">
+        <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+    </div>
+</ng-template>

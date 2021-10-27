@@ -141,4 +141,7 @@
         <!------------------------------------->
     </div>
 </div>
-<app-modals #modalComponent (jiraAccountResponse)="updateSite($event);"></app-modals>
+<app-change-jira-account #changeJiraModal (jiraAccountResponse)="updateSite($event)"></app-change-jira-account>
+<app-create-custom-project #createCustomProject></app-create-custom-project>
+<app-delete-account #deleteAccountModal></app-delete-account>
+<app-workgroup-edit #workgroupEditModal></app-workgroup-edit>

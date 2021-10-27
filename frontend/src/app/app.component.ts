@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
@@ -33,6 +33,11 @@ export class AppComponent implements OnInit {
    */
   error: string;
 
+  @ViewChild('stickyMenu') menuElement: ElementRef;
+
+  sticky: boolean = false;
+  elementPosition: any;
+
   /**
    * Constructor
    * @param apiService
@@ -54,6 +59,20 @@ export class AppComponent implements OnInit {
       this.apiService.getBackendInfo();
     }
   }
+
+  ngAfterViewInit(){
+    this.elementPosition = this.menuElement.nativeElement.offsetTop;
+  }
+
+  @HostListener('window:scroll', ['$event'])
+    handleScroll(){
+      const windowScroll = window.pageYOffset;
+      if(windowScroll > this.elementPosition){
+        this.sticky = true;
+      } else {
+        this.sticky = false;
+      }
+    }
 
   /**
    * Opens the terms section

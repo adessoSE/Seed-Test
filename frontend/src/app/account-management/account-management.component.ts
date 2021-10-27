@@ -2,11 +2,14 @@ import {Component, OnInit, OnDestroy, ViewChild, EventEmitter} from '@angular/co
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { ModalsComponent } from '../modals/modals.component';
+import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
 import {interval} from 'rxjs';
 import {map} from 'rxjs/operators';
+import { CreateCustomProjectComponent } from '../modals/create-custom-project/create-custom-project.component';
+import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
+import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -22,7 +25,10 @@ export class AccountManagementComponent implements OnInit {
     /**
      * Viewchild to create the modals
      */
-    @ViewChild('modalComponent') modalComponent: ModalsComponent;
+    @ViewChild('changeJiraModal') changeJiraModal: ChangeJiraAccountComponent;
+    @ViewChild('createCustomProject') createCustomProject :CreateCustomProjectComponent;
+    @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
+    @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
 
     /**
      * Repositories or projects of this user
@@ -95,21 +101,21 @@ export class AccountManagementComponent implements OnInit {
      * Opens Modal to create a new custom project
      */
     newRepository() {
-        this.modalComponent.openCreateCustomProjectModal();
+        this.createCustomProject.openCreateCustomProjectModal();
     }
 
     /**
      * Loggs in the user to Jira
      */
     jiraLogin() {
-        this.modalComponent.openChangeJiraAccountModal('Jira');
+        this.changeJiraModal.openChangeJiraAccountModal('Jira');
     }
 
     /**
      * Opens Modal to delete the Seed-Test account
      */
     deleteAccount() {
-        this.modalComponent.openDeleteAccountModal(this.email);
+        this.deleteAccountModal.openDeleteAccountModal(this.email);
     }
 
     /**
@@ -117,7 +123,7 @@ export class AccountManagementComponent implements OnInit {
      * @param project
      */
     workGroupEdit(project: RepositoryContainer){
-        this.modalComponent.openWorkgroupEditModal(project, this.email, this.id);
+        this.workgroupEditModal.openWorkgroupEditModal(project, this.email, this.id);
     }
 
     /**
@@ -149,7 +155,7 @@ export class AccountManagementComponent implements OnInit {
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {
                 this.id = user._id;
-                console.log(user);
+                /* console.log(user); */
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];
                 }
@@ -172,10 +178,10 @@ export class AccountManagementComponent implements OnInit {
     ngOnInit() {
 
     }
-
+    
     ngOnDestroy() {
         this.routeSub.unsubscribe();
-    }
+    } 
 
     /**
      * Removes Github connection from Seed-Test Account
