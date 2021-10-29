@@ -37,7 +37,6 @@ import { MatCarouselModule } from '@ngbmodule/material-carousel';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
-import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
@@ -87,7 +86,6 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
     DeleteRepositoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
-    ModalsComponent,
     ReportHistoryComponent,
     LayoutModalComponent,
     CreateNewGroupComponent,

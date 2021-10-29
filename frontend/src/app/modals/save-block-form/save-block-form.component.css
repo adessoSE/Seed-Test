@@ -1,37 +1,3 @@
-
-*{
-    font-family: Klavika, sans-serif;
-}
-
-.modal-title{
-    color: var(--white);
-}
-  
-.modal-header{
-    background-color: var(--ocean-blue);
-    align-items: center;
-}
-
-.modal-body{
-    text-align: center;
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-right: 30px;
-    padding-bottom: 15px;
-    max-height: calc(100vh - 210px);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.modal-footer{
-    height: 60px;
-}
-
-.close{
-    color: var(--white);
-    outline: none;
-}
-
 .uk-card-title {
     font-size: medium;
 }
@@ -95,39 +61,20 @@
     width: 100%
 }
 
-.modalsContent {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.inputField {
-    display: grid;
-}
-
-.labelField {
-    display: grid;
-    justify-items: end;
-    margin-right: 10px;
-    align-content: inherit;
-}
-
 #inputLabels label {
     margin-top: .25rem;
     margin-bottom: .25rem;
 }
 
-.uk-form-label {
-    color: black;
-}
-
-::ng-deep .modal-dialog{
-    max-width: 800px;
-}
-
 table {
     width: 100%;
     margin-top:5px;
+}
+
+.tableContainer{
+    max-height: 600px;
+    overflow-y: auto;
+    margin: 5px
 }
 
 .mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{

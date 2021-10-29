@@ -1,36 +1,3 @@
-*{
-    font-family: Klavika, sans-serif;
-}
-
-  .modal-title{
-    color: var(--white);
-  }
-  
-  .modal-header{
-    background-color: var(--ocean-blue);
-    align-items: center;
-  }
-
-  .modal-body{
-    text-align: center;
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-right: 30px;
-    padding-bottom: 15px;
-    max-height: calc(100vh - 210px);
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  .modal-footer{
-    height: 60px;
-  }
-
-  .close{
-    color: var(--white);
-    outline: none;
-  }
-
 .uk-card-title {
     font-size: medium;
 }
@@ -268,23 +235,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     }
 }
 
-.modalsContent {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.inputField {
-    display: grid;
-}
-
-.labelField {
-    display: grid;
-    justify-items: end;
-    margin-right: 10px;
-    align-content: inherit;
-}
-
 .mat-column-checkStory {
     width: 10% !important;
 }
@@ -308,6 +258,6 @@ div#deleteText > p {
     margin-bottom: .5rem;
 }
 
-.uk-form-label {
-    color: black;
+.inputField#email {
+    display: flex;
 }

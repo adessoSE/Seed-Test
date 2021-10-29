@@ -1,17 +1,17 @@
-*{
+  ::ng-deep *{
     font-family: Klavika, sans-serif;
-}
+  }
 
-  .modal-title{
+  ::ng-deep .modal-title{
     color: var(--white);
   }
   
-  .modal-header{
+  ::ng-deep .modal-header{
     background-color: var(--ocean-blue);
     align-items: center;
   }
 
-  .modal-body{
+  ::ng-deep .modal-body{
     text-align: center;
     padding-top: 30px;
     padding-left: 30px;
@@ -22,11 +22,37 @@
     overflow-x: hidden;
   }
 
-  .modal-footer{
+  ::ng-deep .modal-footer{
     height: 60px;
   }
 
-  .close{
+  ::ng-deep .close{
     color: var(--white);
     outline: none;
   }
+
+  ::ng-deep .modal-dialog{
+    max-width: 800px;
+
+  }
+
+  ::ng-deep .modalsContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+::ng-deep .inputField {
+    display: grid;
+  }
+
+::ng-deep .labelField {
+    display: grid;
+    justify-items: end;
+    margin-right: 10px;
+    align-content: inherit;
+  }
+
+::ng-deep .uk-form-label {
+  color: black;
+}

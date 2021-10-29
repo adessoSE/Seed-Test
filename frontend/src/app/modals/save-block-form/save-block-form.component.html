@@ -1,5 +1,6 @@
   <!--Save Block Form Modal-->
   <ng-template #saveBlockFormModal let-modal>
+    <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
         <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
@@ -14,10 +15,10 @@
         <div class="uk-card-title submitForm">
           <div class="blockNameContainer modalsContent">
               <div class="labelField padding_right uk-form-label" id="inputLabels">
-                <label>Name</label>
+                <label>Enter block name</label>
               </div>
               <div class="inputField">
-                <input id="blockNameInput" class="blockNameInput" placeholder="Name of block">
+                <input id="blockNameInput" class="blockNameInput">
               </div>
           </div>
           <div class="tableContainer">

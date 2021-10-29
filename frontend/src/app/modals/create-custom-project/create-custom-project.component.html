@@ -1,5 +1,6 @@
 <!--Create custom project Modal-->
 <ng-template #createCustomProjectModal let-modal>
+    <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <h4 class="modal-title">Create Project</h4>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -15,7 +16,7 @@
                             <label class="uk-form-label labelField">Enter unique project name</label>
                         </div>   
                         <div class="inputField">
-                            <input id="repo_name" defaultValue="YourRepoName" placeholder=" Name of project">
+                            <input id="repo_name" defaultValue="YourRepoName">
                         </div>
                     </div>
                 </form>

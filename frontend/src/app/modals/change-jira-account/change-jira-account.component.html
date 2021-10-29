@@ -1,5 +1,6 @@
 <!--Change Jira-Account Modal-->
 <ng-template #changeJiraAccountModal let-modal>
+    <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <h4 class="modal-title">Change Jira-Account</h4>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
@@ -19,11 +20,11 @@
                             <label class="uk-form-label">Enter server URL</label>
                         </div>
                         <div class="inputField">
-                            <input  id="jiraAccountName" placeholder=" Account name">
+                            <input  id="jiraAccountName">
                             <br>
-                            <input id="jira_password" placeholder="Password" type="password">
+                            <input id="jira_password" " type="password">
                             <br>
-                            <input id="jiraHost" placeholder="URL">
+                            <input id="jiraHost">
                         </div>                  
                     </div>
                     <div id="githubForm" *ngIf="type==='Github'">

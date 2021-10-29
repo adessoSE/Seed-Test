@@ -234,7 +234,7 @@
   .searchInput:focus{
     outline: none;
   }
-  #searchBarIcons{
+  ::ng-deep #searchBarIcons{
     color: var(--brown-grey);
     vertical-align: middle;
   }

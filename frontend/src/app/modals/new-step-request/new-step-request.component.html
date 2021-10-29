@@ -1,6 +1,7 @@
 <!-- New steps request modal-->
 
 <ng-template #newStepRequestModal let-modal>
+    <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <span id="modalHeader"class="MediumSubline1H4 modal-title">New Step Request</span>
         <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
@@ -44,10 +45,11 @@
                     </div>
                     <div class="padding_top modalsContent" id="inputLabels">
                         <div class="labelField">
-                            <label class="uk-form-label">Email</label>
+                            <label class="uk-form-label">Email*</label>
                         </div>
-                        <div class="inputField">
-                            <input id="email" #email ngModel type="email" name="email" [class.wrongEmail]="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" placeholder="Email*" class="uk-form-controls input" required>
+                        <div class="inputField" id="email">
+                            <input id="email" #email ngModel type="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" class="uk-form-controls input" required>
+                            <div style="margin-left: 5px;" *ngIf="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)">Invalid email</div>
                         </div> 
                     </div>
                     <div class="modal-footer">
