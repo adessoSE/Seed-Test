@@ -20,39 +20,12 @@
     grid-area: storyHeader;
   }
 
-  .infoIcon{
-    grid-area: storyHeader;
-    color: #999;
-    padding-top: 3px;
-    margin-left: 7px;
-  }
-
-  .def {
-    color: #999;
-    cursor: help;
-    position: relative;
-    z-index: 2;
-    top: -2px;
-  }
-  
-  .def span[rel=def] {
-    display: none;
-  }
-  
-  .def:hover span[rel=def] {
-    font-size: small;
-    color: white;
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    bottom: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-  }
-
- 
-
+.infoIcon{
+  grid-area: storyHeader;
+  color: #999;
+  padding-top: 3px;
+  margin-left: 7px;
+}
 
   #createNewStoryDiv{
     text-align: right;
@@ -277,6 +250,19 @@
   #searchStoriesBar {
     justify-content: flex-start;
     margin-left: 0px;  
+  }
+
+  span[rel=def].infoTextLeftPosition#storyInfoTextVerticalPosition, 
+  span[rel=def].infoTextLeftPosition#groupInfoTextVerticalPosition {
+    left: 12em;
+  }
+
+  #storyInfoTextVerticalPosition {
+    top: 1em;
+  }
+
+  #groupInfoTextVerticalPosition {
+    top: 41em;
   }
   
 @media screen and (max-width: 600px) {

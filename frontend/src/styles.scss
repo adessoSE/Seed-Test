@@ -530,7 +530,7 @@
   }
   .LargeCategory2 {
     font-family: Klavika, sans-serif;
-    font-size: 12px;
+    /* font-size: 12px; */
     font-weight: 500;
     font-stretch: normal;
     font-style: normal;
@@ -571,4 +571,35 @@
 
 .deleteButton:hover{
   background: var(--grape-purple);
+}
+
+.infoIcon{
+  grid-area: storyHeader;
+  color: #999;
+  padding-top: 3px;
+  margin-left: 7px;
+}
+
+.def {
+  color: #999;
+  cursor: help;
+  position: relative;
+  z-index: 2;
+}
+
+span[rel=def] {
+  display: none;
+}
+
+.def:hover + span[rel=def] {
+  font-size: small;
+  color: white;
+  background-color: rgb(109, 109, 109);
+  position: absolute;
+  width: 28em;
+  padding: 0.5em;
+  display: block;
+  white-space: pre-line;
+  opacity: 96%;
+  z-index: 2;
 }

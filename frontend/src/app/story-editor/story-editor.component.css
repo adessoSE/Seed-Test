@@ -140,7 +140,7 @@
     padding-bottom: 5px;
   }
 
-  .def {
+/*   .def {
       color: #999;
       cursor: help;
       position: relative;
@@ -149,7 +149,7 @@
   
   .def span[rel=def] {
       display: none;
-  }
+  } */
 
   input[type="text"]{
     margin: 1px;
@@ -167,7 +167,7 @@
     grid-template-columns: 1fr auto 1fr auto;
   }
 
-  .def:hover span[rel=def] {
+/*   .def:hover span[rel=def] {
     font-size: small;
     color: var(--white);
     background-color: rgb(109, 109, 109);
@@ -177,7 +177,7 @@
     width: 30em;
     padding: 0.5em;
     display: block;
-  }
+  } */
 
   #story{
     border-top: 1px solid #999;
@@ -489,5 +489,20 @@
    font-size: 24px;
 
 }
+
+#storyInfoTextVerticalPosition {
+  left: 8em;
+  top: -4em;
+}
+
+#backgroundInfoTextVerticalPosition {
+  left: 15em;
+  top: 0em;
+}
+
+.SmallHeadline5 span[rel="def"]{
+  line-height: 1.5;
+}
+  
 
 

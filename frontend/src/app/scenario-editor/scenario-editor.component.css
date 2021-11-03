@@ -3,7 +3,7 @@
   margin: 0px;
 }
 
-.def {
+/* .def {
 	color: #999;
 	cursor: help;
   position: relative;
@@ -12,7 +12,7 @@
 
 .def span[rel=def] {
 	display: none;
-}
+} */
 
 .scenarioHeaderContainer{
   display: grid;
@@ -52,18 +52,6 @@ em.dragIcon{
 
 .text-inline > p > input{
   margin: 0 5px;
-}
-
-.def:hover span[rel=def] {
-  font-size: small;
-  color: var(--white);
-	background-color: rgb(109, 109, 109);
-	position: absolute;
-	bottom: 2em;
-	left: 2em;
-	width: 30em;
-  padding: 0.5em;
-  display: block;
 }
 
 #scenario{
@@ -317,4 +305,14 @@ table {
 .stepsListContainer button{
   border: none;
   background: none;
+}
+
+.title span[rel="def"] {
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+#scenarioInfoTextPosition {
+  left: 11em;
+  top: -8em;
 }

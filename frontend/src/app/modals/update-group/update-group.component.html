@@ -19,10 +19,10 @@
                     <div class="inputField">
                         <input [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
                         <br>
-                        <div>
+                        <div class="searchWrapper">
                             <em class="material-icons emoticon" id="searchBarIcons"
                             [style.display]="searchInput.value == '' ? 'inherit' : 'none'">search</em>
-                            <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
+                            <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)"> 
                         </div>
                     </div>
                 </div>

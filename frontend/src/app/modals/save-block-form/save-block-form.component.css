@@ -2,10 +2,6 @@
     font-size: medium;
 }
 
-::ng-deep .modal-dialog{
-    max-width: 800px;
-}
-
 .padding_top{
     padding-top: 10px;
 }
@@ -21,7 +17,7 @@
 }
 
 .blockNameHeader{
-    font-size: 18px;
+    font-size: 16px;
     margin-right: 10px;
 }
 
@@ -31,30 +27,6 @@
 
 .modal-body.modal-xl{
     padding: 10px;
-}
-
-.def {
-    cursor: help;
-    position: relative;
-    font-size: 20px;
-    font-weight: lighter;
-}
-
-.def span[rel=def] {
-    display: none;
-}
-
-.def:hover span[rel=def] {
-    font-size: small;
-    color: var(--white);
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    top: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-    z-index: 100;
 }
 
 .submitForm{

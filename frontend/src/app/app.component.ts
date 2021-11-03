@@ -33,9 +33,9 @@ export class AppComponent implements OnInit {
    */
   error: string;
 
-  @ViewChild('stickyMenu') menuElement: ElementRef;
+  @ViewChild('closedMenu') menuElement: ElementRef;
 
-  sticky: boolean = false;
+  closed: boolean = false;
   elementPosition: any;
 
   /**
@@ -68,9 +68,9 @@ export class AppComponent implements OnInit {
     handleScroll(){
       const windowScroll = window.pageYOffset;
       if(windowScroll > this.elementPosition){
-        this.sticky = true;
+        this.closed = true;
       } else {
-        this.sticky = false;
+        this.closed = false;
       }
     }
 

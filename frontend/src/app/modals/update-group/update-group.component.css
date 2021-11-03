@@ -31,6 +31,13 @@ table {
 }
 
 .emoticon {
-    position: absolute;
+    position: relative;
     opacity: 0.5;
+    left: 1em;
+}
+
+.searchWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }

@@ -14,30 +14,6 @@
     padding: 10px;
 }
 
-.def {
-    cursor: help;
-    position: relative;
-    font-size: 20px;
-    font-weight: lighter;
-}
-
-.def span[rel=def] {
-    display: none;
-}
-
-.def:hover span[rel=def] {
-    font-size: small;
-    color: var(--white);
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    top: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-    z-index: 100;
-}
-
 .submitForm{
     width: 100%
 }
@@ -46,4 +22,10 @@
     margin-top: .25rem;
     margin-bottom: .25rem;
 }
+
+.material-icons {
+    color: var(--brown-grey);
+    margin-right: 10px;
+}
+
 

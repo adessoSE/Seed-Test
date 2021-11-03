@@ -1,17 +1,13 @@
-  ::ng-deep *{
-    font-family: Klavika, sans-serif;
-  }
-
-  ::ng-deep .modal-title{
+::ng-deep .modal-title{
     color: var(--white);
-  }
+}
   
-  ::ng-deep .modal-header{
+::ng-deep .modal-header{
     background-color: var(--ocean-blue);
     align-items: center;
-  }
+}
 
-  ::ng-deep .modal-body{
+::ng-deep .modal-body{
     text-align: center;
     padding-top: 30px;
     padding-left: 30px;
@@ -20,39 +16,61 @@
     max-height: calc(100vh - 210px);
     overflow-y: auto;
     overflow-x: hidden;
-  }
+}
 
-  ::ng-deep .modal-footer{
+::ng-deep .modal-footer{
     height: 60px;
-  }
+}
 
-  ::ng-deep .close{
+::ng-deep .close{
     color: var(--white);
     outline: none;
-  }
+}
 
-  ::ng-deep .modal-dialog{
+::ng-deep .modal-dialog{
     max-width: 800px;
 
-  }
+}
 
-  ::ng-deep .modalsContent {
+::ng-deep .modalsContent {
     display: flex;
     flex-direction: row;
     justify-content: center;
-  }
+}
 
 ::ng-deep .inputField {
     display: grid;
-  }
+}
 
 ::ng-deep .labelField {
     display: grid;
     justify-items: end;
     margin-right: 10px;
     align-content: inherit;
-  }
+}
 
 ::ng-deep .uk-form-label {
   color: black;
+}
+
+::ng-deep span[rel=def] {
+  top: 1em;
+  left: 19em;
+}
+
+::ng-deep span[display-title] {
+  position: relative;
+}
+
+::ng-deep span[display-title]:hover::before {
+  content: attr(display-title);
+  position: absolute;
+  display: inline-block;
+  padding: 5px;
+  background: var(--brown-grey);
+  color: #fff;
+  font-size: 12px;
+  font-family: sans-serif;
+  white-space: nowrap;
+  top: -19.55px;
 }

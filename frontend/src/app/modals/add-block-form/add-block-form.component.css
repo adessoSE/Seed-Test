@@ -38,12 +38,14 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin: 2px 0px 2px 0px;
 }
 
 .savedBlocksContainer, .previewContainer{
     border: 1px solid #e0e0e0;
     flex: 1;
     overflow-y: auto;
+    border-bottom: 0px;
 }
 
 ::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteBlockButton{
@@ -53,30 +55,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 ::ng-deep div.mat-list-item-content.mat-list-item-content-reverse div.mat-list-text{
     display: flex;
     flex-direction: row;
-}
-
-.def {
-    cursor: help;
-    position: relative;
-    font-size: 20px;
-    font-weight: lighter;
-}
-
-.def span[rel=def] {
-    display: none;
-}
-
-.def:hover span[rel=def] {
-    font-size: small;
-    color: var(--white);
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    top: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-    z-index: 100;
 }
 
 

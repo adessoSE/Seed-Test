@@ -4,8 +4,8 @@
     <div class="uk-inline dropdown">
       <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
       <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: hover" 
-      #stickyMenu
-      [class.sticky] = "sticky">
+      #closedMenu
+      [class.closedMenu] = "closed">
         <ul class="dropdown-list">
           <li>
             <div *ngIf="this.repositories" class="dropdown">
@@ -50,8 +50,8 @@
           <button class="rightButton">Feedback</button>
         </a>
         <div class="dropdown" 
-        #stickyMenu
-        [class.sticky] = "sticky">
+        #closedMenu
+        [class.closedMenu] = "closed">
           <button class="rightButton">Help</button>
             <div class="dropdown-list">
               <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
