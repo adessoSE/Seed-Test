@@ -796,7 +796,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param valueIndex
      */
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
-        console.log('add ', input)
         this.checkForExamples(input, step, valueIndex);
         switch (stepType) {
             case 'given':
