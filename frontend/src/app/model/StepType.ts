@@ -33,6 +33,11 @@ export interface StepType {
     selection?: string[];
 
     /**
+     * SelectionValue currently not used
+     */
+    selectionValue?: number;
+
+    /**
      * Name of the type to which this step belongs to: given, when, then
      */
     stepType: string;
