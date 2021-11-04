@@ -117,6 +117,9 @@ em.dragIcon{
   margin-bottom: 10px;
   margin-left: 3px
 }
+.checkboxDropdown{
+  margin-top: -15px !important;
+}
 
 .checkbox:hover{
   cursor: pointer;

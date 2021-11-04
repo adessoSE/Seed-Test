@@ -126,7 +126,12 @@
                 <div class="dragIconContainer" cdkDragHandle >
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
+                <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
                 <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
+                </div>
+                <div *ngIf="!(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
+                  <input type="checkbox" class="checkbox checkboxDropdown" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
+                  </div>
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
                 <div style="display: flex;" *ngIf="currentStep.values.length > 0">
                   <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=0">
