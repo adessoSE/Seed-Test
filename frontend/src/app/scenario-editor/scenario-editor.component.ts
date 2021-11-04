@@ -277,16 +277,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         if (i === 0) {
             return stepDefs.given;
         } else if (i === 1) {
-            console.log(stepDefs.when)
             return stepDefs.when;
         } else if (i === 2) {
-            //console.log(stepDefs.then)
-            stepDefs.then[0].selectionValue=1;
-            stepDefs.then[0].selection=["checked", "unchecked"]
-            //if(this.currentStepNgModel===null){
-            //this.currentStepNgModel = stepDefs.then[0].values[0]}
-            //console.log('model ', this.currentStepNgModel)
-            console.log(stepDefs.then[0].values)
             return stepDefs.then;
         } else {
             return stepDefs.example;
