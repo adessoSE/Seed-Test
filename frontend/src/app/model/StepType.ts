@@ -30,7 +30,7 @@ export interface StepType {
     /**
      * Selection currently not used
      */
-    selection?: string[];
+    selection?: [];
 
     /**
      * SelectionValue currently not used
