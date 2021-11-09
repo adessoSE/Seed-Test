@@ -1,7 +1,14 @@
+/* eslint-disable curly */
+/* eslint-disable max-len */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable indent */
 /* eslint-disable no-unused-vars */
-const { MongoClient } = require('mongodb');
+const str = require('string-to-stream');
+const toString = require('stream-to-string');
+const assert = require('assert');
 const ObjectId = require('mongodb').ObjectID;
+const mongodb = require('mongodb');
+const fs = require('fs');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
@@ -20,6 +27,8 @@ const steptypesCollection = 'stepTypes';
 const PwResetReqCollection = 'PwResetRequests';
 const CustomBlocksCollection = 'CustomBlocks';
 const WorkgroupsCollection = 'Workgroups';
+const ReportDataCollection = 'ReportData';
+const ReportsCollection = 'Reports';
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 // async function createTTLIndex(){
 //   let db = await connectDb()
@@ -198,10 +207,11 @@ async function updateGithubToken(objId, updatedToken) {
 
 function connectDb() {
 	return new Promise((resolve, reject) => {
-		MongoClient.connect(uri, { useNewUrlParser: true , useUnifiedTopology: true }, (err, db) => {
-			if (err) reject(err);
-			else resolve(db);
-		});
+		mongodb.MongoClient
+			.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, db) => {
+				if (err) reject(err);
+				else resolve(db);
+			});
 	});
 }
 function selectRepositoryCollection(db) {
@@ -891,75 +901,140 @@ async function upsertEntry(storyId, updatedContent, storySource) {
 
 async function getTestReports(storyId) {
 	let db;
+	let result;
 	try {
 		db = await connectDb();
 		const dbo = db.db(dbName);
-		const collection = await dbo.collection(testreportCollection);
+		const collection = await dbo.collection(ReportDataCollection);
 		console.log('Getting Report for storyId :', storyId);
-		const result = await collection.find({ storyId: ObjectId(storyId) },
+		result = await collection.find({ storyId: ObjectId(storyId) },
 			{ projection: { json: 0, reportOptions: 0 } }).toArray();
-		db.close();
 		console.log('Got ', result.length, ' reports for  :', storyId);
-		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
+	} finally {
+		if (db) db.close();
 	}
+	return result;
 }
 
-async function deleteReport(testReportId) {
+async function deleteReport(reportId) {
 	let db;
+	let result;
+	let idToDelete;
 	try {
 		db = await connectDb();
 		const dbo = db.db(dbName);
-		const collection = await dbo.collection(testreportCollection);
-		const result = await collection.deleteOne({ _id: ObjectId(testReportId) });
-		db.close();
-		return result;
+		const collection = await dbo.collection(ReportDataCollection);
+		const reportData = await collection.findOne({ _id: ObjectId(reportId) });
+		if (reportData.smallReport) {
+			idToDelete = reportData.smallReport;
+			console.log('trying to delete smallReport', idToDelete, ' for Report', reportId);
+			const reportsCollection = await dbo.collection(ReportsCollection);
+			await reportsCollection.deleteOne({ _id: ObjectId(idToDelete) });
+			result = await collection.deleteOne({ _id: ObjectId(reportId) });
+		} else {
+			idToDelete = reportData.bigReport;
+			console.log('trying to delete bigReport', idToDelete, ' for Report', reportId);
+			const bucket = await new mongodb.GridFSBucket(dbo, { bucketName: 'GridFS' });
+			bucket.delete(ObjectId(idToDelete));
+			result = await collection.deleteOne({ _id: ObjectId(reportId) });
+		}
 	} catch (e) {
-		console.log('UPS!!!! FEHLER in getTestReports', e);
+		console.log('UPS!!!! FEHLER in deleteReport', e);
+	} finally {
+		if (db) db.close();
 	}
+	return result;
 }
 
 async function setIsSavedTestReport(testReportId, isSaved) {
 	let db;
+	let result;
 	try {
 		db = await connectDb();
 		const dbo = db.db(dbName);
-		const collection = await dbo.collection(testreportCollection);
+		const collection = await dbo.collection(ReportDataCollection);
 		const updatedReport = await collection.findOne({ _id: ObjectId(testReportId) });
 		updatedReport.isSaved = isSaved;
-		const result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
+		result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
 			updatedReport, { returnOriginal: false });
-		db.close();
-		return result;
 	} catch (e) {
-		console.log('UPS!!!! FEHLER in getTestReports', e);
+		console.log('UPS!!!! FEHLER in setIsSavedTestReport', e);
+	} finally {
+		if (db) db.close();
 	}
+	return result;
 }
 
-async function uploadReport(reportData) {
-	let db;
-	try {
-		db = await connectDb();
-		const dbo = db.db(dbName);
-		const collection = await dbo.collection(testreportCollection);
-		const result = await collection.insertOne(reportData);
-		db.close();
-		return result;
-	} catch (e) {
-		console.log('UPS!!!! FEHLER in uploadReport', e);
-	}
+async function uploadBigJsonData(data, fileName) {
+	const db = await connectDb();
+	const dbo = db.db(dbName);
+	const bucket = await new mongodb.GridFSBucket(dbo, { bucketName: 'GridFS' });
+	const id = ObjectId();
+	str(JSON.stringify(data))
+		.pipe(bucket.openUploadStreamWithId(id, fileName))
+		.on('error', async (error) => {
+			assert.ifError(error);
+		})
+		.on('finish', async () => {
+			console.log('done!');
+		});
+	return id;
 }
 
+async function uploadReport(reportData, report) {
+	const jReport = { jsonReport: JSON.parse(report) };
+	const len = Buffer.byteLength(JSON.stringify(report));
+	const db = await connectDb();
+	const dbo = db.db(dbName);
+	const collection = await dbo.collection(ReportDataCollection);
+	if (len >= 16000000) {
+		try {
+			const id = await uploadBigJsonData(jReport, reportData.storyId);
+			const data = reportData;
+			data.bigReport = id;
+			await collection.insertOne(data);
+		} catch (e) {
+			console.log('UPS!!!! FEHLER in uploadReport', e);
+		} finally {
+			if (db) db.close();
+		}
+	} else {
+		try {
+			const reportsCollection = await dbo.collection(ReportsCollection);
+			await reportsCollection.insertOne(jReport);
+			const data = reportData;
+			data.smallReport = jReport._id;
+			await collection.insertOne(data);
+		} catch (e) {
+			console.log('UPS!!!! FEHLER in uploadReport', e);
+		} finally {
+			if (db) db.close();
+		}
+	}
+	return reportData;
+}
+//TODO: ich brauche den MetaReport und muss daraus die _id zurrückgeben auserdem brauche ich den jeweiligen Report als jasonReport
 async function getReport(reportName) {
 	let db;
+	let result;
 	try {
-		const report = { reportName };
 		db = await connectDb();
 		const dbo = db.db(dbName);
-		const collection = await dbo.collection(testreportCollection);
-		const result = await collection.findOne(report);
-		db.close();
+		const name = { reportName };
+		const collection = await dbo.collection(ReportDataCollection);
+		const report = await collection.findOne(name);
+		if (report.smallReport) {
+			const reportCollection = await dbo.collection(ReportsCollection);
+			const reportJson = await reportCollection.findOne({ _id: ObjectId(report.smallReport) });
+			result = { _id: report._id, jsonReport: reportJson.jsonReport };
+		} else {
+			const bucket = await new mongodb.GridFSBucket(dbo, { bucketName: 'GridFS' });
+			const reportString = await toString(bucket.openDownloadStream(ObjectId(report.bigReport.toString())));
+			const reportJson = JSON.parse(reportString);
+			result = { _id: report._id, jsonReport: reportJson.jsonReport };
+		}
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getReport', e);
