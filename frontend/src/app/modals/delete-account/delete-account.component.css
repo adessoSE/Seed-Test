@@ -6,3 +6,19 @@
     margin-top: .25rem;
     margin-bottom: .25rem;
 }
+
+.deleteTextWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-height: 200px;
+}
+
+.warningSign {
+    font-size: 214px;
+    color: red;
+}
+
+.modal-dialog {
+    height: 500px;
+}

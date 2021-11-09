@@ -26,6 +26,8 @@
 .material-icons {
     color: var(--brown-grey);
     margin-right: 10px;
+    opacity: 70%;
+    margin: 0px 10px 0px 5px;
 }
 
 

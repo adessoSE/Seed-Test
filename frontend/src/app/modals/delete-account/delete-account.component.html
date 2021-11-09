@@ -11,20 +11,27 @@
         <div class="submitForm">
             <div>
                 <form>
-                    <div class="form-group" id="deleteText">
-                        <p >Are you sure that you want to erase your Seed-Test Account?</p>
-                        <p >This will also erase all of your saved repositories.</p>
-                        <p >If you wish to erase your Seed-Account and connected data, please verify with your email.</p>
-                        <br>
-                        <div class="modalsContent" id="inputLabels">
-                            <div class="labelField">
-                                <label class="uk-form-label">Enter your email</label>
-                            </div>
-                            <div class="inputField">
-                                <input type="email" id="insertedEmail">
-                            </div>    
-                        </div>   
+                    <div class="deleteTextWrapper">
+                        <span class="warningSign">&#9888;</span>
+                        <div class="form-group" id="deleteText">
+                        
+                            <span>Are you sure that you want to erase your Seed-Test Account?</span>
+                            <br>
+                            <span >This will also erase all of your saved repositories.</span>
+                            <br>
+                            <span >If you wish to erase your Seed-Account and connected data, please verify with your email.</span>
+                        </div>
+
                     </div>
+                    <div class="modalsContent" id="inputLabels">
+                        <div class="labelField">
+                            <label class="uk-form-label">Enter your email*</label>
+                        </div>
+                        <div class="inputField">
+                            <input type="email" id="insertedEmail">
+                        </div>    
+                    </div>   
+                    
                 </form>
             </div>
         </div>

@@ -54,7 +54,7 @@ export class WorkgroupEditComponent {
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
     this.apiService.deleteRepositoryEvent.subscribe(() => {
       this.deleteCustomRepo();
-  });
+    });
   }
 
   /**
@@ -92,7 +92,9 @@ export class WorkgroupEditComponent {
       this.workgroupList = originList;
     }, (error) => {
       this.workgroupError = error.error.error;
+      this.showErrorToast ()
     });
+    
   }
 
 /**
@@ -136,6 +138,10 @@ export class WorkgroupEditComponent {
     this.toastr.warning('', 'Do you really want to delete this repository?', {
         toastComponent: DeleteRepositoryToast
     });
+  }
+
+  showErrorToast () {
+    this.toastr.error(this.workgroupError);
   }
 
 }
