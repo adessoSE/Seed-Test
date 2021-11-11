@@ -4,7 +4,6 @@ const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
 
 const router = express.Router();
-const stories = [];
 // This router is used for accessing Cucumber/Selenium Reports
 router
 	.use(cors())
@@ -25,12 +24,12 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID/:storySource', (req, res) => {
-	helper.runReport(req, res, stories, 'feature', req.body);
+	helper.runReport(req, res, [], 'feature', req.body);
 });
 
 // run single Scenario of a Feature
 router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
-	helper.runReport(req, res, stories, 'scenario', req.body);
+	helper.runReport(req, res, [], 'scenario', req.body);
 });
 
 // run one Group and return report

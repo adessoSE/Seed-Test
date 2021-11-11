@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle,curly */
 const { exec } = require('child_process');
 const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
@@ -185,139 +186,426 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-function runReport(req, res, stories, mode, parameters) {
-	// only used when executing multiple stories
-	let cumulate = 0;
-	execReport(req, res, stories, mode, parameters, (reportObj) => {
-		// res.sendFile(`/${reportName}.html`, { root: rootPath });
-		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
-		const reportTime = reportObj.reportTime;
-		let story = reportObj.story;
-		const scenarioID = reportObj.scenarioID;
-		const reportName = reportObj.reportName;
+async function uploadReport(report, storyId, scenarioID) {
+	const uploadedReport = await mongo.uploadReport(report);
+	await deleteOldReports(storyId, scenarioID);
+	return uploadedReport;
+}
 
-		let testStatus = false;
-		try {
-			let reportPath;
-			let grpNameDir;
-			if (mode !== 'group') reportPath = `./features/${reportName}.json`;
-			else {
-				grpNameDir = req.body.name;
-				reportPath = `./features/${grpNameDir}/${reportName}.json`;
-			}
-			fs.readFile(reportPath, 'utf8', async (err, data) => {
-				const json = JSON.parse(data);
-				const scenario = story.scenarios.find((s) => s.scenario_id == scenarioID);
-				let passedSteps = 0;
-				let failedSteps = 0;
-				let skippedSteps = 0;
+function deleteReport(jsonReport) {
+	const report = path.normalize(`${featuresPath}${jsonReport}`);
+	fs.unlink(report, (err) => {
+		if (err) console.log(err);
+		else console.log(`${report} json deleted.`);
+	});
+}
+
+// returns true if failed = 0 and passed > 1
+function testPassed(failed, passed) {
+	return failed <= 0 && passed >= 1;
+}
+
+async function analyzeGroupReport(grpName, stories) {
+	let reportResults = {
+		reportName: grpName,
+		overallTestStatus: false,
+		scenarioStatuses: [],
+		storyStatuses: []
+	};
+	try {
+		const reportPath = `./features/${grpName}/${grpName}.html.json`;
+		console.log(`Trying to Read: ${reportPath}`);
+		fs.readFile(reportPath, 'utf8', (err, data) => {
+			const cucumberReport = JSON.parse(data);
+			console.log(`NUMBER OF STORIES IN THE REPORT: ${cucumberReport.length}`);
+			reportResults.json = cucumberReport;
+			try {
 				const scenariosTested = { passed: 0, failed: 0 };
+				let overallPassedSteps = 0;
+				let overallFailedSteps = 0;
+				let overallSkippedSteps = 0;
+
+				// for each story
+				for (const storyReport of cucumberReport) {
+					// console.log(storyReport.name);
+					// console.log(stories);
+					// console.log(storyReport);
+					const story = stories[cucumberReport.indexOf(storyReport)];
+					// const story = stories.find((storyObj) => storyObj.title === storyReport.name);
+					console.log(` Story ID: ${story._id}`);
+					// TODO: make storyID and search for Story when updating the lastTestStatus
+					let storyTestStatus = false;
+					try {
+						let storyPassedSteps = 0;
+						let storyFailedSteps = 0;
+						let storySkippedSteps = 0;
+						// for each scenario
+						for (const scenReport of storyReport.elements) {
+							// console.log(storyReport.elements.indexOf(scenReport));
+							const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
+							// console.log(scenario);
+							// const scenario = story.scenarios.find((scen) => scenReport.name === scen.name);
+							console.log(` Scenario ID: ${scenario.scenario_id}`);
+							let scenarioPassedSteps = 0;
+							let scenarioFailedSteps = 0;
+							let scenarioSkippedSteps = 0;
+							// for each step inside a scenario
+							for (const step of scenReport.steps) {
+								switch (step.result.status) {
+									case 'passed':
+										storyPassedSteps++;
+										scenarioPassedSteps++;
+										overallPassedSteps++;
+										break;
+									case 'failed':
+										storyFailedSteps++;
+										scenarioFailedSteps++;
+										overallFailedSteps++;
+										break;
+									case 'skipped':
+										storySkippedSteps++;
+										scenarioSkippedSteps++;
+										overallSkippedSteps++;
+										break;
+									default:
+										console.log(`Status default: ${step.result.status}`);
+								}
+							}
+							// set scenario status (for GitHub/Jira reporting comment)
+							// TODO: pack die Scenario Result unter die Stories
+							const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
+							reportResults.scenarioStatuses.push({
+								scenarioID: scenario.scenario_id,
+								status: scenStatus,
+								stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
+							});
+							// count number of passed and failed Scenarios:
+							if (scenStatus) scenariosTested.passed += 1;
+							else scenariosTested.failed += 1;
+							updateScenarioTestStatus(scenStatus, scenario, story);
+						}
+						// end of For Each Scenario ################################
+
+						// after all Scenarios and Steps:
+						// set Story Test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
+						storyTestStatus = testPassed(storyFailedSteps, storyPassedSteps);
+						reportResults.storyStatuses.push({
+							storyId: story._id,
+							status: storyTestStatus,
+							storyStepResults: { storyPassedSteps, storyFailedSteps, storySkippedSteps }
+						});
+						// update lastTestPpassed in Story:
+						// TODO: updateStoryTestStatus(scenStatus, scenario, story);
+					} catch (error) {
+						storyTestStatus = false;
+						reportResults.storyStatuses.push({ storyId: story._id, status: storyTestStatus });
+						console.log('iterating through report Json failed in serverHelper/runReport. Setting testStatus of Story to false.', error);
+					}
+				}
+				// end of for each story
+				reportResults.overallTestStatus = testPassed(overallPassedSteps, overallFailedSteps);
+				reportResults.groupStepResults = { overallPassedSteps, overallFailedSteps, overallSkippedSteps };
+			} catch (error) {
+				reportResults.overallTestStatus = false;
+				console.log('iterating through report Json failed in analyzeGroupReport.'
+				+ 'Setting testStatus of Report to false.', error);
+			}
+		});
+	} catch (error) {
+		console.log(`fs.readFile error for file /features/${grpName}/${grpName}.json`);
+	}
+	console.log(`Report Results in analyzeGroupReport for Group ${grpName}: `);
+	console.log(reportResults);
+	return reportResults;
+}
+
+async function analyzeScenarioReport(stories, reportName, scenarioId) {
+	let reportResults = { reportName, overallTestStatus: false, scenarioStatuses: [] };
+	try {
+		const reportPath = `./features/${reportName}.json`;
+		fs.readFile(reportPath, 'utf8', (err, data) => {
+			const cucumberReport = JSON.parse(data);
+			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
+			reportResults.json = cucumberReport;
+			try {
+				const storyReport = cucumberReport[0];
+				console.log(`NUMBER OF SCENARIOS IN THE REPORT (must be 1): ${storyReport.elements.length}`);
+				const story = stories[0];
+				console.log(`Story ID: ${story._id}`);
+				console.log(story);
+				reportResults.storyId = story._id;
 				try {
 					// for each scenario (called element in the .json report)
-					json[0].elements.forEach((d) => {
-						let scenarioPassed = 0;
-						let scenarioFailed = 0;
+					// element = scenarios and "Before" / "After" statements
+					storyReport.elements.forEach((scenReport) => {
+						// TODO: Another Method to get scenario:
+						// const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
+						// console.log(scenario);
+						// const scenario = story.scenarios.find((scen) => scenReport.name === scen.name);
+						// console.log(scenarioID);
+						const scenario = story.scenarios.find((scen) => scen.scenario_id === parseInt(scenarioId, 10));
+						console.log(scenario);
+						let scenarioPassedSteps = 0;
+						let scenarioFailedSteps = 0;
+						let scenarioSkippedSteps = 0;
 						// for each step inside a scenario
-						d.steps.forEach((s) => {
-							switch (s.result.status) {
+						scenReport.steps.forEach((step) => {
+							switch (step.result.status) {
 								case 'passed':
-									passedSteps++;
-									scenarioPassed++;
+									scenarioPassedSteps++;
 									break;
 								case 'failed':
-									failedSteps++;
-									scenarioFailed++;
+									scenarioFailedSteps++;
 									break;
 								case 'skipped':
-									skippedSteps++;
+									scenarioSkippedSteps++;
 									break;
 								default:
-									console.log(`Status default: ${s.result.status}`);
+									console.log(`Status default: ${step.result.status}`);
 							}
 						});
 						// set scenario status (for GitHub/Jira reporting comment)
-						if (testPassed(scenarioFailed, scenarioPassed)) scenariosTested.passed += 1;
-						else scenariosTested.failed += 1;
-
-						story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed),
-							d.tags[0].name, story);
+						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
+						reportResults.scenarioStatuses.push({
+							scenarioID: scenarioId,
+							status: scenStatus,
+							stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
+						});
+						updateScenarioTestStatus(scenStatus, scenario, story);
+						reportResults.overallTestStatus = scenStatus;
 					});
 					// end of For Each Scenario ################################
-
-					// after all Scenarios and Steps:
-					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
-					testStatus = testPassed(failedSteps, passedSteps);
 				} catch (error) {
-					testStatus = false;
-					console.log('iterating through report Json failed in serverHelper/runReport. Setting testStatus of Report to false.', error);
+					reportResults.overallTestStatus = false;
+					console.log('iterating through report Json failed in serverHelper/runReport. '
+						+ 'Setting testStatus of Scenario to false.', error);
 				}
+			} catch (error) {
+				reportResults.overallTestStatus = false;
+				console.log('iterating through report Json failed in serverHelper/runReport. '
+					+ 'Setting testStatus of Report to false.', error);
+			}
+		});
+	} catch (error) {
+		console.log(`fs.readFile error for file ./features/${reportName}.json`);
+	}
+	console.log('Report Results in analyzeScenarioReport: ');
+	console.log(reportResults);
+	return reportResults;
+}
 
-				// generate HTML Report and Upload it
-				let reportOptions;
-				let uploadedReport;
-				if (mode === 'group') {
-					if (cumulate + 1 < stories.length) {
-						cumulate++;
-					} else {
-						reportPath = `features/${grpNameDir}/`;
-						reportOptions = setOptions(req.body.name, reportPath);
-						reporter.generate(reportOptions);
+// param: stories should only contain one Story
+async function analyzeStoryReport(stories, reportName) {
+	let storyStatus = false;
+	let reportResults = { reportName, overallTestStatus: false, scenarioStatuses: []};
 
-						// upload report JSON to DB
-						fs.readFile(`features/${grpNameDir}/${grpNameDir}.html.json`, 'utf8', async (err2, data2) => {
-							const grpJson = JSON.parse(data2);
-							const report = {
-								reportTime, reportName: grpNameDir, reportOptions, jsonReport: grpJson, storyId: story._id, mode, scenarioId: scenarioID, testStatus
-							};
-							uploadedReport = await uploadReport(report, story._id, scenarioID);
-							// set response
-							fs.readFile(`./features/${grpNameDir}/${grpNameDir}.html`, 'utf8', (err3, data3) => {
-								res.json({ htmlFile: data3, reportId: uploadedReport.ops[0]._id });
-							});
+	try {
+		const reportPath = `./features/${reportName}.json`;
+		fs.readFile(reportPath, 'utf8', (err, data) => {
+			const cucumberReport = JSON.parse(data);
+			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
+			reportResults.json = cucumberReport;
+			let storyPassedSteps = 0;
+			let storyFailedSteps = 0;
+			let storySkippedSteps = 0;
+			const scenariosTested = { passed: 0, failed: 0 };
+			try {
+				// for each story
+				const storyReport = cucumberReport[0];
+				console.log(`NUMBER OF SCENARIOS IN THE REPORT: ${storyReport.elements.length}`);
+				const story = stories[0];
+				console.log(` Story ID: ${story._id}`);
+				// console.log(story);
+				reportResults.storyId = story._id;
+				// TODO: make storyID and search for Story when updating the lastTestStatus
+				try {
+					// for each scenario (called element in the .json report)
+					// element = scenarios and "Before" / "After" statements
+					storyReport.elements.forEach((scenReport) => {
+						// console.log(storyReport.elements.indexOf(scenReport));
+						const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
+						// console.log(scenario);
+						// const scenario = story.scenarios.find((scen) => scenReport.name === scen.name);
+						console.log(scenario.scenario_id);
+						let scenarioPassedSteps = 0;
+						let scenarioFailedSteps = 0;
+						let scenarioSkippedSteps = 0;
+						// for each step inside a scenario
+						scenReport.steps.forEach((step) => {
+							switch (step.result.status) {
+								case 'passed':
+									storyPassedSteps++;
+									scenarioPassedSteps++;
+									break;
+								case 'failed':
+									storyFailedSteps++;
+									scenarioFailedSteps++;
+									break;
+								case 'skipped':
+									storySkippedSteps++;
+									scenarioSkippedSteps++;
+									break;
+								default:
+									console.log(`Status default: ${step.result.status}`);
+							}
 						});
-						setTimeout((group) => {
-							fs.rmdir(`./features/${group}`, { recursive: true }, () => {
-								console.log(`${group} report deleted`);
-							});
-						}, reportDeletionTime * 60000, grpNameDir);
-					}
-				} else {
-					reportOptions = setOptions(reportName);
-					reporter.generate(reportOptions);
-					const report = {
-						reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
-					};
-					uploadedReport = await uploadReport(report, story._id, scenarioID);
-					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-						res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
+						// set scenario status (for GitHub/Jira reporting comment)
+						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
+						reportResults.scenarioStatuses.push({
+							scenarioID: scenario._id,
+							status: scenStatus,
+							stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
+						});
+						// count number of passed and failed Scenarios:
+						if (scenStatus) scenariosTested.passed += 1;
+						else scenariosTested.failed += 1;
+						updateScenarioTestStatus(scenStatus, scenario, story);
 					});
-					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+					// end of For Each Scenario ################################
+					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
+					storyStatus = testPassed(storyFailedSteps, storyPassedSteps);
+					// update lastTestpassed in Story:
+					// TODO: updateStoryTestStatus(scenStatus, scenario, story);
+				} catch (error) {
+					storyStatus = false;
+					console.log('iterating through report Json failed in serverHelper/runReport. '
+						+ 'Setting testStatus of Scenario to false.', error);
 				}
+				reportResults.overallTestStatus = storyStatus;
+				reportResults.storyStepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
+				// moved to scenario
+				// reportResults.stepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
+			} catch (error) {
+				reportResults.overallTestStatus = false;
+				console.log('iterating through report Json failed in serverHelper/runReport. '
+					+ 'Setting testStatus of Report to false.', error);
+			}
+		});
+	} catch (error) {
+		console.log(`fs.readFile error for file ./features/${reportName}.json`);
+	}
+	console.log('Report Results in analyzeStoryReport: ');
+	console.log(reportResults);
+	return reportResults;
+}
 
-				if (req.params.storySource === 'github' && req.user && req.user.github) {
-					const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-						reportTime, story, scenario, mode, reportName);
-					const githubValue = parameters.repository.split('/');
-					const githubName = githubValue[0];
-					const githubRepo = githubValue[1];
-					postComment(story.issue_number, comment, githubName, githubRepo,
-						req.user.github.githubToken);
-					if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-				}
-				if (scenarioID && scenario) {
-					scenario.lastTestPassed = testStatus;
-					await mongo.updateScenario(story._id, story.storySource, scenario, () => {
-						// console.log()
-					});
-				} else if (!scenarioID) {
-					story.lastTestPassed = testStatus;
-					await mongo.updateStory(story);
+function analyzeReport(grpName, stories, mode, reportName, scenarioID) {
+	switch (mode) {
+		case 'scenario': // make to Promises!!!
+			return analyzeScenarioReport(stories, reportName, scenarioID);
+		case 'feature':
+			return analyzeStoryReport(stories, reportName);
+		case 'group':
+			try {
+				reporter.generate(setOptions(grpName, `features/${grpName}/`));
+			} catch (e) {
+				console.log(`Could not generate the html Report for ${grpName}/${reportName} 
+				inside analyzeReport. Error${e}`);
+			}
+			return analyzeGroupReport(grpName, stories);
+		default:
+			console.log('Error: No mode provided in analyzeReport');
+			return { overallTestStatus: false, error: 'Something went wrong while analyzing the report.' };
+	}
+}
+
+function runReport(req, res, stories, mode, parameters) {
+	// TODO: stories [] is empty for Scenario and Story mode
+	// TODO: refactor to user a single Story in analyzeReport
+
+	// only used when executing multiple stories:
+	let cumulate = 1;
+
+	execReport(req, res, stories, mode, parameters, (reportObj) => {
+		if (mode === 'group' && cumulate < stories.length) {
+			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
+			cumulate++;
+		} else {
+			if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
+			// TODO: Maybe find another Option (as scenarioID might not always be needed)
+			const { scenarioID } = reportObj;
+			// analyze Report:
+			const { reportTime } = reportObj;
+			let { reportName } = reportObj;
+			// TODO: Check if the reportObj contains the reportJSON + if it is necessary to run fs.readFile in analyzeReport
+			analyzeReport(req.body.name, stories, mode, reportName, scenarioID).then((reportResults) => {
+				console.log(reportResults);
+				// return html report
+				try {
+					// need: json report, scenarioID (for deleting old reports of a scenario)
+					reportName = reportResults.reportName;
+					const { storyId } = reportResults;
+					const { json } = reportResults;
+
+					// generate HTML Report
+					const reportOptions = setOptions(reportName);
+					if (mode !== 'group') {
+						try {
+							reporter.generate(reportOptions);
+						} catch (e) {
+							console.log(`Could not generate the html Report for ${reportName}. Error${e}`);
+						}
+					}
+
+					// put together the DB-Report-Object and save Report to DB
+					const report = {
+						reportTime,
+						reportName,
+						reportOptions,
+						jsonReport: json,
+						storyId,
+						mode,
+						scenarioId: scenarioID,
+						testStatus: reportResults.overallTestStatus,
+						reportResults
+					};
+					console.log('Report Results after packing up the db report in runReport: ');
+					console.log(reportResults);
+					uploadReport(report, storyId, scenarioID)
+						.then((uploadedReport) => {
+							console.log('Report Results in .then of runReport: ');
+							console.log(reportResults);
+
+							// Group needs a special Path to Report
+							if (mode === 'group') reportName = `${reportName}/${reportName}`;
+							// read html Report and add it top response
+							fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+								res.json({
+									htmlFile: data,
+									reportId: uploadedReport.ops[0]._id
+								});
+							});
+							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+						});
+				} catch (error) {
+					console.log(`fs readfile error for file ./features/${reportName}.json`);
 				}
 			});
-		} catch (error) {
-			console.log(`fs readfile error for file ./features/${reportName}.json`);
 		}
+
+		// ################################## TODO: update this:
+		// if (req.params.storySource === 'github' && req.user && req.user.github) {
+		// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
+		// 		reportTime, story, scenario, mode, reportName);
+		// 	const githubValue = parameters.repository.split('/');
+		// 	const githubName = githubValue[0];
+		// 	const githubRepo = githubValue[1];
+		// 	postComment(story.issue_number, comment, githubName, githubRepo,
+		// 		req.user.github.githubToken);
+		// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+		// }
+
+		// TODO: Chek if needed: Do not update Scenario and Story once again:
+		// if (scenarioID && scenario) {
+		// 	scenario.lastTestPassed = testStatus;
+		// 	await mongo.updateScenario(story._id, story.storySource, scenario, () => {
+		// 		// console.log()
+		// 	});
+		// } else if (!scenarioID) {
+		// 	story.lastTestPassed = testStatus;
+		// 	await mongo.updateStory(story);
+		// }
 	});
 }
 
@@ -638,27 +926,8 @@ async function fuseStoryWithDb(story) {
 	return story;
 }
 
-function deleteReport(jsonReport) {
-	const report = path.normalize(`${featuresPath}${jsonReport}`);
-	fs.unlink(report, (err) => {
-		if (err) console.log(err);
-		else console.log(`${report} json deleted.`);
-	});
-}
-
 async function getReportHistory(storyId) {
 	return mongo.getTestReports(storyId);
-}
-
-async function uploadReport(report, storyId, scenarioID) {
-	const uploadedReport = await mongo.uploadReport(report);
-	await deleteOldReports(storyId, scenarioID);
-	return uploadedReport;
-}
-
-// returns true if failed = 0 and passed > 1
-function testPassed(failed, passed) {
-	return failed <= 0 && passed >= 1;
 }
 
 async function createReport(res, reportName) {
@@ -680,13 +949,10 @@ async function createReport(res, reportName) {
 	});
 }
 
-function updateScenarioTestStatus(testPassed, scenarioTagName, story) {
-	const scenarioId = parseInt(scenarioTagName.split('_')[1], 10);
-	const scenario = story.scenarios.find((scn) => scn.scenario_id === scenarioId);
+function updateScenarioTestStatus(lastTestPassed, scenario, story) {
 	if (scenario) {
 		const index = story.scenarios.indexOf(scenario);
-		scenario.lastTestPassed = testPassed;
-		story.scenarios[index] = scenario;
+		story.scenarios[index].lastTestPassed = lastTestPassed;
 	}
 	return story;
 }

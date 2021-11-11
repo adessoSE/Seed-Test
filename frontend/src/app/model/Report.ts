@@ -7,7 +7,7 @@ export interface Report {
     /**
      * Object id of the report of the databse
      */
-    _id?: any,
+    _id?: any;
 
     /**
      * Time of the run test in milliseconds since 1970
