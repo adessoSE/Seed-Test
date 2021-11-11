@@ -186,20 +186,20 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-async function uploadReport(reportTime, reportOptions, mode, scenarioID, storyId, reportResults) {
-	const report = {
-		reportName: reportResults.reportName,
-		reportTime,
-		reportOptions,
-		storyId,
-		scenarioID,
-		mode,
-		testStatus: reportResults.overallTestStatus,
-		jsonReport: reportResults.json,
-		reportResults
-	};
-	const uploadedReport = await mongo.uploadReport(report);
-	await deleteOldReports(storyId, scenarioID);
+async function uploadReport(reportResults) {
+	// const report = {
+	// 	reportName: reportResults.reportName,
+	// 	reportTime,
+	// 	reportOptions,
+	// 	storyId,
+	// 	scenarioID,
+	// 	mode,
+	// 	testStatus: reportResults.overallTestStatus,
+	// 	jsonReport: reportResults.json,
+	// 	reportResults
+	// };
+	const uploadedReport = await mongo.uploadReport(reportResults);
+	await deleteOldReports(reportResults.storyId, reportResults.scenarioID);
 	return uploadedReport;
 }
 
@@ -562,58 +562,63 @@ function runReport(req, res, stories, mode, parameters) {
 	// only used when executing multiple stories:
 	let cumulate = 1;
 
-	execReport(req, res, stories, mode, parameters, (reportObj) => {
+	execReport(req, res, stories, mode, parameters, async (reportObj) => {
 		if (mode === 'group' && cumulate < stories.length) {
 			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
 			cumulate++;
 		} else {
 			if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
 			// TODO: Maybe find another Option (as scenarioID might not always be needed)
-			const { scenarioID } = req.params.scenarioID;
+			let scenarioID;
+			if (req.params.scenarioID !== undefined) {
+				scenarioID = req.params.scenarioID;
+			}
 			const { reportTime } = reportObj;
 			let { reportName } = reportObj;
 
 			// analyze Report:
-			// TODO: Check if the reportObj contains the reportJSON + if it is necessary to run fs.readFile in analyzeReport
-			analyzeReport(req.body.name, stories, mode, reportName, scenarioID).then((reportResults) => {
-				console.log(reportResults);
-				// return html report
-				try {
-					reportName = reportResults.reportName;
-					const { storyId } = reportResults;
-
-					// generate HTML Report
-					const reportOptions = setOptions(reportName);
-					if (mode !== 'group') {
-						try {
-							reporter.generate(reportOptions);
-						} catch (e) {
-							console.log(`Could not generate the html Report for ${reportName}. Error${e}`);
-						}
+			const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioID);
+			// return html report
+			try {
+				reportName = reportResults.reportName;
+				// generate HTML Report
+				const reportOptions = setOptions(reportName);
+				if (mode !== 'group') {
+					try {
+						reporter.generate(reportOptions);
+					} catch (e) {
+						console.log(`Could not generate the html Report for ${reportName}. Error${e}`);
 					}
-					console.log('Report Results after packing up the db report in runReport: ');
-					console.log(reportResults);
-					uploadReport(reportTime, reportOptions, mode, scenarioID, storyId, reportResults)
-						.then((uploadedReport) => {
-							console.log('Report Results in .then of runReport: ');
-							console.log(reportResults);
-
-							// Group needs a special Path to Report
-							if (mode === 'group') reportName = `${reportName}/${reportName}`;
-							// read html Report and add it top response
-							fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-								res.json({
-									htmlFile: data,
-									reportId: uploadedReport.ops[0]._id
-								});
-							});
-							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-						});
-				} catch (error) {
-					console.log(`fs readfile error for file ./features/${reportName}.json`);
 				}
-			});
+				// add everything to reportResult
+				reportResults.scenarioID = req.params.scenarioID;
+				reportResults.reportTime = reportTime;
+				reportResults.reportOptions = reportOptions;
+				reportResults.mode = mode;
+				console.log(reportResults);
+
+				// upload report to DB
+				uploadReport(reportResults)
+					.then((uploadedReport) => {
+						console.log('Report Results in .then of runReport: ');
+						console.log(reportResults);
+
+						// Group needs a special Path to Report
+						if (mode === 'group') reportName = `${reportName}/${reportName}`;
+						// read html Report and add it top response
+						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+							res.json({
+								htmlFile: data,
+								reportId: uploadedReport.ops[0]._id
+							});
+						});
+						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+					});
+			} catch (error) {
+				console.log(`fs readfile error for file ./features/${reportName}.json`);
+			}
+			// });
 		}
 
 		// ################################## TODO: update this:
