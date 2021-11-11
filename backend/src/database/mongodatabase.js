@@ -948,6 +948,7 @@ async function uploadReport(reportData) {
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in uploadReport', e);
+		return {};
 	}
 }
 

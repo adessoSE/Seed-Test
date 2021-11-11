@@ -186,7 +186,18 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-async function uploadReport(report, storyId, scenarioID) {
+async function uploadReport(reportTime, reportOptions, mode, scenarioID, storyId, reportResults) {
+	const report = {
+		reportName: reportResults.reportName,
+		reportTime,
+		reportOptions,
+		storyId,
+		scenarioID,
+		mode,
+		testStatus: reportResults.overallTestStatus,
+		jsonReport: reportResults.json,
+		reportResults
+	};
 	const uploadedReport = await mongo.uploadReport(report);
 	await deleteOldReports(storyId, scenarioID);
 	return uploadedReport;
@@ -205,11 +216,22 @@ function testPassed(failed, passed) {
 	return failed <= 0 && passed >= 1;
 }
 
+function setOptions(reportName, reportPath = 'features/') {
+	const myOptions = lodash.cloneDeep(options);
+	myOptions.metadata.Platform = process.platform;
+	myOptions.name = `Seed-Test Report: ${reportName}`;
+	if (reportPath !== 'features/') {
+		myOptions.jsonDir = `${reportPath}`;
+		myOptions.jsonFile = null;
+	} else myOptions.jsonFile = `${reportPath}${reportName}.json`;
+	myOptions.output = `${reportPath}${reportName}.html`;
+	return myOptions;
+}
+
 async function analyzeGroupReport(grpName, stories) {
-	let reportResults = {
+	const reportResults = {
 		reportName: grpName,
 		overallTestStatus: false,
-		scenarioStatuses: [],
 		storyStatuses: []
 	};
 	try {
@@ -227,28 +249,25 @@ async function analyzeGroupReport(grpName, stories) {
 
 				// for each story
 				for (const storyReport of cucumberReport) {
-					// console.log(storyReport.name);
-					// console.log(stories);
-					// console.log(storyReport);
 					const story = stories[cucumberReport.indexOf(storyReport)];
-					// const story = stories.find((storyObj) => storyObj.title === storyReport.name);
-					console.log(` Story ID: ${story._id}`);
-					// TODO: make storyID and search for Story when updating the lastTestStatus
-					let storyTestStatus = false;
+					const storyId = story._id;
+					console.log(` Story ID: ${storyId}`);
+					const storyStatus = { storyId, status: false, scenarioStatuses: [] };
 					try {
 						let storyPassedSteps = 0;
 						let storyFailedSteps = 0;
 						let storySkippedSteps = 0;
-						// for each scenario
+
+						// for each scenario (called element in the .json report)
+						// element = scenarios and "Before" / "After" statements
 						for (const scenReport of storyReport.elements) {
-							// console.log(storyReport.elements.indexOf(scenReport));
 							const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
-							// console.log(scenario);
-							// const scenario = story.scenarios.find((scen) => scenReport.name === scen.name);
-							console.log(` Scenario ID: ${scenario.scenario_id}`);
+							const scenarioId = scenario.scenario_id;
+							console.log(` Scenario ID: ${scenarioId}`);
 							let scenarioPassedSteps = 0;
 							let scenarioFailedSteps = 0;
 							let scenarioSkippedSteps = 0;
+
 							// for each step inside a scenario
 							for (const step of scenReport.steps) {
 								switch (step.result.status) {
@@ -271,14 +290,15 @@ async function analyzeGroupReport(grpName, stories) {
 										console.log(`Status default: ${step.result.status}`);
 								}
 							}
-							// set scenario status (for GitHub/Jira reporting comment)
-							// TODO: pack die Scenario Result unter die Stories
+							// add scenarioStatus to storyStatus
 							const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-							reportResults.scenarioStatuses.push({
-								scenarioID: scenario.scenario_id,
-								status: scenStatus,
-								stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
-							});
+							storyStatus.scenarioStatuses.push(
+								{
+									scenarioID: scenario.scenario_id,
+									status: scenStatus,
+									stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
+								}
+							);
 							// count number of passed and failed Scenarios:
 							if (scenStatus) scenariosTested.passed += 1;
 							else scenariosTested.failed += 1;
@@ -288,23 +308,21 @@ async function analyzeGroupReport(grpName, stories) {
 
 						// after all Scenarios and Steps:
 						// set Story Test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
-						storyTestStatus = testPassed(storyFailedSteps, storyPassedSteps);
-						reportResults.storyStatuses.push({
-							storyId: story._id,
-							status: storyTestStatus,
-							storyStepResults: { storyPassedSteps, storyFailedSteps, storySkippedSteps }
-						});
-						// update lastTestPpassed in Story:
+						storyStatus.status = testPassed(storyFailedSteps, storyPassedSteps);
+						storyStatus.storyStepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
+						reportResults.storyStatuses.push(storyStatus);
+						// update lastTestPassed in Story:
 						// TODO: updateStoryTestStatus(scenStatus, scenario, story);
 					} catch (error) {
-						storyTestStatus = false;
-						reportResults.storyStatuses.push({ storyId: story._id, status: storyTestStatus });
+						storyStatus.status = false;
+						reportResults.storyStatuses.push(storyStatus);
 						console.log('iterating through report Json failed in serverHelper/runReport. Setting testStatus of Story to false.', error);
 					}
 				}
 				// end of for each story
 				reportResults.overallTestStatus = testPassed(overallPassedSteps, overallFailedSteps);
 				reportResults.groupStepResults = { overallPassedSteps, overallFailedSteps, overallSkippedSteps };
+				reportResults.scenariosTested = scenariosTested;
 			} catch (error) {
 				reportResults.overallTestStatus = false;
 				console.log('iterating through report Json failed in analyzeGroupReport.'
@@ -320,7 +338,7 @@ async function analyzeGroupReport(grpName, stories) {
 }
 
 async function analyzeScenarioReport(stories, reportName, scenarioId) {
-	let reportResults = { reportName, overallTestStatus: false, scenarioStatuses: [] };
+	const reportResults = { reportName, overallTestStatus: false, scenarioStatuses: [] };
 	try {
 		const reportPath = `./features/${reportName}.json`;
 		fs.readFile(reportPath, 'utf8', (err, data) => {
@@ -338,13 +356,8 @@ async function analyzeScenarioReport(stories, reportName, scenarioId) {
 					// for each scenario (called element in the .json report)
 					// element = scenarios and "Before" / "After" statements
 					storyReport.elements.forEach((scenReport) => {
-						// TODO: Another Method to get scenario:
-						// const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
-						// console.log(scenario);
-						// const scenario = story.scenarios.find((scen) => scenReport.name === scen.name);
-						// console.log(scenarioID);
 						const scenario = story.scenarios.find((scen) => scen.scenario_id === parseInt(scenarioId, 10));
-						console.log(scenario);
+						console.log(` Scenario ID: ${scenarioId}`);
 						let scenarioPassedSteps = 0;
 						let scenarioFailedSteps = 0;
 						let scenarioSkippedSteps = 0;
@@ -397,7 +410,7 @@ async function analyzeScenarioReport(stories, reportName, scenarioId) {
 // param: stories should only contain one Story
 async function analyzeStoryReport(stories, reportName) {
 	let storyStatus = false;
-	let reportResults = { reportName, overallTestStatus: false, scenarioStatuses: []};
+	const reportResults = { reportName, overallTestStatus: false, scenarioStatuses: [] };
 
 	try {
 		const reportPath = `./features/${reportName}.json`;
@@ -414,22 +427,21 @@ async function analyzeStoryReport(stories, reportName) {
 				const storyReport = cucumberReport[0];
 				console.log(`NUMBER OF SCENARIOS IN THE REPORT: ${storyReport.elements.length}`);
 				const story = stories[0];
-				console.log(` Story ID: ${story._id}`);
+				const storyId = story._id;
+				console.log(` Story ID: ${storyId}`);
 				// console.log(story);
-				reportResults.storyId = story._id;
-				// TODO: make storyID and search for Story when updating the lastTestStatus
+				reportResults.storyId = storyId;
 				try {
 					// for each scenario (called element in the .json report)
 					// element = scenarios and "Before" / "After" statements
 					storyReport.elements.forEach((scenReport) => {
-						// console.log(storyReport.elements.indexOf(scenReport));
 						const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
-						// console.log(scenario);
-						// const scenario = story.scenarios.find((scen) => scenReport.name === scen.name);
-						console.log(scenario.scenario_id);
+						const scenarioId = scenario.scenario_id;
+						console.log(` Scenario ID: ${scenarioId}`);
 						let scenarioPassedSteps = 0;
 						let scenarioFailedSteps = 0;
 						let scenarioSkippedSteps = 0;
+
 						// for each step inside a scenario
 						scenReport.steps.forEach((step) => {
 							switch (step.result.status) {
@@ -452,7 +464,7 @@ async function analyzeStoryReport(stories, reportName) {
 						// set scenario status (for GitHub/Jira reporting comment)
 						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 						reportResults.scenarioStatuses.push({
-							scenarioID: scenario._id,
+							scenarioID: scenarioId,
 							status: scenStatus,
 							stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
 						});
@@ -491,12 +503,15 @@ async function analyzeStoryReport(stories, reportName) {
 
 function analyzeReport(grpName, stories, mode, reportName, scenarioID) {
 	switch (mode) {
-		case 'scenario': // make to Promises!!!
+		case 'scenario':
 			return analyzeScenarioReport(stories, reportName, scenarioID);
 		case 'feature':
 			return analyzeStoryReport(stories, reportName);
 		case 'group':
 			try {
+				/* after the last story in a group we need to generate the hmtl report
+				// which also generates the .json report for all stories (group report)
+				 then the actual group report can be analyzed. */
 				reporter.generate(setOptions(grpName, `features/${grpName}/`));
 			} catch (e) {
 				console.log(`Could not generate the html Report for ${grpName}/${reportName} 
@@ -509,10 +524,41 @@ function analyzeReport(grpName, stories, mode, reportName, scenarioID) {
 	}
 }
 
-function runReport(req, res, stories, mode, parameters) {
-	// TODO: stories [] is empty for Scenario and Story mode
-	// TODO: refactor to user a single Story in analyzeReport
+async function execReport(req, res, stories, mode, parameters, callback) {
+	try {
+		if (mode === 'group') {
+			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
+			fs.mkdirSync(`./features/${req.body.name}`);
+			for (const story of stories) {
+				await nameSchemeChange(story);
+				// if mit execution mode "parallel" or "sequential"
+				if (parameters.isSequential !== undefined && parameters.isSequential) {
+					await executeTest(req, res, stories, mode, story)
+						.then((values) => {
+							callback(values);
+						});
+				} else {
+					executeTest(req, res, stories, mode, story)
+						.then((values) => {
+							callback(values);
+						});
+				}
+			}
+		} else {
+			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			await nameSchemeChange(story);
+			executeTest(req, res, stories, mode, story)
+				.then((values) => {
+					callback(values);
+				});
+		}
+	} catch (error) {
+		res.status(404)
+			.send(error);
+	}
+}
 
+function runReport(req, res, stories, mode, parameters) {
 	// only used when executing multiple stories:
 	let cumulate = 1;
 
@@ -523,19 +569,18 @@ function runReport(req, res, stories, mode, parameters) {
 		} else {
 			if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
 			// TODO: Maybe find another Option (as scenarioID might not always be needed)
-			const { scenarioID } = reportObj;
-			// analyze Report:
+			const { scenarioID } = req.params.scenarioID;
 			const { reportTime } = reportObj;
 			let { reportName } = reportObj;
+
+			// analyze Report:
 			// TODO: Check if the reportObj contains the reportJSON + if it is necessary to run fs.readFile in analyzeReport
 			analyzeReport(req.body.name, stories, mode, reportName, scenarioID).then((reportResults) => {
 				console.log(reportResults);
 				// return html report
 				try {
-					// need: json report, scenarioID (for deleting old reports of a scenario)
 					reportName = reportResults.reportName;
 					const { storyId } = reportResults;
-					const { json } = reportResults;
 
 					// generate HTML Report
 					const reportOptions = setOptions(reportName);
@@ -546,22 +591,9 @@ function runReport(req, res, stories, mode, parameters) {
 							console.log(`Could not generate the html Report for ${reportName}. Error${e}`);
 						}
 					}
-
-					// put together the DB-Report-Object and save Report to DB
-					const report = {
-						reportTime,
-						reportName,
-						reportOptions,
-						jsonReport: json,
-						storyId,
-						mode,
-						scenarioId: scenarioID,
-						testStatus: reportResults.overallTestStatus,
-						reportResults
-					};
 					console.log('Report Results after packing up the db report in runReport: ');
 					console.log(reportResults);
-					uploadReport(report, storyId, scenarioID)
+					uploadReport(reportTime, reportOptions, mode, scenarioID, storyId, reportResults)
 						.then((uploadedReport) => {
 							console.log('Report Results in .then of runReport: ');
 							console.log(reportResults);
@@ -607,40 +639,6 @@ function runReport(req, res, stories, mode, parameters) {
 		// 	await mongo.updateStory(story);
 		// }
 	});
-}
-
-async function execReport(req, res, stories, mode, parameters, callback) {
-	try {
-		if (mode === 'group') {
-			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
-			fs.mkdirSync(`./features/${req.body.name}`);
-			for (const story of stories) {
-				await nameSchemeChange(story);
-				// if mit execution mode "parallel" or "sequential"
-				if (parameters.isSequential !== undefined && parameters.isSequential) {
-					await executeTest(req, res, stories, mode, story)
-						.then((values) => {
-							callback(values);
-						});
-				} else {
-					executeTest(req, res, stories, mode, story)
-						.then((values) => {
-							callback(values);
-						});
-				}
-			}
-		} else {
-			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
-			await nameSchemeChange(story);
-			executeTest(req, res, stories, mode, story)
-				.then((values) => {
-					callback(values);
-				});
-		}
-	} catch (error) {
-		res.status(404)
-			.send(error);
-	}
 }
 
 const nameSchemeChange = async (story) => {
@@ -713,10 +711,8 @@ function executeTest(req, res, stories, mode, story) {
 		const jsParam = JSON.stringify(parameters);
 		let worldParam = '';
 		for (let i = 0; i < jsParam.length; i++) {
-			if (jsParam[i] == '"')
-				worldParam += '\\\"';
-			else
-				worldParam += jsParam[i];
+			if (jsParam[i] == '"') worldParam += '\\\"';
+			else worldParam += jsParam[i];
 		}
 
 		console.log('worldParam', worldParam);
@@ -733,12 +729,12 @@ function executeTest(req, res, stories, mode, story) {
 		exec(cmd, (error, stdout, stderr) => {
 			if (error) {
 				console.error(`exec error: ${error}`);
-				resolve({ reportTime: reportTime, story: story, scenarioID: req.params.scenarioID, reportName: reportName });
+				resolve({ reportTime, story, scenarioID: req.params.scenarioID, reportName });
 				return;
 			}
 			console.log(`stdout: ${stdout}`);
 			console.log(`stderr: ${stderr}`);
-			resolve({ reportTime: reportTime, story: story, scenarioID: req.params.scenarioID, reportName: reportName });
+			resolve({ reportTime, story, scenarioID: req.params.scenarioID, reportName });
 		});
 	});
 }
@@ -770,18 +766,6 @@ function scenarioPrep(scenarios, driver) {
 		}
 	});
 	return { scenarios, parameters };
-}
-
-function setOptions(reportName, reportPath = 'features/') {
-	const myOptions = lodash.cloneDeep(options);
-	myOptions.metadata.Platform = process.platform;
-	myOptions.name = `Seed-Test Report: ${reportName}`;
-	if (reportPath !== 'features/') {
-		myOptions.jsonDir = `${reportPath}`;
-		myOptions.jsonFile = null;
-	} else myOptions.jsonFile = `${reportPath}${reportName}.json`;
-	myOptions.output = `${reportPath}${reportName}.html`;
-	return myOptions;
 }
 
 async function jiraProjects(user) {
@@ -949,6 +933,7 @@ async function createReport(res, reportName) {
 	});
 }
 
+// TODO: provide complete reportResults and update storyLastTestStatus as well?
 function updateScenarioTestStatus(lastTestPassed, scenario, story) {
 	if (scenario) {
 		const index = story.scenarios.indexOf(scenario);
