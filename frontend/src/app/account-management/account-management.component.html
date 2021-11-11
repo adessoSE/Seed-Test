@@ -1,8 +1,8 @@
-<div class="grid-container uk-card uk-card-default">
+<div [class.darkTheme]= "isDark" class="grid-container uk-card uk-card-default">
     <div>
         <a routerLink="/" class="title">
             <button class="backButton" title="Back to Projects">
-                <img id="backImage" src ="../assets/left.svg">
+                <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'">
             </button>
         </a>
     </div>
@@ -50,7 +50,7 @@
                 </dfn>
             </div>
             <div class="uk-flex uk-flex-row uk-search">
-                <input class="uk-search-input" style="border: 1px solid #e5e5e5" type="text" #searchbar (keyup)="searchRepos($event)"  [(ngModel)]="searchInput" placeholder="Search" />
+                <input class="uk-search-input" type="text" #searchbar (keyup)="searchRepos($event)"  [(ngModel)]="searchInput" placeholder="Search" />
                 <select [(ngModel)]="downloadRepoID" class="uk-select">
                     <option *ngFor="let repo of searchList" [value]="repo._id">{{repo.value}}</option>
                 </select>
@@ -68,7 +68,6 @@
         </div>
     </div>
     <!------------------------------------->
-    <hr>
     <div class="grid_github uk-card uk-card-default">
         <h2 class="LargeHeadline3">Github</h2>
         <div *ngIf="github">
@@ -78,7 +77,7 @@
                 <a class="githubLoginContainer" (click)="disconnectGithub();">
                     <div class="githubLogin" >
                        <img src ="../assets/github-logo.png" >
-                       <p>Disconnect GitHub</p>
+                       <p style="margin-bottom: 0px;">Disconnect GitHub</p>
                     </div>
                  </a>
             </div>
@@ -87,7 +86,7 @@
             <a class="githubLoginContainer" (click)="login();">
                 <div class="githubLogin" >
                    <img src ="../assets/github-logo.png" >
-                   <p>Login via GitHub</p>
+                   <p style="margin-bottom: 0px;">Login via GitHub</p>
                 </div>
              </a>
         </div>

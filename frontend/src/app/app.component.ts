@@ -2,6 +2,9 @@ import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
+import { ThemingService } from './Services/theming.service';
+import { FormControl } from '@angular/forms';
+
 
 /**
  * Master Component
@@ -11,7 +14,7 @@ import { RepositoryContainer } from './model/RepositoryContainer';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
   /**
    * Currently retrieved projects
@@ -38,26 +41,46 @@ export class AppComponent implements OnInit {
   closed: boolean = false;
   elementPosition: any;
 
+  isDark : boolean;
+
+  toggleControl = new FormControl(false);
+
+
   /**
    * Constructor
    * @param apiService
    * @param router
+   * @param themeService
    */
-  constructor(public apiService: ApiService, public router: Router) {
+
+  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
     this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
-  });
-    this.apiService.updateRepositoryEvent.subscribe(() => this.getRepositories())
+    });
+    this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
+    this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
+
+    this.getRepositories();
+    if (!this.apiService.urlReceived) {
+      this.apiService.getBackendInfo();
+    }
+    this.themeService.loadTheme();
+    this.isDark = this.themeService.isDarkMode();
+    if (this.isDark) {
+      this.toggleControl.setValue(this.isDark);
+    }
+    this.toggleControl.valueChanges.subscribe(val => {
+      this.setModeOnToggle(val);
+      this.isDark = val;
+      /* this.className = val ? 'darkTheme' : ''; */
+    });
   }
 
   /**
    * Retrieves Repositories
    */
   ngOnInit() {
-    this.getRepositories();
-    if (!this.apiService.urlReceived) {
-      this.apiService.getBackendInfo();
-    }
+    
   }
 
   ngAfterViewInit(){
@@ -73,6 +96,11 @@ export class AppComponent implements OnInit {
         this.closed = false;
       }
     }
+
+  ngOnDestroy(){
+    //this.apiService.logoutEvent.unsubscribe();
+    //this.apiService.updateRepositoryEvent.unsubscribe();
+  }
 
   /**
    * Opens the terms section
@@ -105,11 +133,20 @@ export class AppComponent implements OnInit {
     if (this.apiService.isLoggedIn()) {
       this.apiService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
-        sessionStorage.setItem('repositories', JSON.stringify(resp));
       }, (err) => {
         this.error = err.error;
       });
     }
+  }
+
+   /**
+     * Update Repositories after change
+     */
+    updateRepositories(){
+      //this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
+      let value = sessionStorage.getItem('repositories')
+      let repository: RepositoryContainer[] = JSON.parse(value)
+      this.repositories = repository
   }
 
   /**
@@ -137,5 +174,9 @@ export class AppComponent implements OnInit {
     this.apiService.logoutUser().subscribe(resp => {
     });
     this.router.navigate(['/login']);
+  }
+
+  setModeOnToggle(isDark:boolean) {
+    this.themeService.setNewTheme(isDark);
   }
 }

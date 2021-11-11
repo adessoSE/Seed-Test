@@ -19,7 +19,7 @@
   grid-template-columns: 1fr auto 1fr auto;
 }
 
-input[type="text"]{
+/* input[type="text"]{
   margin: 1px;
   padding: 1px;
   border: none;
@@ -28,7 +28,7 @@ input[type="text"]{
   top: -2px;
   width: auto;
   min-width: 5px;
-}
+} */
 
 .dragIconContainer{
   text-align: center;
@@ -56,6 +56,10 @@ em.dragIcon{
 
 #scenario{
   border: 1px solid #999;
+}
+
+.darkTheme#scenario {
+  border:1px solid #60767b;
 }
 
 .uk-card-title {
@@ -102,59 +106,65 @@ em.dragIcon{
   margin-bottom: 2px;
   margin-left: 6px;
 }
-.scenarioBarContainer{
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
-  margin: 0px 20px;
-}
 
-.exampleBarContainer{
+/* .darkTheme .scenarioBarContainer, .darkTheme .exampleBarContainer {
+  background-color: #546E7A;
+  border-bottom: 1px solid #B0BEC5;
+} */
+
+/* .exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
   display: flex;
-}
+} */
 
-.scenarioBarContainer button,
+/* .scenarioBarContainer button,
 .exampleBarContainer button{
   border: none;
   background: none;
   transform: translate(0px, -3px);
   height: 24px;
   border-radius: 10%;
-}
+} */
 
-.scenarioBarContainer > div,
+/* .scenarioBarContainer > div,
 .exampleBarContainer{
   margin-top: 5px;
   margin-bottom: 5px;
   padding: 10px 15px;
   display: flex;
   height: 40px;
-}
+} */
 
-.scenarioButton {
+/* .scenarioButton {
   margin-right: 10px;
-}
+} */
 
-.actionButton{
+/* .actionButton{
   margin-left: 10px;
-}
+} */
 
-.actionButton > em{
+/* .actionButton > em{
   color: #333;
   font-size: 22px;
-}
+} */
 
-.scenarioButton em{
+/* .darkTheme .actionButton > em {
+  color:#000000 !important;
+} */
+
+/* .scenarioButton em{
   color:  var(--ocean-blue);
-}
+}  */
 
-.scenarioButton em:active {
+/* .darkTheme.scenarioButton em{
+  color:  var(--ocean-blue);
+} */
+
+/* .scenarioButton em:active {
   background-color: var(--ocean-blue);
   color: var(--white);
-}
+}  */
 
 .button {
   margin-right: 3px;
@@ -201,6 +211,10 @@ em.dragIcon{
   border: none;
 }
 
+.darkTheme, .scenarioTitle {
+  background: transparent;
+}
+
 .scenarioTitle > em{
   color:  var(--ocean-blue);
   font-size: 20px;
@@ -213,56 +227,88 @@ em.dragIcon{
 }
 
 .scenarioButton_unsaved em{
-  color: red;
+  color: red !important;
 }
 
-.disabled input{
+/* .disabled input{
   color: gray;
   border-bottom: 1px solid gray;
 }
+
+.darkTheme .disabled input {
+  color:#B0BEC5;
+  border-bottom: 1px solid #B0BEC5;
+} */
 
 .uk-dropdown{
   padding: 15px;
 }
 
-.uk-nav > li > span{
+/* .darkTheme .uk-dropdown {
+  background-color: #60767b;
+} */
+
+/* .uk-nav > li > span{
   padding: 1px;
   cursor: pointer;
-}
+} */
 
-.uk-nav > li > .dropdownStep {
+/* .uk-nav > li > .dropdownStep {
   color:var(--ocean-blue);
-}
+} */
 
-.uk-nav > li > span:hover {
+/* .darkTheme .uk-nav > li > .dropdownStep {
+  color: #40C4FF;
+} */
+
+/* .uk-nav > li > span:hover {
     color: gray;
-}
+} */
+
+/* .darkTheme .uk-nav > li > span:hover {
+  color: white;
+} */
 
 .uk-nav > li > .dropdownStepUndefined {
   color:var(--marine-blue);
 }
 
+.darkTheme .uk-nav > li > .dropdownStepUndefined {
+  color:#00B0FF;
+}
 
-.disabled {
+/* .disabled {
   color: gray !important;
   background: var(--white) !important;
   font-style: italic;
   text-decoration: line-through;
-}
+} */
 
-.scenarioBarContainer .disabled em{
+/* .darkTheme .disabled {
+  color: #B0BEC5 !important;
+} */
+
+/* .scenarioBarContainer .disabled em{
   color: gray !important;
-  background: #f8f8f8 !important;
-}
+  background: #f8f8f8 /* !important;
+} */
+
+/* .darkTheme .scenarioBarContainer .disabled em {
+  color: gray 
+} */
 
 .uk-card-footer{
   padding-bottom: 0;
 }
 
-.disabledButton{
+/* .disabledButton{
   visibility: hidden;
   background:#dddddd
 }
+
+.darkTheme, .disabledButton {
+  background: transparent;
+} */
 
 table {
   width: 100%;
@@ -285,9 +331,9 @@ table {
   margin-left: 5px;
 }
 
-.scenario_unsaved {
-  color: red;
-}
+/* .scenario_unsaved {
+  color: red !important;
+} */
 
 .stepsListContainer{
   display: flex;
@@ -299,8 +345,9 @@ table {
 }
 
 .stepsListContainer .disabled em{
-  color: gray;
+  color: gray !important;
 }
+
 
 .stepsListContainer button{
   border: none;
@@ -315,4 +362,12 @@ table {
 #scenarioInfoTextPosition {
   left: 11em;
   top: -8em;
+}
+
+.darkTheme span {
+  background: transparent;
+}
+
+.darkTheme button {
+  background: transparent;
 }

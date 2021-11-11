@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import {Group} from '../model/Group';
 import {ActivatedRoute} from '@angular/router';
+import { ThemingService } from '../Services/theming.service';
 
 
 /**
@@ -15,7 +16,7 @@ import {ActivatedRoute} from '@angular/router';
   templateUrl: './parent.component.html',
   styleUrls: ['./parent.component.css']
 })
-export class ParentComponent implements OnInit {
+export class ParentComponent implements OnInit, OnDestroy {
 
   /**
    * Stories in the selected project
@@ -46,11 +47,16 @@ export class ParentComponent implements OnInit {
 
   report;
 
+  isDark: boolean;
+
+
+
   /**
    * Constructor
    * @param apiService
+   * @param themeService
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute) {
+  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
     this.apiService.getBackendUrlEvent.subscribe(() => {
       this.loadStories();
     });
@@ -59,17 +65,28 @@ export class ParentComponent implements OnInit {
     } else {
       this.apiService.getBackendInfo();
     }
+
+    if (!sessionStorage.getItem('repositories')) {
+      this.apiService.getRepositories().subscribe(() => {
+        console.log('parent get Repos');
+      });
+    }
+    this.isDark = this.themeService.isDarkMode();
+    this.themeService.themeChanged
+    .subscribe((currentTheme) => {
+      this.isDark = this.themeService.isDarkMode();
+    });
   }
 
   /**
    * Requests the repositories on init
    */
   ngOnInit() {
-    if (!sessionStorage.getItem('repositories')) {
-      this.apiService.getRepositories().subscribe(() => {
-        console.log('parent get Repos');
-      });
-    }
+    
+  }
+
+  ngOnDestroy(){
+    //this.apiService.getBackendUrlEvent.unsubscribe();
   }
 
   /**
@@ -143,4 +160,5 @@ export class ParentComponent implements OnInit {
       this.report = false;
     }
   }
+
 }

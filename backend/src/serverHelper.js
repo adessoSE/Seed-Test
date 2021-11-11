@@ -12,6 +12,7 @@ const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
+
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
@@ -149,6 +150,7 @@ function writeFile(dir, selectedStory) {
 		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
+
 }
 
 function encriptPassword(text) {
@@ -186,9 +188,14 @@ async function updateFeatureFile(issueID, storySource) {
 function runReport(req, res, stories, mode, parameters) {
 	// only used when executing multiple stories
 	let cumulate = 0;
-	execReport(req, res, stories, mode, (reportTime, story, scenarioID, reportName) => {
+	execReport(req, res, stories, mode, parameters, (reportObj) => {
 		// res.sendFile(`/${reportName}.html`, { root: rootPath });
 		// const root = HTMLParser.parse(`/reporting_html_${reportTime}.html`)
+		const reportTime = reportObj.reportTime;
+		let story = reportObj.story;
+		const scenarioID = reportObj.scenarioID;
+		const reportName = reportObj.reportName;
+
 		let testStatus = false;
 		try {
 			let reportPath;
@@ -201,42 +208,49 @@ function runReport(req, res, stories, mode, parameters) {
 			fs.readFile(reportPath, 'utf8', async (err, data) => {
 				const json = JSON.parse(data);
 				const scenario = story.scenarios.find((s) => s.scenario_id == scenarioID);
-
-				let passed = 0;
-				let failed = 0;
-				let skipped = 0;
+				let passedSteps = 0;
+				let failedSteps = 0;
+				let skippedSteps = 0;
 				const scenariosTested = { passed: 0, failed: 0 };
 				try {
+					// for each scenario (called element in the .json report)
 					json[0].elements.forEach((d) => {
 						let scenarioPassed = 0;
 						let scenarioFailed = 0;
+						// for each step inside a scenario
 						d.steps.forEach((s) => {
 							switch (s.result.status) {
 								case 'passed':
-									passed++;
+									passedSteps++;
 									scenarioPassed++;
 									break;
 								case 'failed':
-									failed++;
+									failedSteps++;
 									scenarioFailed++;
 									break;
 								case 'skipped':
-									skipped++;
+									skippedSteps++;
 									break;
 								default:
 									console.log(`Status default: ${s.result.status}`);
 							}
 						});
+						// set scenario status (for GitHub/Jira reporting comment)
 						if (testPassed(scenarioFailed, scenarioPassed)) scenariosTested.passed += 1;
 						else scenariosTested.failed += 1;
+
 						story = updateScenarioTestStatus(testPassed(scenarioFailed, scenarioPassed),
 							d.tags[0].name, story);
 					});
-				} catch (error) {
-					console.log('json element in fs runReport', error);
-				}
+					// end of For Each Scenario ################################
 
-				testStatus = testPassed(failed, passed);
+					// after all Scenarios and Steps:
+					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
+					testStatus = testPassed(failedSteps, passedSteps);
+				} catch (error) {
+					testStatus = false;
+					console.log('iterating through report Json failed in serverHelper/runReport. Setting testStatus of Report to false.', error);
+				}
 
 				// generate HTML Report and Upload it
 				let reportOptions;
@@ -262,7 +276,7 @@ function runReport(req, res, stories, mode, parameters) {
 							});
 						});
 						setTimeout((group) => {
-							fs.rm(`./features/${group}`, { recursive: true }, () => {
+							fs.rmdir(`./features/${group}`, { recursive: true }, () => {
 								console.log(`${group} report deleted`);
 							});
 						}, reportDeletionTime * 60000, grpNameDir);
@@ -282,7 +296,7 @@ function runReport(req, res, stories, mode, parameters) {
 				}
 
 				if (req.params.storySource === 'github' && req.user && req.user.github) {
-					const comment = renderComment(req, passed, failed, skipped, testStatus, scenariosTested,
+					const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
 						reportTime, story, scenario, mode, reportName);
 					const githubValue = parameters.repository.split('/');
 					const githubName = githubValue[0];
@@ -307,19 +321,33 @@ function runReport(req, res, stories, mode, parameters) {
 	});
 }
 
-async function execReport(req, res, stories, mode, callback) {
+async function execReport(req, res, stories, mode, parameters, callback) {
 	try {
 		if (mode === 'group') {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			for (const story of stories) {
 				await nameSchemeChange(story);
-				execReport2(req, res, stories, 'group', story, callback);
+				// if mit execution mode "parallel" or "sequential"
+				if (parameters.isSequential !== undefined && parameters.isSequential) {
+					await executeTest(req, res, stories, mode, story)
+						.then((values) => {
+							callback(values);
+						});
+				} else {
+					executeTest(req, res, stories, mode, story)
+						.then((values) => {
+							callback(values);
+						});
+				}
 			}
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 			await nameSchemeChange(story);
-			execReport2(req, res, stories, mode, story, callback);
+			executeTest(req, res, stories, mode, story)
+				.then((values) => {
+					callback(values);
+				});
 		}
 	} catch (error) {
 		res.status(404)
@@ -349,83 +377,85 @@ async function deleteFeatureFile(storyTitle, storyId) {
 	}
 }
 
-function execReport2(req, res, stories, mode, story, callback) {
-	let parameters = {};
-	if (mode === 'scenario') {
-		const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioID, 10));
-		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
-		if (!scenario.browser) scenario.browser = 'chrome';
-		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
-		if (scenario.stepDefinitions.example.length <= 0) {
-			parameters = {
-				scenarios:
+function executeTest(req, res, stories, mode, story) {
+	return new Promise((resolve, reject) => {
+		let parameters = {};
+		if (mode === 'scenario') {
+			const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioID, 10));
+			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
+			if (!scenario.browser) scenario.browser = 'chrome';
+			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
+			if (scenario.stepDefinitions.example.length <= 0) {
+				parameters = {
+					scenarios:
 				[{
 					browser: scenario.browser,
 					waitTime: scenario.stepWaitTime,
 					daisyAutoLogout: scenario.daisyAutoLogout
 				}]
-			};
-		} else {
-			parameters = { scenarios: [] };
-			scenario.stepDefinitions.example.forEach((examples, index) => {
-				if (index > 0) {
-					parameters.scenarios.push({
-						browser: scenario.browser,
-						waitTime: scenario.stepWaitTime,
-						daisyAutoLogout: scenario.daisyAutoLogout
-					});
-				}
-			});
+				};
+			} else {
+				parameters = { scenarios: [] };
+				scenario.stepDefinitions.example.forEach((examples, index) => {
+					if (index > 0) {
+						parameters.scenarios.push({
+							browser: scenario.browser,
+							waitTime: scenario.stepWaitTime,
+							daisyAutoLogout: scenario.daisyAutoLogout
+						});
+					}
+				});
+			}
+		} else if (mode === 'feature' || mode === 'group') {
+			const prep = scenarioPrep(story.scenarios, story.oneDriver);
+			story.scenarios = prep.scenarios;
+			parameters = prep.parameters;
 		}
-	} else if (mode === 'feature' || mode === 'group') {
-		const prep = scenarioPrep(story.scenarios);
-		story.scenarios = prep.scenarios;
-		parameters = prep.parameters;
-	}
-	const reportTime = Date.now();
-	const cucePath = 'node_modules/.bin/cucumber-js';
-	const featurePath = `features/${cleanFileName(story.title + story._id)}.feature`;
-	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
+		const reportTime = Date.now();
+		const cucePath = 'node_modules/.bin/cucumber-js';
+		const featurePath = `features/${cleanFileName(story.title + story._id)}.feature`;
+		const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
-	let jsonPath = `features/${reportName}.json`;
-	if (mode === 'group') {
-		const grpDir = req.body.name;
-		jsonPath = `./features/${grpDir}/${reportName}.json`;
-	}
-
-	const jsParam = JSON.stringify(parameters);
-	let worldParam = '';
-	for (let i = 0; i < jsParam.length; i++) {
-		if (jsParam[i] == '"')
-			worldParam += '\\\"';
-		else
-			worldParam += jsParam[i];
-	}
-
-	console.log('worldParam', worldParam);
-
-	let cmd;
-	if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-	if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-	if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-	console.log(`Executing: ${cmd}`);
-
-	exec(cmd, (error, stdout, stderr) => {
-		if (error) {
-			console.error(`exec error: ${error}`);
-			callback(reportTime, story, req.params.scenarioID, reportName);
-			return;
+		let jsonPath = `features/${reportName}.json`;
+		if (mode === 'group') {
+			const grpDir = req.body.name;
+			jsonPath = `./features/${grpDir}/${reportName}.json`;
 		}
-		console.log(`stdout: ${stdout}`);
-		console.log(`stderr: ${stderr}`);
-		callback(reportTime, story, req.params.scenarioID, reportName);
+
+		const jsParam = JSON.stringify(parameters);
+		let worldParam = '';
+		for (let i = 0; i < jsParam.length; i++) {
+			if (jsParam[i] == '"')
+				worldParam += '\\\"';
+			else
+				worldParam += jsParam[i];
+		}
+
+		console.log('worldParam', worldParam);
+
+		let cmd;
+		if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
+
+		if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
+
+		if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
+
+		console.log(`Executing: ${cmd}`);
+
+		exec(cmd, (error, stdout, stderr) => {
+			if (error) {
+				console.error(`exec error: ${error}`);
+				resolve({ reportTime: reportTime, story: story, scenarioID: req.params.scenarioID, reportName: reportName });
+				return;
+			}
+			console.log(`stdout: ${stdout}`);
+			console.log(`stderr: ${stderr}`);
+			resolve({ reportTime: reportTime, story: story, scenarioID: req.params.scenarioID, reportName: reportName });
+		});
 	});
 }
 
-function scenarioPrep(scenarios) {
+function scenarioPrep(scenarios, driver) {
 	const parameters = { scenarios: [] };
 	scenarios.forEach((scenario) => {
 		if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
@@ -435,7 +465,8 @@ function scenarioPrep(scenarios) {
 			parameters.scenarios.push({
 				browser: scenario.browser,
 				waitTime: scenario.stepWaitTime,
-				daisyAutoLogout: scenario.daisyAutoLogout
+				daisyAutoLogout: scenario.daisyAutoLogout,
+				oneDriver: driver
 			});
 		} else {
 			scenario.stepDefinitions.example.forEach((examples, index) => {
@@ -443,7 +474,8 @@ function scenarioPrep(scenarios) {
 					parameters.scenarios.push({
 						browser: scenario.browser,
 						waitTime: scenario.stepWaitTime,
-						daisyAutoLogout: scenario.daisyAutoLogout
+						daisyAutoLogout: scenario.daisyAutoLogout,
+						oneDriver: driver
 					});
 				}
 			});
@@ -624,6 +656,7 @@ async function uploadReport(report, storyId, scenarioID) {
 	return uploadedReport;
 }
 
+// returns true if failed = 0 and passed > 1
 function testPassed(failed, passed) {
 	return failed <= 0 && passed >= 1;
 }
@@ -736,7 +769,6 @@ const getGithubData = (res, req, accessToken) => {
 			try {
 				await mongo.findOrRegister(req.body);
 				passport.authenticate('github-local', (error, user) => {
-					console.log('Der User in authenticate', JSON.stringify(user));
 					if (error) {
 						res.json({ error: 'Authentication Error' });
 					} else if (!user) {

@@ -4,7 +4,7 @@
 }
 
 .grid{
-    background-color: var(--light-grey);
+   /*  background-color: var(--light-grey); */
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-rows: auto;

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output } from '@angular/core';
+import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -13,6 +13,7 @@ import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
 import { saveAs } from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
+import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
@@ -30,7 +31,7 @@ const emptyBackground: Background = {stepDefinitions: {when: []}};
   templateUrl: './story-editor.component.html',
   styleUrls: ['./story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit, DoCheck {
+export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
 
   /**
    * set new currently selected scenario
@@ -208,6 +209,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
 
     runSaveOptionSubscription: any;
 
+    @Input() isDark: boolean;
+
     /**
      * View child of the scenario editor
      */
@@ -239,7 +242,8 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      */
     constructor(
         public apiService: ApiService,
-        private toastr: ToastrService
+        private toastr: ToastrService,
+        public themeService: ThemingService
     ) {
         this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
             this.storiesLoaded = true;
@@ -248,28 +252,28 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             this.setStories(stories);
             this.db = localStorage.getItem('source') === 'db' ;
         });
-        this.apiService.storiesErrorEvent.subscribe(errorCode => {
-            this.storiesError = true;
-            this.showEditor = false;
-        });
+
+        if (this.apiService.urlReceived) {
+            this.loadStepTypes();
+        }
+
+        if (this.selectedStory) {
+            this.storiesLoaded = true;
+            this.storiesError = false;
+        }
+        const version = localStorage.getItem('version');
+        if (version === 'DAISY' || version === 'HEROKU' || !version) {
+          this.daisyVersion = true;
+        } else {
+          this.daisyVersion = false;
+        }
 
         this.apiService.getBackendUrlEvent.subscribe(() => {
           this.loadStepTypes();
-      });
+        });
 
-      this.apiService.deleteScenarioEvent.subscribe(() => {
-        this.deleteScenario(this.selectedScenario);
-    });
-
-      if (this.apiService.urlReceived) {
-          this.loadStepTypes();
-      }
-
-      this.apiService.deleteStoryEvent.subscribe(() => {
-        this.showEditor = false;
-    });
+        
     }
-
 
     /**
      * retrieves the saved block from the session storage
@@ -282,46 +286,70 @@ export class StoryEditorComponent implements OnInit, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        if (this.selectedStory) {
-            this.storiesLoaded = true;
-            this.storiesError = false;
-        }
-        const version = localStorage.getItem('version');
-        if (version === 'DAISY' || version === 'HEROKU' || !version) {
-          this.daisyVersion = true;
-        } else {
-          this.daisyVersion = false;
-        }
-        this.runSaveOptionSubscription = this.apiService.runSaveOptionEvent.subscribe(option => {
-            if (option === 'run') {
-                this.runUnsaved = true;
-                this.runOption();
-            }
-            if (option === 'saveRun') {
-                this.saveBackgroundAndRun = true;
-                this.updateBackground();
-          }
+        this.apiService.storiesErrorEvent.subscribe(errorCode => {
+            this.storiesError = true;
+            this.showEditor = false;
         });
 
-        this.apiService.addBlockToScenarioEvent.subscribe(block => {
-            if (block[0] === 'background') {
-                block = block[1];
-                Object.keys(block.stepDefinitions).forEach((key, index) => {
-                    if (key === 'when') {
-                        block.stepDefinitions[key].forEach((step: StepType) => {
-                          this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                        });
-                    }
-                });
-                  this.selectedStory.background.saved = false;
+        this.apiService.deleteStoryEvent.subscribe(() => {
+            this.showEditor = false;
+            this.storyDeleted();
+            });
+  
+          this.apiService.deleteScenarioEvent.subscribe(() => {
+            this.deleteScenario(this.selectedScenario);
+            });
+  
+          this.apiService.deleteStoryEvent.subscribe(() => {
+              this.showEditor = false;
+          });
+  
+          this.apiService.runSaveOptionEvent.subscribe(option => {
+              if (option === 'run') {
+                  this.runUnsaved = true;
+                  this.runOption();
+              }
+              if (option === 'saveRun') {
+                  this.saveBackgroundAndRun = true;
+                  this.updateBackground();
             }
+          });
+  
+          this.apiService.addBlockToScenarioEvent.subscribe(block => {
+              if (block[0] === 'background') {
+                  block = block[1];
+                  Object.keys(block.stepDefinitions).forEach((key, index) => {
+                      if (key === 'when') {
+                          block.stepDefinitions[key].forEach((step: StepType) => {
+                            this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                          });
+                      }
+                  });
+                    this.selectedStory.background.saved = false;
+              }
+          });
+          this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+        
+
+        this.isDark = this.themeService.isDarkMode();
+        this.themeService.themeChanged.subscribe((changedTheme) => {
+            this.isDark = this.themeService.isDarkMode();
+            console.log('Changed to ' + changedTheme);
         });
-        this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+
     }
 
     ngOnDestroy(){
         this.runSaveOptionSubscription.unsubscribe();
         /* this.apiService.runSaveOptionEvent.unsubscribe(); */
+        //this.apiService.runSaveOptionEvent.unsubscribe();
+        this.apiService.renameStoryEvent.unsubscribe();
+        this.apiService.addBlockToScenarioEvent.unsubscribe();
+        //this.apiService.getStoriesEvent.unsubscribe();
+        this.apiService.storiesErrorEvent.unsubscribe();
+        //this.apiService.getBackendUrlEvent.unsubscribe();
+        this.apiService.deleteScenarioEvent.unsubscribe();
+        this.apiService.deleteStoryEvent.unsubscribe();
     }
 
     /**
@@ -383,6 +411,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
             .subscribe((resp: StepType[]) => {
                 this.originalStepTypes = resp;
             });
+    }
+
+    setOneDriver(event) {
+        this.apiService
+        .changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
+        .subscribe((resp: any) => {
+            this.selectedStory = resp;
+        })
     }
 
     /**
@@ -785,9 +821,10 @@ export class StoryEditorComponent implements OnInit, DoCheck {
                 .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
                     {browser: browserSelect,
                         repository: localStorage.getItem('repository'),
-                        source: localStorage.getItem('source')
-                        // waitTime: defaultWaitTimeInput,
-                        // daisyAutoLogout: daisyAutoLogout
+                        source: localStorage.getItem('source'),
+                        oneDriver: this.selectedStory.oneDriver
+                        //waitTime: defaultWaitTimeInput,
+                        //daisyAutoLogout: daisyAutoLogout
                     })
                 .subscribe((resp: any) => {
                     this.reportId = resp.reportId;
@@ -961,9 +998,14 @@ export class StoryEditorComponent implements OnInit, DoCheck {
         this.deleteStoryEvent.emit(this.selectedStory);
     }
 
-    getUniqueStoryTitle() {
-        return this.selectedStory.title;
+      /**
+  * Removes the selected story
+  */
+  storyDeleted() {
+    if (this.stories.find(x => x === this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
     }
+  }
 
 }
 

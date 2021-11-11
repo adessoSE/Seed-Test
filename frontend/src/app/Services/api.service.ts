@@ -164,6 +164,13 @@ export class ApiService {
     }
 
     /**
+     * Emits if repositories should be reloaded 
+     */
+     public getRepositoriesEmitter() {
+        this.getRepositoriesEvent.emit();
+    }
+
+    /**
      * Emits the rename scenario event
      * @param newTitle
      */
@@ -264,7 +271,7 @@ export class ApiService {
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
             sessionStorage.setItem('repositories', JSON.stringify(resp));
-            this.getRepositoriesEvent.emit(resp);
+            this.updateRepositoryEmitter()//updateRepositoryEvent.emit(resp);
           }),
             catchError(ApiService.handleError));
     }
@@ -944,10 +951,10 @@ export class ApiService {
             }));
     }
 
-    createGroup(title: string, repoId: string, member_stories): Observable<any> {
-        console.log('createGroup', title, repoId);
+    createGroup(title: string, repoId: string, member_stories, isSequential: boolean): Observable<any> {
+        console.log('createGroup', title, repoId, isSequential);
         return this.http
-            .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories}, ApiService.getOptions());
+            .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories, 'sequence': isSequential}, ApiService.getOptions());
     }
 
     updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> {
@@ -1017,4 +1024,12 @@ export class ApiService {
     isCustomRepo(repo: RepositoryContainer): boolean {
         return ( repo.source === 'db');
     }
+
+    public changeOneDriver(oneDriver: boolean, storyID: any) {
+        this.apiServer = localStorage.getItem('url_backend');
+
+        return this.http
+            .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
+    }
+    
 }

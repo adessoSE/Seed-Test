@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, DoCheck } from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -23,7 +23,7 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
     styleUrls: ['./scenario-editor.component.css'],
 })
 
-export class ScenarioEditorComponent implements OnInit, DoCheck {
+export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Currently selected story
@@ -85,6 +85,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      */
     showDaisyAutoLogout: boolean = false;
 
+    @Input() isDark : boolean;
     /**
      * View child of the example table
      */
@@ -107,7 +108,14 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
-    ) { }
+    ) { 
+        if (localStorage.getItem('version') == 'DAISY') {
+            this.showDaisyAutoLogout = true;
+        } else {
+            this.showDaisyAutoLogout = false;
+        }
+
+    }
 
     /**
      * retrieves the saved block from the session storage
@@ -120,12 +128,6 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        if (localStorage.getItem('version') == 'DAISY') {
-            this.showDaisyAutoLogout = true;
-        } else {
-            this.showDaisyAutoLogout = false;
-        }
-
         this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option == 'saveScenario'){
                 this.saveRunOption();
@@ -159,6 +161,12 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
         })
 
         this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
+    }
+
+    ngOnDestroy(){
+        this.apiService.runSaveOptionEvent.unsubscribe();
+        this.apiService.addBlockToScenarioEvent.unsubscribe();
+        this.apiService.renameScenarioEvent.unsubscribe();
     }
 
     /**
