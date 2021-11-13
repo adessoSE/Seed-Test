@@ -897,7 +897,7 @@ async function getTestReports(storyId) {
 		const collection = await dbo.collection(testreportCollection);
 		console.log('Getting Reports for storyId :', storyId);
 		const result = await collection.find({ storyId: ObjectId(storyId) },
-			{ projection: { jsonReport: 0, reportOptions: 0 } }).toArray();
+			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
 		db.close();
 		console.log('Got ', result.length, ' Story reports for  :', storyId);
 		console.log(result);
@@ -918,7 +918,7 @@ async function getGroupTestReports(storyId) {
 		// projection value 0 excludes from returning
 		const query = { storyStatuses: { $elemMatch: { storyId: ObjectId(storyId) } } };
 		const result = await collection.find(query,
-			{ projection: { jsonReport: 0, reportOptions: 0 } }).toArray();
+			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
 		db.close();
 		console.log('Got ', result.length, ' Group Reports for  :', storyId);
 		return result;

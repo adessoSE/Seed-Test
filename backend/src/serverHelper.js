@@ -896,24 +896,46 @@ async function fuseStoryWithDb(story) {
 	return story;
 }
 
-// TODO: Fix this (return ReportsToKeep)
 async function deleteOldReports(reports) {
+	// console.log('In deleteOldReports:');
 	const keepReportAmount = process.env.MAX_SAVED_REPORTS;
 	// sort Reports by timestamp
 	reports.sort((a, b) => b.reportTime - a.reportTime);
-	let reportsToKeep = reports;
 	// exclude saved / favorite Reports from deleting
-	let reportsToDelete = reports.filter((elem) => !elem.isSaved);
-
+	const reportsToDelete = reports.filter((elem) => !elem.isSaved);
+	// console.log('reportsToDelete after filter (isSaved)');
+	// console.log(reportsToDelete);
 	// exclude the a given amount fo the last run reports
-	reportsToDelete = reportsToDelete.splice(0, keepReportAmount);
+	reportsToDelete.splice(0, keepReportAmount);
+	// console.log('reportsToDelete after splice');
+	// console.log(reportsToDelete);
 	// then delete the remaining old reports:
-	for (const report of reportsToDelete) {
-		// reportsToKeep = reportsToKeep.splice(reportsToKeep.indexOf(report), 1);
-		mongo.deleteReport(report._id).then((deletedReport) => {
-			console.log(`Deleted old Report: ${deletedReport}`);
-		});
-	}
+	reportsToDelete.forEach((element) => {
+		reports.splice(reports.indexOf(element), 1);
+		mongo.deleteReport(element._id);
+	});
+	// console.log('reports after deleting:');
+	// console.log(reports);
+	return reports;
+
+	// // sort Reports by timestamp
+	// reports.sort((a, b) => b.reportTime - a.reportTime);
+	// let reportsToKeep = reports;
+	// // exclude saved / favorite Reports from deleting
+	// let reportsToDelete = reports.filter((elem) => !elem.isSaved);
+	//
+	// // exclude the a given amount fo the last run reports
+	// reportsToDelete = reportsToDelete.splice(0, keepReportAmount);
+	// // then delete the remaining old reports:
+	// for (const report of reportsToDelete) {
+	// 	// reportsToKeep = reportsToKeep.splice(reportsToKeep.indexOf(report), 1);
+	// 	mongo.deleteReport(report._id).then((deletedReport) => {
+	// 		console.log(`Deleted old Report: ${deletedReport}`);
+	// 	});
+	// }
+	// console.log('reportsToKeep: ');
+	// console.log(reportsToKeep);
+	// return reportsToKeep;
 
 	// // sort Reports by timestamp
 	// storyReports.sort((a, b) => b.reportTime - a.reportTime);
@@ -948,9 +970,7 @@ async function deleteOldReports(reports) {
 	// groupReports.forEach((element) => {
 	// 	mongo.deleteReport(element._id);
 	// });
-	console.log('reportsToKeep: ');
-	console.log(reportsToKeep);
-	return reportsToKeep;
+
 }
 
 async function getReportHistory(storyId) {
@@ -963,15 +983,9 @@ async function getReportHistory(storyId) {
 		if (element.mode === 'scenario') scenarioReports.push(element);
 		if (element.mode === 'group') groupReports.push(element);
 	});
-	console.log(storyReports);
-	console.log(scenarioReports);
-	console.log(groupReports);
-	// storyReports = await deleteOldReports(storyReports);
-	// scenarioReports = await deleteOldReports(scenarioReports);
-	// groupReports = await deleteOldReports(groupReports);
-	// console.log(storyReports);
-	// console.log(scenarioReports);
-	// console.log(groupReports);
+	storyReports = await deleteOldReports(storyReports);
+	scenarioReports = await deleteOldReports(scenarioReports);
+	groupReports = await deleteOldReports(groupReports);
 	return { storyReports, scenarioReports, groupReports };
 }
 
