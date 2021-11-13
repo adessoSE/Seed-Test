@@ -28,7 +28,7 @@ router.post('/Feature/:issueID/:storySource', (req, res) => {
 });
 
 // run single Scenario of a Feature
-router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
+router.post('/Scenario/:issueID/:storySource/:scenarioId', (req, res) => {
 	helper.runReport(req, res, [], 'scenario', req.body);
 });
 
@@ -47,16 +47,7 @@ router.get('/report/:reportName', (req, res) => {
 
 router.get('/reportHistory/:storyId', async (req, res) => {
 	const { storyId } = req.params;
-	const history = await helper.getReportHistory(storyId);
-	const storyReports = [];
-	const scenarioReports = [];
-	const groupReports = [];
-	history.forEach((element) => {
-		if (element.mode === 'feature') storyReports.push(element);
-		if (element.mode === 'scenario') scenarioReports.push(element);
-		else groupReports.push(element);
-	});
-	const reportContainer = { storyReports, scenarioReports, groupReports };
+	const reportContainer = await helper.getReportHistory(storyId);
 	res.status(200).json(reportContainer);
 });
 

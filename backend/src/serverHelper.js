@@ -13,7 +13,6 @@ const mongo = require('./database/mongodatabase');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
-
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
@@ -44,7 +43,6 @@ const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 
 // adds content of each values to output
 function getValues(values) {
-	// TODO: TESTING HERE: excluding the first value
 	let data = '';
 	for (let i = 1; i < values.length; i++) data += `'${values[i]}'`;
 	return data;
@@ -151,7 +149,6 @@ function writeFile(dir, selectedStory) {
 		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
-
 }
 
 function encriptPassword(text) {
@@ -160,6 +157,7 @@ function encriptPassword(text) {
 	encrypted += cipher.final('hex');
 	return encrypted;
 }
+
 function decryptPassword(encrypted) {
 	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
 	let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -187,19 +185,8 @@ async function updateFeatureFile(issueID, storySource) {
 }
 
 async function uploadReport(reportResults) {
-	// const report = {
-	// 	reportName: reportResults.reportName,
-	// 	reportTime,
-	// 	reportOptions,
-	// 	storyId,
-	// 	scenarioID,
-	// 	mode,
-	// 	testStatus: reportResults.overallTestStatus,
-	// 	jsonReport: reportResults.json,
-	// 	reportResults
-	// };
 	const uploadedReport = await mongo.uploadReport(reportResults);
-	await deleteOldReports(reportResults.storyId, reportResults.scenarioID);
+	// await deleteOldReports(reportResults.storyId, reportResults.scenarioID);
 	return uploadedReport;
 }
 
@@ -294,7 +281,7 @@ async function analyzeGroupReport(grpName, stories) {
 							const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 							storyStatus.scenarioStatuses.push(
 								{
-									scenarioID: scenario.scenario_id,
+									scenarioId: scenario.scenario_id,
 									status: scenStatus,
 									stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
 								}
@@ -380,7 +367,7 @@ async function analyzeScenarioReport(stories, reportName, scenarioId) {
 						// set scenario status (for GitHub/Jira reporting comment)
 						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 						reportResults.scenarioStatuses.push({
-							scenarioID: scenarioId,
+							scenarioId: scenarioId,
 							status: scenStatus,
 							stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
 						});
@@ -464,7 +451,7 @@ async function analyzeStoryReport(stories, reportName) {
 						// set scenario status (for GitHub/Jira reporting comment)
 						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 						reportResults.scenarioStatuses.push({
-							scenarioID: scenarioId,
+							scenarioId: scenarioId,
 							status: scenStatus,
 							stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
 						});
@@ -501,10 +488,10 @@ async function analyzeStoryReport(stories, reportName) {
 	return reportResults;
 }
 
-function analyzeReport(grpName, stories, mode, reportName, scenarioID) {
+function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 	switch (mode) {
 		case 'scenario':
-			return analyzeScenarioReport(stories, reportName, scenarioID);
+			return analyzeScenarioReport(stories, reportName, scenarioId);
 		case 'feature':
 			return analyzeStoryReport(stories, reportName);
 		case 'group':
@@ -568,16 +555,15 @@ function runReport(req, res, stories, mode, parameters) {
 			cumulate++;
 		} else {
 			if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
-			// TODO: Maybe find another Option (as scenarioID might not always be needed)
-			let scenarioID;
-			if (req.params.scenarioID !== undefined) {
-				scenarioID = req.params.scenarioID;
+			let scenarioId;
+			if (req.params.scenarioId !== undefined) {
+				scenarioId = req.params.scenarioId;
 			}
 			const { reportTime } = reportObj;
 			let { reportName } = reportObj;
 
 			// analyze Report:
-			const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioID);
+			const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId);
 			// return html report
 			try {
 				reportName = reportResults.reportName;
@@ -591,7 +577,7 @@ function runReport(req, res, stories, mode, parameters) {
 					}
 				}
 				// add everything to reportResult
-				reportResults.scenarioID = req.params.scenarioID;
+				reportResults.scenarioId = req.params.scenarioId;
 				reportResults.reportTime = reportTime;
 				reportResults.reportOptions = reportOptions;
 				reportResults.mode = mode;
@@ -600,49 +586,44 @@ function runReport(req, res, stories, mode, parameters) {
 				// upload report to DB
 				uploadReport(reportResults)
 					.then((uploadedReport) => {
-						console.log('Report Results in .then of runReport: ');
-						console.log(reportResults);
+						// console.log('Report Results in .then of runReport: ');
+						// console.log(reportResults);
 
-						// Group needs a special Path to Report
+						// Group needs an adjusted Path to Report
 						if (mode === 'group') reportName = `${reportName}/${reportName}`;
 						// read html Report and add it top response
 						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-							res.json({
-								htmlFile: data,
-								reportId: uploadedReport.ops[0]._id
-							});
+							res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
 						});
+						// delete reports in filesystem after a while
 						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 					});
+				// // TODO: Chek if needed: Do not update Scenario and Story once again:
+				// if (scenarioId && scenario) {
+				// 	scenario.lastTestPassed = testStatus;
+				// 	await mongo.updateScenario(story._id, story.storySource, scenario, () => {
+				// 		// console.log()
+				// 	});
+				// } else if (!scenarioId) {
+				// 	story.lastTestPassed = testStatus;
+				// 	await mongo.updateStory(story);
+				// }
 			} catch (error) {
 				console.log(`fs readfile error for file ./features/${reportName}.json`);
 			}
-			// });
+			// ################################## TODO: update this:
+			// if (req.params.storySource === 'github' && req.user && req.user.github) {
+			// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
+			// 		reportTime, story, scenario, mode, reportName);
+			// 	const githubValue = parameters.repository.split('/');
+			// 	const githubName = githubValue[0];
+			// 	const githubRepo = githubValue[1];
+			// 	postComment(story.issue_number, comment, githubName, githubRepo,
+			// 		req.user.github.githubToken);
+			// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			// }
 		}
-
-		// ################################## TODO: update this:
-		// if (req.params.storySource === 'github' && req.user && req.user.github) {
-		// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-		// 		reportTime, story, scenario, mode, reportName);
-		// 	const githubValue = parameters.repository.split('/');
-		// 	const githubName = githubValue[0];
-		// 	const githubRepo = githubValue[1];
-		// 	postComment(story.issue_number, comment, githubName, githubRepo,
-		// 		req.user.github.githubToken);
-		// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-		// }
-
-		// TODO: Chek if needed: Do not update Scenario and Story once again:
-		// if (scenarioID && scenario) {
-		// 	scenario.lastTestPassed = testStatus;
-		// 	await mongo.updateScenario(story._id, story.storySource, scenario, () => {
-		// 		// console.log()
-		// 	});
-		// } else if (!scenarioID) {
-		// 	story.lastTestPassed = testStatus;
-		// 	await mongo.updateStory(story);
-		// }
 	});
 }
 
@@ -672,7 +653,7 @@ function executeTest(req, res, stories, mode, story) {
 	return new Promise((resolve, reject) => {
 		let parameters = {};
 		if (mode === 'scenario') {
-			const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioID, 10));
+			const scenario = story.scenarios.find((elem) => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
 			if (!scenario.browser) scenario.browser = 'chrome';
 			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
@@ -725,7 +706,7 @@ function executeTest(req, res, stories, mode, story) {
 		let cmd;
 		if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
 
-		if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioID}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
+		if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioId}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
 
 		if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
 
@@ -734,12 +715,12 @@ function executeTest(req, res, stories, mode, story) {
 		exec(cmd, (error, stdout, stderr) => {
 			if (error) {
 				console.error(`exec error: ${error}`);
-				resolve({ reportTime, story, scenarioID: req.params.scenarioID, reportName });
+				resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
 				return;
 			}
 			console.log(`stdout: ${stdout}`);
 			console.log(`stderr: ${stderr}`);
-			resolve({ reportTime, story, scenarioID: req.params.scenarioID, reportName });
+			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
 		});
 	});
 }
@@ -915,8 +896,83 @@ async function fuseStoryWithDb(story) {
 	return story;
 }
 
+// TODO: Fix this (return ReportsToKeep)
+async function deleteOldReports(reports) {
+	const keepReportAmount = process.env.MAX_SAVED_REPORTS;
+	// sort Reports by timestamp
+	reports.sort((a, b) => b.reportTime - a.reportTime);
+	let reportsToKeep = reports;
+	// exclude saved / favorite Reports from deleting
+	let reportsToDelete = reports.filter((elem) => !elem.isSaved);
+
+	// exclude the a given amount fo the last run reports
+	reportsToDelete = reportsToDelete.splice(0, keepReportAmount);
+	// then delete the remaining old reports:
+	for (const report of reportsToDelete) {
+		// reportsToKeep = reportsToKeep.splice(reportsToKeep.indexOf(report), 1);
+		mongo.deleteReport(report._id).then((deletedReport) => {
+			console.log(`Deleted old Report: ${deletedReport}`);
+		});
+	}
+
+	// // sort Reports by timestamp
+	// storyReports.sort((a, b) => b.reportTime - a.reportTime);
+	// // exclude saved / favorite Reports from deleting
+	// let reportsToDelete = storyReports.filter((elem) => !elem.isSaved);
+	// // exclude the a given amount fo the last run reports
+	// reportsToDelete = reportsToDelete.splice(0, keepReportAmount);
+	// // then delete the remaining old reports:
+	// reportsToDelete.forEach((element) => {
+	// 	storyReports = storyReports.splice(storyReports.indexOf(element));
+	// 	mongo.deleteReport(element._id);
+	// });
+	//
+	// // sort Reports by timestamp
+	// scenarioReports.sort((a, b) => b.reportTime - a.reportTime);
+	// // exclude saved / favorited Reports from deleting
+	// scenarioReports = scenarioReports.filter((elem) => !elem.isSaved);
+	// // exclude the a given amount fo the last run reports
+	// scenarioReports.splice(0, keepReportAmount);
+	// // then delete the remaining old reports:
+	// scenarioReports.forEach((element) => {
+	// 	mongo.deleteReport(element._id);
+	// });
+	//
+	// // sort Reports by timestamp
+	// groupReports.sort((a, b) => b.reportTime - a.reportTime);
+	// // exclude saved / favorite Reports from deleting
+	// groupReports = groupReports.filter((elem) => !elem.isSaved);
+	// // exclude the a given amount fo the last run reports
+	// groupReports.splice(0, keepReportAmount);
+	// // then delete the remaining old reports:
+	// groupReports.forEach((element) => {
+	// 	mongo.deleteReport(element._id);
+	// });
+	console.log('reportsToKeep: ');
+	console.log(reportsToKeep);
+	return reportsToKeep;
+}
+
 async function getReportHistory(storyId) {
-	return mongo.getTestReports(storyId);
+	let storyReports = [];
+	let scenarioReports = [];
+	let groupReports = await mongo.getGroupTestReports(storyId);
+	const nonGroupReports = await mongo.getTestReports(storyId);
+	nonGroupReports.forEach((element) => {
+		if (element.mode === 'feature') storyReports.push(element);
+		if (element.mode === 'scenario') scenarioReports.push(element);
+		if (element.mode === 'group') groupReports.push(element);
+	});
+	console.log(storyReports);
+	console.log(scenarioReports);
+	console.log(groupReports);
+	// storyReports = await deleteOldReports(storyReports);
+	// scenarioReports = await deleteOldReports(scenarioReports);
+	// groupReports = await deleteOldReports(groupReports);
+	// console.log(storyReports);
+	// console.log(scenarioReports);
+	// console.log(groupReports);
+	return { storyReports, scenarioReports, groupReports };
 }
 
 async function createReport(res, reportName) {
@@ -1049,56 +1105,12 @@ const getGithubData = (res, req, accessToken) => {
 	);
 };
 
-async function deleteOldReports(storyId, scenarioID) {
-	const keepReportAmount = process.env.MAX_SAVED_REPORTS;
-	// all reports for Story AND Scenario:
-	const reportHistoryJSON = await getReportHistory(storyId);
-	const reportHistory = JSON.parse(JSON.stringify(reportHistoryJSON));
-	let featureReports = reportHistory.filter((element) => element.mode === 'feature');
-	let scenarioReports = reportHistory.filter((element) => element.mode === 'scenario');
-	let groupReports = reportHistory.filter((element) => element.mode === 'group');
-
-	// sort Reports by timestamp
-	featureReports.sort((a, b) => b.reportTime - a.reportTime);
-	// exclude saved / favorite Reports from deleting
-	featureReports = featureReports.filter((elem) => !elem.isSaved);
-	// exclude the a given amount fo the last run reports
-	featureReports.splice(0, keepReportAmount);
-	// then delete the remaining old reports:
-	featureReports.forEach((element) => {
-		mongo.deleteReport(element._id);
-	});
-
-	// sort Reports by timestamp
-	scenarioReports.sort((a, b) => b.reportTime - a.reportTime);
-	// exclude saved / favorited Reports from deleting
-	scenarioReports = scenarioReports.filter((elem) => !elem.isSaved
-		&& parseInt(elem.scenarioId) == scenarioID);
-	// exclude the a given amount fo the last run reports
-	scenarioReports.splice(0, keepReportAmount);
-	// then delete the remaining old reports:
-	scenarioReports.forEach((element) => {
-		mongo.deleteReport(element._id);
-	});
-
-	// sort Reports by timestamp
-	groupReports.sort((a, b) => b.reportTime - a.reportTime);
-	// exclude saved / favorite Reports from deleting
-	groupReports = groupReports.filter((elem) => !elem.isSaved);
-	// exclude the a given amount fo the last run reports
-	groupReports.splice(0, keepReportAmount);
-	// then delete the remaining old reports:
-	groupReports.forEach((element) => {
-		mongo.deleteReport(element._id);
-	});
-}
-
 async function exportSingleFeatureFile(_id, source) {
 	const dbStory = mongo.getOneStory(_id, source);
 	return await dbStory.then(async (story) => {
 		await this.nameSchemeChange(story);
 		return new Promise((resolve, reject) => {
-			fs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, "utf8", (err, data) => {
+			fs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8', (err, data) => {
 				if (err) {
 					console.log('couldn`t read File');
 					reject();
@@ -1125,7 +1137,7 @@ async function exportProjectFeatureFiles(repoId) {
 }
 
 module.exports = {
-	deleteOldReports,
+	// deleteOldReports,
 	getReportHistory,
 	uniqueRepositories,
 	jiraProjects,

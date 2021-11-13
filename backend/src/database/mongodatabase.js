@@ -666,14 +666,14 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioID) {
+async function deleteScenario(storyId, storySource, scenarioId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
 		const story = await findStory(storyId, storySource, collection);
 		for (let i = 0; i < story.scenarios.length; i++) {
-			if (story.scenarios[i].scenario_id === scenarioID) story.scenarios.splice(i, 1);
+			if (story.scenarios[i].scenario_id === scenarioId) story.scenarios.splice(i, 1);
 		}
 		const result = await replace(story, collection);
 		db.close();
@@ -895,14 +895,36 @@ async function getTestReports(storyId) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
-		console.log('Getting Report for storyId :', storyId);
+		console.log('Getting Reports for storyId :', storyId);
 		const result = await collection.find({ storyId: ObjectId(storyId) },
-			{ projection: { json: 0, reportOptions: 0 } }).toArray();
+			{ projection: { jsonReport: 0, reportOptions: 0 } }).toArray();
 		db.close();
-		console.log('Got ', result.length, ' reports for  :', storyId);
+		console.log('Got ', result.length, ' Story reports for  :', storyId);
+		console.log(result);
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
+		return {};
+	}
+}
+
+async function getGroupTestReports(storyId) {
+	let db;
+	try {
+		db = await connectDb();
+		const dbo = db.db(dbName);
+		const collection = await dbo.collection(testreportCollection);
+		console.log('Getting Groups Reports for storyId :', storyId);
+		// projection value 0 excludes from returning
+		const query = { storyStatuses: { $elemMatch: { storyId: ObjectId(storyId) } } };
+		const result = await collection.find(query,
+			{ projection: { jsonReport: 0, reportOptions: 0 } }).toArray();
+		db.close();
+		console.log('Got ', result.length, ' Group Reports for  :', storyId);
+		return result;
+	} catch (e) {
+		console.log('Error in getGroupTestReports: ', e);
+		return {};
 	}
 }
 
@@ -917,6 +939,7 @@ async function deleteReport(testReportId) {
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
+		return {};
 	}
 }
 
@@ -934,6 +957,7 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
+		return {};
 	}
 }
 
@@ -1266,6 +1290,7 @@ module.exports = {
 	setIsSavedTestReport,
 	deleteReport,
 	getTestReports,
+	getGroupTestReports,
 	getReport,
 	uploadReport,
 	disconnectGithub,

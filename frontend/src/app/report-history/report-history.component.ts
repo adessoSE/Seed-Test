@@ -77,7 +77,7 @@ export class ReportHistoryComponent implements OnInit {
    * @returns list of reports of this scenario
    */
    filterScenarioReports(scenario: Scenario) {
-    return this.reports.scenarioReports.filter((elem) => parseInt(elem.scenarioId) == scenario.scenario_id);
+    return this.reports.scenarioReports.filter((elem) => parseInt(elem.scenarioId, 10) === scenario.scenario_id);
   }
 
   /**
