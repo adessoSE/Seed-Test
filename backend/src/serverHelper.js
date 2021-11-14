@@ -283,7 +283,7 @@ async function analyzeGroupReport(grpName, stories) {
 								{
 									scenarioId: scenario.scenario_id,
 									status: scenStatus,
-									stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
+									stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
 								}
 							);
 							// count number of passed and failed Scenarios:
@@ -296,7 +296,7 @@ async function analyzeGroupReport(grpName, stories) {
 						// after all Scenarios and Steps:
 						// set Story Test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
 						storyStatus.status = testPassed(storyFailedSteps, storyPassedSteps);
-						storyStatus.storyStepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
+						storyStatus.storyStepResults = { passedSteps: storyPassedSteps, failedSteps: storyFailedSteps, skippedSteps: storySkippedSteps };
 						reportResults.storyStatuses.push(storyStatus);
 						// update lastTestPassed in Story:
 						// TODO: updateStoryTestStatus(scenStatus, scenario, story);
@@ -308,7 +308,7 @@ async function analyzeGroupReport(grpName, stories) {
 				}
 				// end of for each story
 				reportResults.overallTestStatus = testPassed(overallPassedSteps, overallFailedSteps);
-				reportResults.groupStepResults = { overallPassedSteps, overallFailedSteps, overallSkippedSteps };
+				reportResults.groupStepResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
 				reportResults.scenariosTested = scenariosTested;
 			} catch (error) {
 				reportResults.overallTestStatus = false;
@@ -325,7 +325,7 @@ async function analyzeGroupReport(grpName, stories) {
 }
 
 async function analyzeScenarioReport(stories, reportName, scenarioId) {
-	const reportResults = { reportName, overallTestStatus: false, scenarioStatuses: [] };
+	const reportResults = { reportName, overallTestStatus: false };
 	try {
 		const reportPath = `./features/${reportName}.json`;
 		fs.readFile(reportPath, 'utf8', (err, data) => {
@@ -366,11 +366,11 @@ async function analyzeScenarioReport(stories, reportName, scenarioId) {
 						});
 						// set scenario status (for GitHub/Jira reporting comment)
 						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-						reportResults.scenarioStatuses.push({
-							scenarioId: scenarioId,
+						reportResults.scenarioStatus = {
+							scenarioId,
 							status: scenStatus,
-							stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
-						});
+							stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
+						};
 						updateScenarioTestStatus(scenStatus, scenario, story);
 						reportResults.overallTestStatus = scenStatus;
 					});
@@ -451,9 +451,9 @@ async function analyzeStoryReport(stories, reportName) {
 						// set scenario status (for GitHub/Jira reporting comment)
 						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 						reportResults.scenarioStatuses.push({
-							scenarioId: scenarioId,
+							scenarioId,
 							status: scenStatus,
-							stepResults: { scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps }
+							stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
 						});
 						// count number of passed and failed Scenarios:
 						if (scenStatus) scenariosTested.passed += 1;
@@ -471,7 +471,7 @@ async function analyzeStoryReport(stories, reportName) {
 						+ 'Setting testStatus of Scenario to false.', error);
 				}
 				reportResults.overallTestStatus = storyStatus;
-				reportResults.storyStepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
+				reportResults.storyStepResults = { passedSteps: storyPassedSteps, failedSteps: storyFailedSteps, skippedSteps: storySkippedSteps };
 				// moved to scenario
 				// reportResults.stepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
 			} catch (error) {

@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Report } from '../model/Report';
+import { StoryReport } from '../model/StoryReport';
 import { ReportContainer } from '../model/ReportContainer';
 import { Scenario } from '../model/Scenario';
 import { Story } from '../model/Story';
 import { ApiService } from '../Services/api.service';
 import { ThemingService } from '../Services/theming.service';
 import {Group} from '../model/Group';
+import {ScenarioReport} from '../model/ScenarioReport';
+import {GroupReport} from '../model/GroupReport';
 
 /**
  * Component of the report history
@@ -104,14 +106,14 @@ export class ReportHistoryComponent implements OnInit {
   stringifyReportTime(time: number) {
     const date = new Date(time).toLocaleDateString('de');
     const t = new Date(time).toLocaleTimeString('de');
-    return 'Report: ' + date + ' ' + t;
+    return 'StoryReport: ' + date + ' ' + t;
   }
 
   /**
    * Deletes a report of the list
-   * @param report report to be deleted
+   * @param report: StoryReport | ScenarioReport | GroupReport report to be deleted
    */
-  deleteReport(report: Report) {
+  deleteReport(report: StoryReport | ScenarioReport | GroupReport) {
     this.apiService
       .deleteReport(report._id)
       .subscribe(_resp => {
@@ -125,9 +127,9 @@ export class ReportHistoryComponent implements OnInit {
 
   /**
    * Set the report to not be saved
-   * @param report
+   * @param report: StoryReport | ScenarioReport | GroupReport
    */
-  unsaveReport(report: Report) {
+  unsaveReport(report: StoryReport | ScenarioReport | GroupReport) {
     report.isSaved = false;
     this.apiService
       .unsaveReport(report._id)
@@ -137,9 +139,9 @@ export class ReportHistoryComponent implements OnInit {
 
   /**
    * Sets the report to be saved
-   * @param report
+   * @param report: StoryReport | ScenarioReport | GroupReport
    */
-  saveReport(report: Report) {
+  saveReport(report: StoryReport | ScenarioReport | GroupReport) {
     report.isSaved = true;
     this.apiService
       .saveReport(report._id)
