@@ -106,7 +106,7 @@ export class ReportHistoryComponent implements OnInit {
   stringifyReportTime(time: number) {
     const date = new Date(time).toLocaleDateString('de');
     const t = new Date(time).toLocaleTimeString('de');
-    return 'StoryReport: ' + date + ' ' + t;
+    return 'Report from ' + date + ' ' + t;
   }
 
   /**
@@ -154,4 +154,12 @@ export class ReportHistoryComponent implements OnInit {
     return this.isDark;
   }
 
+  getStoryStatus(groupReport: GroupReport, story_id: string) {
+    console.log(story_id);
+    console.log(groupReport.storyStatuses.find(storyStatus => storyStatus.storyId === story_id).storyId);
+    const storyStatusObj = groupReport.storyStatuses.find(storyStatus => storyStatus.storyId === story_id);
+    console.log(storyStatusObj);
+    return storyStatusObj.status;
+
+  }
 }

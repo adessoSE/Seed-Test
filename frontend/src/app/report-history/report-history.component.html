@@ -22,20 +22,20 @@ class="reportHistoryContainer">
         </div>
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let rep of reports.storyReports; let i = index" class="report">
-                <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
+                <a [class.notPassed]="!rep.overallTestStatus" [class.passed]="rep.overallTestStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
                 <div class="reportButtons">
                     <button
-                    class="actionButton" uk-tooltip title="Delete StoryReport"
+                    class="actionButton" title="Delete Report"
                    (click)="deleteReport(rep);">
                       <em class="material-icons">delete</em>
                     </button>
                     <button *ngIf="rep.isSaved"
-                    class="actionButton" uk-tooltip title="StoryReport is currently Saved"
+                    class="actionButton" title="Report is currently Saved"
                     (click)="unsaveReport(rep);">
                       <em class="material-icons">star</em>
                     </button>
                     <button *ngIf="!rep.isSaved"
-                    class="actionButton" uk-tooltip title="StoryReport is currently not Saved"
+                    class="actionButton" title="Report is currently not Saved"
                     (click)="saveReport(rep);">
                       <em class="material-icons">star_border</em>
                     </button>
@@ -43,7 +43,7 @@ class="reportHistoryContainer">
             </div>
         </div>
     </div>
-    <div *ngIf="reports"class="scenarioReportContainer">
+    <div *ngIf="reports" class="scenarioReportContainer">
         <div *ngFor="let scen of this.selectedStory.scenarios; let i = index">
             <div class="sectionHeader">
                 <p class="Mediumaccordeon2 reportsHeader">Scenario {{i + 1}} Reports: {{scen.name}}</p>
@@ -53,17 +53,17 @@ class="reportHistoryContainer">
                     <a [class.notPassed]="!reps.overallTestStatus" [class.passed]="reps.overallTestStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{stringifyReportTime(reps.reportTime)}}</a>
                     <div class="reportButtons">
                         <button
-                        class="actionButton" uk-tooltip title="Delete StoryReport"
+                        class="actionButton" title="Delete Report"
                        (click)="deleteReport(reps);">
                           <em class="material-icons">delete</em>
                         </button>
                         <button *ngIf="reps.isSaved"
-                        class="actionButton" uk-tooltip title="StoryReport is currently Saved"
+                        class="actionButton" title="Report is currently Saved"
                         (click)="unsaveReport(reps);">
                           <em class="material-icons">star</em>
                         </button>
                         <button *ngIf="!reps.isSaved"
-                        class="actionButton" uk-tooltip title="StoryReport is currently not Saved"
+                        class="actionButton" title="Report is currently not Saved"
                         (click)="saveReport(reps);">
                           <em class="material-icons">star_border</em>
                         </button>
@@ -72,33 +72,34 @@ class="reportHistoryContainer">
             </div>
         </div>
     </div>
-    <div *ngIf="reports"class="groupReportContainer">
+    <div *ngIf="reports" class="groupReportContainer">
         <div class="sectionHeader">
             <p class="Largeaccordeon2 reportsHeader">Group Reports:</p>
         </div>
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let grprep of reports.groupReports; let i = index" class="report">
                 <div>
-                    <div *ngIf="grprep.overallTestStatus" class="passed">
-                        Story "{{this.selectedStory.title}}" has passed in report:
-                    </div>
-                    <div *ngIf="grprep.overallTestStatus" class="notPassed">
-                        Story "{{this.selectedStory.title}}" has not passed in report:
-                    </div>
                     <a [class.notPassed]="!grprep.overallTestStatus" [class.passed]="grprep.overallTestStatus" [routerLink]="'/report/' + grprep.reportName" target="_blank">
-                         {{stringifyReportTime(grprep.reportTime)}}
-                    </a>
+                        {{stringifyReportTime(grprep.reportTime)}}
+                    </a> | Story
+                    <div *ngIf="getStoryStatus(grprep, this.selectedStory._id)" class="passed"  style="display: inline">
+                        "{{this.selectedStory.title}}" has passed
+                    </div>
+                    <div *ngIf="getStoryStatus(grprep, this.selectedStory._id) === false" class="notPassed"  style="display: inline">
+                        "{{this.selectedStory.title}}" has not passed
+                    </div>
+                    in this Report.
                 </div>
                 <div class="reportButtons">
-                    <button class="actionButton" uk-tooltip title="Delete StoryReport" (click)="deleteReport(grprep);">
+                    <button class="actionButton" title="Delete Report" (click)="deleteReport(grprep);">
                         <em class="material-icons">delete</em>
                     </button>
-                    <button *ngIf="grprep.isSaved" class="actionButton" uk-tooltip title="StoryReport is currently Saved"
+                    <button *ngIf="grprep.isSaved" class="actionButton" title="Report is currently Saved"
                             (click)="unsaveReport(grprep);">
                         <em class="material-icons">star</em>
                     </button>
                     <button *ngIf="!grprep.isSaved"
-                            class="actionButton" uk-tooltip title="StoryReport is currently not Saved"
+                            class="actionButton" title="Report is currently not Saved"
                             (click)="saveReport(grprep);">
                         <em class="material-icons">star_border</em>
                     </button>

@@ -112,7 +112,7 @@ a.repoLink:hover{
 } */
 
 
-/* 
+/*
 .darkTheme a {
   color:var(--light-blue) !important;
 }
@@ -613,7 +613,7 @@ a.repoLink:hover{
   .darkTheme .SmallHeadline5 {
     color: white;
   }
-  
+
   .Smallnavigation1 {
     font-family: Klavika, sans-serif;
     font-size: 16px;
@@ -662,7 +662,7 @@ a.repoLink:hover{
   .darkTheme .SmallBody1regularLH {
     color: white;
   }
-  
+
   .MediumButton1 {
     font-family: Klavika, sans-serif;
     font-size: 14px;
@@ -812,6 +812,18 @@ a.passed{
 }
 
 a.notPassed{
+  color: red !important;
+}
+
+div.passed{
+  color: green !important;
+}
+
+.darkTheme div.passed {
+  color: #4CAF50 !important;
+}
+
+div.notPassed{
   color: red !important;
 }
 

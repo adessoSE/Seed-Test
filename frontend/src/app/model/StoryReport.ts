@@ -47,11 +47,6 @@ export interface StoryReport {
     scenarioId?: any;
 
     /**
-     * Status if the test was successfull or not
-     */
-    testStatus: boolean;
-
-    /**
      * Status of the report if it is marked as saved or not
      */
     isSaved?: boolean;
