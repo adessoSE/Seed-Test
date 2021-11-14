@@ -242,6 +242,42 @@ function installDatabase() {
 	insertMore('stepTypes', stepTypes());
 }
 
+function deleteOldReports() {
+	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+		if (err) throw err;
+		const dbo = db.db(dbName);
+		dbo.collection('TestReport').deleteMany({ reportTime: { $lt: 1622505600000 } });
+		// dbo.collection('TestReport')
+		// 	.updateOne({}, {
+		// 		$rename: {
+		// 			'testStatus': 'overallTestStatus',
+		// 			'jsonReport': 'json'
+		// 		}
+		// 	});
+		console.log('Deleted and Updated Something');
+		db.close();
+	});
+}
+
+function fixOldReports() {
+	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {
+		if (err) throw err;
+		const dbo = db.db(dbName);
+		dbo.collection('TestReport')
+			// use updateMany for all reports
+			.updateOne({}, {
+				$rename: {
+					'testStatus': 'overallTestStatus',
+					'jsonReport': 'json'
+				}
+			});
+		console.log('Updated Something');
+		db.close();
+	});
+}
+
+// fixOldReports();
+
 module.exports = {
 	installDatabase
 };

@@ -988,6 +988,7 @@ async function getReport(reportName) {
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getReport', e);
+		return {};
 	}
 }
 

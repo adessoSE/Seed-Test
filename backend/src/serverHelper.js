@@ -994,7 +994,7 @@ async function createReport(res, reportName) {
 	const reportName2 = `features/${reportName}.json`;
 	const resolvedPath = path.resolve(reportName2);
 
-	fs.writeFileSync(resolvedPath, JSON.stringify(report.jsonReport),
+	fs.writeFileSync(resolvedPath, JSON.stringify(report.json),
 		(err) => { console.log('Error:', err); });
 	// console.log('report options', report)
 	reporter.generate(setOptions(reportName));
