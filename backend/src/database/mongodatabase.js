@@ -1015,7 +1015,7 @@ async function uploadReport(reportData, report) {
 	}
 	return reportData;
 }
-//TODO: ich brauche den MetaReport und muss daraus die _id zurrückgeben auserdem brauche ich den jeweiligen Report als jasonReport
+
 async function getReport(reportName) {
 	let db;
 	let result;

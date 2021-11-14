@@ -265,7 +265,6 @@ function runReport(req, res, stories, mode, parameters) {
 
 						// upload report JSON to DB
 						fs.readFile(`features/${grpNameDir}/${grpNameDir}.html.json`, 'utf8', async (err2, data2) => {
-							const grpJson = JSON.parse(data2); // Tode: wont be needed anymore
 							const report = {
 								reportTime, reportName: grpNameDir, reportOptions, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 							};
@@ -288,7 +287,7 @@ function runReport(req, res, stories, mode, parameters) {
 						reportTime, reportName, reportOptions, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 					};
 					uploadedReport = await uploadReport(report, data, story._id, scenarioID);
-					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, file) => {
+					fs.readFile(`./features/${reportName}.html`, 'utf8', (file) => {
 						res.json({ htmlFile: file, reportId: uploadedReport._id });
 					});
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
