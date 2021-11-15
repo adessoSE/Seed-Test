@@ -19,6 +19,7 @@ const steptypesCollection = 'stepTypes';
 const PwResetReqCollection = 'PwResetRequests';
 const CustomBlocksCollection = 'CustomBlocks';
 const WorkgroupsCollection = 'Workgroups';
+
 // ////////////////////////////////////// API Methods /////////////////////////////////////////////
 // async function createTTLIndex(){
 //   let db = await connectDb()
@@ -249,7 +250,7 @@ function replace(story, collection) {
 	};
 	story._id = ObjectId(story._id);
 	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(filter, story, { returnOriginal: false }, (err, result) => {
+		collection.findOneAndReplace(filter, story, (err, result) => {
 			if (err) reject(err);
 			else resolve(result.value);
 		});
@@ -266,7 +267,7 @@ async function disconnectGithub(user) {
 function replaceUser(newUser, collection) {
 	const myObjt = { _id: ObjectId(newUser._id) };
 	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(myObjt, newUser, { returnOriginal: false }, (err, result) => {
+		collection.findOneAndReplace(myObjt, newUser, (err, result) => {
 			if (err) reject(err);
 			else resolve(result.value);
 		});
@@ -336,7 +337,7 @@ async function createStoryGroup(repoID, name, members, sequence) {
 					}
 				}
 			},
-			{ upsert: true, projection: { groups: 1 }, returnOriginal: false }
+			{ upsert: true, projection: { groups: 1 } }
 		);
 		return groups.value.groups.slice(-1)._id;
 	} catch (e) {
@@ -866,14 +867,12 @@ async function upsertEntry(storyId, updatedContent, storySource) {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
 		let result = await collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
-			returnOriginal: false,
 			upsert: false
 		});
 		// TODO remove later when all used stories have the tag storySource
 		if (!result.value) {
 			myObjt.storySource = undefined;
 			result = await collection.findOneAndUpdate(myObjt, { $set: updatedContent }, {
-				returnOriginal: false,
 				upsert: true
 			});
 		}
@@ -949,7 +948,7 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 		const updatedReport = await collection.findOne({ _id: ObjectId(testReportId) });
 		updatedReport.isSaved = isSaved;
 		const result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
-			updatedReport, { returnOriginal: false });
+			updatedReport);
 		console.log('I would close the DB here');
 		return result;
 	} catch (e) {
@@ -987,6 +986,7 @@ async function updateStoryStatus(storyId, storyLastTestStatus) {
 	}
 }
 
+// TODO: Fix this please
 async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus) {
 	let db;
 	console.log('storyId: ' + storyId);
@@ -1097,7 +1097,7 @@ async function updateUser(userID, updatedUser) {
 		const myObjt = { _id: oId };
 		db = await connectDb();
 		const collection = await selectUsersCollection(db);
-		const result = await collection.findOneAndReplace(myObjt, updatedUser, { returnOriginal: false });
+		const result = await collection.findOneAndReplace(myObjt, updatedUser);
 		return result.value;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateUser: ${e}`);
@@ -1147,7 +1147,7 @@ async function updateBlock(name, updatedBlock) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(CustomBlocksCollection);
-		await collection.findOneAndReplace(oldBlock, updatedBlock, { returnOriginal: false });
+		await collection.findOneAndReplace(oldBlock, updatedBlock);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateBlock: ${e}`);
 		throw e;
@@ -1329,8 +1329,7 @@ async function updateOneDriver(id, driver) {
 		const collection = await selectStoriesCollection(db);
 		const result = await collection.findOneAndUpdate(
 			{ _id: ObjectId(id) },
-			{ $set: { oneDriver } },
-			{ returnOriginal: false }
+			{ $set: { oneDriver } }
 		);
 		return result.value;
 	} catch (e) {
