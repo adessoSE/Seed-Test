@@ -9,7 +9,7 @@ export interface StoryReport {
     /**
      * Object id of the report of the databse
      */
-    _id?: any;
+    _id: any;
 
     /**
      * Name of the report
@@ -21,11 +21,6 @@ export interface StoryReport {
      */
     reportTime: number;
 
-    // /**
-    //  * Cucumber report in json format
-    //  */
-    // jsonReport: any;
-
     /**
      * included options to create html
      */
@@ -34,7 +29,7 @@ export interface StoryReport {
     /**
      * Story id of the executed test
      */
-    storyId?: any;
+    storyId: any;
 
     /**
      * Mode: either feature, scenario

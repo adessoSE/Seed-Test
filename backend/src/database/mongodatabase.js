@@ -1,7 +1,6 @@
 /* eslint-disable indent */
 /* eslint-disable no-unused-vars */
-const { MongoClient } = require('mongodb');
-const ObjectId = require('mongodb').ObjectID;
+const { MongoClient, ObjectId } = require('mongodb');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
@@ -29,6 +28,15 @@ const WorkgroupsCollection = 'Workgroups';
 //   db.close()
 // }
 
+function connectDb() {
+	return new Promise((resolve, reject) => {
+		MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }, (err, db) => {
+			if (err) reject(err);
+			else resolve(db);
+		});
+	});
+}
+
 async function createResetRequest(request) {
 	let db;
 	try {
@@ -40,7 +48,7 @@ async function createResetRequest(request) {
 		console.log(`UPS!!!!FEHLER im ResetRequest: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -54,7 +62,7 @@ async function getResetRequest(id) {
 		console.log(`UPS!!!! FEHLER in getResetRequest: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -69,7 +77,7 @@ async function getResetRequestByEmail(mail) {
 		console.log(`UPS!!!! FEHLER in getResetRequestByEmail: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -85,7 +93,7 @@ async function deleteRequest(mail) {
 		console.log(`UPS!!!! FEHLER in deleteRequest: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -103,7 +111,7 @@ async function registerUser(user) {
 			result = await collection.insertOne(user);
 		}
 
-	if (db) db.close();
+	if (db) console.log('I would close the DB here');
 	return result;
 }
 
@@ -118,7 +126,7 @@ async function registerGithubUser(user) {
 		console.log(`UPS!!!! FEHLER in registerGithubUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -142,7 +150,7 @@ async function mergeGithub(userId, login, id) {
 		console.log(`UPS!!!! FEHLER in mergeGithub: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -157,7 +165,7 @@ async function getUserByEmail(email) {
 		console.log(`UPS!!!! FEHLER in getUserByEmail: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -166,7 +174,7 @@ async function getUserByGithub(login, id) {
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
 	const result = await collection.findOne({ $and: [{ 'github.id': id }, { 'github.login': login }] });
-	db.close();
+	console.log('I would close the DB here');
 	return result;
 }
 
@@ -175,7 +183,7 @@ async function getUserById(id) {
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
 	const result = await collection.findOne({ _id: ObjectId(id) });
-	db.close();
+	console.log('I would close the DB here');
 	return result;
 }
 
@@ -192,18 +200,10 @@ async function updateGithubToken(objId, updatedToken) {
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
 	const user = await collection.updateOne({ _id: ObjectId(objId) }, { $set: { 'github.githubToken': updatedToken } });
-	db.close();
+	console.log('I would close the DB here');
 	return user;
 }
 
-function connectDb() {
-	return new Promise((resolve, reject) => {
-		MongoClient.connect(uri, { useNewUrlParser: true , useUnifiedTopology: true }, (err, db) => {
-			if (err) reject(err);
-			else resolve(db);
-		});
-	});
-}
 function selectRepositoryCollection(db) {
 	const dbo = db.db(dbName);
 	return new Promise((resolve, reject) => {
@@ -243,13 +243,13 @@ function findStory(storyId, storySource, collection) {
 }
 
 function replace(story, collection) {
-	const myObjt = {
+	const filter = {
 		_id: ObjectId(story._id),
 		storySource: story.storySource
 	};
 	story._id = ObjectId(story._id);
 	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(myObjt, story, { returnOriginal: false }, (err, result) => {
+		collection.findOneAndReplace(filter, story, { returnOriginal: false }, (err, result) => {
 			if (err) reject(err);
 			else resolve(result.value);
 		});
@@ -283,7 +283,7 @@ async function updateStory(updatedStuff) {
 		console.log(`UPS!!!! FEHLER updateStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -301,7 +301,7 @@ async function getOneStory(storyId, storySource) {
 		console.log(`UPS!!!! FEHLER in getOneStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -317,7 +317,7 @@ async function getOneStoryByStoryId(storyId, storySource) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneStoryByStoryId: ${e}`);
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -342,7 +342,7 @@ async function createStoryGroup(repoID, name, members, sequence) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in createStoryGroup: ${e}`);
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -361,7 +361,7 @@ async function updateStoryGroup(repoId, groupId, updatedGroup) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroup: ${e}`);
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -379,7 +379,7 @@ async function deleteStoryGroup(repoId, groupId) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteStoryGroup: ${e}`);
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -414,7 +414,7 @@ async function getAllStoryGroups(repoId) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getAllStoryGroups: ${e}`);
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -427,7 +427,7 @@ async function updateStoryGroupsArray(repoId, groupsArray) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroupsArray: ${e}`);
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -452,7 +452,7 @@ async function showSteptypes() {
 		console.log(`UPS!!!! FEHLER in showSteptypes: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -469,7 +469,7 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 		console.log(`UPS!!!! FEHLER in updateBackground: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -486,7 +486,7 @@ async function deleteBackground(storyId, storySource) {
 		console.log(`UPS!!!! FEHLER in deleteBackground: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -523,7 +523,7 @@ async function createStory(storyTitel, storyDescription, repoId) {
 		console.log(`UPS!!!! FEHLER in createStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -544,7 +544,7 @@ async function deleteStory(repoId, storyId) {
 		console.log(`UPS!!!! FEHLER in deleteStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -558,7 +558,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -572,7 +572,7 @@ async function updateScenarioList(storyId, source, scenarioList) {
 		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -593,7 +593,7 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
 		console.log(`UPS!!!! FEHLER in getAllStoriesOfRepo: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -609,7 +609,7 @@ async function getOneScenario(storyId, storySource, scenarioId) {
 		console.log(`UPS!!!! FEHLER in getOneScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -633,7 +633,7 @@ async function createScenario(storyId, storySource) {
 		console.log(`UPS!!!! FEHLER in createScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -661,7 +661,7 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 		console.log(`UPS!!!! FEHLER in updateScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -676,13 +676,12 @@ async function deleteScenario(storyId, storySource, scenarioId) {
 			if (story.scenarios[i].scenario_id === scenarioId) story.scenarios.splice(i, 1);
 		}
 		const result = await replace(story, collection);
-		db.close();
 		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -719,7 +718,7 @@ async function getRepository(userID) {
 		console.log(`UPS!!!! FEHLER in getRepository${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -735,7 +734,7 @@ async function deleteRepositorys(ownerID) {
 		console.log(`UPS!!!! FEHLER in deleteRepositorys${e}`);
 		throw e;
 	} finally {
-		db.close();
+		console.log('I would close the DB here');
 	}
 }
 
@@ -744,14 +743,13 @@ async function deleteRepository(repoId, ownerId) {
 	try {
 		db = await connectDb();
 		const collectionRepo = await selectRepositoryCollection(db);
-		const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId) })
-		const result = await collectionRepo.deleteOne(repo);
-		return result;
+		const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId) });
+		return await collectionRepo.deleteOne(repo);
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteRepository${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -761,7 +759,7 @@ async function getOneRepository(ownerId, name) {
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne(repo);
-		db.close();
+		console.log('I would close the DB here');
 		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneRepository${e}`);
@@ -774,7 +772,7 @@ async function getOneGitRepository(name) {
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne(myObjt);
-		db.close();
+		console.log('I would close the DB here');
 		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneGitRepository${e}`);
@@ -789,7 +787,6 @@ async function createRepo(ownerId, name) {
 	const collection = await selectRepositoryCollection(db);
 	const result = await collection.findOne({ owner: ObjectId(ownerId), repoName: name });
 	if (result !== null) return 'Sie besitzen bereits ein Repository mit diesem Namen!';
-
 	collection.insertOne(emptyRepo);
 }
 
@@ -812,7 +809,7 @@ async function createJiraRepoIfNoneExists(repoName, source) {
 		console.log(`ERROR in createJiraRepoIfNoneExists ${e}`);
 		throw e;
 	} finally {
-		db.close();
+		console.log('I would close the DB here');
 	}
 }
 
@@ -840,7 +837,7 @@ async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, rep
 		console.log(`ERROR in createGitOwnerRepoIfNoneExists${e}`);
 		throw e;
 	} finally {
-		db.close();
+		console.log('I would close the DB here');
 	}
 }
 
@@ -855,7 +852,7 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
 		console.log(`UPS!!!! FEHLER in updateStoriesArrayInRepo${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -885,7 +882,7 @@ async function upsertEntry(storyId, updatedContent, storySource) {
 		console.log(`UPS!!!! FEHLER in upsertEntry: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -898,7 +895,7 @@ async function getTestReports(storyId) {
 		console.log('Getting Reports for storyId :', storyId);
 		const result = await collection.find({ storyId: ObjectId(storyId) },
 			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
-		db.close();
+		console.log('I would close the DB here');
 		console.log('Got ', result.length, ' Story reports for  :', storyId);
 		console.log(result);
 		return result;
@@ -919,7 +916,7 @@ async function getGroupTestReports(storyId) {
 		const query = { storyStatuses: { $elemMatch: { storyId: ObjectId(storyId) } } };
 		const result = await collection.find(query,
 			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
-		db.close();
+		console.log('I would close the DB here');
 		console.log('Got ', result.length, ' Group Reports for  :', storyId);
 		return result;
 	} catch (e) {
@@ -935,7 +932,7 @@ async function deleteReport(testReportId) {
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
 		const result = await collection.deleteOne({ _id: ObjectId(testReportId) });
-		db.close();
+		console.log('I would close the DB here');
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
@@ -953,7 +950,7 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 		updatedReport.isSaved = isSaved;
 		const result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
 			updatedReport, { returnOriginal: false });
-		db.close();
+		console.log('I would close the DB here');
 		return result;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
@@ -966,13 +963,69 @@ async function uploadReport(reportData) {
 	try {
 		db = await connectDb();
 		const dbo = db.db(dbName);
-		const collection = await dbo.collection(testreportCollection);
-		const result = await collection.insertOne(reportData);
-		db.close();
-		return result;
+		dbo.collection(testreportCollection).insertOne(reportData);
+		console.log('I would close the DB here');
+		return reportData;
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in uploadReport', e);
 		return {};
+	}
+}
+
+async function updateStoryStatus(storyId, storyLastTestStatus) {
+	let db;
+	try {
+		db = await connectDb();
+		const dbo = db.db(dbName);
+		dbo.collection(storiesCollection).updateOne({ _id: ObjectId(storyId) }, {
+		$set: { lastTestPassed: storyLastTestStatus }
+		});
+		console.log('I would close the DB here');
+	} catch (e) {
+		console.log('Error in updateStoryStatus: ', e);
+		return {};
+	}
+}
+
+async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus) {
+	let db;
+	console.log('storyId: ' + storyId);
+	console.log('scenarioId: ' + scenarioId);
+	console.log('scenarioLastTestStatus: ' + scenarioLastTestStatus);
+	try {
+		db = await connectDb();
+		const dbo = db.db(dbName);
+
+		// const story = await dbo.collection(storiesCollection)
+		// 	.findOne({ _id: ObjectId(storyId) });
+		// const scenarioList = story.scenarios;
+		// scenarioList.find(
+		// 	(scen) => scen.scenario_id === scenarioId
+		// ).status = scenarioLastTestStatus;
+		// await updateScenarioList(story, story.storySource, scenarioList);
+		const collection = await dbo.collection(storiesCollection);
+		const story = await collection.findOne({ _id: ObjectId(storyId) });
+
+		const scenarioList = story.scenarios;
+		const scenario = scenarioList.find((scen) => scen.scenario_id === scenarioId);
+		if (scenario) {
+			const index = story.scenarios.indexOf(scenario);
+			scenario.lastTestPassed = scenarioLastTestStatus;
+			story.scenarios[index] = scenario;
+		}
+
+		return await collection.findOneAndReplace({ _id: ObjectId(storyId) }, story);
+
+		// await updateScenarioList(story, story.storySource, scenarioList);
+
+		// collection.updateOne(
+		// 	{ _id: ObjectId(storyId), scenarios: { $elemMatch: { scenario_id: { $eq: scenarioId } } } },
+		// 	{ $set: { 'scenarios.$.lastTestPassed': scenarioLastTestStatus } }
+		// );
+		} catch (e) {
+		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);
+	} finally {
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -983,12 +1036,12 @@ async function getReport(reportName) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(testreportCollection);
-		const result = await collection.findOne(report);
-		db.close();
-		return result;
+		return await collection.findOne(report);
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in getReport', e);
 		return {};
+	} finally {
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1005,7 +1058,7 @@ async function createUser(user) {
 		console.log(`UPS!!!! FEHLER in createUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1032,7 +1085,7 @@ async function deleteUser(userID) {
 		console.log(`UPS!!!! FEHLER in deleteUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1050,7 +1103,7 @@ async function updateUser(userID, updatedUser) {
 		console.log(`UPS!!!! FEHLER in updateUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1067,7 +1120,7 @@ async function getUserData(userID) {
 		console.log(`UPS!!!! FEHLERin getUserData: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1083,7 +1136,7 @@ async function saveBlock(block) {
 		console.log(`UPS!!!! FEHLER in saveBlock: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1099,7 +1152,7 @@ async function updateBlock(name, updatedBlock) {
 		console.log(`UPS!!!! FEHLER in updateBlock: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1115,7 +1168,7 @@ async function getBlocks(userId, repoId) {
 		console.log(`UPS!!!! FEHLER in getBlocks: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 // deletes the CustomBlock with the given Name, need the name
@@ -1135,7 +1188,7 @@ async function deleteBlock(blockId, userId) {
 		console.log(`UPS!!!! FEHLER in deleteBlock: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1150,7 +1203,7 @@ async function getWorkgroup(id) {
 		console.log(`UPS!!!! FEHLER in getWorkgroup: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1188,7 +1241,7 @@ async function addMember(id, user) {
 		console.log(`UPS!!!! FEHLER in addMember: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1214,7 +1267,7 @@ async function updateMemberStatus(repoId, user) {
 		console.log(`UPS!!!! FEHLER in updateMemberStatus: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1238,7 +1291,7 @@ async function getMembers(id) {
 		console.log(`UPS!!!! FEHLER in getMembers: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1264,7 +1317,7 @@ async function removeFromWorkgroup(id, user) {
 		console.log(`UPS!!!! FEHLER in removeFromWorkgroup: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1283,7 +1336,7 @@ async function updateOneDriver(id, driver) {
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in updateOneDriver: ', e);
 	} finally {
-		if (db) db.close();
+		if (db) console.log('I would close the DB here');
 	}
 }
 
@@ -1353,5 +1406,7 @@ module.exports = {
 	updateMemberStatus,
 	getMembers,
 	removeFromWorkgroup,
-	updateOneDriver
+	updateOneDriver,
+	updateScenarioStatus,
+	updateStoryStatus
 };

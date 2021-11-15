@@ -184,11 +184,9 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile('', result);
 }
 
-async function uploadReport(reportResults) {
-	const uploadedReport = await mongo.uploadReport(reportResults);
-	// await deleteOldReports(reportResults.storyId, reportResults.scenarioID);
-	return uploadedReport;
-}
+// async function uploadReport(reportResults) {
+// 	return mongo.uploadReport(reportResults);
+// }
 
 function deleteReport(jsonReport) {
 	const report = path.normalize(`${featuresPath}${jsonReport}`);
@@ -289,7 +287,6 @@ async function analyzeGroupReport(grpName, stories) {
 							// count number of passed and failed Scenarios:
 							if (scenStatus) scenariosTested.passed += 1;
 							else scenariosTested.failed += 1;
-							updateScenarioTestStatus(scenStatus, scenario, story);
 						}
 						// end of For Each Scenario ################################
 
@@ -371,7 +368,6 @@ async function analyzeScenarioReport(stories, reportName, scenarioId) {
 							status: scenStatus,
 							stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
 						};
-						updateScenarioTestStatus(scenStatus, scenario, story);
 						reportResults.overallTestStatus = scenStatus;
 					});
 					// end of For Each Scenario ################################
@@ -458,7 +454,6 @@ async function analyzeStoryReport(stories, reportName) {
 						// count number of passed and failed Scenarios:
 						if (scenStatus) scenariosTested.passed += 1;
 						else scenariosTested.failed += 1;
-						updateScenarioTestStatus(scenStatus, scenario, story);
 					});
 					// end of For Each Scenario ################################
 					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
@@ -584,22 +579,22 @@ function runReport(req, res, stories, mode, parameters) {
 				console.log(reportResults);
 
 				// upload report to DB
-				uploadReport(reportResults)
+				mongo.uploadReport(reportResults)
 					.then((uploadedReport) => {
-						// console.log('Report Results in .then of runReport: ');
-						// console.log(reportResults);
-
 						// Group needs an adjusted Path to Report
 						if (mode === 'group') reportName = `${reportName}/${reportName}`;
 						// read html Report and add it top response
 						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-							res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
+							res.json({ htmlFile: data, reportId: uploadedReport._id });
 						});
+
+						updateLatestTestStatus(uploadedReport, mode);
+
 						// delete reports in filesystem after a while
 						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 					});
-				// // TODO: Chek if needed: Do not update Scenario and Story once again:
+				// // TODO: Check if needed: Do not update Scenario and Story once again:
 				// if (scenarioId && scenario) {
 				// 	scenario.lastTestPassed = testStatus;
 				// 	await mongo.updateScenario(story._id, story.storySource, scenario, () => {
@@ -1008,13 +1003,43 @@ async function createReport(res, reportName) {
 	});
 }
 
-// TODO: provide complete reportResults and update storyLastTestStatus as well?
-function updateScenarioTestStatus(lastTestPassed, scenario, story) {
-	if (scenario) {
-		const index = story.scenarios.indexOf(scenario);
-		story.scenarios[index].lastTestPassed = lastTestPassed;
+function updateLatestTestStatus(uploadedReport, mode) {
+	switch (mode) {
+		case 'scenario':
+			updateScenarioTestStatus(uploadedReport);
+			break;
+		case 'feature':
+			updateStoryTestStatus(uploadedReport.storyId, uploadedReport.scenarioStatuses);
+			break;
+		case 'group':
+			for (const storyStatus of uploadedReport.storyStatuses) {
+				updateStoryTestStatus(storyStatus.storyId, storyStatus.status, storyStatus.scenarioStatuses);
+			}
+			break;
+		default:
+			console.log('Error: No mode provided in updateLatestTestStatus');
 	}
-	return story;
+}
+
+function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatuses) {
+	try {
+		mongo.updateStoryStatus(storyId, storyLastTestStatus);
+		for (const scenarioStatus of scenarioStatuses) {
+			mongo.updateScenarioStatus(storyId, scenarioStatus.scenarioId, scenarioStatus.status);
+		}
+	} catch (e) {
+		console.log('Could not Update Scenario LastTestPassed.');
+	}
+}
+
+function updateScenarioTestStatus(uploadedReport) {
+	try {
+		mongo.updateScenarioStatus(
+			uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus
+		);
+	} catch (e) {
+		console.log('Could not Update Scenario LastTestPassed.');
+	}
 }
 
 function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested,
