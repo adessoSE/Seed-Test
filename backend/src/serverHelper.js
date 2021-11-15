@@ -265,14 +265,13 @@ function runReport(req, res, stories, mode, parameters) {
 
 						// upload report JSON to DB
 						fs.readFile(`features/${grpNameDir}/${grpNameDir}.html.json`, 'utf8', async (err2, data2) => {
-							const grpJson = JSON.parse(data2);
 							const report = {
-								reportTime, reportName: grpNameDir, reportOptions, jsonReport: grpJson, storyId: story._id, mode, scenarioId: scenarioID, testStatus
+								reportTime, reportName: grpNameDir, reportOptions, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 							};
-							uploadedReport = await uploadReport(report, story._id, scenarioID);
+							uploadedReport = await uploadReport(report, data2, story._id, scenarioID);
 							// set response
 							fs.readFile(`./features/${grpNameDir}/${grpNameDir}.html`, 'utf8', (err3, data3) => {
-								res.json({ htmlFile: data3, reportId: uploadedReport.ops[0]._id });
+								res.json({ htmlFile: data3, reportId: uploadedReport._id });
 							});
 						});
 						setTimeout((group) => {
@@ -285,11 +284,11 @@ function runReport(req, res, stories, mode, parameters) {
 					reportOptions = setOptions(reportName);
 					reporter.generate(reportOptions);
 					const report = {
-						reportTime, reportName, reportOptions, jsonReport: json, storyId: story._id, mode, scenarioId: scenarioID, testStatus
+						reportTime, reportName, reportOptions, storyId: story._id, mode, scenarioId: scenarioID, testStatus
 					};
-					uploadedReport = await uploadReport(report, story._id, scenarioID);
-					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-						res.json({ htmlFile: data, reportId: uploadedReport.ops[0]._id });
+					uploadedReport = await uploadReport(report, data, story._id, scenarioID);
+					fs.readFile(`./features/${reportName}.html`, 'utf8', (file) => {
+						res.json({ htmlFile: file, reportId: uploadedReport._id });
 					});
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
@@ -650,8 +649,8 @@ async function getReportHistory(storyId) {
 	return mongo.getTestReports(storyId);
 }
 
-async function uploadReport(report, storyId, scenarioID) {
-	const uploadedReport = await mongo.uploadReport(report);
+async function uploadReport(reportData, report, storyId, scenarioID) {
+	const uploadedReport = await mongo.uploadReport(reportData, report);
 	await deleteOldReports(storyId, scenarioID);
 	return uploadedReport;
 }
