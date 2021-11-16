@@ -39,7 +39,7 @@
                         </ng-container>
         
                         <ng-container  matColumnDef="checkStory">
-                            <th class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
+                            <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
                             <td mat-cell *matCellDef="let element">
                                 <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
                             </td>

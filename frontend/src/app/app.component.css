@@ -320,10 +320,6 @@ a:hover{
   display: none;
 }
 
-.dropdown-list.closedMenu {
-  display: none;
-}
-
 .slide-toggle-container {
   margin: 12px;
 }
