@@ -9,6 +9,9 @@ import {Group} from '../model/Group';
 import {ScenarioReport} from '../model/ScenarioReport';
 import {GroupReport} from '../model/GroupReport';
 
+
+type Report = ScenarioReport | StoryReport | GroupReport;
+
 /**
  * Component of the report history
  */
@@ -42,10 +45,11 @@ export class ReportHistoryComponent implements OnInit {
   @Output()
   changeEditor: EventEmitter<any> = new EventEmitter();
 
+
   /**
    * @ignore
    */
-  constructor(public apiService: ApiService, private themeService : ThemingService) { }
+  constructor(public apiService: ApiService, private themeService: ThemingService) { }
 
   /**
    * @ignore
@@ -85,7 +89,7 @@ export class ReportHistoryComponent implements OnInit {
   /**
    * Sorts the reports depending on their report time
    * @param reps reports
-   * @returns
+   * @returns an array, sorted by the timestamps
    */
   sortReportsTime(reps) {
     return reps.sort((a, b) => a.reportTime > b.reportTime);
@@ -113,14 +117,14 @@ export class ReportHistoryComponent implements OnInit {
    * Deletes a report of the list
    * @param report: StoryReport | ScenarioReport | GroupReport report to be deleted
    */
-  deleteReport(report: StoryReport | ScenarioReport | GroupReport) {
+  deleteReport(report: Report) {
     this.apiService
       .deleteReport(report._id)
       .subscribe(_resp => {
           const newReports = JSON.parse(JSON.stringify(this.reports));
-          newReports.storyReports = newReports.storyReports.filter((rep) => rep._id != report._id);
-          newReports.scenarioReports = newReports.scenarioReports.filter((rep) => rep._id != report._id);
-          newReports.groupReports = newReports.groupReports.filter((rep) => rep._id != report._id);
+          newReports.storyReports = newReports.storyReports.filter((rep) => rep._id !== report._id);
+          newReports.scenarioReports = newReports.scenarioReports.filter((rep) => rep._id !== report._id);
+          newReports.groupReports = newReports.groupReports.filter((rep) => rep._id !== report._id);
           this.reports = newReports;
       });
   }
@@ -129,7 +133,7 @@ export class ReportHistoryComponent implements OnInit {
    * Set the report to not be saved
    * @param report: StoryReport | ScenarioReport | GroupReport
    */
-  unsaveReport(report: StoryReport | ScenarioReport | GroupReport) {
+  unsaveReport(report: Report) {
     report.isSaved = false;
     this.apiService
       .unsaveReport(report._id)

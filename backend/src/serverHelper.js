@@ -82,8 +82,6 @@ function getSteps(steps, stepType) {
 	for (const step of steps) {
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
-
-		// TODO: If Given contains Background (Background>0): Add Background (method)
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
 			data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)}`;
 			if (step.post !== undefined) data += ` ${step.post}`;
@@ -183,10 +181,6 @@ async function updateFeatureFile(issueID, storySource) {
 	const result = await mongo.getOneStory(issueID, storySource);
 	if (result != null) writeFile('', result);
 }
-
-// async function uploadReport(reportResults) {
-// 	return mongo.uploadReport(reportResults);
-// }
 
 function deleteReport(jsonReport) {
 	const report = path.normalize(`${featuresPath}${jsonReport}`);
@@ -295,8 +289,6 @@ async function analyzeGroupReport(grpName, stories) {
 						storyStatus.status = testPassed(storyFailedSteps, storyPassedSteps);
 						storyStatus.storyStepResults = { passedSteps: storyPassedSteps, failedSteps: storyFailedSteps, skippedSteps: storySkippedSteps };
 						reportResults.storyStatuses.push(storyStatus);
-						// update lastTestPassed in Story:
-						// TODO: updateStoryTestStatus(scenStatus, scenario, story);
 					} catch (error) {
 						storyStatus.status = false;
 						reportResults.storyStatuses.push(storyStatus);
@@ -340,7 +332,6 @@ async function analyzeScenarioReport(stories, reportName, scenarioId) {
 					// for each scenario (called element in the .json report)
 					// element = scenarios and "Before" / "After" statements
 					storyReport.elements.forEach((scenReport) => {
-						const scenario = story.scenarios.find((scen) => scen.scenario_id === parseInt(scenarioId, 10));
 						console.log(` Scenario ID: ${scenarioId}`);
 						let scenarioPassedSteps = 0;
 						let scenarioFailedSteps = 0;
@@ -412,7 +403,6 @@ async function analyzeStoryReport(stories, reportName) {
 				const story = stories[0];
 				const storyId = story._id;
 				console.log(` Story ID: ${storyId}`);
-				// console.log(story);
 				reportResults.storyId = storyId;
 				try {
 					// for each scenario (called element in the .json report)
@@ -458,15 +448,17 @@ async function analyzeStoryReport(stories, reportName) {
 					// end of For Each Scenario ################################
 					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
 					storyStatus = testPassed(storyFailedSteps, storyPassedSteps);
-					// update lastTestpassed in Story:
-					// TODO: updateStoryTestStatus(scenStatus, scenario, story);
 				} catch (error) {
 					storyStatus = false;
 					console.log('iterating through report Json failed in serverHelper/runReport. '
 						+ 'Setting testStatus of Scenario to false.', error);
 				}
 				reportResults.overallTestStatus = storyStatus;
-				reportResults.storyStepResults = { passedSteps: storyPassedSteps, failedSteps: storyFailedSteps, skippedSteps: storySkippedSteps };
+				reportResults.storyStepResults = {
+					passedSteps: storyPassedSteps,
+					failedSteps: storyFailedSteps,
+					skippedSteps: storySkippedSteps
+				};
 				// moved to scenario
 				// reportResults.stepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
 			} catch (error) {
@@ -481,6 +473,10 @@ async function analyzeStoryReport(stories, reportName) {
 	console.log('Report Results in analyzeStoryReport: ');
 	console.log(reportResults);
 	return reportResults;
+}
+
+async function promiseError(msg) {
+	return { msg };
 }
 
 function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
@@ -502,7 +498,7 @@ function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 			return analyzeGroupReport(grpName, stories);
 		default:
 			console.log('Error: No mode provided in analyzeReport');
-			return { overallTestStatus: false, error: 'Something went wrong while analyzing the report.' };
+			return promiseError('Something went wrong while analyzing the report.');
 	}
 }
 
@@ -594,20 +590,10 @@ function runReport(req, res, stories, mode, parameters) {
 						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 					});
-				// // TODO: Check if needed: Do not update Scenario and Story once again:
-				// if (scenarioId && scenario) {
-				// 	scenario.lastTestPassed = testStatus;
-				// 	await mongo.updateScenario(story._id, story.storySource, scenario, () => {
-				// 		// console.log()
-				// 	});
-				// } else if (!scenarioId) {
-				// 	story.lastTestPassed = testStatus;
-				// 	await mongo.updateStory(story);
-				// }
 			} catch (error) {
 				console.log(`fs readfile error for file ./features/${reportName}.json`);
 			}
-			// ################################## TODO: update this:
+			// ################################## TODO: update this and add renderComment for Jira:
 			// if (req.params.storySource === 'github' && req.user && req.user.github) {
 			// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
 			// 		reportTime, story, scenario, mode, reportName);
@@ -624,8 +610,7 @@ function runReport(req, res, stories, mode, parameters) {
 
 const nameSchemeChange = async (story) => {
 	// if new scheme doesn't exist
-	if (!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title + story._id.toString())}.feature`).catch(() => null)))
-		await updateFeatureFile(story._id, story.storySource);
+	if (!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title + story._id.toString())}.feature`).catch(() => null))) await updateFeatureFile(story._id, story.storySource);
 
 	// if old scheme still exists
 	if (await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null))
@@ -784,7 +769,7 @@ async function jiraProjects(user) {
 						}
 						let names = [];
 						if (Object.keys(json).length !== 0) {
-							for (const repo of json) {
+							for (const repo of json) {  // TODO @Chris: Check this, because it may be run too often
 								const result = await mongo.createJiraRepoIfNoneExists(repo.name, source);
 								names.push({ name: repo.name, _id: result._id });
 							}
@@ -845,7 +830,7 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 			if (this.readyState === 4 && this.status === 200) {
 				const data = JSON.parse(xmlrequest.responseText);
 				const projects = [];
-				for (const repo of data) {
+				for (const repo of data) { // TODO @Chris: Check this, because it may be run too often
 					const mongoRepo = await mongo.createGitOwnerRepoIfNoneExists(ownerId, githubId, repo.owner.id, repo.full_name, 'github');
 					const repoName = repo.full_name;
 					const proj = {
@@ -892,80 +877,19 @@ async function fuseStoryWithDb(story) {
 }
 
 async function deleteOldReports(reports) {
-	// console.log('In deleteOldReports:');
 	const keepReportAmount = process.env.MAX_SAVED_REPORTS;
 	// sort Reports by timestamp
 	reports.sort((a, b) => b.reportTime - a.reportTime);
 	// exclude saved / favorite Reports from deleting
 	const reportsToDelete = reports.filter((elem) => !elem.isSaved);
-	// console.log('reportsToDelete after filter (isSaved)');
-	// console.log(reportsToDelete);
 	// exclude the a given amount fo the last run reports
 	reportsToDelete.splice(0, keepReportAmount);
-	// console.log('reportsToDelete after splice');
-	// console.log(reportsToDelete);
 	// then delete the remaining old reports:
 	reportsToDelete.forEach((element) => {
 		reports.splice(reports.indexOf(element), 1);
 		mongo.deleteReport(element._id);
 	});
-	// console.log('reports after deleting:');
-	// console.log(reports);
 	return reports;
-
-	// // sort Reports by timestamp
-	// reports.sort((a, b) => b.reportTime - a.reportTime);
-	// let reportsToKeep = reports;
-	// // exclude saved / favorite Reports from deleting
-	// let reportsToDelete = reports.filter((elem) => !elem.isSaved);
-	//
-	// // exclude the a given amount fo the last run reports
-	// reportsToDelete = reportsToDelete.splice(0, keepReportAmount);
-	// // then delete the remaining old reports:
-	// for (const report of reportsToDelete) {
-	// 	// reportsToKeep = reportsToKeep.splice(reportsToKeep.indexOf(report), 1);
-	// 	mongo.deleteReport(report._id).then((deletedReport) => {
-	// 		console.log(`Deleted old Report: ${deletedReport}`);
-	// 	});
-	// }
-	// console.log('reportsToKeep: ');
-	// console.log(reportsToKeep);
-	// return reportsToKeep;
-
-	// // sort Reports by timestamp
-	// storyReports.sort((a, b) => b.reportTime - a.reportTime);
-	// // exclude saved / favorite Reports from deleting
-	// let reportsToDelete = storyReports.filter((elem) => !elem.isSaved);
-	// // exclude the a given amount fo the last run reports
-	// reportsToDelete = reportsToDelete.splice(0, keepReportAmount);
-	// // then delete the remaining old reports:
-	// reportsToDelete.forEach((element) => {
-	// 	storyReports = storyReports.splice(storyReports.indexOf(element));
-	// 	mongo.deleteReport(element._id);
-	// });
-	//
-	// // sort Reports by timestamp
-	// scenarioReports.sort((a, b) => b.reportTime - a.reportTime);
-	// // exclude saved / favorited Reports from deleting
-	// scenarioReports = scenarioReports.filter((elem) => !elem.isSaved);
-	// // exclude the a given amount fo the last run reports
-	// scenarioReports.splice(0, keepReportAmount);
-	// // then delete the remaining old reports:
-	// scenarioReports.forEach((element) => {
-	// 	mongo.deleteReport(element._id);
-	// });
-	//
-	// // sort Reports by timestamp
-	// groupReports.sort((a, b) => b.reportTime - a.reportTime);
-	// // exclude saved / favorite Reports from deleting
-	// groupReports = groupReports.filter((elem) => !elem.isSaved);
-	// // exclude the a given amount fo the last run reports
-	// groupReports.splice(0, keepReportAmount);
-	// // then delete the remaining old reports:
-	// groupReports.forEach((element) => {
-	// 	mongo.deleteReport(element._id);
-	// });
-
 }
 
 async function getReportHistory(storyId) {
@@ -1021,20 +945,20 @@ function updateLatestTestStatus(uploadedReport, mode) {
 	}
 }
 
-function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatuses) {
+async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatuses) {
 	try {
-		mongo.updateStoryStatus(storyId, storyLastTestStatus);
+		await mongo.updateStoryStatus(storyId, storyLastTestStatus);
 		for (const scenarioStatus of scenarioStatuses) {
-			mongo.updateScenarioStatus(storyId, scenarioStatus.scenarioId, scenarioStatus.status);
+			await mongo.updateScenarioStatus(storyId, scenarioStatus.scenarioId, scenarioStatus.status);
 		}
 	} catch (e) {
 		console.log('Could not Update Scenario LastTestPassed.');
 	}
 }
 
-function updateScenarioTestStatus(uploadedReport) {
+async function updateScenarioTestStatus(uploadedReport) {
 	try {
-		mongo.updateScenarioStatus(
+		await mongo.updateScenarioStatus(
 			uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus
 		);
 	} catch (e) {

@@ -247,13 +247,6 @@ function deleteOldReports() {
 		if (err) throw err;
 		const dbo = db.db(dbName);
 		dbo.collection('TestReport').deleteMany({ reportTime: { $lt: 1622505600000 } });
-		// dbo.collection('TestReport')
-		// 	.updateOne({}, {
-		// 		$rename: {
-		// 			'testStatus': 'overallTestStatus',
-		// 			'jsonReport': 'json'
-		// 		}
-		// 	});
 		console.log('Deleted and Updated Something');
 		db.close();
 	});
@@ -275,8 +268,6 @@ function fixOldReports() {
 		db.close();
 	});
 }
-
-// fixOldReports();
 
 module.exports = {
 	installDatabase
