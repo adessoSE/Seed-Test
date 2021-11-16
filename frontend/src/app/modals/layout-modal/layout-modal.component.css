@@ -75,3 +75,71 @@
   white-space: nowrap;
   top: -19.55px;
 }
+
+::ng-deep .darkTheme .modal-header{
+    background-color: black;
+    border-bottom: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme .modal-body {
+    background-color: #455A64;
+}
+
+::ng-deep .darkTheme .modal-footer {
+    background-color: #455A64;
+    border-top: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme .close{
+    background-color: transparent;
+}
+
+  ::ng-deep .darkTheme input.wrongEmail {
+    border-left: 5px solid red;
+}
+
+::ng-deep .darkTheme textarea {
+    background: transparent;
+    border-color: #60767b;
+    color: white;
+}
+
+::ng-deep .darkTheme .mat-table .mat-cell:first-child, .darkTheme .mat-table .mat-header-cell:first-child{
+    border-right: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme .mat-table{
+    background: #455A64;
+}
+
+::ng-deep .darkTheme .blockNameContainer {
+    border-bottom: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme .modal-content{
+    background: #455A64;
+}
+
+::ng-deep .darkTheme .savedBlocksContainer, ::ng-deep .darkTheme .previewContainer {
+    border: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme .def:hover span[rel=def] {
+    background-color: white;
+}
+
+::ng-deep .darkTheme .wrongEmail {
+    background-color: red;
+}
+
+::ng-deep .darkTheme br {
+    border: 1px solid #60767b;
+}
+
+::ng-deep .darkTheme p {
+    color: white;
+}
+
+
+
+

@@ -84,6 +84,15 @@ table {
     text-align: center;
 }
 
+td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+    padding-right: 0px;
+}
+
+td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:first-of-type{
+    padding-left: 0px;
+}
+
+
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;
@@ -99,4 +108,26 @@ table {
 .addTeamMembersLabel {
     position: relative;
     left: -67px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #90CAF9;
+    -webkit-border-radius: 1ex;
+    -webkit-box-shadow: 0px 1px 2px #90CAF9;
+}
+  
+::-webkit-scrollbar-corner {
+    background: #90CAF9;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
+::ng-deep.darkTheme::-webkit-scrollbar-thumb {
+  background: #B0BEC5;
+  -webkit-border-radius: 1ex;
+  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-corner
+::ng-deep.darkTheme::-webkit-scrollbar-corner {
+  background: #B0BEC5;
 }

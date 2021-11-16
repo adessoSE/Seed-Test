@@ -5,7 +5,7 @@ class="reportHistoryContainer">
         <div>
             <a class="title">
                 <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
-                    <img id="backImage" src ="../assets/left.svg">
+                    <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'">
                 </button>
             </a>
         </div>

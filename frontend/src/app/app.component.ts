@@ -14,7 +14,7 @@ import { FormControl } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit{
 
   /**
    * Currently retrieved projects
@@ -36,10 +36,12 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   error: string;
 
-  @ViewChild('closedMenu') menuElement: ElementRef;
+  @ViewChild('dropdownMenu') dropdownMenu: ElementRef;
+  @ViewChild('helpMenu') helpMenu: ElementRef;
 
   closed: boolean = false;
-  elementPosition: any;
+  helpPosition: any;
+  menuPosition: any;
 
   isDark : boolean;
 
@@ -72,7 +74,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.toggleControl.valueChanges.subscribe(val => {
       this.setModeOnToggle(val);
       this.isDark = val;
-      /* this.className = val ? 'darkTheme' : ''; */
     });
   }
 
@@ -84,13 +85,15 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit(){
-    this.elementPosition = this.menuElement.nativeElement.offsetTop;
+    this.helpPosition = this.dropdownMenu.nativeElement.offsetTop;
+    this.menuPosition = this.helpMenu.nativeElement.offsetTop;
+    
   }
 
   @HostListener('window:scroll', ['$event'])
     handleScroll(){
       const windowScroll = window.pageYOffset;
-      if(windowScroll > this.elementPosition){
+      if(windowScroll > this.helpPosition || windowScroll > this.menuPosition){
         this.closed = true;
       } else {
         this.closed = false;

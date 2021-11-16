@@ -2,7 +2,7 @@
 <ng-template #deleteAccountModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <h4 class="modal-title">Delete My Account</h4>
+        <span class="MediumSubline1H4 modal-title">Delete My Account</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -14,24 +14,21 @@
                     <div class="deleteTextWrapper">
                         <span class="warningSign">&#9888;</span>
                         <div class="form-group" id="deleteText">
-                        
                             <span>Are you sure that you want to erase your Seed-Test Account?</span>
                             <br>
                             <span >This will also erase all of your saved repositories.</span>
                             <br>
-                            <span >If you wish to erase your Seed-Account and connected data, please verify with your email.</span>
-                        </div>
-
-                    </div>
-                    <div class="modalsContent" id="inputLabels">
-                        <div class="labelField">
-                            <label class="uk-form-label">Enter your email*</label>
-                        </div>
-                        <div class="inputField">
-                            <input type="email" id="insertedEmail">
-                        </div>    
-                    </div>   
-                    
+                            <span>If you wish to erase your Seed-Account and connected data, please verify with your email.</span>
+                            <div class="modalsContent" id="inputLabels">
+                                <div class="labelField">
+                                    <label class="uk-form-label">Enter your email*</label>
+                                </div>
+                                <div class="inputField">
+                                    <input type="email" id="insertedEmail">
+                                </div>    
+                            </div> 
+                        </div> 
+                    </div> 
                 </form>
             </div>
         </div>

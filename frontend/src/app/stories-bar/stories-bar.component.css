@@ -232,7 +232,9 @@
   #eraseIcon{
     color: var(--brown-grey);
     vertical-align: middle;
-    border-bottom: 1px solid var(--brown-grey);
+    /* border-bottom: 1px solid var(--brown-grey); */
+    position: relative;
+    left: -19px;
   }
   #eraseIcon:hover{
     cursor: pointer;
@@ -241,7 +243,11 @@
     border: none;
     border-bottom: 1px solid var(--brown-grey);
     font-weight: normal;
-    width: 50%;
+    width: 62%;
+  }
+
+  .darkTheme .searchInput {
+    border-bottom: 1px solid #60767b;
   }
   .searchInput:focus{
     outline: none;
@@ -301,8 +307,8 @@
   }
 
   #groupInfoTextVerticalPosition {
-    top: 41em;
-  }
+    top: 38em;
+  } 
   
 @media screen and (max-width: 600px) {
   .grid{

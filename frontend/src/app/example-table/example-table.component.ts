@@ -61,6 +61,8 @@ export class ExampleTableComponent implements OnInit {
     this.updateTable();
   }
 
+  @Input() isDark: boolean;
+
   /**
    * Sets the status of the scenario to not saved
    */

@@ -316,9 +316,12 @@ a:hover{
   }
 }
 
-.closedMenu{
+.closedMenu {
   display: none;
-  top: 51px;
+}
+
+.dropdown-list.closedMenu {
+  display: none;
 }
 
 .slide-toggle-container {

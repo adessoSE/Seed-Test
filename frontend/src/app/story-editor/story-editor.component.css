@@ -71,6 +71,8 @@
 
  #oneDriverInfoIcon{
    margin-right: 10px;
+   margin-bottom: 7px;
+   width: 13px;
  }
 
  .arrowLeft{
@@ -414,6 +416,7 @@
     background-color: lightgrey;
     transition: 0.3s;
     cursor: pointer;
+    margin: 3px 3px 3px 3px;
   }
 
   .darkTheme .expand:hover {
@@ -692,26 +695,26 @@
 #storyInfoTextVerticalPosition {
   left: 8em;
   top: -4em;
-}
-.darkTheme.uk-card-default {
-  background: none;
-}
+} 
+
 
 #backgroundInfoTextVerticalPosition {
   left: 15em;
   top: 0em;
 }
+
 .darkTheme p {
   color:white;
+}
+
+.darkTheme.uk-card-default {
+  background: none;
 }
 
 .SmallHeadline5 span[rel="def"]{
   line-height: 1.5;
 }
   
-
-
-
 .uk-icon {
   background-color: transparent !important;
 }

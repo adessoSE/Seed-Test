@@ -17,13 +17,13 @@
   background: #455A64;
 }
 
-/* a.passed{
+a.passed{
     color: green !important;
-  }
+}
 
 a.notPassed{
     color: red !important;
-} */
+} 
 
 .backButton{
     background: none;

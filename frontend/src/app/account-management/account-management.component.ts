@@ -238,13 +238,13 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         });
     }
 
-    update() {
+/*     update() {
         this.isDark = this.themeService.isDarkMode();
-      }
-      onDark(): boolean {
+    }
+    onDark(): boolean {
         this.update();
         return this.isDark;
-      }
+    } */
 
     /**
      * Update Repositories after change

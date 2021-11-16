@@ -207,7 +207,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     newStepName = 'New Step';
 
-    runSaveOptionSubscription: any;
+    //runSaveOptionSubscription: any;
 
     @Input() isDark: boolean;
 
@@ -340,9 +340,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     }
 
     ngOnDestroy(){
-        this.runSaveOptionSubscription.unsubscribe();
-        /* this.apiService.runSaveOptionEvent.unsubscribe(); */
-        //this.apiService.runSaveOptionEvent.unsubscribe();
+        //this.runSaveOptionSubscription.unsubscribe();
+        this.apiService.runSaveOptionEvent.unsubscribe();
         this.apiService.renameStoryEvent.unsubscribe();
         this.apiService.addBlockToScenarioEvent.unsubscribe();
         //this.apiService.getStoriesEvent.unsubscribe();

@@ -101,31 +101,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     flex-direction: row;
 }
 
-/* .def {
-    cursor: help;
-    position: relative;
-    font-size: 20px;
-    font-weight: lighter;
-}
-
-.def span[rel=def] {
-    display: none;
-}
-
-.def:hover span[rel=def] {
-    font-size: small;
-    color: var(--white);
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    top: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-    z-index: 100;
-} */
-
-
 .infoIcon{
     color: var(--white);
     margin-left: 5px;
@@ -260,4 +235,26 @@ div#deleteText > p {
 
 .inputField#email {
     display: flex;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #90CAF9;
+    -webkit-border-radius: 1ex;
+    -webkit-box-shadow: 0px 1px 2px #90CAF9;
+}
+  
+::-webkit-scrollbar-corner {
+    background: #90CAF9;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
+::ng-deep.darkTheme::-webkit-scrollbar-thumb {
+  background: #B0BEC5;
+  -webkit-border-radius: 1ex;
+  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-corner
+::ng-deep.darkTheme::-webkit-scrollbar-corner {
+  background: #B0BEC5;
 }
