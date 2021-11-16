@@ -218,7 +218,7 @@ async function analyzeGroupReport(grpName, stories) {
 		console.log(`Trying to Read: ${reportPath}`);
 		fs.readFile(reportPath, 'utf8', (err, data) => {
 			const cucumberReport = JSON.parse(data);
-			console.log(`NUMBER OF STORIES IN THE REPORT: ${cucumberReport.length}`);
+			console.log(`NUMBER OF STORIES IN THE Group-Report: ${cucumberReport.length}`);
 			reportResults.json = cucumberReport;
 			try {
 				const scenariosTested = { passed: 0, failed: 0 };
@@ -475,8 +475,8 @@ async function analyzeStoryReport(stories, reportName) {
 	return reportResults;
 }
 
-async function promiseError(msg) {
-	return { msg };
+async function failedReportPromise(reportName) {
+	return { reportName: `Failed-${reportName}`, overallTestStatus: false };
 }
 
 function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
@@ -498,7 +498,7 @@ function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 			return analyzeGroupReport(grpName, stories);
 		default:
 			console.log('Error: No mode provided in analyzeReport');
-			return promiseError('Something went wrong while analyzing the report.');
+			return failedReportPromise(reportName);
 	}
 }
 
@@ -541,6 +541,7 @@ function runReport(req, res, stories, mode, parameters) {
 	let cumulate = 1;
 
 	execReport(req, res, stories, mode, parameters, async (reportObj) => {
+		// for Group Reports: go to next Story, when it was not the last one
 		if (mode === 'group' && cumulate < stories.length) {
 			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
 			cumulate++;
@@ -769,7 +770,8 @@ async function jiraProjects(user) {
 						}
 						let names = [];
 						if (Object.keys(json).length !== 0) {
-							for (const repo of json) {  // TODO @Chris: Check this, because it may be run too often
+							for (const repo of json) {
+								// TODO: @Chris: Check this, because it may be run too often
 								const result = await mongo.createJiraRepoIfNoneExists(repo.name, source);
 								names.push({ name: repo.name, _id: result._id });
 							}
@@ -830,7 +832,8 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 			if (this.readyState === 4 && this.status === 200) {
 				const data = JSON.parse(xmlrequest.responseText);
 				const projects = [];
-				for (const repo of data) { // TODO @Chris: Check this, because it may be run too often
+				for (const repo of data) {
+					// TODO: @Chris: Check this, because it may be run too often
 					const mongoRepo = await mongo.createGitOwnerRepoIfNoneExists(ownerId, githubId, repo.owner.id, repo.full_name, 'github');
 					const repoName = repo.full_name;
 					const proj = {
@@ -933,7 +936,11 @@ function updateLatestTestStatus(uploadedReport, mode) {
 			updateScenarioTestStatus(uploadedReport);
 			break;
 		case 'feature':
-			updateStoryTestStatus(uploadedReport.storyId, uploadedReport.scenarioStatuses);
+			updateStoryTestStatus(
+				uploadedReport.storyId,
+				uploadedReport.overallTestStatus,
+				uploadedReport.scenarioStatuses
+			);
 			break;
 		case 'group':
 			for (const storyStatus of uploadedReport.storyStatuses) {
@@ -952,7 +959,7 @@ async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatu
 			await mongo.updateScenarioStatus(storyId, scenarioStatus.scenarioId, scenarioStatus.status);
 		}
 	} catch (e) {
-		console.log('Could not Update Scenario LastTestPassed.');
+		console.log('Could not Update Story LastTestPassed.');
 	}
 }
 

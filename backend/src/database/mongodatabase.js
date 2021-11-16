@@ -991,7 +991,6 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 		const dbo = db.db(dbName);
 		const collection = await dbo.collection(storiesCollection);
 		const story = await collection.findOne({ _id: ObjectId(storyId) });
-		// console.log(story);
 
 		const scenarioList = story.scenarios;
 		const scenario = scenarioList.find((scen) => scen.scenario_id === parseInt(scenarioId, 10));
