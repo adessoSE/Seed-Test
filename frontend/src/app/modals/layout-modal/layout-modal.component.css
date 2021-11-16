@@ -46,7 +46,7 @@
 ::ng-deep .labelField {
     display: grid;
     justify-items: end;
-    margin-right: 10px;
+    /* margin-right: 10px; */
     align-content: inherit;
 }
 

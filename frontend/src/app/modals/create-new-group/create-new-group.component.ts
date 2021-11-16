@@ -65,7 +65,7 @@ export class CreateNewGroupComponent {
    * Filters stories for searchterm
    */
   searchOnKey(filter: string) { 
-    /* this.filteredStories = new MatTableDataSource(this.stories); */
+    this.filteredStories = new MatTableDataSource(this.stories);
     this.filteredStories.filterPredicate =  (data: Story, filter: string) => data.title.trim().toLowerCase().indexOf(filter) != -1;
     /* Apply filter */
     this.filteredStories.filter = filter.trim().toLowerCase();

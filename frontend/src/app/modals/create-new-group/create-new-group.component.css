@@ -71,3 +71,8 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
 }
+
+#nameInput {
+    width: 87%;
+    margin-left: 24px;
+}

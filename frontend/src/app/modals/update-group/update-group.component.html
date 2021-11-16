@@ -11,17 +11,17 @@
         <form>
             <div class="form-group groupstoryselectionouter">
                 <div class="modalsContent">
-                    <div class="inputField">
+                    <div class="labelField">
                         <label class="uk-form-label labelField">Change group name</label>
                         <br>
-                        <label class="uk-form-label">Find story </label> 
+                        <label class="uk-form-label labelField">Find story </label> 
                     </div>
                     <div class="inputField">
-                        <input [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
+                        <input id="nameInput" [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
                         <br>
                         <div class="searchWrapper">
                             <em class="material-icons emoticon" id="searchBarIcons"
-                            [style.display]="searchInput.value == '' ? 'inherit' : 'none'">search</em>
+                            [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
                             <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)"> 
                         </div>
                     </div>

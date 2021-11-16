@@ -17,7 +17,7 @@
                         <label class="uk-form-label">Find story </label> 
                     </div>
                     <div class="inputField">            
-                        <input [(ngModel)]="groupTitle" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
+                        <input id="nameInput" [(ngModel)]="groupTitle" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
                         <br>
                         <div class="searchWrapper">
                             <em class="material-icons emoticon" id="searchBarIcons"
