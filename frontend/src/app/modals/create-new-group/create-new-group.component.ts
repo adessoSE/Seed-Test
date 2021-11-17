@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild} from '@angular/core';
+import { Component, ViewChild} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -33,7 +33,7 @@ export class CreateNewGroupComponent {
   groupTitle: string;
 
   groupId: string;
-  
+
   /**
   * Columns of the story table table
   */
@@ -64,9 +64,9 @@ export class CreateNewGroupComponent {
  /**
    * Filters stories for searchterm
    */
-  searchOnKey(filter: string) { 
+  searchOnKey(filter: string) {
     this.filteredStories = new MatTableDataSource(this.stories);
-    this.filteredStories.filterPredicate =  (data: Story, filter: string) => data.title.trim().toLowerCase().indexOf(filter) != -1;
+    this.filteredStories.filterPredicate =  (data: Story, storyFilter: string) => data.title.trim().toLowerCase().indexOf(storyFilter) != -1;
     /* Apply filter */
     this.filteredStories.filter = filter.trim().toLowerCase();
   }
@@ -97,7 +97,7 @@ export class CreateNewGroupComponent {
     }
   }
 
-  groupUnique(event, input: String, array: Group[], group?: Group) {
+  groupUnique(event, input: string, array: Group[], group?: Group) {
     array = array ? array : [];
     input = input ? input : '';
 

@@ -81,19 +81,19 @@ export class AppComponent implements OnInit{
    * Retrieves Repositories
    */
   ngOnInit() {
-    
+
   }
 
   ngAfterViewInit(){
     this.helpPosition = this.dropdownMenu.nativeElement.offsetTop;
     this.menuPosition = this.helpMenu.nativeElement.offsetTop;
-    
+
   }
 
   @HostListener('window:scroll', ['$event'])
-    handleScroll(){
-      const windowScroll = window.pageYOffset;
-      if(windowScroll > this.helpPosition || windowScroll > this.menuPosition){
+    handleScroll() {
+      const windowScroll = window.scrollX;
+      if (windowScroll > this.helpPosition || windowScroll > this.menuPosition) {
         this.closed = true;
       } else {
         this.closed = false;
@@ -108,10 +108,10 @@ export class AppComponent implements OnInit{
   /**
    * Opens the terms section
    */
-  openTerms(){
+  openTerms() {
     this.showImpressum = false;
     this.showTerms = !this.showTerms;
-    if(this.showTerms) {
+    if (this.showTerms) {
       const footer: HTMLElement = document.getElementById('footer');
       footer.scrollIntoView();
     }
@@ -145,11 +145,11 @@ export class AppComponent implements OnInit{
    /**
      * Update Repositories after change
      */
-    updateRepositories(){
+    updateRepositories() {
       //this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
-      let value = sessionStorage.getItem('repositories')
-      let repository: RepositoryContainer[] = JSON.parse(value)
-      this.repositories = repository
+      const value = sessionStorage.getItem('repositories');
+      let repository: RepositoryContainer[] = JSON.parse(value);
+      this.repositories = repository;
   }
 
   /**
@@ -179,7 +179,7 @@ export class AppComponent implements OnInit{
     this.router.navigate(['/login']);
   }
 
-  setModeOnToggle(isDark:boolean) {
+  setModeOnToggle(isDark: boolean) {
     this.themeService.setNewTheme(isDark);
   }
 }

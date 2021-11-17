@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import { Component, ViewChild } from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
 import { ApiService } from 'src/app/Services/api.service';
 import { StepType } from 'src/app/model/StepType';
@@ -26,34 +26,34 @@ export class AddBlockFormComponent{
       * Steps of the current block
       */
      stepList: any;
- 
+
      /**
       * Current selected block list
       */
      selectedBlockList: Block[];
- 
+
      /**
       * Currently selected block
       */
      selectedBlock: Block;
- 
+
      /**
       * Columns of the select block table
       */
      displayedColumns: string[] = ['stepType', 'pre'];
- 
+
      /**
       * Background or Scenario, depending from where the block was saved
       */
      correspondingComponent: string;
- 
+
      /**
       * Block which is saved to the clipboard
       */
      clipboardBlock: Block;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {}
-  
+
     /**
      * Opens the add block form modal
      * @param correspondingComponent is either background or scenario

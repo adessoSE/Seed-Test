@@ -60,20 +60,11 @@ table {
     font-family: Klavika, sans-serif;
 }
 
-.workGroupEmail{
-    margin-right: 5px;
-}
-
 .deleteProjectButton{
     background-color: var(--grape);
 }
 .deleteProjectButton:hover{
     background-color: var(--grape-purple);
-}
-
-table {
-    width: 100%;
-    margin-top:5px;
 }
 
 .mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
@@ -115,7 +106,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     -webkit-border-radius: 1ex;
     -webkit-box-shadow: 0px 1px 2px #90CAF9;
 }
-  
+
 ::-webkit-scrollbar-corner {
     background: #90CAF9;
 }

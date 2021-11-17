@@ -24,7 +24,7 @@
                             <label class="uk-form-label">Title</label>
                             <br>
                             <label class="uk-form-label">Type</label>
-                            
+
                         </div>
                         <div class="padding_top inputField">
                             <input id="label_form">
@@ -37,20 +37,17 @@
                         </div>
                     </div>
                     <div class="padding_top">
-                        <!-- <label class="SmallHeadline5 padding_right">Description:</label> -->
-                        <!-- <div> -->
                             <textarea id="description_form" ngModel name="description_form"
                             placeholder="Enter detailed description of the step"></textarea>
-                       <!--  </div> -->
                     </div>
                     <div class="padding_top modalsContent" id="inputLabels">
                         <div class="labelField">
                             <label class="uk-form-label">Email*</label>
                         </div>
-                        <div class="inputField" id="email">
+                        <div class="inputField" id="emailField">
                             <input id="email" #email ngModel type="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" class="uk-form-controls input" required>
                             <div style="margin-left: 5px;" *ngIf="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)">Invalid email</div>
-                        </div> 
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="normalButton" [disabled]="submitNewStep.invalid">Submit

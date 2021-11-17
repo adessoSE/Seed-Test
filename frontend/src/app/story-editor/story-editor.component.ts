@@ -271,8 +271,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         this.apiService.getBackendUrlEvent.subscribe(() => {
           this.loadStepTypes();
         });
-
-        
     }
 
     /**
@@ -295,15 +293,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             this.showEditor = false;
             this.storyDeleted();
             });
-  
           this.apiService.deleteScenarioEvent.subscribe(() => {
             this.deleteScenario(this.selectedScenario);
             });
-  
           this.apiService.deleteStoryEvent.subscribe(() => {
               this.showEditor = false;
           });
-  
           this.apiService.runSaveOptionEvent.subscribe(option => {
               if (option === 'run') {
                   this.runUnsaved = true;
@@ -314,7 +309,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                   this.updateBackground();
             }
           });
-  
           this.apiService.addBlockToScenarioEvent.subscribe(block => {
               if (block[0] === 'background') {
                   block = block[1];
@@ -329,14 +323,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
               }
           });
           this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-        
-
         this.isDark = this.themeService.isDarkMode();
         this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
             console.log('Changed to ' + changedTheme);
         });
-
     }
 
     ngOnDestroy(){
@@ -417,7 +408,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         .changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
         .subscribe((resp: any) => {
             this.selectedStory = resp;
-        })
+        });
     }
 
     /**
@@ -473,11 +464,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 }
             }
         }
-        if (checkCount >= stepCount) {
-            this.allChecked = true;
-        } else {
-            this.allChecked = false;
-        }
+        this.allChecked = checkCount >= stepCount;
         if (checkCount <= 0) {
             this.allChecked = false;
             this.activeActionBar = false;

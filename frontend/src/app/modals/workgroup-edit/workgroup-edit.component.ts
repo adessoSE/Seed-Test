@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -94,7 +94,7 @@ export class WorkgroupEditComponent {
       this.workgroupError = error.error.error;
       this.showErrorToast ()
     });
-    
+
   }
 
 /**

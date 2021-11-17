@@ -170,7 +170,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         if (report === 'Successful') {
             this.apiService.getUserData().subscribe(user => {
                 this.id = user._id;
-                /* console.log(user); */
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];
                 }

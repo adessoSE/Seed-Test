@@ -6,9 +6,6 @@ import { Component} from '@angular/core';
   styleUrls: ['./layout-modal.component.css']
 })
 export class LayoutModalComponent {
-
-
-
-  constructor() { }
-
+  constructor() {
+  }
 }
