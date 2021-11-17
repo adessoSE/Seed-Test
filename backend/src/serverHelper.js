@@ -479,7 +479,7 @@ async function failedReportPromise(reportName) {
 	return { reportName: `Failed-${reportName}`, overallTestStatus: false };
 }
 
-function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
+async function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 	switch (mode) {
 		case 'scenario':
 			return analyzeScenarioReport(stories, reportName, scenarioId);
@@ -536,75 +536,75 @@ async function execReport(req, res, stories, mode, parameters, callback) {
 	}
 }
 
-function runReport(req, res, stories, mode, parameters) {
+async function resolveReport(reportObj, mode, stories, req, res, callback) {
+	// move to analyze Report and add callback?
+	if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
+	let scenarioId;
+	if (req.params.scenarioId !== undefined) {
+		scenarioId = req.params.scenarioId;
+	}
+	const { reportTime } = reportObj;
+	let { reportName } = reportObj;
+
+	// analyze Report:
+	const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId);
+	const reportOptions = setOptions(reportName);
+	if (mode !== 'group') {
+		try {
+			reporter.generate(reportOptions);
+		} catch (e) {
+			console.log(`Could not generate the html Report for ${reportName}. Error${e}`);
+		}
+	}
+	// add everything to reportResult
+	reportResults.scenarioId = req.params.scenarioId;
+	reportResults.reportTime = reportTime;
+	reportResults.reportOptions = reportOptions;
+	reportResults.mode = mode;
+	// Group needs an adjusted Path to Report
+	if (mode === 'group') reportName = `${reportName}/${reportName}`;
+	callback(reportResults, reportName);
+}
+
+async function runReport(req, res, stories, mode, parameters) {
 	// only used when executing multiple stories:
 	let cumulate = 1;
-
 	execReport(req, res, stories, mode, parameters, async (reportObj) => {
 		// for Group Reports: go to next Story, when it was not the last one
 		if (mode === 'group' && cumulate < stories.length) {
 			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
 			cumulate++;
 		} else {
-			if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
-			let scenarioId;
-			if (req.params.scenarioId !== undefined) {
-				scenarioId = req.params.scenarioId;
-			}
-			const { reportTime } = reportObj;
-			let { reportName } = reportObj;
-
-			// analyze Report:
-			const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId);
-			// return html report
-			try {
-				reportName = reportResults.reportName;
+			resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
 				// generate HTML Report
-				const reportOptions = setOptions(reportName);
-				if (mode !== 'group') {
-					try {
-						reporter.generate(reportOptions);
-					} catch (e) {
-						console.log(`Could not generate the html Report for ${reportName}. Error${e}`);
-					}
-				}
-				// add everything to reportResult
-				reportResults.scenarioId = req.params.scenarioId;
-				reportResults.reportTime = reportTime;
-				reportResults.reportOptions = reportOptions;
-				reportResults.mode = mode;
-				console.log(reportResults);
-
-				// upload report to DB
-				mongo.uploadReport(reportResults)
-					.then((uploadedReport) => {
-						// Group needs an adjusted Path to Report
-						if (mode === 'group') reportName = `${reportName}/${reportName}`;
-						// read html Report and add it top response
-						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-							res.json({ htmlFile: data, reportId: uploadedReport._id });
+				try {
+					// upload report to DB
+					mongo.uploadReport(reportResults)
+						.then((uploadedReport) => {
+							// read html Report and add it top response
+							fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+								res.json({ htmlFile: data, reportId: uploadedReport._id });
+							});
+							updateLatestTestStatus(uploadedReport, mode);
+							// delete reports in filesystem after a while
+							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
 						});
-
-						updateLatestTestStatus(uploadedReport, mode);
-
-						// delete reports in filesystem after a while
-						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-					});
-			} catch (error) {
-				console.log(`fs readfile error for file ./features/${reportName}.json`);
-			}
-			// ################################## TODO: update this and add renderComment for Jira:
-			// if (req.params.storySource === 'github' && req.user && req.user.github) {
-			// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-			// 		reportTime, story, scenario, mode, reportName);
-			// 	const githubValue = parameters.repository.split('/');
-			// 	const githubName = githubValue[0];
-			// 	const githubRepo = githubValue[1];
-			// 	postComment(story.issue_number, comment, githubName, githubRepo,
-			// 		req.user.github.githubToken);
-			// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-			// }
+				} catch (error) {
+					console.log(`Could not UploadReport :  ./features/${reportName}.json`);
+				}
+				// ################################## TODO: update this and add renderComment for Jira:
+				// if (req.params.storySource === 'github' && req.user && req.user.github) {
+				// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
+				// 		reportTime, story, scenario, mode, reportName);
+				// 	const githubValue = parameters.repository.split('/');
+				// 	const githubName = githubValue[0];
+				// 	const githubRepo = githubValue[1];
+				// 	postComment(story.issue_number, comment, githubName, githubRepo,
+				// 		req.user.github.githubToken);
+				// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+				// }
+			});
 		}
 	});
 }
