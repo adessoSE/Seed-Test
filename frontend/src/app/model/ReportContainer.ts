@@ -1,21 +1,23 @@
-import { Report } from './Report';
+import { StoryReport } from './StoryReport';
+import {ScenarioReport} from './ScenarioReport';
+import {GroupReport} from './GroupReport';
 
 /**
- * Interface of a Report container for the report history
+ * Interface of a StoryReport container for the report history
  */
 export interface ReportContainer {
     /**
      * Reports of the story
      */
-    storyReports: Report[];
+    storyReports: StoryReport[];
 
     /**
      * Reports of the scenarios included in the story
      */
-    scenarioReports: Report[];
+    scenarioReports: ScenarioReport[];
 
     /**
      * Reports of the groups where the story is included
      */
-    groupReports: Report[];
+    groupReports: GroupReport[];
 }

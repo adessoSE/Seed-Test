@@ -189,6 +189,15 @@ When('I click the button: {string}', async function clickButton(button) {
 	const world = this;
 	await driver.getCurrentUrl()
 		.then(async (currentUrl) => {
+			// for DAISY only: don't throw an error and end the testcase if "Alte Sitzung Beenden" is not found
+			if (button === 'Alte Sitzung beenden') {
+				try {
+					await driver.wait(until.elementLocated(By.xpath(`//*[@name='kill-session']`)), 3 * 1000).click();
+				} catch (e) {
+					console.log('Button "Alte Sitzung beenden" not found. Skipping the Step...');
+				}
+				return;
+			}
 			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
 			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
 				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
@@ -198,22 +207,27 @@ When('I click the button: {string}', async function clickButton(button) {
 			} catch (e) {
 				try {
 					// check for an id with the substring using contains
-					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
+					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`))
+						.click();
 				} catch (e2) {
 					try {
 						// text() looks for a text node (inside an element like button
-						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
+						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`))
+							.click();
 					} catch (e3) {
 						try {
 							// check for any element containing the string
-							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
+							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`))
+								.click();
 						} catch (e4) {
 							try {
-								await driver.findElement(By.xpath(`${button}`)).click();
+								await driver.findElement(By.xpath(`${button}`))
+									.click();
 							} catch (ed) {
-								await driver.takeScreenshot().then(async (buffer) => {
-									world.attach(buffer, 'image/png');
-								});
+								await driver.takeScreenshot()
+									.then(async (buffer) => {
+										world.attach(buffer, 'image/png');
+									});
 								throw Error(e);
 							}
 						}
