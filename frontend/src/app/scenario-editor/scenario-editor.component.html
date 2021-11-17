@@ -5,13 +5,15 @@
         <div>
           <span id="scenarioHeader" class="Smallnavigation2">Scenario</span>
             <dfn class="def"><span id="infoIconScenario" uk-icon="info"></span>
-                <span rel="def">Each scenario is an example describing a specific behavioral aspect of the system.
-                  It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
-                  A scenario consists of individual steps:
-                       Given (precondition),
-                       When (action) and
-                       Then (desired result)
-                      </span></dfn>
+              <span rel="def" id="scenarioInfoTextPosition">Each scenario is an example describing a specific behavioral aspect of the system.
+                It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
+                A scenario consists of individual steps:
+                     Given (precondition),
+                     When (action) and
+                     Then (desired result)
+              </span>
+            </dfn>
+            
         </div>
         <div>
           <button id="scenario_shift_left" class="scenarioTitle" *ngIf="!arrowLeft" data-uk-tooltip
@@ -142,7 +144,9 @@
                     <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
                       <span rel="def">
                         This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the scenario to confirm your adjustments.
-                            </span></dfn>
+                      </span>
+                    </dfn>
+                    
                   </div>
                 </div>
             </div>
@@ -177,7 +181,7 @@
               </button>
             </div>
           </div>
-          <app-example-table #exampleChildView [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
+          <app-example-table #exampleChildView [isDark]="isDark" [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
         </ng-template>
       </div>
       <br>
@@ -196,4 +200,8 @@
     </div>
   </div>
 
-<app-modals #modalsComponent></app-modals>
+<app-add-block-form #addBlockModal></app-add-block-form>
+<app-save-block-form #saveBlockModal></app-save-block-form>
+<app-new-step-request #newStepRequest></app-new-step-request>
+<app-rename-scenario #renameScenarioModal></app-rename-scenario>
+

@@ -1,8 +1,8 @@
-<div [class.darkTheme]= "isDark" class="grid-container uk-card uk-card-default">
+<div [class.darkTheme]= "isDark" class="grid-container uk-card-default">
     <div>
         <a routerLink="/" class="title">
             <button class="backButton" title="Back to Projects">
-                <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'">
+                <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
             </button>
         </a>
     </div>
@@ -140,4 +140,7 @@
         <!------------------------------------->
     </div>
 </div>
-<app-modals #modalComponent (jiraAccountResponse)="updateSite($event);"></app-modals>
+<app-change-jira-account #changeJiraModal (jiraAccountResponse)="updateSite($event)"></app-change-jira-account>
+<app-create-custom-project #createCustomProject></app-create-custom-project>
+<app-delete-account #deleteAccountModal></app-delete-account>
+<app-workgroup-edit #workgroupEditModal></app-workgroup-edit>

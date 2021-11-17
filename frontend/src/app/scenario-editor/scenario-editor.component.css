@@ -3,7 +3,7 @@
   margin: 0px;
 }
 
-.def {
+/* .def {
 	color: #999;
 	cursor: help;
   position: relative;
@@ -12,7 +12,7 @@
 
 .def span[rel=def] {
 	display: none;
-}
+} */
 
 .scenarioHeaderContainer{
   display: grid;
@@ -52,18 +52,6 @@ em.dragIcon{
 
 .text-inline > p > input{
   margin: 0 5px;
-}
-
-.def:hover span[rel=def] {
-  font-size: small;
-  color: var(--white);
-	background-color: rgb(109, 109, 109);
-	position: absolute;
-	bottom: 2em;
-	left: 2em;
-	width: 30em;
-  padding: 0.5em;
-  display: block;
 }
 
 #scenario{
@@ -263,23 +251,23 @@ em.dragIcon{
 /* .uk-nav > li > span{
   padding: 1px;
   cursor: pointer;
-} */
+} 
 
-/* .uk-nav > li > .dropdownStep {
+.uk-nav > li > .dropdownStep {
   color:var(--ocean-blue);
-} */
+} 
 
-/* .darkTheme .uk-nav > li > .dropdownStep {
+.darkTheme .uk-nav > li > .dropdownStep {
   color: #40C4FF;
-} */
+}
 
-/* .uk-nav > li > span:hover {
+.uk-nav > li > span:hover {
     color: gray;
-} */
+} 
 
-/* .darkTheme .uk-nav > li > span:hover {
+.darkTheme .uk-nav > li > span:hover {
   color: white;
-} */
+} 
 
 .uk-nav > li > .dropdownStepUndefined {
   color:var(--marine-blue);
@@ -289,25 +277,25 @@ em.dragIcon{
   color:#00B0FF;
 }
 
-/* .disabled {
+.disabled {
   color: gray !important;
   background: var(--white) !important;
   font-style: italic;
   text-decoration: line-through;
-} */
+} 
 
-/* .darkTheme .disabled {
+.darkTheme .disabled {
   color: #B0BEC5 !important;
-} */
+} 
 
-/* .scenarioBarContainer .disabled em{
+.scenarioBarContainer .disabled em{
   color: gray !important;
-  background: #f8f8f8 /* !important;
-} */
+  background: #f8f8f8 !important;
+} 
 
-/* .darkTheme .scenarioBarContainer .disabled em {
+.darkTheme .scenarioBarContainer .disabled em {
   color: gray 
-} */
+} 
 
 .uk-card-footer{
   padding-bottom: 0;
@@ -364,6 +352,16 @@ table {
 .stepsListContainer button{
   border: none;
   background: none;
+}
+
+.title span[rel="def"] {
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+#scenarioInfoTextPosition {
+  left: 11em;
+  top: -8em;
 }
 
 .darkTheme span {

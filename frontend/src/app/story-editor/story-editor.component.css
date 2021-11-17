@@ -71,6 +71,8 @@
 
  #oneDriverInfoIcon{
    margin-right: 10px;
+   margin-bottom: 7px;
+   width: 13px;
  }
 
  .arrowLeft{
@@ -167,7 +169,7 @@
     padding-bottom: 5px;
   }
 
-  .def {
+/*   .def {
       color: #999;
       cursor: help;
       position: relative;
@@ -176,7 +178,7 @@
 
   .def span[rel=def] {
       display: none;
-  }
+  } */
 
   :host ::ng-deep input[type="text"]{
     margin: 1px;
@@ -202,7 +204,7 @@
     grid-template-columns: 1fr auto 1fr auto;
   }
 
-  .def:hover span[rel=def] {
+/*   .def:hover span[rel=def] {
     font-size: small;
     color: var(--white);
     background-color: rgb(109, 109, 109);
@@ -212,7 +214,7 @@
     width: 30em;
     padding: 0.5em;
     display: block;
-  }
+  } */
 
   .darkTheme .def:hover span {
     background-color: #90A4AE;
@@ -414,6 +416,7 @@
     background-color: lightgrey;
     transition: 0.3s;
     cursor: pointer;
+    margin: 3px 3px 3px 3px;
   }
 
   .darkTheme .expand:hover {
@@ -689,14 +692,29 @@
 
 }
 
-.darkTheme.uk-card-default {
-  background: none;
+#storyInfoTextVerticalPosition {
+  left: 8em;
+  top: -4em;
+} 
+
+
+#backgroundInfoTextVerticalPosition {
+  left: 15em;
+  top: 0em;
 }
 
 .darkTheme p {
   color:white;
 }
 
+.darkTheme.uk-card-default {
+  background: none;
+}
+
+.SmallHeadline5 span[rel="def"]{
+  line-height: 1.5;
+}
+  
 .uk-icon {
   background-color: transparent !important;
 }

@@ -1,69 +1,13 @@
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
-
-*{
-    font-family: Klavika, sans-serif;
-}
-
-  .modal-title{
-    color: var(--white);
-  }
-
-  .modal-header{
-    background-color: var(--ocean-blue);
-  }
-
-  ::ng-deep .darkTheme .modal-header{
-    background-color: black;
-    border-bottom: 1px solid #60767b;
-  }
-
-  .modal-body{
-    text-align: center;
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-right: 30px;
-    padding-bottom: 15px;
-    max-height: calc(100vh - 210px);
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  ::ng-deep .darkTheme .modal-body {
-    background-color: #455A64;
-  }
-
-  .modal-footer{
-    height: 60px;
-  }
-
-  ::ng-deep .darkTheme .modal-footer {
-    background-color: #455A64;
-    border-top: 1px solid #60767b;
-  }
-
-  .close{
-    color: var(--white);
-    outline: none;
-  }
-
-  ::ng-deep .darkTheme .close{
-    background-color: transparent;
-  }
-
 .uk-card-title {
     font-size: medium;
 }
 
 input.wrongEmail {
     border-left: 5px solid #d15553;
-}
-
-::ng-deep .darkTheme input.wrongEmail {
-    border-left: 5px solid red;
-}
+  }
 
 ::ng-deep .modal-dialog{
-    max-width: 800px !important;
+    max-width: 800px;
 }
 
 .subHeader{
@@ -73,12 +17,6 @@ input.wrongEmail {
 #description_form{
     width: 100%;
     height: 8em;
-}
-
-::ng-deep .darkTheme textarea {
-    background: transparent;
-    border-color: #60767b;
-    color: white;
 }
 
 .padding_top{
@@ -100,15 +38,7 @@ table {
 
 .mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
-}
-
-::ng-deep .darkTheme .mat-table .mat-cell:first-child, .darkTheme .mat-table .mat-header-cell:first-child{
-    border-right: 1px solid #60767b;
-}
-
-::ng-deep .darkTheme .mat-table{
-    background: #455A64;
-}
+  }
 
 .mat-cell, .mat-header-cell {
     text-align: center;
@@ -129,10 +59,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 10px;
     display: flex;
-}
-
-::ng-deep .darkTheme .blockNameContainer {
-    border-bottom: 1px solid #60767b;
 }
 
 .blockNameHeader{
@@ -156,18 +82,10 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     justify-content: space-between;
 }
 
-::ng-deep .darkTheme .modal-content{
-    background: #455A64;
-}
-
 .savedBlocksContainer, .previewContainer{
     border: 1px solid #e0e0e0;
     flex: 1;
     overflow-y: auto;
-}
-
-::ng-deep .darkTheme .savedBlocksContainer, ::ng-deep .darkTheme .previewContainer {
-    border: 1px solid #60767b;
 }
 
 ::ng-deep.mat-pseudo-checkbox{
@@ -182,35 +100,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     display: flex;
     flex-direction: row;
 }
-
-.def {
-    cursor: help;
-    position: relative;
-    font-size: 20px;
-    font-weight: lighter;
-}
-
-.def span[rel=def] {
-    display: none;
-}
-
-.def:hover span[rel=def] {
-    font-size: small;
-    color: var(--white);
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    top: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-    z-index: 100;
-}
-
-::ng-deep .darkTheme .def:hover span[rel=def] {
-    background-color: white;
-}
-
 
 .infoIcon{
     color: var(--white);
@@ -250,10 +139,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     background-color: var(--grape);
 }
 
-::ng-deep .darkTheme .wrongEmail {
-    background-color: red;
-}
-
 .canEditContainer{
     display: flex;
     flex-direction: row;
@@ -281,8 +166,8 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 #storydescription{
     resize: both;
-    width: 70%;
-    height: 20%;
+    width: 100%;
+    height: 20%; 
     min-width: 100px;
     min-height: 100px;
     max-width: 100%;
@@ -325,30 +210,51 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     }
 }
 
-.modalsContent {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.inputAlign {
-    display: grid;
-}
-
-.lableAlign {
-    display: grid;
-    justify-items: end;
-    margin-right: 10px;
-}
-
 .mat-column-checkStory {
     width: 10% !important;
 }
 
-::ng-deep .darkTheme br {
-    border: 1px solid #60767b;
+#inputLabels label {
+    margin-top: .25rem;
+    margin-bottom: .25rem;
 }
 
-::ng-deep .darkTheme p {
-    color: white;
+.addTeamMembersLabel {
+    position: relative;
+    left: -67px;
+}
+
+.divWrapper {
+    margin: 3px;
+}
+
+div#deleteText > p {
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+}
+
+.inputField#email {
+    display: flex;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #90CAF9;
+    -webkit-border-radius: 1ex;
+    -webkit-box-shadow: 0px 1px 2px #90CAF9;
+}
+  
+::-webkit-scrollbar-corner {
+    background: #90CAF9;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
+::ng-deep.darkTheme::-webkit-scrollbar-thumb {
+  background: #B0BEC5;
+  -webkit-border-radius: 1ex;
+  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-corner
+::ng-deep.darkTheme::-webkit-scrollbar-corner {
+  background: #B0BEC5;
 }
