@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ModalsComponent } from './modals.component';
+import { WorkgroupEditComponent } from './workgroup-edit.component';
 
-describe('ModalsComponent', () => {
-  let component: ModalsComponent;
-  let fixture: ComponentFixture<ModalsComponent>;
+describe('WorkgroupEditComponent', () => {
+  let component: WorkgroupEditComponent;
+  let fixture: ComponentFixture<WorkgroupEditComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ModalsComponent ]
+      declarations: [ WorkgroupEditComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ModalsComponent);
+    fixture = TestBed.createComponent(WorkgroupEditComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

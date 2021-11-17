@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
@@ -14,7 +14,7 @@ import { FormControl } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit{
 
   /**
    * Currently retrieved projects
@@ -36,9 +36,14 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   error: string;
 
-  isDark : boolean;
+  @ViewChild('dropdownMenu') dropdownMenu: ElementRef;
+  @ViewChild('helpMenu') helpMenu: ElementRef;
 
- /*  @HostBinding('class') className = '';  */
+  closed: boolean = false;
+  helpPosition: any;
+  menuPosition: any;
+
+  isDark : boolean;
 
   toggleControl = new FormControl(false);
 
@@ -69,7 +74,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.toggleControl.valueChanges.subscribe(val => {
       this.setModeOnToggle(val);
       this.isDark = val;
-      /* this.className = val ? 'darkTheme' : ''; */
     });
   }
 
@@ -77,8 +81,24 @@ export class AppComponent implements OnInit, OnDestroy {
    * Retrieves Repositories
    */
   ngOnInit() {
-    
+
   }
+
+  ngAfterViewInit(){
+    this.helpPosition = this.dropdownMenu.nativeElement.offsetTop;
+    this.menuPosition = this.helpMenu.nativeElement.offsetTop;
+
+  }
+
+  @HostListener('window:scroll', ['$event'])
+    handleScroll() {
+      const windowScroll = window.scrollX;
+      if (windowScroll > this.helpPosition || windowScroll > this.menuPosition) {
+        this.closed = true;
+      } else {
+        this.closed = false;
+      }
+    }
 
   ngOnDestroy(){
     //this.apiService.logoutEvent.unsubscribe();
@@ -88,10 +108,10 @@ export class AppComponent implements OnInit, OnDestroy {
   /**
    * Opens the terms section
    */
-  openTerms(){
+  openTerms() {
     this.showImpressum = false;
     this.showTerms = !this.showTerms;
-    if(this.showTerms) {
+    if (this.showTerms) {
       const footer: HTMLElement = document.getElementById('footer');
       footer.scrollIntoView();
     }
@@ -125,11 +145,11 @@ export class AppComponent implements OnInit, OnDestroy {
    /**
      * Update Repositories after change
      */
-    updateRepositories(){
+    updateRepositories() {
       //this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
-      let value = sessionStorage.getItem('repositories')
-      let repository: RepositoryContainer[] = JSON.parse(value)
-      this.repositories = repository
+      const value = sessionStorage.getItem('repositories');
+      let repository: RepositoryContainer[] = JSON.parse(value);
+      this.repositories = repository;
   }
 
   /**
@@ -159,7 +179,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  setModeOnToggle(isDark:boolean) {
+  setModeOnToggle(isDark: boolean) {
     this.themeService.setNewTheme(isDark);
   }
 }

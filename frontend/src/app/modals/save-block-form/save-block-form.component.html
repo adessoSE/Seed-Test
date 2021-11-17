@@ -1,0 +1,51 @@
+  <!--Save Block Form Modal-->
+  <ng-template #saveBlockFormModal let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
+        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+          <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
+            Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
+          </span>
+        </dfn>
+        
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body modal-xl">
+        <div class="uk-card-title submitForm">
+          <div class="blockNameContainer modalsContent">
+              <div class="labelField padding_right uk-form-label" id="inputLabels">
+                <label>Enter block name</label>
+              </div>
+              <div class="inputField">
+                <input id="blockNameInput" class="blockNameInput">
+              </div>
+          </div>
+          <div class="tableContainer">
+            <span class="blockNameHeader blockNameHeader">Selected Steps</span>
+            <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlock" class="mat-elevation-z8" aria-describedby="mydesc2">
+              <ng-container matColumnDef="stepType">
+                <th id="blockStepTypeCell" mat-header-cell *matHeaderCellDef> Steptype </th>
+                <td mat-cell *matCellDef="let element"> {{element.stepType}} </td>
+              </ng-container>
+              <ng-container matColumnDef="pre">
+                <th id="blockStepCell" mat-header-cell *matHeaderCellDef> Step </th>
+                <td mat-cell *matCellDef="let element"> {{element.pre}} {{ element.values[0] }} {{element.mid}} {{ element.values[1]}} {{ element.values[2]}} {{ element.values[3]}}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumnsSaveBlock"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlock;"></tr>
+            </table>
+          </div>
+          <div class="exampleCheckboxContainer" *ngIf="exampleBlock">
+              <input class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck($event)">
+              <label class="exampleCheckboxLabel" (click)="exampleCheck($event)">Examples only?</label>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="submitSaveBlock(); modal.close('Save click')">Submit
+        </button>
+    </div>
+  </ng-template>

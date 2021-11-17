@@ -3,7 +3,8 @@
     <!--left-->
     <div class="uk-inline dropdown">
       <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
-      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: hover">
+      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: hover" 
+      #dropdownMenu [class.closedMenu] = "closed">
         <ul class="dropdown-list">
           <li>
             <div *ngIf="this.repositories" class="dropdown">
@@ -58,10 +59,12 @@
         </a>
         <div class="dropdown">
           <button class="rightButton">Help</button>
+          <div #helpMenu [class.closedMenu] = "closed">
             <div class="dropdown-list">
               <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
               <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
             </div>
+          </div>
         </div>
         <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
       </div>
