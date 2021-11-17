@@ -4,7 +4,6 @@ const helper = require('../serverHelper');
 const mongo = require('../database/mongodatabase');
 
 const router = express.Router();
-const stories = [];
 // This router is used for accessing Cucumber/Selenium Reports
 router
 	.use(cors())
@@ -25,12 +24,12 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID/:storySource', (req, res) => {
-	helper.runReport(req, res, stories, 'feature', req.body);
+	helper.runReport(req, res, [], 'feature', req.body);
 });
 
 // run single Scenario of a Feature
-router.post('/Scenario/:issueID/:storySource/:scenarioID', (req, res) => {
-	helper.runReport(req, res, stories, 'scenario', req.body);
+router.post('/Scenario/:issueID/:storySource/:scenarioId', (req, res) => {
+	helper.runReport(req, res, [], 'scenario', req.body);
 });
 
 // run one Group and return report
@@ -48,16 +47,7 @@ router.get('/report/:reportName', (req, res) => {
 
 router.get('/reportHistory/:storyId', async (req, res) => {
 	const { storyId } = req.params;
-	const history = await helper.getReportHistory(storyId);
-	const storyReports = [];
-	const scenarioReports = [];
-	const groupReports = [];
-	history.forEach((element) => {
-		if (element.mode === 'feature') storyReports.push(element);
-		if (element.mode === 'scenario') scenarioReports.push(element);
-		else groupReports.push(element);
-	});
-	const reportContainer = { storyReports, scenarioReports, groupReports };
+	const reportContainer = await helper.getReportHistory(storyId);
 	res.status(200).json(reportContainer);
 });
 
