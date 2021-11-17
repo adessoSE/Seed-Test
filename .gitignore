@@ -28,10 +28,6 @@ backend/.idea
 
 # IDE - VSCode
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
 # misc
 /.sass-cache
@@ -54,7 +50,6 @@ Thumbs.db
 
 frontend/documentation
 frontend/coverage
-!frontend/coverage/lcov.info
 frontend/\.editorconfig
 
 frontend/dist/cucumber-frontend/3rdpartylicenses\.txt
