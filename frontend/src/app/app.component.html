@@ -29,7 +29,7 @@
           </li>
         </ul>
       </div>
-      <p id="version" class="Largecaption">Version 1.4.0</p>
+      <p id="version" class="Largecaption">Version 1.4.1</p>
     </div>
 
 
@@ -45,10 +45,10 @@
     <div class="topnavRight">
       <div class="slide-toggle-container">
         <mat-icon>brightness_5</mat-icon>
-        <mat-slide-toggle [formControl]="toggleControl" 
-        [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}" 
+        <mat-slide-toggle [formControl]="toggleControl"
+        [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}"
         [ngClass] = "{'mat-checked mat-slide-toggle-bar':isDark}"
-        
+
         title="Switch to dark/light mode"></mat-slide-toggle>
         <mat-icon>bedtime</mat-icon>
       </div>
@@ -77,11 +77,6 @@
       <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
       <p class="terms" (click)="openTerms()">Terms</p>
     </div>
-    <!--<div class="adessoLogo">
-      <a href="https://www.adesso.de/en/">
-        <img id="adesso-logo" src="assets/adesso-logo.jpg" alt="adesso AG">
-      </a>
-    </div>-->
     <div class="expendable">
       <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
         <p>Seed-Test</p>

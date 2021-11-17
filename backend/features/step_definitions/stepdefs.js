@@ -189,15 +189,6 @@ When('I click the button: {string}', async function clickButton(button) {
 	const world = this;
 	await driver.getCurrentUrl()
 		.then(async (currentUrl) => {
-			// for DAISY only: don't throw an error and end the testcase if "Alte Sitzung Beenden" is not found
-			if (button === 'Alte Sitzung beenden') {
-				try {
-					await driver.wait(until.elementLocated(By.xpath(`//*[@name='kill-session']`)), 3 * 1000).click();
-				} catch (e) {
-					console.log('Button "Alte Sitzung beenden" not found. Skipping the Step...');
-				}
-				return;
-			}
 			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
 			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
 				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
