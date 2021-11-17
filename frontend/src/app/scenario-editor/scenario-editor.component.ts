@@ -85,6 +85,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      */
     showDaisyAutoLogout: boolean = false;
 
+    /**
+     * Current step of scenario as ngModel for dropdown
+     */
+    currentStepNgModel=null;
+
     @Input() isDark : boolean;
     /**
      * View child of the example table

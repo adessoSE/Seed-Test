@@ -128,16 +128,43 @@
                 <div class="dragIconContainer" cdkDragHandle >
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
+                <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
                 <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
+                </div>
+                <div *ngIf="!(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
+                  <input type="checkbox" class="checkbox checkboxDropdown" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
+                  </div>
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
-                <p style="display:inline" *ngIf="currentStep.values.length > 0">
+                <div style="display: flex;" *ngIf="currentStep.values.length > 0">
+                  <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=0">
                   <input id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
                    type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" />
+                  </div>
+                  <div *ngIf="currentStep.selectionValue==0">
+                    <mat-form-field appearance="standard">
+                        <mat-select [(ngModel)]="currentStep.values[0]" (selectionChange)="addToValues(currentStep.values[0],currentStep.stepType,currentStep, j, 0)">
+                          <mat-option *ngFor="let dropdownValue of currentStep.selection" [value]="dropdownValue">
+                            {{dropdownValue}}
+                          </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                  </div>
                    {{currentStep.mid}}
+                   <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1">
                   <input id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
                    type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" />
+                  </div>
+                  <div *ngIf="currentStep.selectionValue==1">
+                    <mat-form-field appearance="standard">
+                        <mat-select [(ngModel)]="currentStep.values[1]" (selectionChange)="addToValues(currentStep.values[1],currentStep.stepType,currentStep, j, 1)">
+                          <mat-option *ngFor="let dropdownValue of currentStep.selection" [value]="dropdownValue">
+                            {{dropdownValue}}
+                          </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                  </div>
                   {{currentStep.post}}
-                </p>
+                </div>
                 <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
                   type="text" value="{{value}}" on-input="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" />
                   <div *ngIf="currentStep.outdated">
