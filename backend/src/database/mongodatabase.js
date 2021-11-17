@@ -983,13 +983,13 @@ async function deleteReport(reportId) {
 		const reportData = await collection.findOne({ _id: ObjectId(reportId) });
 		if (reportData.smallReport) {
 			idToDelete = reportData.smallReport;
-			console.log('trying to delete smallReport', idToDelete, ' for Report', reportId);
+			console.log('Trying to delete smallReport', idToDelete, ' in DB for Report', reportId);
 			const reportsCollection = await dbo.collection(ReportsCollection);
 			await reportsCollection.deleteOne({ _id: ObjectId(idToDelete) });
 			result = await collection.deleteOne({ _id: ObjectId(reportId) });
 		} else {
 			idToDelete = reportData.bigReport;
-			console.log('trying to delete bigReport', idToDelete, ' for Report', reportId);
+			console.log('trying to delete bigReport', idToDelete, ' in DB for Report', reportId);
 			const bucket = await new mongodb.GridFSBucket(dbo, { bucketName: 'GridFS' });
 			bucket.delete(ObjectId(idToDelete));
 			result = await collection.deleteOne({ _id: ObjectId(reportId) });
@@ -1119,9 +1119,8 @@ async function getReport(reportName) {
 	try {
 		db = await connectDb();
 		const dbo = db.db(dbName);
-		const name = { reportName };
 		const collection = await dbo.collection(ReportDataCollection);
-		const report = await collection.findOne(name);
+		const report = await collection.findOne({ reportName });
 		if (report.smallReport) {
 			const reportCollection = await dbo.collection(ReportsCollection);
 			const reportJson = await reportCollection.findOne({ _id: ObjectId(report.smallReport) });
@@ -1137,8 +1136,8 @@ async function getReport(reportName) {
 		console.log('UPS!!!! FEHLER in getReport', e);
 		return {};
 	} finally {
-		if (db) // db.close();
-		console.log('I am closing the DB here - getReport');
+		if (db) db.close();
+		// console.log('I would close the DB here - getReport');
 	}
 }
 

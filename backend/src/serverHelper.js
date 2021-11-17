@@ -186,7 +186,15 @@ function deleteReport(jsonReport) {
 	const report = path.normalize(`${featuresPath}${jsonReport}`);
 	fs.unlink(report, (err) => {
 		if (err) console.log(err);
-		else console.log(`${report} json deleted.`);
+		else console.log(`${report} deleted.`);
+	});
+}
+
+function deleteGroupDir(dirName) {
+	const dirPath = path.normalize(`${featuresPath}${dirName}`);
+	fs.rmdir(dirPath, { recursive: true }, (err) => {
+		if (err) console.log(err);
+		else console.log(`${dirPath} Folder deleted.`);
 	});
 }
 
@@ -594,23 +602,29 @@ async function runReport(req, res, stories, mode, parameters) {
 				console.log(reportName);
 				console.log('reportResults in callback of resolveReport:');
 				console.log(reportResults);
-				try {
-					// upload report to DB
-					mongo.uploadReport(reportResults)
-						.then((uploadedReport) => {
-							// read html Report and add it top response
-							fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-								res.json({ htmlFile: data, reportId: uploadedReport._id });
-							});
-							updateLatestTestStatus(uploadedReport, mode);
+				// upload report to DB
+				mongo.uploadReport(reportResults)
+					.then((uploadedReport) => {
+						// read html Report and add it top response
+						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+							res.json({ htmlFile: data, reportId: uploadedReport._id });
+						});
+						updateLatestTestStatus(uploadedReport, mode);
+						// delete Group folder
+						if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
+						else {
 							// delete reports in filesystem after a while
 							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-						});
-				} catch (error) {
-					console.log(`Could not UploadReport :  ./features/${reportName}.json`);
-				}
-				// ################################## TODO: update this and add renderComment for Jira:
+						}
+					})
+					.catch((error) => {
+						console.log(`Could not UploadReport :  ./features/${reportName}.json
+						Rejection: ${error}`);
+						res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+					});
+				// ##################################
+				// TODO: update this and add Comment for Jira, when everything else is done
 				// if (req.params.storySource === 'github' && req.user && req.user.github) {
 				// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
 				// 		reportTime, story, scenario, mode, reportName);
@@ -929,13 +943,12 @@ async function getReportHistory(storyId) {
 }
 
 async function createReport(res, reportName) {
+	// console.log(`reportName in createReport: ${reportName}`);
 	const report = await mongo.getReport(reportName);
-	const reportName2 = `features/${reportName}.json`;
-	const resolvedPath = path.resolve(reportName2);
-
-	fs.writeFileSync(resolvedPath, JSON.stringify(report.json),
+	const resolvedPath = path.resolve(`features/${reportName}.json`);
+	// console.log(`resolvedPath in createReport: ${resolvedPath}`);
+	fs.writeFileSync(resolvedPath, report.jsonReport,
 		(err) => { console.log('Error:', err); });
-	// console.log('report options', report)
 	reporter.generate(setOptions(reportName));
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
