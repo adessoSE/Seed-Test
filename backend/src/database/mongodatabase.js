@@ -1,17 +1,16 @@
 /* eslint-disable curly */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable indent */
 /* eslint-disable no-unused-vars */
 const { ObjectId } = require('mongodb');
 const str = require('string-to-stream');
 const toString = require('stream-to-string');
 const assert = require('assert');
 const mongodb = require('mongodb');
+const fs = require('fs');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
-const fs = require('fs');
 
 if (!process.env.NODE_ENV) {
 	const dotenv = require('dotenv').config();
@@ -59,7 +58,8 @@ async function createResetRequest(request) {
 		console.log(`UPS!!!!FEHLER im ResetRequest: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - createResetRequest');
+		if (db) db.close();
+		console.log('I am closing the DB here - createResetRequest');
 	}
 }
 
@@ -73,7 +73,8 @@ async function getResetRequest(id) {
 		console.log(`UPS!!!! FEHLER in getResetRequest: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here -get ResetRequest');
+		if (db) db.close();
+		console.log('I am closing the DB here -get ResetRequest');
 	}
 }
 
@@ -88,7 +89,8 @@ async function getResetRequestByEmail(mail) {
 		console.log(`UPS!!!! FEHLER in getResetRequestByEmail: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getResetRequestByEmail');
+		if (db) db.close();
+		console.log('I am closing the DB here - getResetRequestByEmail');
 	}
 }
 
@@ -103,7 +105,8 @@ async function deleteRequest(mail) {
 		console.log(`UPS!!!! FEHLER in deleteRequest: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - deleteRequest');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteRequest');
 	}
 }
 
@@ -115,13 +118,13 @@ async function registerUser(user) {
 	let result;
 	if (dbUser !== null) throw Error('User already exists');
 	else
-		if (user.userId) result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
-		else {
-			delete user.userId;
-			result = await collection.insertOne(user);
-		}
-
-	if (db) console.log('I would close the DB here - registerUser');
+	if (user.userId) result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
+	else {
+		delete user.userId;
+		result = await collection.insertOne(user);
+	}
+	if (db) db.close();
+	console.log('I am closing the DB here - registerUser');
 	return result;
 }
 
@@ -136,7 +139,8 @@ async function registerGithubUser(user) {
 		console.log(`UPS!!!! FEHLER in registerGithubUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - registerGithubUser');
+		if (db) db.close();
+		console.log('I am closing the DB here - registerGithubUser');
 	}
 }
 
@@ -160,7 +164,8 @@ async function mergeGithub(userId, login, id) {
 		console.log(`UPS!!!! FEHLER in mergeGithub: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - mergeGithub');
+		if (db) db.close();
+		console.log('I am closing the DB here - mergeGithub');
 	}
 }
 
@@ -175,7 +180,8 @@ async function getUserByEmail(email) {
 		console.log(`UPS!!!! FEHLER in getUserByEmail: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getUserByEmail');
+		if (db) db.close();
+		console.log('I am closing the DB here - getUserByEmail');
 	}
 }
 
@@ -184,7 +190,8 @@ async function getUserByGithub(login, id) {
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
 	const result = await collection.findOne({ $and: [{ 'github.id': id }, { 'github.login': login }] });
-	console.log('I would close the DB here - getUserByGithub');
+	db.close();
+	console.log('I am closing the DB here - getUserByGithub');
 	return result;
 }
 
@@ -193,7 +200,8 @@ async function getUserById(id) {
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
 	const result = await collection.findOne({ _id: ObjectId(id) });
-	console.log('I would close the DB here - getUserById');
+	db.close();
+	console.log('I am closing the DB here - getUserById');
 	return result;
 }
 
@@ -209,7 +217,8 @@ async function updateGithubToken(objId, updatedToken) {
 	const dbo = await db.db(dbName);
 	const collection = await dbo.collection(userCollection);
 	const user = await collection.updateOne({ _id: ObjectId(objId) }, { $set: { 'github.githubToken': updatedToken } });
-	console.log('I would close the DB here - updateGithubToken');
+	db.close();
+	console.log('I am closing the DB here - updateGithubToken');
 	return user;
 }
 
@@ -292,7 +301,8 @@ async function updateStory(updatedStuff) {
 		console.log(`UPS!!!! FEHLER updateStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateStory');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateStory');
 	}
 }
 
@@ -310,7 +320,8 @@ async function getOneStory(storyId, storySource) {
 		console.log(`UPS!!!! FEHLER in getOneStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getOneStory');
+		if (db) db.close();
+		console.log('I am closing the DB here - getOneStory');
 	}
 }
 
@@ -326,7 +337,8 @@ async function getOneStoryByStoryId(storyId, storySource) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneStoryByStoryId: ${e}`);
 	} finally {
-		if (db) console.log('I would close the DB here - getOneStoryByStoryId');
+		if (db) db.close();
+		console.log('I am closing the DB here - getOneStoryByStoryId');
 	}
 }
 
@@ -351,7 +363,8 @@ async function createStoryGroup(repoID, name, members, sequence) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in createStoryGroup: ${e}`);
 	} finally {
-		if (db) console.log('I would close the DB here - createStoryGroup');
+		if (db) db.close();
+		console.log('I am closing the DB here - createStoryGroup');
 	}
 }
 
@@ -370,7 +383,8 @@ async function updateStoryGroup(repoId, groupId, updatedGroup) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroup: ${e}`);
 	} finally {
-		if (db) console.log('I would close the DB here - updateStoryGroup');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateStoryGroup');
 	}
 }
 
@@ -388,7 +402,8 @@ async function deleteStoryGroup(repoId, groupId) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in deleteStoryGroup: ${e}`);
 	} finally {
-		if (db) console.log('I would close the DB here - deleteStoryGroup');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteStoryGroup');
 	}
 }
 
@@ -423,7 +438,8 @@ async function getAllStoryGroups(repoId) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getAllStoryGroups: ${e}`);
 	} finally {
-		if (db) console.log('I would close the DB here - getAllStoryGroups');
+		if (db) db.close();
+		console.log('I am closing the DB here - getAllStoryGroups');
 	}
 }
 
@@ -436,7 +452,8 @@ async function updateStoryGroupsArray(repoId, groupsArray) {
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in updateStoryGroupsArray: ${e}`);
 	} finally {
-		if (db) console.log('I would close the DB here - updateStoryGroupsArray');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateStoryGroupsArray');
 	}
 }
 
@@ -461,7 +478,8 @@ async function showSteptypes() {
 		console.log(`UPS!!!! FEHLER in showSteptypes: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - showSteptypes');
+		if (db) db.close();
+		console.log('I am closing the DB here - showSteptypes');
 	}
 }
 
@@ -478,7 +496,8 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 		console.log(`UPS!!!! FEHLER in updateBackground: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateBackground');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateBackground');
 	}
 }
 
@@ -495,7 +514,8 @@ async function deleteBackground(storyId, storySource) {
 		console.log(`UPS!!!! FEHLER in deleteBackground: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - deleteBackground');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteBackground');
 	}
 }
 
@@ -532,7 +552,8 @@ async function createStory(storyTitel, storyDescription, repoId) {
 		console.log(`UPS!!!! FEHLER in createStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - createStory');
+		if (db) db.close();
+		console.log('I am closing the DB here - createStory');
 	}
 }
 
@@ -553,7 +574,8 @@ async function deleteStory(repoId, storyId) {
 		console.log(`UPS!!!! FEHLER in deleteStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - deleteStory');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteStory');
 	}
 }
 
@@ -567,7 +589,8 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - insertStoryIdIntoRepo');
+		if (db) db.close();
+		console.log('I am closing the DB here - insertStoryIdIntoRepo');
 	}
 }
 
@@ -581,7 +604,8 @@ async function updateScenarioList(storyId, source, scenarioList) {
 		console.log(`UPS!!!! FEHLER in insertStoryIdIntoRepo: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateScenarioList');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateScenarioList');
 	}
 }
 
@@ -602,7 +626,8 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) {
 		console.log(`UPS!!!! FEHLER in getAllStoriesOfRepo: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getAllStoriesOfRepo');
+		if (db) db.close();
+		console.log('I am closing the DB here - getAllStoriesOfRepo');
 	}
 }
 
@@ -618,7 +643,8 @@ async function getOneScenario(storyId, storySource, scenarioId) {
 		console.log(`UPS!!!! FEHLER in getOneScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getOneScenario');
+		if (db) db.close();
+		console.log('I am closing the DB here - getOneScenario');
 	}
 }
 
@@ -642,7 +668,8 @@ async function createScenario(storyId, storySource) {
 		console.log(`UPS!!!! FEHLER in createScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - createScenario');
+		if (db) db.close();
+		console.log('I am closing the DB here - createScenario');
 	}
 }
 
@@ -670,7 +697,8 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 		console.log(`UPS!!!! FEHLER in updateScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateScenario');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateScenario');
 	}
 }
 
@@ -690,7 +718,8 @@ async function deleteScenario(storyId, storySource, scenarioId) {
 		console.log(`UPS!!!! FEHLER in deleteScenario: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - deleteScenario');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteScenario');
 	}
 }
 
@@ -727,7 +756,8 @@ async function getRepository(userID) {
 		console.log(`UPS!!!! FEHLER in getRepository${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - GetRepository');
+		if (db) db.close();
+		console.log('I am closing the DB here - GetRepository');
 	}
 }
 
@@ -743,7 +773,8 @@ async function deleteRepositorys(ownerID) {
 		console.log(`UPS!!!! FEHLER in deleteRepositorys${e}`);
 		throw e;
 	} finally {
-		console.log('I would close the DB here  - deleteRepositorys');
+		db.close();
+		console.log('I am closing the DB here  - deleteRepositorys');
 	}
 }
 
@@ -758,7 +789,8 @@ async function deleteRepository(repoId, ownerId) {
 		console.log(`UPS!!!! FEHLER in deleteRepository${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - deleteRepository');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteRepository');
 	}
 }
 
@@ -768,7 +800,8 @@ async function getOneRepository(ownerId, name) {
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne(repo);
-		console.log('I would close the DB here - getOneRepository');
+		db.close();
+		console.log('I am closing the DB here - getOneRepository');
 		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneRepository${e}`);
@@ -781,7 +814,8 @@ async function getOneGitRepository(name) {
 		const db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
 		const result = await collection.findOne(myObjt);
-		console.log('I would close the DB here - getOneGitRepository');
+		db.close();
+		console.log('I am closing the DB here - getOneGitRepository');
 		return result;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneGitRepository${e}`);
@@ -818,7 +852,8 @@ async function createJiraRepoIfNoneExists(repoName, source) {
 		console.log(`ERROR in createJiraRepoIfNoneExists ${e}`);
 		throw e;
 	} finally {
-		console.log('I would close the DB here - createJiraRepoIfNoneExists');
+		db.close();
+		console.log('I am closing the DB here - createJiraRepoIfNoneExists');
 	}
 }
 
@@ -846,7 +881,8 @@ async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, rep
 		console.log(`ERROR in createGitOwnerRepoIfNoneExists${e}`);
 		throw e;
 	} finally {
-		console.log('I would close the DB here - createGitOwnerRepoIfNoneExists');
+		db.close();
+		console.log('I am closing the DB here - createGitOwnerRepoIfNoneExists');
 	}
 }
 
@@ -861,7 +897,8 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) {
 		console.log(`UPS!!!! FEHLER in updateStoriesArrayInRepo${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateStoriesArrayInRepo');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateStoriesArrayInRepo');
 	}
 }
 
@@ -889,7 +926,8 @@ async function upsertEntry(storyId, updatedContent, storySource) {
 		console.log(`UPS!!!! FEHLER in upsertEntry: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - upsertEntry');
+		if (db) db.close();
+		console.log('I am closing the DB here - upsertEntry');
 	}
 }
 
@@ -904,12 +942,12 @@ async function getTestReports(storyId) {
 		result = await collection.find({ storyId: ObjectId(storyId) },
 			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
 		console.log('Got ', result.length, ' reports for  :', storyId);
-		} catch (e) {
+	} catch (e) {
 		console.log('UPS!!!! FEHLER in getTestReports', e);
-		} finally {
-		if (db) console.log('I would close the DB here - getTestReports');
-
-		}
+	} finally {
+		if (db) db.close();
+		console.log('I am closing the DB here - getTestReports');
+	}
 	return result;
 }
 
@@ -924,7 +962,8 @@ async function getGroupTestReports(storyId) {
 		const query = { storyStatuses: { $elemMatch: { storyId: ObjectId(storyId) } } };
 		const result = await collection.find(query,
 			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }).toArray();
-		console.log('I would close the DB here - getGroupTestReports');
+		db.close();
+		console.log('I am closing the DB here - getGroupTestReports');
 		console.log('Got ', result.length, ' Group Reports for  :', storyId);
 		return result;
 	} catch (e) {
@@ -958,7 +997,8 @@ async function deleteReport(reportId) {
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in deleteReport', e);
 	} finally {
-		if (db) console.log('I would close the DB here - deleteReport');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteReport');
 	}
 	return result;
 }
@@ -977,7 +1017,8 @@ async function setIsSavedTestReport(testReportId, isSaved) {
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in setIsSavedTestReport', e);
 	} finally {
-		if (db) console.log('I would close the DB here - setIsSavedTestReport');
+		if (db) db.close();
+		console.log('I am closing the DB here - setIsSavedTestReport');
 	}
 	return result;
 }
@@ -988,8 +1029,9 @@ async function updateStoryStatus(storyId, storyLastTestStatus) {
 		db = await connectDb();
 		const dbo = db.db(dbName);
 		dbo.collection(storiesCollection).updateOne({ _id: ObjectId(storyId) }, {
-		$set: { lastTestPassed: storyLastTestStatus }
+			$set: { lastTestPassed: storyLastTestStatus }
 		});
+		// db.close();
 		console.log('I would close the DB here - updateStoryStatus');
 	} catch (e) {
 		console.log('Error in updateStoryStatus: ', e);
@@ -1013,10 +1055,11 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 			story.scenarios[index] = scenario;
 		}
 		return await collection.findOneAndReplace({ _id: ObjectId(storyId) }, story);
-		} catch (e) {
+	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);
 	} finally {
-		if (db) console.log('I would close the DB here - updateScenarioStatus');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateScenarioStatus');
 	}
 }
 
@@ -1051,7 +1094,8 @@ async function uploadReport(reportResults) {
 			} catch (e) {
 				console.log('UPS!!!! FEHLER in uploadReport', e);
 			} finally {
-				if (db) console.log('I would close the DB here - uploadReport');
+				if (db) if (db) console.log('I would close the DB here - uploadReport');
+				// db.close();
 			}
 		} else {
 			try {
@@ -1062,6 +1106,7 @@ async function uploadReport(reportResults) {
 				console.log('UPS!!!! FEHLER in uploadReport', e);
 			} finally {
 				if (db) console.log('I would close the DB here - uploadReport');
+				// db.close();
 			}
 		}
 	});
@@ -1092,7 +1137,8 @@ async function getReport(reportName) {
 		console.log('UPS!!!! FEHLER in getReport', e);
 		return {};
 	} finally {
-		if (db) console.log('I would close the DB here - getReport');
+		if (db) // db.close();
+		console.log('I am closing the DB here - getReport');
 	}
 }
 
@@ -1109,7 +1155,8 @@ async function createUser(user) {
 		console.log(`UPS!!!! FEHLER in createUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - createUser');
+		if (db) db.close();
+		console.log('I am closing the DB here - createUser');
 	}
 }
 
@@ -1136,7 +1183,8 @@ async function deleteUser(userID) {
 		console.log(`UPS!!!! FEHLER in deleteUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - deleteUser');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteUser');
 	}
 }
 
@@ -1154,7 +1202,8 @@ async function updateUser(userID, updatedUser) {
 		console.log(`UPS!!!! FEHLER in updateUser: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateUser');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateUser');
 	}
 }
 
@@ -1171,7 +1220,8 @@ async function getUserData(userID) {
 		console.log(`UPS!!!! FEHLERin getUserData: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getUserData');
+		if (db) db.close();
+		console.log('I am closing the DB here - getUserData');
 	}
 }
 
@@ -1187,7 +1237,8 @@ async function saveBlock(block) {
 		console.log(`UPS!!!! FEHLER in saveBlock: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - saveBlock');
+		if (db) db.close();
+		console.log('I am closing the DB here - saveBlock');
 	}
 }
 
@@ -1203,7 +1254,8 @@ async function updateBlock(name, updatedBlock) {
 		console.log(`UPS!!!! FEHLER in updateBlock: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateBlock');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateBlock');
 	}
 }
 
@@ -1219,7 +1271,8 @@ async function getBlocks(userId, repoId) {
 		console.log(`UPS!!!! FEHLER in getBlocks: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getBlocks');
+		if (db) db.close();
+		console.log('I am closing the DB here - getBlocks');
 	}
 }
 // deletes the CustomBlock with the given Name, need the name
@@ -1239,7 +1292,8 @@ async function deleteBlock(blockId, userId) {
 		console.log(`UPS!!!! FEHLER in deleteBlock: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - deleteBlock');
+		if (db) db.close();
+		console.log('I am closing the DB here - deleteBlock');
 	}
 }
 
@@ -1254,7 +1308,8 @@ async function getWorkgroup(id) {
 		console.log(`UPS!!!! FEHLER in getWorkgroup: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getWorkgroup');
+		if (db) db.close();
+		console.log('I am closing the DB here - getWorkgroup');
 	}
 }
 
@@ -1292,7 +1347,8 @@ async function addMember(id, user) {
 		console.log(`UPS!!!! FEHLER in addMember: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - addMember');
+		if (db) db.close();
+		console.log('I am closing the DB here - addMember');
 	}
 }
 
@@ -1318,7 +1374,8 @@ async function updateMemberStatus(repoId, user) {
 		console.log(`UPS!!!! FEHLER in updateMemberStatus: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - updateMemberStatus');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateMemberStatus');
 	}
 }
 
@@ -1342,7 +1399,8 @@ async function getMembers(id) {
 		console.log(`UPS!!!! FEHLER in getMembers: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - getMembers');
+		if (db) db.close();
+		console.log('I am closing the DB here - getMembers');
 	}
 }
 
@@ -1368,7 +1426,8 @@ async function removeFromWorkgroup(id, user) {
 		console.log(`UPS!!!! FEHLER in removeFromWorkgroup: ${e}`);
 		throw e;
 	} finally {
-		if (db) console.log('I would close the DB here - removeFromWorkgroup');
+		if (db) db.close();
+		console.log('I am closing the DB here - removeFromWorkgroup');
 	}
 }
 
@@ -1386,7 +1445,8 @@ async function updateOneDriver(id, driver) {
 	} catch (e) {
 		console.log('UPS!!!! FEHLER in updateOneDriver: ', e);
 	} finally {
-		if (db) console.log('I would close the DB here - updateOneDriver');
+		if (db) db.close();
+		console.log('I am closing the DB here - updateOneDriver');
 	}
 }
 

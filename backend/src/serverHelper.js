@@ -207,9 +207,10 @@ function setOptions(reportName, reportPath = 'features/') {
 	return myOptions;
 }
 
-async function analyzeGroupReport(grpName, stories) {
+async function analyzeGroupReport(grpName, stories, reportOptions) {
 	const reportResults = {
 		reportName: grpName,
+		reportOptions,
 		overallTestStatus: false,
 		storyStatuses: []
 	};
@@ -219,7 +220,7 @@ async function analyzeGroupReport(grpName, stories) {
 		fs.readFile(reportPath, 'utf8', (err, data) => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE Group-Report: ${cucumberReport.length}`);
-			reportResults.json = cucumberReport;
+			// reportResults.json = cucumberReport;
 			try {
 				const scenariosTested = { passed: 0, failed: 0 };
 				let overallPassedSteps = 0;
@@ -313,14 +314,14 @@ async function analyzeGroupReport(grpName, stories) {
 	return reportResults;
 }
 
-async function analyzeScenarioReport(stories, reportName, scenarioId) {
-	const reportResults = { reportName, overallTestStatus: false };
+async function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
+	const reportResults = { reportName, reportOptions, overallTestStatus: false };
 	try {
 		const reportPath = `./features/${reportName}.json`;
 		fs.readFile(reportPath, 'utf8', (err, data) => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
-			reportResults.json = cucumberReport;
+			// reportResults.json = cucumberReport;
 			try {
 				const storyReport = cucumberReport[0];
 				console.log(`NUMBER OF SCENARIOS IN THE REPORT (must be 1): ${storyReport.elements.length}`);
@@ -382,16 +383,21 @@ async function analyzeScenarioReport(stories, reportName, scenarioId) {
 }
 
 // param: stories should only contain one Story
-async function analyzeStoryReport(stories, reportName) {
+async function analyzeStoryReport(stories, reportName, reportOptions) {
 	let storyStatus = false;
-	const reportResults = { reportName, overallTestStatus: false, scenarioStatuses: [] };
+	const reportResults = {
+		reportName,
+		reportOptions,
+		overallTestStatus: false,
+		scenarioStatuses: []
+	};
 
 	try {
 		const reportPath = `./features/${reportName}.json`;
 		fs.readFile(reportPath, 'utf8', (err, data) => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
-			reportResults.json = cucumberReport;
+			// reportResults.json = cucumberReport;
 			let storyPassedSteps = 0;
 			let storyFailedSteps = 0;
 			let storySkippedSteps = 0;
@@ -480,22 +486,38 @@ async function failedReportPromise(reportName) {
 }
 
 async function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
+	let reportOptions;
 	switch (mode) {
 		case 'scenario':
-			return analyzeScenarioReport(stories, reportName, scenarioId);
+			reportOptions = setOptions(reportName);
+			try {
+				reporter.generate(reportOptions);
+			} catch (e) {
+				console.log(`Could not generate the html Report for ${reportName} 
+				inside analyzeReport. Error${e}`);
+			}
+			return analyzeScenarioReport(stories, reportName, scenarioId, reportOptions);
 		case 'feature':
-			return analyzeStoryReport(stories, reportName);
+			try {
+				reportOptions = setOptions(reportName);
+				reporter.generate(reportOptions);
+			} catch (e) {
+				console.log(`Could not generate the html Report for ${reportName} 
+				inside analyzeReport. Error${e}`);
+			}
+			return analyzeStoryReport(stories, reportName, reportOptions);
 		case 'group':
+			reportOptions = setOptions(grpName, `features/${grpName}/`);
 			try {
 				/* after the last story in a group we need to generate the hmtl report
 				// which also generates the .json report for all stories (group report)
 				 then the actual group report can be analyzed. */
-				reporter.generate(setOptions(grpName, `features/${grpName}/`));
+				reporter.generate(reportOptions);
 			} catch (e) {
 				console.log(`Could not generate the html Report for ${grpName}/${reportName} 
 				inside analyzeReport. Error${e}`);
 			}
-			return analyzeGroupReport(grpName, stories);
+			return analyzeGroupReport(grpName, stories, reportOptions);
 		default:
 			console.log('Error: No mode provided in analyzeReport');
 			return failedReportPromise(reportName);
@@ -548,21 +570,12 @@ async function resolveReport(reportObj, mode, stories, req, res, callback) {
 
 	// analyze Report:
 	const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId);
-	const reportOptions = setOptions(reportName);
-	if (mode !== 'group') {
-		try {
-			reporter.generate(reportOptions);
-		} catch (e) {
-			console.log(`Could not generate the html Report for ${reportName}. Error${e}`);
-		}
-	}
 	// add everything to reportResult
 	reportResults.scenarioId = req.params.scenarioId;
 	reportResults.reportTime = reportTime;
-	reportResults.reportOptions = reportOptions;
 	reportResults.mode = mode;
 	// Group needs an adjusted Path to Report
-	if (mode === 'group') reportName = `${reportName}/${reportName}`;
+	if (mode === 'group') reportName = `${reportResults.reportName}/${reportResults.reportName}`;
 	callback(reportResults, reportName);
 }
 
@@ -577,6 +590,10 @@ async function runReport(req, res, stories, mode, parameters) {
 		} else {
 			resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
 				// generate HTML Report
+				console.log('reportName in callback of resolveReport:');
+				console.log(reportName);
+				console.log('reportResults in callback of resolveReport:');
+				console.log(reportResults);
 				try {
 					// upload report to DB
 					mongo.uploadReport(reportResults)
