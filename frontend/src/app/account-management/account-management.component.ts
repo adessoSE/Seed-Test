@@ -113,8 +113,10 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         if(!this.routeSub.closed){
             this.routeSub.unsubscribe();
         }
-        if(!this.getRepositoriesObservable.closed){
-            this.getRepositoriesObservable.unsubscribe();
+        if(this.getRepositoriesObservable){
+            if(!this.getRepositoriesObservable.closed){
+                this.getRepositoriesObservable.unsubscribe();
+            }
         }
     }
 

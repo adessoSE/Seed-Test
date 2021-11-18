@@ -99,8 +99,10 @@ export class ParentComponent implements OnInit, OnDestroy {
     if(!this.getBackendUrlObservable.closed){
       this.getBackendUrlObservable.unsubscribe();
     }
-    if(!this.getRepositoriesObservable.closed){
-      this.getRepositoriesObservable.unsubscribe();
+    if(this.getRepositoriesObservable){
+      if(!this.getRepositoriesObservable.closed){
+        this.getRepositoriesObservable.unsubscribe();
+      }
     }
   }
 
