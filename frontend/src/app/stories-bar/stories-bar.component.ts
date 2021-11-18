@@ -125,6 +125,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     assigneeModel;
     testPassedModel;
     groupModel;
+    deleteStoryObservable
 
     /**
      * Emits a new chosen Group
@@ -211,9 +212,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.isDark = this.themeService.isDarkMode();
     });
 
-    this.apiService.deleteStoryEvent.subscribe(() => {
+    this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
         this.deleteStory();
       });
+
         
     }
     /* TODO */
@@ -223,7 +225,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
         //this.apiService.getStoriesEvent.unsubscribe();
-        this.apiService.deleteStoryEvent.unsubscribe();
+        //this.apiService.deleteStoryEvent.unsubscribe();
+        if(!this.deleteStoryObservable.closed){
+            console.log('in if 1', this.deleteStoryObservable.closed)
+            this.deleteStoryObservable.unsubscribe();
+            console.log('in if 2', this.deleteStoryObservable.closed)
+        } else{console.log('no if')}
     }
 
 

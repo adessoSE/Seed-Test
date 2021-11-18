@@ -17,6 +17,7 @@ import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { Subscription } from 'rxjs';
 
 /**
  * Empty background
@@ -207,6 +208,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     newStepName = 'New Step';
 
+    deleteStoryObservable: Subscription;
+
     //runSaveOptionSubscription: any;
 
     @Input() isDark: boolean;
@@ -284,21 +287,43 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
+        console.log('in ng on init')
+        try {
+            console.log(this.apiService.deleteStoryEvent)
+            this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+                this.showEditor = false;
+                this.storyDeleted();
+                });
+            console.log('delete subscribed')
+        } catch (error) {
+            console.log(error)
+        }
+        
+        try{
         this.apiService.storiesErrorEvent.subscribe(errorCode => {
             this.storiesError = true;
             this.showEditor = false;
-        });
+        });}catch (error) {
+            
+        }
+        /*let obs = this.apiService.renameScenarioEvent.subscribe()
+        if(!obs.closed){
+        obs.unsubscribe()}
+        this.apiService.renameScenarioEvent.subscribe()*/
 
-        this.apiService.deleteStoryEvent.subscribe(() => {
-            this.showEditor = false;
-            this.storyDeleted();
-            });
+        try{
           this.apiService.deleteScenarioEvent.subscribe(() => {
             this.deleteScenario(this.selectedScenario);
-            });
+            });}catch (error) {
+            
+            }
+            try{
           this.apiService.deleteStoryEvent.subscribe(() => {
               this.showEditor = false;
-          });
+          });}catch (error) {
+            
+        }
+          try{
           this.apiService.runSaveOptionEvent.subscribe(option => {
               if (option === 'run') {
                   this.runUnsaved = true;
@@ -308,7 +333,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                   this.saveBackgroundAndRun = true;
                   this.updateBackground();
             }
-          });
+          });}catch (error) {
+            
+        }
+          try{
           this.apiService.addBlockToScenarioEvent.subscribe(block => {
               if (block[0] === 'background') {
                   block = block[1];
@@ -321,9 +349,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                   });
                     this.selectedStory.background.saved = false;
               }
-          });
+          });}catch (error) {
+            
+        }
+          try{
           this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-        this.isDark = this.themeService.isDarkMode();
+        this.isDark = this.themeService.isDarkMode();}catch (error) {
+            
+        }
+
         this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
             console.log('Changed to ' + changedTheme);
@@ -339,7 +373,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         this.apiService.storiesErrorEvent.unsubscribe();
         //this.apiService.getBackendUrlEvent.unsubscribe();
         this.apiService.deleteScenarioEvent.unsubscribe();
-        this.apiService.deleteStoryEvent.unsubscribe();
+        //this.apiService.deleteStoryEvent.unsubscribe();
+        if(!this.deleteStoryObservable.closed){
+            console.log('in if 1', this.deleteStoryObservable.closed)
+            this.deleteStoryObservable.unsubscribe();
+            console.log('in if 2', this.deleteStoryObservable.closed)
+        } else{console.log('no if')}
     }
 
     /**
