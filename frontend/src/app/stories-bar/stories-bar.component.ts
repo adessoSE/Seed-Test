@@ -96,7 +96,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Subscription element if a Story should be deleted
      */
-     deleteStorySubscribtion: Subscription;
+    deleteStoryObservable;
+
+    /**
+     * Subscription element if theme should change
+     */
+    themeObservable;
+
+    /**
+     * Subscription element to get Stories
+     */
+    getStoriesObservable;
 
     @Input() isDark: boolean;
 
@@ -125,7 +135,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     assigneeModel;
     testPassedModel;
     groupModel;
-    deleteStoryObservable
 
     /**
      * Emits a new chosen Group
@@ -149,11 +158,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @param ThemingService
      */
     constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {
-        this.apiService.getStoriesEvent.subscribe(stories => {
-            this.stories = stories.filter(s => s != null);
-            this.filteredStories = this.stories;
-            this.isCustomStory = localStorage.getItem('source') === 'db';
-        });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
         } );
@@ -172,6 +176,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Checks if this is the daisy version
      */
     ngOnInit() {
+        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe(stories => {
+            this.stories = stories.filter(s => s != null);
+            this.filteredStories = this.stories;
+            this.isCustomStory = localStorage.getItem('source') === 'db';
+        });
+
         this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
@@ -207,14 +217,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged
-        .subscribe((currentTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
             this.isDark = this.themeService.isDarkMode();
-    });
+        });
 
-    this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
-        this.deleteStory();
-      });
+        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+            this.deleteStory();
+        });
 
         
     }
@@ -224,13 +233,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createGroupEmitter.unsubscribe();
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
-        //this.apiService.getStoriesEvent.unsubscribe();
-        //this.apiService.deleteStoryEvent.unsubscribe();
         if(!this.deleteStoryObservable.closed){
-            console.log('in if 1', this.deleteStoryObservable.closed)
             this.deleteStoryObservable.unsubscribe();
-            console.log('in if 2', this.deleteStoryObservable.closed)
-        } else{console.log('no if')}
+        }
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.getStoriesObservable.closed){
+            this.getStoriesObservable.unsubscribe();
+        }
     }
 
 

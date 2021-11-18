@@ -208,9 +208,18 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     newStepName = 'New Step';
 
+    /**
+     * Subscribtions for all EventEmitter
+     */
     deleteStoryObservable: Subscription;
-
-    //runSaveOptionSubscription: any;
+    storiesErrorObservable: Subscription;
+    deleteScenarioObservable: Subscription;
+    runSaveOptionObservable: Subscription;
+    addBlocktoScenarioObservable: Subscription;
+    renameStoryObservable: Subscription;
+    themeObservable: Subscription;
+    getBackendUrlObservable: Subscription;
+    getStoriesObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -248,13 +257,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         private toastr: ToastrService,
         public themeService: ThemingService
     ) {
-        this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
-            this.storiesLoaded = true;
-            this.storiesError = false;
-            this.showEditor = false;
-            this.setStories(stories);
-            this.db = localStorage.getItem('source') === 'db' ;
-        });
 
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -270,10 +272,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         } else {
           this.daisyVersion = false;
         }
-
-        this.apiService.getBackendUrlEvent.subscribe(() => {
-          this.loadStepTypes();
-        });
     }
 
     /**
@@ -287,98 +285,95 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        console.log('in ng on init')
-        try {
-            console.log(this.apiService.deleteStoryEvent)
-            this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
-                this.showEditor = false;
-                this.storyDeleted();
-                });
-            console.log('delete subscribed')
-        } catch (error) {
-            console.log(error)
-        }
+        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
+            this.storiesLoaded = true;
+            this.storiesError = false;
+            this.showEditor = false;
+            this.setStories(stories);
+            this.db = localStorage.getItem('source') === 'db' ;
+        });
+
+        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+            this.showEditor = false;
+            this.storyDeleted();
+        });
         
-        try{
-        this.apiService.storiesErrorEvent.subscribe(errorCode => {
+        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(errorCode => {
             this.storiesError = true;
             this.showEditor = false;
-        });}catch (error) {
             
-        }
-        /*let obs = this.apiService.renameScenarioEvent.subscribe()
-        if(!obs.closed){
-        obs.unsubscribe()}
-        this.apiService.renameScenarioEvent.subscribe()*/
+        });
 
-        try{
-          this.apiService.deleteScenarioEvent.subscribe(() => {
+        this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
             this.deleteScenario(this.selectedScenario);
-            });}catch (error) {
+        });
             
+        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
+            if (option === 'run') {
+                this.runUnsaved = true;
+                this.runOption();
             }
-            try{
-          this.apiService.deleteStoryEvent.subscribe(() => {
-              this.showEditor = false;
-          });}catch (error) {
-            
-        }
-          try{
-          this.apiService.runSaveOptionEvent.subscribe(option => {
-              if (option === 'run') {
-                  this.runUnsaved = true;
-                  this.runOption();
-              }
-              if (option === 'saveRun') {
-                  this.saveBackgroundAndRun = true;
-                  this.updateBackground();
+            if (option === 'saveRun') {
+                this.saveBackgroundAndRun = true;
+                this.updateBackground();
             }
-          });}catch (error) {
-            
-        }
-          try{
-          this.apiService.addBlockToScenarioEvent.subscribe(block => {
-              if (block[0] === 'background') {
-                  block = block[1];
-                  Object.keys(block.stepDefinitions).forEach((key, index) => {
-                      if (key === 'when') {
-                          block.stepDefinitions[key].forEach((step: StepType) => {
-                            this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                          });
-                      }
-                  });
-                    this.selectedStory.background.saved = false;
-              }
-          });}catch (error) {
-            
-        }
-          try{
-          this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-        this.isDark = this.themeService.isDarkMode();}catch (error) {
-            
-        }
+          });
 
-        this.themeService.themeChanged.subscribe((changedTheme) => {
+        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
+            if (block[0] === 'background') {
+                block = block[1];
+                Object.keys(block.stepDefinitions).forEach((key, index) => {
+                    if (key === 'when') {
+                        block.stepDefinitions[key].forEach((step: StepType) => {
+                        this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                        });
+                    }
+                });
+                this.selectedStory.background.saved = false;
+            }
+          });
+
+        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+        
+        this.isDark = this.themeService.isDarkMode();
+        this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
             console.log('Changed to ' + changedTheme);
         });
+
+        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
+            this.loadStepTypes();
+          });
     }
 
     ngOnDestroy(){
-        //this.runSaveOptionSubscription.unsubscribe();
-        this.apiService.runSaveOptionEvent.unsubscribe();
-        this.apiService.renameStoryEvent.unsubscribe();
-        this.apiService.addBlockToScenarioEvent.unsubscribe();
-        //this.apiService.getStoriesEvent.unsubscribe();
-        this.apiService.storiesErrorEvent.unsubscribe();
-        //this.apiService.getBackendUrlEvent.unsubscribe();
-        this.apiService.deleteScenarioEvent.unsubscribe();
-        //this.apiService.deleteStoryEvent.unsubscribe();
         if(!this.deleteStoryObservable.closed){
-            console.log('in if 1', this.deleteStoryObservable.closed)
             this.deleteStoryObservable.unsubscribe();
-            console.log('in if 2', this.deleteStoryObservable.closed)
-        } else{console.log('no if')}
+        }
+        if(!this.storiesErrorObservable.closed){
+            this.storiesErrorObservable.unsubscribe();
+        }
+        if(!this.deleteScenarioObservable.closed){
+            this.deleteScenarioObservable.unsubscribe();
+        }
+        if(!this.runSaveOptionObservable.closed){
+            this.runSaveOptionObservable.unsubscribe();
+        }
+        if(!this.addBlocktoScenarioObservable.closed){
+            this.addBlocktoScenarioObservable.unsubscribe();
+        }
+        if(!this.renameStoryObservable.closed){
+            this.renameStoryObservable.unsubscribe();
+        }
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.getBackendUrlObservable.closed){
+            this.getBackendUrlObservable.unsubscribe();
+        }
+        if(!this.getStoriesObservable.closed){
+            this.getStoriesObservable.unsubscribe();
+        }
     }
 
     /**
