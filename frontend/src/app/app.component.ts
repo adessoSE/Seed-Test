@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { FormControl } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 
 /**
@@ -47,6 +48,14 @@ export class AppComponent implements OnInit{
 
   toggleControl = new FormControl(false);
 
+  /**
+  * Subscribtions for all EventEmitter
+  */
+  logoutObservable: Subscription;
+  getRepositoriesObservable: Subscription;
+  updateRepositoryObservable: Subscription;
+  toggleObservable: Subscription;
+
 
   /**
    * Constructor
@@ -56,11 +65,17 @@ export class AppComponent implements OnInit{
    */
 
   constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
-    this.apiService.logoutEvent.subscribe(_ => {
+  }
+
+  /**
+   * Retrieves Repositories
+   */
+  ngOnInit() {
+    this.logoutObservable = this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
     });
-    this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
-    this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
+    this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
+    this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
 
     this.getRepositories();
     if (!this.apiService.urlReceived) {
@@ -71,17 +86,26 @@ export class AppComponent implements OnInit{
     if (this.isDark) {
       this.toggleControl.setValue(this.isDark);
     }
-    this.toggleControl.valueChanges.subscribe(val => {
+    this.toggleObservable = this.toggleControl.valueChanges.subscribe(val => {
       this.setModeOnToggle(val);
       this.isDark = val;
     });
+
   }
 
-  /**
-   * Retrieves Repositories
-   */
-  ngOnInit() {
-
+  ngOnDestroy(){
+    if(!this.logoutObservable.closed){
+      this.logoutObservable.unsubscribe();
+    }
+    if(!this.getRepositoriesObservable.closed){
+      this.getRepositoriesObservable.unsubscribe();
+    }
+    if(!this.updateRepositoryObservable.closed){
+      this.updateRepositoryObservable.unsubscribe();
+    }
+    if(!this.toggleObservable.closed){
+      this.toggleObservable.unsubscribe();
+    }
   }
 
   ngAfterViewInit(){
@@ -99,11 +123,6 @@ export class AppComponent implements OnInit{
         this.closed = false;
       }
     }
-
-  ngOnDestroy(){
-    //this.apiService.logoutEvent.unsubscribe();
-    //this.apiService.updateRepositoryEvent.unsubscribe();
-  }
 
   /**
    * Opens the terms section

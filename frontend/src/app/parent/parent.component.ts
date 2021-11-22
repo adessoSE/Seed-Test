@@ -6,6 +6,7 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 import {Group} from '../model/Group';
 import {ActivatedRoute} from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
+import { Subscription } from 'rxjs';
 
 
 /**
@@ -49,6 +50,13 @@ export class ParentComponent implements OnInit, OnDestroy {
 
   isDark: boolean;
 
+  /**
+     * Subscribtions for all EventEmitter
+     */
+   getBackendUrlObservable: Subscription;
+   themeObservable: Subscription;
+   getRepositoriesObservable: Subscription;
+
 
 
   /**
@@ -57,36 +65,45 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param themeService
    */
   constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
-    this.apiService.getBackendUrlEvent.subscribe(() => {
-      this.loadStories();
-    });
     if (this.apiService.urlReceived) {
       this.loadStories();
     } else {
       this.apiService.getBackendInfo();
     }
 
-    if (!sessionStorage.getItem('repositories')) {
-      this.apiService.getRepositories().subscribe(() => {
-        console.log('parent get Repos');
-      });
-    }
-    this.isDark = this.themeService.isDarkMode();
-    this.themeService.themeChanged
-    .subscribe((currentTheme) => {
-      this.isDark = this.themeService.isDarkMode();
-    });
   }
 
   /**
    * Requests the repositories on init
    */
   ngOnInit() {
+    this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
+      this.loadStories();
+    });
+    if (!sessionStorage.getItem('repositories')) {
+      this.getRepositoriesObservable = this.apiService.getRepositories().subscribe(() => {
+        console.log('parent get Repos');
+      });
+    }
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
+      this.isDark = this.themeService.isDarkMode();
+    });
     
   }
 
   ngOnDestroy(){
-    //this.apiService.getBackendUrlEvent.unsubscribe();
+    if(!this.themeObservable.closed){
+      this.themeObservable.unsubscribe();
+    }
+    if(!this.getBackendUrlObservable.closed){
+      this.getBackendUrlObservable.unsubscribe();
+    }
+    if(this.getRepositoriesObservable){
+      if(!this.getRepositoriesObservable.closed){
+        this.getRepositoriesObservable.unsubscribe();
+      }
+    }
   }
 
   /**

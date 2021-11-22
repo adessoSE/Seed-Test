@@ -57,8 +57,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      */
     id: string;
 
-    routeSub: Subscription;
-
     searchInput: string;
 
     searchList: RepositoryContainer[];
@@ -66,6 +64,14 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     downloadRepoID: string;
 
     isDark: boolean;
+
+    /**
+     * Subscribtions for all EventEmitter
+     */
+    routeSub: Subscription;
+    updateRepositoryObservable: Subscription;
+    themeObservable: Subscription;
+    getRepositoriesObservable: Subscription;
 
     /**
      * Constructor
@@ -80,23 +86,38 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             }
         });
         if (!this.router.events) {
-            this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+            this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
                 console.log('first load');
             });
         }
-        this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepos());
+        
+    }
+
+    ngOnInit() {
+        this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepos());
 
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged.subscribe((changedTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
     }
 
-    ngOnInit() {
-    }
-
     ngOnDestroy() {
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.updateRepositoryObservable.closed){
+            this.updateRepositoryObservable.unsubscribe();
+        }
+        if(!this.routeSub.closed){
+            this.routeSub.unsubscribe();
+        }
+        if(this.getRepositoriesObservable){
+            if(!this.getRepositoriesObservable.closed){
+                this.getRepositoriesObservable.unsubscribe();
+            }
+        }
     }
 
     seperateRepos(repos) {
