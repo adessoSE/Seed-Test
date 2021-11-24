@@ -1089,7 +1089,7 @@ async function uploadReport(reportResults) {
 	fs.readFile(reportResults.reportOptions.jsonFile, 'utf8', async (err, data) => {
 		const jReport = { jsonReport: data };
 		const len = Buffer.byteLength(JSON.stringify(data));
-		if (true) {
+		if (len >= 16000000) {
 			try {
 				reportData.bigReport = await uploadBigJsonData(jReport, reportResults.storyId);
 				console.log('ObjectID: of Big Report in UplaodReport: ' + reportData.bigReport);
