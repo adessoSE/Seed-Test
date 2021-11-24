@@ -540,17 +540,17 @@ async function execReport(req, res, stories, mode, parameters, callback) {
 			for (const story of stories) {
 				await nameSchemeChange(story);
 				// if mit execution mode "parallel" or "sequential"
-				if (parameters.isSequential !== undefined && parameters.isSequential) {
-					await executeTest(req, res, stories, mode, story)
-						.then((values) => {
-							callback(values);
-						});
-				} else {
-					executeTest(req, res, stories, mode, story)
-						.then((values) => {
-							callback(values);
-						});
-				}
+				// if (parameters.isSequential !== undefined && parameters.isSequential) {
+				await executeTest(req, res, stories, mode, story)
+					.then((values) => {
+						callback(values);
+					});
+				// } else {
+				// executeTest(req, res, stories, mode, story)
+				// 	.then((values) => {
+				// 		callback(values);
+				// 	});
+				// }
 			}
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
