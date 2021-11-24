@@ -8,9 +8,9 @@
     grid-template-rows: auto;
     grid-template-columns: 1fr 1fr 1fr;
     grid-column-gap: 20px;
-    background-color: rgb(255, 255, 255);
+   /*  background-color: rgb(255, 255, 255); */
     padding-bottom: 100px;
-    border: 1px solid #999;
+    /* border: 1px solid #999; */
 }
 
 #noEmail{
@@ -23,6 +23,11 @@
     text-align: center;
     margin-top: 10px;
     margin-left: 20px;
+    background: white;
+}
+
+.darkTheme .grid_seedTest {
+    background: #455A64;
 }
 
 .grid_customRepos {
@@ -41,6 +46,11 @@
     text-align: center;
     align-items: center;
     margin-top: 10px;
+    background: white;
+}
+
+.darkTheme .grid_github {
+    background: #455A64;
 }
 
 .grid_githubRepos {
@@ -54,6 +64,11 @@
     text-align: center;
     margin-top: 10px;
     margin-right: 20px;
+    background: white;
+}
+
+.darkTheme .grid_jira {
+    background: #455A64; 
 }
 
 .grid_jiraRepos {
@@ -69,6 +84,10 @@
 
 .active{
     color: var(--ocean-blue);
+}
+
+.darkTheme .active {
+    color: var(--light-blue);
 }
 
 #emailLabel{
@@ -88,6 +107,10 @@ h1{
     margin-bottom: 20px;
 }
 
+.darkTheme h1 {
+    color: var(--light-blue); 
+  } 
+
 h2{
     padding-top: 10px;
     color: var(--white);
@@ -96,6 +119,10 @@ h2{
     background-color: var(--dark-grey);
     padding-bottom: 10px;
     margin-bottom: 30px;
+}
+
+.darkTheme h2 {
+    background-color:#000000;
 }
 
 label{
@@ -153,13 +180,25 @@ label{
     border: 1px solid grey;
 }
 
+.darkTheme .uk-card {
+    border: 1px solid #60767b;
+}
+
 a.repoLink{
     color: var(--ocean-blue);
     transition: 0.2s;
 }
-
+  
+.darkTheme a.repoLink {
+    color: var(--light-blue);
+}
+  
 a.repoLink:hover{
     color: var(--marine-blue);
+}
+  
+.darkTheme a.repoLink:hover {
+    color: white;
 }
 
 h2, h1{
@@ -176,6 +215,10 @@ h2, h1{
     padding: 15px;
     background-color: transparent;
     border-top: 1px solid #999;
+}
+
+.darkTheme .repositories {
+    border-top: 1px solid #60767b;
 }
 
 .repo_img{
@@ -224,3 +267,7 @@ h2, h1{
 .def:hover span[rel=def] {
     display: block;
 }
+
+.darkTheme label#noEmail {
+    color: var(--light-blue);
+  }

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output } from '@angular/core';
+
 
 /**
  * Component for the feedback of the user
@@ -9,15 +10,18 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./feedback.component.css']
 })
 export class FeedbackComponent implements OnInit {
+
+
+  
   /**
    * @ignore
    */
   constructor() {
+  
    }
   /**
    * @ignore
    */
   ngOnInit() {
   }
-
 }

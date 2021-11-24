@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnChanges, SimpleChanges, DoCheck } from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -9,7 +9,11 @@ import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
-import { ModalsComponent } from '../modals/modals.component';
+import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
+import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
+import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
+import { Subscription } from 'rxjs';
 
 /**
  * Component of the Scenario Editor
@@ -20,7 +24,7 @@ import { ModalsComponent } from '../modals/modals.component';
     styleUrls: ['./scenario-editor.component.css'],
 })
 
-export class ScenarioEditorComponent implements OnInit, DoCheck {
+export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Currently selected story
@@ -83,6 +87,19 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     showDaisyAutoLogout: boolean = false;
 
     /**
+     * Current step of scenario as ngModel for dropdown
+     */
+    currentStepNgModel=null;
+
+    /**
+     * Subscribtions for all EventEmitter
+     */
+    runSaveOptionObservable: Subscription;
+    addBlocktoScenarioObservable: Subscription;
+    renameScenarioObservable: Subscription;
+
+    @Input() isDark : boolean;
+    /**
      * View child of the example table
      */
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
@@ -90,7 +107,10 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     /**
      * View child of the modals component
      */
-    @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
+    @ViewChild('addBlockModal') addBlockModal : AddBlockFormComponent;
+    @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
+    @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
+    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
 
 
     /**
@@ -101,7 +121,14 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
-    ) { }
+    ) { 
+        if (localStorage.getItem('version') == 'DAISY') {
+            this.showDaisyAutoLogout = true;
+        } else {
+            this.showDaisyAutoLogout = false;
+        }
+
+    }
 
     /**
      * retrieves the saved block from the session storage
@@ -114,18 +141,13 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        if (localStorage.getItem('version') == 'DAISY') {
-            this.showDaisyAutoLogout = true;
-        } else {
-            this.showDaisyAutoLogout = false;
-        }
-
-        this.apiService.runSaveOptionEvent.subscribe(option => {
+        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option == 'saveScenario'){
                 this.saveRunOption();
             }
-        })
-        this.apiService.addBlockToScenarioEvent.subscribe(block => {
+        });
+
+        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
             if(block[0] == 'scenario'){
                 block = block[1]
                 Object.keys(block.stepDefinitions).forEach((key, index) => {
@@ -150,9 +172,21 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
                 })
                   this.selectedScenario.saved = false;
             }
-        })
+        });
 
-        this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
+        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
+    }
+
+    ngOnDestroy(){
+        if(!this.runSaveOptionObservable.closed){
+            this.runSaveOptionObservable.unsubscribe();
+        }
+        if(!this.addBlocktoScenarioObservable.closed){
+            this.addBlocktoScenarioObservable.unsubscribe();
+        }
+        if(!this.renameScenarioObservable.closed){
+            this.renameScenarioObservable.unsubscribe();
+        }
     }
 
     /**
@@ -381,7 +415,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
     addStepToScenario(storyID: any, step) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if (newStep['type'] === this.newStepName) {
-            this.modalsComponent.openNewStepRequestModal(newStep['stepType']);
+            this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
         } else {
             switch (newStep.stepType) {
                 case 'given':
@@ -542,7 +576,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      */
     addBlock(event){
         let id = localStorage.getItem('id');
-        this.modalsComponent.openAddBlockFormModal('scenario', id);
+        this.addBlockModal.openAddBlockFormModal('scenario', id);
     }
 
     /**
@@ -561,7 +595,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
             }
         }
         let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
-        this.modalsComponent.openSaveBlockFormModal(block, this);
+        this.saveBlockModal.openSaveBlockFormModal(block, this);
     }
 
     /**
@@ -623,7 +657,7 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
             }
         }
         let block: Block = {stepDefinitions: saveBlock}
-        this.modalsComponent.openSaveBlockFormModal(block, this);
+        this.saveBlockModal.openSaveBlockFormModal(block, this);
     }
 
     /**
@@ -1062,6 +1096,6 @@ export class ScenarioEditorComponent implements OnInit, DoCheck {
      * Open Modal to rename the scenario
      */
     changeScenarioTitle(){
-        this.modalsComponent.openRenameScenarioModal(this.selectedScenario.name)
+        this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name)
     }
 }

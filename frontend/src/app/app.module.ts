@@ -1,7 +1,7 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RouterModule} from '@angular/router';
-import {ROUTES} from '../app/routes/routes';
+import {ROUTES} from './routes/routes';
 import {AppComponent} from './app.component';
 import {ScenarioEditorComponent} from './scenario-editor/scenario-editor.component';
 import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
@@ -33,18 +33,35 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { MatCarouselModule } from '@ngbmodule/material-carousel';
+import { MatCarouselModule } from '@kdeenanauth/material-carousel';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
-import { ModalsComponent } from './modals/modals.component'
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import { ThemingService } from './Services/theming.service';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatIconModule } from '@angular/material/icon';
+
+
 import {MatSelectModule} from '@angular/material/select';
+import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
+import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
+import { CreateCustomProjectComponent } from './modals/create-custom-project/create-custom-project.component';
+import { DeleteAccountComponent } from './modals/delete-account/delete-account.component';
+import { AddBlockFormComponent } from './modals/add-block-form/add-block-form.component';
+import { SaveBlockFormComponent } from './modals/save-block-form/save-block-form.component';
+import { NewStepRequestComponent } from './modals/new-step-request/new-step-request.component';
+import { RenameScenarioComponent } from './modals/rename-scenario/rename-scenario.component';
+import { RenameStoryComponent } from './modals/rename-story/rename-story.component';
+import { WorkgroupEditComponent } from './modals/workgroup-edit/workgroup-edit.component';
+import { CreateNewStoryComponent } from './modals/create-new-story/create-new-story.component';
+import { UpdateGroupComponent } from './modals/update-group/update-group.component';
+import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-jira-account.component';
 
 @NgModule({
   declarations: [
@@ -74,8 +91,20 @@ import {MatSelectModule} from '@angular/material/select';
     DeleteRepositoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
-    ModalsComponent,
     ReportHistoryComponent,
+    LayoutModalComponent,
+    CreateNewGroupComponent,
+    CreateCustomProjectComponent,
+    DeleteAccountComponent,
+    AddBlockFormComponent,
+    SaveBlockFormComponent,
+    NewStepRequestComponent,
+    RenameScenarioComponent,
+    RenameStoryComponent,
+    WorkgroupEditComponent,
+    CreateNewStoryComponent,
+    UpdateGroupComponent,
+    ChangeJiraAccountComponent,
   ],
   imports: [
     NgbModule,
@@ -89,16 +118,18 @@ import {MatSelectModule} from '@angular/material/select';
     MatSelectModule,
     RouterModule.forRoot(ROUTES),
     FormsModule,
-    DragDropModule,
     ClipboardModule,
+    DragDropModule,
     MatProgressSpinnerModule,
     MatCarouselModule.forRoot(),
     ToastrModule.forRoot({
       timeOut: 3000
-    })
+    }),
+    MatSlideToggleModule,
+    MatIconModule,
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }]],
+  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

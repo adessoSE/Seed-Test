@@ -3,6 +3,8 @@ import {ApiService} from '../Services/api.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { ThemingService } from '../Services/theming.service';
+import { Subscription } from 'rxjs';
 
 /**
  * Component to handle the client login
@@ -29,6 +31,16 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     isLoadingRepositories: boolean;
 
+    currentTheme : String;
+
+    isDark: boolean;
+
+    /**
+     * Subscribtions for all EventEmitter
+     */
+    themeObservable: Subscription;
+    routeObservable: Subscription;
+
     /**
      * Tutorial slides
      */
@@ -53,9 +65,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @param route 
      * @param cdr 
      */
-    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
+    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
+            public themeService : ThemingService) {
         this.error = undefined;
-        this.route.queryParams.subscribe((params) => {
+        this.routeObservable = this.route.queryParams.subscribe((params) => {
            if (params.code){
                 this.apiService.githubCallback(params.code).subscribe(resp => {
                     if (resp.error){
@@ -73,7 +86,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                     }
                 })
             }
-        })
+        });
     }
 
     /**
@@ -87,6 +100,19 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @ignore
      */
     ngOnInit() {
+        this.isDark = this.themeService.isDarkMode();
+        this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
+            this.isDark = this.themeService.isDarkMode()
+        });
+    }
+
+    ngOnDestroy(){
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.routeObservable.closed){
+            this.routeObservable.unsubscribe();
+        }
     }
 
     /**
@@ -125,7 +151,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         // const response = await 
         this.apiService.loginUser(user).subscribe(resp =>{
             localStorage.setItem('login', 'true');
-            this.apiService.updateRepositoryEmitter();
+            //this.apiService.updateRepositoryEmitter();
             this.getRepositories();
         })
         // if (response.status === 'error') {
@@ -168,8 +194,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             resp.forEach((elem) => {
                 if(elem.value == repository.value && elem.source == repository.source && elem._id == repository._id){
                     this.router.navigate(['']);
-                }
-            })
+            }})
             this.repositories = resp;
             this.isLoadingRepositories = false;
             setTimeout(() => {
@@ -206,4 +231,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.isLoadingRepositories = true;
         this.apiService.githubLogin();
     }
+    
+      onDark() : boolean {
+        return localStorage.getItem('user-theme')==='dark';
+      }
 }

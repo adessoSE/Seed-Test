@@ -4,7 +4,7 @@
 }
 /* Refactor this*/
 .grid{
-  background-color: var(--light-grey);
+  /* background-color: var(--light-grey); */ 
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
@@ -19,18 +19,22 @@
 
 .router{
   grid-area: router;
-  background-color: var(--light-grey);
+  /* background-color: var(--light-grey); */
 }
 
 
 .topnav{
-  /*background-color: #999;*/
+  /* background-color: #999; */
   background-color: var(--dark-grey);
   grid-area: topnav;
   display: grid;
   grid-template-columns: 3fr auto 1fr auto 3fr;
   grid-template-areas:
   "left . center . right";
+}
+
+.darkTheme .topnav {
+  background-color: #000000;
 }
 
 .topnav a {
@@ -47,15 +51,18 @@
   flex-direction: row;
   justify-content: flex-end;
   align-content: center;
+  height: 51px;
 }
 
 .topnavCenter{
   grid-area: center;
   align-self: center;
+  height: 51px;
 }
 
 .topnavRight a{
   padding: 12px;
+  height: 51px;
 }
 
 
@@ -83,6 +90,10 @@
   ". footerCenter adessoLogo"
   "expendable expendable expendable";
   justify-items: center;
+}
+
+.darkTheme .footer {
+  background-color: #000000;
 }
 
 .footerCenter{
@@ -139,11 +150,14 @@
   background-color: transparent;
   color: var(--white);
   padding: 13px;
+  padding: 2px !important;
   font-size: 15px;
   border: none;
   cursor: pointer;
   transition: 0.3s;
   outline: none;
+  vertical-align: middle;
+  margin: 13px;
 }
 
 .rightButton:hover, .menuButton:hover {
@@ -170,7 +184,8 @@ a:hover{
 }
 
 .menuSelection{
-  font-size: 100%;
+  /* font-size: 100%; */
+  font-size: 14px;
   font-style: inherit;
   padding: 12px 16px;
   border: 0px;
@@ -179,12 +194,20 @@ a:hover{
   outline: none;
 }
 
+.darkTheme .menuSelection {
+    color: white;
+}
+
 .menuSelection:hover{
-  color: var(--ocean-blue);
+  color: var(--ocean-blue) !important;
+}
+
+.darkTheme .menuSelection:hover {
+  color: var(--light-blue) !important;
 }
 
 .menuSelection#logout:hover{
-  color: var(--grape);
+  color: var(--grape) !important;
 }
 
 /*dropdown general*/
@@ -192,6 +215,7 @@ a:hover{
 .dropdown{
   position: relative;
   display: inline-block;
+  height: 51px;
 }
 
 .dropdown-list{
@@ -204,10 +228,15 @@ a:hover{
   overflow-y: auto;
   max-height: 70%;
   height: auto;
+  top: 51px;
+}
+
+.darkTheme .dropdown-list {
+  background-color: #60767b;
 }
 
 .dropdown-list a{
-  overflow: auto;
+  /* overflow: auto; */
   color: var(--black);
   padding: 12px 16px;
   display: block;
@@ -217,6 +246,11 @@ a:hover{
   margin-right: auto;
   font-size: 14px;
 }
+
+.darkTheme .dropdown-list a{
+  color: white;
+}
+
 .dropdown-list li{
   text-align: center;
 }
@@ -240,8 +274,10 @@ a:hover{
   max-height: 20px;
 }
 .repoButton{
-  margin-right: 10px;
-  margin-left: 5px;
+  /* margin-right: 10px;
+  margin-left: 5px; */
+  margin-left: 13px;
+  margin-right: 13px;
   outline: none;
 }
 
@@ -257,7 +293,7 @@ a:hover{
 @media screen and (max-width: 600px) {
   .topnav a, .topnavRight {
     float: none;
-    display: block;
+    /* display: block; */
   }
 
   .topnavCenter a {
@@ -274,4 +310,37 @@ a:hover{
   .topnavRight{
     text-align: center;
   }
+
+  .rightButton {
+    font-size: 13px;
+  }
 }
+
+.closedMenu {
+  display: none;
+}
+
+.slide-toggle-container {
+  margin: 12px;
+}
+
+@media screen and (max-width: 848px) {
+  .slide-toggle-container {
+    display: none;
+  }
+}
+
+.mat-slide-toggle {
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 2px;
+} 
+
+.mat-icon {
+  vertical-align: middle;
+  margin-bottom: 6px;
+}
+
+
+
+

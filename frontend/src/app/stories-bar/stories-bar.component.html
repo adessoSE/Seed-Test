@@ -1,37 +1,41 @@
-<div class="grid">
+<div [class.darkTheme]="isDark" class="grid">
   <div>
     <br>
     <div class="searchBarWrapper">
       <div class="uk-card-title storyBar"><span class="MediumCategory1" id="storyHeader">Stories</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-        <span rel="def">A user story describes requirements for a software system.
+        <span rel="def" class="infoTextLeftPosition" id="storyInfoTextVerticalPosition">A user story describes requirements for a software system.
           It is consciously kept in short sentences and simple words.
           A story includes several scenarios.
           The following template is recommended:
           As a <...>, I want <...> so that <...>
-        </span></dfn>
+        </span>
+      </dfn>
+      
     </div>
-    <span class="searchBar">
+    <!-- search bar here -->
+  </div>
+  <hr>
+  <div class="storyFilterWrapper">
+    <span class="searchBar" id="searchStoriesBar">
       <em class="material-icons" id="searchBarIcons">search</em>
       <input class="searchInput" [(ngModel)]="storyString" (ngModelChange)="storyTermChange()"/>
       <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('story')">close</em>
     </span>
-  </div>
-  <div>
     <em id="searchBarIcons" class="material-icons">filter_alt</em>
     <span id="clickableIcon">
     <em *ngIf="showFilter==false" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_more</em>
     <em *ngIf="showFilter==true" id="searchBarIcons" class="material-icons" (click)="showFilterClick()">expand_less</em>
     </span>
-    <span id="clickableIcon" style="float: right;">
+    <span id="clickableIcon" style="float: right; display: flex; flex-direction: row;">
     <em id="searchBarIcons" class="material-icons-outlined" (click)="clearAllFilter()">filter_alt</em>
-    <em id="searchBarIcons" class="material-icons" style="margin-left: -8px; font-size: 17px; vertical-align: bottom;" (click)="clearAllFilter()">close</em>
+    <em id="searchBarIcons" class="material-icons" style="/* margin-left: -8px; */ font-size: 17px; vertical-align: bottom;" (click)="clearAllFilter()">close</em>
     </span>
   </div>
   <div [hidden]="!showFilter">
     <mat-form-field appearance="standard" class="filterFormField">
       <mat-label>Assignee</mat-label>
-        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let assignee of createDistictList('assignee')" [value]="assignee">
             {{assignee}}
@@ -40,7 +44,7 @@
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField rightFilterFormField">
       <mat-label>Status Of Story</mat-label>
-        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="testPassedModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let testPassed of createDistictList('lastTestPassed')" [value]="testPassed">
             {{testPassed}}
@@ -49,7 +53,7 @@
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField">
       <mat-label>Group</mat-label>
-        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter($event)">
+        <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
           <mat-option *ngFor="let group of createDistictList('group')" [value]="group">
             {{group}}
@@ -59,8 +63,8 @@
   </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
-      <li *ngFor="let s of getSortedStories(); let i = index " cdkDrag>
-        <div id="storyList" (click)="selectStoryScenario(s)" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" >
+      <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag>
+        <div [class.darkTheme]="isDark" id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title uk-background-muted" >
           <span class="github-avatar">
             <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
             <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
@@ -88,7 +92,7 @@
       </li>
     </ul>
     <div *ngIf="isCustomStory" id="createNewStoryDiv">
-      <button class="normalButton" (click)="openCreateNewScenarioModal()">Create New Story</button>
+      <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
     </div>
 
 
@@ -97,7 +101,7 @@
     <div class="searchBarWrapper">
       <div class="uk-card-title storyBar"><span class="MediumCategory1" id="groupHeader">Groups</span>
         <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-          <span rel="def">Create a Group and add Stories to run multiple Stories at once!</span>
+          <span rel="def" class="infoTextLeftPosition" id="groupInfoTextVerticalPosition">Create a Group and add Stories to run multiple Stories at once!</span>
         </dfn>
       </div>
       <span class="searchBar">
@@ -109,7 +113,7 @@
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
       <li *ngFor="let g of getSortedGroups(); let i = index " cdkDrag>
-        <div id="groupList"  class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" (click)="selectFirstStoryofGroup(g)">
+        <div id="groupList"  [class.darkTheme]="isDark" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" (click)="selectFirstStoryofGroup(g)">
           <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
              title="{{g.name}}">
             <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
@@ -137,5 +141,8 @@
     </div>
   </div>
 </div>
+<app-create-new-group #createNewGroup></app-create-new-group>
+<app-create-new-story #createNewStory></app-create-new-story>
+<app-update-group #updateGroup></app-update-group> 
 
-<app-modals #modalsComponent></app-modals>
+<app-modals #modalsComponent [isDark]="isDark"></app-modals>
