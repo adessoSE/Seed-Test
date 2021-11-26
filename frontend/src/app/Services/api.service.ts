@@ -109,6 +109,7 @@ export class ApiService {
 
     public updateRepositoryEvent: EventEmitter<any> = new EventEmitter();
 
+
     /**
      * Gets api headers
      * @returns
@@ -283,8 +284,8 @@ export class ApiService {
      */
     deleteRepository(repo: RepositoryContainer, user){
         this.apiServer = localStorage.getItem('url_backend');
-
         const str = this.apiServer + '/user/repositories/' + repo._id + '/' + user;
+        //Here repo will be deleted ---->
         return this.http.delete<any>(str, ApiService.getOptions())
         .pipe(tap(resp => {
 

@@ -62,6 +62,7 @@ import { WorkgroupEditComponent } from './modals/workgroup-edit/workgroup-edit.c
 import { CreateNewStoryComponent } from './modals/create-new-story/create-new-story.component';
 import { UpdateGroupComponent } from './modals/update-group/update-group.component';
 import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-jira-account.component';
+import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 
 @NgModule({
   declarations: [
@@ -105,6 +106,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
     CreateNewStoryComponent,
     UpdateGroupComponent,
     ChangeJiraAccountComponent,
+    RepoSwichComponent,
   ],
   imports: [
     NgbModule,

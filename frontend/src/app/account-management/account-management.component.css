@@ -244,30 +244,15 @@ h2, h1{
     }
 }
 
-.def {
-    color: #999;
-    cursor: help;
-    top: -2px;
-    z-index: 2;
-    position: relative;
-}
-
-.def span[rel=def] {
-    font-size: small;
-    color: white;
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    bottom: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: none;
-}
-
-.def:hover span[rel=def] {
-    display: block;
-}
-
 .darkTheme label#noEmail {
     color: var(--light-blue);
-  }
+}
+
+#downloadInfo {
+    width: 14px;
+    height: 15px;
+}
+.downloadWrapper {
+    margin-bottom: 7px;
+    margin-top: 4px;
+}

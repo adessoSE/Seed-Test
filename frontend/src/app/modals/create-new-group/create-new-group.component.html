@@ -21,7 +21,7 @@
                         <br>
                         <div class="searchWrapper">
                             <em class="material-icons emoticon" id="searchBarIcons"
-                            [style.display]="searchInput.value == '' ? 'inherit' : 'none'">search</em>
+                            [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
                             <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
                         </div>
                         

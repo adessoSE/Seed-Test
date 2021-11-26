@@ -1,4 +1,5 @@
 <br>
+<!-- Message if no stories avaliable -->
 <div [class.darkTheme]="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
@@ -192,16 +193,16 @@
         </div>
       </div>
       <div class="storyInfoCenter" *ngIf="this.selectedScenario">
-          <label class="selectLabel SmallHeadline5">Run Story in one Session:</label>
+          <label class="selectLabel SmallIcontext">Run Story in one Session:</label>
           <input type="checkbox" id="oneDriverCheck" (change)= "setOneDriver($event)" [checked]="this.selectedStory.oneDriver">
           <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
             <span rel="def" style="font-weight: normal;">
             Executes all scenarios consecutively in one single Browser session.
             </span>
           </dfn>
-          <label class="selectLabel SmallHeadline5">Wait between steps (ms):</label>
+          <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
           <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0 min=0 max=25000 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
-          <label class="selectLabel SmallHeadline5">Browser:</label>
+          <label class="selectLabel SmallIcontext">Browser:</label>
           <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
             <option value="chrome">Chrome</option>
             <option *ngIf="!this.daisyVersion" value="firefox">Firefox</option>
