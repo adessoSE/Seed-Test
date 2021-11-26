@@ -4,6 +4,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
+import { Subscription } from 'rxjs';
 
 /**
  * Component to handle the client login
@@ -35,6 +36,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
     isDark: boolean;
 
     /**
+     * Subscribtions for all EventEmitter
+     */
+    themeObservable: Subscription;
+    routeObservable: Subscription;
+
+    /**
      * Tutorial slides
      */
     slide0 = [{'image0': '/assets//slide0.png'}];
@@ -61,7 +68,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
             public themeService : ThemingService) {
         this.error = undefined;
-        this.route.queryParams.subscribe((params) => {
+        this.routeObservable = this.route.queryParams.subscribe((params) => {
            if (params.code){
                 this.apiService.githubCallback(params.code).subscribe(resp => {
                     if (resp.error){
@@ -79,8 +86,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                     }
                 })
             }
-        })
-        this.isDark = this.themeService.isDarkMode();
+        });
     }
 
     /**
@@ -95,10 +101,18 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     ngOnInit() {
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged
-        .subscribe((currentTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
             this.isDark = this.themeService.isDarkMode()
-    });
+        });
+    }
+
+    ngOnDestroy(){
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.routeObservable.closed){
+            this.routeObservable.unsubscribe();
+        }
     }
 
     /**

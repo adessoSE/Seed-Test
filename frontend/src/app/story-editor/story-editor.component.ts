@@ -17,6 +17,7 @@ import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { Subscription } from 'rxjs';
 
 /**
  * Empty background
@@ -207,7 +208,18 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     newStepName = 'New Step';
 
-    //runSaveOptionSubscription: any;
+    /**
+     * Subscribtions for all EventEmitter
+     */
+    deleteStoryObservable: Subscription;
+    storiesErrorObservable: Subscription;
+    deleteScenarioObservable: Subscription;
+    runSaveOptionObservable: Subscription;
+    addBlocktoScenarioObservable: Subscription;
+    renameStoryObservable: Subscription;
+    themeObservable: Subscription;
+    getBackendUrlObservable: Subscription;
+    getStoriesObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -245,13 +257,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         private toastr: ToastrService,
         public themeService: ThemingService
     ) {
-        this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
-            this.storiesLoaded = true;
-            this.storiesError = false;
-            this.showEditor = false;
-            this.setStories(stories);
-            this.db = localStorage.getItem('source') === 'db' ;
-        });
 
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -267,10 +272,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         } else {
           this.daisyVersion = false;
         }
-
-        this.apiService.getBackendUrlEvent.subscribe(() => {
-          this.loadStepTypes();
-        });
     }
 
     /**
@@ -284,62 +285,95 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        this.apiService.storiesErrorEvent.subscribe(errorCode => {
-            this.storiesError = true;
+        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
+            this.storiesLoaded = true;
+            this.storiesError = false;
             this.showEditor = false;
+            this.setStories(stories);
+            this.db = localStorage.getItem('source') === 'db' ;
         });
 
-        this.apiService.deleteStoryEvent.subscribe(() => {
+        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
             this.showEditor = false;
             this.storyDeleted();
-            });
-          this.apiService.deleteScenarioEvent.subscribe(() => {
+        });
+        
+        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(errorCode => {
+            this.storiesError = true;
+            this.showEditor = false;
+            
+        });
+
+        this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
             this.deleteScenario(this.selectedScenario);
-            });
-          this.apiService.deleteStoryEvent.subscribe(() => {
-              this.showEditor = false;
-          });
-          this.apiService.runSaveOptionEvent.subscribe(option => {
-              if (option === 'run') {
-                  this.runUnsaved = true;
-                  this.runOption();
-              }
-              if (option === 'saveRun') {
-                  this.saveBackgroundAndRun = true;
-                  this.updateBackground();
+        });
+            
+        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
+            if (option === 'run') {
+                this.runUnsaved = true;
+                this.runOption();
+            }
+            if (option === 'saveRun') {
+                this.saveBackgroundAndRun = true;
+                this.updateBackground();
             }
           });
-          this.apiService.addBlockToScenarioEvent.subscribe(block => {
-              if (block[0] === 'background') {
-                  block = block[1];
-                  Object.keys(block.stepDefinitions).forEach((key, index) => {
-                      if (key === 'when') {
-                          block.stepDefinitions[key].forEach((step: StepType) => {
-                            this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                          });
-                      }
-                  });
-                    this.selectedStory.background.saved = false;
-              }
+
+        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
+            if (block[0] === 'background') {
+                block = block[1];
+                Object.keys(block.stepDefinitions).forEach((key, index) => {
+                    if (key === 'when') {
+                        block.stepDefinitions[key].forEach((step: StepType) => {
+                        this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                        });
+                    }
+                });
+                this.selectedStory.background.saved = false;
+            }
           });
-          this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+
+        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+        
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged.subscribe((changedTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
             console.log('Changed to ' + changedTheme);
         });
+
+        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
+            this.loadStepTypes();
+          });
     }
 
     ngOnDestroy(){
-        //this.runSaveOptionSubscription.unsubscribe();
-        this.apiService.runSaveOptionEvent.unsubscribe();
-        this.apiService.renameStoryEvent.unsubscribe();
-        this.apiService.addBlockToScenarioEvent.unsubscribe();
-        //this.apiService.getStoriesEvent.unsubscribe();
-        this.apiService.storiesErrorEvent.unsubscribe();
-        //this.apiService.getBackendUrlEvent.unsubscribe();
-        this.apiService.deleteScenarioEvent.unsubscribe();
-        this.apiService.deleteStoryEvent.unsubscribe();
+        if(!this.deleteStoryObservable.closed){
+            this.deleteStoryObservable.unsubscribe();
+        }
+        if(!this.storiesErrorObservable.closed){
+            this.storiesErrorObservable.unsubscribe();
+        }
+        if(!this.deleteScenarioObservable.closed){
+            this.deleteScenarioObservable.unsubscribe();
+        }
+        if(!this.runSaveOptionObservable.closed){
+            this.runSaveOptionObservable.unsubscribe();
+        }
+        if(!this.addBlocktoScenarioObservable.closed){
+            this.addBlocktoScenarioObservable.unsubscribe();
+        }
+        if(!this.renameStoryObservable.closed){
+            this.renameStoryObservable.unsubscribe();
+        }
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.getBackendUrlObservable.closed){
+            this.getBackendUrlObservable.unsubscribe();
+        }
+        if(!this.getStoriesObservable.closed){
+            this.getStoriesObservable.unsubscribe();
+        }
     }
 
     /**

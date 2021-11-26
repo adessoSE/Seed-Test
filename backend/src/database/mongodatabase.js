@@ -1074,7 +1074,9 @@ async function uploadBigJsonData(data, fileName) {
 			assert.ifError(error);
 		})
 		.on('finish', async () => {
-			console.log('done!');
+			console.log('Done! Uplaoded BigReport');
+			console.log('ObjectID: of Big Report: ' + id);
+			return id;
 		});
 	return id;
 }
@@ -1084,12 +1086,13 @@ async function uploadReport(reportResults) {
 	const db = await connectDb();
 	const dbo = db.db(dbName);
 	const collection = await dbo.collection(ReportDataCollection);
-	fs.readFile(reportResults.reportOptions.jsonFile, 'utf8', (err, data) => {
+	fs.readFile(reportResults.reportOptions.jsonFile, 'utf8', async (err, data) => {
 		const jReport = { jsonReport: data };
 		const len = Buffer.byteLength(JSON.stringify(data));
 		if (len >= 16000000) {
 			try {
-				reportData.bigReport = uploadBigJsonData(jReport, reportResults.storyId);
+				reportData.bigReport = await uploadBigJsonData(jReport, reportResults.storyId);
+				console.log('ObjectID: of Big Report in UplaodReport: ' + reportData.bigReport);
 				collection.insertOne(reportData);
 			} catch (e) {
 				console.log('UPS!!!! FEHLER in uploadReport', e);

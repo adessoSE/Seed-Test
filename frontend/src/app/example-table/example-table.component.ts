@@ -64,10 +64,26 @@ export class ExampleTableComponent implements OnInit {
   @Input() isDark: boolean;
 
   /**
-   * Sets the status of the scenario to not saved
+   * Sets the status of the scenario to not saved and overrides value of example
    */
-  inputChange(){
+   inputChange(rowIndex, columnIndex, column){
     this.selectedScenario.saved = false;
+    
+    const getCircularReplacer = () => {
+      const seen = new WeakSet;
+      return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) {
+            return;
+          }
+          seen.add(value);
+        }
+        return value;
+      };
+    };
+
+    let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
+    this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex] = reference._pendingValue
   }
 
   /**
@@ -116,6 +132,7 @@ export class ExampleTableComponent implements OnInit {
    * @param field name of the changed value column
    */
   updateField(columnIndex: number, rowIndex: number, field: string) {
+    console.log(columnIndex)
     const control = this.getControl(rowIndex, field);
     if (control.valid) {
       this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex] = control.value;
