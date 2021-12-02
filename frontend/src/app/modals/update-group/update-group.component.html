@@ -26,6 +26,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="modalsContent toggleWrapperMargin">
+                    <label style="margin-right: 5px;">Run stories sequentially or parallelly
+                        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+                            <span rel="def">Disable toggle to run stories parallelly. Enabled toggle runs stories
+                                sequentially.</span>
+                        </dfn>
+                    </label>
+                    <mat-icon>alt_route</mat-icon>
+                    <mat-slide-toggle class="toggleMargin" name="slideToggleUpdate" [(ngModel)]="this.isSeq"></mat-slide-toggle>
+                    <mat-icon>loop</mat-icon>
+                </div>
                 <div style="width: 100%;">
                     <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
                         <ng-container matColumnDef="story">
