@@ -95,9 +95,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                 console.log('first load');
             });
         }
-        this.apiService.updateRepositoryEvent.subscribe(() => {
-            this.updateRepos()
-        });
         
     }
 
@@ -269,7 +266,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Update Repositories after change
      */
     updateRepos(){
-        //this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
         let value = sessionStorage.getItem('repositories')
         let repository: RepositoryContainer = JSON.parse(value)
         this.seperateRepos(repository)
