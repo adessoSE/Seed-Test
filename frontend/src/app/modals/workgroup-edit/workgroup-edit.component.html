@@ -1,6 +1,6 @@
 <!-- Workgroup edit Modal-->
 <app-repo-swich #repoSwitchModal></app-repo-swich>
-<ng-template #workgroupEditModal (currentRepoToDeleteEvent)="isCurrentToDelete($event)" [class.updateZIndex]="isCurrentToDelete()" let-modal>
+<ng-template #workgroupEditModal (currentRepoToDeleteEvent)="isCurrentToDelete($event.target.value)" [class.updateZIndex]="isCurrentToDelete()" let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <span id="workgroupHeader"class="MediumSubline1H4 modal-title">Project:</span>

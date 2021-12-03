@@ -134,8 +134,8 @@ export class WorkgroupEditComponent {
  */
   deleteCustomRepo(){
     if(this.userEmail == this.workgroupOwner) {
-      let currentRepo = localStorage.getItem('repository');
-      if (this.workgroupProject.value == currentRepo) {
+      const currentRepo = localStorage.getItem('repository');
+      if ( this.workgroupProject.value == currentRepo) {
         this.currentRepoToDeleteEvent.emit(true);
         this.openRepoSwitchModal();
       }
@@ -170,8 +170,8 @@ export class WorkgroupEditComponent {
     this.repoSwitchModal.openModal();
   }
 
-  isCurrentToDelete (event):boolean {
-    return event
+  isCurrentToDelete (value):boolean {
+    return value
   }
 
 }
