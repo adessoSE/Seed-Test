@@ -952,13 +952,13 @@ export class ApiService {
             }));
     }
 
-    createGroup(title: string, repoId: string, member_stories, isSequential: boolean): Observable<any> {
+    createGroup(title: string, repoId: string, member_stories, isSequential): Observable<any> {
         console.log('createGroup', title, repoId, isSequential);
         return this.http
             .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories, 'sequence': isSequential}, ApiService.getOptions());
     }
 
-    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> {
+    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> { 
         return this.http
             .put(this.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
     }

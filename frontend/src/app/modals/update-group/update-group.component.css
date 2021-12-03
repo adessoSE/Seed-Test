@@ -76,3 +76,23 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     width: 87%;
     margin-left: 24px;
 }
+
+.toggleWrapperMargin {
+    margin-top: 0.5rem;
+}
+
+.toggleMargin {
+    /* margin-left: 10px; */
+    margin-bottom: 0.5rem;
+}
+
+.mat-icon {
+    margin-bottom: 0.5rem;
+    color: white;
+    font-size: 22px;
+}
+
+.infoIcon {
+    margin: unset;
+    width: 14px;
+}

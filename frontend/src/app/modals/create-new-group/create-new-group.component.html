@@ -9,8 +9,8 @@
     </div>
     <div class="modal-body">
         <form>
-           <div > 
-               <div class="form-group groupouterdiv modalsContent" id="inputLabels">
+           <div> 
+                <div class="form-group groupouterdiv modalsContent" id="inputLabels">
                     <div class="labelField">
                         <label class="uk-form-label">Enter unique group name </label> 
                         <br>
@@ -26,6 +26,18 @@
                         </div>
                         
                     </div>
+                </div>
+                <div class="modalsContent toggleWrapperMargin">
+                    <label style="margin-right: 5px;">Run story sequentially or parallelly
+                        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+                            <span rel="def">Disable the toggle if you want stories to be run parallelly. 
+                                Sories will be running sequentially by default.</span>
+                        </dfn>
+                    </label>
+                    <mat-icon>alt_route</mat-icon>
+                    <mat-slide-toggle class="toggleMargin" name="slideToggleCreate" [(ngModel)]="this.isSequential"></mat-slide-toggle>
+                    <mat-icon>loop</mat-icon>
+                    
                 </div>
                 <div style="width: 100%;">
                     <table id="storiesTable1" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">

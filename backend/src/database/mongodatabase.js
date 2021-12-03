@@ -353,7 +353,7 @@ async function createStoryGroup(repoID, name, members, sequence) {
 			{
 				$push: {
 					groups: {
-						_id: ObjectId(), name, member_stories: members, isSequential: sequence || []
+						_id: ObjectId(), name, member_stories: members, isSequential: sequence
 					}
 				}
 			},

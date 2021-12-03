@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subscription } from 'rxjs';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { ApiService } from 'src/app/Services/api.service';
 
@@ -17,18 +18,31 @@ export class RepoSwichComponent implements OnInit {
 
   displayedColumnsRepos: string[] = ['repository'];
 
+  currentRepo
+  updateRepositoryObservable: Subscription;
+
 
   @ViewChild("repoSwitch") repoSwitch: RepoSwichComponent;
 
-  constructor(private modalService: NgbModal, apiService: ApiService) {
-    let currentRepo = localStorage.getItem('repository')
-    apiService.getRepositories().subscribe((repositories) => {
-      this.repos = repositories.filter(repo => repo.value!=currentRepo);
-      this.filteredRepos = new MatTableDataSource(this.repos);
-    });
+  constructor(private modalService: NgbModal, public apiService: ApiService) {
+    this.currentRepo = localStorage.getItem('repository')
+
+    let value = sessionStorage.getItem('repositories')
+    let repositories: RepositoryContainer[] = JSON.parse(value)
+    this.repos = repositories.filter(repo => repo.value!=this.currentRepo);
+    this.filteredRepos = new MatTableDataSource(this.repos);
   }
 
   ngOnInit(): void {
+    this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => {
+      this.updateRepos()
+  });
+  }
+
+  ngOnDestroy() {
+    if(!this.updateRepositoryObservable.closed){
+      this.updateRepositoryObservable.unsubscribe();
+  }
   }
 
   openModal() {
@@ -56,5 +70,16 @@ export class RepoSwichComponent implements OnInit {
     localStorage.setItem('id', userRepository._id);
     location.reload()
   }
+
+  /**
+     * Update Repositories after change
+     */
+   updateRepos(){
+    let value = sessionStorage.getItem('repositories')
+    let repositories: RepositoryContainer[] = JSON.parse(value)
+    this.repos = repositories.filter(repo => repo.value!=this.currentRepo);
+      this.filteredRepos = new MatTableDataSource(this.repos);
+    
+} 
 
 }
