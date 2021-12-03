@@ -31,6 +31,7 @@ export class CreateCustomProjectComponent {
     if (!this.isEmptyOrSpaces(name)) {
         this.apiService.createRepository(name).subscribe(resp => {
             this.toastr.info('', 'Project created');
+            this.apiService.getRepositoriesEmitter();
             this.apiService.updateRepositoryEmitter();
         });
     }

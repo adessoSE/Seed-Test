@@ -135,9 +135,6 @@ export class WorkgroupEditComponent {
   deleteCustomRepo(){
     if(this.userEmail == this.workgroupOwner) {
       let currentRepo = localStorage.getItem('repository');
-      /* this.apiService.getRepositories().subscribe((repositories) => {
-        this.repos = repositories;
-      }); */
       if (this.workgroupProject.value == currentRepo) {
         this.currentRepoToDeleteEvent.emit(true);
         this.openRepoSwitchModal();
@@ -145,6 +142,7 @@ export class WorkgroupEditComponent {
       else {
         this.currentRepoToDeleteEvent.emit(false);
         this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
+          this.apiService.getRepositoriesEmitter();
           this.apiService.updateRepositoryEmitter();
         });
         this.modalReference.close();
