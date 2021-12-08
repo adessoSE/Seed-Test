@@ -14,7 +14,11 @@
                     <div class="labelField">
                         <label class="uk-form-label labelField">Change group name</label>
                         <br>
-                        <label class="uk-form-label labelField">Find story </label> 
+                        <label class="uk-form-label labelField">Find story </label>
+                        <br>
+                        <div>
+                            <label class="uk-form-label labelField">Run stories parallel or sequential</label>
+                        </div>
                     </div>
                     <div class="inputField">
                         <input id="nameInput" [(ngModel)]="groupTitle" (keyup)="groupUnique($event, groupTitle, groups, scrGroup)" name="title">
@@ -22,32 +26,33 @@
                         <div class="searchWrapper">
                             <em class="material-icons emoticon" id="searchBarIcons"
                             [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
-                            <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)"> 
+                            <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
+                        </div>
+                        <br>
+                        <div class="modalsContent toggleWrapperMargin">
+                            <mat-icon>alt_route</mat-icon>
+                            <mat-slide-toggle class="toggleMargin" name="slideToggleUpdate" [(ngModel)]="this.isSeq"></mat-slide-toggle>
+                            <mat-icon>format_list_numbered</mat-icon>
+                            <dfn class="def">
+                                <span class="infoIcon" uk-icon="info" style="margin-bottom: 13px; margin-left:5px;"></span>
+                                <span rel="def">Disable toggle to run stories parallelly. Enabled toggle runs stories
+                                sequentially.</span>
+                            </dfn>
                         </div>
                     </div>
                 </div>
-                <div class="modalsContent toggleWrapperMargin">
-                    <label style="margin-right: 5px;">Run stories sequentially or parallelly
-                        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-                            <span rel="def">Disable toggle to run stories parallelly. Enabled toggle runs stories
-                                sequentially.</span>
-                        </dfn>
-                    </label>
-                    <mat-icon>alt_route</mat-icon>
-                    <mat-slide-toggle class="toggleMargin" name="slideToggleUpdate" [(ngModel)]="this.isSeq"></mat-slide-toggle>
-                    <mat-icon>loop</mat-icon>
-                </div>
+
                 <div style="width: 100%;">
                     <table id="storiesTable" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
                         <ng-container matColumnDef="story">
                           <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
-                          <td mat-cell *matCellDef="let element"> 
+                          <td mat-cell *matCellDef="let element">
                             <div class="emailTableContainer">
                                 <label>{{element.title}} </label>
-                            </div> 
+                            </div>
                           </td>
                         </ng-container>
-        
+
                         <ng-container  matColumnDef="checkStory">
                             <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
                             <td mat-cell *matCellDef="let element">
@@ -56,8 +61,8 @@
                         </ng-container>
                         <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
-                      </table> 
-                </div>                
+                      </table>
+                </div>
             </div>
         </form>
     </div>

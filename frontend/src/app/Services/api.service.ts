@@ -158,14 +158,14 @@ export class ApiService {
     }
 
     /**
-     * Emits if repositories changed 
+     * Emits if repositories changed
      */
     public updateRepositoryEmitter() {
         this.updateRepositoryEvent.emit();
     }
 
     /**
-     * Emits if repositories should be reloaded 
+     * Emits if repositories should be reloaded
      */
      public getRepositoriesEmitter() {
         this.getRepositoriesEvent.emit();
@@ -280,7 +280,7 @@ export class ApiService {
     /**
      * Delete one Repository
      * @param repo
-     * @returns 
+     * @returns
      */
     deleteRepository(repo: RepositoryContainer, user){
         this.apiServer = localStorage.getItem('url_backend');
@@ -921,7 +921,7 @@ export class ApiService {
      */
     runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        const timeout = 600000;
+        const timeout = 900000;
         if (scenarioID) {
             return this.http
                 .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
@@ -932,7 +932,7 @@ export class ApiService {
 
     runGroup(repoID, groupID, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        const timeout = 600000;
+        const timeout = 6000000;
         return this.http
             .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
@@ -958,7 +958,7 @@ export class ApiService {
             .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories, 'sequence': isSequential}, ApiService.getOptions());
     }
 
-    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> { 
+    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> {
         return this.http
             .put(this.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
     }
@@ -1032,5 +1032,5 @@ export class ApiService {
         return this.http
             .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
     }
-    
+
 }

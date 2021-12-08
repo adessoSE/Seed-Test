@@ -55,7 +55,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     -webkit-border-radius: 1ex;
     -webkit-box-shadow: 0px 1px 2px #90CAF9;
 }
-  
+
 ::-webkit-scrollbar-corner {
     background: #90CAF9;
 }
@@ -82,13 +82,11 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 }
 
 .toggleMargin {
-    /* margin-left: 10px; */
     margin-bottom: 0.5rem;
 }
 
 .mat-icon {
     margin-bottom: 0.5rem;
-    color: white;
     font-size: 22px;
 }
 
