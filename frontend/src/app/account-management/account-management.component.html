@@ -49,12 +49,8 @@
                 </dfn>
             </div>
             <div class="uk-flex uk-flex-row uk-search downloadWrapper">
-                <!-- <input class="uk-search-input" type="text" #searchbar (keyup)="searchRepos($event)"  [(ngModel)]="searchInput" placeholder="Search" /> -->
                 <em class="material-icons" id="searchBarIcons">search</em>
                 <input class="searchInput" type="text" #searchbar (keyup)="searchRepos($event)"  [(ngModel)]="searchInput" placeholder="Search"/>
-                <!-- <select [(ngModel)]="downloadRepoID" class="uk-select">
-                    <option *ngFor="let repo of searchList" [value]="repo._id">{{repo.value}}</option>
-                </select> -->
                 <div style="width: 10%;"></div>
                 <mat-form-field appearance="standard" class="filterFormField">
                     <mat-label>Repository</mat-label>

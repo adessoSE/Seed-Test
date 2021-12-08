@@ -105,6 +105,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
+
+        // fill repository list for download
+        this.searchRepos('')
     }
 
     ngOnDestroy() {
@@ -253,7 +256,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     searchRepos(value) {
-        console.log(this.searchInput);
         this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
             if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
