@@ -116,8 +116,8 @@ export class AppComponent implements OnInit{
 
   @HostListener('window:scroll', ['$event'])
     handleScroll() {
-      const windowScroll = window.scrollX;
-      if (windowScroll > this.helpPosition || windowScroll > this.menuPosition) {
+      const windowScroll = window.scrollY;
+      if (windowScroll > this.helpPosition) {
         this.closed = true;
       } else {
         this.closed = false;

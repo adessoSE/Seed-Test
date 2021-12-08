@@ -109,6 +109,7 @@ export class ApiService {
 
     public updateRepositoryEvent: EventEmitter<any> = new EventEmitter();
 
+
     /**
      * Gets api headers
      * @returns
@@ -283,8 +284,8 @@ export class ApiService {
      */
     deleteRepository(repo: RepositoryContainer, user){
         this.apiServer = localStorage.getItem('url_backend');
-
         const str = this.apiServer + '/user/repositories/' + repo._id + '/' + user;
+        //Here repo will be deleted ---->
         return this.http.delete<any>(str, ApiService.getOptions())
         .pipe(tap(resp => {
 
@@ -951,13 +952,13 @@ export class ApiService {
             }));
     }
 
-    createGroup(title: string, repoId: string, member_stories, isSequential: boolean): Observable<any> {
+    createGroup(title: string, repoId: string, member_stories, isSequential): Observable<any> {
         console.log('createGroup', title, repoId, isSequential);
         return this.http
             .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories, 'sequence': isSequential}, ApiService.getOptions());
     }
 
-    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> {
+    updateGroup(repoId: string, groupId: string, updatedGroup: Group): Observable<any> { 
         return this.http
             .put(this.apiServer + '/group/' + repoId + '/' + groupId, updatedGroup, ApiService.getOptions());
     }

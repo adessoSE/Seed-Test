@@ -6,6 +6,7 @@ import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { ApiService } from 'src/app/Services/api.service';
+import {FormBuilder, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-create-new-group',
@@ -34,6 +35,8 @@ export class CreateNewGroupComponent {
 
   groupId: string;
 
+  isSequential: boolean;
+
   /**
   * Columns of the story table table
   */
@@ -49,6 +52,7 @@ export class CreateNewGroupComponent {
     this.groups = groups;
     this.groupId = undefined;
     this.groupTitle = '';
+    this.isSequential = true;
     this.selectedStories = undefined;
     const value = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
@@ -106,22 +110,24 @@ export class CreateNewGroupComponent {
         button.disabled = false;
     } else {
         button.disabled = true;
-        this.toastr.error('Choose another Group-name');
+        this.toastr.error('Choose another group name');
     }
   }
 
   /**
      * Creates a new custom story
      */
-   createNewGroup(event) {
+  createNewGroup(event) {
     event.stopPropagation();
     const title = this.groupTitle;
     const member_stories = this.selectedStories;
+    var isSequential = this.isSequential;
     const value = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
     const repositoryContainer: RepositoryContainer = {value, source, _id};
-    const group = {title, member_stories};
+    const group = {title, member_stories, isSequential};
     this.apiService.createGroupEvent({repositoryContainer, group});
   }
+
 }

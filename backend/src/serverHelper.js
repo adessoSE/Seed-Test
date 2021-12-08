@@ -17,7 +17,7 @@ const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
 const cryptoAlgorithm = 'aes-192-cbc';
-const key = crypto.scryptSync(process.env.JIRA_SECRET, 'salt', 24);
+const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
 const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report

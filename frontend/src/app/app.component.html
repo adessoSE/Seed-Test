@@ -3,9 +3,8 @@
     <!--left-->
     <div class="uk-inline dropdown">
       <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
-      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: hover"
-      #dropdownMenu [class.closedMenu] = "closed">
-        <ul class="dropdown-list">
+      <div #dropdownMenu [class.closedMenu] = "closed">
+        <ul uk-dropdown="mode: hover" *ngIf="this.apiService.isLoggedIn()" class="dropdown-list">
           <li>
             <div *ngIf="this.repositories" class="dropdown">
               <button class="menuSelection" title="Select Project">Projects</button>

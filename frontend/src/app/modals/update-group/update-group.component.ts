@@ -34,6 +34,8 @@ export class UpdateGroupComponent {
 
    groupId: string;
 
+   isSeq: boolean;
+
    /**
    * Columns of the story table table
    */
@@ -59,6 +61,7 @@ export class UpdateGroupComponent {
     });
     this.groupId = group._id;
     this.groupTitle = group.name;
+    this.isSeq = group.isSequential;
     this.selectedStories = [];
     for (const s of group.member_stories) {
         this.selectedStories.push(s._id);
@@ -129,7 +132,7 @@ export class UpdateGroupComponent {
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
     const repositoryContainer: RepositoryContainer = {value, source, _id};
-    const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories};
+    const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.apiService.updateGroupEvent({repositoryContainer, group});
   }
 

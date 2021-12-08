@@ -226,7 +226,7 @@
     margin-left: 18px;
     white-space: nowrap;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     align-self: center;
   }
   #eraseIcon{
@@ -251,10 +251,6 @@
   }
   .searchInput:focus{
     outline: none;
-  }
-  ::ng-deep #searchBarIcons{
-    color: var(--brown-grey);
-    vertical-align: middle;
   }
 
   .filterFormField{
@@ -296,19 +292,6 @@
     justify-content: flex-start;
     margin-left: 0px;
   }
-
-  span[rel=def].infoTextLeftPosition#storyInfoTextVerticalPosition, 
-  span[rel=def].infoTextLeftPosition#groupInfoTextVerticalPosition {
-    left: 12em;
-  }
-
-  #storyInfoTextVerticalPosition {
-    top: 1em;
-  }
-
-  #groupInfoTextVerticalPosition {
-    top: 38em;
-  } 
   
 @media screen and (max-width: 600px) {
   .grid{

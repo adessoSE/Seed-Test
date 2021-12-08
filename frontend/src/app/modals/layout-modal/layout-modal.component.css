@@ -1,6 +1,10 @@
 ::ng-deep .modal-title{
     color: var(--white);
 }
+
+::ng-deep .modal-dialog{
+    max-width: 800px;
+}
   
 ::ng-deep .modal-header{
     background-color: var(--ocean-blue);
@@ -25,12 +29,7 @@
 ::ng-deep .close{
     color: var(--white);
     outline: none;
-}
-
-::ng-deep .modal-dialog{
-    max-width: 800px;
-
-}
+} 
 
 ::ng-deep .modalsContent {
     display: flex;
@@ -74,6 +73,10 @@
   font-family: sans-serif;
   white-space: nowrap;
   top: -19.55px;
+}
+
+::ng-deep .darkTheme span[display-title]:hover::before{
+    background: #60767b;
 }
 
 ::ng-deep .darkTheme .modal-header{

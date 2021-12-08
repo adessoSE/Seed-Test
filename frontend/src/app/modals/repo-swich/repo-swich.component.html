@@ -1,0 +1,66 @@
+<ng-template #repoSwitch let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span class="MediumSubline1H4 modal-title">Switch Repository</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="alignWrapper"> 
+            <span>You are about to remove the repository you are currently in.</span>
+            <br>
+            <div *ngIf="this.repos.length>0; then thenBlock; else elseBlock"></div>
+            <ng-template #thenBlock>
+                <span>If you want to proceed with repository deletion choose another repository
+                    or create one first.</span>
+                <div class="form-group groupouterdiv modalsContent" id="inputLabels">
+                    <div class="labelField">
+                         <label class="uk-form-label">Find repository</label> 
+                    </div>
+                    <div class="inputField">            
+                        <div class="searchWrapper">
+                             <em class="material-icons emoticon" id="searchBarIcons"
+                             [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
+                             <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
+                        </div>      
+                    </div>
+                </div>
+                <!-- Table -->
+                <table id="reposTable" mat-table [dataSource]="filteredRepos" class="mat-elevation-z8" aria-describedby="mydesc">
+                    <ng-container matColumnDef="repository">
+                      <th id="repoCell" mat-header-cell *matHeaderCellDef> Repository </th>
+                      <td mat-cell *matCellDef="let element"> 
+                        <div class="repoTableContainer">
+                            <ul class="uk-list">
+                                <ng-container *ngIf="element; let i = index">
+                                    <li class="customRepoContainer" *ngIf="element">
+                                        <div>
+                                            <img class="repo_img" *ngIf="element" src="../assets/database-5-32.png">
+                                            <a class="MediumBody2 repoLink" id="db_{{'element_'+i}}" (click)="selectRepository(element);" >{{element.value}}</a>
+                                        </div>
+                                    </li>
+                                </ng-container>
+                            </ul>
+                        </div> 
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsRepos"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsRepos;"></tr>
+                </table>
+            </ng-template>
+            <!-- Else block if no repositories left -->
+            <ng-template #elseBlock>
+                <dev class="deleteTextWrapper">
+                    <span class="warningSign">&#9888;</span>
+                    <dev>
+                        <span>You have got no repos to choose from.</span>
+                        <br>
+                        <span>Please go back and create custom project before you remove the current one.</span>
+                    </dev>
+                </dev>
+            </ng-template>
+        </div>
+    </div>
+    <div class="modal-footer"></div>    
+</ng-template>
