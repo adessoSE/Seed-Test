@@ -718,6 +718,35 @@
 .uk-icon {
   background-color: transparent !important;
 }
+.mat-form-field + .mat-form-field {
+  margin-left: 8px;
+}
+
+.mat-expansion-panel{
+width: 96%;
+left: 30px;
+border: 0 !important;
+box-shadow: none;
+font-weight: bold;
+
+}
+.mat-expansion-panel-header{
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
+    border: 0;
+    box-shadow: none;
+    font-family: Klavika, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.25;
+    letter-spacing: normal;
+    color: var(--black);
+    height: 30px;
+}
 
 
 

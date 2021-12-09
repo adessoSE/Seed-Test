@@ -18,7 +18,7 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
-
+import {MatAccordion} from '@angular/material/expansion';
 /**
  * Empty background
  */
@@ -207,6 +207,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * Name for a new step
      */
     newStepName = 'New Step';
+
+    /**
+     * if the Panel is open.
+     */
+         panelOpenState = false;
+
 
     /**
      * Subscribtions for all EventEmitter
