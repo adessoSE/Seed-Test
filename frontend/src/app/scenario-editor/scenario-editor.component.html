@@ -60,7 +60,7 @@
         </button>
       </div>
     </div>
-    <div class="scenarioButtonGroup">
+    <div class="scenarioButtonGroup" *ngIf="this.selectedScenario">
       <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
         <em class="material-icons">copy_all</em>
       </button>
