@@ -53,8 +53,8 @@
                 <input class="searchInput" type="text" #searchbar (keyup)="searchRepos($event)"  [(ngModel)]="searchInput" placeholder="Search"/>
                 <div style="width: 10%;"></div>
                 <mat-form-field appearance="standard" class="filterFormField">
-                    <mat-label>Repository</mat-label>
-                      <mat-select [(ngModel)]="downloadRepoID">
+                    <mat-label>Project</mat-label>
+                      <mat-select #ngSelect [(ngModel)]="downloadRepoID">
                         <mat-option *ngFor="let repo of searchList" [value]="repo._id">{{repo.value}}</mat-option>
                       </mat-select>
                   </mat-form-field>

@@ -34,6 +34,12 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
     /**
+     * Viewchild to auto open mat-select
+     */
+    @ViewChild('ngSelect') ngSelect;
+
+
+    /**
      * Repositories or projects of this user
      */
 
@@ -262,6 +268,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                 return repo;
             }
         });
+        this.ngSelect.open();
     }
 
     /**
