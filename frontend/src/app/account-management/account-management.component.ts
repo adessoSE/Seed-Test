@@ -268,7 +268,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                 return repo;
             }
         });
-        this.ngSelect.open();
+        if(this.searchInput != ''){
+            this.ngSelect.open();
+        }
     }
 
     /**
@@ -278,5 +280,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         let value = sessionStorage.getItem('repositories')
         let repository: RepositoryContainer = JSON.parse(value)
         this.seperateRepos(repository)
+
+        // update repo download list
+        this.searchRepos('')
     } 
 }
