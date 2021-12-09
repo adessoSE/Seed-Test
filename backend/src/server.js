@@ -84,4 +84,5 @@ app
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
+
 module.exports = { app };
