@@ -11,7 +11,7 @@ const lodash = require('lodash');
 const AdmZip = require('adm-zip');
 const crypto = require('crypto');
 const passport = require('passport');
-const mongo = require('./database/mongodatabase');
+const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
@@ -909,7 +909,7 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 }
 
 async function fuseStoryWithDb(story) {
-	const result = await mongo.getOneStoryByStoryId(parseInt(story.story_id), story.storySource);
+	const result = await mongo.getOneStory(parseInt(story.story_id, 10), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -918,8 +918,8 @@ async function fuseStoryWithDb(story) {
 		story.scenarios = [emptyScenario()];
 		story.background = emptyBackground();
 	}
-	story.story_id = parseInt(story.story_id);
-	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number);
+	story.story_id = parseInt(story.story_id, 10);
+	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number, 10);
 
 	const finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
 	story._id = finalStory._id;

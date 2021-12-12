@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helper = require('../serverHelper');
-const mongo = require('../database/mongodatabase');
+const mongo = require('../database/DbServices');
 
 const router = express.Router();
 // This router is used for accessing Cucumber/Selenium Reports

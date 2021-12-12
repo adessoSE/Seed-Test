@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
-const mongo = require('../database/mongodatabase');
+const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 
 const router = express.Router();
