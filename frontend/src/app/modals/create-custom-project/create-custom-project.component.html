@@ -2,26 +2,27 @@
 <ng-template #createCustomProjectModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span class="MediumSubline1H4 modal-title">Create Project</span>
+        <span class="MediumSubline1H4 modal-title">Create project</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <div class="modal-body">
-        <div class="submitForm">
-            <div>
-                <form>
+    <form #createProjectForm="ngForm" novalidate [disabled]="createProjectForm.invalid"
+    (keydown)="enterSubmit($event, createProjectForm)">  
+        <div class="modal-body">
+            <div class="submitForm">
+                <div>
                     <div class="form-group modalsContent">
-                        <span class="uk-form-label">Enter unique project name</span>
+                        <span class="uk-form-label">Enter unique project name*</span>
                         <span class="material-icons" display-title="Enter unique story name">drive_file_rename_outline</span>
-                        <input id="repo_name" defaultValue="YourRepoName">
+                        <input defaultValue="YourRepoName" ngModel name="repo_name" required>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
-    </div>
+        </div>   
+    </form>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="submitRepo(); modal.close('Save click')">Save
+        <button type="button" class="normalButton" (click)="onClickSubmit(createProjectForm)">Save
         </button>
-    </div>
+    </div> 
 </ng-template>

@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgForm } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from 'src/app/Services/api.service';
 
@@ -12,6 +13,11 @@ export class CreateCustomProjectComponent {
 
   @ViewChild('createCustomProjectModal') createCustomProjectModal: CreateCustomProjectComponent;
 
+  /**
+  * Model Reference for closing
+  */
+  modalReference: NgbModalRef;
+
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
 
   // create custom project modal
@@ -20,19 +26,20 @@ export class CreateCustomProjectComponent {
      * Open the create custom project modal
      */
   openCreateCustomProjectModal() {
-    this.modalService.open(this.createCustomProjectModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+    this.modalReference = this.modalService.open(this.createCustomProjectModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
   }
 
   /**
    * Submits the repository to the backend
    */
-  submitRepo() {
-    const name = (document.getElementById('repo_name') as HTMLInputElement).value;
+  submitRepo(form: NgForm) {
+    const name = form.value.repo_name;
     if (!this.isEmptyOrSpaces(name)) {
         this.apiService.createRepository(name).subscribe(resp => {
             this.toastr.info('', 'Project created');
             this.apiService.getRepositoriesEmitter();
             this.apiService.updateRepositoryEmitter();
+            this.modalReference.close();
         });
     }
   }
@@ -44,6 +51,16 @@ export class CreateCustomProjectComponent {
    */
   isEmptyOrSpaces(str: string) {
       return str === null || str.match(/^ *$/) !== null;
+  }
+
+  enterSubmit(event, form : NgForm) {
+    if (event.keyCode === 13) {
+      this.submitRepo(form);
+    }
+  }
+
+  onClickSubmit(form : NgForm) {
+    this.submitRepo(form);
   }
 
 }

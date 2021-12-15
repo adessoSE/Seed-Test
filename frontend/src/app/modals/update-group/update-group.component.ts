@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
@@ -36,6 +36,11 @@ export class UpdateGroupComponent {
 
    isSeq: boolean;
 
+  /**
+  * Model Reference for closing
+  */
+  modalReference: NgbModalRef;
+
    /**
    * Columns of the story table table
    */
@@ -66,7 +71,7 @@ export class UpdateGroupComponent {
     for (const s of group.member_stories) {
         this.selectedStories.push(s._id);
     }
-    this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
   groupUnique(event, input: string, array: Group[], group?: Group) {
@@ -134,6 +139,18 @@ export class UpdateGroupComponent {
     const repositoryContainer: RepositoryContainer = {value, source, _id};
     const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.apiService.updateGroupEvent({repositoryContainer, group});
+    this.modalReference.close();
+  }
+
+  enterSubmit(event) {
+    if (event.keyCode === 13) {
+      this.updateGroup(event);
+    }
+  }
+
+  onClickSubmit(event) {
+    this.updateGroup(event);
+
   }
 
 }

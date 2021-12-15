@@ -19,6 +19,7 @@ export class RepoSwichComponent implements OnInit {
   displayedColumnsRepos: string[] = ['repository'];
 
   currentRepo
+  
   updateRepositoryObservable: Subscription;
 
 

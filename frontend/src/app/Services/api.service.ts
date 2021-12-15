@@ -79,7 +79,7 @@ export class ApiService {
      /**
      * Event emitter to rename the story
      */
-      public renameStoryEvent = new EventEmitter();
+    public renameStoryEvent = new EventEmitter();
 
     /**
      * Event emitter to delete the scenario
@@ -89,7 +89,7 @@ export class ApiService {
      /**
      * Event emitter to delete the story
      */
-      public deleteStoryEvent = new EventEmitter();
+    public deleteStoryEvent = new EventEmitter();
 
     /**
      * Event emitter to delete the repository
@@ -197,7 +197,7 @@ export class ApiService {
         return this.http.get<Block[]>(str,  ApiService.getOptions())
         .pipe(tap(resp => {}),
         catchError(ApiService.handleError));
-      }
+    }
 
     /**
      * Emits the add block to scenario event
@@ -258,7 +258,7 @@ export class ApiService {
 
         }),
           catchError(ApiService.handleError));
-      }
+    }
 
     /**
      * Retrieves the repositories
@@ -953,7 +953,7 @@ export class ApiService {
     }
 
     createGroup(title: string, repoId: string, member_stories, isSequential): Observable<any> {
-        console.log('createGroup', title, repoId, isSequential);
+        //console.log('createGroup', title, repoId, isSequential);
         return this.http
             .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories, 'sequence': isSequential}, ApiService.getOptions());
     }

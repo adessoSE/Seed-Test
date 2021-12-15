@@ -1098,4 +1098,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     changeScenarioTitle(){
         this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name)
     }
+
+    checkIfTitleEqual(value) {
+        
+      }
 }

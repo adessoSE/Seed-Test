@@ -1,5 +1,7 @@
-import { Component, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, EventEmitter, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ToastrService } from 'ngx-toastr';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
 import { ApiService } from 'src/app/Services/api.service';
@@ -48,8 +50,12 @@ export class SaveBlockFormComponent {
     */
   parentComponent;
 
+  modalReference: NgbModalRef;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  blocks : Block[];
+
+
+  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
 
   /**
      * Opens save block form modal
@@ -60,12 +66,13 @@ export class SaveBlockFormComponent {
     this.exampleBlock = false;
     this.exampleChecked = false;
     this.block = block;
+    this.getBlocks();
     this.parentComponent = comp;
     if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
         this.exampleBlock = true;
     }
     this.createStepList();
-    this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
 /**
@@ -99,15 +106,20 @@ export class SaveBlockFormComponent {
 /**
  * Submits and saves a block
  */
-  submitSaveBlock() {
+  submitSaveBlock(form: NgForm) {
+    this.getBlocks();
     if (this.exampleBlock) {
         this.parentComponent.checkAllExampleSteps(null, false);
     } else {
         this.parentComponent.checkAllSteps(null, false);
     }
-    let title = (document.getElementById('blockNameInput') as HTMLInputElement).value;
-    if (title.length === 0) {
-        title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
+    let title = form.value.blockNameInput;
+    if (title.trim() === '') {
+      title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
+    } 
+    if (this.isTitleEqual(title)) {
+      this.nameExistsToast();
+      return
     }
     this.block.name = title;
     this.block.repository = localStorage.getItem('repository');
@@ -116,6 +128,47 @@ export class SaveBlockFormComponent {
     this.apiService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
     });
+    this.modalReference.close();
+  }
+
+  /**
+ * Opens warning toast
+ */
+
+  nameExistsToast() {
+    this.toastr.warning('', 'This name exists already. Enter unique name.', {
+    });
+  }
+
+  getBlocks() {
+    const id = localStorage.getItem('id');
+    this.apiService.getBlocks(id).subscribe((resp) => {
+      this.blocks = resp;
+    });
+  }
+
+  isTitleEqual(value) : Boolean {
+    var bool;
+    this.blocks.forEach(block => {
+      console.log(block.name);
+      
+      if (value === block.name) {
+        bool = true
+      }
+      else
+        {bool = false}
+    });
+    return bool
+  }
+
+  enterSubmit(event, form: NgForm) {
+    if (event.keyCode === 13) {
+      this.submitSaveBlock(form);
+    }
+  }
+
+  onClickSubmit(form: NgForm) {
+    this.submitSaveBlock(form);
   }
 
 }

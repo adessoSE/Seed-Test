@@ -283,7 +283,7 @@ a:hover{
 }
 
 #githubHref{
-  color: var(--white);
+  color: var(--white) !important;
   transition: 0.3s;
 }
 
