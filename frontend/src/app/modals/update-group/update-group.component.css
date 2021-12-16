@@ -77,20 +77,23 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     margin-left: 24px;
 }
 
+.mat-icon {
+    color: #999;
+    font-size: 19px;
+    height: 19px;
+}
+
+::ng-deep.darkTheme .mat-icon {
+    /* margin-bottom: 0.5rem; */
+    color: white;
+    
+}
+
 .toggleWrapperMargin {
     margin-top: 0.5rem;
 }
 
-.toggleMargin {
-    margin-bottom: 0.5rem;
-}
-
-.mat-icon {
-    margin-bottom: 0.5rem;
-    font-size: 22px;
-}
-
-.infoIcon {
+.icon {
     margin: unset;
     width: 14px;
 }

@@ -1,7 +1,8 @@
-import { Component, EventEmitter, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
 import { ApiService } from 'src/app/Services/api.service';
@@ -11,7 +12,7 @@ import { ApiService } from 'src/app/Services/api.service';
   templateUrl: './save-block-form.component.html',
   styleUrls: ['./save-block-form.component.css']
 })
-export class SaveBlockFormComponent {
+export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
   @ViewChild('saveBlockFormModal') saveBlockFormModal: SaveBlockFormComponent;
 
@@ -54,8 +55,28 @@ export class SaveBlockFormComponent {
 
   blocks : Block[];
 
+  updateObservable: Subscription;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+
+  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
+
+  ngOnInit() {
+    const id = localStorage.getItem('id');
+    this.apiService.getBlocks(id).subscribe((resp) => {
+      this.blocks = resp;
+    });
+    this.updateObservable = this.apiService.updateBlocksEvent.subscribe(_ => {
+      this.apiService.getBlocks(id).subscribe((resp) => {
+        this.blocks = resp;
+      });
+    });
+  }
+
+  ngOnDestroy() {
+    if(!this.updateObservable.closed){
+      this.updateObservable.unsubscribe();
+    }
+  }
 
   /**
      * Opens save block form modal
@@ -66,7 +87,6 @@ export class SaveBlockFormComponent {
     this.exampleBlock = false;
     this.exampleChecked = false;
     this.block = block;
-    this.getBlocks();
     this.parentComponent = comp;
     if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
         this.exampleBlock = true;
@@ -107,7 +127,6 @@ export class SaveBlockFormComponent {
  * Submits and saves a block
  */
   submitSaveBlock(form: NgForm) {
-    this.getBlocks();
     if (this.exampleBlock) {
         this.parentComponent.checkAllExampleSteps(null, false);
     } else {
@@ -140,18 +159,10 @@ export class SaveBlockFormComponent {
     });
   }
 
-  getBlocks() {
-    const id = localStorage.getItem('id');
-    this.apiService.getBlocks(id).subscribe((resp) => {
-      this.blocks = resp;
-    });
-  }
-
   isTitleEqual(value) : Boolean {
     var bool;
-    this.blocks.forEach(block => {
-      console.log(block.name);
-      
+    console.log(this.blocks);
+    this.blocks.forEach(block => { 
       if (value === block.name) {
         bool = true
       }

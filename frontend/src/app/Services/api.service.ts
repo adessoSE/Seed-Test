@@ -109,6 +109,8 @@ export class ApiService {
 
     public updateRepositoryEvent: EventEmitter<any> = new EventEmitter();
 
+    public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
+
 
     /**
      * Gets api headers

@@ -331,14 +331,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 });
                 this.selectedStory.background.saved = false;
             }
-          });
+        });
 
         this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
         
         this.isDark = this.themeService.isDarkMode();
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
-            console.log('Changed to ' + changedTheme);
+            //console.log('Changed to ' + changedTheme);
         });
 
         this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {

@@ -170,7 +170,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
                         }
                     })
                 })
-                  this.selectedScenario.saved = false;
+                this.selectedScenario.saved = false;
             }
         });
 

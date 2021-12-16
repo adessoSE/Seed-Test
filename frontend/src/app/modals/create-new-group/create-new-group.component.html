@@ -24,21 +24,22 @@
                                 <em class="material-icons emoticon" id="searchBarIcons"
                                 [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
                                 <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
-                            </div>
-                            
+                            </div> 
                         </div>
                     </div>
                     <div class="modalsContent toggleWrapperMargin">
-                        <label style="margin-right: 5px;">Run story sequentially or parallelly
-                            <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+                        <span style="margin-right: 5px;">Run story sequentially or parallelly
+                            <dfn class="def">
+                                <span class="icon" uk-icon="info"></span>
                                 <span rel="def">Disable the toggle if you want stories to be run parallelly. 
                                     Sories will be running sequentially by default.</span>
                             </dfn>
-                        </label>
+                        </span>
                         <mat-icon>alt_route</mat-icon>
-                        <mat-slide-toggle class="toggleMargin" name="slideToggleCreate" [(ngModel)]="isSequential"></mat-slide-toggle>
-                        <mat-icon>loop</mat-icon>
+                        <mat-slide-toggle name="slideToggleCreate" [(ngModel)]="isSequential"></mat-slide-toggle>
+                        <mat-icon>format_list_numbered</mat-icon>
                     </div>
+                    <br>
                     <div style="width: 100%;">
                         <table id="storiesTable1" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
                             <ng-container matColumnDef="story">

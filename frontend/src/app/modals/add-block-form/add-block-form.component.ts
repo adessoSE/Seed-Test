@@ -124,7 +124,12 @@ export class AddBlockFormComponent{
           this.blocks.splice(rowIndex, 1);
           this.stepList = [];
           this.selectedBlock = null;
+          this.updateBlocksEventEmitter();
       });
+    }
+
+    updateBlocksEventEmitter(){
+      this.apiService.updateBlocksEvent;
     }
 
     enterSubmit(event) {
