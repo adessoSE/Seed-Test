@@ -859,6 +859,18 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                     }, 10);
                     this.toastr.info('', 'Test is done');
                     this.runUnsaved = false;
+                    
+                    this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
+                    .subscribe((resp)=> {
+                        if(scenario_id){
+                            let val = resp.scenarios.filter(scenario=> scenario.scenario_id === scenario_id)
+                            this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed)
+                        } else{
+                            resp.scenarios.forEach(scenario => {
+                                this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed)
+                            });
+                        }
+                    })
                 });
         } else {
             this.currentTestScenarioId = scenario_id;
