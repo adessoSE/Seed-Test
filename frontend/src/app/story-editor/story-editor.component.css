@@ -723,7 +723,7 @@
 }
 
 .mat-expansion-panel{
-width: 96%;
+width: 96% !important;
 left: 30px;
 border: 0 !important;
 box-shadow: none;
@@ -745,8 +745,9 @@ font-weight: bold;
     line-height: 1.25;
     letter-spacing: normal;
     color: var(--black);
-    height: 30px;
+    height: 24px;
+    padding-right: 31px;
 }
-
-
-
+button#background_up {
+  padding-right: 20px;
+}

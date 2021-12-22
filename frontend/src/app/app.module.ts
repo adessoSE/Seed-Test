@@ -108,7 +108,6 @@ import {MatExpansionModule} from '@angular/material/expansion';
     UpdateGroupComponent,
     ChangeJiraAccountComponent,
     RepoSwichComponent,
-    MatExpansionModule,
   ],
   imports: [
     NgbModule,
@@ -131,6 +130,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     }),
     MatSlideToggleModule,
     MatIconModule,
+    MatExpansionModule,
+    
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],

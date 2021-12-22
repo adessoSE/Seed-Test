@@ -79,7 +79,12 @@ export class ApiService {
      /**
      * Event emitter to rename the story
      */
-      public renameStoryEvent = new EventEmitter();
+    public renameStoryEvent = new EventEmitter();
+
+    /**
+     * Event emitter to rename the description
+     */
+    public renameDescriptionEvent = new EventEmitter();
 
     /**
      * Event emitter to delete the scenario
@@ -185,6 +190,10 @@ export class ApiService {
      */
      renameStoryEmit(newStoryTitle) {
         this.renameStoryEvent.emit(newStoryTitle);
+    }
+
+    renameDescriptionEmit(newDescription){
+        this.renameDescriptionEvent.emit(newDescription);
     }
 
     /**

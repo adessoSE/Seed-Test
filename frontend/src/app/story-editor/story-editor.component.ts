@@ -223,6 +223,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     runSaveOptionObservable: Subscription;
     addBlocktoScenarioObservable: Subscription;
     renameStoryObservable: Subscription;
+    renameDescriptionObservable: Subscription;
     themeObservable: Subscription;
     getBackendUrlObservable: Subscription;
     getStoriesObservable: Subscription;
@@ -340,6 +341,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
           });
 
         this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+        this.renameDescriptionObservable= this.apiService.renameDescriptionEvent.subscribe(newName => this.renameDescription(newName))
         
         this.isDark = this.themeService.isDarkMode();
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
@@ -379,6 +381,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         }
         if(!this.getStoriesObservable.closed){
             this.getStoriesObservable.unsubscribe();
+        }
+        if(!this.renameDescriptionObservable.closed){
+            this.renameDescriptionObservable.unsubscribe();
         }
     }
 
@@ -657,13 +662,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 this.selectedStory.background = emptyBackground;
                 this.selectedStory.background.saved = false;
           });
-  }
-
-  /**
-   * opens the description
-   */
-  openDescription() {
-      this.showDescription = !this.showDescription;
   }
 
   /**
@@ -964,7 +962,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * @param newStoryTitle
      */
     changeStoryTitle() {
-        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title);
+        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title, this.selectedStory.body);
     }
     /**
      * Renames the story
@@ -975,6 +973,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             this.selectedStory.title = newStoryTitle;
         }
         this.updateStory();
+    }
+/**
+     * Renames the descriptoon
+     * @param newStoryTitle
+     */
+    renameDescription(newdes) {
+        if (newdes && newdes.replace(/\s/g, '').length > 0) {
+            this.selectedStory.body = newdes;
+        }
     }
 
    /**
