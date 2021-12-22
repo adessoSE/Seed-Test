@@ -113,14 +113,47 @@ h1{
     border: 12px solid #999;
 }
 
+::ng-deep .owl-next{
+    position: absolute !important;
+    margin: -30% 0 0 45% !important;
+    background: none !important;
+}
+
+::ng-deep .owl-prev{
+    margin: -30% 0 0 -50% !important;
+    position: absolute !important;
+    background: none !important;
+}
+::ng-deep .owl-prev .material-icons{
+    color: black;
+}
+
+::ng-deep .owl-next .material-icons{
+    color: black;
+}
+
+::ng-deep .owl-theme .owl-nav{
+    margin: 0 0 0 0 !important;
+}
+::ng-deep .owl-carousel .owl-stage{
+    display: flex;
+}
+
 .slideDescription{
-    margin-top: 340px;
     background-color: #999;
     color: var(--white);
-    height: 88px;
+    white-space: pre-line;
+    margin:0 0 0 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    position:absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+#carousel_arrow{
+    color: black;
 }
 
 .repo_img{
