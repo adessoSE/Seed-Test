@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     /**
      * Tutorial slides
      */
-    slides = [{'id':'0','image': '/assets//slide0.png','caption':''},
+    slides = [{'id':'0','image': '/assets//slide0.png'},
             {'id':'1','image': '/assets//slide01.PNG','caption':'Login to Seed-Test via GitHub or create a new Seed-Test Account by registering.\nAlternatively you can try Seed-Test without an account, by trying our Demo.'},
             {'id':'2','image': '/assets//slide02.png','caption':'After the login via GitHub you can see your repositories.'},
             {'id':'3','image': '/assets//slide03.PNG','caption':'Else you can just register yourself using your E-Mail.'},
@@ -61,14 +61,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
     customOptions: OwlOptions = {
          loop: true,
          items: 1,
-         stagePadding: -5,
+         stagePadding: -5, // negative value so that only one slide shows at a time
          autoplay: true,
          mouseDrag: false,
          touchDrag: false,
          pullDrag: false,
          center: true,
          dots: false,
-         navSpeed: 100,
+         navSpeed: 1500, // speed of slide change, lower = faster
          navText: ['<em class="material-icons" id="carousel_arrow">arrow_back</em>','<em class="material-icons" id="carousel_arrow">arrow_forward</em>'],
          nav: true
     }

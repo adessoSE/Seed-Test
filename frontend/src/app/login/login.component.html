@@ -6,7 +6,7 @@
       <ng-container *ngFor="let slide of slides">
         <ng-template carouselSlide [id]="slide.id">
           <img [src]="slide.image">
-          <p class="slideDescription">{{slide.caption}}</p>
+          <p *ngIf="slide.caption" class="slideDescription">{{slide.caption}}</p>
         </ng-template>
       </ng-container>
       </owl-carousel-o>

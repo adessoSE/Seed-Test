@@ -114,8 +114,8 @@ h1{
 }
 
 ::ng-deep .owl-next{
+    margin: -30% 0 0 43% !important;
     position: absolute !important;
-    margin: -30% 0 0 45% !important;
     background: none !important;
 }
 
@@ -124,12 +124,17 @@ h1{
     position: absolute !important;
     background: none !important;
 }
-::ng-deep .owl-prev .material-icons{
-    color: black;
+::ng-deep .owl-prev .material-icons:hover,
+::ng-deep .owl-next .material-icons:hover{
+    background: rgba(0, 0, 0, 0.1) !important;
+    
 }
-
+::ng-deep .owl-prev .material-icons,
 ::ng-deep .owl-next .material-icons{
     color: black;
+    border-radius: 50%;
+    padding: 10px;
+    display: inline;
 }
 
 ::ng-deep .owl-theme .owl-nav{
@@ -141,6 +146,7 @@ h1{
 
 .slideDescription{
     background-color: #999;
+    height: 45px;
     color: var(--white);
     white-space: pre-line;
     margin:0 0 0 0 !important;
