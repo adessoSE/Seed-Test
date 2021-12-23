@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable curly */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
@@ -122,7 +123,7 @@ async function registerUser(user) {
 	else {
 		delete user.userId;
 		result = await collection.insertOne(user);
-	}
+		}
 	if (db) db.close();
 	console.log('I am closing the DB here - registerUser');
 	return result;
@@ -552,7 +553,6 @@ async function createStory(storyTitel, storyDescription, repoId) {
 		console.log(`UPS!!!! FEHLER in createStory: ${e}`);
 		throw e;
 	} finally {
-		if (db) db.close();
 		console.log('I am closing the DB here - createStory');
 	}
 }
@@ -822,6 +822,20 @@ async function getOneGitRepository(name) {
 	}
 }
 
+async function getAllSourceReposFromDb(source) {
+	let db;
+	try {
+		db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+		return collection.find({ repoType: source }).toArray();
+	} catch (e) {
+		console.log(`UPS!!!! FEHLER in getAllSourceReposFromDb${e}`);
+	} finally {
+		db.close();
+		console.log('I am closing the DB here - getAllSourceReposFromDb');
+	}
+}
+
 async function createRepo(ownerId, name) {
 	const emptyRepo = {
 		owner: ownerId, repoName: name, stories: [], repoType: 'db', customBlocks: [], groups: []
@@ -833,56 +847,57 @@ async function createRepo(ownerId, name) {
 	collection.insertOne(emptyRepo);
 }
 
-async function createJiraRepoIfNoneExists(repoName, source) {
+async function createJiraRepo(repoName) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		let result = await collection.findOne({ repoName, repoType: source });
-		// create repo / project if there is none
-		if (result === null) {
-			const repo = {
-				owner: '', repoName, stories: [], repoType: source, customBlocks: []
-			};
-			result = await collection.insertOne(repo);
-			return result;
-		}
-		return result;
+		const repo = {
+			owner: '', repoName, stories: [], repoType: 'jira', customBlocks: []
+		};
+		return collection.insertOne(repo);
 	} catch (e) {
-		console.log(`ERROR in createJiraRepoIfNoneExists ${e}`);
+		console.log(`ERROR in createJiraRepo ${e}`);
 		throw e;
 	} finally {
 		db.close();
-		console.log('I am closing the DB here - createJiraRepoIfNoneExists');
+		console.log('I am closing the DB here - createJiraRepo');
 	}
 }
 
-async function createGitOwnerRepoIfNoneExists(ownerId, githubId, gitOwnerId, repoName, source) {
+async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
+	let db;
+	let newRepo;
+	try {
+		db = await connectDb();
+		const collection = await selectRepositoryCollection(db);
+		newRepo = {
+			owner: '', gitOwner: gitOwnerId, repoName, stories: [], repoType: 'github', customBlocks: []
+		};
+		if (userGithubId === gitOwnerId) newRepo.owner = ObjectId(userId);
+		return collection.insertOne(newRepo);
+	} catch (e) {
+		console.log(`ERROR in createGitRepo${e}`);
+		throw e;
+	} finally {
+		db.close();
+		console.log('I am closing the DB here - createGitRepo');
+	}
+}
+
+async function updateOwnerInRepo(repoName, ownerId, source) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const result = await collection.findOne({ owner: ObjectId(ownerId), repoName });
-		if (result === null) {
-			let repo = await collection.findOne({ gitOwner: gitOwnerId, repoName });
-			// create repo / project if there is none
-			if (repo === null) {
-				const newRepo = {
-					owner: '', gitOwner: gitOwnerId, repoName, stories: [], repoType: source, customBlocks: []
-				};
-				repo = await collection.insertOne(newRepo);
-				return repo;
-			}
-			if (repo.gitOwner === githubId) repo.owner = ObjectId(ownerId);
-			return repo;
-		}
-		return result._id;
+		await collection.findOneAndUpdate({ repoName, repoType: source }, { $set: { owner: ownerId } });
+		return 'done';
 	} catch (e) {
-		console.log(`ERROR in createGitOwnerRepoIfNoneExists${e}`);
+		console.log(`ERROR in updateOwnerInRepo${e}`);
 		throw e;
 	} finally {
 		db.close();
-		console.log('I am closing the DB here - createGitOwnerRepoIfNoneExists');
+		console.log('I am closing the DB here - updateOwnerInRepo');
 	}
 }
 
@@ -1486,8 +1501,7 @@ module.exports = {
 	deleteUser,
 	updateUser,
 	getUserData,
-	createGitOwnerRepoIfNoneExists,
-	createJiraRepoIfNoneExists,
+	createJiraRepo,
 	updateStoriesArrayInRepo,
 	getRepository,
 	deleteRepository,
@@ -1520,5 +1534,8 @@ module.exports = {
 	removeFromWorkgroup,
 	updateOneDriver,
 	updateScenarioStatus,
-	updateStoryStatus
+	updateStoryStatus,
+	getAllSourceReposFromDb,
+	createGitRepo,
+	updateOwnerInRepo
 };
