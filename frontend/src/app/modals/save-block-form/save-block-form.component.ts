@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -158,7 +158,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  isTitleEqual(value): Boolean {
+  isTitleEqual(value): boolean {
     let bool = false;
     this.blocks.forEach(block => {
       if (value === block.name) { bool = true; }

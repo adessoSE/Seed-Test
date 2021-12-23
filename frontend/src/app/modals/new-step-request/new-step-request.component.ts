@@ -64,7 +64,7 @@ export class NewStepRequestComponent {
     }
   }
 
-  onClickSubmit(form: NgForm) {
+  onClickSubmit(event, form: NgForm) {
     this.submitNewStepRequest(event, form);
   }
 

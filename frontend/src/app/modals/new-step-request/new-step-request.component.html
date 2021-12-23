@@ -57,7 +57,7 @@
     </div>
     <div class="modal-footer">
         <button type="submit" class="normalButton" [disabled]="submitNewStep.invalid"
-        (click)="onClickSubmit(submitNewStep)">Submit
+        (click)="onClickSubmit($event, submitNewStep)">Submit
         </button>
     </div>
 </ng-template>

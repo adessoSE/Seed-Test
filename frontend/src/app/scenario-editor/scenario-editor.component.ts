@@ -121,7 +121,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     constructor(
         public apiService: ApiService,
         private toastr: ToastrService
-    ) { 
+    ) {
         if (localStorage.getItem('version') == 'DAISY') {
             this.showDaisyAutoLogout = true;
         } else {
@@ -1099,7 +1099,4 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name)
     }
 
-    checkIfTitleEqual(value) {
-        
-      }
 }
