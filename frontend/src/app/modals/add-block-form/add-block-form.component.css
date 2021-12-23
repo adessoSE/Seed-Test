@@ -102,3 +102,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
 }
+
+::ng-deep.darkTheme h4 {
+    color: white !important;
+}

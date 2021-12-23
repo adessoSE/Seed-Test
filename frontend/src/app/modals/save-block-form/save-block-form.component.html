@@ -1,26 +1,28 @@
   <!--Save Block Form Modal-->
   <ng-template #saveBlockFormModal let-modal>
+    <!-- If no block name given submits placeholder title -->
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
-        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-          <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
-            Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
-          </span>
-        </dfn>
-        
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-        </button>
+      <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as block</span>
+      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+        <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
+          Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
+        </span>
+      </dfn>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-    <div class="modal-body modal-xl">
+    <form #saveBlockForm="ngForm" novalidate [disabled]="saveBlockForm.invalid"
+    (keydown)="enterSubmit($event, saveBlockForm)">
+      <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
           <div class="blockNameContainer modalsContent">
-              <div class="labelField padding_right uk-form-label" id="inputLabels">
-                <label>Enter block name</label>
+              <div class="labelField uk-form-label" id="inputLabels">
+                <label>Enter block name*</label>
               </div>
               <div class="inputField">
-                <input id="blockNameInput" class="blockNameInput">
+                <input type="text" id="blockNameInput" ngModel name="blockNameInput" placeholder="New block" class="blockNameInput leftMargin" required>
               </div>
           </div>
           <div class="tableContainer">
@@ -43,9 +45,10 @@
               <label class="exampleCheckboxLabel" (click)="exampleCheck($event)">Examples only?</label>
           </div>
         </div>
-    </div>
+      </div>
+    </form>
     <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="submitSaveBlock(); modal.close('Save click')">Submit
-        </button>
+      <button class="normalButton" (click)="onClickSubmit(saveBlockForm)">Submit
+      </button>
     </div>
   </ng-template>
