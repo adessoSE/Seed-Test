@@ -256,3 +256,21 @@ h2, h1{
     margin-bottom: 7px;
     margin-top: 4px;
 }
+.searchInput{
+    border: none;
+    border-bottom: 1px solid var(--brown-grey);
+    font-weight: normal;
+    width: 40%;
+    max-height: 2em;
+    margin-top: 1.75em;
+  }
+
+  .darkTheme .searchInput {
+    border-bottom: 1px solid #60767b;
+  }
+  .searchInput:focus{
+    outline: none;
+  }
+  #searchBarIcons{
+    margin-top: 1.25em;
+  }
