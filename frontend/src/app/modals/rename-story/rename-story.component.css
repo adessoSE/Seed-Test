@@ -58,3 +58,21 @@
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
 }
+.modalsContent {
+display: block;
+}
+
+.modal-body{
+    margin: 30px;
+}
+span.description{
+    display: block!important;
+}
+textarea {
+    width:100%;
+}
+
+input#newStoryTitle{
+    width: 30%;
+    margin: auto;
+}

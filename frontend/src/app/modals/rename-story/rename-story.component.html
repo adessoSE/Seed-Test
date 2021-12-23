@@ -3,7 +3,7 @@
 <ng-template #renameStoryModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="modalHeader"class="MediumSubline1H4 modal-title">Change Story Title</span>
+        <span id="modalHeader" class="MediumSubline1H4 modal-title">Change Story Title</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -12,11 +12,14 @@
     (keydown)="enterSubmit($event, renameStory)" type="submit">
         <div class="modal-body modal-xl">
             <div class="padding_top modalsContent">
-                <span >Enter unique story name</span>
-                <span class="material-icons" display-title="Enter unique story name">drive_file_rename_outline</span>
+                <span>Change Story Title</span>
+                <span class="material-icons" display-title="Enter a unique story name">drive_file_rename_outline</span>
                 <div class="inputField">
                     <input type="text" id="newStoryTitle" ngModel name="newStoryTitle" placeholder="New title" required>
-                </div>                    
+                </div>
+                <span>Edit Story Description</span>
+                <span class="material-icons" display-title="Enter story description">drive_file_rename_outline</span>
+                <textarea [(ngModel)]="storyDescription" id="newStoryDescription" placeholder="Story Description"></textarea>
             </div>
         </div>
     </form>
@@ -24,5 +27,5 @@
         <button class="normalButton"
         (click)="onClickSubmit(renameStory)">Submit
         </button>
-    </div>  
+    </div>
 </ng-template>

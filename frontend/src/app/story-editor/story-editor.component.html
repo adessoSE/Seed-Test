@@ -61,15 +61,23 @@
   </div>
     </div>
     <!--Description-->
-    <div class="title" (click)="openDescription();">
-      <div class="expand SmallHeadline5">
-        Description
-        <button id="description_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
-        <button id="description_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
-      </div>
-      <div class="SmallBody1regularLH" *ngIf="showDescription">
-        {{selectedStory.body}}
-      </div>
+    <br>
+    <div>
+      <mat-accordion>
+        <mat-expansion-panel hideToggle>
+        </mat-expansion-panel>
+        <mat-expansion-panel (opened)="panelOpenState = true"
+                             (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Description
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header> 
+          {{selectedStory.body}}
+        </mat-expansion-panel>
+      </mat-accordion>
     </div>
     <!--Background-->
     <div class="title">

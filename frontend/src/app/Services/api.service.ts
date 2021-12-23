@@ -82,6 +82,11 @@ export class ApiService {
     public renameStoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to rename the description
+     */
+    public renameDescriptionEvent = new EventEmitter();
+
+    /**
      * Event emitter to delete the scenario
      */
     public deleteScenarioEvent = new EventEmitter();
@@ -189,9 +194,11 @@ export class ApiService {
     /**
      * Emits the rename story event
      * @param newStoryTitle
+     * @param newStoryDescription
      */
-     renameStoryEmit(newStoryTitle) {
-        this.renameStoryEvent.emit(newStoryTitle);
+     renameStoryEmit(newStoryTitle, newStoryDescription) {
+        const val = {newStoryTitle, newStoryDescription};
+        this.renameStoryEvent.emit(val);
     }
 
     /**
@@ -201,8 +208,8 @@ export class ApiService {
      * @param lastTestPassed value status changed to
      */
     scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
-        let val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed}
-        this.scenarioStatusChangeEvent.emit(val)
+        let val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
+        this.scenarioStatusChangeEvent.emit(val);
     }
 
     /**

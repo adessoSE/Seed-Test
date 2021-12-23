@@ -174,7 +174,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.daisyVersion = false;
         }
 
-        
+
     }
 
     /**
@@ -230,13 +230,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.deleteStory();
         });
 
-        this.scenarioStatusChangeObservable = this.apiService.scenarioStatusChangeEvent.subscribe(custom=>{
+        this.scenarioStatusChangeObservable = this.apiService.scenarioStatusChangeEvent.subscribe(custom => {
             let storyIndex = this.filteredStories.findIndex(story => story._id === custom.storyId);
             let scenarioIndex = this.filteredStories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
-            this.filteredStories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed
+            this.filteredStories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
         })
 
-        
+
     }
     /* TODO */
     ngOnDestroy() {

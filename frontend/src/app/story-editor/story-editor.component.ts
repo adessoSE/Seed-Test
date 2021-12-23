@@ -18,6 +18,7 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
+import {MatAccordion} from '@angular/material/expansion';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 
 /**
@@ -210,6 +211,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     newStepName = 'New Step';
 
     /**
+     * if the Panel is open.
+     */
+         panelOpenState = false;
+
+
+    /**
      * Subscribtions for all EventEmitter
      */
     deleteStoryObservable: Subscription;
@@ -335,12 +342,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             }
         });
 
-        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-
+        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe((changedValues) =>
+          this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
         this.isDark = this.themeService.isDarkMode();
-        this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe(() => {
             this.isDark = this.themeService.isDarkMode();
-            //console.log('Changed to ' + changedTheme);
         });
 
         this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
@@ -578,7 +584,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
    * Adds a scenario to story
    */
   addScenario(event) {
-    console.log(this.selectedStory.title); 
+    console.log(this.selectedStory.title);
     let scenarioName = event;
     this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
     .subscribe((resp: Scenario) => {
@@ -654,13 +660,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 this.selectedStory.background = emptyBackground;
                 this.selectedStory.background.saved = false;
           });
-  }
-
-  /**
-   * opens the description
-   */
-  openDescription() {
-      this.showDescription = !this.showDescription;
   }
 
   /**
@@ -970,17 +969,21 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * @param newStoryTitle
      */
     changeStoryTitle() {
-        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title);
+        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title, this.selectedStory.body);
     }
     /**
      * Renames the story
      * @param newStoryTitle
+     * @param newStoryDescription
      */
-    renameStory(newStoryTitle) {
-        if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
-            this.selectedStory.title = newStoryTitle;
-        }
-        this.updateStory();
+    renameStory(newStoryTitle, newStoryDescription) {
+      if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+        this.selectedStory.title = newStoryTitle;
+      }
+      if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
+        this.selectedStory.body = newStoryDescription;
+      }
+      this.updateStory();
     }
 
    /**
