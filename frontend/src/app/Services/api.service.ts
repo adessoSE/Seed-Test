@@ -758,12 +758,14 @@ export class ApiService {
      * Adds a Scenario
      * @param storyID
      * @param storySource
+     * @param scenarioTitle
      * @returns
      */
-    addScenario(storyID: any, storySource: string): Observable<Scenario> {
+    addScenario(storyID: any, storySource: string, scenarioTitle: string): Observable<Scenario> {
         this.apiServer = localStorage.getItem('url_backend');
+        const body = {'name' : scenarioTitle};
         return this.http
-            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, {}, ApiService.getOptions())
+            .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, body, ApiService.getOptions())
             .pipe(tap(resp => {
                 console.log('Add new scenario in story ' + storyID + '!', resp)
             }));

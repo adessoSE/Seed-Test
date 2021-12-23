@@ -588,6 +588,12 @@ $dark-theme: mat.define-dark-theme(
     background: var(--ocean-blue);
     cursor: pointer;
   }
+
+  .darkTheme .SmallButton {
+    background: var(--button);
+    border-color: var(--button);
+  }
+
   .SmallButton:hover{
     background: var(--marine-blue);
   }

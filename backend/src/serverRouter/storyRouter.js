@@ -103,7 +103,7 @@ router.get('/:story_id/:source/:_id', async (req, res) => {
 // create scenario
 router.post('/:story_id/:source', async (req, res) => {
 	try {
-		const scenario = await mongo.createScenario(req.params.story_id, req.params.source);
+		const scenario = await mongo.createScenario(req.params.story_id, req.params.source, req.body.name);
 		await helper.updateFeatureFile(req.params.story_id, req.params.source);
 		res.status(200)
 			.json(scenario);

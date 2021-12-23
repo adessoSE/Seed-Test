@@ -16,7 +16,7 @@ export class RenameScenarioComponent {
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
-  /**
+/**
  * Opens the rename scenario Modal
  * @param oldTitle old scenario title
  */

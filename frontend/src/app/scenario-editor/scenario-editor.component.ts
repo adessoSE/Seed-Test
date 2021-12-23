@@ -14,6 +14,7 @@ import { NewStepRequestComponent } from '../modals/new-step-request/new-step-req
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
+import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 
 /**
  * Component of the Scenario Editor
@@ -111,6 +112,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+    @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
 
 
     /**
@@ -259,7 +261,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Event emitter to add a new scenario
      */
     @Output()
-    addScenarioEvent: EventEmitter<number> = new EventEmitter();
+    addScenarioEvent: EventEmitter<any> = new EventEmitter();
 
     /**
      * Event emitter to run a test
@@ -391,12 +393,9 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         });
     }
 
-    /**
-     * Emitts the add a scenario to the story event
-     * @param storyID
-     */
-    addScenarioToStory(storyID: any) {
-        this.addScenarioEvent.emit(storyID);
+    addScenarioToStory(event) {
+        let scenarioName = event;
+        this.addScenarioEvent.emit(scenarioName);
     }
 
     /**
@@ -1056,7 +1055,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @returns
      */
     scenarioSaved(){
-        return this.testRunning || this.selectedScenario.saved || this.selectedScenario.saved === undefined
+        return this.testRunning || this.selectedScenario.saved === undefined  || this.selectedScenario.saved
     }
 
     /**
@@ -1099,7 +1098,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name)
     }
 
-    checkIfTitleEqual(value) {
-        
-      }
+    openCreateScenario() {
+        this.createScenarioModal.openCreateScenarioModal(this.selectedStory._id);
+    }
 }

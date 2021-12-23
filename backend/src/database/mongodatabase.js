@@ -519,7 +519,7 @@ async function deleteBackground(storyId, storySource) {
 	}
 }
 
-async function createStory(storyTitel, storyDescription, repoId) {
+async function createStory(storyDescription, repoId, storyTitel) {
 	let db;
 	const iNumberArray = [];
 	let finalIssueNumber = 0;
@@ -649,7 +649,7 @@ async function getOneScenario(storyId, storySource, scenarioId) {
 }
 
 // CREATE Scenario
-async function createScenario(storyId, storySource) {
+async function createScenario(storyId, storySource, scenarioTitle) {
 	let db;
 	try {
 		db = await connectDb();
@@ -657,11 +657,17 @@ async function createScenario(storyId, storySource) {
 		const story = await findStory(storyId, storySource, collection);
 		const lastScenarioIndex = story.scenarios.length;
 		const tmpScenario = emptyScenario();
-		if (story.scenarios.length === 0) story.scenarios.push(tmpScenario);
+		if (story.scenarios.length === 0) {
+			let name = 'New Scenario'
+			tmpScenario.name = name;
+			story.scenarios.push(tmpScenario);}
 		else {
 			tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+			console.log(scenarioTitle);
+			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		}
+		
 		await replace(story, collection);
 		return tmpScenario;
 	} catch (e) {
