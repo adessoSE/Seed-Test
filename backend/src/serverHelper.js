@@ -806,15 +806,11 @@ async function jiraProjects(user) {
 						const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
 						if (Object.keys(json).length !== 0) {
 							for (const repo of json) {
-								// TODO: @Chris: Check this, because it may be run too often
 								if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
 									jiraRepo = await mongo.createJiraRepo(repo.name);
 								} else {
 									jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
 								}
-
-
-								// const result = await mongo.createJiraRepoIfNoneExists(repo.name, source);
 								names.push({ name: repo.name, _id: jiraRepo._id });
 							}
 							names = names.map((value) => ({

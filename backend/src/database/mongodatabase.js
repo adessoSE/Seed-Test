@@ -20,8 +20,8 @@ if (!process.env.NODE_ENV) {
 const uri = process.env.DATABASE_URI;
 const dbName = 'Seed';
 const userCollection = 'User';
-const storiesCollection = 'ChrisOnlyStories';
-const repositoriesCollection = 'ChrisOnlyRepositories';
+const storiesCollection = 'Stories';
+const repositoriesCollection = 'Repositories';
 const steptypesCollection = 'stepTypes';
 const PwResetReqCollection = 'PwResetRequests';
 const CustomBlocksCollection = 'CustomBlocks';
@@ -119,10 +119,10 @@ async function registerUser(user) {
 	let result;
 	if (dbUser !== null) throw Error('User already exists');
 	else
-		if (user.userId) result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
-		else {
-			delete user.userId;
-			result = await collection.insertOne(user);
+	if (user.userId) result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
+	else {
+		delete user.userId;
+		result = await collection.insertOne(user);
 		}
 	if (db) db.close();
 	console.log('I am closing the DB here - registerUser');
@@ -521,7 +521,6 @@ async function deleteBackground(storyId, storySource) {
 }
 
 async function createStory(storyTitel, storyDescription, repoId) {
-	//const db = datab;
 	let db;
 	const iNumberArray = [];
 	let finalIssueNumber = 0;
@@ -554,7 +553,6 @@ async function createStory(storyTitel, storyDescription, repoId) {
 		console.log(`UPS!!!! FEHLER in createStory: ${e}`);
 		throw e;
 	} finally {
-		// if (db) db.close();
 		console.log('I am closing the DB here - createStory');
 	}
 }
@@ -829,8 +827,7 @@ async function getAllSourceReposFromDb(source) {
 	try {
 		db = await connectDb();
 		const collection = await selectRepositoryCollection(db);
-		const result = await collection.find({ repoType: source }).toArray();
-		return result;
+		return collection.find({ repoType: source }).toArray();
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getAllSourceReposFromDb${e}`);
 	} finally {
@@ -858,8 +855,7 @@ async function createJiraRepo(repoName) {
 		const repo = {
 			owner: '', repoName, stories: [], repoType: 'jira', customBlocks: []
 		};
-		const result = await collection.insertOne(repo);
-		return result;
+		return collection.insertOne(repo);
 	} catch (e) {
 		console.log(`ERROR in createJiraRepo ${e}`);
 		throw e;
@@ -879,8 +875,7 @@ async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
 			owner: '', gitOwner: gitOwnerId, repoName, stories: [], repoType: 'github', customBlocks: []
 		};
 		if (userGithubId === gitOwnerId) newRepo.owner = ObjectId(userId);
-		const repo = await collection.insertOne(newRepo);
-		return repo;
+		return collection.insertOne(newRepo);
 	} catch (e) {
 		console.log(`ERROR in createGitRepo${e}`);
 		throw e;
