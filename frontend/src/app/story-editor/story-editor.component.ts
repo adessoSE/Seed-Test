@@ -18,6 +18,7 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
+import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 
 /**
  * Empty background
@@ -234,6 +235,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
+    @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
 
     /**
      * Event emitter to change to the report history component
@@ -575,13 +577,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
   /**
    * Adds a scenario to story
    */
-  addScenario() {
-    this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
-        .subscribe((resp: Scenario) => {
-           this.selectScenario(resp);
-           this.selectedStory.scenarios.push(resp);
-           this.toastr.info('', 'Scenario added');
-        });
+  addScenario(event) {
+    console.log(this.selectedStory.title); 
+    let scenarioName = event;
+    this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+    .subscribe((resp: Scenario) => {
+        this.selectScenario(resp);
+        this.selectedStory.scenarios.push(resp);
+        this.toastr.info('', 'Scenario added');
+    });
   }
 
 

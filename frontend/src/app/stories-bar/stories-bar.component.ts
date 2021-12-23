@@ -363,7 +363,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     addFirstScenario() {
-        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
+        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, '')
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
                 this.selectedStory.scenarios.push(resp);

@@ -227,8 +227,9 @@
     <!--Scenario Header-->
 
     <app-scenario-editor [isDark]="isDark" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
-    <app-save-block-form #saveBlockForm></app-save-block-form>
-    <app-add-block-form #addBlockForm></app-add-block-form>
+    <app-rename-story #renameStoryModal></app-rename-story>
+    <app-add-block-form #addBlockModal></app-add-block-form>
+    <app-save-block-form #saveBlockModal></app-save-block-form>
 
       <!--Buttons Run Scenario-->
       <div class="uk-card-footer">
@@ -270,6 +271,3 @@
     </div>
   </div>
 </div>
-<app-rename-story #renameStoryModal></app-rename-story>
-<app-add-block-form #addBlockModal></app-add-block-form>
-<app-save-block-form #saveBlockModal></app-save-block-form>

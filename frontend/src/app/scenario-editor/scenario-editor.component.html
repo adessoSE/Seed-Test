@@ -67,7 +67,7 @@
       <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock($event)">
         <em class="material-icons">playlist_add</em>
       </button>
-      <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
+      <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
         <em class="material-icons">add</em>
       </button>
       <button id="scenario_save" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioButton" data-uk-tooltip
@@ -231,4 +231,5 @@
 <app-save-block-form #saveBlockModal></app-save-block-form>
 <app-new-step-request #newStepRequest></app-new-step-request>
 <app-rename-scenario #renameScenarioModal></app-rename-scenario>
+<app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)"></app-create-scenario>
 

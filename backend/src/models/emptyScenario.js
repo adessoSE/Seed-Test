@@ -1,7 +1,7 @@
 function emptyScenario() {
   return {
     scenario_id: 1,
-    name: 'New Scenario',
+    name: undefined,
     comment: null,
     stepDefinitions:
     {
