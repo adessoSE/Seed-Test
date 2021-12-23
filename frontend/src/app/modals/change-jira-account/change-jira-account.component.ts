@@ -52,7 +52,7 @@ export class ChangeJiraAccountComponent {
               'jiraAccountName': jiraAccountName,
               'jiraPassword': jira_password,
               'jiraHost': jiraHost,
-      };  
+      };
       this.apiService.createJiraAccount(request).subscribe(response => {
         this.jiraAccountResponse.emit(response);
         this.modalReference.close();
@@ -60,13 +60,13 @@ export class ChangeJiraAccountComponent {
     }
   }
 
-  enterSubmit(event, form : NgForm) {
+  enterSubmit(event, form: NgForm) {
     if (event.keyCode === 13) {
       this.changeJiraAccountSubmit(form);
     }
   }
 
-  onClickSubmit(form : NgForm) {
+  onClickSubmit(form: NgForm) {
     this.changeJiraAccountSubmit(form);
   }
 

@@ -53,9 +53,9 @@ export class CreateNewStoryComponent {
    */
   createNewStory(event) {
     event.stopPropagation();
-    const title = this.storyTitle; //(document.getElementById('storytitle') as HTMLInputElement).value;
-    if (title.trim() !== ""){
-      const description = this.storyDescription; //(document.getElementById('storydescription') as HTMLInputElement).value;
+    const title = this.storyTitle;
+    if (title.trim() !== '') {
+      const description = this.storyDescription;
       this.storyTitle = null;
       this.storyDescription = null;
       const value = localStorage.getItem('repository');
@@ -66,7 +66,6 @@ export class CreateNewStoryComponent {
       this.apiService.createCustomStoryEvent({repositoryContainer, story});
       this.modalReference.close();
     }
-    
   }
 
   enterSubmit(event) {

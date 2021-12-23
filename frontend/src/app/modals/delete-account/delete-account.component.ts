@@ -35,8 +35,7 @@ export class DeleteAccountComponent {
  */
   deleteAccount(form: NgForm) {
     const insertedEmail = form.value.insertedEmail;
-    
-    if (insertedEmail !==undefined && insertedEmail === this.email) {
+    if (insertedEmail !== undefined && insertedEmail === this.email) {
         this.apiService.deleteUser().subscribe(resp => {
             this.toastr.info('', 'User Deleted');
             this.apiService.logoutEvent.emit();

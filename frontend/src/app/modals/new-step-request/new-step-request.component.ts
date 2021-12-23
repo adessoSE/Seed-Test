@@ -27,10 +27,11 @@ export class NewStepRequestComponent {
 
   /**
    * Submits a request to create a new step
+   * @param event
    * @param form
    */
   submitNewStepRequest(event, form: NgForm) {
-    let title = form.value.label_form;
+    const title = form.value.label_form;
     const type = 'Type: '.concat((document.getElementById('type_form') as HTMLSelectElement).value, '\n');
     const description = 'Description: '.concat(form.value.description_form, '\n');
     const email = 'Email: '.concat(form.value.email, '\n');
@@ -48,17 +49,13 @@ export class NewStepRequestComponent {
       ]
     };
     console.log(obj.title, obj.body);
-      /* if (title.length === 0) {
-        title = (document.getElementById('label_form') as HTMLInputElement).placeholder;
-      } */
-    if (title.trim() !== "") {
+    if (title.trim() !== '') {
       this.apiService.submitGithub(obj).subscribe((resp) => {
         console.log(resp);
       });
-    }
-    else {
+    } else {
       this.unallowableNameToast();
-    }   
+    }
   }
 
   enterSubmit(event, form: NgForm) {
