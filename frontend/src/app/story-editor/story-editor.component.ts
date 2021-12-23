@@ -73,7 +73,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
    * hide result of story
    */
   @Input()
-  set testRunningForGroup(groupRunning: boolean){
+  set testRunningForGroup(groupRunning: boolean) {
       this.testRunningGroup = groupRunning;
       this.showResults = false;
       try {
@@ -297,17 +297,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             this.showEditor = false;
             this.storyDeleted();
         });
-        
+
         this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(errorCode => {
             this.storiesError = true;
             this.showEditor = false;
-            
+
         });
 
         this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
             this.deleteScenario(this.selectedScenario);
         });
-            
+
         this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option === 'run') {
                 this.runUnsaved = true;
@@ -334,7 +334,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
           });
 
         this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-        
+
         this.isDark = this.themeService.isDarkMode();
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
@@ -346,32 +346,32 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
           });
     }
 
-    ngOnDestroy(){
-        if(!this.deleteStoryObservable.closed){
+    ngOnDestroy() {
+        if (!this.deleteStoryObservable.closed) {
             this.deleteStoryObservable.unsubscribe();
         }
-        if(!this.storiesErrorObservable.closed){
+        if (!this.storiesErrorObservable.closed) {
             this.storiesErrorObservable.unsubscribe();
         }
-        if(!this.deleteScenarioObservable.closed){
+        if (!this.deleteScenarioObservable.closed) {
             this.deleteScenarioObservable.unsubscribe();
         }
-        if(!this.runSaveOptionObservable.closed){
+        if (!this.runSaveOptionObservable.closed) {
             this.runSaveOptionObservable.unsubscribe();
         }
-        if(!this.addBlocktoScenarioObservable.closed){
+        if (!this.addBlocktoScenarioObservable.closed) {
             this.addBlocktoScenarioObservable.unsubscribe();
         }
-        if(!this.renameStoryObservable.closed){
+        if (!this.renameStoryObservable.closed) {
             this.renameStoryObservable.unsubscribe();
         }
-        if(!this.themeObservable.closed){
+        if (!this.themeObservable.closed) {
             this.themeObservable.unsubscribe();
         }
-        if(!this.getBackendUrlObservable.closed){
+        if (!this.getBackendUrlObservable.closed) {
             this.getBackendUrlObservable.unsubscribe();
         }
-        if(!this.getStoriesObservable.closed){
+        if (!this.getStoriesObservable.closed) {
             this.getStoriesObservable.unsubscribe();
         }
     }
@@ -534,7 +534,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 }
             }
         }
-        // this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated = !this.selectedStory.background.stepDefinitions[stepStepType][index].deactivated
         this.selectedStory.background.saved = false;
     }
 
@@ -835,7 +834,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
             // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
             // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
-
             loadingScreen.scrollIntoView();
             this.apiService
                 .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
@@ -843,8 +841,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                         repository: localStorage.getItem('repository'),
                         source: localStorage.getItem('source'),
                         oneDriver: this.selectedStory.oneDriver
-                        //waitTime: defaultWaitTimeInput,
-                        //daisyAutoLogout: daisyAutoLogout
                     })
                 .subscribe((resp: any) => {
                     this.reportId = resp.reportId;
@@ -859,18 +855,18 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                     }, 10);
                     this.toastr.info('', 'Test is done');
                     this.runUnsaved = false;
-                    
                     this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
-                    .subscribe((resp)=> {
-                        if(scenario_id){
-                            let val = resp.scenarios.filter(scenario=> scenario.scenario_id === scenario_id)
-                            this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed)
-                        } else{
-                            resp.scenarios.forEach(scenario => {
-                                this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed)
+                    .subscribe((story) => {
+                        if (scenario_id) {
+                            const val = story.scenarios.filter(scenario => scenario.scenario_id === scenario_id);
+                            this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed);
+                        } else {
+                          story.scenarios.forEach(scenario => {
+                                this.apiService.scenarioStatusChangeEmit(
+                                  this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed);
                             });
                         }
-                    })
+                    });
                 });
         } else {
             this.currentTestScenarioId = scenario_id;
