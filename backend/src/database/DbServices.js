@@ -25,8 +25,8 @@ if (!process.env.NODE_ENV) {
 const uri = process.env.DATABASE_URI;
 const dbName = 'Seed';
 const userCollection = 'User';
-const storiesCollection = 'ChrisOnlyStories';
-const repositoriesCollection = 'ChrisOnlyRepositories';
+const storiesCollection = 'Stories';
+const repositoriesCollection = 'Repositories';
 const steptypesCollection = 'stepTypes';
 const PwResetReqCollection = 'PwResetRequests';
 const CustomBlocksCollection = 'CustomBlocks';
