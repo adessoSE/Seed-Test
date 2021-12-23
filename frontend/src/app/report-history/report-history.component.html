@@ -5,7 +5,7 @@ class="reportHistoryContainer">
         <div>
             <a class="title">
                 <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
-                    <img id="backImage" src ="../assets/left.svg">
+                    <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
                 </button>
             </a>
         </div>
@@ -79,7 +79,8 @@ class="reportHistoryContainer">
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let grprep of reports.groupReports; let i = index" class="report">
                 <div>
-                    <a [class.notPassed]="!grprep.overallTestStatus" [class.passed]="grprep.overallTestStatus" [routerLink]="'/report/' + grprep.reportName" target="_blank">
+                    <a [routerLink]="'/report/' + grprep.reportName" target="_blank" style="color:#3498DB">
+                        <!--[class.notPassed]="!grprep.overallTestStatus" [class.passed]="grprep.overallTestStatus" -->
                         {{stringifyReportTime(grprep.reportTime)}}
                     </a> | Story
                     <div *ngIf="getStoryStatus(grprep, this.selectedStory._id)" class="passed"  style="display: inline">

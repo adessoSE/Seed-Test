@@ -11,10 +11,13 @@ import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
 import { Block } from '../model/Block';
-import { ModalsComponent } from '../modals/modals.component';
 import { saveAs } from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
 import { ThemingService } from '../Services/theming.service';
+import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
+import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
+import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { Subscription } from 'rxjs';
 
 /**
  * Empty background
@@ -205,6 +208,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     newStepName = 'New Step';
 
+    /**
+     * Subscribtions for all EventEmitter
+     */
+    deleteStoryObservable: Subscription;
+    storiesErrorObservable: Subscription;
+    deleteScenarioObservable: Subscription;
+    runSaveOptionObservable: Subscription;
+    addBlocktoScenarioObservable: Subscription;
+    renameStoryObservable: Subscription;
+    themeObservable: Subscription;
+    getBackendUrlObservable: Subscription;
+    getStoriesObservable: Subscription;
+
     @Input() isDark: boolean;
 
     /**
@@ -215,7 +231,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     /**
      * View child of the modals component
      */
-    @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
+    @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
+    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+    @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
 
     /**
      * Event emitter to change to the report history component
@@ -239,13 +257,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         private toastr: ToastrService,
         public themeService: ThemingService
     ) {
-        this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
-            this.storiesLoaded = true;
-            this.storiesError = false;
-            this.showEditor = false;
-            this.setStories(stories);
-            this.db = localStorage.getItem('source') === 'db' ;
-        });
 
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -261,12 +272,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         } else {
           this.daisyVersion = false;
         }
-
-        this.apiService.getBackendUrlEvent.subscribe(() => {
-          this.loadStepTypes();
-        });
-
-        
     }
 
     /**
@@ -280,68 +285,95 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * Subscribes to all necessary events
      */
     ngOnInit() {
-        this.apiService.storiesErrorEvent.subscribe(errorCode => {
-            this.storiesError = true;
+        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
+            this.storiesLoaded = true;
+            this.storiesError = false;
             this.showEditor = false;
+            this.setStories(stories);
+            this.db = localStorage.getItem('source') === 'db' ;
         });
 
-        this.apiService.deleteStoryEvent.subscribe(() => {
+        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
             this.showEditor = false;
             this.storyDeleted();
-            });
-  
-          this.apiService.deleteScenarioEvent.subscribe(() => {
+        });
+        
+        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(errorCode => {
+            this.storiesError = true;
+            this.showEditor = false;
+            
+        });
+
+        this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
             this.deleteScenario(this.selectedScenario);
-            });
-  
-          this.apiService.deleteStoryEvent.subscribe(() => {
-              this.showEditor = false;
-          });
-  
-          this.apiService.runSaveOptionEvent.subscribe(option => {
-              if (option === 'run') {
-                  this.runUnsaved = true;
-                  this.runOption();
-              }
-              if (option === 'saveRun') {
-                  this.saveBackgroundAndRun = true;
-                  this.updateBackground();
+        });
+            
+        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
+            if (option === 'run') {
+                this.runUnsaved = true;
+                this.runOption();
+            }
+            if (option === 'saveRun') {
+                this.saveBackgroundAndRun = true;
+                this.updateBackground();
             }
           });
-  
-          this.apiService.addBlockToScenarioEvent.subscribe(block => {
-              if (block[0] === 'background') {
-                  block = block[1];
-                  Object.keys(block.stepDefinitions).forEach((key, index) => {
-                      if (key === 'when') {
-                          block.stepDefinitions[key].forEach((step: StepType) => {
-                            this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                          });
-                      }
-                  });
-                    this.selectedStory.background.saved = false;
-              }
-          });
-          this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
-        
 
+        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
+            if (block[0] === 'background') {
+                block = block[1];
+                Object.keys(block.stepDefinitions).forEach((key, index) => {
+                    if (key === 'when') {
+                        block.stepDefinitions[key].forEach((step: StepType) => {
+                        this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                        });
+                    }
+                });
+                this.selectedStory.background.saved = false;
+            }
+          });
+
+        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(newName => this.renameStory(newName));
+        
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged.subscribe((changedTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
             console.log('Changed to ' + changedTheme);
         });
 
+        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
+            this.loadStepTypes();
+          });
     }
 
     ngOnDestroy(){
-        //this.apiService.runSaveOptionEvent.unsubscribe();
-        this.apiService.renameStoryEvent.unsubscribe();
-        this.apiService.addBlockToScenarioEvent.unsubscribe();
-        //this.apiService.getStoriesEvent.unsubscribe();
-        this.apiService.storiesErrorEvent.unsubscribe();
-        //this.apiService.getBackendUrlEvent.unsubscribe();
-        this.apiService.deleteScenarioEvent.unsubscribe();
-        this.apiService.deleteStoryEvent.unsubscribe();
+        if(!this.deleteStoryObservable.closed){
+            this.deleteStoryObservable.unsubscribe();
+        }
+        if(!this.storiesErrorObservable.closed){
+            this.storiesErrorObservable.unsubscribe();
+        }
+        if(!this.deleteScenarioObservable.closed){
+            this.deleteScenarioObservable.unsubscribe();
+        }
+        if(!this.runSaveOptionObservable.closed){
+            this.runSaveOptionObservable.unsubscribe();
+        }
+        if(!this.addBlocktoScenarioObservable.closed){
+            this.addBlocktoScenarioObservable.unsubscribe();
+        }
+        if(!this.renameStoryObservable.closed){
+            this.renameStoryObservable.unsubscribe();
+        }
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.getBackendUrlObservable.closed){
+            this.getBackendUrlObservable.unsubscribe();
+        }
+        if(!this.getStoriesObservable.closed){
+            this.getStoriesObservable.unsubscribe();
+        }
     }
 
     /**
@@ -349,7 +381,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * @param event
      */
     addBlock(event) {
-        this.modalsComponent.openAddBlockFormModal('background', localStorage.getItem('id'));
+        this.addBlockModal.openAddBlockFormModal('background', localStorage.getItem('id'));
     }
 
     /**
@@ -410,7 +442,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         .changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
         .subscribe((resp: any) => {
             this.selectedStory = resp;
-        })
+        });
     }
 
     /**
@@ -466,11 +498,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 }
             }
         }
-        if (checkCount >= stepCount) {
-            this.allChecked = true;
-        } else {
-            this.allChecked = false;
-        }
+        this.allChecked = checkCount >= stepCount;
         if (checkCount <= 0) {
             this.allChecked = false;
             this.activeActionBar = false;
@@ -756,7 +784,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         }
 
         const block: Block = {name: 'TEST', stepDefinitions: saveBlock};
-        this.modalsComponent.openSaveBlockFormModal(block, this);
+        this.saveBlockModal.openSaveBlockFormModal(block, this);
     }
 
     /**
@@ -844,17 +872,17 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     /**
      * Download the test report
      */
-  downloadFile() {
+    downloadFile() {
       const blob = new Blob([this.htmlReport], {type: 'text/html'});
-      saveAs(blob, this.selectedStory.title + '.html');
-  }
+        saveAs(blob, this.selectedStory.title + '.html');
+    }
 
   /**
    * Set the time to wait between the steps
    * @param event
    * @param newTime
    */
-  setStepWaitTime(event, newTime) {
+    setStepWaitTime(event, newTime) {
         if (this.selectedScenario) {
             this.selectedScenario.stepWaitTime = newTime;
             this.selectedScenario.saved = false;
@@ -874,74 +902,74 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     /**
      * Hide the test results
      */
-  hideResults() {
+    hideResults() {
       this.showResults = !this.showResults;
-  }
+    }
 
   /**
    * If the story is saved
    * @returns
    */
-  storySaved() {
-    return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
-  }
+    storySaved() {
+        return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
+    }
 
   /**
    * sort the step types
    * @returns
    */
-  sortedStepTypes() {
-    const sortedStepTypes = this.originalStepTypes;
-    sortedStepTypes.sort((a, b) => {
-        return a.id - b.id;
-    });
-    return sortedStepTypes;
- }
+    sortedStepTypes() {
+        const sortedStepTypes = this.originalStepTypes;
+        sortedStepTypes.sort((a, b) => {
+            return a.id - b.id;
+        });
+        return sortedStepTypes;
+    }
 
  /**
   * Mark the report as not saved
   * @param reportId
   * @returns
   */
- unsaveReport(reportId) {
-    this.reportIsSaved = false;
-    return new Promise<void>((resolve, reject) => {this.apiService
-      .unsaveReport(reportId)
-      .subscribe(_resp => {
+    unsaveReport(reportId) {
+        this.reportIsSaved = false;
+        return new Promise<void>((resolve, reject) => {this.apiService
+        .unsaveReport(reportId)
+        .subscribe(_resp => {
           resolve();
-      }); });
-  }
+        }); });
+    }
 
   /**
    * Mark the report as saved
    * @param reportId
    * @returns
    */
-  saveReport(reportId) {
-    this.reportIsSaved = true;
-    return new Promise<void>((resolve, reject) => {this.apiService
-      .saveReport(reportId)
-      .subscribe(_resp => {
-          resolve();
-      }); });
-  }
+    saveReport(reportId) {
+        this.reportIsSaved = true;
+        return new Promise<void>((resolve, reject) => {this.apiService
+        .saveReport(reportId)
+      . subscribe(_resp => {
+            resolve();
+        }); });
+    }
     /**
      * Opens the Modal to rename the story
      * @param newStoryTitle
      */
-     changeStoryTitle() {
-    this.modalsComponent.openRenameStoryModal(this.stories,this.selectedStory);
-   }
+    changeStoryTitle() {
+        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title);
+    }
     /**
      * Renames the story
      * @param newStoryTitle
      */
-   renameStory(newStoryTitle) {
-    if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
-        this.selectedStory.title = newStoryTitle;
+    renameStory(newStoryTitle) {
+        if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+            this.selectedStory.title = newStoryTitle;
+        }
+        this.updateStory();
     }
-    this.updateStory();
-   }
 
    /**
      * Updates the story
@@ -953,11 +981,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             .subscribe(_resp => {
                 this.toastr.success('successfully saved', 'Story');
             }); }
-        }
+    }
 
     storyLink() {
         return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
     }
+
     showStoryLinkToast() {
         this.toastr.success('', 'Successfully added Link to Clipboard!');
     }
@@ -966,27 +995,27 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
    * Opens the delete story toast
    * @param story
    */
-  showDeleteStoryToast(story: Story) {
-    this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
-        toastComponent: DeleteStoryToast
-    });
-  }
+    showDeleteStoryToast(story: Story) {
+        this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
+            toastComponent: DeleteStoryToast
+        });
+    }
 
 
-  downloadFeature() {
+    downloadFeature() {
       const source = this.selectedStory.storySource;
       const id = this.selectedStory._id;
       this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
           saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
       });
-  }
+    }
 
   /**
      * Emitts the delete story event
      * @param event
      */
-   deleteStory(event) {
-    this.deleteStoryEvent.emit(this.selectedStory);
+    deleteStory(event) {
+        this.deleteStoryEvent.emit(this.selectedStory);
     }
 
       /**

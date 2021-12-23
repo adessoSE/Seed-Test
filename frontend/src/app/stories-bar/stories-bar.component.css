@@ -33,41 +33,12 @@
     grid-area: storyHeader;
   }
 
-  .infoIcon{
-    grid-area: storyHeader;
-    color: #999;
-    padding-top: 3px;
-    margin-left: 7px;
-  }
-
-  .def {
-    color: #999;
-    cursor: help;
-    position: relative;
-    z-index: 2;
-    top: -2px;
-  }
-
-  .def span[rel=def] {
-    display: none;
-  }
-
-  .def:hover span[rel=def] {
-    font-size: small;
-    color: white;
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    bottom: 2em;
-    left: 2em;
-    width: 30em;
-    padding: 0.5em;
-    display: block;
-  }
-
- .darkTheme .def:hover span {
-  background-color: #90A4AE;
- }
-
+.infoIcon{
+  grid-area: storyHeader;
+  color: #999;
+  padding-top: 3px;
+  margin-left: 7px;
+}
 
   #createNewStoryDiv{
     text-align: right;
@@ -255,13 +226,15 @@
     margin-left: 18px;
     white-space: nowrap;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     align-self: center;
   }
   #eraseIcon{
     color: var(--brown-grey);
     vertical-align: middle;
-    border-bottom: 1px solid var(--brown-grey);
+    /* border-bottom: 1px solid var(--brown-grey); */
+    position: relative;
+    left: -19px;
   }
   #eraseIcon:hover{
     cursor: pointer;
@@ -270,14 +243,14 @@
     border: none;
     border-bottom: 1px solid var(--brown-grey);
     font-weight: normal;
-    width: 50%;
+    width: 62%;
+  }
+
+  .darkTheme .searchInput {
+    border-bottom: 1px solid #60767b;
   }
   .searchInput:focus{
     outline: none;
-  }
-  #searchBarIcons{
-    color: var(--brown-grey);
-    vertical-align: middle;
   }
 
   .filterFormField{
@@ -319,7 +292,7 @@
     justify-content: flex-start;
     margin-left: 0px;
   }
-
+  
 @media screen and (max-width: 600px) {
   .grid{
       display: grid;

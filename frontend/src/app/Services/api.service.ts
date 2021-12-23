@@ -109,6 +109,7 @@ export class ApiService {
 
     public updateRepositoryEvent: EventEmitter<any> = new EventEmitter();
 
+
     /**
      * Gets api headers
      * @returns
@@ -157,14 +158,14 @@ export class ApiService {
     }
 
     /**
-     * Emits if repositories changed 
+     * Emits if repositories changed
      */
     public updateRepositoryEmitter() {
         this.updateRepositoryEvent.emit();
     }
 
     /**
-     * Emits if repositories should be reloaded 
+     * Emits if repositories should be reloaded
      */
      public getRepositoriesEmitter() {
         this.getRepositoriesEvent.emit();
@@ -279,12 +280,12 @@ export class ApiService {
     /**
      * Delete one Repository
      * @param repo
-     * @returns 
+     * @returns
      */
     deleteRepository(repo: RepositoryContainer, user){
         this.apiServer = localStorage.getItem('url_backend');
-
         const str = this.apiServer + '/user/repositories/' + repo._id + '/' + user;
+        //Here repo will be deleted ---->
         return this.http.delete<any>(str, ApiService.getOptions())
         .pipe(tap(resp => {
 
@@ -920,7 +921,7 @@ export class ApiService {
      */
     runTests(storyID: any, storySource: string, scenarioID: number, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        const timeout = 600000;
+        const timeout = 900000;
         if (scenarioID) {
             return this.http
                 .post(this.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
@@ -931,7 +932,7 @@ export class ApiService {
 
     runGroup(repoID, groupID, params) {
         this.apiServer = localStorage.getItem('url_backend');
-        const timeout = 600000;
+        const timeout = 6000000;
         return this.http
             .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
@@ -951,7 +952,7 @@ export class ApiService {
             }));
     }
 
-    createGroup(title: string, repoId: string, member_stories, isSequential: boolean): Observable<any> {
+    createGroup(title: string, repoId: string, member_stories, isSequential): Observable<any> {
         console.log('createGroup', title, repoId, isSequential);
         return this.http
             .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories, 'sequence': isSequential}, ApiService.getOptions());
@@ -1031,5 +1032,5 @@ export class ApiService {
         return this.http
             .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
     }
-    
+
 }

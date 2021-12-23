@@ -1,4 +1,4 @@
-<div [class.darkTheme] ="isDark" class="grid"  >
+<div [class.darkTheme] ="isDark" class="grid">
     <div class="storiesBar">
         <app-stories-bar [isDark] ="isDark" #storiesBar (storyChosen)="setSelectedStory($event);" (scenarioChosen)="setSelectedScenario($event);" (report)="viewReport($event);" (testRunningGroup)="testRunningGroup($event)"></app-stories-bar>
     </div>

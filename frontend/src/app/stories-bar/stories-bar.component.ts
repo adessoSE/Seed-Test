@@ -2,12 +2,14 @@ import {Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input} fr
 import {ApiService} from '../Services/api.service';
 import {Story} from '../model/Story';
 import {Scenario} from '../model/Scenario';
-import {ModalsComponent} from '../modals/modals.component';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {Group} from '../model/Group';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { ToastrService } from 'ngx-toastr';
 import { ThemingService } from '../Services/theming.service';
+import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-group.component';
+import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
+import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
 
 
 /**
@@ -94,7 +96,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Subscription element if a Story should be deleted
      */
-     deleteStorySubscribtion: Subscription;
+    deleteStoryObservable;
+
+    /**
+     * Subscription element if theme should change
+     */
+    themeObservable;
+
+    /**
+     * Subscription element to get Stories
+     */
+    getStoriesObservable;
 
     @Input() isDark: boolean;
 
@@ -136,7 +148,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * View Child Modals
      */
-    @ViewChild('modalsComponent') modalsComponent: ModalsComponent;
+    @ViewChild('createNewGroup') createNewGroup: CreateNewGroupComponent;
+    @ViewChild('createNewStory') createNewStory: CreateNewStoryComponent;
+    @ViewChild('updateGroup') updateGroup : UpdateGroupComponent;
 
     /**
      * Constructor
@@ -144,11 +158,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * @param ThemingService
      */
     constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {
-        this.apiService.getStoriesEvent.subscribe(stories => {
-            this.stories = stories.filter(s => s != null);
-            this.filteredStories = this.stories;
-            this.isCustomStory = localStorage.getItem('source') === 'db';
-        });
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
         } );
@@ -167,6 +176,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Checks if this is the daisy version
      */
     ngOnInit() {
+        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe(stories => {
+            this.stories = stories.filter(s => s != null);
+            this.filteredStories = this.stories;
+            this.isCustomStory = localStorage.getItem('source') === 'db';
+        });
+
         this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
             this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
@@ -178,7 +193,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createGroupEmitter = this.apiService.createCustomGroupEmitter.subscribe(custom => {
-            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.seq).subscribe(respp => {
+            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.isSequential).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
@@ -202,24 +217,31 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.isDark = this.themeService.isDarkMode();
-        this.themeService.themeChanged
-        .subscribe((currentTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
             this.isDark = this.themeService.isDarkMode();
-    });
+        });
 
-    this.apiService.deleteStoryEvent.subscribe(() => {
-        this.deleteStory();
-      });
+        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+            this.deleteStory();
+        });
+
         
     }
-
+    /* TODO */
     ngOnDestroy() {
         this.createStoryEmitter.unsubscribe();
         this.createGroupEmitter.unsubscribe();
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
-        //this.apiService.getStoriesEvent.unsubscribe();
-        this.apiService.deleteStoryEvent.unsubscribe();
+        if(!this.deleteStoryObservable.closed){
+            this.deleteStoryObservable.unsubscribe();
+        }
+        if(!this.themeObservable.closed){
+            this.themeObservable.unsubscribe();
+        }
+        if(!this.getStoriesObservable.closed){
+            this.getStoriesObservable.unsubscribe();
+        }
     }
 
 
@@ -323,10 +345,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Opens a create New scenario Modal
+     * Opens a create New story Modal
      */
     openCreateNewStoryModal() {
-        this.modalsComponent.openCreateNewStoryModal(this.stories);
+        this.createNewStory.openCreateNewStoryModal();
     }
 
     addFirstScenario() {
@@ -352,15 +374,14 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Opens a create New group Modal
      */
     openCreateNewGroupModal() {
-        console.log(this.groups);
-        this.modalsComponent.openCreateNewGroupModal(this.groups);
+        this.createNewGroup.openCreateNewGroupModal(this.groups);
     }
 
     /**
      * Opens a update group Modal
      */
     openUpdateGroupModal(group: Group) {
-        this.modalsComponent.openUpdateGroupModal(group, this.groups);
+        this.updateGroup.openUpdateGroupModal(group, this.groups);
     }
 
     dropStory(event: CdkDragDrop<string[]>) {

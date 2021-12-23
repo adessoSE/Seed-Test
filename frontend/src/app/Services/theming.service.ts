@@ -32,17 +32,6 @@ export class ThemingService {
     return of(this.currentTheme)
   }
 
- /*  setNewTheme () {
-    if(this.currentTheme === 'darkTheme') {
-      this.currentTheme = '';
-    } else {
-      this.currentTheme = 'darkTheme';
-    }
-    this.renderTemplate(this.currentTheme);
-    localStorage.setItem('user-theme', this.currentTheme);
-    this.themeChanged.emit(this.currentTheme);
-  } */
-
   setNewTheme (isDark:boolean) {
     if(isDark) {
       this.currentTheme = 'darkTheme';
