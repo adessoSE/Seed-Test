@@ -97,6 +97,11 @@ export class ApiService {
     public deleteRepositoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to reload scenario status
+     */
+    public scenarioStatusChangeEvent = new EventEmitter();
+
+    /**
      * Event emitter to create a custom story
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
@@ -185,6 +190,17 @@ export class ApiService {
      */
      renameStoryEmit(newStoryTitle) {
         this.renameStoryEvent.emit(newStoryTitle);
+    }
+
+    /**
+     * Emits the scenario status change event
+     * @param storyId id of the story
+     * @param scenarioId id of the scenario thats changed
+     * @param lastTestPassed value status changed to
+     */
+    scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
+        let val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed}
+        this.scenarioStatusChangeEvent.emit(val)
     }
 
     /**
