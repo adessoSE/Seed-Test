@@ -70,7 +70,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
          dots: false,
          navSpeed: 1500, // speed of slide change, lower = faster
          navText: ['<em class="material-icons" id="carousel_arrow">arrow_back</em>','<em class="material-icons" id="carousel_arrow">arrow_forward</em>'],
-         nav: true
+         nav: true,
+         autoplaySpeed: 1500
     }
 
 
