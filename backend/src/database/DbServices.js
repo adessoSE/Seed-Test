@@ -993,19 +993,6 @@ async function getReport(reportName) {
 	}
 }
 
-// create User in DB needs JsonObject User returns JsonObject(user)
-// async function createUser(user) {
-// 	try {
-// 		const db = dbConnection.getConnection();
-// 		const result = await db.collection(userCollection).insertOne(user);
-// 		console.log(result.ops[0]);
-// 		return result;
-// 	} catch (e) {
-// 		console.log(`ERROR in createUser: ${e}`);
-// 		throw e;
-// 	}
-// }
-
 // delete User in DB needs ID
 async function deleteUser(userID) {
 	try {
@@ -1127,14 +1114,9 @@ async function addMember(id, user) {
 			await wGCollection.insertOne({
 				name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
 			});
-			const result = { owner: {}, member: [] };
-			const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
-			result.owner = { email: owner.email, canEdit: true };
-			result.member = wG.Members;
-			return result;
+		} else {
+			await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
 		}
-		// if there is a workGroup already:
-		await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
 		const result = { owner: {}, member: [] };
 		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
 		result.owner = { email: owner.email, canEdit: true };

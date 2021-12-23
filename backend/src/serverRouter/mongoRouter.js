@@ -84,18 +84,6 @@ router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
 	}
 });
 
-// // create user
-// router.post('/user/add', async (req, res) => {
-// 	try {
-// 		const user = req.body;
-// 		const result = await mongo.createUser(user);
-// 		res.status(200)
-// 			.json(result);
-// 	} catch (error) {
-// 		handleError(res, error, error, 500);
-// 	}
-// });
-
 // update user
 router.post('/user/update/:userID', async (req, res) => {
 	try {
