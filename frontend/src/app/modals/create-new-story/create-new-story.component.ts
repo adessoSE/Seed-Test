@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
@@ -18,21 +18,23 @@ export class CreateNewStoryComponent {
   /**
      * selectable Stories when create Group
      */
-   stories: Story[];
+  stories: Story[];
 
-   filteredStories: MatTableDataSource<Story>;
+  filteredStories: MatTableDataSource<Story>;
 
-   groups: Group[];
+  groups: Group[];
 
-   selectedStories: string[];
+  selectedStories: string[];
 
-   groupTitle: string;
+  groupTitle: string;
 
-   groupId: string;
+  groupId: string;
 
   storyTitle: string;
 
   storyDescription: string;
+
+  modalReference: NgbModalRef;
 
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
@@ -42,17 +44,18 @@ export class CreateNewStoryComponent {
     /**
      * Opens the create new story modal
      */
-    openCreateNewStoryModal() {
-      this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+  openCreateNewStoryModal() {
+    this.modalReference = this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
   /**
    * Creates a new custom story
    */
   createNewStory(event) {
-      event.stopPropagation();
-      const title = this.storyTitle; //(document.getElementById('storytitle') as HTMLInputElement).value;
-      const description = this.storyDescription; //(document.getElementById('storydescription') as HTMLInputElement).value;
+    event.stopPropagation();
+    const title = this.storyTitle;
+    if (title.trim() !== '') {
+      const description = this.storyDescription;
       this.storyTitle = null;
       this.storyDescription = null;
       const value = localStorage.getItem('repository');
@@ -61,6 +64,18 @@ export class CreateNewStoryComponent {
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const story = {title, description};
       this.apiService.createCustomStoryEvent({repositoryContainer, story});
+      this.modalReference.close();
+    }
+  }
+
+  enterSubmit(event) {
+    if (event.keyCode === 13) {
+      this.createNewStory(event);
+    }
+  }
+
+  onClickSubmit(event) {
+    this.createNewStory(event);
   }
 
 }

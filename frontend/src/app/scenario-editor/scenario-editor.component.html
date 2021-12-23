@@ -4,7 +4,7 @@
       <div class="scenarioHeaderContainer">
         <div>
           <span id="scenarioHeader" class="Smallnavigation2">Scenario</span>
-            <dfn class="def"><span id="infoIconScenario" uk-icon="info"></span>
+            <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
               <span rel="def" id="scenarioInfoTextPosition">Each scenario is an example describing a specific behavioral aspect of the system.
                 It makes statements about how the system behaves when a particular action is executed taking into account certain preconditions.
                 A scenario consists of individual steps:
@@ -67,7 +67,7 @@
       <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock($event)">
         <em class="material-icons">playlist_add</em>
       </button>
-      <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="addScenarioToStory(selectedStory._id)">
+      <button id="new_scenario" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
         <em class="material-icons">add</em>
       </button>
       <button id="scenario_save" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioButton" data-uk-tooltip
@@ -168,7 +168,7 @@
                 <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
                   type="text" value="{{value}}" on-input="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" />
                   <div *ngIf="currentStep.outdated">
-                    <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                    <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                       <span rel="def">
                         This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the scenario to confirm your adjustments.
                       </span>
@@ -231,4 +231,5 @@
 <app-save-block-form #saveBlockModal></app-save-block-form>
 <app-new-step-request #newStepRequest></app-new-step-request>
 <app-rename-scenario #renameScenarioModal></app-rename-scenario>
+<app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)"></app-create-scenario>
 

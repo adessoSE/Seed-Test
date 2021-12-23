@@ -34,6 +34,12 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
     /**
+     * Viewchild to auto open mat-select
+     */
+    @ViewChild('ngSelect') ngSelect;
+
+
+    /**
      * Repositories or projects of this user
      */
 
@@ -105,6 +111,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
+
+        // fill repository list for download
+        this.searchRepos('')
     }
 
     ngOnDestroy() {
@@ -253,13 +262,15 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     searchRepos(value) {
-        console.log(this.searchInput);
         this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
             if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
                 return repo;
             }
         });
+        if(this.searchInput != ''){
+            this.ngSelect.open();
+        }
     }
 
     /**
@@ -269,5 +280,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         let value = sessionStorage.getItem('repositories')
         let repository: RepositoryContainer = JSON.parse(value)
         this.seperateRepos(repository)
+
+        // update repo download list
+        this.searchRepos('')
     } 
 }

@@ -11,18 +11,19 @@
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
             <div>
-                <form #workgroupInviteForm="ngForm" novalidate (ngSubmit)="workgroupInvite(workgroupInviteForm);">
+                <form #workgroupInviteForm="ngForm" novalidate [disabled]="workgroupInviteForm.invalid"
+                (ngSubmit)="workgroupInvite(workgroupInviteForm);">
                     <label style="margin-right: 10px;">Project Owner:</label>
                     <label>{{this.workgroupOwner}}</label>
-                        <div class="divWrapper">
-                            <input class="workGroupEmail" type="email" ngModel name="email" placeholder="Email*">
-                            <button type="submit" class="normalButton">Invite to Team</button>
-                        </div>
-                        <div class="canEditContainer divWrapper">
-                            <label class="canEditLabel addTeamMembersLabel" >Can add team members</label>
-                            <input type="checkbox" ngModel name="canEdit"
-                            class="normalButton addTeamMembersLabel" style="align-self: center;">
-                        </div>
+                    <div class="divWrapper">
+                        <input class="workGroupEmail leftMargin" type="email" ngModel name="email" placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+                        <button type="submit" class="normalButton">Invite to Team</button>
+                    </div>
+                    <div class="canEditContainer divWrapper">
+                        <label class="canEditLabel addTeamMembersLabel" >Can add team members</label>
+                        <input type="checkbox" ngModel name="canEdit"
+                        class="normalButton addTeamMembersLabel" style="align-self: center;">
+                    </div>
                 </form>
             </div>
         </div>
@@ -50,8 +51,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <!--  -->
-        <button *ngIf="userEmail==workgroupOwner" type="button" class="normalButton deleteProjectButton" (click)="showDeleteRepositoryToast()" >Delete Project
+        <button *ngIf="userEmail==workgroupOwner" type="button" class="normalButton deleteButton" (click)="showDeleteRepositoryToast()" >Delete Project
         </button>
         <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
         </button>

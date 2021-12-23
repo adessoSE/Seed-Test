@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle,curly */
 const { exec } = require('child_process');
 const fs = require('fs');
@@ -9,7 +11,7 @@ const lodash = require('lodash');
 const AdmZip = require('adm-zip');
 const crypto = require('crypto');
 const passport = require('passport');
-const mongo = require('./database/mongodatabase');
+const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
@@ -800,11 +802,16 @@ async function jiraProjects(user) {
 							json = {};
 						}
 						let names = [];
+						let jiraRepo;
+						const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
 						if (Object.keys(json).length !== 0) {
 							for (const repo of json) {
-								// TODO: @Chris: Check this, because it may be run too often
-								const result = await mongo.createJiraRepoIfNoneExists(repo.name, source);
-								names.push({ name: repo.name, _id: result._id });
+								if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
+									jiraRepo = await mongo.createJiraRepo(repo.name);
+								} else {
+									jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
+								}
+								names.push({ name: repo.name, _id: jiraRepo._id });
 							}
 							names = names.map((value) => ({
 								_id: value._id,
@@ -863,9 +870,16 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 			if (this.readyState === 4 && this.status === 200) {
 				const data = JSON.parse(xmlrequest.responseText);
 				const projects = [];
+				const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');
+				let mongoRepo;
 				for (const repo of data) {
-					// TODO: @Chris: Check this, because it may be run too often
-					const mongoRepo = await mongo.createGitOwnerRepoIfNoneExists(ownerId, githubId, repo.owner.id, repo.full_name, 'github');
+					// if this Repository is not in the DB create one ind DB
+					if (!gitReposFromDb.some((entry) => entry.repoName === repo.full_name)) {
+						mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
+					} else {
+						mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name) //await mongo.getOneGitRepository(repo.full_name)
+						if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(repo.full_name, ownerId, 'github');
+					}
 					const repoName = repo.full_name;
 					const proj = {
 						_id: mongoRepo._id,
@@ -891,7 +905,7 @@ function starredRepositories(ownerId, githubId, githubName, token) {
 }
 
 async function fuseStoryWithDb(story) {
-	const result = await mongo.getOneStoryByStoryId(parseInt(story.story_id), story.storySource);
+	const result = await mongo.getOneStory(parseInt(story.story_id, 10), story.storySource);
 	if (result !== null) {
 		story.scenarios = result.scenarios;
 		story.background = result.background;
@@ -900,8 +914,8 @@ async function fuseStoryWithDb(story) {
 		story.scenarios = [emptyScenario()];
 		story.background = emptyBackground();
 	}
-	story.story_id = parseInt(story.story_id);
-	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number);
+	story.story_id = parseInt(story.story_id, 10);
+	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number, 10);
 
 	const finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
 	story._id = finalStory._id;

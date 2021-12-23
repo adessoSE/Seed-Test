@@ -15,7 +15,7 @@ const userRouter = require('./serverRouter/userRouter');
 const groupRouter = require('./serverRouter/groupRouter');
 const workgroupsRouter = require('./serverRouter/workgroups');
 const storyRouter = require('./serverRouter/storyRouter');
-require('./database/mongodatabase');
+require('./database/DbServices');
 
 const app = express();
 app.disable('x-powered-by');
@@ -26,6 +26,7 @@ const server = app.listen(process.env.PORT || 8080, () => {
 	console.log(`App now running on port: ${port}`);
 });
 server.setTimeout(600000);
+
 /**
  * API Description
  */
@@ -84,4 +85,5 @@ app
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
+
 module.exports = { app };

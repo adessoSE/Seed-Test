@@ -64,6 +64,7 @@ import { UpdateGroupComponent } from './modals/update-group/update-group.compone
 import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-jira-account.component';
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
+import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
 
 @NgModule({
   declarations: [
@@ -108,6 +109,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
     UpdateGroupComponent,
     ChangeJiraAccountComponent,
     RepoSwichComponent,
+    CreateScenarioComponent,
   ],
   imports: [
     NgbModule,

@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgForm } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
 
 @Component({
@@ -9,7 +10,10 @@ import { ApiService } from 'src/app/Services/api.service';
 })
 export class RenameStoryComponent {
 
+  modalReference: NgbModalRef;
+
   @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
+  storyDescription: string;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
@@ -19,21 +23,34 @@ export class RenameStoryComponent {
    * @param oldDescription old description
    */
   openRenameStoryModal(oldTitle: string, oldDescription: string) {
-    this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
     const title = document.getElementById('newStoryTitle') as HTMLInputElement;
+    const description = document.getElementById('newStoryDescription') as HTMLInputElement;
     title.placeholder = oldTitle;
-    const description = document.getElementById('selectedStory.body') as HTMLInputElement;
-    description.placeholder= oldDescription;
+    description.placeholder = oldDescription;
   }
 
   /**
    * Submits the new name for the story & description
    */
-  submitRenameStory() {
-    const title = (document.getElementById('newStoryTitle') as HTMLInputElement).value ;
-    const description = (document.getElementById('selectedStory.body') as HTMLInputElement).value ;
-    this.apiService.renameDescriptionEmit(description);
-    this.apiService.renameStoryEmit(title);
+  submitRenameStory(form: NgForm) {
+    const title = form.value.newStoryTitle;
+    const description = this.storyDescription;
+    console.log(description);
+    this.apiService.renameStoryEmit(title, description);
+    this.modalReference.close();
+  }
+
+  enterSubmit(event, form: NgForm) {
+    if (event.keyCode === 13) {
+      this.submitRenameStory(form);
+      form.reset();
+    }
+  }
+
+  onClickSubmit(form: NgForm) {
+    this.submitRenameStory(form);
+    form.reset();
   }
 
 }
