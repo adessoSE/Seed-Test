@@ -6,7 +6,6 @@ import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { ApiService } from 'src/app/Services/api.service';
-import {FormBuilder, NgForm, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-create-new-group',
@@ -135,7 +134,7 @@ export class CreateNewGroupComponent {
       this.apiService.createGroupEvent({repositoryContainer, group});
       this.modalReference.close();
     }
-    
+
   }
 
   enterSubmit(event) {

@@ -97,6 +97,11 @@ export class ApiService {
     public deleteRepositoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to reload scenario status
+     */
+    public scenarioStatusChangeEvent = new EventEmitter();
+
+    /**
      * Event emitter to create a custom story
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
@@ -187,6 +192,17 @@ export class ApiService {
      */
      renameStoryEmit(newStoryTitle) {
         this.renameStoryEvent.emit(newStoryTitle);
+    }
+
+    /**
+     * Emits the scenario status change event
+     * @param storyId id of the story
+     * @param scenarioId id of the scenario thats changed
+     * @param lastTestPassed value status changed to
+     */
+    scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
+        let val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed}
+        this.scenarioStatusChangeEvent.emit(val)
     }
 
     /**
@@ -894,8 +910,7 @@ export class ApiService {
 
         return this.http
             .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID + '/' + storySource, ApiService.getOptions() )
-            .pipe(tap(resp => {
-                //  console.log('Delete background for story ' + storyID )
+            .pipe(tap(() => {
             }));
     }
 
@@ -910,8 +925,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .delete<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
-            .pipe(tap(resp => {
-                // console.log('Delete scenario ' + scenario.scenario_id + ' in story ' + storyID + '!', resp)
+            .pipe(tap(() => {
             }));
     }
 
@@ -951,13 +965,11 @@ export class ApiService {
     getReportHistory(storyId: string) {
         return this.http
             .get<any>(this.apiServer + '/run/reportHistory/' + storyId, ApiService.getOptions())
-            .pipe(tap(resp => {
-                // console.log('Add new scenario in story ' + storyID + '!', resp)
+            .pipe(tap(() => {
             }));
     }
 
     createGroup(title: string, repoId: string, member_stories, isSequential): Observable<any> {
-        //console.log('createGroup', title, repoId, isSequential);
         return this.http
             .post(this.apiServer + '/group/' + repoId, {'name': title, 'member_stories': member_stories, 'sequence': isSequential}, ApiService.getOptions());
     }

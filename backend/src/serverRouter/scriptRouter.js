@@ -8,7 +8,7 @@ const process = require('process');
 const passport = require('passport');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
-const mongo = require('../database/mongodatabase');
+const mongo = require('../database/DbServices');
 
 const router = express.Router();
 

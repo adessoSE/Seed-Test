@@ -45,18 +45,18 @@ export class WorkgroupEditComponent {
   userEmail = '';
   userId = '';
 
-  repos : RepositoryContainer[];
+  repos: RepositoryContainer[];
 
    /**
     * Model Reference for closing
     */
   modalReference: NgbModalRef;
 
-  @Output() 
-  currentRepoToDeleteEvent : EventEmitter<boolean> = new EventEmitter();
+  @Output()
+  currentRepoToDeleteEvent: EventEmitter<boolean> = new EventEmitter();
 
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
-  @ViewChild('repoSwitchModal') repoSwitchModal : RepoSwichComponent;
+  @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
     this.apiService.deleteRepositoryEvent.subscribe(() => {
@@ -102,7 +102,7 @@ export class WorkgroupEditComponent {
       this.workgroupList = originList;
     }, (error) => {
       this.workgroupError = error.error.error;
-      this.showErrorToast ()
+      this.showErrorToast();
     });
 
   }
@@ -132,14 +132,13 @@ export class WorkgroupEditComponent {
 /**
  * Delete a custom repository
  */
-  deleteCustomRepo(){
-    if(this.userEmail == this.workgroupOwner) {
-      let currentRepo = localStorage.getItem('repository');   
+  deleteCustomRepo() {
+    if (this.userEmail === this.workgroupOwner) {
+      const currentRepo = localStorage.getItem('repository');
       if (this.workgroupProject.value === currentRepo) {
         this.currentRepoToDeleteEvent.emit(true);
         this.openRepoSwitchModal();
-      }
-      else {
+      } else {
         this.currentRepoToDeleteEvent.emit(false);
         this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
           this.apiService.getRepositoriesEmitter();
@@ -170,8 +169,8 @@ export class WorkgroupEditComponent {
     this.repoSwitchModal.openModal();
   }
 
-  isCurrentToDelete (value):boolean {
-    return value
+  isCurrentToDelete (value): boolean {
+    return value;
   }
 
   enterSubmit(event, form: NgForm) {

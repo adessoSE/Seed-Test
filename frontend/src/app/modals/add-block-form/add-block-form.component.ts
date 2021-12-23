@@ -3,21 +3,17 @@ import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
 import { ApiService } from 'src/app/Services/api.service';
 import { StepType } from 'src/app/model/StepType';
-import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-add-block-form',
   templateUrl: './add-block-form.component.html',
   styleUrls: ['./add-block-form.component.css']
 })
-export class AddBlockFormComponent{
+export class AddBlockFormComponent {
 
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
 
   /**
-     * Modal: add block form modal
-     */
-
     /**
      * Saved blocks
      */
@@ -128,8 +124,8 @@ export class AddBlockFormComponent{
       });
     }
 
-    updateBlocksEventEmitter(){
-      this.apiService.updateBlocksEvent;
+    updateBlocksEventEmitter() {
+      this.apiService.updateBlocksEvent.emit();
     }
 
     enterSubmit(event) {
@@ -137,9 +133,8 @@ export class AddBlockFormComponent{
         this.addBlockFormSubmit();
       }
     }
-  
+
     onClickSubmit() {
       this.addBlockFormSubmit();
     }
-
 }

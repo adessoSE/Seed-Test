@@ -53,13 +53,13 @@ export class CreateCustomProjectComponent {
       return str === null || str.match(/^ *$/) !== null;
   }
 
-  enterSubmit(event, form : NgForm) {
+  enterSubmit(event, form: NgForm) {
     if (event.keyCode === 13) {
       this.submitRepo(form);
     }
   }
 
-  onClickSubmit(form : NgForm) {
+  onClickSubmit(form: NgForm) {
     this.submitRepo(form);
   }
 

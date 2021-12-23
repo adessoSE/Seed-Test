@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -53,7 +53,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
   modalReference: NgbModalRef;
 
-  blocks : Block[];
+  blocks: Block[];
 
   updateObservable: Subscription;
 
@@ -73,7 +73,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if(!this.updateObservable.closed){
+    if (!this.updateObservable.closed) {
       this.updateObservable.unsubscribe();
     }
   }
@@ -116,7 +116,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     if (this.exampleChecked) {
         this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock));
         this.stepListSaveBlock = this.stepListSaveBlock.filter(step => {
-            return step.stepType == 'example';
+            return step.stepType.toString() === 'example';
         });
     } else {
         this.stepListSaveBlock = JSON.parse(JSON.stringify(this.stepListComplete));
@@ -135,10 +135,10 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     let title = form.value.blockNameInput;
     if (title.trim() === '') {
       title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
-    } 
+    }
     if (this.isTitleEqual(title)) {
       this.nameExistsToast();
-      return
+      return;
     }
     this.block.name = title;
     this.block.repository = localStorage.getItem('repository');
@@ -153,23 +153,17 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   /**
  * Opens warning toast
  */
-
   nameExistsToast() {
     this.toastr.warning('', 'This name exists already. Enter unique name.', {
     });
   }
 
-  isTitleEqual(value) : Boolean {
-    var bool;
-    console.log(this.blocks);
-    this.blocks.forEach(block => { 
-      if (value === block.name) {
-        bool = true
-      }
-      else
-        {bool = false}
+  isTitleEqual(value): boolean {
+    let bool = false;
+    this.blocks.forEach(block => {
+      if (value === block.name) { bool = true; }
     });
-    return bool
+    return bool;
   }
 
   enterSubmit(event, form: NgForm) {
