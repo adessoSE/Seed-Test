@@ -896,7 +896,8 @@ a.repoLink:hover{
 }
 
 .darkTheme .mat-table,
-.darkTheme.mat-table {
+.darkTheme.mat-table,
+.darkTheme .mat-expansion-panel {
   background: map-get($mat-blue-grey, 700);
 
 }

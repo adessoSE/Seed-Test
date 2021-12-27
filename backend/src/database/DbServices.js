@@ -565,16 +565,21 @@ async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remov
 }
 
 // CREATE Scenario
-async function createScenario(storyId, storySource) { // TODO: remove storySource
+async function createScenario(storyId, storySource, scenarioTitle) { // TODO: remove storySource
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
 		const story = await findStory(storyId, storySource, collection);
 		const lastScenarioIndex = story.scenarios.length;
 		const tmpScenario = emptyScenario();
-		if (story.scenarios.length === 0) story.scenarios.push(tmpScenario);
+		if (story.scenarios.length === 0) {
+			tmpScenario.name = scenarioTitle;
+			story.scenarios.push(tmpScenario);
+		}
+
 		else {
 			tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		}
 		await replace(story, collection);
