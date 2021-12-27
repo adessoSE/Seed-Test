@@ -77,7 +77,7 @@
         </div>
 
         <div id="scenarioList" class="uk-accordion-content">
-          <button class="SmallButton" [hidden]="hideCreateScenario" (click)="addFirstScenario()">
+          <button class="SmallButton" [hidden]="hideCreateScenario" (click)="openCreateNewScenarioModal()">
             Create First Scenario
           </button>
           <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
@@ -143,4 +143,5 @@
 </div>
 <app-create-new-group #createNewGroup></app-create-new-group>
 <app-create-new-story #createNewStory></app-create-new-story>
-<app-update-group #updateGroup></app-update-group> 
+<app-update-group #updateGroup></app-update-group>
+<app-create-scenario #createNewScenario (createScenarioEvent)="addFirstScenario($event)"></app-create-scenario> 

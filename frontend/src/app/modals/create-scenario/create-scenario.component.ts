@@ -29,7 +29,7 @@ export class CreateScenarioComponent {
 
    /**
  * Opens the rename scenario Modal
- * @param oldTitle old scenario title
+ *
  */
   openCreateScenarioModal(selectedStory) {
     this.selectedStory = selectedStory;
@@ -42,7 +42,7 @@ export class CreateScenarioComponent {
   */
   createNewScenario(form: NgForm) {
     let scenarioName = form.value.newTitle;
-    //TODO: create Scenario Emitter (argument scenario name) 
+    //Create Scenario Emitter (argument scenario name) 
     this.createScenarioEvent.emit(scenarioName);
     this.modalReference.close();
   }

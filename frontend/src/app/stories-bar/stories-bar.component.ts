@@ -10,6 +10,7 @@ import { ThemingService } from '../Services/theming.service';
 import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-group.component';
 import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
 import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
+import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 
 
 /**
@@ -156,6 +157,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     @ViewChild('createNewGroup') createNewGroup: CreateNewGroupComponent;
     @ViewChild('createNewStory') createNewStory: CreateNewStoryComponent;
     @ViewChild('updateGroup') updateGroup : UpdateGroupComponent;
+    @ViewChild('createNewScenario') createNewScenario : CreateScenarioComponent;
 
     /**
      * Constructor
@@ -362,8 +364,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createNewStory.openCreateNewStoryModal();
     }
 
-    addFirstScenario() {
-        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, '')
+    addFirstScenario(event) {
+        let scenarioName = event;
+        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
                 this.selectedStory.scenarios.push(resp);
@@ -393,6 +396,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     openUpdateGroupModal(group: Group) {
         this.updateGroup.openUpdateGroupModal(group, this.groups);
+    }
+
+    openCreateNewScenarioModal() {
+        this.createNewScenario.openCreateScenarioModal(this.selectedStory);
     }
 
     dropStory(event: CdkDragDrop<string[]>) {
