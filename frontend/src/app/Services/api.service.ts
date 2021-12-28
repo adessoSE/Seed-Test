@@ -305,15 +305,14 @@ export class ApiService {
     /**
      * Delete one Repository
      * @param repo
+     * @param user
      * @returns
      */
-    deleteRepository(repo: RepositoryContainer, user){
+    deleteRepository(repo: RepositoryContainer, user) {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/user/repositories/' + repo._id + '/' + user;
-        //Here repo will be deleted ---->
+        const str = this.apiServer + '/user/repositories/' + repo._id + '/' + user;
         return this.http.delete<any>(str, ApiService.getOptions())
-        .pipe(tap(resp => {
-
+        .pipe(tap(() => {
         }),
           catchError(ApiService.handleError));
     }
