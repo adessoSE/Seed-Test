@@ -1,0 +1,41 @@
+<!---Modal for delete Account------>
+<ng-template #deleteAccountModal let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span class="MediumSubline1H4 modal-title">Delete My Account</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form #deleteAccountForm="ngForm" novalidate [disabled]="deleteAccountForm.invalid"
+    (keydown)="enterSubmit($event, deleteAccountForm);">   
+        <div class="modal-body">
+            <div class="submitForm">
+                <div>
+                    <div class="deleteTextWrapper">
+                        <span class="warningSign">&#9888;</span>
+                        <div class="form-group" id="deleteText">
+                            <span>Are you sure that you want to erase your Seed-Test Account?</span>
+                            <br>
+                            <span >This will also erase all of your saved repositories.</span>
+                            <br>
+                            <span>If you wish to erase your Seed-Account and connected data, please verify with your email.</span>
+                            <div class="modalsContent" id="inputLabels">
+                                <div class="labelField">
+                                    <label class="uk-form-label">Enter your email*</label>
+                                </div>
+                                <div class="inputField">
+                                    <input type="email" ngModel name="insertedEmail" class="leftMargin" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+                                </div>    
+                            </div> 
+                        </div> 
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="modal-footer">
+        <button type="button" class="normalButton deleteButton" (click)="onClickSubmit(deleteAccountForm)">Delete my Account
+        </button>
+    </div> 
+</ng-template>

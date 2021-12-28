@@ -1,0 +1,31 @@
+<!-- rename Scenario Modal-->
+
+<ng-template #renameScenarioModal let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">Change scenario title</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form #renameScenario="ngForm" novalidate [disabled]="renameScenario.invalid"
+        (keydown)="enterSubmit($event, renameScenario)">     
+        <div class="modal-body modal-xl">
+            <div class="uk-card-title submitForm">
+                <div>
+                    <div class="padding_top modalsContent">
+                        <span class="uk-form-label">Enter unique scenario name</span>
+                        <span class="material-icons" display-title="Enter unique scenario name">drive_file_rename_outline</span>
+                        <div class="inputField">
+                            <input type="text" ngModel id="newTitle" name="newTitle" placeholder="New title" required>
+                        </div>                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="modal-footer">
+        <button class="normalButton" (click)="onClickSubmit(renameScenario)">Submit
+        </button>
+    </div>    
+</ng-template>

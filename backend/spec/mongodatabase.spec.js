@@ -1,4 +1,4 @@
-const mongo = require('../src/database/mongodatabase');
+const mongo = require('../src/database/DbServices');
 
 describe('Mongodatabase', () => {
   describe('getOneStory', () => {

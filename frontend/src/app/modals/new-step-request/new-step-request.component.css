@@ -1,0 +1,260 @@
+.uk-card-title {
+    font-size: medium;
+}
+
+input.wrongEmail {
+    border-left: 5px solid #d15553;
+  }
+
+::ng-deep .modal-dialog{
+    max-width: 800px;
+}
+
+.subHeader{
+    margin-left: 5px;
+}
+
+#description_form{
+    width: 100%;
+    height: 8em;
+}
+
+.padding_top{
+    padding-top: 10px;
+}
+
+.padding_right{
+    padding-right: 10px;
+}
+
+.disabled {
+    background: gray !important;
+}
+
+table {
+    width: 100%;
+    margin-top:5px;
+}
+
+.mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
+    border-right: 1px solid #e0e0e0;
+  }
+
+.mat-cell, .mat-header-cell {
+    text-align: center;
+}
+.normalButton:disabled{
+    opacity: 20%;
+}
+
+td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+    padding-right: 0px;
+}
+
+td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:first-of-type{
+    padding-left: 0px;
+}
+
+.blockNameContainer{
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    display: flex;
+}
+
+.blockNameHeader{
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.blockNameInput{
+    max-width: 300px;
+}
+
+.modal-body.modal-xl{
+    padding: 10px;
+}
+
+.dividerContainer{
+    max-height: 600px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.savedBlocksContainer, .previewContainer{
+    border: 1px solid #e0e0e0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+::ng-deep.mat-pseudo-checkbox{
+    display: none !important;
+}
+
+::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteBlockButton{
+    margin-right: 20px;
+}
+
+::ng-deep div.mat-list-item-content.mat-list-item-content-reverse div.mat-list-text{
+    display: flex;
+    flex-direction: row;
+}
+
+.infoIcon{
+    color: var(--white);
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.submitForm{
+    width: 100%
+}
+
+
+.tableContainer{
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.mat-table{
+    font-family: Klavika, sans-serif;
+  }
+
+.exampleCheckboxContainer{
+    padding-top: 5px;
+}
+
+.exampleCheckbox{
+    margin-right: 5px;
+}
+
+
+.workGroupEmail{
+    margin-right: 5px;
+}
+
+
+.wrongEmail{
+    background-color: var(--grape);
+}
+
+.canEditContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.canEditLabel{
+    margin-right: 5px;
+    margin-bottom: 0px;
+}
+
+.emailTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.emailTableContainer > * {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.editColumn{
+    max-width: 50px;
+}
+
+#storydescription{
+    resize: both;
+    width: 100%;
+    height: 20%; 
+    min-width: 100px;
+    min-height: 100px;
+    max-width: 100%;
+    max-height: 200px;
+}
+
+.groupstoryselection{
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    text-align: left;
+}
+.groupinput{
+    display: table-cell;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.groupstoryselectionouter{
+    overflow: hidden;
+}
+
+.deleteProjectButton{
+    background-color: var(--grape);
+}
+.deleteProjectButton:hover{
+    background-color: var(--grape-purple);
+}
+
+@media screen and (max-height: 800px) {
+    .tableContainer{
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .dividerContainer{
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}
+
+.mat-column-checkStory {
+    width: 10% !important;
+}
+
+#inputLabels label {
+    margin-top: .25rem;
+    margin-bottom: .25rem;
+}
+
+.addTeamMembersLabel {
+    position: relative;
+    left: -67px;
+}
+
+.divWrapper {
+    margin: 3px;
+}
+
+div#deleteText > p {
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+}
+
+.inputField#email {
+    display: flex;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #90CAF9;
+    -webkit-border-radius: 1ex;
+    -webkit-box-shadow: 0px 1px 2px #90CAF9;
+}
+  
+::-webkit-scrollbar-corner {
+    background: #90CAF9;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
+::ng-deep.darkTheme::-webkit-scrollbar-thumb {
+  background: #B0BEC5;
+  -webkit-border-radius: 1ex;
+  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-corner
+::ng-deep.darkTheme::-webkit-scrollbar-corner {
+  background: #B0BEC5;
+}

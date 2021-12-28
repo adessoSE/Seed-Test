@@ -18,18 +18,34 @@ h1{
     place-items: center;
 }
 
+.darkTheme.loginGrid {
+    background-color: #37474F;
+}
+
 .formular{
     grid-area: formular;
     grid-row: 2 / 3;
     grid-column: 3 / 4;
     text-align: center;
-    background-color: var(--white);
+    background-color: var(--white); 
     margin-top: auto;
     margin-right: auto;
     margin-left: 10%;
     margin-bottom: auto;
     text-align: center;
     padding: 40px 20px 40px 40px;
+}
+
+.darkTheme .formular {
+    background-color: #455A64;
+}
+
+.darkTheme button.linkButton {
+    color: var(--light-blue);
+}
+
+.darkTheme h1.LargeHeadline2 {
+    color: var(--light-blue);
 }
 
 .repositories{
@@ -44,6 +60,11 @@ h1{
     padding: 25px;
     background-color:rgb(224, 224, 224);
     border: 1px solid #999;
+}
+
+.darkTheme .repositories {
+    background: #455A64;
+    border: 1px solid #60767b
 }
 
 
@@ -61,6 +82,10 @@ h1{
     width: 830px;
     height: 500px;
     position: relative;
+}
+
+.darkTheme .howToStart {
+    background-color: #455A64;
 }
 
 .welcomeSlide{
@@ -88,14 +113,53 @@ h1{
     border: 12px solid #999;
 }
 
+::ng-deep .owl-next{
+    margin: -30% 0 0 43% !important;
+    position: absolute !important;
+    background: none !important;
+}
+
+::ng-deep .owl-prev{
+    margin: -30% 0 0 -50% !important;
+    position: absolute !important;
+    background: none !important;
+}
+::ng-deep .owl-prev .material-icons:hover,
+::ng-deep .owl-next .material-icons:hover{
+    background: rgba(0, 0, 0, 0.1) !important;
+    
+}
+::ng-deep .owl-prev .material-icons,
+::ng-deep .owl-next .material-icons{
+    color: black;
+    border-radius: 50%;
+    padding: 10px;
+    display: inline;
+}
+
+::ng-deep .owl-theme .owl-nav{
+    margin: 0 0 0 0 !important;
+}
+::ng-deep .owl-carousel .owl-stage{
+    display: flex;
+}
+
 .slideDescription{
-    margin-top: 340px;
     background-color: #999;
+    height: 45px;
     color: var(--white);
-    height: 88px;
+    white-space: pre-line;
+    margin:0 0 0 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    position:absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+#carousel_arrow{
+    color: black;
 }
 
 .repo_img{
@@ -117,9 +181,17 @@ a.repoLink{
     color: var(--ocean-blue);
     transition: 0.2s;
 }
-
+  
+.darkTheme a.repoLink {
+    color: var(--light-blue);
+}
+  
 a.repoLink:hover{
     color: var(--marine-blue);
+}
+  
+.darkTheme a.repoLink:hover {
+    color: white;
 }
 
 .wrongLogin{
@@ -163,6 +235,10 @@ a.repoLink:hover{
     padding: 5px 5px 5px 5px;
 }
 
+/* .darkTheme .uk-form-controls {
+    background: transparent;
+} */
+
 .linkButton{
     font-style: inherit;
     border: none;
@@ -180,8 +256,12 @@ a.repoLink:hover{
     margin-top: 30px;
     border: 0.25px solid #999;
     padding: 10px;
-    background-color: rgb(247, 247, 247);
+    /* background-color: rgb(247, 247, 247); */
   }
+
+.darkTheme #noAccountDiv {
+    border: 0.25px solid #60767b;
+}
 
 #loadingSpinner{
     margin-left:38%;
@@ -189,6 +269,10 @@ a.repoLink:hover{
 
 :host ::ng-deep .loadingSpinner circle{
     stroke: var(--marine-blue);
+}
+
+:host ::ng-deep .darkTheme .loadingSpinner circle{
+    stroke: white;
 }
 
 @media screen and (max-width: 600px) {
@@ -242,4 +326,21 @@ a.repoLink:hover{
         border: 1px solid #999;
     }
     
+}
+
+.darkTheme .repositories {
+    background-color: #37474F;
+    border-color:#60767b;
+}
+
+/* .darkTheme button {
+    color: var(--light-blue);
+} */
+
+.darkTheme .formular{
+    background-color: transparent;
+}
+
+.darkTheme .howToStart{
+    background-color: transparent;
 }

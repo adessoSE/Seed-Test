@@ -6,15 +6,16 @@ const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
+const scriptRouter = require('./serverRouter/scriptRouter');
 const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
 const mongoRouter = require('./serverRouter/mongoRouter');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
-const groupRouter = require('./serverRouter/groupRouter')
-const workgroupsRouter = require('./serverRouter/workgroups')
-const storyRouter = require('./serverRouter/storyRouter')
-require('./database/mongodatabase');
+const groupRouter = require('./serverRouter/groupRouter');
+const workgroupsRouter = require('./serverRouter/workgroups');
+const storyRouter = require('./serverRouter/storyRouter');
+require('./database/DbServices');
 
 const app = express();
 app.disable('x-powered-by');
@@ -25,6 +26,7 @@ const server = app.listen(process.env.PORT || 8080, () => {
 	console.log(`App now running on port: ${port}`);
 });
 server.setTimeout(600000);
+
 /**
  * API Description
  */
@@ -71,6 +73,7 @@ app
 		console.log('Time:', Date.now());
 		next();
 	})
+	.use('/api/script', scriptRouter)
 	.use('/api/run', runReportRouter)
 	.use('/api/github', githubRouter)
 	.use('/api/mongo', mongoRouter)
@@ -82,4 +85,5 @@ app
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
+
 module.exports = { app };

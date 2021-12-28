@@ -35,6 +35,7 @@ export interface Story {
      * Scenarios in the story
      */
     scenarios: Scenario[];
+    oneDriver?: boolean;
 
     /**
      * Title of the story

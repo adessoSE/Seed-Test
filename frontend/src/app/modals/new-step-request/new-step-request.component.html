@@ -1,0 +1,63 @@
+<!-- New steps request modal-->
+
+<ng-template #newStepRequestModal let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">New step request</span>
+        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
+            <span rel="def">Warning: You are about to submit a new step-type.
+                This step will be evaluated by our team, and eventually implemented.
+                Please fill out the form below to submit the step.
+                If you want an optimal solution,
+                please leave us a way to reach out to you for further clarification.
+            </span>
+        </dfn>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body modal-xl">
+        <div class="uk-card-title submitForm">
+            <div>
+                <form #submitNewStep="ngForm" novalidate [disabled]="submitNewStep.invalid"
+                (keydown)="enterSubmit($event, submitNewStep)">
+                    <div class="modalsContent">
+                        <div class="padding_top labelField" id="inputLabels">
+                            <label class="uk-form-label">Title*</label>
+                            <br>
+                            <label class="uk-form-label">Type</label>
+                        </div>
+                        <div class="padding_top inputField">
+                            <input ngModel name="label_form" class="leftMargin" required>
+                            <br>
+                            <select id="type_form" name="type_form" style="width: fit-content; margin-left: 24px;">
+                                <option id="type_form_given" value="given">given</option>
+                                <option id="type_form_when" value="when">when</option>
+                                <option id="type_form_then" value="then">then</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="padding_top">
+                            <textarea id="description_form" ngModel name="description_form"
+                            placeholder="Enter detailed description of the step"></textarea>
+                    </div>
+                    <div class="padding_top modalsContent" id="inputLabels">
+                        <div class="labelField">
+                            <label class="uk-form-label">Email*</label>
+                        </div>
+                        <div class="inputField" id="emailField">
+                            <input  ngModel type="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" class="uk-form-controls input leftMargin" required>
+                            <div style="margin-left: 5px;" *ngIf="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)">Invalid email</div>
+                        </div>
+                    </div>
+                    <br>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="normalButton" [disabled]="submitNewStep.invalid"
+        (click)="onClickSubmit($event, submitNewStep)">Submit
+        </button>
+    </div>
+</ng-template>

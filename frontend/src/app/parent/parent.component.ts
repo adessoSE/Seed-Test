@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import {Group} from '../model/Group';
 import {ActivatedRoute} from '@angular/router';
+import { ThemingService } from '../Services/theming.service';
+import { Subscription } from 'rxjs';
 
 
 /**
@@ -15,7 +17,7 @@ import {ActivatedRoute} from '@angular/router';
   templateUrl: './parent.component.html',
   styleUrls: ['./parent.component.css']
 })
-export class ParentComponent implements OnInit {
+export class ParentComponent implements OnInit, OnDestroy {
 
   /**
    * Stories in the selected project
@@ -46,29 +48,61 @@ export class ParentComponent implements OnInit {
 
   report;
 
+  isDark: boolean;
+
+  /**
+     * Subscribtions for all EventEmitter
+     */
+   getBackendUrlObservable: Subscription;
+   themeObservable: Subscription;
+   getRepositoriesObservable: Subscription;
+
+
+
   /**
    * Constructor
    * @param apiService
+   * @param themeService
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute) {
-    this.apiService.getBackendUrlEvent.subscribe(() => {
-      this.loadStories();
-    });
+  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
     if (this.apiService.urlReceived) {
       this.loadStories();
     } else {
       this.apiService.getBackendInfo();
     }
-   }
+
+  }
 
   /**
    * Requests the repositories on init
    */
   ngOnInit() {
+    this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
+      this.loadStories();
+    });
     if (!sessionStorage.getItem('repositories')) {
-      this.apiService.getRepositories().subscribe(() => {
+      this.getRepositoriesObservable = this.apiService.getRepositories().subscribe(() => {
         console.log('parent get Repos');
       });
+    }
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
+      this.isDark = this.themeService.isDarkMode();
+    });
+    
+  }
+
+  ngOnDestroy(){
+    if(!this.themeObservable.closed){
+      this.themeObservable.unsubscribe();
+    }
+    if(!this.getBackendUrlObservable.closed){
+      this.getBackendUrlObservable.unsubscribe();
+    }
+    if(this.getRepositoriesObservable){
+      if(!this.getRepositoriesObservable.closed){
+        this.getRepositoriesObservable.unsubscribe();
+      }
     }
   }
 
@@ -143,4 +177,5 @@ export class ParentComponent implements OnInit {
       this.report = false;
     }
   }
+
 }

@@ -20,6 +20,7 @@ chromeOptions.addArguments('--disable-dev-shm-usage');
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
+chromeOptions.addArguments('--excludeSwitches=enable-logging')
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -29,6 +30,7 @@ function CustomWorld({ attach, parameters }) {
 	this.parameters = parameters;
 }
 let scenarioIndex = 0;
+let testLength;
 
 setWorldConstructor(CustomWorld);
 
@@ -42,12 +44,32 @@ defineParameterType({
 });
 
 Before(async function () {
+	testLength = this.parameters.scenarios.length;
 	currentParameters = this.parameters.scenarios[scenarioIndex];
-	driver = await new webdriver.Builder()
-		.forBrowser(currentParameters.browser)
-		.setChromeOptions(chromeOptions)
-		.build();
+	if (currentParameters.oneDriver) {
+		if (currentParameters.oneDriver === true) {
+			if (driver) {
+				console.log('OneDriver');
+			} else {
+				driver = new webdriver.Builder()
+					.forBrowser(currentParameters.browser)
+					.setChromeOptions(chromeOptions)
+					.build();
+			}
+		}
+	} else {
+
+		driver = new webdriver.Builder()
+			.forBrowser(currentParameters.browser)
+			.setChromeOptions(chromeOptions)
+			.build();
+	}
 });
+
+
+// driver = new webdriver.Builder().forBrowser("chrome").setChromeOptions(chromeOptions).build();
+
+
 
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
@@ -176,22 +198,27 @@ When('I click the button: {string}', async function clickButton(button) {
 			} catch (e) {
 				try {
 					// check for an id with the substring using contains
-					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`)).click();
+					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`))
+						.click();
 				} catch (e2) {
 					try {
 						// text() looks for a text node (inside an element like button
-						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`)).click();
+						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`))
+							.click();
 					} catch (e3) {
 						try {
 							// check for any element containing the string
-							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`)).click();
+							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`))
+								.click();
 						} catch (e4) {
 							try {
-								await driver.findElement(By.xpath(`${button}`)).click();
+								await driver.findElement(By.xpath(`${button}`))
+									.click();
 							} catch (ed) {
-								await driver.takeScreenshot().then(async (buffer) => {
-									world.attach(buffer, 'image/png');
-								});
+								await driver.takeScreenshot()
+									.then(async (buffer) => {
+										world.attach(buffer, 'image/png');
+									});
 								throw Error(e);
 							}
 						}
@@ -709,10 +736,21 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async () => {
-	scenarioIndex += 1;
-	// Without Timeout driver quit is happening too quickly. Need a better solution
-	// https://github.com/SeleniumHQ/selenium/issues/5560
-	const condition = until.elementLocated(By.name('loader'));
-	driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
-	await driver.quit();
+	if (currentParameters.oneDriver) {
+		scenarioIndex += 1;
+		if (scenarioIndex === testLength) {
+			// Without Timeout driver quit is happening too quickly. Need a better solution
+			// https://github.com/SeleniumHQ/selenium/issues/5560
+			const condition = until.elementLocated(By.name('loader'));
+			driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+			await driver.quit();
+		}
+	} else {
+		scenarioIndex += 1;
+		// Without Timeout driver quit is happening too quickly. Need a better solution
+		// https://github.com/SeleniumHQ/selenium/issues/5560
+		const condition = until.elementLocated(By.name('loader'));
+		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+		await driver.quit();
+	}
 });

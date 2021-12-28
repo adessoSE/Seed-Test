@@ -14,5 +14,9 @@ export interface Group {
      */
     member_stories: any[];
 
+     /**
+     * boolean for sequential execution of the tests
+     */
+    isSequential: boolean;
 
 }

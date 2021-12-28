@@ -1,0 +1,49 @@
+<!--Change Jira-Account Modal-->
+<ng-template #changeJiraAccountModal let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span class="MediumSubline1H4 modal-title">Change Jira account</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form #changeJiraForm="ngForm" novalidate [disabled]="changeJiraForm.invalid"
+    (keydown)="enterSubmit($event, changeJiraForm)"> 
+        <div class="modal-body">
+            <div class="submitForm">
+                <div>
+                    <div class="form-group modalsContent" id="jiraForm" *ngIf="type==='Jira'">
+                        <div class="labelField" id="inputLabels">
+                            <label class="uk-form-label">Enter existing account name*</label>
+                            <br>
+                            <label class="uk-form-label">Enter password*</label>
+                            <br>
+                            <label class="uk-form-label">Enter server URL*</label>
+                        </div>
+                        <div class="inputField">
+                            <input ngModel name="jiraAccountName" class="leftMargin" required>
+                            <br>
+                            <input ngModel name="jira_password" type="password" class="leftMargin" required>
+                            <br>
+                            <input ngModel name="jiraHost" class="leftMargin" required>
+                        </div>                  
+                    </div>
+                    <div id="githubForm" *ngIf="type==='Github'">
+                        <div class="padding_top uk-form-horizontal">
+                            <label class="padding_right">Github-AccountName:</label>
+                            <input id="githubAccountName">
+                        </div>
+                        <div class="padding_top uk-form-horizontal">
+                            <label class="padding_right">Github-Token:</label>
+                            <input id="githubToken">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="modal-footer">
+        <button type="button" class="normalButton" (click)="onClickSubmit(changeJiraForm)">Submit
+        </button>
+    </div>  
+</ng-template>

@@ -1,10 +1,10 @@
-<div class="grid">
+<div class="grid mat-app-background" [class.darkTheme]="isDark">
   <div class="topnav">
     <!--left-->
     <div class="uk-inline dropdown">
       <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
-      <div *ngIf="this.apiService.isLoggedIn()" uk-dropdown="mode: hover">
-        <ul class="dropdown-list">
+      <div #dropdownMenu [class.closedMenu] = "closed">
+        <ul uk-dropdown="mode: hover" *ngIf="this.apiService.isLoggedIn()" class="dropdown-list">
           <li>
             <div *ngIf="this.repositories" class="dropdown">
               <button class="menuSelection" title="Select Project">Projects</button>
@@ -14,7 +14,7 @@
                      <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
                      <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
                      <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
-                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository);"
+                     <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
                       routerLink=''>{{repository.value}}</a>
                    </li>
                   </ul>
@@ -29,7 +29,7 @@
           </li>
         </ul>
       </div>
-      <p id="version" class="Largecaption">Version 1.4.0</p>
+      <p id="version" class="Largecaption">Version 1.4.3</p>
     </div>
 
 
@@ -43,16 +43,27 @@
     </div>
     <!--right-->
     <div class="topnavRight">
+      <div class="slide-toggle-container">
+        <mat-icon>brightness_5</mat-icon>
+        <mat-slide-toggle [formControl]="toggleControl"
+        [ngClass] = "{'mat-checked mat-slide-toggle-thumb':isDark}"
+        [ngClass] = "{'mat-checked mat-slide-toggle-bar':isDark}"
+
+        title="Switch to dark/light mode"></mat-slide-toggle>
+        <mat-icon>bedtime</mat-icon>
+      </div>
       <div>
         <a routerLink="/feedback">
           <button class="rightButton">Feedback</button>
         </a>
         <div class="dropdown">
           <button class="rightButton">Help</button>
+          <div #helpMenu [class.closedMenu] = "closed">
             <div class="dropdown-list">
               <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_deu" target="_blank">Tutorial (german)</a>
               <a rel="noopener noreferrer" href="https://github.com/adessoAG/Seed-Test/wiki/Tutorial_eng" target="_blank">Tutorial (english)</a>
             </div>
+          </div>
         </div>
         <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
       </div>
@@ -68,11 +79,6 @@
       <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
       <p class="terms" (click)="openTerms()">Terms</p>
     </div>
-    <!--<div class="adessoLogo">
-      <a href="https://www.adesso.de/en/">
-        <img id="adesso-logo" src="assets/adesso-logo.jpg" alt="adesso AG">
-      </a>
-    </div>-->
     <div class="expendable">
       <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
         <p>Seed-Test</p>

@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
-const mongo = require('../database/mongodatabase');
+const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 
 const router = express.Router();
@@ -205,6 +205,18 @@ router.get('/repositories', (req, res) => {
 			res.status(400).json('Wrong Github name or Token');
 			console.error(`Get Repositories Error: ${reason}`);
 		});
+});
+
+// delete repository
+router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
+	try {
+		await mongo
+			.deleteRepository(req.params.repo_id, req.params.owner_id, req.params.source, parseInt(req.params._id, 10));
+		res.status(200)
+			.json({ text: 'success' });
+	} catch (error) {
+		handleError(res, e, e, 500);
+	}
 });
 
 // get stories

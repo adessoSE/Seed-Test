@@ -1,0 +1,108 @@
+
+.subHeader{
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
+.disabled {
+    background: gray !important;
+}
+
+table {
+    width: 100%;
+    margin-top:5px;
+}
+
+.mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
+    border-right: 1px solid #e0e0e0;
+}
+
+.mat-cell, .mat-header-cell {
+    text-align: center;
+}
+.normalButton:disabled{
+    opacity: 20%;
+}
+
+td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+    padding-right: 0px;
+}
+
+td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:first-of-type{
+    padding-left: 0px;
+}
+
+.dividerContainer{
+    max-height: 600px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 2px 0px 2px 0px;
+}
+
+.savedBlocksContainer, .previewContainer{
+    border: 1px solid #e0e0e0;
+    flex: 1;
+    overflow-y: auto;
+    border-bottom: 0px;
+}
+
+::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteBlockButton{
+    margin-right: 20px;
+}
+
+::ng-deep div.mat-list-item-content.mat-list-item-content-reverse div.mat-list-text{
+    display: flex;
+    flex-direction: row;
+}
+
+
+.infoIcon{
+    color: var(--white);
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.mat-table{
+    font-family: Klavika, sans-serif;
+}
+
+.emailTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+@media screen and (max-height: 800px) {
+
+    .dividerContainer{
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}
+
+::-webkit-scrollbar-thumb {
+    background: #90CAF9;
+    -webkit-border-radius: 1ex;
+    -webkit-box-shadow: 0px 1px 2px #90CAF9;
+}
+  
+::-webkit-scrollbar-corner {
+    background: #90CAF9;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
+::ng-deep.darkTheme::-webkit-scrollbar-thumb {
+  background: #B0BEC5;
+  -webkit-border-radius: 1ex;
+  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-corner
+::ng-deep.darkTheme::-webkit-scrollbar-corner {
+  background: #B0BEC5;
+}
+
+::ng-deep.darkTheme h4 {
+    color: white !important;
+}

@@ -1,0 +1,127 @@
+.mat-column-checked {
+    width: 10% !important;
+}
+
+#inputLabels label {
+    margin-top: .25rem;
+    margin-bottom: .25rem;
+}
+
+table {
+    width: 50%;
+    margin-top:5px;
+}
+
+.repoTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.repoTableContainer > * {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.mat-cell, .mat-header-cell {
+    text-align: center;
+}
+
+td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+    padding-right: 0px;
+}
+
+td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:first-of-type{
+    padding-left: 0px;
+}
+
+.emailTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.emailTableContainer > * {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.emoticon {
+    position: relative;
+    opacity: 0.5;
+    left: 1em;
+}
+
+.searchWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #90CAF9;
+    -webkit-border-radius: 1ex;
+    -webkit-box-shadow: 0px 1px 2px #90CAF9;
+}
+  
+::-webkit-scrollbar-corner {
+    background: #90CAF9;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
+::ng-deep.darkTheme::-webkit-scrollbar-thumb {
+  background: #B0BEC5;
+  -webkit-border-radius: 1ex;
+  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
+}
+
+::ng-deep.darkTheme ::-webkit-scrollbar-corner
+::ng-deep.darkTheme::-webkit-scrollbar-corner {
+  background: #B0BEC5;
+}
+
+#nameInput {
+    width: 87%;
+    margin-left: 24px;
+}
+
+.repo_img{
+    margin-left: 5px;
+    margin-right: 5px;
+    max-height: 18px;
+}
+
+a.repoLink{
+    color: var(--ocean-blue);
+    transition: 0.2s;
+}
+  
+.darkTheme a.repoLink {
+    color: var(--light-blue);
+}
+  
+a.repoLink:hover{
+    color: var(--marine-blue);
+}
+  
+.darkTheme a.repoLink:hover {
+    color: white;
+}
+
+.alignWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.warningSign {
+    font-size: 42px;
+    color: red;
+    margin-right: 14px;
+}
+
+.deleteTextWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-height: 200px;
+}
+

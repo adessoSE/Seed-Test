@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 const helper = require('../serverHelper');
-const mongo = require('../database/mongodatabase');
+const mongo = require('../database/DbServices');
 
 const router = express.Router();
 
@@ -51,6 +51,14 @@ router.post('/createRepository', async (req, res) => {
 	res.status(200).json('');
 });
 
+//creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
+router.post('/createStory', async (req, res) => {
+	console.log("Der Create wird ausgeführt")
+	let resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.body._id)
+	await mongo.insertStoryIdIntoRepo( resultStoryId, req.body._id)
+		res.status(200).json('');
+});
+
 // update background
 router.post('/background/update/:storyID/:storySource', async (req, res) => {
 	try {
@@ -76,17 +84,6 @@ router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
 	}
 });
 
-// create user
-router.post('/user/add', async (req, res) => {
-	try {
-		const user = req.body;
-		const result = await mongo.createUser(user);
-		res.status(200)
-			.json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
 // update user
 router.post('/user/update/:userID', async (req, res) => {
 	try {
@@ -171,6 +168,15 @@ router.delete('/deleteBlock/:blockId', async (req, res) => {
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 404);
+	}
+});
+
+router.post('/oneDriver/:storyID', async (req, res) => {
+	try {
+		const result = await mongo.updateOneDriver(req.params.storyID, req.body);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
 	}
 });
 

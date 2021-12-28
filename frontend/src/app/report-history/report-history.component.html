@@ -1,10 +1,11 @@
 <br>
-<div class="reportHistoryContainer">
+<div [class.darkTheme]="isDarkModeOn()"
+class="reportHistoryContainer">
     <div class="reportHistoryTitleContainer">
         <div>
             <a class="title">
                 <button class="backButton" title="Back to Projects" (click)="goBackToStoryEditor()">
-                    <img id="backImage" src ="../assets/left.svg">
+                    <img id="backImage" [attr.src]="isDark ? '../assets/leftWhite.png' : '../assets/left.svg'" alt="back">
                 </button>
             </a>
         </div>
@@ -21,20 +22,20 @@
         </div>
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let rep of reports.storyReports; let i = index" class="report">
-                <a [class.notPassed]="!rep.testStatus" [class.passed]="rep.testStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
+                <a [class.notPassed]="!rep.overallTestStatus" [class.passed]="rep.overallTestStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
                 <div class="reportButtons">
-                    <button  a
-                    class="actionButton" uk-tooltip title="Delete Report"
+                    <button
+                    class="actionButton" title="Delete Report"
                    (click)="deleteReport(rep);">
                       <em class="material-icons">delete</em>
                     </button>
-                    <button a *ngIf="rep.isSaved"
-                    class="actionButton" uk-tooltip title="Report is currently Saved"
+                    <button *ngIf="rep.isSaved"
+                    class="actionButton" title="Report is currently Saved"
                     (click)="unsaveReport(rep);">
                       <em class="material-icons">star</em>
                     </button>
-                    <button a *ngIf="!rep.isSaved"
-                    class="actionButton" uk-tooltip title="Report is currently not Saved"
+                    <button *ngIf="!rep.isSaved"
+                    class="actionButton" title="Report is currently not Saved"
                     (click)="saveReport(rep);">
                       <em class="material-icons">star_border</em>
                     </button>
@@ -42,27 +43,27 @@
             </div>
         </div>
     </div>
-    <div *ngIf="reports"class="scenarioReportContainer">
+    <div *ngIf="reports" class="scenarioReportContainer">
         <div *ngFor="let scen of this.selectedStory.scenarios; let i = index">
             <div class="sectionHeader">
                 <p class="Mediumaccordeon2 reportsHeader">Scenario {{i + 1}} Reports: {{scen.name}}</p>
             </div>
             <div *ngIf="reports" class="reportContainer">
                 <div *ngFor="let reps of filterScenarioReports(scen); let j = index" class="report">
-                    <a [class.notPassed]="!reps.testStatus" [class.passed]="reps.testStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{stringifyReportTime(reps.reportTime)}}</a>
+                    <a [class.notPassed]="!reps.overallTestStatus" [class.passed]="reps.overallTestStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{stringifyReportTime(reps.reportTime)}}</a>
                     <div class="reportButtons">
-                        <button  a
-                        class="actionButton" uk-tooltip title="Delete Report"
+                        <button
+                        class="actionButton" title="Delete Report"
                        (click)="deleteReport(reps);">
                           <em class="material-icons">delete</em>
                         </button>
-                        <button a *ngIf="reps.isSaved"
-                        class="actionButton" uk-tooltip title="Report is currently Saved"
+                        <button *ngIf="reps.isSaved"
+                        class="actionButton" title="Report is currently Saved"
                         (click)="unsaveReport(reps);">
                           <em class="material-icons">star</em>
                         </button>
-                        <button a *ngIf="!reps.isSaved"
-                        class="actionButton" uk-tooltip title="Report is currently not Saved"
+                        <button *ngIf="!reps.isSaved"
+                        class="actionButton" title="Report is currently not Saved"
                         (click)="saveReport(reps);">
                           <em class="material-icons">star_border</em>
                         </button>
@@ -71,23 +72,35 @@
             </div>
         </div>
     </div>
-    <div *ngIf="reports"class="groupReportContainer">
+    <div *ngIf="reports" class="groupReportContainer">
         <div class="sectionHeader">
             <p class="Largeaccordeon2 reportsHeader">Group Reports:</p>
         </div>
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let grprep of reports.groupReports; let i = index" class="report">
-                <a [class.notPassed]="!grprep.testStatus" [class.passed]="grprep.testStatus" [routerLink]="'/report/' + grprep.reportName" target="_blank">{{stringifyReportTime(grprep.reportTime)}}</a>
+                <div>
+                    <a [routerLink]="'/report/' + grprep.reportName" target="_blank" style="color:#3498DB">
+                        <!--[class.notPassed]="!grprep.overallTestStatus" [class.passed]="grprep.overallTestStatus" -->
+                        {{stringifyReportTime(grprep.reportTime)}}
+                    </a> | Story
+                    <div *ngIf="getStoryStatus(grprep, this.selectedStory._id)" class="passed"  style="display: inline">
+                        "{{this.selectedStory.title}}" has passed
+                    </div>
+                    <div *ngIf="getStoryStatus(grprep, this.selectedStory._id) === false" class="notPassed"  style="display: inline">
+                        "{{this.selectedStory.title}}" has not passed
+                    </div>
+                    in this Report.
+                </div>
                 <div class="reportButtons">
-                    <button  a class="actionButton" uk-tooltip title="Delete Report" (click)="deleteReport(grprep);">
+                    <button class="actionButton" title="Delete Report" (click)="deleteReport(grprep);">
                         <em class="material-icons">delete</em>
                     </button>
-                    <button a *ngIf="grprep.isSaved" class="actionButton" uk-tooltip title="Report is currently Saved"
+                    <button *ngIf="grprep.isSaved" class="actionButton" title="Report is currently Saved"
                             (click)="unsaveReport(grprep);">
                         <em class="material-icons">star</em>
                     </button>
-                    <button a *ngIf="!grprep.isSaved"
-                            class="actionButton" uk-tooltip title="Report is currently not Saved"
+                    <button *ngIf="!grprep.isSaved"
+                            class="actionButton" title="Report is currently not Saved"
                             (click)="saveReport(grprep);">
                         <em class="material-icons">star_border</em>
                     </button>
