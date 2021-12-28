@@ -1,4 +1,4 @@
-.mat-column-checkStory {
+.mat-column-checked {
     width: 10% !important;
 }
 
@@ -8,13 +8,19 @@
 }
 
 table {
-    width: 100%;
+    width: 50%;
     margin-top:5px;
 }
 
-.mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
-    border-right: 1px solid #e0e0e0;
-  }
+.repoTableContainer{
+    display: flex;
+    justify-content: space-between;
+}
+
+.repoTableContainer > * {
+    margin-left: 15px;
+    margin-right: 15px;
+}
 
 .mat-cell, .mat-header-cell {
     text-align: center;
@@ -55,7 +61,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     -webkit-border-radius: 1ex;
     -webkit-box-shadow: 0px 1px 2px #90CAF9;
 }
-
+  
 ::-webkit-scrollbar-corner {
     background: #90CAF9;
 }
@@ -77,23 +83,45 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     margin-left: 24px;
 }
 
-.mat-icon {
-    color: #999;
-    font-size: 19px;
-    height: 19px;
+.repo_img{
+    margin-left: 5px;
+    margin-right: 5px;
+    max-height: 18px;
 }
 
-::ng-deep.darkTheme .mat-icon {
-    /* margin-bottom: 0.5rem; */
+a.repoLink{
+    color: var(--ocean-blue);
+    transition: 0.2s;
+}
+  
+.darkTheme a.repoLink {
+    color: var(--light-blue);
+}
+  
+a.repoLink:hover{
+    color: var(--marine-blue);
+}
+  
+.darkTheme a.repoLink:hover {
     color: white;
-    
 }
 
-.toggleWrapperMargin {
-    margin-top: 0.5rem;
+.alignWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.icon {
-    margin: unset;
-    width: 14px;
+.warningSign {
+    font-size: 42px;
+    color: red;
+    margin-right: 14px;
 }
+
+.deleteTextWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-height: 200px;
+}
+

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgForm } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
 
 @Component({
@@ -23,6 +24,11 @@ export class ChangeJiraAccountComponent {
      */
   type: string;
 
+  /**
+  * Model Reference for closing
+  */
+  modalReference: NgbModalRef;
+
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {}
     /**
@@ -30,18 +36,18 @@ export class ChangeJiraAccountComponent {
      * @param type type of the changed account
      */
   openChangeJiraAccountModal(type) {
-    this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title'});
     this.type = type;
   }
 
   /**
    * Create or change Jira Account
    */
-  changeJiraAccountSubmit() {
+  changeJiraAccountSubmit(form: NgForm) {
     if (this.type === 'Jira') {
-      const jiraAccountName = (document.getElementById('jiraAccountName') as HTMLInputElement).value;
-      const jira_password = (document.getElementById('jira_password') as HTMLInputElement).value;
-      const jiraHost = (document.getElementById('jiraHost') as HTMLInputElement).value;
+      const jiraAccountName = form.value.jiraAccountName;
+      const jira_password = form.value.jira_password;
+      const jiraHost = form.value.jiraHost;
       const request = {
               'jiraAccountName': jiraAccountName,
               'jiraPassword': jira_password,
@@ -49,8 +55,19 @@ export class ChangeJiraAccountComponent {
       };
       this.apiService.createJiraAccount(request).subscribe(response => {
         this.jiraAccountResponse.emit(response);
+        this.modalReference.close();
       });
     }
+  }
+
+  enterSubmit(event, form: NgForm) {
+    if (event.keyCode === 13) {
+      this.changeJiraAccountSubmit(form);
+    }
+  }
+
+  onClickSubmit(form: NgForm) {
+    this.changeJiraAccountSubmit(form);
   }
 
 }

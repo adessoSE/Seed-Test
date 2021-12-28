@@ -7,10 +7,11 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <div class="modal-body">
-        <div class="submitForm">
-            <div>
-                <form>
+    <form #deleteAccountForm="ngForm" novalidate [disabled]="deleteAccountForm.invalid"
+    (keydown)="enterSubmit($event, deleteAccountForm);">   
+        <div class="modal-body">
+            <div class="submitForm">
+                <div>
                     <div class="deleteTextWrapper">
                         <span class="warningSign">&#9888;</span>
                         <div class="form-group" id="deleteText">
@@ -24,17 +25,17 @@
                                     <label class="uk-form-label">Enter your email*</label>
                                 </div>
                                 <div class="inputField">
-                                    <input type="email" id="insertedEmail">
+                                    <input type="email" ngModel name="insertedEmail" class="leftMargin" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
                                 </div>    
                             </div> 
                         </div> 
                     </div> 
-                </form>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
     <div class="modal-footer">
-        <button type="button" class="normalButton deleteButton" (click)="deleteAccount(); modal.close('Save click')">Delete my Account
+        <button type="button" class="normalButton deleteButton" (click)="onClickSubmit(deleteAccountForm)">Delete my Account
         </button>
-    </div>
+    </div> 
 </ng-template>

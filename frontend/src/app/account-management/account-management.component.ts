@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, ViewChild, EventEmitter} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild, EventEmitter, Output} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
@@ -11,6 +11,7 @@ import {map} from 'rxjs/operators';
 import { CreateCustomProjectComponent } from '../modals/create-custom-project/create-custom-project.component';
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
+import { RepoSwichComponent } from '../modals/repo-swich/repo-swich.component';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -30,6 +31,13 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     @ViewChild('createCustomProject') createCustomProject :CreateCustomProjectComponent;
     @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
     @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
+    @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
+
+    /**
+     * Viewchild to auto open mat-select
+     */
+    @ViewChild('ngSelect') ngSelect;
+
 
     /**
      * Repositories or projects of this user
@@ -64,6 +72,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     downloadRepoID: string;
 
     isDark: boolean;
+
+    isActualRepoToDelete: boolean;
 
     /**
      * Subscribtions for all EventEmitter
@@ -101,6 +111,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
+
+        // fill repository list for download
+        this.searchRepos('')
     }
 
     ngOnDestroy() {
@@ -249,30 +262,26 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     searchRepos(value) {
-        console.log(this.searchInput);
         this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
             if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
                 return repo;
             }
         });
+        if(this.searchInput != ''){
+            this.ngSelect.open();
+        }
     }
-
-/*     update() {
-        this.isDark = this.themeService.isDarkMode();
-    }
-    onDark(): boolean {
-        this.update();
-        return this.isDark;
-    } */
 
     /**
      * Update Repositories after change
      */
     updateRepos(){
-        //this.apiService.getRepositories().subscribe((repositories) => {this.seperateRepos(repositories)});
         let value = sessionStorage.getItem('repositories')
         let repository: RepositoryContainer = JSON.parse(value)
         this.seperateRepos(repository)
-    }
+
+        // update repo download list
+        this.searchRepos('')
+    } 
 }

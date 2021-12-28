@@ -76,3 +76,23 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     width: 87%;
     margin-left: 24px;
 }
+
+.toggleWrapperMargin {
+    margin-top: 0.5rem;
+}
+
+.mat-icon {
+    color: #999;
+    font-size: 19px;
+    height: 19px;
+}
+
+::ng-deep.darkTheme > .mat-icon {
+    /* margin-bottom: 0.5rem; */
+    color: white;
+}
+
+.icon {
+    margin: unset;
+    width: 14px;
+}

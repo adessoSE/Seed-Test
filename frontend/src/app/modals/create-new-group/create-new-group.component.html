@@ -1,57 +1,78 @@
 <!--Create New Group -->
 <ng-template #createNewGroupModal let-modal>
     <app-layout-modal></app-layout-modal>
-    <div class="modal-header">
-        <span class="MediumSubline1H4 modal-title">Create New Group</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body">
-        <form>
-           <div > 
-               <div class="form-group groupouterdiv modalsContent" id="inputLabels">
-                    <div class="labelField">
-                        <label class="uk-form-label">Enter unique group name </label> 
-                        <br>
-                        <label class="uk-form-label">Find story </label> 
-                    </div>
-                    <div class="inputField">            
-                        <input id="nameInput" [(ngModel)]="groupTitle" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
-                        <br>
-                        <div class="searchWrapper">
-                            <em class="material-icons emoticon" id="searchBarIcons"
-                            [style.display]="searchInput.value == '' ? 'inherit' : 'none'">search</em>
-                            <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
+    <div (keydown)="enterSubmit($event)">
+        <div class="modal-header">
+            <span class="MediumSubline1H4 modal-title">Create new group</span>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div> 
+                    <div class="form-group groupouterdiv modalsContent" id="inputLabels">
+                        <div class="labelField">
+                            <label class="uk-form-label">Enter unique group name*</label> 
+                            <br>
+                            <label class="uk-form-label">Find story</label> 
                         </div>
-                        
+                        <div class="inputField">            
+                            <input id="nameInput" [(ngModel)]="groupTitle" name="title" (keyup)="groupUnique($event, groupTitle, groups)" required>
+                            <br>
+                            <div class="searchWrapper">
+                                <em class="material-icons emoticon" id="searchBarIcons"
+                                [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
+                                <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
+                            </div> 
+                        </div>
+                    </div>
+                    <div class="modalsContent toggleWrapperMargin">
+                        <span style="margin-right: 5px;">Run story sequentially or parallelly
+                            <dfn class="def">
+                                <span class="icon" uk-icon="info"></span>
+                                <span rel="def">Disable the toggle if you want stories to be run parallelly. 
+                                    Sories will be running sequentially by default.</span>
+                            </dfn>
+                        </span>
+                        <mat-icon>alt_route</mat-icon>
+                        <mat-slide-toggle name="slideToggleCreate" [(ngModel)]="isSequential"></mat-slide-toggle>
+                        <mat-icon>format_list_numbered</mat-icon>
+                    </div>
+                    <br>
+                    <div style="width: 100%;">
+                        <table id="storiesTable1" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
+                            <ng-container matColumnDef="story">
+                              <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
+                              <td mat-cell *matCellDef="let element"> 
+                                <div class="emailTableContainer">
+                                    <label>{{element.title}} </label>
+                                </div> 
+                              </td>
+                            </ng-container>
+            
+                            <ng-container  matColumnDef="checkStory">
+                                <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                                </td>
+                            </ng-container>
+                
+                            <ng-container  matColumnDef="checkStory">
+                                <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
+                        </table> 
                     </div>
                 </div>
-                <div style="width: 100%;">
-                    <table id="storiesTable1" mat-table [dataSource]="filteredStories" class="mat-elevation-z8" aria-describedby="mydesc">
-                        <ng-container matColumnDef="story">
-                          <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
-                          <td mat-cell *matCellDef="let element"> 
-                            <div class="emailTableContainer">
-                                <label>{{element.title}} </label>
-                            </div> 
-                          </td>
-                        </ng-container>
-        
-                        <ng-container  matColumnDef="checkStory">
-                            <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
-                            <td mat-cell *matCellDef="let element">
-                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
-                            </td>
-                        </ng-container>
-                        <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
-                      </table> 
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button id="groupSave" type="button" class="normalButton" disabled (click)="createNewGroup($event); modal.close('Save click')">Save</button>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="groupSave" type="button" class="normalButton" disabled (click)="onClickSubmit($event)">Save</button>
+        </div>
     </div>
 </ng-template>

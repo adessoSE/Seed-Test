@@ -1,6 +1,6 @@
-import { Component, ViewChild} from '@angular/core';
+import { Component, EventEmitter, ViewChild} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
@@ -34,13 +34,19 @@ export class CreateNewGroupComponent {
 
   groupId: string;
 
+  isSequential: boolean;
+
+  modalReference: NgbModalRef;
+
   /**
   * Columns of the story table table
   */
   displayedColumnsStories: string[] = ['story', 'checkStory'];
 
+  closeWindowEventEmitter = new EventEmitter();
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+
+  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
 
   /**
      * Opens the create new group modal
@@ -49,6 +55,7 @@ export class CreateNewGroupComponent {
     this.groups = groups;
     this.groupId = undefined;
     this.groupTitle = '';
+    this.isSequential = true;
     this.selectedStories = undefined;
     const value = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
@@ -58,7 +65,7 @@ export class CreateNewGroupComponent {
         this.stories = res;
         this.filteredStories = new MatTableDataSource(res);
     });
-    this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.createNewGroupModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
  /**
@@ -106,22 +113,38 @@ export class CreateNewGroupComponent {
         button.disabled = false;
     } else {
         button.disabled = true;
-        this.toastr.error('Choose another Group-name');
+        this.toastr.error('Choose another group name');
     }
   }
 
   /**
      * Creates a new custom story
      */
-   createNewGroup(event) {
+  createNewGroup(event) {
     event.stopPropagation();
     const title = this.groupTitle;
-    const member_stories = this.selectedStories;
-    const value = localStorage.getItem('repository');
-    const _id = localStorage.getItem('id');
-    const source = localStorage.getItem('source');
-    const repositoryContainer: RepositoryContainer = {value, source, _id};
-    const group = {title, member_stories};
-    this.apiService.createGroupEvent({repositoryContainer, group});
+    if (title.trim() !== '') {
+      const member_stories = this.selectedStories;
+      var isSequential = this.isSequential;
+      const value = localStorage.getItem('repository');
+      const _id = localStorage.getItem('id');
+      const source = localStorage.getItem('source');
+      const repositoryContainer: RepositoryContainer = {value, source, _id};
+      const group = {title, member_stories, isSequential};
+      this.apiService.createGroupEvent({repositoryContainer, group});
+      this.modalReference.close();
+    }
+
   }
+
+  enterSubmit(event) {
+    if (event.keyCode === 13) {
+      this.createNewGroup(event);
+    }
+  }
+
+  onClickSubmit(event) {
+    this.createNewGroup(event);
+  }
+
 }

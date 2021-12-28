@@ -229,6 +229,7 @@ a:hover{
   max-height: 70%;
   height: auto;
   top: 51px;
+  min-width: auto;
 }
 
 .darkTheme .dropdown-list {
@@ -282,7 +283,7 @@ a:hover{
 }
 
 #githubHref{
-  color: var(--white);
+  color: var(--white) !important;
   transition: 0.3s;
 }
 
@@ -311,9 +312,9 @@ a:hover{
     text-align: center;
   }
 
-  .rightButton {
+.rightButton {
     font-size: 13px;
-  }
+}
 }
 
 .closedMenu {

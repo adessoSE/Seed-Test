@@ -17,6 +17,6 @@ export interface Group {
      /**
      * boolean for sequential execution of the tests
      */
-    isSequential?: boolean;
+    isSequential: boolean;
 
 }

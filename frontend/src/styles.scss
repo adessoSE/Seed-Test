@@ -2,7 +2,8 @@
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
 
-@import '@angular/material/theming';
+@import '~@angular/material/theming';
+@import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
@@ -587,6 +588,12 @@ $dark-theme: mat.define-dark-theme(
     background: var(--ocean-blue);
     cursor: pointer;
   }
+
+  .darkTheme .SmallButton {
+    background: var(--button);
+    border-color: var(--button);
+  }
+
   .SmallButton:hover{
     background: var(--marine-blue);
   }
@@ -668,18 +675,18 @@ $dark-theme: mat.define-dark-theme(
 }
 
 .deleteButton{
-  background: var(--grape);
+  background: var(--grape) !important;
 }
 
 .deleteButton:hover{
-  background: var(--grape-purple);
+  background: var(--grape-purple) !important;
 }
 
 .infoIcon{
   grid-area: storyHeader;
   color: #999;
-  padding-top: 3px;
-  margin-left: 7px;
+  padding-top: 3px !important;
+  margin-left: 7px !important;
 }
 
 .def {
@@ -725,14 +732,6 @@ span[rel=def] {
 
 .uk-button-group {
   border: transparent;
-}
-
-.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
-  background-color: rgb(96, 125, 139, 54%);
-}
-
-.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
-  background-color: #90A4AE;
 }
 
 span.notPassed{
@@ -809,11 +808,6 @@ div.notPassed{
   background-color: map-get($mat-blue-grey, 800);
 }
 
-.darkTheme button {
-  background: var(--button);
-  color: white;
-}
-
 .darkTheme span {
   color: var(--white);
 }
@@ -843,9 +837,9 @@ a.repoLink:hover{
   color:var(--white) !important;
 } 
 
-.darkTheme svg {
-  color: var(--white);
-}
+.darkTheme span.infoIcon {
+  color: var(--white) !important;
+} 
 
 .darkTheme em {
   color: var(--light-blue) !important;
@@ -902,9 +896,24 @@ a.repoLink:hover{
 }
 
 .darkTheme .mat-table,
-.darkTheme.mat-table {
+.darkTheme.mat-table,
+.darkTheme .mat-expansion-panel {
   background: map-get($mat-blue-grey, 700);
 
+}
+
+.uk-input, .uk-select:not([multiple]):not([size]) {
+  height: 32px;
+}
+
+#searchBarIcons{
+  color: var(--brown-grey);
+  vertical-align: middle;
+}
+
+.darkTheme button.normalButton {
+  background: var(--button);
+  color: white;
 }
 
 

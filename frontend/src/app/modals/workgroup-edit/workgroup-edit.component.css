@@ -60,13 +60,6 @@ table {
     font-family: Klavika, sans-serif;
 }
 
-.deleteProjectButton{
-    background-color: var(--grape);
-}
-.deleteProjectButton:hover{
-    background-color: var(--grape-purple);
-}
-
 .mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
   }
@@ -121,4 +114,8 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 ::ng-deep.darkTheme ::-webkit-scrollbar-corner
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
+}
+
+.updateZIndex {
+	z-index: 1029
 }

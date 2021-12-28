@@ -96,17 +96,22 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     /**
      * Subscription element if a Story should be deleted
      */
-    deleteStoryObservable;
+    deleteStoryObservable: Subscription;
 
     /**
      * Subscription element if theme should change
      */
-    themeObservable;
+    themeObservable: Subscription;
 
     /**
      * Subscription element to get Stories
      */
-    getStoriesObservable;
+    getStoriesObservable: Subscription;
+
+    /**
+     * Subscription element to get status change of scenarios
+     */
+    scenarioStatusChangeObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -169,7 +174,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.daisyVersion = false;
         }
 
-        
+
     }
 
     /**
@@ -193,7 +198,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createGroupEmitter = this.apiService.createCustomGroupEmitter.subscribe(custom => {
-            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.seq).subscribe(respp => {
+            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.isSequential).subscribe(respp => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
@@ -225,7 +230,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.deleteStory();
         });
 
-        
+        this.scenarioStatusChangeObservable = this.apiService.scenarioStatusChangeEvent.subscribe(custom => {
+            let storyIndex = this.filteredStories.findIndex(story => story._id === custom.storyId);
+            let scenarioIndex = this.filteredStories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
+            this.filteredStories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
+        })
+
+
     }
     /* TODO */
     ngOnDestroy() {
@@ -352,7 +363,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     addFirstScenario() {
-        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource)
+        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, '')
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
                 this.selectedStory.scenarios.push(resp);
