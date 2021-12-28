@@ -1099,6 +1099,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     }
 
     openCreateScenario() {
-        this.createScenarioModal.openCreateScenarioModal(this.selectedStory._id);
+        this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
     }
 }
