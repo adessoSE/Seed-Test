@@ -1,87 +1,15 @@
 <div [class.darkTheme] = "isDark" class="loginGrid">
   <div class="howToStart">
     <div class="mat">
-      <mat-carousel
-          timings="1000ms ease-in"
-          [autoplay]="true"
-          [hideArrows]="false"
-          [hideIndicators]="true"
-          [loop]="true"
-          interval="5000"
-          proportion="50"
-          color="white">
-        <mat-carousel-slide
-          *ngFor="let slide of slide0;"
-          [image]="slide.image0"
-          [hideOverlay]="true">
-        </mat-carousel-slide>
-        <mat-carousel-slide
-            *ngFor="let slide of slide01;"
-            [image]="slide.image01"
-            [hideOverlay]="true">
-          <p class="slideDescription">Login to Seed-Test via GitHub or create a new Seed-Test Account by registering.<br>Alternatively you can try Seed-Test without an account, by trying our Demo.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide02;"
-          [image]="slide.image02"
-          [hideOverlay]="true">
-            <p class="slideDescription">After the login via GitHub you can see your repositories.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide03;"
-          [image]="slide.image03"
-          [hideOverlay]="true">
-            <p class="slideDescription">Else you can just register yourself using your E-Mail.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide04;"
-          [image]="slide.image04"
-          [hideOverlay]="true">
-          <p class="slideDescription">After the first Login of your Seed-Test account, you can create your own custom Repositories <br>or connect an existing GitHub Account or Jira Server.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide05;"
-          [image]="slide.image05"
-          [hideOverlay]="true">
-          <p class="slideDescription">Name your custom Project and save it.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide06;"
-          [image]="slide.image06"
-          [hideOverlay]="true">
-          <p class="slideDescription">Select your newly created Project to continue.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide07;"
-          [image]="slide.image07"
-          [hideOverlay]="true">
-          <p class="slideDescription">With a new Custom Project you can create your own stories.<br>If you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide08;"
-          [image]="slide.image08"
-          [hideOverlay]="true">
-          <p class="slideDescription">Enter a name and description for your new story.</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide09;"
-          [image]="slide.image09"
-          [hideOverlay]="true">
-          <p class="slideDescription">Now you can add steps to create your first Test!<br>Usually you want to start by using the Given-Step: "Website".</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide10;"
-          [image]="slide.image10"
-          [hideOverlay]="true">
-          <p class="slideDescription">Run your Test by clickling on "Run Scenario".</p>
-        </mat-carousel-slide>
-        <mat-carousel-slide
-          *ngFor="let slide of slide11;"
-          [image]="slide.image11"
-          [hideOverlay]="true">
-          <p class="slideDescription">For help and further information click on Help and check out our Tutorial.</p>
-        </mat-carousel-slide>
-      </mat-carousel>
+      <owl-carousel-o
+      [options]="customOptions">
+      <ng-container *ngFor="let slide of slides">
+        <ng-template carouselSlide [id]="slide.id">
+          <img [src]="slide.image" alt="slide-image">
+          <p *ngIf="slide.caption" class="slideDescription">{{slide.caption}}</p>
+        </ng-template>
+      </ng-container>
+      </owl-carousel-o>
     </div>
   </div>
   <div class="formular">

@@ -5,6 +5,7 @@ import {NgForm} from '@angular/forms';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
 import { Subscription } from 'rxjs';
+import { OwlOptions } from 'ngx-owl-carousel-o';
 
 /**
  * Component to handle the client login
@@ -44,18 +45,34 @@ export class LoginComponent implements OnInit, AfterViewInit {
     /**
      * Tutorial slides
      */
-    slide0 = [{'image0': '/assets//slide0.png'}];
-    slide01 = [{'image01': '/assets//slide01.PNG'}];
-    slide02 = [{'image02': '/assets//slide02.png'}];
-    slide03 = [{'image03': '/assets//slide03.PNG'}];
-    slide04 = [{'image04': '/assets//slide04.PNG'}];
-    slide05 = [{'image05': '/assets//slide05.PNG'}];
-    slide06 = [{'image06': '/assets//slide06.PNG'}];
-    slide07 = [{'image07': '/assets//slide07.png'}];
-    slide08 = [{'image08': '/assets//slide08.PNG'}];
-    slide09 = [{'image09': '/assets//slide09.PNG'}];
-    slide10 = [{'image10': '/assets//slide10.PNG'}];
-    slide11 = [{'image11': '/assets//slide11.png'}];
+    slides = [{'id':'0','image': '/assets//slide0.png'},
+            {'id':'1','image': '/assets//slide01.PNG','caption':'Login to Seed-Test via GitHub or create a new Seed-Test Account by registering.\nAlternatively you can try Seed-Test without an account, by trying our Demo.'},
+            {'id':'2','image': '/assets//slide02.png','caption':'After the login via GitHub you can see your repositories.'},
+            {'id':'3','image': '/assets//slide03.PNG','caption':'Else you can just register yourself using your E-Mail.'},
+            {'id':'4','image': '/assets//slide04.PNG','caption':'After the first Login of your Seed-Test account, you can create your own custom Repositories \nor connect an existing GitHub Account or Jira Server.'},
+            {'id':'5','image': '/assets//slide05.PNG','caption':'Name your custom Project and save it.'},
+            {'id':'6','image': '/assets//slide06.PNG','caption':'Select your newly created Project to continue.'},
+            {'id':'7','image': '/assets//slide07.png','caption':'With a new Custom Project you can create your own stories.\nIf you use a Github or Jira repository, you have to create an issue with the tag or label „story“, to make it appear in Seed-Test.'},
+            {'id':'8','image': '/assets//slide08.PNG','caption':'Enter a name and description for your new story.'},
+            {'id':'9','image': '/assets//slide09.PNG','caption':'Now you can add steps to create your first Test!\nUsually you want to start by using the Given-Step: "Website".'},
+            {'id':'10','image': '/assets//slide10.PNG','caption':'Run your Test by clickling on "Run Scenario".'},
+            {'id':'11','image': '/assets//slide11.png','caption':'For help and further information click on Help and check out our Tutorial.'}]
+
+    customOptions: OwlOptions = {
+         loop: true,
+         items: 1,
+         stagePadding: -5, // negative value so that only one slide shows at a time
+         autoplay: true,
+         mouseDrag: false,
+         touchDrag: false,
+         pullDrag: false,
+         center: true,
+         dots: false,
+         navSpeed: 1500, // speed of slide change, lower = faster
+         navText: ['<em class="material-icons" id="carousel_arrow">arrow_back</em>','<em class="material-icons" id="carousel_arrow">arrow_forward</em>'],
+         nav: true,
+         autoplaySpeed: 1500
+    }
 
 
     /**

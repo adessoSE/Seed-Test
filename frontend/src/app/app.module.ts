@@ -33,7 +33,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import { PasswordConfirmedValidatorDirective } from './directives/password-confirmed.directive';
 import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { MatCarouselModule } from '@kdeenanauth/material-carousel';
+import { CarouselModule } from 'ngx-owl-carousel-o';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
@@ -126,17 +126,18 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     ClipboardModule,
     DragDropModule,
     MatProgressSpinnerModule,
-    MatCarouselModule.forRoot(),
+    CarouselModule,
     ToastrModule.forRoot({
       timeOut: 3000
     }),
     MatSlideToggleModule,
     MatIconModule,
     MatExpansionModule,
-    
   ],
   entryComponents: [RunTestToast],
-  providers: [ApiService, AuthGuard, CookieService, [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
+  providers: [ApiService, AuthGuard, CookieService,
+    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }],
+    [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
