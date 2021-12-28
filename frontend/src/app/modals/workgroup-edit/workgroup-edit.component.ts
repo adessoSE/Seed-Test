@@ -44,9 +44,7 @@ export class WorkgroupEditComponent {
     */
   userEmail = '';
   userId = '';
-
-  repos : RepositoryContainer[];
-
+  repos: RepositoryContainer[];
   isCurrentToDelete = false;
 
    /**
@@ -55,7 +53,7 @@ export class WorkgroupEditComponent {
   modalReference: NgbModalRef;
 
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
-  @ViewChild('repoSwitchModal') repoSwitchModal : RepoSwichComponent;
+  @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
     this.apiService.deleteRepositoryEvent.subscribe(() => {
@@ -101,7 +99,7 @@ export class WorkgroupEditComponent {
       this.workgroupList = originList;
     }, (error) => {
       this.workgroupError = error.error.error;
-      this.showErrorToast ()
+      this.showErrorToast();
     });
 
   }
@@ -131,9 +129,9 @@ export class WorkgroupEditComponent {
 /**
  * Delete a custom repository
  */
-  deleteCustomRepo(){
-    if(this.userEmail == this.workgroupOwner) {
-      this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
+  deleteCustomRepo() {
+    if (this.userEmail == this.workgroupOwner) {
+      this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(() => {
         this.apiService.getRepositoriesEmitter();
         this.apiService.updateRepositoryEmitter();
       });
@@ -142,14 +140,13 @@ export class WorkgroupEditComponent {
   }
 
   isCurrentRepoToDelete() {
-    let currentRepo = localStorage.getItem('repository');
-    //console.log(this.workgroupProject.value, currentRepo);
-      
-    if ( this.workgroupProject.value == currentRepo) {
+    const currentRepo = localStorage.getItem('repository');
+    if ( this.workgroupProject.value === currentRepo) {
       this.isCurrentToDelete = true;
       this.openRepoSwitchModal();
+    } else {
+      this.showDeleteRepositoryToast();
     }
-    else {this.showDeleteRepositoryToast();}
   }
 
 /**
@@ -170,6 +167,13 @@ export class WorkgroupEditComponent {
   */
   openRepoSwitchModal() {
     this.repoSwitchModal.openModal();
+  }
+
+  enterSubmit(event, form: NgForm) {
+    if (event.keyCode === 13) {
+      this.workgroupInvite(form);
+      form.reset();
+    }
   }
 
 }

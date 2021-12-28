@@ -143,6 +143,10 @@
     color: white;
 }
 
+::ng-deep .leftMargin {
+    margin-left: 24px;
+}
+
 
 
 

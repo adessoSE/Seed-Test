@@ -81,18 +81,18 @@ em.dragIcon{
 }
 
 
-#infoIcon{
+/* #infoIcon{
   color: #999;
   margin-left: 5px;
   margin-right: 5px;
   padding-right: 770px;
-}
+} */
 
-#infoIconScenario{
+/* #infoIconScenario{
   color: #999;
   margin-left: 5px;
   margin-right: 5px;
-}
+} */
 
 .uk-button-group{
   border-radius:4px;

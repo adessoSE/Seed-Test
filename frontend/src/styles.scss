@@ -588,6 +588,12 @@ $dark-theme: mat.define-dark-theme(
     background: var(--ocean-blue);
     cursor: pointer;
   }
+
+  .darkTheme .SmallButton {
+    background: var(--button);
+    border-color: var(--button);
+  }
+
   .SmallButton:hover{
     background: var(--marine-blue);
   }
@@ -669,18 +675,18 @@ $dark-theme: mat.define-dark-theme(
 }
 
 .deleteButton{
-  background: var(--grape);
+  background: var(--grape) !important;
 }
 
 .deleteButton:hover{
-  background: var(--grape-purple);
+  background: var(--grape-purple) !important;
 }
 
 .infoIcon{
   grid-area: storyHeader;
   color: #999;
-  padding-top: 3px;
-  margin-left: 7px;
+  padding-top: 3px !important;
+  margin-left: 7px !important;
 }
 
 .def {
@@ -726,14 +732,6 @@ span[rel=def] {
 
 .uk-button-group {
   border: transparent;
-}
-
-.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
-  background-color: rgb(96, 125, 139, 54%);
-}
-
-.darkTheme .mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
-  background-color: #90A4AE;
 }
 
 span.notPassed{
@@ -810,11 +808,6 @@ div.notPassed{
   background-color: map-get($mat-blue-grey, 800);
 }
 
-.darkTheme button {
-  background: var(--button);
-  color: white;
-}
-
 .darkTheme span {
   color: var(--white);
 }
@@ -844,9 +837,9 @@ a.repoLink:hover{
   color:var(--white) !important;
 } 
 
-.darkTheme svg {
-  color: var(--white);
-}
+.darkTheme span.infoIcon {
+  color: var(--white) !important;
+} 
 
 .darkTheme em {
   color: var(--light-blue) !important;
@@ -903,7 +896,8 @@ a.repoLink:hover{
 }
 
 .darkTheme .mat-table,
-.darkTheme.mat-table {
+.darkTheme.mat-table,
+.darkTheme .mat-expansion-panel {
   background: map-get($mat-blue-grey, 700);
 
 }
@@ -915,6 +909,11 @@ a.repoLink:hover{
 #searchBarIcons{
   color: var(--brown-grey);
   vertical-align: middle;
+}
+
+.darkTheme button.normalButton {
+  background: var(--button);
+  color: white;
 }
 
 
