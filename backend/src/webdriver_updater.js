@@ -4,7 +4,8 @@ const path = require('path')
 const unzipper = require('unzipper')
 const tar = require('tar')
 const os = require('os');
-var spawn = require("child_process").spawn;
+var spawn = require('child_process').spawn;
+const exec = require('child_process').exec;
 var cron = require('node-schedule');
 
 if (process.env.NODE_ENV !== 'production') {
@@ -12,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config({ path: path.join(__dirname, '../.env') })
 }
 
-
+// TODO: use exec in async_run_command() for windows too?
 // TODO: implement for linux
 // TODO: propper error handling
 // TODO: automatic modification of the PATH variable for linux
@@ -45,7 +46,7 @@ async function runWebdriverUpdater(){
     console.log("INFO: Webdriver service started at", date.toISOString())
 
     await async_check_driver_directory()
-    await async_append_path_variable()
+    //await async_append_path_variable()
     console.log('')
 
     await update_driver('Chrome')
@@ -65,7 +66,7 @@ async function update_driver(browser){
 
     browserVersion = await async_get_browser_version(browser)
     if(browserVersion === undefined){
-        console.log("WARN: Browser ${browser} not installed. Skipping...")
+        console.log(`WARN: Browser ${browser} not installed. Skipping...`)
         return
     }
     console.log("#\tCurrent browser version:", browserVersion)
@@ -186,7 +187,7 @@ async function async_get_browser_version(browser){
             if(browser == 'chrome') browser = 'google-chrome'
             command = `${browser} --version`
             versionString = await async_run_command(command)
-            return versionString.split(' ')[-1]
+            return versionString.split(' ').pop()
         case 'macos':
         default:
             throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
@@ -243,24 +244,46 @@ async function async_run_command(command){
     // https://exceptionshub.com/execute-powershell-script-from-node-js.html
     var result = ''
     return new Promise(resolve => {
-        var child = spawn(os_.runtime, [command]);
+        switch(os_.platform){
+            case 'win':
+                var child = spawn(os_.runtime, [command]);
 
-        child.stdout.on("data", data => {
-            result += data.toString()
-        });
-        child.stderr.on("data", data => {
-            // TODO: proper error handling
-            console.log(data.toString())
-            resolve('')
-        });
-        child.on('close', exitCode => {
-            if(exitCode != 0)
-                console.log(`INFO: Exit code != 0 of command '${command}'`)
-            // Remove trailing '\n'
-            resolve(result.slice(0,-1))
-        })
+                child.stdout.on("data", data => {
+                    result += data.toString()
+                });
+                child.stderr.on("data", data => {
+                    // TODO: proper error handling
+                    console.log(data.toString())
+                    resolve('')
+                });
+                child.on('close', exitCode => {
+                    if(exitCode != 0)
+                        console.log(`INFO: Exit code != 0 of command '${command}'`)
+                    // Remove trailing '\n'
+                    resolve(result.slice(0,-1))
+                })
+        
+                child.stdin.end()
+                break
 
-        child.stdin.end()
+            case 'linux':
+                exec(command, (error, stdout, stderr) => {
+                    if (error) {
+                        console.log(`error: ${error.message}`);
+                        return;
+                    }
+                    if (stderr) {
+                        console.log(`stderr: ${stderr}`);
+                        return;
+                    }
+                    resolve(stdout.slice(0,-1))
+                });
+                break
+
+            case 'macos':
+                default:
+                    throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
+        }
     })
 }
 
