@@ -76,6 +76,12 @@ Once everything is running, you can access the website by typing this into a bro
 http://localhost:4200/login
 ```
 
+If you would like to use our webdriver updater, open a new terminal switch to the backend folder and start it. Make sure, you assigned the environment variables WEBDRIVER_DIR and WEBDRIVER_EXEC_PERIOD.
+```
+cd backend
+npm run start:wd_updater
+```
+
 
 
 ## Database
