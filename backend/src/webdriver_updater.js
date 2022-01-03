@@ -6,12 +6,11 @@ const tar = require('tar')
 const os = require('os');
 var spawn = require("child_process").spawn;
 var cron = require('node-schedule');
-require('dotenv').config();             // necessary to read from .env file
 
-const executionPeriod = process.env.WEBDRIVER_EXEC_PERIOD
-const webdriver_dir = process.env.WEBDRIVER_DIR
-const versionFilePath = path.join(webdriver_dir, '.versions')
-const os_ = get_os_platform_architecture()
+if (process.env.NODE_ENV !== 'production') {
+    console.log("INFO: Not in productive environment. Using .env file ...")
+    require('dotenv').config({ path: path.join(__dirname, '../.env') })
+}
 
 
 // TODO: implement for linux
@@ -19,7 +18,14 @@ const os_ = get_os_platform_architecture()
 // TODO: automatic modification of the PATH variable for linux
 
 
-// Premliminary check: is this cron expression valid?
+const executionPeriod = process.env.WEBDRIVER_EXEC_PERIOD || '0 0 1 * * *'
+const webdriver_dir = process.env.WEBDRIVER_DIR || path.join(__dirname, '../webdriver')
+const os_ = get_os_platform_architecture()
+
+
+console.log("INFO: Webdriver updater started.")
+console.log("INFO: Execution period:", executionPeriod)
+
 try{
     cron.scheduleJob(executionPeriod, function(){
         runWebdriverUpdater()
