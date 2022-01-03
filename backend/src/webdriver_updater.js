@@ -65,7 +65,7 @@ async function update_driver(browser){
 
     browserVersion = await async_get_browser_version(browser)
     if(browserVersion === undefined){
-        console.log("\tBrowser ${browser} not installed.")
+        console.log("WARN: Browser ${browser} not installed. Skipping...")
         return
     }
     console.log("#\tCurrent browser version:", browserVersion)
@@ -114,9 +114,9 @@ function get_os_platform_architecture(){
             ret.runtime = 'powershell.exe'
             break;
         case 'linux':
-            // ret.platform = 'linux'
-            // ret.runtime = 'bash'
-            // break;
+            ret.platform = 'linux'
+            ret.runtime = 'bash'
+            break;
         case 'darwin':
             // ret.platform = 'macos'
             // ret.runtime = 'bash'
@@ -124,7 +124,6 @@ function get_os_platform_architecture(){
         default:
             throw new Error(`This operating system (${platform}) is not supported yet!`)
     }
-    // TODO: rather split up into [ 'mac', 'os' ] for macOS ?
     return ret
 }
 
@@ -181,9 +180,13 @@ async function get_current_driver_version(browser){
 async function async_get_browser_version(browser){
     switch(os_.platform){
         case 'win':
-            command =  `(Get-Item (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${browser}.exe').'(Default)').VersionInfo.ProductVersion`
+            command = `(Get-Item (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${browser}.exe').'(Default)').VersionInfo.ProductVersion`
             return async_run_command(command)
         case 'linux':
+            if(browser == 'chrome') browser = 'google-chrome'
+            command = `${browser} --version`
+            versionString = await async_run_command(command)
+            return versionString.split(' ')[-1]
         case 'macos':
         default:
             throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
@@ -341,32 +344,43 @@ async function async_download_archive(downloadUrl, targetPath){
 
 // TODO: give the last finish
 async function async_append_path_variable(){
+    var request_command = ''
+    var write_command = ''
+    var separator = ''
     switch(os_.platform){
         case 'win':
-            //var request_command = `(Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Session Manager\\Environment').Path`
-            var request_command = `[Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)`
-            var old_PATH = await async_run_command(request_command)
-            //console.log(old_PATH)
-
-            if(old_PATH.includes(webdriver_dir)){
-                // No action needed: already part of the PATH variable
-                console.log("INFO: PATH variable already contains the path to the webdriver directory. No action needed.")
-                return
-            }
-
-            var new_PATH = old_PATH + ';' + webdriver_dir
+            //request_command = `(Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Session Manager\\Environment').Path`
+            request_command = `[Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)`
 
             //var write_command = `(Set-ItemProperty -Path "HKLM:\\System\\CurrentControlSet\\Control\\Session Manager\\Environment" -Name Path -Value '${new_PATH}')`
-            var write_command = `[Environment]::SetEnvironmentVariable("Path", "${new_PATH}", [EnvironmentVariableTarget]::Machine)`
-            console.log(write_command)
-            answer = await async_run_command(write_command)
+            write_command = '[Environment]::SetEnvironmentVariable("Path", "{new_PATH}", [EnvironmentVariableTarget]::Machine)'
+
+            separator = ';'
             break
 
         case 'linux':
-        case 'macos':
+            request_command = `` 
+            write_command = ''
+            separator = ':'
+            break
+
         default:
             throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
     }
+
+    const old_PATH = await async_run_command(request_command)
+    //console.log(old_PATH)
+
+    if(old_PATH.includes(webdriver_dir)){
+        // No action needed: already part of the PATH variable
+        console.log("INFO: PATH variable already contains the path to the webdriver directory. No action needed.")
+        return
+    }
+
+    var new_PATH = old_PATH + separator + webdriver_dir
+    write_command = write_command.replace(new RegExp('{new_PATH}','g'), new_PATH)
+
+    answer = await async_run_command(write_command)
     console.log("INFO: PATH variable updated.")
 }
 
