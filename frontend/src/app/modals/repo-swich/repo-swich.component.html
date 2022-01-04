@@ -38,7 +38,9 @@
                                     <ng-container *ngIf="element; let i = index">
                                         <li class="customRepoContainer" *ngIf="element">
                                             <div>
-                                                <img class="repo_img" *ngIf="element" src="../assets/database-5-32.png">
+                                                <img class="repo_img" *ngIf="element.source ==='db'" src="../assets/database-5-32.png">
+                                                <img class="repo_img" *ngIf="element.source ==='github'" src="../assets/GitHub-Mark-32px.png">
+                                                <img class="repo_img" *ngIf="element.source === 'jira'" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
                                                 <a class="MediumBody2 repoLink" id="db_{{'element_'+i}}" (click)="selectRepository(element);" >{{element.value}}</a>
                                             </div>
                                         </li>
