@@ -6,7 +6,6 @@ const path = require('path')
 const unzipper = require('unzipper')
 const tar = require('tar')
 const os = require('os');
-var spawn = require('child_process').spawn;
 const exec = require('child_process').exec;
 var cron = require('node-schedule');
 
