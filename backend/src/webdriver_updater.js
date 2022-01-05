@@ -1,3 +1,5 @@
+// https://www.selenium.dev/documentation/webdriver/getting_started/install_drivers/
+
 const request = require('request')
 const fs = require('fs')
 const path = require('path')
@@ -21,11 +23,14 @@ if (process.env.NODE_ENV !== 'production') {
 
 const executionPeriod = process.env.WEBDRIVER_EXEC_PERIOD || '0 0 1 * * *'
 const webdriver_dir = process.env.WEBDRIVER_DIR || path.join(__dirname, '../webdriver')
+const webdriver_file_mode = parseInt(process.env.WEBDRIVER_FILE_MODE, 8) || 0o755
 const os_ = get_os_platform_architecture()
 
 
-console.log("INFO: Webdriver updater started.")
-console.log("INFO: Execution period:", executionPeriod)
+console.log("INFO: Webdriver updater started.\n")
+console.log("INFO: Execution period:\t\t\t\t", executionPeriod)
+console.log("INFO: Webdriver directory:\t\t\t", webdriver_dir)
+console.log("INFO: Default webdriver file mode (linux):\t", "0o" + webdriver_file_mode.toString(8))
 
 try{
     cron.scheduleJob(executionPeriod, function(){
@@ -49,9 +54,9 @@ async function runWebdriverUpdater(){
     //await async_append_path_variable()
     console.log('')
 
-    await update_driver('Chrome')
+    await update_driver('Chrome', 'chromium')
     console.log('')
-    await update_driver('Firefox')
+    await update_driver('Firefox', 'geckodriver')
 
     date = new Date()
     console.log("\nINFO: Webdriver service finished at", date.toISOString())
@@ -60,7 +65,7 @@ async function runWebdriverUpdater(){
 
 
 
-async function update_driver(browser){
+async function update_driver(browser, driver){
     console.log(`Updating ${browser} driver`)
     browser = browser.toLowerCase()
 
@@ -71,7 +76,7 @@ async function update_driver(browser){
     }
     console.log("#\tCurrent browser version:", browserVersion)
 
-    currentVersion = await get_current_driver_version(browser)
+    currentVersion = await get_current_driver_version(driver)
     console.log("#\tCurrent driver version:\t", currentVersion)
 
     latestVersion = await async_get_latest_version(browser, browserVersion)
@@ -84,7 +89,7 @@ async function update_driver(browser){
     }    
 
     downloadUrl = get_download_url(browser)
-    await download_and_extract_archive(downloadUrl)
+    await download_and_extract_archive(driver, downloadUrl)
     
     console.log("#\tInstallation successful") 
 }
@@ -149,19 +154,14 @@ function async_check_driver_directory(){
 
 
 
-async function get_current_driver_version(browser){
-    names = {
-        chrome: 'chromedriver',
-        firefox: 'geckodriver'
-    }
-
+async function get_current_driver_version(driver){
     command = ''
     switch(os_.platform){
         case 'win':
-            command = path.join(webdriver_dir, names[browser]) + '.exe --version'
+            command = path.join(webdriver_dir, driver) + '.exe --version'
             break;
         case 'linux':
-            command = path.join(webdriver_dir, names[browser]) + ' --version'
+            command = path.join(webdriver_dir, driver) + ' --version'
             break
         case 'macos':
         default:
@@ -197,26 +197,25 @@ async function async_get_browser_version(browser){
 
 
 function async_get_latest_version(browser, browserVersion){
-    switch(browser){
-        case 'chrome':
-            // https://chromedriver.chromium.org/downloads/version-selection
-            try{
+    try{
+        switch(browser){
+            case 'chrome':
+                // https://chromedriver.chromium.org/downloads/version-selection
                 return async_get_latest_chromedriver_version(browserVersion)
-            } catch(e){
-                console.log("WARN: Could not receive lates Version.\nAborting...")
-                exit -1
-            }
-
-        case 'firefox':
-            // inspired by https://pypi.org/project/geckodriver-autoinstaller/
-            // https://firefox-source-docs.mozilla.org/_sources/testing/geckodriver/Support.md.txt
-            // TODO: check if newest version is compatible to currently installed browser version
-            try{
+    
+            case 'firefox':
+                // inspired by https://pypi.org/project/geckodriver-autoinstaller/
+                // https://firefox-source-docs.mozilla.org/_sources/testing/geckodriver/Support.md.txt
+                // TODO: check if newest version is compatible to currently installed browser version
                 return async_get_latest_geckodriver_version()
-            } catch(e){
-                console.log("WARN: Could not receive lates Version.\nAborting...")
-                exit -1
-            }
+
+            default:
+                throw new Error(`This browser system (${browser}) is not fully supported yet!`)
+        }
+    
+    } catch(e){
+        console.log("WARN: Could not receive lates Version.\nAborting...")
+        exit -1
     }
 }
 
@@ -259,8 +258,9 @@ async function async_run_command(command){
                 child.on('close', exitCode => {
                     if(exitCode != 0)
                         console.log(`INFO: Exit code != 0 of command '${command}'`)
-                    // Remove trailing '\n'
-                    resolve(result.slice(0,-1))
+                    // Remove trailing '\n' and whitespaces
+                    resolve(result.trim())
+                    //resolve(result.slice(0,-1))
                 })
         
                 child.stdin.end()
@@ -269,20 +269,20 @@ async function async_run_command(command){
             case 'linux':
                 exec(command, (error, stdout, stderr) => {
                     if (error) {
-                        console.log(`error: ${error.message}`);
-                        return;
+                        console.log(`INFO: error: ${error.message}`);
+                        resolve('');
                     }
                     if (stderr) {
-                        console.log(`stderr: ${stderr}`);
-                        return;
+                        console.log(`INFO: stderr: ${stderr}`);
+                        resolve('');
                     }
-                    resolve(stdout.slice(0,-1))
+                    resolve(stdout.trim())
                 });
                 break
 
             case 'macos':
-                default:
-                    throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
+            default:
+                throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
         }
     })
 }
@@ -308,27 +308,34 @@ async function async_request_data(url){
 
 
 
-async function download_and_extract_archive(downloadUrl){    
+async function download_and_extract_archive(driver, downloadUrl){    
     // We want to temporarely store the archive with a file name that does not exist so far
-    var randomInt = Math.floor(Math.random()*10000).toString()
-    var archiveName = randomInt + '_' + downloadUrl.split('/').pop()
+    const randomInt = Math.floor(Math.random()*10000).toString()
+    const archiveName = randomInt + '_' + downloadUrl.split('/').pop()
 
     // Specify download target
-    archiveFile = path.join(webdriver_dir, archiveName)
+    const archiveFile = path.join(webdriver_dir, archiveName)
 
     // Download archive
     await async_download_archive(downloadUrl, archiveFile)
 
-    // Unpack archive
-    archiveType = archiveName.split('.').pop()
-        // 'zip' -> zip-File, 'gz' -> .tar.gz file
+    // Get archive type
+    const archiveType = archiveName.split('.').pop()
+
+    // 'zip' -> zip-File, 'gz' -> .tar.gz file
     switch(archiveType){
         case 'zip':
-            fs.createReadStream(archiveFile).pipe(unzipper.Extract({ path: webdriver_dir }));
+            await new Promise(resolve => {
+                fs.createReadStream(archiveFile)
+                    .pipe(unzipper.Extract({ path: webdriver_dir }))
+                    .on('close', () => {
+                        resolve([])
+                    })
+            })
             break
         case 'gz':
             // https://www.npmjs.com/package/tar
-            tar.extract({ sync: true, file: archiveFile, cwd : webdriver_dir })
+            tar.extract({ sync: true, file: archiveFile, cwd: webdriver_dir})
             break
         default:
             throw new Error(`This archive type (${archiveType}) is not fully supported yet!`)
@@ -336,6 +343,11 @@ async function download_and_extract_archive(downloadUrl){
 
     // Delete archive file
     fs.unlinkSync(archiveFile)
+
+    // Fix file mode (linux only)
+    if(os_.platform == 'linux'){
+        fs.chmodSync(path.join(webdriver_dir, driver), webdriver_file_mode)
+    }
 }
 
 
@@ -365,26 +377,26 @@ async function async_download_archive(downloadUrl, targetPath){
 }
 
 
+
 // TODO: give the last finish
 async function async_append_path_variable(){
     var request_command = ''
     var write_command = ''
-    var separator = ''
     switch(os_.platform){
         case 'win':
+            //request_command = 'echo %PATH%'
             //request_command = `(Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Session Manager\\Environment').Path`
             request_command = `[Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)`
 
+            //write_command = 'setx PATH "%PATH%;{new_PATH}"'
             //var write_command = `(Set-ItemProperty -Path "HKLM:\\System\\CurrentControlSet\\Control\\Session Manager\\Environment" -Name Path -Value '${new_PATH}')`
             write_command = '[Environment]::SetEnvironmentVariable("Path", "{new_PATH}", [EnvironmentVariableTarget]::Machine)'
-
-            separator = ';'
             break
 
+        // TODO: does not work when executed as sudo -> creation of /root/.profile prohibited
         case 'linux':
-            request_command = `` 
-            write_command = ''
-            separator = ':'
+            request_command = 'echo $PATH ' 
+            write_command = `export PATH=$PATH:${webdriver_dir} >> ~/.profile`
             break
 
         default:
@@ -392,18 +404,15 @@ async function async_append_path_variable(){
     }
 
     const old_PATH = await async_run_command(request_command)
-    //console.log(old_PATH)
 
     if(old_PATH.includes(webdriver_dir)){
         // No action needed: already part of the PATH variable
         console.log("INFO: PATH variable already contains the path to the webdriver directory. No action needed.")
         return
     }
-
-    var new_PATH = old_PATH + separator + webdriver_dir
-    write_command = write_command.replace(new RegExp('{new_PATH}','g'), new_PATH)
-
+    console.log(write_command)
     answer = await async_run_command(write_command)
+    console.log(answer)
     console.log("INFO: PATH variable updated.")
 }
 
