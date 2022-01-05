@@ -15,10 +15,9 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config({ path: path.join(__dirname, '../.env') })
 }
 
-// TODO: use exec in async_run_command() for windows too?
-// TODO: implement for linux
 // TODO: propper error handling
 // TODO: automatic modification of the PATH variable for linux
+// TODO: Firefox: check if newest version is compatible to currently installed browser version
 
 
 const executionPeriod = process.env.WEBDRIVER_EXEC_PERIOD || '0 0 1 * * *'
@@ -54,7 +53,7 @@ async function runWebdriverUpdater(){
     //await async_append_path_variable()
     console.log('')
 
-    await update_driver('Chrome', 'chromium')
+    await update_driver('Chrome', 'chromedriver')
     console.log('')
     await update_driver('Firefox', 'geckodriver')
 
@@ -67,10 +66,9 @@ async function runWebdriverUpdater(){
 
 async function update_driver(browser, driver){
     console.log(`Updating ${browser} driver`)
-    browser = browser.toLowerCase()
 
     browserVersion = await async_get_browser_version(browser)
-    if(browserVersion === undefined){
+    if(!browserVersion){
         console.log(`WARN: Browser ${browser} not installed. Skipping...`)
         return
     }
@@ -155,25 +153,16 @@ function async_check_driver_directory(){
 
 
 async function get_current_driver_version(driver){
-    command = ''
-    switch(os_.platform){
-        case 'win':
-            command = path.join(webdriver_dir, driver) + '.exe --version'
-            break;
-        case 'linux':
-            command = path.join(webdriver_dir, driver) + ' --version'
-            break
-        case 'macos':
-        default:
-            throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
-
-    }
-    versionString =  await async_run_command(command)
-
-    if(versionString != '')
-        return versionString.split(' ')[1]
-    else
+    var driver_file_path = path.join(webdriver_dir, driver)
+    if(os_.platform == 'win') driver_file_path += '.exe'
+    
+    if((await async_check_if_file_exists(driver_file_path)) == false){
         return 'not installed'
+    }
+
+    versionString =  await async_run_command(driver_file_path + ' --version')
+
+    return versionString.split(' ')[1]
 }
 
 
@@ -199,14 +188,13 @@ async function async_get_browser_version(browser){
 function async_get_latest_version(browser, browserVersion){
     try{
         switch(browser){
-            case 'chrome':
+            case 'Chrome':
                 // https://chromedriver.chromium.org/downloads/version-selection
                 return async_get_latest_chromedriver_version(browserVersion)
     
-            case 'firefox':
+            case 'Firefox':
                 // inspired by https://pypi.org/project/geckodriver-autoinstaller/
                 // https://firefox-source-docs.mozilla.org/_sources/testing/geckodriver/Support.md.txt
-                // TODO: check if newest version is compatible to currently installed browser version
                 return async_get_latest_geckodriver_version()
 
             default:
@@ -223,11 +211,11 @@ function async_get_latest_version(browser, browserVersion){
 
 function get_download_url(browser){
     switch(browser){
-        case 'chrome':
+        case 'Chrome':
             // https://chromedriver.chromium.org/downloads/version-selection
             return get_chromedriver_download_url()
 
-        case 'firefox':
+        case 'Firefox':
             // inspired by https://pypi.org/project/geckodriver-autoinstaller/
             // https://firefox-source-docs.mozilla.org/_sources/testing/geckodriver/Support.md.txt
             return get_geckodriver_download_url()
@@ -241,50 +229,48 @@ function get_download_url(browser){
 
 async function async_run_command(command){    
     // https://exceptionshub.com/execute-powershell-script-from-node-js.html
-    var result = ''
-    return new Promise(resolve => {
-        switch(os_.platform){
-            case 'win':
-                var child = spawn(os_.runtime, [command]);
 
-                child.stdout.on("data", data => {
-                    result += data.toString()
-                });
-                child.stderr.on("data", data => {
-                    // TODO: proper error handling
-                    console.log(data.toString())
-                    resolve('')
-                });
-                child.on('close', exitCode => {
-                    if(exitCode != 0)
-                        console.log(`INFO: Exit code != 0 of command '${command}'`)
-                    // Remove trailing '\n' and whitespaces
-                    resolve(result.trim())
-                    //resolve(result.slice(0,-1))
-                })
-        
-                child.stdin.end()
-                break
+    // child_process.exec() uses the CMD for Windows per default.
+    // We could use the PowerShell by handing over the option { shell = 'powershell.exe' }.
+    // But it is faster to let te CMD interprete the command as a PS command.
+    // -> https://stackoverflow.com/q/67823124
+    if(os_.platform == 'win')
+        command = 'powershell.exe ' + command
 
-            case 'linux':
-                exec(command, (error, stdout, stderr) => {
-                    if (error) {
-                        console.log(`INFO: error: ${error.message}`);
-                        resolve('');
-                    }
-                    if (stderr) {
-                        console.log(`INFO: stderr: ${stderr}`);
-                        resolve('');
-                    }
-                    resolve(stdout.trim())
-                });
-                break
-
-            case 'macos':
-            default:
-                throw new Error(`This operating system (${os_.platform}) is not fully supported yet!`)
-        }
+    return new Promise((resolve, reject) => {
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`INFO: error: ${error.message}`);
+                reject(error);
+            }
+            if (stderr) {
+                console.log(`INFO: stderr: ${stderr}`);
+                resolve('');
+            }
+            resolve(stdout.trim())
+        });
     })
+
+    // var child = spawn(os_.runtime, [command]);
+
+    // child.stdout.on("data", data => {
+    //     result += data.toString()
+    // });
+    // child.stderr.on("data", data => {
+    //     // TODO: proper error handling
+    //     console.log(data.toString())
+    //     resolve('')
+    // });
+    // child.on('close', exitCode => {
+    //     if(exitCode != 0)
+    //         console.log(`INFO: Exit code != 0 of command '${command}'`)
+    //     // Remove trailing '\n' and whitespaces
+    //     resolve(result.trim())
+    //     //resolve(result.slice(0,-1))
+    // })
+
+    // child.stdin.end()
+    // break
 }
 
 
@@ -414,6 +400,20 @@ async function async_append_path_variable(){
     answer = await async_run_command(write_command)
     console.log(answer)
     console.log("INFO: PATH variable updated.")
+}
+
+
+
+// Request the statistics of the specified file -> will fail if the file does not exist
+async function async_check_if_file_exists(filepath){
+    return new Promise(resolve => {
+        fs.stat(filepath, (err, stats) => {
+            if(err)
+                resolve(false)
+             else
+                 resolve(true)
+        })
+    })
 }
 
 
