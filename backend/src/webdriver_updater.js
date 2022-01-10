@@ -9,6 +9,7 @@ const os = require('os');
 const exec = require('child_process').exec;
 var cron = require('node-schedule');
 
+
 if (process.env.NODE_ENV !== 'production') {
     console.log("INFO: Not in productive environment. Using .env file ...")
     require('dotenv').config({ path: path.join(__dirname, '../.env') })

@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -16,6 +15,10 @@ const groupRouter = require('./serverRouter/groupRouter');
 const workgroupsRouter = require('./serverRouter/workgroups');
 const storyRouter = require('./serverRouter/storyRouter');
 require('./database/DbServices');
+
+if(process.env.NODE_ENV !== 'production'){
+	require('dotenv').config();
+}
 
 const app = express();
 app.disable('x-powered-by');
@@ -60,7 +63,7 @@ else app
 app
 	.use(cors({
 		origin: [
-			process.env.FRONTEND_URL
+			process.env.FRONTEND_URL || 'http://localhost:4200'
 		],
 		credentials: true
 	}));
