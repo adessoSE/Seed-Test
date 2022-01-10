@@ -17,6 +17,7 @@ const dbConnection = require('./DbConnector');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
+const { filter } = require('lodash');
 
 if (!process.env.NODE_ENV) {
 	const dotenv = require('dotenv').config();
@@ -750,6 +751,29 @@ async function createRepo(ownerId, name) {
 	}
 }
 
+//updates repository
+
+/**
+ * 
+ * @param {*} repoID
+ * @param {*} newName 
+ * @param {*} user 
+ * @returns 
+ */
+async function updateRepository(repoID, newName, user) {
+	try {
+		const filter = { owner: ObjectId(user), _id: ObjectId(repoID) }
+		const db = dbConnection.getConnection();
+		const collection = await db.collection(repositoriesCollection);
+		const repo = await collection.findOne({ owner: ObjectId(user), _id: ObjectId(repoID) });
+		repo.repoName = newName.repoName;
+		return await collection.findOneAndUpdate(filter, {$set: repo});
+	} catch (e) {
+		console.log(`ERROR updateRepository: ${e}`);
+		throw e
+	}s
+}
+
 async function createJiraRepo(repoName) {
 	try {
 		const db = dbConnection.getConnection();
@@ -1205,6 +1229,8 @@ async function updateOneDriver(id, driver) {
 	}
 }
 
+
+
 module.exports = {
 	setIsSavedTestReport,
 	deleteReport,
@@ -1271,5 +1297,6 @@ module.exports = {
 	updateStoryStatus,
 	getAllSourceReposFromDb,
 	createGitRepo,
-	updateOwnerInRepo
+	updateOwnerInRepo,
+	updateRepository
 };

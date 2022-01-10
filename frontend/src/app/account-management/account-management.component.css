@@ -274,3 +274,17 @@ h2, h1{
   #searchBarIcons{
     margin-top: 1.25em;
   }
+
+  .set-name-button {
+    font-size: 18px;
+    vertical-align: top;
+  }
+
+  .setting-icon {
+    margin-left: 6px;
+    text-shadow: 1px 1px 3px rgb(0 0 0 / 50%);
+  }
+
+  .setting-icon:hover {
+    text-shadow: none;
+  }

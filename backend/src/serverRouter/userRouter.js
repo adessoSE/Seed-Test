@@ -207,6 +207,18 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
+//update repository 
+router.put('/repository/:repo_id/:owner_id', async (req, res) => {
+	try {
+		const repo = await mongo.updateRepository(req.params.repo_id,req.body, req.params.owner_id);
+		res.status(200).json(repo);
+		console.log(repo);
+	} catch (e) {
+		throw e
+	}
+	
+});
+
 // delete repository
 router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
