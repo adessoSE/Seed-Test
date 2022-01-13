@@ -75,6 +75,8 @@ export class WorkgroupEditComponent {
     this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-titles'});
     const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
     header.textContent = 'Project: ' + project.value;
+    const name = document.getElementById('newTitle') as HTMLInputElement;
+    name.placeholder = project.value;
 
     this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
         this.workgroupList = res.member;
@@ -174,6 +176,19 @@ export class WorkgroupEditComponent {
       this.workgroupInvite(form);
       form.reset();
     }
+  }
+
+  /**
+  * Submits the new name for the scenario
+  */
+  renameProject(form : NgForm) {
+    const name = form.value.newTitle;
+    const project = this.workgroupProject;
+    if(name.replace(/\s/g, '').length > 0) {
+      project.value = name;
+   }
+    //Emits rename event
+    this.apiService.renameProjectEmitter(project);
   }
 
 }

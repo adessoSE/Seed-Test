@@ -208,10 +208,11 @@ export class ApiService {
 
     /**
      * Emits the rename project event
-     * @param newTitel 
+     * @param newTitel
+     * @param proj
      */
-    renameProjectEmit(newTitel) {
-        this.renameProjectEvent.emit(newTitel);
+    renameProjectEmitter(proj: RepositoryContainer) {
+        this.renameProjectEvent.emit(proj);  
     }
 
     /**

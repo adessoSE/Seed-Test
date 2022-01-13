@@ -12,7 +12,6 @@ import { CreateCustomProjectComponent } from '../modals/create-custom-project/cr
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { RepoSwichComponent } from '../modals/repo-swich/repo-swich.component';
-import { RenameProjectComponent } from '../modals/rename-project/rename-project.component';
 import { ToastrService } from 'ngx-toastr';
 
 /**
@@ -34,7 +33,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
     @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
     @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
-    @ViewChild('renameProjectModal') renameProjectModal: RenameProjectComponent;
 
     /**
      * Viewchild to auto open mat-select
@@ -78,8 +76,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     isActualRepoToDelete: boolean;
 
-    selectedRepo: RepositoryContainer;
-
     /**
      * Subscribtions for all EventEmitter
      */
@@ -117,8 +113,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
-        this.renamePrjectObservable = this.apiService.renameProjectEvent.subscribe(newName => {
-            this.renameProject(newName);
+        this.renamePrjectObservable = this.apiService.renameProjectEvent.subscribe(proj => {
+            this.updateRepository(proj);  
         })
 
         // fill repository list for download
@@ -297,25 +293,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.searchRepos('')
     } 
 
-    openChangeProjectName(repo : RepositoryContainer) {
-        this.selectedRepo = repo;
-        this.renameProjectModal.openRenameProjectModal(this.selectedRepo.value);
-    }
-
-    /**
-     * Renames project name
-     * @param newName 
-     */
-    renameProject(newName : string) {
-        if(newName.replace(/\s/g, '').length > 0) {
-            this.selectedRepo.value = newName;
-        }
-        this.updateRepository();
-    }
-
-    updateRepository(){
+    updateRepository(project : RepositoryContainer){
         try {
-            this.apiService.updateRepository(this.selectedRepo._id, this.selectedRepo.value, this.id).subscribe(_resp => {      
+            this.apiService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {      
                 this.apiService.getRepositories();
                 this.toastr.success('successfully saved', 'Repository');
             });
