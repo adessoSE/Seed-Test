@@ -53,9 +53,6 @@
         <mat-icon>bedtime</mat-icon>
       </div>
       <div>
-        <a routerLink="/feedback">
-          <button class="rightButton">Feedback</button>
-        </a>
         <div class="dropdown">
           <button class="rightButton">Help</button>
           <div #helpMenu [class.closedMenu] = "closed">
@@ -65,7 +62,9 @@
             </div>
           </div>
         </div>
-        <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
+        <a routerLink="/feedback">
+          <button class="rightButton">Feedback</button>
+        </a>
       </div>
     </div>
   </div>
@@ -78,6 +77,7 @@
     <div class="footerCenter">
       <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
       <p class="terms" (click)="openTerms()">Terms</p>
+      <p><a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test"  target="_blank" uk-icon="github"></a></p>
     </div>
     <div class="expendable">
       <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
