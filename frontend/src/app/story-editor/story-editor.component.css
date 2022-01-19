@@ -35,6 +35,12 @@
     align-items: center;
   }
 
+  .ScenarioInfoLeft{
+      display: inline;
+      padding: 5px;
+      align-items: center;
+  }
+
  .storyInfoRight{
     padding: 5px;
  }
