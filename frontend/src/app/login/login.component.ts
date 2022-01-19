@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Login error
      */
     error: string;
-    defaultErrorMessage = "Login Failed"
+    defaultErrorMessage = "Login Failed: Wrong Username Or Password"
 
     /**
      * Boolean to see if the repository is loading
