@@ -1,3 +1,4 @@
+import { GroupReport } from './../model/GroupReport';
 import {Component, OnInit, EventEmitter, Output, ViewChild, OnDestroy, Input} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {Story} from '../model/Story';
@@ -304,10 +305,20 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     runGroup(group: Group) {
         const id = localStorage.getItem('id');
         this.testRunningGroup.emit(true);
-        this.apiService.runGroup(id, group._id, null).subscribe(ret => {
+        this.apiService.runGroup(id, group._id, null).subscribe((ret: any) => {
             this.report.emit(ret);
             console.log('Group report, No Frontend Yet');
             this.testRunningGroup.emit(false);
+            const report_id = ret.reportId
+            this.apiService.getReport(report_id)
+            .subscribe((report: GroupReport)=>{
+                report.storyStatuses.forEach(story => {
+                    story.scenarioStatuses.forEach(scenario => {
+                        this.apiService.scenarioStatusChangeEmit(
+                            story.storyId, scenario.scenarioId, scenario.status);
+                    })
+                })
+            })
         });
     }
 

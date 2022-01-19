@@ -1,3 +1,5 @@
+import { ScenarioReport } from './../model/ScenarioReport';
+import { StoryReport } from './../model/StoryReport';
 import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
@@ -858,7 +860,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                     }, 10);
                     this.toastr.info('', 'Test is done');
                     this.runUnsaved = false;
-                    this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
+                    this.apiService.getReport(this.reportId)
+                    .subscribe((report: any) =>{
+                        if (scenario_id) { // ScenarioReport
+                            const val = report.scenarioStatuses.status
+                            this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
+                        } else { // StoryReport
+                            const report_story_id = report.storyId
+                          report.scenarioStatuses.forEach(scenario => {
+                                this.apiService.scenarioStatusChangeEmit(
+                                  this.selectedStory._id, scenario.scenarioId, scenario.status);
+                            });
+                        }
+                    })
+                    /*this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
                     .subscribe((story) => {
                         if (scenario_id) {
                             const val = story.scenarios.filter(scenario => scenario.scenario_id === scenario_id);
@@ -869,7 +884,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                                   this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed);
                             });
                         }
-                    });
+                    });*/
                 });
         } else {
             this.currentTestScenarioId = scenario_id;
