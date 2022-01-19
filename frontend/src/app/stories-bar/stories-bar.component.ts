@@ -364,8 +364,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createNewStory.openCreateNewStoryModal();
     }
 
-    addFirstScenario(event) {
-        let scenarioName = event;
+    addScenario(scenarioName) {
         this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
@@ -376,11 +375,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     toggleShows(): boolean {
-        if (this.selectedStory.scenarios.length === 0) {
-            this.hideCreateScenario = false;
-        } else {
-            this.hideCreateScenario = true;
-        }
+        this.hideCreateScenario = this.selectedStory.scenarios.length !== 0;
         return this.hideCreateScenario;
     }
 
