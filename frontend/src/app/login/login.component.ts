@@ -26,6 +26,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Login error
      */
     error: string;
+    defaultErrorMessage = "Login Failed"
 
     /**
      * Boolean to see if the repository is loading
@@ -89,7 +90,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
            if (params.code){
                 this.apiService.githubCallback(params.code).subscribe(resp => {
                     if (resp.error){
-                        this.error = resp.error
+                        this.error = this.defaultErrorMessage//resp.error
                     }else{
                         localStorage.setItem('login', 'true')
                         this.getRepositories()
@@ -140,7 +141,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     loginGithubToken(login: string, id: any){
         this.apiService.loginGithubToken(login, id).subscribe((resp) => {
             if (resp.status === 'error') {
-                this.error = resp.message;
+                this.error = this.defaultErrorMessage//resp.message;
             } else if (resp.message === 'repository') {
                 let repository = resp.repository;
                 localStorage.setItem('repositoryType', 'github');
@@ -222,7 +223,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             }, 500)
 
         }, (err) => {
-            this.error = err.error;
+            this.error = this.defaultErrorMessage//err.error;
             this.isLoadingRepositories = false;
         });
     }
