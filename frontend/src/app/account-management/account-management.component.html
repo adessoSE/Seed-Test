@@ -29,12 +29,12 @@
                 <ul class="uk-list">
                     <ng-container *ngFor="let repository of repositories; let i = index">
                         <li class="customRepoContainer" *ngIf="this.apiService.isCustomRepo(repository)">
-                            <div>
+                            <div class="db-item-list">
                                 <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)" src="../assets/database-5-32.png">
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                             </div>
-                            <span>
-                            <button *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Manage Team</button>
+                            <span class="flex-end-item">
+                            <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
                             </span>
                         </li>
                     </ng-container>
@@ -149,3 +149,4 @@
 <app-delete-account #deleteAccountModal></app-delete-account>
 <app-workgroup-edit #workgroupEditModal></app-workgroup-edit>
 <app-repo-swich #repoSwitchModal></app-repo-swich>
+<app-rename-project #renameProjectModal></app-rename-project>

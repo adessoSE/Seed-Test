@@ -12,6 +12,7 @@ import { CreateCustomProjectComponent } from '../modals/create-custom-project/cr
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { RepoSwichComponent } from '../modals/repo-swich/repo-swich.component';
+import { ToastrService } from 'ngx-toastr';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -82,6 +83,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     updateRepositoryObservable: Subscription;
     themeObservable: Subscription;
     getRepositoriesObservable: Subscription;
+    renamePrjectObservable: Subscription;
 
     /**
      * Constructor
@@ -89,7 +91,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param router router to handle url changes
      * @param themeService
      */
-    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
+    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService, private toastr: ToastrService,) {
         this.routeSub = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
@@ -98,7 +100,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         if (!this.router.events) {
             this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
-                console.log('first load');
+                //console.log('first load');
             });
         }
         
@@ -111,6 +113,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
+        this.renamePrjectObservable = this.apiService.renameProjectEvent.subscribe(proj => {
+            this.updateRepository(proj);  
+        })
 
         // fill repository list for download
         this.searchRepos('')
@@ -130,6 +135,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             if(!this.getRepositoriesObservable.closed){
                 this.getRepositoriesObservable.unsubscribe();
             }
+        }
+        if (this.renamePrjectObservable.closed) {
+            this.renamePrjectObservable.unsubscribe();
         }
     }
 
@@ -284,4 +292,15 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         // update repo download list
         this.searchRepos('')
     } 
+
+    updateRepository(project : RepositoryContainer){
+        try {
+            this.apiService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {      
+                this.apiService.getRepositories();
+                this.toastr.success('successfully saved', 'Repository');
+            });
+        } catch (e) {
+            throw e;
+        }
+    }
 }
