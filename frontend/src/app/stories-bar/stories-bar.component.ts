@@ -195,6 +195,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                     this.stories = resp.filter(s => s != null);
                     this.filteredStories = this.stories;
                     this.storyTermChange();
+                    this.selectStoryScenario(resp[resp.length - 1]);
                 });
             });
         });
@@ -315,7 +316,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Select the first Story of a Group
      * @param group
      */
-    selectFirstStoryofGroup(group: Group) {
+    selectFirstStoryOfGroup(group: Group) {
         let story = group.member_stories[0];
         story = this.stories.find(o => o._id === story._id);
         this.selectStoryScenario(story);
@@ -346,9 +347,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     /**
      * Selects a new Group
-     * @param Group
+     * @param group
      */
-    selectGroupStory(group: Group) {
+    selectGroup(group: Group) {
         this.selectedGroup = group;
     }
 
