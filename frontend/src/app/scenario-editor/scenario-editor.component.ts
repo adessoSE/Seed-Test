@@ -755,21 +755,28 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      */
     handleClick(event, step, checkValue: boolean) {
         //Get list of checkboxes
-        if(!this.allCheckboxes) {
-            this.allCheckboxes = this.selectedScenario.stepDefinitions;  
-        }
-        //Set current step to last checked if undefined
-        if(this.givenLastChecked === undefined || this.whenLastChecked === undefined || 
-            this.thenLastChecked === undefined || this.exampleLastChecked === undefined) {
+        this.allCheckboxes = this.selectedScenario.stepDefinitions;
 
+        //Set current step to last checked if undefined given step type  
+        if(step.stepType === 'given' && this.givenLastChecked.id === undefined) {   
             this.setLastChecked(step)
         }
+         else if ( step.stepType === 'when' && this.whenLastChecked.id === undefined) {
+            this.setLastChecked(step);
+        }
+        else if (step.stepType === 'then' && this.thenLastChecked.id === undefined) {
+            this.setLastChecked(step);
+        }
+        else if (step.stepType === 'example' && this.exampleLastChecked.id === undefined) {
+            this.setLastChecked(step);
+        }
 
-        if (event.shiftKey) { //if key pressed is shift 
+        //if key pressed is shift
+        if (event.shiftKey) {  
             this.checkMany(step)   
         } 
-
-        else { //otherwise fire checkStep
+        //otherwise fire checkStep
+        else { 
             this.checkStep(event, step, checkValue);
         }
 
@@ -796,7 +803,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
                     var endTemp = this.whenLastChecked.id; // last checked step
                     var start = Math.min(startTemp, endTemp); //get starting & ending array element
                     var end = Math.max(startTemp, endTemp);
-                    console.log(start, end);
                     
                 }
                 else if (currentStep.stepType === 'then') {
