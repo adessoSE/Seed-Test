@@ -26,7 +26,6 @@ h1{
     grid-area: formular;
     grid-row: 2 / 3;
     grid-column: 3 / 4;
-    text-align: center;
     background-color: var(--white); 
     margin-top: auto;
     margin-right: auto;
@@ -304,7 +303,6 @@ a.repoLink:hover{
         grid-area: formular;
         grid-row: 2 / 3;
         grid-column: 3 / 4;
-        text-align: center;
         background-color: var(--white);
         margin-top: 80px;
         margin-right: 100px;
