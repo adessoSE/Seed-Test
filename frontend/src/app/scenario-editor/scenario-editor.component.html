@@ -242,7 +242,9 @@
         <div *ngIf="(block.selectionValue === undefined || block.selectionValue === null)">
           <input type="checkbox" class="checkbox" id="{{'block' + block.id + 'Checkbox'}}" (change)="this.checkStep($event, block, null)" [checked]="block.checked">
         </div>
-        <div class="SmallHeadline5">{{block.type}}</div>
+        <div class="SmallHeadline5">
+            {{block.type}}
+        </div>
       </mat-panel-title>
       <mat-panel-description class="stepBlockDescription" style="align-self: center;">
         Expand Block to view its Steps

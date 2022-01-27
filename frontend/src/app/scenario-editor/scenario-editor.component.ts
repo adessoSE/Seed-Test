@@ -225,13 +225,26 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
         this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(res => {
             if (res[0] === 'scenario') {
-                this.addBlockToScenario(res[1]);
+                this.addBlockToScenario(res[1], res [2]);
             }
         });
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
 
         this.unpackBlockObservable = this.apiService.unpackBlockEvent.subscribe(() => {
             console.log('trying to unpack block ' +  this.selectedBlock._id + ' into ' + this.selectedScenario.scenario_id);
+            for (const stepType in this.selectedScenario.stepDefinitions) {
+                if (stepType !== 'example') {
+                    for (const step of this.selectedBlock.stepDefinitions[stepType]) {
+                        this.addStepToScenario(step);
+                    }
+                }
+            }
+            // intentionally comparing with double equals only
+            const blockStep = this.selectedScenario.stepDefinitions.when.find(block => block._id === this.selectedBlock._id);
+            const blockIndex = this.selectedScenario.stepDefinitions.when.indexOf(blockStep);
+            console.log('blockIndex: ' + blockIndex);
+            this.selectedScenario.stepDefinitions.when.splice(blockIndex, 1);
+
         });
     }
 
@@ -408,23 +421,35 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Adds a step to the scenario
-     * @param storyID
      * @param step
+     * @param position: Optionally provide a position where the Step will be inserted
      */
-    addStepToScenario(storyID: any, step) {
+    addStepToScenario(step, position?: number) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if (newStep['type'] === this.newStepName) {
             this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
         } else {
             switch (newStep.stepType) {
                 case 'given':
-                    this.selectedScenario.stepDefinitions.given.push(newStep);
+                    if (position) {
+                        this.selectedScenario.stepDefinitions.given.splice(position, 0, newStep);
+                    } else {
+                        this.selectedScenario.stepDefinitions.given.push(newStep);
+                    }
                     break;
                 case 'when':
-                    this.selectedScenario.stepDefinitions.when.push(newStep);
+                    if (position) {
+                        this.selectedScenario.stepDefinitions.when.splice(position, 0, newStep);
+                    } else {
+                        this.selectedScenario.stepDefinitions.when.push(newStep);
+                    }
                     break;
                 case 'then':
-                    this.selectedScenario.stepDefinitions.then.push(newStep);
+                    if (position) {
+                        this.selectedScenario.stepDefinitions.then.splice(position, 0, newStep);
+                    } else {
+                        this.selectedScenario.stepDefinitions.then.push(newStep);
+                    }
                     break;
                 case 'example':
                     this.addExampleStep(step);
@@ -981,17 +1006,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined;
     }
 
-    addBlockToScenario(block: Block) {
+    addBlockToScenario(block: Block, addAsReference) {
         console.log(block);
-        // if ( !block.stepDefinitions.includes({stepType: 'example'})) {
-        const addAsReference = true;
-        // add block as reference
         if ( addAsReference) {
             const blockReference: StepType = { _id: block._id, id: 0, type: block.name, stepType: 'block',
                 pre: '', mid: '', post: '', values: [] };
-            // if (this.selectedScenario.stepDefinitions.when === undefined) {
-            //     this.selectedScenario.stepDefinitions.when = [];
-            // }
             this.selectedScenario.stepDefinitions.when.push(blockReference);
         } else {
             // add steps from block
@@ -1033,7 +1052,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * select Block by blockId to get Block Object
      * @param blockId: _id of the Block
      */
-    selectBlock(blockId: number) {
+    selectBlock(blockId: string) {
         console.log('blockID ' + blockId);
         this.selectedBlock = this.blocks.find(i => i._id == blockId);
         console.log(this.selectedBlock);

@@ -242,9 +242,10 @@ export class ApiService {
      * Emits the add block to scenario event
      * @param block
      * @param correspondingComponent
+     * @param addAsReference Boolean, wether Block should be added as reference
      */
-    addBlockToScenario(block: Block, correspondingComponent: string) {
-        this.addBlockToScenarioEvent.emit([correspondingComponent, block]);
+    addBlockToScenario(block: Block, correspondingComponent: string, addAsReference: boolean) {
+        this.addBlockToScenarioEvent.emit([correspondingComponent, block, addAsReference]);
     }
 
     /**
