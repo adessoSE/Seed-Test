@@ -79,16 +79,22 @@ function jsUcfirst(string) {
 }
 
 // takes a block and returns its steps
-function getBlockSteps(blockId) {
-	const block = mongo.getBlock(blockId);
-	return block.stepDefinitions;
+async function getBlockSteps(blockId) {
+	try {
+		const block = await mongo.getBlock(blockId);
+		return block.stepDefinitions;
+	} catch (e) {
+		console.log('ERROR in getBlockSteps - serverHelper');
+		return '';
+	}
 }
 
 // takes a block and parses its steps
-function parseStepBlock(blockId) {
+async function parseStepBlock(blockId) {
 	try {
-		const steps = getBlockSteps(blockId);
-		return parseSteps(steps);
+		const steps = await getBlockSteps(blockId);
+		console.log(`BLOCK-STEPS:${steps}`);
+		return await parseSteps(steps);
 	} catch (e) {
 		console.log('ERROR in parseStepBlock - serverHelper');
 		return '';
@@ -96,26 +102,27 @@ function parseStepBlock(blockId) {
 }
 
 // Building feature file step-content
-function getSteps(steps, stepType) {
+async function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
 		// skip steps, that are deactivated by the user
 		if (step.deactivated) continue;
-		if (step._id !== undefined && step.stepDefinitions !== undefined) {
-			data += parseStepBlock(step);
+		if (step._id !== undefined) {
+			data += await parseStepBlock(step._id);
+		} else {
+			// turn the first letter to UpperCase (Given, When, Then)
+			data += `${jsUcfirst(stepType)} `;
+			// write Steps using pre, mid and post Step content
+			if ((step.values[0]) != null && (step.values[0]) !== 'User') {
+				data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)}`;
+				if (step.post !== undefined) data += ` ${step.post}`;
+			} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
+			else {
+				data += `${step.pre} ${step.mid}${getValues(step.values)} ${step.post}`;
+				if (step.post !== undefined) data += ` ${step.post}`;
+			}
+			data += '\n';
 		}
-		// turn the first letter to UpperCase (Given, When, Then)
-		data += `${jsUcfirst(stepType)} `;
-		// write Steps using pre, mid and post Step content
-		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-			data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)}`;
-			if (step.post !== undefined) data += ` ${step.post}`;
-		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
-		else {
-			data += `${step.pre} ${step.mid}${getValues(step.values)} ${step.post}`;
-			if (step.post !== undefined) data += ` ${step.post}`;
-		}
-		data += '\n';
 	}
 	return data;
 }
@@ -132,16 +139,16 @@ function getExamples(steps) {
 }
 
 // parse Steps from stepDefinition container to feature content
-function parseSteps(steps) {
+async function parseSteps(steps) {
 	let data = '';
-	if (steps.given !== undefined) data += `${getSteps(steps.given, Object.keys(steps)[0])}\n`;
-	if (steps.when !== undefined) data += `${getSteps(steps.when, Object.keys(steps)[1])}\n`;
-	if (steps.then !== undefined) data += `${getSteps(steps.then, Object.keys(steps)[2])}\n`;
+	if (steps.given !== undefined) data += `${await getSteps(steps.given, Object.keys(steps)[0])}\n`;
+	if (steps.when !== undefined) data += `${await getSteps(steps.when, Object.keys(steps)[1])}\n`;
+	if (steps.then !== undefined) data += `${await getSteps(steps.then, Object.keys(steps)[2])}\n`;
 	return data;
 }
 
 // Building feature file scenario-name-content
-function getScenarioContent(scenarios, storyID) {
+async function getScenarioContent(scenarios, storyID) {
 	let data = '';
 	for (const scenario of scenarios) {
 		// console.log(`Scenario ID: ${scenario.scenario_id}`);
@@ -150,21 +157,21 @@ function getScenarioContent(scenarios, storyID) {
 		if ((scenario.stepDefinitions.example.length) > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
 		else data += `Scenario: ${scenario.name}\n\n`;
 		// parse Steps to strings for Feature content
-		data += parseSteps(scenario.stepDefinitions);
+		data += await parseSteps(scenario.stepDefinitions);
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
 	}
 	return data;
 }
 
 // Building feature file story-name-content (feature file title)
-function getFeatureContent(story) {
+async function getFeatureContent(story) {
 	let data = `Feature: ${story.title}\n\n`;
 
 	// Get background
 	if (story.background != null) data += getBackgroundContent(story.background);
 
 	// Get scenarios
-	data += getScenarioContent(story.scenarios, story._id);
+	data += await getScenarioContent(story.scenarios, story._id);
 	return data;
 }
 
@@ -173,12 +180,15 @@ function cleanFileName(filename) {
 }
 
 // Creates feature file
-function writeFile(dir, selectedStory) {
+async function writeFile(dir, selectedStory) {
 	const filename = selectedStory.title + selectedStory._id;
-	fs.writeFile(path.join(__dirname, '../features',
-		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
-		if (err) throw err;
-	});
+	fs.writeFile(
+		path.join(__dirname, '../features', `${cleanFileName(filename)}.feature`),
+		await getFeatureContent(selectedStory),
+		(err) => {
+			if (err) throw err;
+		}
+	);
 }
 
 function encriptPassword(text) {
@@ -211,7 +221,7 @@ async function updateJira(UserID, req) {
 // Updates feature file based on _id
 async function updateFeatureFile(issueID, storySource) {
 	const result = await mongo.getOneStory(issueID, storySource);
-	if (result != null) writeFile('', result);
+	if (result != null) await writeFile('', result);
 }
 
 function deleteReport(jsonReport) {
@@ -950,7 +960,7 @@ async function fuseStoryWithDb(story) {
 	const finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
 	story._id = finalStory._id;
 	// Create & Update Feature Files
-	writeFile('', story);
+	await writeFile('', story);
 	return story;
 }
 

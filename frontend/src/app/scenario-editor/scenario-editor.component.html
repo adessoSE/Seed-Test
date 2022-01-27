@@ -107,7 +107,7 @@
       <div *ngIf="sd == 'given' || sd == 'when' || sd == 'then'" uk-dropdown>
         <ul class="uk-nav uk-dropdown-nav">
           <li *ngFor="let step of sortedStepTypes(); let j = index;" >
-            <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
+            <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(step);">
           {{step.type}}</span>
           </li>
         </ul>
@@ -115,7 +115,7 @@
       <div *ngIf="sd == 'example'">
         <div *ngFor="let step of originalStepTypes; let j = index;" >
           <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
-           (click)="addStepToScenario(selectedStory._id,step);" title="Add New Variable" uk-tooltip>
+           (click)="addStepToScenario(step);" title="Add New Variable" uk-tooltip>
             <em class="material-icons">add_circle_outline</em>
           </button>
         </div>
