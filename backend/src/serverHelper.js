@@ -80,16 +80,22 @@ function jsUcfirst(string) {
 }
 
 // takes a block and returns its steps
-function getBlockSteps(blockId) {
-	const block = mongo.getBlock(blockId);
-	return block.stepDefinitions;
+async function getBlockSteps(blockId) {
+	try {
+		const block = await mongo.getBlock(blockId);
+		return block.stepDefinitions;
+	} catch (e) {
+		console.log('ERROR in getBlockSteps - serverHelper');
+		return '';
+	}
 }
 
 // takes a block and parses its steps
-function parseStepBlock(blockId) {
+async function parseStepBlock(blockId) {
 	try {
-		const steps = getBlockSteps(blockId);
-		return parseSteps(steps);
+		const steps = await getBlockSteps(blockId);
+		console.log(`BLOCK-STEPS:${steps}`);
+		return await parseSteps(steps);
 	} catch (e) {
 		console.log('ERROR in parseStepBlock - serverHelper');
 		return '';
@@ -97,7 +103,7 @@ function parseStepBlock(blockId) {
 }
 
 // Building feature file step-content
-function getSteps(steps, stepType) {
+async function getSteps(steps, stepType) {
 	let data = '';
   for (const step of steps) {
     if (step.deactivated) continue;
@@ -127,16 +133,16 @@ function getExamples(steps) {
 }
 
 // parse Steps from stepDefinition container to feature content
-function parseSteps(steps) {
+async function parseSteps(steps) {
 	let data = '';
-	if (steps.given !== undefined) data += `${getSteps(steps.given, Object.keys(steps)[0])}\n`;
-	if (steps.when !== undefined) data += `${getSteps(steps.when, Object.keys(steps)[1])}\n`;
-	if (steps.then !== undefined) data += `${getSteps(steps.then, Object.keys(steps)[2])}\n`;
+	if (steps.given !== undefined) data += `${await getSteps(steps.given, Object.keys(steps)[0])}\n`;
+	if (steps.when !== undefined) data += `${await getSteps(steps.when, Object.keys(steps)[1])}\n`;
+	if (steps.then !== undefined) data += `${await getSteps(steps.then, Object.keys(steps)[2])}\n`;
 	return data;
 }
 
 // Building feature file scenario-name-content
-function getScenarioContent(scenarios, storyID) {
+async function getScenarioContent(scenarios, storyID) {
 	let data = '';
   for (const scenario of scenarios) {
     data += `@${storyID}_${scenario.scenario_id}\n`;

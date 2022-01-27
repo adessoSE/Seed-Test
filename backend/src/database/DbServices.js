@@ -1151,7 +1151,8 @@ async function updateBlock(name, updatedBlock) { // delete by id but update by n
 async function getBlock(blockId) {
 	try {
 		const db = dbConnection.getConnection();
-		return await db.collection(CustomBlocksCollection).find({ _id: ObjectId(blockId) });
+		return await db.collection(CustomBlocksCollection)
+			.findOne({ _id: ObjectId(blockId) });
 	} catch (e) {
 		console.log(`ERROR in getBlock: ${e}`);
 		throw e;
