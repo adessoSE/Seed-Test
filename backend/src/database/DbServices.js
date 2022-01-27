@@ -1147,6 +1147,17 @@ async function updateBlock(name, updatedBlock) { // delete by id but update by n
 	}
 }
 
+// get one Block by Id
+async function getBlock(blockId) {
+	try {
+		const db = dbConnection.getConnection();
+		return await db.collection(CustomBlocksCollection).find({ _id: ObjectId(blockId) });
+	} catch (e) {
+		console.log(`ERROR in getBlock: ${e}`);
+		throw e;
+	}
+}
+
 // get all Blocks by Id returns Array with all existing CustomBlocks
 async function getBlocks(repoId) {
 	try {
@@ -1361,6 +1372,7 @@ module.exports = {
 	getResetRequestByEmail,
 	saveBlock,
 	updateBlock,
+	getBlock,
 	getBlocks,
 	deleteBlock,
 	getWorkgroup,

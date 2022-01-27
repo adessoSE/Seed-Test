@@ -79,6 +79,23 @@ function jsUcfirst(string) {
 		.toUpperCase() + string.slice(1);
 }
 
+// takes a block and returns its steps
+function getBlockSteps(blockId) {
+	const block = mongo.getBlock(blockId);
+	return block.stepDefinitions;
+}
+
+// takes a block and parses its steps
+function parseStepBlock(blockId) {
+	try {
+		const steps = getBlockSteps(blockId);
+		return parseSteps(steps);
+	} catch (e) {
+		console.log('ERROR in parseStepBlock - serverHelper');
+		return '';
+	}
+}
+
 // Building feature file step-content
 function getSteps(steps, stepType) {
 	let data = '';
@@ -107,6 +124,15 @@ function getExamples(steps) {
 		for (let k = 0; k < steps[i].values.length; k++) data += `${steps[i].values[k]} | `;
   }
   return `${data}\n`;
+}
+
+// parse Steps from stepDefinition container to feature content
+function parseSteps(steps) {
+	let data = '';
+	if (steps.given !== undefined) data += `${getSteps(steps.given, Object.keys(steps)[0])}\n`;
+	if (steps.when !== undefined) data += `${getSteps(steps.when, Object.keys(steps)[1])}\n`;
+	if (steps.then !== undefined) data += `${getSteps(steps.then, Object.keys(steps)[2])}\n`;
+	return data;
 }
 
 // Building feature file scenario-name-content

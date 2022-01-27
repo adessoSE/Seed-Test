@@ -104,8 +104,13 @@ export class ScenarioEditorComponent implements OnInit{
     /**
      * Subscribtions for all EventEmitter
      */
+    expandStepBlock = false;
+    /**
+     * Subscriptions for all EventEmitter
+     */
     runSaveOptionObservable: Subscription;
     renameScenarioObservable: Subscription;
+    unpackBlockObservable: Subscription;
 
     @Input() isDark: boolean;
 

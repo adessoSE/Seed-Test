@@ -115,6 +115,11 @@ export class ApiService {
     public deleteRepositoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to unpack Block
+     */
+    public unpackBlockEvent = new EventEmitter();
+
+    /**
      * Event emitter to reload scenario status
      */
     public scenarioStatusChangeEvent = new EventEmitter();
@@ -218,6 +223,13 @@ export class ApiService {
       */
     public deleteRepositoryEmitter() {
         this.deleteRepositoryEvent.emit();
+    }
+
+    /**
+     * Emits the unpack block event
+     */
+    public unpackBlockEmitter() {
+        this.unpackBlockEvent.emit();
     }
 
     /**
