@@ -7,7 +7,7 @@
       <span rel="def">Add a saved Block. These Steps will get appended to the steps of this story.
       </span>
     </dfn>
-    
+
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -37,7 +37,17 @@
             </table>
         </div>
       </div>
-      <div class="modal-footer">
+      <div id="addBlockFooter" class="modal-footer">
+        <form class="addAsReference">
+          <label id="addAsReferenceLabel">Add Block as Reference: </label>
+          <input id="addAsReferenceCheckbox "type="checkbox"  [checked]="this.addAsReference" (change)="checkAddAsReference()">
+          <dfn class="def">
+            <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
+            <span rel="def">
+              Add the saved Block as a Reference to adopt changes, when steps in the original Block get changed.
+            </span>
+          </dfn>
+        </form>
         <button type="button" class="normalButton"  (click)="onClickSubmit()">Add Block</button>
       </div>
     </div>

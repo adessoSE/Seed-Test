@@ -49,7 +49,13 @@ export class AddBlockFormComponent {
       */
      clipboardBlock: Block;
 
+    /**
+     * Boolean, wether Block should be added as reference
+     */
+     addAsReference: boolean;
+
      modalReference: NgbModalRef;
+
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {}
 
@@ -102,7 +108,7 @@ export class AddBlockFormComponent {
    */
     copiedBlock() {
       if (this.clipboardBlock) {
-          this.apiService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent);
+          this.apiService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, false);
       }
     }
 
@@ -110,7 +116,7 @@ export class AddBlockFormComponent {
    * Adds a block to saved blocks
    */
     addBlockFormSubmit() {
-      this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent);
+      this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
       this.modalReference.close();
     }
 
@@ -132,6 +138,10 @@ export class AddBlockFormComponent {
 
     updateBlocksEventEmitter() {
       this.apiService.updateBlocksEvent.emit();
+    }
+
+    checkAddAsReference() {
+      this.addAsReference = (!this.addAsReference);
     }
 
     enterSubmit(event) {
