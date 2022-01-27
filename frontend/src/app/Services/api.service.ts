@@ -102,6 +102,11 @@ export class ApiService {
     public deleteRepositoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to unpack Block
+     */
+    public unpackBlockEvent = new EventEmitter();
+
+    /**
      * Event emitter to reload scenario status
      */
     public scenarioStatusChangeEvent = new EventEmitter();
@@ -170,6 +175,13 @@ export class ApiService {
     }
 
     /**
+     * Emits the unpack block event
+     */
+    public unpackBlockEmitter() {
+        this.unpackBlockEvent.emit();
+    }
+
+    /**
      * Emits if repositories changed
      */
     public updateRepositoryEmitter() {
@@ -218,9 +230,11 @@ export class ApiService {
      * @returns
      */
     getBlocks(repoId: string): Observable<Block[]> {
-        const str = this.apiServer + '/mongo/getBlocks/' + repoId;
-        return this.http.get<Block[]>(str,  ApiService.getOptions())
-        .pipe(tap(resp => {}),
+        return this.http
+          .get<Block[]>(this.apiServer + '/mongo/getBlocks/' + repoId,  ApiService.getOptions())
+          .pipe(tap(resp => {
+              console.log('Get blocks in repo ' + repoId, resp);
+          }),
         catchError(ApiService.handleError));
     }
 

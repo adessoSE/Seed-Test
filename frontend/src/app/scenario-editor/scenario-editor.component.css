@@ -267,11 +267,11 @@ em.dragIcon{
 /* .uk-nav > li > span{
   padding: 1px;
   cursor: pointer;
-} 
+}
 
 .uk-nav > li > .dropdownStep {
   color:var(--ocean-blue);
-} 
+}
 
 .darkTheme .uk-nav > li > .dropdownStep {
   color: #40C4FF;
@@ -279,11 +279,11 @@ em.dragIcon{
 
 .uk-nav > li > span:hover {
     color: gray;
-} 
+}
 
 .darkTheme .uk-nav > li > span:hover {
   color: white;
-} 
+}
 
 .uk-nav > li > .dropdownStepUndefined {
   color:var(--marine-blue);
@@ -298,20 +298,20 @@ em.dragIcon{
   background: var(--white) !important;
   font-style: italic;
   text-decoration: line-through;
-} 
+}
 
 .darkTheme .disabled {
   color: #B0BEC5 !important;
-} 
+}
 
 .scenarioBarContainer .disabled em{
   color: gray !important;
   background: #f8f8f8 !important;
-} 
+}
 
 .darkTheme .scenarioBarContainer .disabled em {
-  color: gray 
-} 
+  color: gray
+}
 
 .uk-card-footer{
   padding-bottom: 0;
@@ -386,4 +386,47 @@ table {
 
 .darkTheme button {
   background: transparent;
+}
+
+.stepBlockContainer{
+  margin-right: 24px;
+  margin-bottom: 8px;
+  padding-right: 10px;
+}
+
+.stepBlockHeader{
+  height: 29px;
+  display: flex;
+}
+
+.stepInBlock{
+  display: flex;
+}
+
+.unpackBlockButton {
+  margin-left: 10px;
+}
+
+div#blockContent{
+  padding-top: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+button#block_RemoveReference{
+  border: none;
+  background: none;
+  transform: translateY(-3px);
+  height: 24px;
+  border-radius: 10%;
+  margin-top: 10px
+}
+
+button#block_RemoveReference> em{
+  color: #0071b9;
+  font-size: 24px;
+}
+
+.mat-expansion-panel-body{
+  padding-bottom: 0;
 }

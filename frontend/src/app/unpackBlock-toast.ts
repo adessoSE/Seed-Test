@@ -1,11 +1,4 @@
-import {
-  animate,
-  keyframes,
-  state,
-  style,
-  transition,
-  trigger
-} from '@angular/animations';
+import { animate, keyframes, state, style, transition, trigger} from '@angular/animations';
 import { Component} from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
@@ -15,34 +8,14 @@ import { ApiService } from './Services/api.service';
  */
 @Component({
   selector: '[pink-toast-component]',
-  //styles: [`
-  //  :host {
-  //    background-color: #FF69B4;
-  //    position: relative;
-  //    overflow: hidden;
-  //    margin: 0 0 6px;
-  //    padding: 10px 10px 10px 10px;
-  //    width: 300px;
-  //    border-radius: 3px 3px 3px 3px;
-  //    color: #FFFFFF;
-  //    pointer-events: all;
-  //    cursor: pointer;
-  //  }
-  //  .btn-pink {
-  //    -webkit-backface-visibility: hidden;
-  //    -webkit-transform: translateZ(0);
-  //  }
-  //`],
-  styles:[`
+  styles: [`
         a {
             background: #388196;
             margin: 2px;
         }
-
         .deleteButton{
           background: darkred;
         }
-        
         a:hover {
             color: black;
         }
@@ -50,26 +23,19 @@ import { ApiService } from './Services/api.service';
   template: `
     <div class="row" [style.display]="state.value === 'inactive' ? 'none' : ''">
       <div class="col-9">
-        <div *ngIf="title" [class]="options.titleClass" [attr.aria-label]="title">
-          {{ title }}
+        <div [class]="options.titleClass" [attr.aria-label]="title">
+            Unpack Block
         </div>
-        <div *ngIf="message && options.enableHtml" role="alert" aria-live="polite"
-          [class]="options.messageClass" [innerHTML]="message">
-        </div>
-        <div *ngIf="message && !options.enableHtml" role="alert" aria-live="polite"
-          [class]="options.messageClass" [attr.aria-label]="message">
-          {{ message }}
+        <div role="alert" aria-live="polite" [class]="options.messageClass">
+            Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?
         </div>
       </div>
       <div class="col-9">
-        <a *ngIf="!options.closeButton" class="deleteButton btn btn-pink btn-sm" (click)="deleteToast($event)">
+        <a class="deleteButton btn btn-pink btn-sm" (click)="unpackBlock($event)">
             {{ deleteString }}
         </a>
-        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="remove()">
+        <a class="btn btn-pink btn-sm" (click)="remove()">
         {{ cancelString }}
-        </a>
-        <a *ngIf="options.closeButton" (click)="remove()" class="btn btn-pink btn-sm">
-          close
         </a>
       </div>
     </div>
@@ -77,52 +43,51 @@ import { ApiService } from './Services/api.service';
       <div class="toast-progress" [style.width]="width + '%'"></div>
     </div>
     `,
-  animations: [
-    trigger('flyInOut', [
-      state('inactive', style({
-        opacity: 0,
-      })),
-      transition('inactive => active', animate('400ms ease-out', keyframes([
-        style({
-          transform: 'translate3d(100%, 0, 0) skewX(-30deg)',
+    animations: [
+      trigger('flyInOut', [
+        state('inactive', style({
           opacity: 0,
-        }),
-        style({
-          transform: 'skewX(20deg)',
-          opacity: 1,
-        }),
-        style({
-          transform: 'skewX(-5deg)',
-          opacity: 1,
-        }),
-        style({
-          transform: 'none',
-          opacity: 1,
-        }),
-      ]))),
-      transition('active => removed', animate('400ms ease-out', keyframes([
-        style({
-          opacity: 1,
-        }),
-        style({
-          transform: 'translate3d(100%, 0, 0) skewX(30deg)',
-          opacity: 0,
-        }),
-      ]))),
-    ]),
-  ],
-  preserveWhitespaces: false,
-})
-export class UnpackBlockToast extends Toast {
-
-  /**
-   * Name of the delete button
-   */
-  deleteString = 'Unpack';
-  /**
-   * Name of the cancel button
-   */
-  cancelString = 'Cancel';
+        })),
+        transition('inactive => active', animate('400ms ease-out', keyframes([
+          style({
+            transform: 'translate3d(100%, 0, 0) skewX(-30deg)',
+            opacity: 0,
+          }),
+          style({
+            transform: 'skewX(20deg)',
+            opacity: 1,
+          }),
+          style({
+            transform: 'skewX(-5deg)',
+            opacity: 1,
+          }),
+          style({
+            transform: 'none',
+            opacity: 1,
+          }),
+        ]))),
+        transition('active => removed', animate('400ms ease-out', keyframes([
+          style({
+            opacity: 1,
+          }),
+          style({
+            transform: 'translate3d(100%, 0, 0) skewX(30deg)',
+            opacity: 0,
+          }),
+        ]))),
+      ]),
+    ],
+    preserveWhitespaces: false,
+  })
+  export class UnpackBlockToast extends Toast {
+    /**
+     * Name of the delete button
+     */
+    deleteString = 'Unpack';
+    /**
+     * Name of the cancel button
+     */
+    cancelString = 'Cancel';
 
   /**
    * Constructor
@@ -140,12 +105,12 @@ export class UnpackBlockToast extends Toast {
   }
 
   /**
-   * Creates a toast and deltes the scenario
+   * Emits the unpackBlock Event
    * @param event
    */
-  deleteToast(event: Event) {
+  unpackBlock(event: Event) {
     event.stopPropagation();
-    this.apiService.deleteScenarioEmitter();
+    this.apiService.unpackBlockEmitter();
     this.remove();
   }
 }

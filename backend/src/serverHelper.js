@@ -78,12 +78,35 @@ function jsUcfirst(string) {
 		.toUpperCase() + string.slice(1);
 }
 
+// takes a block and returns its steps
+function getBlockSteps(blockId) {
+	const block = mongo.getBlock(blockId);
+	return block.stepDefinitions;
+}
+
+// takes a block and parses its steps
+function parseStepBlock(blockId) {
+	try {
+		const steps = getBlockSteps(blockId);
+		return parseSteps(steps);
+	} catch (e) {
+		console.log('ERROR in parseStepBlock - serverHelper');
+		return '';
+	}
+}
+
 // Building feature file step-content
 function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
+		// skip steps, that are deactivated by the user
 		if (step.deactivated) continue;
+		if (step._id !== undefined && step.stepDefinitions !== undefined) {
+			data += parseStepBlock(step);
+		}
+		// turn the first letter to UpperCase (Given, When, Then)
 		data += `${jsUcfirst(stepType)} `;
+		// write Steps using pre, mid and post Step content
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
 			data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)}`;
 			if (step.post !== undefined) data += ` ${step.post}`;
@@ -108,6 +131,15 @@ function getExamples(steps) {
 	return `${data}\n`;
 }
 
+// parse Steps from stepDefinition container to feature content
+function parseSteps(steps) {
+	let data = '';
+	if (steps.given !== undefined) data += `${getSteps(steps.given, Object.keys(steps)[0])}\n`;
+	if (steps.when !== undefined) data += `${getSteps(steps.when, Object.keys(steps)[1])}\n`;
+	if (steps.then !== undefined) data += `${getSteps(steps.then, Object.keys(steps)[2])}\n`;
+	return data;
+}
+
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
 	let data = '';
@@ -117,10 +149,8 @@ function getScenarioContent(scenarios, storyID) {
 		// if there are examples
 		if ((scenario.stepDefinitions.example.length) > 0) data += `Scenario Outline: ${scenario.name}\n\n`;
 		else data += `Scenario: ${scenario.name}\n\n`;
-		// Get Stepdefinitions
-		if (scenario.stepDefinitions.given !== undefined) data += `${getSteps(scenario.stepDefinitions.given, Object.keys(scenario.stepDefinitions)[0])}\n`;
-		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
-		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
+		// parse Steps to strings for Feature content
+		data += parseSteps(scenario.stepDefinitions);
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
 	}
 	return data;

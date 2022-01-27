@@ -1,3 +1,4 @@
+/* tslint:disable:no-redundant-jsdoc max-line-length */
 import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
@@ -15,6 +16,7 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { UnpackBlockToast } from '../unpackBlock-toast';
 
 /**
  * Component of the Scenario Editor
@@ -28,6 +30,48 @@ import { CreateScenarioComponent } from '../modals/create-scenario/create-scenar
 export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
+     * Constructor
+     * @param apiService
+     * @param toastr
+     */
+    constructor(
+        public apiService: ApiService,
+        private toastr: ToastrService,
+    ) {
+        if (localStorage.getItem('version') === 'DAISY') {
+            this.showDaisyAutoLogout = true;
+        } else {
+            this.showDaisyAutoLogout = false;
+        }
+
+    }
+
+    /**
+     * Sets a new selected story
+     */
+    @Input()
+    set newlySelectedStory(story: Story) {
+        this.selectedStory = story;
+    }
+
+    /**
+     * Sets a new selected scenario
+     */
+    @Input()
+    set newlySelectedScenario(scenario: Scenario) {
+        if (this.selectedScenario) {
+            this.checkAllExampleSteps(null, false);
+            this.checkAllSteps(null, false);
+        }
+        this.selectedScenario = scenario;
+        if (this.selectedStory) {
+           this.selectScenario(scenario);
+        }
+        const repoId = localStorage.getItem('id');
+        this.getAllBlocks(repoId);
+    }
+
+    /**
      * Currently selected story
      */
     selectedStory: Story;
@@ -37,15 +81,24 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      */
     selectedScenario: Scenario;
 
+    /**
+     * List of Blocks
+     */
+    blocks: Block[];
+    /**
+     * currently selected Block
+     */
+    selectedBlock: Block;
+
       /**
      * if the arrow left should be shown
      */
-    arrowLeft: boolean = true;
+    arrowLeft = true;
 
     /**
      * if the arrow right should be shown
      */
-    arrowRight: boolean = true;
+    arrowRight = true;
 
     /**
      * inputs including the <> for the examples
@@ -60,22 +113,22 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * If the action bar is active
      */
-    activeActionBar: boolean = false;
+    activeActionBar = false;
 
     /**
      * If all steps are checked
      */
-    allChecked: boolean = false;
+    allChecked = false;
 
     /**
      * if the example action bar is active
      */
-    activeExampleActionBar: boolean = false;
+    activeExampleActionBar = false;
 
     /**
      * If all example steps are checked
      */
-    allExampleChecked: boolean = false;
+    allExampleChecked = false;
 
     /**
      * Block saved to the clipboard
@@ -85,21 +138,26 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * If this is the daisy version and the auto logout should be shown
      */
-    showDaisyAutoLogout: boolean = false;
+    showDaisyAutoLogout = false;
 
     /**
      * Current step of scenario as ngModel for dropdown
      */
-    currentStepNgModel=null;
+    currentStepNgModel = null;
 
     /**
-     * Subscribtions for all EventEmitter
+     * Current step of scenario as ngModel for dropdown
+     */
+    expandStepBlock = false;
+    /**
+     * Subscriptions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
     addBlocktoScenarioObservable: Subscription;
     renameScenarioObservable: Subscription;
+    unpackBlockObservable: Subscription;
 
-    @Input() isDark : boolean;
+    @Input() isDark: boolean;
     /**
      * View child of the example table
      */
@@ -108,88 +166,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * View child of the modals component
      */
-    @ViewChild('addBlockModal') addBlockModal : AddBlockFormComponent;
+    @ViewChild('addBlockModal') addBlockModal: AddBlockFormComponent;
     @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
-
-
-    /**
-     * Constructor
-     * @param apiService
-     * @param toastr
-     */
-    constructor(
-        public apiService: ApiService,
-        private toastr: ToastrService
-    ) {
-        if (localStorage.getItem('version') == 'DAISY') {
-            this.showDaisyAutoLogout = true;
-        } else {
-            this.showDaisyAutoLogout = false;
-        }
-
-    }
-
-    /**
-     * retrieves the saved block from the session storage
-     */
-    ngDoCheck(): void {
-        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'))
-    }
-
-    /**
-     * Subscribes to all necessary events
-     */
-    ngOnInit() {
-        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
-            if (option == 'saveScenario'){
-                this.saveRunOption();
-            }
-        });
-
-        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
-            if(block[0] == 'scenario'){
-                block = block[1]
-                Object.keys(block.stepDefinitions).forEach((key, index) => {
-                    block.stepDefinitions[key].forEach((step: StepType, j) => {
-                        if (key == 'example'){
-                            if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))){
-                                this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
-                            }
-                            if (j == 0){
-                                step.values.forEach(el => {
-                                    let s = '<' + el + '>'
-                                    if(!this.uncutInputs.includes(s)){
-                                        this.uncutInputs.push(s)
-                                    }
-                                })
-                            }
-                            this.exampleChild.updateTable();
-                        }else{
-                            this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
-                        }
-                    })
-                })
-                this.selectedScenario.saved = false;
-            }
-        });
-
-        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
-    }
-
-    ngOnDestroy(){
-        if(!this.runSaveOptionObservable.closed){
-            this.runSaveOptionObservable.unsubscribe();
-        }
-        if(!this.addBlocktoScenarioObservable.closed){
-            this.addBlocktoScenarioObservable.unsubscribe();
-        }
-        if(!this.renameScenarioObservable.closed){
-            this.renameScenarioObservable.unsubscribe();
-        }
-    }
 
     /**
      * Original step types not sorted or changed
@@ -200,50 +181,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * If the test is currently running
      */
     @Input() testRunning: boolean;
-
-    /**
-     * If a step from the example should be removed
-     * @param index
-     */
-    @Input()
-    removeRowIndex(index: number) {
-        this.removeStepFromScenario();
-        this.selectedScenario.saved = false;
-    }
-
-    /**
-     * Checks for an example step
-     * @param index
-     */
-    @Input()
-    checkRowIndex(index: number) {
-        this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[index], null)
-    }
-
-    /**
-     * Sets a new selected story
-     */
-    @Input()
-    set newlySelectedStory(story: Story) {
-        this.selectedStory = story;
-    }
-
-    /**
-     * Sets a new selected scenaio
-     */
-    @Input()
-    set newlySelectedScenario(scenario: Scenario) {
-        if(this.selectedScenario){
-            this.checkAllExampleSteps(null, false);
-            this.checkAllSteps(null, false);
-        }
-
-        this.selectedScenario = scenario;
-        if (this.selectedStory) {
-           this.selectScenario(scenario);
-        }
-
-    }
 
     /**
      * Event emitter to delete the scenario
@@ -270,11 +207,74 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
 
     /**
+     * retrieves the saved block from the session storage
+     */
+    ngDoCheck(): void {
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    }
+
+    /**
+     * Subscribes to all necessary events
+     */
+    ngOnInit() {
+        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
+            if (option == 'saveScenario') {
+                this.saveRunOption();
+            }
+        });
+
+        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(res => {
+            if (res[0] === 'scenario') {
+                this.addBlockToScenario(res[1]);
+            }
+        });
+        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
+
+        this.unpackBlockObservable = this.apiService.unpackBlockEvent.subscribe(() => {
+            console.log('trying to unpack block ' +  this.selectedBlock._id + ' into ' + this.selectedScenario.scenario_id);
+        });
+    }
+
+    ngOnDestroy() {
+        if (!this.runSaveOptionObservable.closed) {
+            this.runSaveOptionObservable.unsubscribe();
+        }
+        if (!this.addBlocktoScenarioObservable.closed) {
+            this.addBlocktoScenarioObservable.unsubscribe();
+        }
+        if (!this.renameScenarioObservable.closed) {
+            this.renameScenarioObservable.unsubscribe();
+        }
+        if (!this.unpackBlockObservable.closed) {
+            this.unpackBlockObservable.unsubscribe();
+        }
+    }
+
+    /**
+     * If a step from the example should be removed
+     * @param index
+     */
+    @Input()
+    removeRowIndex(index: number) {
+        this.removeStepFromScenario();
+        this.selectedScenario.saved = false;
+    }
+
+    /**
+     * Checks for an example step
+     * @param index
+     */
+    @Input()
+    checkRowIndex(index: number) {
+        this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[index], null);
+    }
+
+    /**
      * Save and then run the scenario
      */
-    async saveRunOption(){
-        await this.updateScenario()
-        this.apiService.runSaveOption('run')
+    async saveRunOption() {
+        await this.updateScenario();
+        this.apiService.runSaveOption('run');
     }
 
     /**
@@ -327,14 +327,14 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     insertCopiedBlock() {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-                if (key == 'example') {
-                    if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))){
+                if (key === 'example') {
+                    if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))) {
                         this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
                     }
-                    if (j == 0) {
+                    if (j === 0) {
                         step.values.forEach(el => {
-                            let s = '<' + el + '>';
-                            if(!this.uncutInputs.includes(s)) {
+                            const s = '<' + el + '>';
+                            if (!this.uncutInputs.includes(s)) {
                                 this.uncutInputs.push(s);
                             }
                         });
@@ -381,7 +381,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         });
 
         if (undefined_steps.length != 0) {
-            console.log("There are undefined steps here");
+            console.log('There are undefined steps here');
         }
         this.selectedScenario.lastTestPassed = null;
         return new Promise<void>((resolve, reject) => {this.apiService
@@ -394,7 +394,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     }
 
     addScenarioToStory(event) {
-        let scenarioName = event;
+        const scenarioName = event;
         this.addScenarioEvent.emit(scenarioName);
     }
 
@@ -402,7 +402,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Emitts the delete scenario event
      * @param event
      */
-    deleteScenario(event){
+    deleteScenario(event) {
         this.deleteScenarioEvent.emit(this.selectedScenario);
     }
 
@@ -510,12 +510,12 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * Deactivate all checked steps
      */
-    deactivateStep(){
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            if(prop !== 'example'){
-                for(let s in this.selectedScenario.stepDefinitions[prop]){
-                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
-                        this.selectedScenario.stepDefinitions[prop][s].deactivated = !this.selectedScenario.stepDefinitions[prop][s].deactivated
+    deactivateStep() {
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if (prop !== 'example') {
+                for (const s in this.selectedScenario.stepDefinitions[prop]) {
+                    if (this.selectedScenario.stepDefinitions[prop][s].checked) {
+                        this.selectedScenario.stepDefinitions[prop][s].deactivated = !this.selectedScenario.stepDefinitions[prop][s].deactivated;
                     }
                 }
             }
@@ -526,10 +526,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * Deactivate all checked example steps
      */
-    deactivateExampleStep(){
-        for(let s in this.selectedScenario.stepDefinitions.example){
-            if(this.selectedScenario.stepDefinitions.example[s].checked){
-                this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated
+    deactivateExampleStep() {
+        for (const s in this.selectedScenario.stepDefinitions.example) {
+            if (this.selectedScenario.stepDefinitions.example[s].checked) {
+                this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated;
             }
         }
         this.selectedScenario.saved = false;
@@ -540,27 +540,27 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param event
      * @param checkValue
      */
-    checkAllSteps(event, checkValue: boolean){
-        if(checkValue!= null){
+    checkAllSteps(event, checkValue: boolean) {
+        if (checkValue != null) {
             this.allChecked = checkValue;
-        }else{
+        } else {
             this.allChecked = !this.allChecked;
         }
-        if(this.allChecked){
-            for (let prop in this.selectedScenario.stepDefinitions) {
-                if(prop !== 'example'){
-                    for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                        this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], true)
+        if (this.allChecked) {
+            for (const prop in this.selectedScenario.stepDefinitions) {
+                if (prop !== 'example') {
+                    for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                        this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], true);
                     }
                 }
             }
             this.activeActionBar = true;
             this.allChecked = true;
-        }else{
-            for (let prop in this.selectedScenario.stepDefinitions) {
-                if(prop !== 'example'){
-                    for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                        this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], false)
+        } else {
+            for (const prop in this.selectedScenario.stepDefinitions) {
+                if (prop !== 'example') {
+                    for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                        this.checkStep(null, this.selectedScenario.stepDefinitions[prop][i], false);
                     }
                 }
             }
@@ -573,8 +573,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Opens add block form modal
      * @param event
      */
-    addBlock(event){
-        let id = localStorage.getItem('id');
+    addBlock(event) {
+        const id = localStorage.getItem('id');
         this.addBlockModal.openAddBlockFormModal('scenario', id);
     }
 
@@ -582,18 +582,18 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Save a new block
      * @param event
      */
-    saveBlock(event){
-        let saveBlock: any = {given: [], when: [], then: []};
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            if(prop !== 'example'){
-                for(let s in this.selectedScenario.stepDefinitions[prop]){
-                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
-                        saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+    saveBlock(event) {
+        const saveBlock: any = {given: [], when: [], then: []};
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if (prop !== 'example') {
+                for (const s in this.selectedScenario.stepDefinitions[prop]) {
+                    if (this.selectedScenario.stepDefinitions[prop][s].checked) {
+                        saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
                     }
                 }
             }
         }
-        let block: Block = {name: 'TEST', stepDefinitions: saveBlock}
+        const block: Block = {name: 'TEST', stepDefinitions: saveBlock};
         this.saveBlockModal.openSaveBlockFormModal(block, this);
     }
 
@@ -601,20 +601,20 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Copy block
      * @param event
      */
-    copyBlock(event){
-        let copyBlock: any = {given: [], when: [], then: [], example:[]};
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            if(prop !== 'example'){
-                for(let s in this.selectedScenario.stepDefinitions[prop]){
-                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
-                        this.selectedScenario.stepDefinitions[prop][s].checked = false
-                        copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+    copyBlock(event) {
+        const copyBlock: any = {given: [], when: [], then: [], example: []};
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if (prop !== 'example') {
+                for (const s in this.selectedScenario.stepDefinitions[prop]) {
+                    if (this.selectedScenario.stepDefinitions[prop][s].checked) {
+                        this.selectedScenario.stepDefinitions[prop][s].checked = false;
+                        copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
                     }
                 }
             }
         }
-        let block: Block = {stepDefinitions: copyBlock}
-        sessionStorage.setItem('copiedBlock', JSON.stringify(block))
+        const block: Block = {stepDefinitions: copyBlock};
+        sessionStorage.setItem('copiedBlock', JSON.stringify(block));
         this.allChecked = false;
         this.activeActionBar = false;
         this.toastr.success('successfully copied', 'Step(s)');
@@ -624,19 +624,19 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Copy a block of examples
      * @param event
      */
-    copyBlockExample(event){
-        let copyBlock: any = {given: [], when: [], then: [], example:[]};
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            if(prop == 'example'){
-                for(let s in this.selectedScenario.stepDefinitions[prop]){
-                    if(this.selectedScenario.stepDefinitions[prop][s].checked){
-                        this.selectedScenario.stepDefinitions[prop][s].checked = false
-                        copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+    copyBlockExample(event) {
+        const copyBlock: any = {given: [], when: [], then: [], example: []};
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if (prop == 'example') {
+                for (const s in this.selectedScenario.stepDefinitions[prop]) {
+                    if (this.selectedScenario.stepDefinitions[prop][s].checked) {
+                        this.selectedScenario.stepDefinitions[prop][s].checked = false;
+                        copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
                     }
                 }
             }
         }
-        let block: Block = {stepDefinitions: copyBlock};
+        const block: Block = {stepDefinitions: copyBlock};
         sessionStorage.setItem('copiedBlock', JSON.stringify(block));
         this.allExampleChecked = false;
         this.activeExampleActionBar = false;
@@ -646,16 +646,16 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Save an example block
      * @param event
      */
-    saveExampleBlock(event){
-        let saveBlock: any = {given:[], when: [], then: [], example: []};
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            for(let s in this.selectedScenario.stepDefinitions[prop]){
-                if((prop == 'example' && this.selectedScenario.stepDefinitions[prop][s].checked) || this.includesExampleStep(this.selectedScenario.stepDefinitions[prop][s])){
-                    saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s])
+    saveExampleBlock(event) {
+        const saveBlock: any = {given: [], when: [], then: [], example: []};
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            for (const s in this.selectedScenario.stepDefinitions[prop]) {
+                if ((prop == 'example' && this.selectedScenario.stepDefinitions[prop][s].checked) || this.includesExampleStep(this.selectedScenario.stepDefinitions[prop][s])) {
+                    saveBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
                 }
             }
         }
-        let block: Block = {stepDefinitions: saveBlock}
+        const block: Block = {stepDefinitions: saveBlock};
         this.saveBlockModal.openSaveBlockFormModal(block, this);
     }
 
@@ -679,22 +679,22 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param event
      * @param checkValue
      */
-    checkAllExampleSteps(event, checkValue: boolean){
-        if(checkValue!= null){
+    checkAllExampleSteps(event, checkValue: boolean) {
+        if (checkValue != null) {
             this.allExampleChecked = checkValue;
-        }else{
+        } else {
             this.allExampleChecked = !this.allExampleChecked;
         }
-        if(this.allExampleChecked){
-            for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
-                if(i == 0) continue;
-                this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[i], true)
+        if (this.allExampleChecked) {
+            for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+                if (i == 0) { continue; }
+                this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[i], true);
             }
             this.activeExampleActionBar = true;
             this.allExampleChecked = true;
-        }else{
-            for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
-                this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[i], false)
+        } else {
+            for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+                this.checkExampleStep(null, this.selectedScenario.stepDefinitions.example[i], false);
             }
             this.activeExampleActionBar = false;
             this.allExampleChecked = false;
@@ -707,35 +707,35 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param step
      * @param checkValue
      */
-    checkStep($event, step, checkValue: boolean){
-        if(checkValue != null){
+    checkStep($event, step, checkValue: boolean) {
+        if (checkValue != null) {
             step.checked = checkValue;
-        }else{
+        } else {
             step.checked = !step.checked;
         }
         let checkCount = 0;
         let stepCount = 0;
 
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            if(prop !== 'example'){
-                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if (prop !== 'example') {
+                for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
                     stepCount++;
-                    if(this.selectedScenario.stepDefinitions[prop][i].checked){
+                    if (this.selectedScenario.stepDefinitions[prop][i].checked) {
                         checkCount++;
                     }
                 }
             }
         }
-        if(checkCount >= stepCount){
+        if (checkCount >= stepCount) {
             this.allChecked = true;
-        }else{
+        } else {
             this.allChecked = false;
         }
-        if(checkCount <= 0){
+        if (checkCount <= 0) {
             this.allChecked = false;
             this.activeActionBar = false;
-        }else{
-            this.activeActionBar = true
+        } else {
+            this.activeActionBar = true;
         }
     }
 
@@ -745,32 +745,32 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param step
      * @param checkValue
      */
-    checkExampleStep($event, step, checkValue: boolean){
-        if(checkValue != null){
+    checkExampleStep($event, step, checkValue: boolean) {
+        if (checkValue != null) {
             step.checked = checkValue;
-        }else{
+        } else {
             step.checked = !step.checked;
         }
         let checkCount = 0;
         let stepCount = 0;
 
-        for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
             stepCount++;
-            if(this.selectedScenario.stepDefinitions.example[i].checked){
+            if (this.selectedScenario.stepDefinitions.example[i].checked) {
                 checkCount++;
             }
         }
 
-        if(checkCount >= stepCount - 1){
+        if (checkCount >= stepCount - 1) {
             this.allExampleChecked = true;
-        }else{
+        } else {
             this.allExampleChecked = false;
         }
-        if(checkCount <= 0){
+        if (checkCount <= 0) {
             this.allExampleChecked = false;
             this.activeExampleActionBar = false;
-        }else{
-            this.activeExampleActionBar = true
+        } else {
+            this.activeExampleActionBar = true;
         }
     }
 
@@ -778,11 +778,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Removes a step from the scenario
      */
     removeStepFromScenario() {
-        for (let prop in this.selectedScenario.stepDefinitions) {
-            if(prop !== 'example'){
-                for (var i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    if(this.selectedScenario.stepDefinitions[prop][i].checked){
-                        this.selectedScenario.stepDefinitions[prop].splice(i, 1)
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if (prop !== 'example') {
+                for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    if (this.selectedScenario.stepDefinitions[prop][i].checked) {
+                        this.selectedScenario.stepDefinitions[prop].splice(i, 1);
                     }
                 }
             }
@@ -795,10 +795,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * remove step from examples
      */
-    removeStepFromExample(){
-        for (var i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 1; i--) {
-            if(this.selectedScenario.stepDefinitions.example[i].checked){
-                this.selectedScenario.stepDefinitions.example.splice(i, 1)
+    removeStepFromExample() {
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 1; i--) {
+            if (this.selectedScenario.stepDefinitions.example[i].checked) {
+                this.selectedScenario.stepDefinitions.example.splice(i, 1);
                 this.exampleChild.updateTable();
             }
         }
@@ -854,7 +854,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * Removes an example
      */
-    removeExample(step: StepType, valueIndex: number){
+    removeExample(step: StepType, valueIndex: number) {
         const cutOld = step.values[valueIndex].substr(1, step.values[valueIndex].length - 2);
         this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]), 1);
 
@@ -864,10 +864,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
                 this.selectedScenario.stepDefinitions.example.splice(0, this.selectedScenario.stepDefinitions.example.length);
             }
         }
-        if(!this.selectedScenario.stepDefinitions.example || this.selectedScenario.stepDefinitions.example.length <= 0){
-            let table = document.getElementsByClassName('mat-table')[0];
-            if (table){
-                table.classList.remove('mat-elevation-z8')
+        if (!this.selectedScenario.stepDefinitions.example || this.selectedScenario.stepDefinitions.example.length <= 0) {
+            const table = document.getElementsByClassName('mat-table')[0];
+            if (table) {
+                table.classList.remove('mat-elevation-z8');
             }
         }
     }
@@ -879,8 +879,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param valueIndex
      * @returns
      */
-    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean{
-        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && (!input.startsWith('<') || !input.endsWith('>'))
+    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean {
+        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && (!input.startsWith('<') || !input.endsWith('>'));
     }
 
     /**
@@ -888,8 +888,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param input
      * @returns
      */
-    inputHasExample(input: string): boolean{
-        return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input)
+    inputHasExample(input: string): boolean {
+        return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input);
     }
 
 
@@ -899,7 +899,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param step
      * @param valueIndex
      */
-    createExample(input: string, step: StepType, valueIndex: number){
+    createExample(input: string, step: StepType, valueIndex: number) {
         const cutInput = input.substr(1, input.length - 2);
         this.handleExamples(input, cutInput, step, valueIndex);
     }
@@ -916,7 +916,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         if (this.exampleHeaderChanged(input, step, valueIndex)) {
             this.uncutInputs[this.uncutInputs.indexOf(step.values[valueIndex])] = input;
             this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
-        }else {
+        } else {
             this.uncutInputs.push(input);
             // for first example creates 2 steps
             if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
@@ -935,15 +935,15 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param cutInput
      * @param step
      */
-    createFirstExample(cutInput: string, step: StepType){
+    createFirstExample(cutInput: string, step: StepType) {
         for (let i = 0; i <= 2; i++) {
-            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
             this.selectedScenario.stepDefinitions.example.push(newStep);
             this.exampleChild.updateTable();
         }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
-        let table = document.getElementsByClassName('mat-table')[0];
-        if(table) table.classList.add('mat-elevation-z8')
+        const table = document.getElementsByClassName('mat-table')[0];
+        if (table) { table.classList.add('mat-elevation-z8'); }
     }
 
     /**
@@ -951,19 +951,19 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param cutInput
      * @param step
      */
-    fillExamples(cutInput: string, step: StepType){
+    fillExamples(cutInput: string, step: StepType) {
         this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
         // if the table has no rows add a row
 
         if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
-            let newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example')
+            const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
             this.selectedScenario.stepDefinitions.example.push(newStep);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
             for (let j = 1; j < len; j++) {
                 this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
 
             }
-        }else {
+        } else {
             for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
                 this.selectedScenario.stepDefinitions.example[j].values.push('value');
             }
@@ -977,8 +977,82 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param valueIndex
      * @returns
      */
-    exampleHeaderChanged(input: string, step: StepType, valueIndex: number): boolean{
-        return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined
+    exampleHeaderChanged(input: string, step: StepType, valueIndex: number): boolean {
+        return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined;
+    }
+
+    addBlockToScenario(block: Block) {
+        console.log(block);
+        // if ( !block.stepDefinitions.includes({stepType: 'example'})) {
+        const addAsReference = true;
+        // add block as reference
+        if ( addAsReference) {
+            const blockReference: StepType = { _id: block._id, id: 0, type: block.name, stepType: 'block',
+                pre: '', mid: '', post: '', values: [] };
+            // if (this.selectedScenario.stepDefinitions.when === undefined) {
+            //     this.selectedScenario.stepDefinitions.when = [];
+            // }
+            this.selectedScenario.stepDefinitions.when.push(blockReference);
+        } else {
+            // add steps from block
+            Object.keys(block.stepDefinitions).forEach((stepType, index) => {
+                block.stepDefinitions[stepType].forEach((step: StepType, j) => {
+                    if (stepType === 'example') {
+                        if (!this.selectedScenario.stepDefinitions[stepType][0] || !this.selectedScenario.stepDefinitions[stepType][0].values.some(r => step.values.includes(r))) {
+                            this.selectedScenario.stepDefinitions[stepType].push(JSON.parse(JSON.stringify(step)));
+                        }
+                        if (j === 0) {
+                            step.values.forEach(el => {
+                                const s = '<' + el + '>';
+                                if (!this.uncutInputs.includes(s)) {
+                                    this.uncutInputs.push(s);
+                                }
+                            });
+                        }
+                        this.exampleChild.updateTable();
+                    } else {
+                        this.selectedScenario.stepDefinitions[stepType].push(JSON.parse(JSON.stringify(step)));
+                    }
+                });
+            });
+        }
+        this.selectedScenario.saved = false;
+    }
+
+    /**
+     * Get all blocks from the backend
+     * @param repoId id of the repository / project
+     */
+    getAllBlocks(repoId: string) {
+        this.apiService.getBlocks(repoId).subscribe((resp) => {
+            this.blocks = resp;
+        });
+    }
+
+    /**
+     * select Block by blockId to get Block Object
+     * @param blockId: _id of the Block
+     */
+    selectBlock(blockId: number) {
+        console.log('blockID ' + blockId);
+        this.selectedBlock = this.blocks.find(i => i._id == blockId);
+        console.log(this.selectedBlock);
+        this.expandStepBlock = true;
+    }
+
+    /**
+     * unselect Block and reset selected Block
+     */
+    unselectBlock() {
+        this.expandStepBlock = false;
+    }
+
+    showUnpackBlockToast() {
+        // Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?
+        this.toastr.warning(
+          '', 'Unpack Block', {
+              toastComponent: UnpackBlockToast
+          });
     }
 
     /**
@@ -1027,7 +1101,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
         if (this.selectedStory.scenarios[scenarioIndex - 1]) {
             this.selectScenario(this.selectedStory.scenarios[scenarioIndex - 1]);
-            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex - 1])
+            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex - 1]);
         }
     }
 
@@ -1038,7 +1112,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         const scenarioIndex = this.selectedStory.scenarios.indexOf(this.selectedScenario);
         if (this.selectedStory.scenarios[scenarioIndex + 1]) {
             this.selectScenario(this.selectedStory.scenarios[scenarioIndex + 1]);
-            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex + 1])
+            this.selectNewScenarioEvent.emit(this.selectedStory.scenarios[scenarioIndex + 1]);
         }
     }
 
@@ -1046,16 +1120,16 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Emitts a run scenario event
      * @param scenarioId
      */
-    runTestScenario(scenarioId: number){
-        this.runTestScenarioEvent.emit({scenarioId})
+    runTestScenario(scenarioId: number) {
+        this.runTestScenarioEvent.emit({scenarioId});
     }
 
     /**
      * if the scenario is saved
      * @returns
      */
-    scenarioSaved(){
-        return this.testRunning || this.selectedScenario.saved === undefined  || this.selectedScenario.saved
+    scenarioSaved() {
+        return this.testRunning || this.selectedScenario.saved === undefined  || this.selectedScenario.saved;
     }
 
     /**
@@ -1072,7 +1146,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Change the comment
      * @param newComment
      */
-    commentChange(newComment){
+    commentChange(newComment) {
         this.selectedScenario.comment = newComment;
         this.selectedScenario.saved = false;
     }
@@ -1081,21 +1155,21 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Sort the step types for its id
      * @returns
      */
-    sortedStepTypes(){
-        if (this.originalStepTypes){
-            let sortedStepTypes =  this.originalStepTypes;
+    sortedStepTypes() {
+        if (this.originalStepTypes) {
+            const sortedStepTypes =  this.originalStepTypes;
             sortedStepTypes.sort((a, b) => {
                 return a.id - b.id;
-            })
-            return sortedStepTypes
+            });
+            return sortedStepTypes;
         }
     }
 
     /**
      * Open Modal to rename the scenario
      */
-    changeScenarioTitle(){
-        this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name)
+    changeScenarioTitle() {
+        this.renameScenarioModal.openRenameScenarioModal(this.selectedScenario.name);
     }
 
     openCreateScenario() {

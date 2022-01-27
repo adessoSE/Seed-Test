@@ -122,14 +122,14 @@ router.get('/user', async (req, res) => {
 	}
 });
 
-//save custom Blocks
+// save custom Blocks
 router.post('/saveBlock', async (req, res) => {
 	try {
-		let body = req.body
-		if (!req.user){
-			res.sendStatus(401)
-		}else{
-			body.owner = ObjectID(req.user._id)
+		const body = req.body;
+		if (!req.user) {
+			res.sendStatus(401);
+		} else {
+			body.owner = ObjectID(req.user._id);
 			const result = await mongo.saveBlock(body);
 			res.status(200).json(result);
 		}
@@ -138,7 +138,7 @@ router.post('/saveBlock', async (req, res) => {
 	}
 });
 
-//update custom Blocks
+// update custom Blocks
 router.post('/updateBlock/:name', async (req, res) => {
 	try {
 		const result = await mongo.updateBlock(req.params.name, req.body);
@@ -150,12 +150,8 @@ router.post('/updateBlock/:name', async (req, res) => {
 
 router.get('/getBlocks/:repoId', async (req, res) => {
 	try {
-		//if (!req.user){
-		//	res.sendStatus(401)
-		//}else{
-			const result = await mongo.getBlocks(req.user._id, req.params.repoId);
-			res.status(200).json(result);
-		//}
+		const result = await mongo.getBlocks(req.user._id, req.params.repoId);
+		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
