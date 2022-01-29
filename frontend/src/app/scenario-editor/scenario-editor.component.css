@@ -413,7 +413,7 @@ div#blockContent{
   border-top-width: 1px;
 }
 
-button#block_RemoveReference{
+.blockButtonGroup > button{
   border: none;
   background: none;
   transform: translateY(-3px);
@@ -421,8 +421,11 @@ button#block_RemoveReference{
   border-radius: 10%;
   margin-top: 10px
 }
+/*button#block_RemoveReference{*/
+/*  */
+/*}*/
 
-button#block_RemoveReference> em{
+.blockButtonGroup > button > em{
   color: #0071b9;
   font-size: 24px;
 }

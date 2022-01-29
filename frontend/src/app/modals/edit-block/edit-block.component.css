@@ -1,0 +1,133 @@
+.stepsListContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.stepsListContainer button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.scenarioButtonGroup{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px 15px;
+    display: flex;
+    height: 40px;
+}
+
+.dragIconContainer{
+    text-align: center;
+    cursor: move;
+}
+
+em.dragIcon{
+    font-size: 18px;
+    color: black;
+    background-color: var(--white);
+    margin-top:3px
+}
+
+.text-inline{
+    display: flex;
+}
+
+.text-inline > button{
+    margin: 0 5px;
+}
+
+.text-inline > p > input{
+    margin: 0 5px;
+}
+
+.checkbox{
+    margin: 5px 5px 10px 3px;
+}
+
+.checkbox:hover{
+    cursor: pointer;
+}
+
+#checkbox_all{
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 6px;
+}
+
+.blockBarContainer{
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: rgba(248, 248, 248, 0.51);
+    box-sizing: border-box;
+    padding: 0;
+}
+
+.darkTheme .blockBarContainer{
+    background-color: #546E7A !important;
+    border-bottom: 1px solid #B0BEC5 !important;
+}
+
+.BlockBarContainer button{
+    border: none;
+    background: none;
+    transform: translateY(-3px);
+    height: 24px;
+    border-radius: 10%;
+}
+
+.scenarioButton {
+    margin-right: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.actionBarButtonGroup{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px 15px;
+    display: flex;
+    height: 40px;
+}
+
+.actionBarButtonGroup button{
+    border: none;
+    background: none;
+    transform: translateY(-3px);
+    height: 24px;
+    border-radius: 10%;
+}
+
+.actionButton{
+    margin-left: 10px;
+}
+
+.actionButton > em{
+    color: #333;
+    font-size: 22px;
+}
+
+.darkTheme .actionButton > em {
+    color:#000000 !important;
+}
+
+.scenarioButton em{
+    color:  var(--ocean-blue);
+}
+
+.darkTheme.scenarioButton em{
+    color:  var(--ocean-blue);
+}
+
+.scenarioButton em:active {
+    background-color: var(--ocean-blue);
+    color: var(--white);
+}
+
+.dropdownStep {
+    color: var(--ocean-blue);
+}
+
+

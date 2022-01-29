@@ -40,6 +40,7 @@ import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
+import { UnpackBlockToast } from './unpackBlock-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
@@ -65,6 +66,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 
 @NgModule({
   declarations: [
@@ -92,6 +94,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     DeleteScenarioToast,
     DeleteStoryToast,
     DeleteRepositoryToast,
+    UnpackBlockToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ReportHistoryComponent,
@@ -110,6 +113,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
+    EditBlockComponent,
   ],
   imports: [
     NgbModule,

@@ -14,9 +14,12 @@ import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.c
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
+import {EditBlockComponent} from '../modals/edit-block/edit-block.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { UnpackBlockToast } from '../unpackBlock-toast';
+import {element} from 'protractor';
+
 
 /**
  * Component of the Scenario Editor
@@ -166,6 +169,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     /**
      * View child of the modals component
      */
+    @ViewChild('editBlockModal') editBlockModal: EditBlockComponent;
     @ViewChild('addBlockModal') addBlockModal: AddBlockFormComponent;
     @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
@@ -596,11 +600,16 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Opens add block form modal
-     * @param event
      */
-    addBlock(event) {
+    addBlock() {
         const id = localStorage.getItem('id');
         this.addBlockModal.openAddBlockFormModal('scenario', id);
+    }
+
+    editBlock() {
+        this.editBlockModal.openEditBlockModal();
+        const x = document.getElementsByClassName('stepBlockContainer')[0];
+        x.setAttribute('aria-expanded', 'false');
     }
 
     /**
@@ -647,12 +656,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Copy a block of examples
-     * @param event
      */
-    copyBlockExample(event) {
+    copyBlockExample() {
         const copyBlock: any = {given: [], when: [], then: [], example: []};
         for (const prop in this.selectedScenario.stepDefinitions) {
-            if (prop == 'example') {
+            if (prop === 'example') {
                 for (const s in this.selectedScenario.stepDefinitions[prop]) {
                     if (this.selectedScenario.stepDefinitions[prop][s].checked) {
                         this.selectedScenario.stepDefinitions[prop][s].checked = false;

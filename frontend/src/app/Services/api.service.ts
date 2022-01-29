@@ -67,6 +67,11 @@ export class ApiService {
     public addBlockToScenarioEvent = new EventEmitter();
 
     /**
+     * Event emitter to save a edited block
+     */
+    public editBlockToScenarioEvent = new EventEmitter();
+
+    /**
      * Event emitter to logout the user
      */
     public logoutEvent = new EventEmitter();
@@ -577,6 +582,15 @@ export class ApiService {
         .pipe(tap(resp => {
             //
         }));
+    }
+
+    editBlock(block: Block) {
+        return this.http
+          .put<Block>(this.apiServer + '/mongo/block', block, ApiService.getOptions())
+          .pipe(tap(resp => {
+                console.log('Updated Block ' + block.name + '!');
+          }));
+              // ,catchError(ApiService.handleError));
     }
 
     /**
