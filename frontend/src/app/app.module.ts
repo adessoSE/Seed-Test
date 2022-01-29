@@ -41,6 +41,7 @@ import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteExampleToast } from './deleteExample-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
+import { UnpackBlockToast } from './unpackBlock-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
@@ -100,6 +101,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     DeleteExampleToast,
     DeleteStoryToast,
     DeleteRepositoryToast,
+    UnpackBlockToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ReportHistoryComponent,

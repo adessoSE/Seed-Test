@@ -1139,8 +1139,12 @@ async function saveBlock(block) {
 async function updateBlock(name, updatedBlock) { // delete by id but update by name?
 	const oldBlock = { name };
 	try {
+		console.log('Hi, i am in Update Block :)');
+		updatedBlock._id = ObjectId(updatedBlock._id);
+		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
+		updatedBlock.owner = ObjectId(updatedBlock.owner);
 		const db = dbConnection.getConnection();
-		await db.collection(CustomBlocksCollection).findOneAndReplace(oldBlock, updatedBlock);
+		return await db.collection(CustomBlocksCollection).findOneAndReplace({ _id: updatedBlock._id }, updatedBlock);
 	} catch (e) {
 		console.log(`ERROR in updateBlock: ${e}`);
 		throw e;

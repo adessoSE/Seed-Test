@@ -129,6 +129,20 @@ router.post('/saveBlock', async (req, res) => {
 	}
 });
 
+// update Blocks
+router.put('/block', async (req, res) => {
+	try {
+		const { body } = req;
+		if (!req.user) res.sendStatus(401);
+		else {
+			const result = await mongo.updateBlock(body);
+			res.status(200).json(result);
+		}
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 // update custom Blocks
 router.post('/updateBlock/:name', async (req, res) => { // isn't used in frontend, bug risk update by name. better blockId & owner like delete
 	try {
