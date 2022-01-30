@@ -138,14 +138,14 @@ router.post('/saveBlock', async (req, res) => {
 	}
 });
 
-// update Blocks
+// update Block a Block
 router.put('/block', async (req, res) => {
 	try {
 		const { body } = req;
 		if (!req.user) res.sendStatus(401);
 		else {
 			const result = await mongo.updateBlock(body);
-			res.status(200).json(result);
+			res.status(200).json(result.value);
 		}
 	} catch (error) {
 		handleError(res, error, error, 500);

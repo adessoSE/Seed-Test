@@ -275,7 +275,7 @@
 
 <ng-template #blockstep let-currentStep let-j="index" class="text-inline SmallBody1regularLH">
   <div class=stepInBlock>
-    {{j+1}}. {{currentStep.pre}}&nbsp;
+    {{currentStep.pre}}&nbsp;
     <div *ngIf="currentStep.values[0]">
       <p id="{{'blockStep_' + j + '_value1'}}">
         {{currentStep.values[0]}}&nbsp;

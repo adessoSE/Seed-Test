@@ -145,7 +145,6 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.block.source = localStorage.getItem('source');
     this.block.repositoryId = localStorage.getItem('id');
     this.apiService.saveBlock(this.block).subscribe((resp) => {
-        console.log(resp);
     });
     this.modalReference.close();
   }

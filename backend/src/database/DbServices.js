@@ -1058,9 +1058,9 @@ async function saveBlock(block) {
 	}
 }
 
+// update a Block and return the new Block
 async function updateBlock(updatedBlock) {
 	try {
-		console.log('Hi, i am in Update Block :)');
 		updatedBlock._id = ObjectId(updatedBlock._id);
 		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
 		updatedBlock.owner = ObjectId(updatedBlock.owner);

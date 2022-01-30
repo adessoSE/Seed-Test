@@ -235,7 +235,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
 
         this.unpackBlockObservable = this.apiService.unpackBlockEvent.subscribe(() => {
-            console.log('trying to unpack block ' +  this.selectedBlock._id + ' into ' + this.selectedScenario.scenario_id);
             for (const stepType in this.selectedScenario.stepDefinitions) {
                 if (stepType !== 'example') {
                     for (const step of this.selectedBlock.stepDefinitions[stepType]) {
@@ -246,7 +245,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
             // intentionally comparing with double equals only
             const blockStep = this.selectedScenario.stepDefinitions.when.find(block => block._id === this.selectedBlock._id);
             const blockIndex = this.selectedScenario.stepDefinitions.when.indexOf(blockStep);
-            console.log('blockIndex: ' + blockIndex);
             this.selectedScenario.stepDefinitions.when.splice(blockIndex, 1);
 
         });
@@ -1015,7 +1013,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     }
 
     addBlockToScenario(block: Block, addAsReference) {
-        console.log(block);
         if ( addAsReference) {
             const blockReference: StepType = { _id: block._id, id: 0, type: block.name, stepType: 'block',
                 pre: '', mid: '', post: '', values: [] };
@@ -1061,9 +1058,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param blockId: _id of the Block
      */
     selectBlock(blockId: string) {
-        console.log('blockID ' + blockId);
         this.selectedBlock = this.blocks.find(i => i._id == blockId);
-        console.log(this.selectedBlock);
         this.expandStepBlock = true;
     }
 

@@ -238,7 +238,6 @@ export class ApiService {
         return this.http
           .get<Block[]>(this.apiServer + '/mongo/getBlocks/' + repoId,  ApiService.getOptions())
           .pipe(tap(resp => {
-              console.log('Get blocks in repo ' + repoId, resp);
           }),
         catchError(ApiService.handleError));
     }
@@ -588,7 +587,7 @@ export class ApiService {
         return this.http
           .put<Block>(this.apiServer + '/mongo/block', block, ApiService.getOptions())
           .pipe(tap(resp => {
-                console.log('Updated Block ' + block.name + '!');
+
           }));
               // ,catchError(ApiService.handleError));
     }
