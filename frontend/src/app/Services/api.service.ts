@@ -706,13 +706,17 @@ export class ApiService {
         }));
     }
 
+    /**
+     * Update a Block
+     * @param block
+     * @returns
+     */
     editBlock(block: Block) {
         return this.http
           .put<Block>(this.apiServer + '/mongo/block', block, ApiService.getOptions())
-          .pipe(tap(resp => {
-
-          }));
-              // ,catchError(ApiService.handleError));
+          .pipe(tap(),
+            catchError(ApiService.handleError)
+          );
     }
 
     /**
