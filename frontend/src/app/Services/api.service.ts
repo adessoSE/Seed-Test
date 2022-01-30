@@ -710,7 +710,7 @@ export class ApiService {
         return this.http
           .put<Block>(this.apiServer + '/mongo/block', block, ApiService.getOptions())
           .pipe(tap(resp => {
-                console.log('Updated Block ' + block.name + '!');
+
           }));
               // ,catchError(ApiService.handleError));
     }
