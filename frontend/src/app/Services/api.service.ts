@@ -237,8 +237,7 @@ export class ApiService {
     getBlocks(repoId: string): Observable<Block[]> {
         return this.http
           .get<Block[]>(this.apiServer + '/mongo/getBlocks/' + repoId,  ApiService.getOptions())
-          .pipe(tap(resp => {
-          }),
+          .pipe(tap(),
         catchError(ApiService.handleError));
     }
 
@@ -578,18 +577,20 @@ export class ApiService {
     saveBlock(block: Block) {
         return this.http
         .post<any>(this.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
-        .pipe(tap(resp => {
-            //
-        }));
+        .pipe(tap());
     }
 
+    /**
+     * Update a Block
+     * @param block
+     * @returns
+     */
     editBlock(block: Block) {
         return this.http
           .put<Block>(this.apiServer + '/mongo/block', block, ApiService.getOptions())
-          .pipe(tap(resp => {
-
-          }));
-              // ,catchError(ApiService.handleError));
+          .pipe(tap(),
+            catchError(ApiService.handleError)
+          );
     }
 
     /**

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {Block} from 'src/app/model/Block';
 import {ApiService} from 'src/app/Services/api.service';
@@ -37,7 +37,7 @@ export class EditBlockComponent {
   activeActionBar = false;
   allChecked = false;
   clipboardBlock: Block = null;
-  newStepName: Boolean;
+  newStepName: boolean;
   saved = true;
 
   modalReference: NgbModalRef;
@@ -278,13 +278,10 @@ export class EditBlockComponent {
       }
       this.activeActionBar = true;
       this.allChecked = true;
-    }
-    else {
+    } else {
       for (const prop in this.selectedBlock.stepDefinitions) {
-        if (prop !== 'example') {
-          for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
-            this.checkStep(this.selectedBlock.stepDefinitions[prop][i], false);
-          }
+        for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
+          this.checkStep(this.selectedBlock.stepDefinitions[prop][i], false);
         }
       }
       this.activeActionBar = false;
@@ -301,8 +298,7 @@ export class EditBlockComponent {
   }
 
   editBlockSubmit() {
-    this.apiService.editBlock(this.selectedBlock).subscribe((resp) => {
-      });
+    this.apiService.editBlock(this.selectedBlock).subscribe();
     this.modalReference.close();
   }
 

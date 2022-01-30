@@ -1,7 +1,6 @@
 /**
  * Interface of a block reference
  */
-import {StepType} from './StepType';
 
 export interface BlockReference {
   /**
@@ -10,10 +9,12 @@ export interface BlockReference {
   blockId: any;
 
   /**
-   * position of the Block
+   * id of the Block
    */
   id: number;
-  // position: { stepType: string, blockPosition: number };
 
+  /**
+   * Optionally: values of the Block
+   */
   values?: [];
 }
