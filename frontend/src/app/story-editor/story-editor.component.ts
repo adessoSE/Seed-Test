@@ -791,9 +791,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Copy a block
-     * @param event
      */
-    copyBlock(event) {
+    copyBlock() {
         const copyBlock: any = {given: [], when: [], then: [], example: []};
         for (const prop in this.selectedStory.background.stepDefinitions) {
             if (prop !== 'example') {

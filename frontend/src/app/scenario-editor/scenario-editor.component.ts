@@ -580,9 +580,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Save a new block
-     * @param event
      */
-    saveBlock(event){
+    saveBlock(){
         let saveBlock: any = {given: [], when: [], then: []};
         for (let prop in this.selectedScenario.stepDefinitions) {
             if(prop !== 'example'){
@@ -599,9 +598,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Copy block
-     * @param event
      */
-    copyBlock(event){
+    copyBlock(){
         let copyBlock: any = {given: [], when: [], then: [], example:[]};
         for (let prop in this.selectedScenario.stepDefinitions) {
             if(prop !== 'example'){
@@ -622,9 +620,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Copy a block of examples
-     * @param event
      */
-    copyBlockExample(event){
+    copyBlockExample(){
         let copyBlock: any = {given: [], when: [], then: [], example:[]};
         for (let prop in this.selectedScenario.stepDefinitions) {
             if(prop == 'example'){

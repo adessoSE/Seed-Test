@@ -1,4 +1,22 @@
 <br>
+<ng-template #reportButtons let-rep>
+    <div class="reportButtons">
+        <button *ngIf="rep.isSaved"
+                class="actionButton" uk-tooltip title="Do not Save Report"
+                (click)="unsaveReport(rep);">
+            <em class="material-icons-outlined">cancel</em>
+        </button>
+        <button *ngIf="!rep.isSaved"
+                class="actionButton" uk-tooltip title="Save Report"
+                (click)="saveReport(rep);">
+            <em class="material-icons">save</em>
+        </button>
+        <button class="actionButton" uk-tooltip title="Delete Report" (click)="deleteReport(rep);">
+            <em class="material-icons">delete</em>
+        </button>
+    </div>
+</ng-template>
+
 <div [class.darkTheme]="isDarkModeOn()"
 class="reportHistoryContainer">
     <div class="reportHistoryTitleContainer">
@@ -10,11 +28,11 @@ class="reportHistoryContainer">
             </a>
         </div>
         <div>
-            <p class="LargeHeadline3 headline" *ngIf="this.selectedStory">Reports: {{this.selectedStory.title}}</p>
+            <p class="LargeHeadline3 headline" *ngIf="this.selectedStory">Reports for Story: {{this.selectedStory.title}}</p>
         </div>
     </div>
     <div class="disclaimerContainer">
-        <p class="SmallHeadline5" >Disclaimer: Currently only the last 3 reports per scenario / story will be saved. To save your report persistently, either download the report or mark it as favourite</p>
+        <p class="SmallHeadline5" >Disclaimer: Currently only the latest 3 reports per scenario / story are temporarily saved. To save your report persistently, either save the report or download it.</p>
     </div>
     <div class="storyReportsContainer">
         <div class="sectionHeader">
@@ -23,23 +41,7 @@ class="reportHistoryContainer">
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let rep of reports.storyReports; let i = index" class="report">
                 <a [class.notPassed]="!rep.overallTestStatus" [class.passed]="rep.overallTestStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
-                <div class="reportButtons">
-                    <button
-                    class="actionButton" title="Delete Report"
-                   (click)="deleteReport(rep);">
-                      <em class="material-icons">delete</em>
-                    </button>
-                    <button *ngIf="rep.isSaved"
-                    class="actionButton" title="Report is currently Saved"
-                    (click)="unsaveReport(rep);">
-                      <em class="material-icons">star</em>
-                    </button>
-                    <button *ngIf="!rep.isSaved"
-                    class="actionButton" title="Report is currently not Saved"
-                    (click)="saveReport(rep);">
-                      <em class="material-icons">star_border</em>
-                    </button>
-                </div>
+                <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: rep}"></ng-template>
             </div>
         </div>
     </div>
@@ -49,25 +51,9 @@ class="reportHistoryContainer">
                 <p class="Mediumaccordeon2 reportsHeader">Scenario {{i + 1}} Reports: {{scen.name}}</p>
             </div>
             <div *ngIf="reports" class="reportContainer">
-                <div *ngFor="let reps of filterScenarioReports(scen); let j = index" class="report">
-                    <a [class.notPassed]="!reps.overallTestStatus" [class.passed]="reps.overallTestStatus" [routerLink]="'/report/' + reps.reportName" target="_blank">{{stringifyReportTime(reps.reportTime)}}</a>
-                    <div class="reportButtons">
-                        <button
-                        class="actionButton" title="Delete Report"
-                       (click)="deleteReport(reps);">
-                          <em class="material-icons">delete</em>
-                        </button>
-                        <button *ngIf="reps.isSaved"
-                        class="actionButton" title="Report is currently Saved"
-                        (click)="unsaveReport(reps);">
-                          <em class="material-icons">star</em>
-                        </button>
-                        <button *ngIf="!reps.isSaved"
-                        class="actionButton" title="Report is currently not Saved"
-                        (click)="saveReport(reps);">
-                          <em class="material-icons">star_border</em>
-                        </button>
-                    </div>
+                <div *ngFor="let scenrep of filterScenarioReports(scen); let j = index" class="report">
+                    <a [class.notPassed]="!scenrep.overallTestStatus" [class.passed]="scenrep.overallTestStatus" [routerLink]="'/report/' + scenrep.reportName" target="_blank">{{stringifyReportTime(scenrep.reportTime)}}</a>
+                    <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: scenrep}"></ng-template>
                 </div>
             </div>
         </div>
@@ -91,21 +77,9 @@ class="reportHistoryContainer">
                     </div>
                     in this Report.
                 </div>
-                <div class="reportButtons">
-                    <button class="actionButton" title="Delete Report" (click)="deleteReport(grprep);">
-                        <em class="material-icons">delete</em>
-                    </button>
-                    <button *ngIf="grprep.isSaved" class="actionButton" title="Report is currently Saved"
-                            (click)="unsaveReport(grprep);">
-                        <em class="material-icons">star</em>
-                    </button>
-                    <button *ngIf="!grprep.isSaved"
-                            class="actionButton" title="Report is currently not Saved"
-                            (click)="saveReport(grprep);">
-                        <em class="material-icons">star_border</em>
-                    </button>
-                </div>
+                <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: grprep}"></ng-template>
             </div>
         </div>
     </div>
 </div>
+

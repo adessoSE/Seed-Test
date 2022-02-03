@@ -195,6 +195,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                     this.stories = resp.filter(s => s != null);
                     this.filteredStories = this.stories;
                     this.storyTermChange();
+                    this.selectStoryScenario(resp[resp.length - 1]);
                 });
             });
         });
@@ -315,7 +316,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Select the first Story of a Group
      * @param group
      */
-    selectFirstStoryofGroup(group: Group) {
+    selectFirstStoryOfGroup(group: Group) {
         let story = group.member_stories[0];
         story = this.stories.find(o => o._id === story._id);
         this.selectStoryScenario(story);
@@ -346,9 +347,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
 
     /**
      * Selects a new Group
-     * @param Group
+     * @param group
      */
-    selectGroupStory(group: Group) {
+    selectGroup(group: Group) {
         this.selectedGroup = group;
     }
 
@@ -364,8 +365,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createNewStory.openCreateNewStoryModal();
     }
 
-    addFirstScenario(event) {
-        let scenarioName = event;
+    addScenario(scenarioName) {
         this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
@@ -376,11 +376,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     toggleShows(): boolean {
-        if (this.selectedStory.scenarios.length === 0) {
-            this.hideCreateScenario = false;
-        } else {
-            this.hideCreateScenario = true;
-        }
+        this.hideCreateScenario = this.selectedStory.scenarios.length !== 0;
         return this.hideCreateScenario;
     }
 
