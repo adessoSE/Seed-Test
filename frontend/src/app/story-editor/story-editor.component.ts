@@ -970,7 +970,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * @param newStoryTitle
      */
     changeStoryTitle() {
-        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title);
+        this.renameStoryModal.openRenameStoryModal(this.stories,this.selectedStory);
     }
     /**
      * Renames the story

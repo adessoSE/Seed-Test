@@ -15,14 +15,13 @@
                         <label class="uk-form-label">Enter unique story title*</label>
                     </div>
                     <div class="inputField" >
-                        <input [(ngModel)]="storyTitle" name="storytitle" id="storytitle" placeholder=" Title" style="margin-left: 24px;">
+                        <input id="storytitle" [(ngModel)]="storytitle" placeholder=" Title" name="storytitle" (keyup)="storyUnique($event, storytitle, stories)" required></div>
                     </div>
-                </div>
                 <textarea [(ngModel)]="storyDescription" name="storydescription" id="storydescription" placeholder="Enter a brief description of your test story"></textarea>
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="normalButton" (click)="onClickSubmit($event)">Save</button>
+            <button type="button" id="createNewStory" class="normalButton" (click)="onClickSubmit($event)">Save</button>
         </div>
     </div>
 </ng-template>

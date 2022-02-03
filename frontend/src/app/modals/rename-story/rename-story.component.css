@@ -58,3 +58,6 @@
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
 }
+.normalButton:disabled{
+    opacity: 20%;
+}
