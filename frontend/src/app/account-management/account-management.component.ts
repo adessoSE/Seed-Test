@@ -104,7 +104,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         if (!this.router.events) {
             this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
-                //console.log('first load');
             });
         }
         
@@ -314,13 +313,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     updateRepository(){
-        try {
-            this.apiService.updateRepository(this.selectedRepo._id, this.selectedRepo.value, this.id).subscribe(_resp => {      
-                this.apiService.getRepositories();
-                this.toastr.success('successfully saved', 'Repository');
-            });
-        } catch (e) {
-            throw e;
-        }
+        this.apiService.updateRepository(this.selectedRepo._id, this.selectedRepo.value, this.id).subscribe(_resp => {      
+            this.apiService.getRepositories();
+            this.toastr.success('successfully saved', 'Repository');
+        });
     }
 }

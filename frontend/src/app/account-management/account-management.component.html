@@ -32,7 +32,6 @@
                             <div>
                                 <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)" src="../assets/database-5-32.png">
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
-                                <!-- TODO make the button nicer -->
                                 <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" (click)="openChangeProjectName(repository)">settings</mat-icon>
                             </div>
                             <span>
