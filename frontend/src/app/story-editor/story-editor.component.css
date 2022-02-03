@@ -231,7 +231,8 @@
     border-left: 1px solid #999;
     border-bottom: 1px solid #999;
     background: white;
-
+    overflow: scroll;
+    max-height: 80vh;
   }
 
   .darkTheme#story {
