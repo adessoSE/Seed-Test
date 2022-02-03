@@ -213,7 +213,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     /**
      * if the Panel is open.
      */
-         panelOpenState = false;
+    panelOpenState = false;
 
 
     /**

@@ -32,6 +32,7 @@
                             <div>
                                 <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)" src="../assets/database-5-32.png" alt="db">
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
+                                <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" (click)="openChangeProjectName(repository)">settings</mat-icon>
                             </div>
                             <span>
                             <button *ngIf="repository.canEdit" class="editRepoButton normalButton" (click)="workGroupEdit(repository)">Manage Team</button>
@@ -149,3 +150,4 @@
 <app-delete-account #deleteAccountModal></app-delete-account>
 <app-workgroup-edit #workgroupEditModal></app-workgroup-edit>
 <app-repo-swich #repoSwitchModal></app-repo-swich>
+<app-rename-project #renameProjectModal></app-rename-project>

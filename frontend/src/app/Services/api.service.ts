@@ -82,6 +82,11 @@ export class ApiService {
     public renameStoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to rename the project
+     */
+    public renameProjectEvent = new EventEmitter();
+
+    /**
      * Event emitter to rename the description
      */
     public renameDescriptionEvent = new EventEmitter();
@@ -199,6 +204,14 @@ export class ApiService {
      renameStoryEmit(newStoryTitle, newStoryDescription) {
         const val = {newStoryTitle, newStoryDescription};
         this.renameStoryEvent.emit(val);
+    }
+
+    /**
+     * Emits the rename project event
+     * @param newTitel 
+     */
+    renameProjectEmit(newTitel) {
+        this.renameProjectEvent.emit(newTitel);
     }
 
     /**
@@ -405,6 +418,24 @@ export class ApiService {
             .pipe(tap(resp => {
                 //
             }));
+    }
+
+    /**
+     * Updates repo
+     * 
+     * @param repoID
+     * @param newRepoName
+     * @param user
+     * @returns 
+     */
+    public updateRepository(repoID, newRepoName: string, user : any): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');       
+        return this.http
+            .put<RepositoryContainer>(this.apiServer + '/user/repository/' + repoID + '/' + user, {repoName: newRepoName}, ApiService.getOptions())
+            .pipe(tap(resp => {
+                //console.log('Update repo ' + repoID + '!', resp)
+            }));
+
     }
 
     /**
