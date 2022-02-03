@@ -99,8 +99,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         });
         if (!this.router.events) {
             this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe((repositories) => {
-                this.seperateRepos(repositories);
-                //console.log('first load');
+                this.seperateRepos(repositories);                
             });
         }
         

@@ -765,13 +765,13 @@ async function updateRepository(repoID, newName, user) {
 		const filter = { owner: ObjectId(user), _id: ObjectId(repoID) }
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		const repo = await collection.findOne({ owner: ObjectId(user), _id: ObjectId(repoID) });
+		const repo = await collection.findOne(filter);
 		repo.repoName = newName.repoName;
 		return await collection.findOneAndUpdate(filter, {$set: repo});
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e
-	}s
+	}
 }
 
 async function createJiraRepo(repoName) {
