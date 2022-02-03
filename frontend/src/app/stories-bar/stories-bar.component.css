@@ -10,7 +10,9 @@
     padding-bottom: 1px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
     background-color: var(--white);
-    overflow: scroll;
+    overflow: scroll; /*auto
+    <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y" style="overflow: scroll;
+max-height: 20vh;">*/
     max-height: 80vh;
   }
 
