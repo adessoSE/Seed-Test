@@ -12,6 +12,8 @@ export class RenameProjectComponent {
 
   modalReference: NgbModalRef;
 
+  projectName:string;
+
   @ViewChild('renameProjectModal') renameProjectModal: RenameProjectComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
@@ -22,8 +24,7 @@ export class RenameProjectComponent {
  */
   openRenameProjectModal(repoName : string) {
     this.modalReference = this.modalService.open(this.renameProjectModal, {ariaLabelledBy: 'modal-basic-title'});
-    const name = document.getElementById('newTitle') as HTMLInputElement;
-    name.placeholder = repoName;
+    this.projectName = repoName;
   }
 
 /**
