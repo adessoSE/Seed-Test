@@ -762,12 +762,12 @@ async function createRepo(ownerId, name) {
  */
 async function updateRepository(repoID, newName, user) {
 	try {
-		const filter = { owner: ObjectId(user), _id: ObjectId(repoID) }
+		const repo_filter = { owner: ObjectId(user), _id: ObjectId(repoID) }
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		const repo = await collection.findOne(filter);
+		const repo = await collection.findOne(repo_filter);
 		repo.repoName = newName.repoName;
-		return await collection.findOneAndUpdate(filter, {$set: repo});
+		return await collection.findOneAndUpdate(repo_filter, {$set: repo});
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e

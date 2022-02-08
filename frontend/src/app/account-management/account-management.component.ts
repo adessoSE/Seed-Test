@@ -293,13 +293,9 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     } 
 
     updateRepository(project : RepositoryContainer){
-        try {
-            this.apiService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {      
-                this.apiService.getRepositories();
-                this.toastr.success('successfully saved', 'Repository');
-            });
-        } catch (e) {
-            throw e;
-        }
+        this.apiService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {      
+            this.apiService.getRepositories();
+            this.toastr.success('successfully saved', 'Repository');
+        });
     }
 }

@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef, HostListener, HostBinding} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -15,8 +15,6 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import { getLocaleFirstDayOfWeek } from '@angular/common';
-import { Version } from '@angular/compiler';
 
 /**
  * Component of the Scenario Editor
