@@ -99,12 +99,12 @@ em.dragIcon{
   border:2px solid rgb(255, 255, 255);
 }
 
-.checkbox{
+/* .checkbox{
   margin-top: 5px;
   margin-right: 5px;
   margin-bottom: 10px;
   margin-left: 3px
-}
+} */
 .checkboxDropdown{
   margin-top: -15px !important;
 }
@@ -123,34 +123,33 @@ em.dragIcon{
   margin-left: 6px;
 }
 
-/* .darkTheme .scenarioBarContainer, .darkTheme .exampleBarContainer {
+.darkTheme .scenarioBarContainer, .darkTheme .exampleBarContainer {
   background-color: #546E7A;
   border-bottom: 1px solid #B0BEC5;
-} */
+} 
 
-/* .exampleBarContainer{
+.exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
   display: flex;
-} */
-
-/* .scenarioBarContainer button,
+} 
+.scenarioBarContainer button,
 .exampleBarContainer button{
   border: none;
   background: none;
   transform: translate(0px, -3px);
   height: 24px;
   border-radius: 10%;
-} */
+}
 
-/* .scenarioBarContainer > div,
+.scenarioBarContainer > div,
 .exampleBarContainer{
   margin-top: 5px;
   margin-bottom: 5px;
   padding: 10px 15px;
   display: flex;
   height: 40px;
-} */
+}
 
 /* .scenarioButton {
   margin-right: 10px;
@@ -387,3 +386,15 @@ table {
 .darkTheme button {
   background: transparent;
 }
+
+.stepsContainer {
+  white-space: nowrap; 
+  overflow: hidden;
+  width: 100%;
+}
+
+.stepLine {
+  box-sizing: border-box; 
+  width: fit-content;
+}
+  

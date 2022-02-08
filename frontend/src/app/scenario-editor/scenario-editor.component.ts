@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef, HostListener, HostBinding} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -15,6 +15,8 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { getLocaleFirstDayOfWeek } from '@angular/common';
+import { Version } from '@angular/compiler';
 
 /**
  * Component of the Scenario Editor
@@ -106,6 +108,18 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     allCheckboxes;
 
     /**
+     * Width of the input field
+     */
+    minWidth: number = 200;
+    maxWidth: number = 400;
+    width = this.minWidth + 'px';
+
+    /**
+     * Id of the last checked input field
+     */
+    lastCheckedInput;
+
+    /**
      * Subscribtions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
@@ -117,6 +131,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * View child of the example table
      */
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
+    /**
+     * Parent line element of steps
+     */
+    @ViewChild('parentEl') parentEl: ElementRef;
 
     /**
      * View child of the modals component
@@ -188,7 +206,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
             }
         });
 
-        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
+        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName)); 
     }
 
     ngOnDestroy(){
@@ -1258,4 +1276,38 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     openCreateScenario() {
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
     }
+
+    /**
+     * Resizes the input field on string length 
+     * @param event 
+     */
+    resizeInput(event) {  
+        if (event.target.id !== this.lastCheckedInput) {
+            //reset variable
+            this.width = this.minWidth + 'px'; 
+        }   
+        if (event.target.parentElement.parentElement.parentElement.offsetWidth < this.parentEl.nativeElement.offsetWidth) { 
+            setTimeout(() => this.width = Math.max(this.minWidth, event.target.value.length*8) + 'px');
+            event.target.style.setProperty('width', this.width);
+        }
+        if (event.target.value.length <= 0) {
+            this.width = this.minWidth + 'px';
+            event.target.style.setProperty('width', this.width);
+        }
+        this.lastCheckedInput = event.target.id;
+    }
+
+    /**
+     * Resize input fields on load
+     * @param inputLen 
+     * @returns 
+     */
+    resizeOnLoad (inputLen) {
+        let result = inputLen;
+        if (inputLen <= 0) {
+            result = this.minWidth;
+        }
+        return result
+    }
+
 }

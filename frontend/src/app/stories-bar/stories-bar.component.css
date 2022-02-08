@@ -153,8 +153,7 @@
   }
 
   .darkTheme .scenarioListItem:hover {
-    background-color: #CFD8DC;
-    color: #000000 !important;
+    background-color: #90a4ae;
   }
 
   .uk-accordion{
@@ -173,32 +172,41 @@
     color:#90A4AE;
   }
 
-  .uk-accordion-content .passed,
+  /* .uk-accordion-content .passed,
   .uk-accordion-title.uk-background-muted .passed{
     color: green !important;
-  }
+  } */
 
-  .darkTheme .uk-accordion-content .passed,
-  .uk-accordion-title.uk-background-muted .passed{
+  /* .darkTheme .uk-accordion-content .passed,
+  .darkTheme .uk-accordion-title.uk-background-muted .passed{
     color: #4CAF50 !important;
-  }
+  } */
 
-  .uk-accordion-content .notPassed,
+  /* .uk-accordion-content .notPassed,
   .uk-accordion-title.uk-background-muted .notPassed{
     color: red !important;
-  }
+  } */
 
-  .uk-accordion-title.uk-background-muted span.passed{
+  /* .darkTheme .uk-accordion-content .notPassed,
+  .darkTheme .uk-accordion-title.uk-background-muted .notPassed{
+    color: red !important;
+  } */
+
+  /* .uk-accordion-title.uk-background-muted span.passed{
     background-color: green !important;
-  }
+  } */
 
-  .darkTheme .uk-accordion-title.uk-background-muted span.passed {
+  /* .darkTheme .uk-accordion-title.uk-background-muted span.passed {
     background-color: #4CAF50 !important;
-  }
+  } */
 
-  .uk-accordion-title.uk-background-muted span.notPassed{
+ /*  .uk-accordion-title.uk-background-muted span.notPassed{
     background-color: red !important;
-  }
+  } */
+
+  /* .darkTheme .uk-accordion-title.uk-background-muted span.notPassed{
+    background-color: red !important;
+  } */
 
   .drag-handle{
     cursor: move;
