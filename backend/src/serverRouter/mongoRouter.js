@@ -180,4 +180,13 @@ router.post('/oneDriver/:storyID', async (req, res) => {
 	}
 });
 
+router.get('/report/:reportId', async (req, res) => {
+	try {
+		const result = await mongo.getReportById(req.params.reportId);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 module.exports = router;

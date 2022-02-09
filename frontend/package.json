@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^13.0.3",
-    "@angular/cli": "^13.0.3",
+    "@angular/cli": "^13.2.2",
     "@angular/compiler-cli": "^13.0.2",
     "@compodoc/compodoc": "^1.1.11",
     "codelyzer": "^6.0.2",

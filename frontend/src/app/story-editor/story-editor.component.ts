@@ -1,5 +1,3 @@
-import { ScenarioReport } from './../model/ScenarioReport';
-import { StoryReport } from './../model/StoryReport';
 import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
@@ -20,7 +18,6 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
-import {MatAccordion} from '@angular/material/expansion';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 
 /**
@@ -837,6 +834,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
             const loadingScreen: HTMLElement = document.getElementById('loading');
             const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
+            // are these values already saved in the Scenario / Story?
             // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
             // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
             loadingScreen.scrollIntoView();
@@ -861,30 +859,32 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                     this.toastr.info('', 'Test is done');
                     this.runUnsaved = false;
                     this.apiService.getReport(this.reportId)
-                    .subscribe((report: any) =>{
-                        if (scenario_id) { // ScenarioReport
-                            const val = report.scenarioStatuses.status
+                      .subscribe((report: any) => {
+                        if (scenario_id) {
+                            // ScenarioReport
+                            const val = report.scenarioStatuses.status;
                             this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
-                        } else { // StoryReport
-                            const report_story_id = report.storyId
+                        } else {
+                          // StoryReport
                           report.scenarioStatuses.forEach(scenario => {
                                 this.apiService.scenarioStatusChangeEmit(
                                   this.selectedStory._id, scenario.scenarioId, scenario.status);
                             });
                         }
-                    })
-                    /*this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
-                    .subscribe((story) => {
-                        if (scenario_id) {
-                            const val = story.scenarios.filter(scenario => scenario.scenario_id === scenario_id);
-                            this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed);
-                        } else {
-                          story.scenarios.forEach(scenario => {
-                                this.apiService.scenarioStatusChangeEmit(
-                                  this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed);
-                            });
-                        }
-                    });*/
+                      });
+                      // OLD VERSION:
+                      // this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
+                      // .subscribe((story) => {
+                      //     if (scenario_id) {
+                      //         const val = story.scenarios.filter(scenario => scenario.scenario_id === scenario_id);
+                      //         this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed);
+                      //     } else {
+                      //       story.scenarios.forEach(scenario => {
+                      //             this.apiService.scenarioStatusChangeEmit(
+                      //               this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed);
+                      //         });
+                      //     }
+                      // });
                 });
         } else {
             this.currentTestScenarioId = scenario_id;
