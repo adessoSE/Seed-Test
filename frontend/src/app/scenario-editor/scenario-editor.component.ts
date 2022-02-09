@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -93,6 +93,31 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     currentStepNgModel=null;
 
     /**
+     * Last checked step
+     */
+    givenLastChecked = { id:undefined, step:undefined };
+    whenLastChecked = { id:undefined, step:undefined };
+    thenLastChecked = { id:undefined, step:undefined };
+    exampleLastChecked = { id:undefined, step:undefined };
+
+    /**
+     * List of all checkboxes
+     */
+    allCheckboxes;
+
+    /**
+     * Width of the input field
+     */
+    minWidth: number = 200;
+    maxWidth: number = 400;
+    width = this.minWidth + 'px';
+
+    /**
+     * Id of the last checked input field
+     */
+    lastCheckedInput;
+
+    /**
      * Subscribtions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
@@ -104,6 +129,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * View child of the example table
      */
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
+    /**
+     * Parent line element of steps
+     */
+    @ViewChild('parentEl') parentEl: ElementRef;
 
     /**
      * View child of the modals component
@@ -129,7 +158,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
         } else {
             this.showDaisyAutoLogout = false;
         }
-
     }
 
     /**
@@ -168,7 +196,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
                             }
                             this.exampleChild.updateTable();
                         }else{
-                            this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)))
+                            this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
                         }
                     })
                 })
@@ -176,7 +204,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
             }
         });
 
-        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName))
+        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName)); 
     }
 
     ngOnDestroy(){
@@ -286,6 +314,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
+        this.allCheckboxes = stepDefs; 
         /*}*/
         this.selectedScenario.saved = false;
     }
@@ -697,6 +726,150 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
             this.allExampleChecked = false;
         }
     }
+    /**
+     * Set checked step to last checked
+     * @param currentStep 
+     * @returns 
+     */
+    setLastChecked (currentStep) {
+        for (var i=0; i<=this.allCheckboxes[currentStep.stepType].length-1; i++) {
+            if(currentStep.id === this.allCheckboxes[currentStep.stepType][i].id) {
+                if (currentStep.stepType === 'given') {
+                    this.givenLastChecked.id = i;  
+                    this.givenLastChecked.step = currentStep;
+                    return
+                }
+                else if (currentStep.stepType === 'when') {
+                    this.whenLastChecked.id = i;  
+                    this.whenLastChecked.step = currentStep;
+                    return
+                }
+                else if (currentStep.stepType === 'then') {
+                    this.thenLastChecked.id = i;  
+                    this.thenLastChecked.step = currentStep;
+                    return
+                }
+                else {
+                    this.exampleLastChecked.id = i;  
+                    this.exampleLastChecked.step = currentStep;
+                    return
+                }
+
+            }
+            
+        }
+    }
+
+    /**
+     * Handles checkboxes on click
+     * @param event Click event
+     * @param step Current step
+     * @param checkValue Check value
+     */
+    handleClick(event, step, checkValue: boolean) {
+        //Get list of checkboxes
+        this.allCheckboxes = this.selectedScenario.stepDefinitions;
+
+        //Set current step to last checked if undefined given step type  
+        if(step.stepType === 'given' && this.givenLastChecked.id === undefined) {   
+            this.setLastChecked(step)
+        }
+         else if ( step.stepType === 'when' && this.whenLastChecked.id === undefined) {
+            this.setLastChecked(step);
+        }
+        else if (step.stepType === 'then' && this.thenLastChecked.id === undefined) {
+            this.setLastChecked(step);
+        }
+        else if (step.stepType === 'example' && this.exampleLastChecked.id === undefined) {
+            this.setLastChecked(step);
+        }
+
+        //if key pressed is shift
+        if (event.shiftKey) {  
+            this.checkMany(step)   
+        } 
+        //otherwise fire checkStep
+        else { 
+            this.checkStep(event, step, checkValue);
+        }
+
+        //Set current step to last checked
+        this.setLastChecked (step);
+    }
+
+    /**
+     * Checks many steps on shift click
+     * @param currentStep 
+     */
+    checkMany(currentStep) {
+        //Find in this block start and end step
+        var startTemp;
+        var endTemp;
+        var start;
+        var end;
+        for (var y=0; y<=this.allCheckboxes[currentStep.stepType].length-1; y++) {
+            if(currentStep.id === this.allCheckboxes[currentStep.stepType][y].id) {
+                if (currentStep.stepType === 'given') {
+                    startTemp = y;  //current step
+                    endTemp = this.givenLastChecked.id; // last checked step
+                    start = Math.min(startTemp, endTemp); //get starting & ending array element
+                    end = Math.max(startTemp, endTemp);
+                }
+                else if (currentStep.stepType === 'when') {
+                    startTemp = y;  //current step
+                    endTemp = this.whenLastChecked.id; // last checked step
+                    start = Math.min(startTemp, endTemp); //get starting & ending array element
+                    end = Math.max(startTemp, endTemp);
+                    
+                }
+                else if (currentStep.stepType === 'then') {
+                    startTemp = y;  //current step
+                    endTemp = this.thenLastChecked.id; // last checked step
+                    start = Math.min(startTemp, endTemp); //get starting & ending array element
+                    end = Math.max(startTemp, endTemp);
+                }
+                else {
+                    startTemp = y;  //current step
+                    endTemp = this.exampleLastChecked.id; // last checked step
+                    start = Math.min(startTemp, endTemp); //get starting & ending array element
+                    end = Math.max(startTemp, endTemp);
+                }
+                //Check all steps in the list between start and end
+                var i=start
+                for (i; i<=end; i++) { 
+                    if (currentStep.stepType === 'given') {           
+                        this.selectedScenario.stepDefinitions.given.forEach(steptype => {
+                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
+                                steptype.checked = this.givenLastChecked.step.checked;
+                            }
+                        });
+                    }
+                    else if (currentStep.stepType === 'when') {
+                        this.selectedScenario.stepDefinitions.when.forEach(steptype => {
+                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
+                                steptype.checked = this.whenLastChecked.step.checked;
+                            }
+                        });
+                    } else if (currentStep.stepType === 'then') {
+                        this.selectedScenario.stepDefinitions.then.forEach(steptype => {
+                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
+                                steptype.checked = this.thenLastChecked.step.checked;
+                            }
+                        }); 
+                    } 
+                    else {
+                        this.selectedScenario.stepDefinitions.example.forEach(steptype => {
+                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
+                                steptype.checked = this.exampleLastChecked.step.checked;
+                            }
+                        });
+                    }
+                     
+                }
+                
+            }
+        }
+    }
 
     /**
      * Checks a step
@@ -1098,4 +1271,38 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     openCreateScenario() {
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
     }
+
+    /**
+     * Resizes the input field on string length 
+     * @param event 
+     */
+    resizeInput(event) {  
+        if (event.target.id !== this.lastCheckedInput) {
+            //reset variable
+            this.width = this.minWidth + 'px'; 
+        }   
+        if (event.target.parentElement.parentElement.parentElement.offsetWidth < this.parentEl.nativeElement.offsetWidth) { 
+            setTimeout(() => this.width = Math.max(this.minWidth, event.target.value.length*8) + 'px');
+            event.target.style.setProperty('width', this.width);
+        }
+        if (event.target.value.length <= 0) {
+            this.width = this.minWidth + 'px';
+            event.target.style.setProperty('width', this.width);
+        }
+        this.lastCheckedInput = event.target.id;
+    }
+
+    /**
+     * Resize input fields on load
+     * @param inputLen 
+     * @returns 
+     */
+    resizeOnLoad (inputLen) {
+        let result = inputLen;
+        if (inputLen <= 0) {
+            result = this.minWidth;
+        }
+        return result
+    }
+
 }

@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, ViewChild, EventEmitter, Output} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
@@ -12,7 +12,6 @@ import { CreateCustomProjectComponent } from '../modals/create-custom-project/cr
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { RepoSwichComponent } from '../modals/repo-swich/repo-swich.component';
-import { RenameProjectComponent } from '../modals/rename-project/rename-project.component';
 import { ToastrService } from 'ngx-toastr';
 
 /**
@@ -30,11 +29,10 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Viewchild to create the modals
      */
     @ViewChild('changeJiraModal') changeJiraModal: ChangeJiraAccountComponent;
-    @ViewChild('createCustomProject') createCustomProject :CreateCustomProjectComponent;
+    @ViewChild('createCustomProject') createCustomProject: CreateCustomProjectComponent;
     @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
     @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
     @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
-    @ViewChild('renameProjectModal') renameProjectModal: RenameProjectComponent;
 
     /**
      * Viewchild to auto open mat-select
@@ -78,8 +76,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     isActualRepoToDelete: boolean;
 
-    selectedRepo: RepositoryContainer;
-
     /**
      * Subscribtions for all EventEmitter
      */
@@ -94,8 +90,10 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param apiService Connection to the api service
      * @param router router to handle url changes
      * @param themeService
+     * @param toastr
      */
-    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService, private toastr: ToastrService,) {
+    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService,
+                private toastr: ToastrService, ) {
         this.routeSub = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
@@ -106,7 +104,6 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                 this.seperateRepos(repositories);
             });
         }
-        
     }
 
     ngOnInit() {
@@ -116,26 +113,26 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
-        this.renamePrjectObservable = this.apiService.renameProjectEvent.subscribe(newName => {
-            this.renameProject(newName);
-        })
+        this.renamePrjectObservable = this.apiService.renameProjectEvent.subscribe(proj => {
+            this.updateRepository(proj);
+        });
 
         // fill repository list for download
-        this.searchRepos('')
+        this.searchRepos();
     }
 
     ngOnDestroy() {
-        if(!this.themeObservable.closed){
+        if (!this.themeObservable.closed) {
             this.themeObservable.unsubscribe();
         }
-        if(!this.updateRepositoryObservable.closed){
+        if (!this.updateRepositoryObservable.closed) {
             this.updateRepositoryObservable.unsubscribe();
         }
-        if(!this.routeSub.closed){
+        if (!this.routeSub.closed) {
             this.routeSub.unsubscribe();
         }
-        if(this.getRepositoriesObservable){
-            if(!this.getRepositoriesObservable.closed){
+        if (this.getRepositoriesObservable) {
+            if (!this.getRepositoriesObservable.closed) {
                 this.getRepositoriesObservable.unsubscribe();
             }
         }
@@ -182,7 +179,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Opens Modal to edit the workgroup
      * @param project
      */
-    workGroupEdit(project: RepositoryContainer){
+    workGroupEdit(project: RepositoryContainer) {
         this.workgroupEditModal.openWorkgroupEditModal(project, this.email, this.id);
     }
 
@@ -272,14 +269,14 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         }
     }
 
-    searchRepos(value) {
+    searchRepos() {
         this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
             if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
                 return repo;
             }
         });
-        if(this.searchInput != ''){
+        if (this.searchInput != '') {
             this.ngSelect.open();
         }
     }
@@ -287,33 +284,17 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     /**
      * Update Repositories after change
      */
-    updateRepos(){
-        let value = sessionStorage.getItem('repositories')
-        let repository: RepositoryContainer = JSON.parse(value)
-        this.seperateRepos(repository)
+    updateRepos() {
+        const value = sessionStorage.getItem('repositories');
+        const repository: RepositoryContainer = JSON.parse(value);
+        this.seperateRepos(repository);
 
         // update repo download list
-        this.searchRepos('')
-    } 
-
-    openChangeProjectName(repo : RepositoryContainer) {
-        this.selectedRepo = repo;
-        this.renameProjectModal.openRenameProjectModal(this.selectedRepo.value);
+        this.searchRepos();
     }
 
-    /**
-     * Renames project name
-     * @param newName 
-     */
-    renameProject(newName : string) {
-        if(newName.replace(/\s/g, '').length > 0) {
-            this.selectedRepo.value = newName;
-        }
-        this.updateRepository();
-    }
-
-    updateRepository(){
-        this.apiService.updateRepository(this.selectedRepo._id, this.selectedRepo.value, this.id).subscribe(_resp => {      
+    updateRepository(project: RepositoryContainer) {
+        this.apiService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {
             this.apiService.getRepositories();
             this.toastr.success('successfully saved', 'Repository');
         });

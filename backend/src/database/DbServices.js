@@ -17,7 +17,6 @@ const dbConnection = require('./DbConnector');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
-const { filter } = require('lodash');
 
 if (!process.env.NODE_ENV) {
 	const dotenv = require('dotenv').config();
@@ -755,26 +754,24 @@ async function createRepo(ownerId, name) {
 	}
 }
 
-//updates repository
-
 /**
- * 
+ *
  * @param {*} repoID
- * @param {*} newName 
- * @param {*} user 
- * @returns 
+ * @param {*} newName
+ * @param {*} user
+ * @returns
  */
 async function updateRepository(repoID, newName, user) {
 	try {
-		const filter = { owner: ObjectId(user), _id: ObjectId(repoID) }
+		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		const repo = await collection.findOne(filter);
+		const repo = await collection.findOne(repoFilter);
 		repo.repoName = newName.repoName;
-		return await collection.findOneAndUpdate(filter, {$set: repo});
+		return await collection.findOneAndUpdate(repoFilter, { $set: repo });
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
-		throw e
+		throw e;
 	}
 }
 
@@ -1284,7 +1281,6 @@ async function updateOneDriver(id, driver) {
 		console.log('ERROR in updateOneDriver: ', e);
 	}
 }
-
 
 
 module.exports = {

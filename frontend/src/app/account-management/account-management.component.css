@@ -233,7 +233,7 @@ h2, h1{
 
 .customRepoContainer{
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 @media screen and (max-width: 600px) {
@@ -276,15 +276,29 @@ h2, h1{
   }
 
   .set-name-button {
-    font-size: 18px;
+    font-size: 22px;
     vertical-align: top;
   }
 
   .setting-icon {
-    margin-left: 6px;
     text-shadow: 1px 1px 3px rgb(0 0 0 / 50%);
   }
 
   .setting-icon:hover {
     text-shadow: none;
+  }
+
+  .mat-icon {
+    height: unset;
+    width: unset;
+  }
+
+  .db-item-list {
+    display: flex;
+    align-items: center;
+    max-width: 285px
+  }
+
+  .flex-end-item {
+    margin-left: auto;
   }
