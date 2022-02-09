@@ -26,7 +26,7 @@ if (!process.env.NODE_ENV) {
 const userCollection = 'User';
 const storiesCollection = 'Stories';
 const repositoriesCollection = 'Repositories';
-const steptypesCollection = 'stepTypes';
+const stepTypesCollection = 'stepTypes';
 const PwResetReqCollection = 'PwResetRequests';
 const CustomBlocksCollection = 'CustomBlocks';
 const WorkgroupsCollection = 'Workgroups';
@@ -416,7 +416,7 @@ async function updateStoryGroupsArray(repoId, groupsArray) {
 async function showSteptypes() {
 	try {
 		const db = dbConnection.getConnection();
-		return await db.collection(steptypesCollection).find({})
+		return await db.collection(stepTypesCollection).find({})
 			.toArray();
 	} catch (e) {
 		console.log(`ERROR in showSteptypes: ${e}`);
@@ -576,10 +576,14 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
-		}
-
-		else {
-			tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+		} else {
+			let newScenID = 0;
+			for (const scenario of story.scenarios) {
+				if (scenario.scenario_id > newScenID) {
+					newScenID = scenario.scenario_id;
+				}
+			}
+			tmpScenario.scenario_id = newScenID + 1;
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		}
@@ -854,8 +858,10 @@ async function getTestReports(storyId) {
 	try {
 		const db = dbConnection.getConnection();
 		console.log('Getting Report for storyId :', storyId);
-		result = await db.collection(ReportDataCollection).find({ storyId: ObjectId(storyId) },
-			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } })
+		result = await db.collection(ReportDataCollection).find(
+			{ storyId: ObjectId(storyId) },
+			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }
+		)
 			.toArray();
 		console.log('Got ', result.length, ' reports for  :', storyId);
 	} catch (e) {
@@ -870,8 +876,10 @@ async function getGroupTestReports(storyId) {
 		console.log('Getting Groups Reports for storyId :', storyId);
 		// projection value 0 excludes from returning
 		const query = { storyStatuses: { $elemMatch: { storyId: ObjectId(storyId) } } };
-		const result = await db.collection(ReportDataCollection).find(query,
-			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } })
+		const result = await db.collection(ReportDataCollection).find(
+			query,
+			{ projection: { jsonReport: 0, reportOptions: 0, json: 0 } }
+		)
 			.toArray();
 		console.log('Got ', result.length, ' Group Reports for  :', storyId);
 		return result;
@@ -915,7 +923,7 @@ async function setIsSavedTestReport(testReportId, isSaved) { // TODO:
 		// const updatedReport = await collection.findOne({ _id: ObjectId(testReportId) });
 		// updatedReport.isSaved = isSaved;
 		// result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
-		// 	updatedReport);
+		// updatedReport);
 	} catch (e) {
 		console.log('ERROR in setIsSavedTestReport', e);
 	}
@@ -947,9 +955,18 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 		// scenario.lastTestPassed = scenarioLastTestStatus;
 		// story.scenarios[index] = scenario;
 		// }
-		return await db.collection(storiesCollection).updateOne({ _id: ObjectId(storyId), scenarios: { $elemMatch: { scenario_id: scenarioId } } }, {
-			$set: { lastTestPassed: scenarioLastTestStatus }
-		});
+		// console.log('scenarioLastTestStatus');
+		// console.log(scenarioLastTestStatus);
+		return await db.collection(storiesCollection).updateOne(
+			{
+				_id: ObjectId(storyId),
+				scenarios: {
+					$elemMatch:
+						{ scenario_id: scenarioId }
+				}
+			}, {
+				$set: { lastTestPassed: scenarioLastTestStatus }
+			});
 		// return await collection.findOneAndReplace({ _id: ObjectId(storyId) }, story);
 	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);
@@ -1001,23 +1018,62 @@ async function uploadReport(reportResults) {
 	return reportResults;
 }
 
-async function getReport(reportName) {
+async function getReportFromDB(report) {
 	let result;
 	try {
 		const db = dbConnection.getConnection();
-		const report = await db.collection(ReportDataCollection).findOne({ reportName });
 		if (report.smallReport) {
-			const reportJson = await db.collection(ReportsCollection).findOne({ _id: ObjectId(report.smallReport) });
-			result = { _id: report._id, jsonReport: reportJson.jsonReport };
+			const reportJson = await db.collection(ReportsCollection)
+				.findOne({ _id: report.smallReport });
+			result = {
+				_id: report._id,
+				jsonReport: reportJson.jsonReport
+			};
 		} else {
 			const bucket = await new mongodb.GridFSBucket(db, { bucketName: 'GridFS' });
 			const reportString = await toString(bucket.openDownloadStream(ObjectId(report.bigReport.toString())));
 			const reportJson = JSON.parse(reportString);
-			result = { _id: report._id, jsonReport: reportJson.jsonReport };
+			result = {
+				_id: report._id,
+				jsonReport: reportJson.jsonReport
+			};
 		}
 		return result;
 	} catch (e) {
-		console.log('ERROR in getReport', e);
+		console.log('ERROR in getReportFromDB', e);
+		return {};
+	}
+}
+
+async function getReportByName(reportName) {
+	try {
+		const db = dbConnection.getConnection();
+		const report = await db.collection(ReportDataCollection).findOne({ reportName });
+		return await getReportFromDB(report);
+	} catch (e) {
+		console.log('ERROR in getReportByName', e);
+		return {};
+	}
+}
+
+async function getReportById(reportId) {
+	try {
+		const db = dbConnection.getConnection();
+		const report = await db.collection(ReportDataCollection).findOne({ _id: ObjectId(reportId.toString()) });
+		return await getReportFromDB(report);
+	} catch (e) {
+		console.log('ERROR in getReportById (DBServices)', e);
+		return {};
+	}
+}
+
+async function getReportDataById(reportId) {
+	try {
+		const db = dbConnection.getConnection();
+		return await db.collection(ReportDataCollection)
+			.findOne({ _id: ObjectId(reportId.toString()) });
+	} catch (e) {
+		console.log('ERROR in getReportDataById (DBServices)', e);
 		return {};
 	}
 }
@@ -1236,7 +1292,9 @@ module.exports = {
 	deleteReport,
 	getTestReports,
 	getGroupTestReports,
-	getReport,
+	getReportByName,
+	getReportById,
+	getReportDataById,
 	uploadReport,
 	disconnectGithub,
 	mergeGithub,
