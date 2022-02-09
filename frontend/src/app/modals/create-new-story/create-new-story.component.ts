@@ -55,7 +55,7 @@ export class CreateNewStoryComponent {
     event.stopPropagation();
     const title = this.storyTitle;
     if (title.trim() !== '') {
-      const description = this.storyDescription;
+      const description = (this.storyDescription === null) ? undefined : this.storyDescription;
       this.storyTitle = null;
       this.storyDescription = null;
       const value = localStorage.getItem('repository');
