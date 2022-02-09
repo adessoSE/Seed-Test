@@ -986,8 +986,6 @@ async function getReportFromDB(report) {
 		if (report.smallReport) {
 			const reportJson = await db.collection(ReportsCollection)
 				.findOne({ _id: report.smallReport });
-			console.log('report in get ReportFromDB:');
-			console.log(reportJson);
 			result = {
 				_id: report._id,
 				jsonReport: reportJson.jsonReport
@@ -1023,11 +1021,20 @@ async function getReportById(reportId) {
 	try {
 		const db = dbConnection.getConnection();
 		const report = await db.collection(ReportDataCollection).findOne({ _id: ObjectId(reportId.toString()) });
-		console.log('report in get Report ByID:');
-		console.log(report);
 		return await getReportFromDB(report);
 	} catch (e) {
 		console.log('ERROR in getReportById (DBServices)', e);
+		return {};
+	}
+}
+
+async function getReportDataById(reportId) {
+	try {
+		const db = dbConnection.getConnection();
+		return await db.collection(ReportDataCollection)
+			.findOne({ _id: ObjectId(reportId.toString()) });
+	} catch (e) {
+		console.log('ERROR in getReportDataById (DBServices)', e);
 		return {};
 	}
 }
@@ -1246,6 +1253,7 @@ module.exports = {
 	getGroupTestReports,
 	getReportByName,
 	getReportById,
+	getReportDataById,
 	uploadReport,
 	disconnectGithub,
 	mergeGithub,

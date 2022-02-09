@@ -848,7 +848,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                 .subscribe((resp: any) => {
                     this.reportId = resp.reportId;
                     iframe.srcdoc = resp.htmlFile;
-                    // console.log("This is the response: " + resp);
                     this.htmlReport = resp.htmlFile;
                     this.testDone = true;
                     this.showResults = true;
