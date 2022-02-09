@@ -576,7 +576,13 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		} else {
-			tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
+			let newScenID = 0;
+			for (const scenario of story.scenarios) {
+				if (scenario.scenario_id > newScenID) {
+					newScenID = scenario.scenario_id;
+				}
+			}
+			tmpScenario.scenario_id = newScenID + 1;
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		}
@@ -925,9 +931,18 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 		// scenario.lastTestPassed = scenarioLastTestStatus;
 		// story.scenarios[index] = scenario;
 		// }
-		return await db.collection(storiesCollection).updateOne({ _id: ObjectId(storyId), scenarios: { $elemMatch: { scenario_id: scenarioId } } }, {
-			$set: { lastTestPassed: scenarioLastTestStatus }
-		});
+		// console.log('scenarioLastTestStatus');
+		// console.log(scenarioLastTestStatus);
+		return await db.collection(storiesCollection).updateOne(
+			{
+				_id: ObjectId(storyId),
+				scenarios: {
+					$elemMatch:
+						{ scenario_id: scenarioId }
+				}
+			}, {
+				$set: { lastTestPassed: scenarioLastTestStatus }
+			});
 		// return await collection.findOneAndReplace({ _id: ObjectId(storyId) }, story);
 	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);

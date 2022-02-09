@@ -1008,9 +1008,7 @@ async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatu
 
 async function updateScenarioTestStatus(uploadedReport) {
 	try {
-		await mongo.updateScenarioStatus(
-			uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus
-		);
+		await mongo.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus);
 	} catch (e) {
 		console.log('Could not Update Scenario LastTestPassed.');
 	}
