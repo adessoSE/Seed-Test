@@ -13,7 +13,7 @@
                      Then (desired result)
               </span>
             </dfn>
-            
+
         </div>
         <div>
           <button id="scenario_shift_left" class="scenarioTitle" *ngIf="!arrowLeft" data-uk-tooltip
@@ -37,24 +37,20 @@
   <div class="scenarioBarContainer">
     <div class="actionBarButtonGroup">
       <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps">
-      <div *ngIf="this.activeActionBar">
-        <button id="{{'scenario_' + i + '_addBlock_step_'}}" a
-        class="actionButton" uk-tooltip title="Save Steps as Block"
+      <div [class.disabled]="!this.activeActionBar">
+        <button id="{{'scenario_addBlock_step'}}" class="actionButton" uk-tooltip title="Save Steps as Block"
         (click)="saveBlock();">
           <em class="material-icons">queue</em>
         </button>
-        <button id="{{'scenario_' + i + '_deactivate_step_'}}" a
-          class="actionButton" uk-tooltip title="Deactivate Step"
+        <button id="{{'scenario_deactivate_step'}}" class="actionButton" uk-tooltip title="Deactivate Step"
           (click)="deactivateStep();">
           <em class="material-icons">do_not_touch</em>
         </button>
-        <button id="{{'scenario_' + i + '_delete_step_'}}" a
-        class="actionButton" uk-tooltip title="Delete Step"
+        <button id="{{'scenario_delete_step'}}" class="actionButton" uk-tooltip tooltip title="Delete Step"
         (click)="removeStepFromScenario();">
           <em class="material-icons">delete</em>
         </button>
-        <button id="{{'scenario_' + i + '_copy_step_'}}" a
-        class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+        <button id="{{'scenario_copy_step'}}" class="actionButton" uk-tooltip title="Copy Step to Clipboard"
         (click)="copyBlock();">
           <em class="material-icons">content_copy</em>
         </button>
@@ -173,7 +169,7 @@
                         This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the scenario to confirm your adjustments.
                       </span>
                     </dfn>
-                    
+
                   </div>
                 </div>
             </div>
@@ -185,23 +181,23 @@
           <!--Action bar-->
           <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="exampleBarContainer">
             <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
-            <div *ngIf="this.activeExampleActionBar">
-              <button id="{{'scenario_' + i + '_example_addBlock_step_'}}" a
+            <div [class.disabled]="!this.activeExampleActionBar">
+              <button id="{{'scenario_' + i + '_example_addBlock_step_'}}"
               class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
               (click)="saveExampleBlock($event);">
                 <em class="material-icons">queue</em>
               </button>
-              <button id="{{'scenario_' + i + '_example_deactivate_step_'}}" a
+              <button id="{{'scenario_' + i + '_example_deactivate_step_'}}"
                 class="actionButton deactivateStepButton" uk-tooltip title="Deactivate Step"
                 (click)="deactivateExampleStep();">
                 <em class="material-icons">do_not_touch</em>
               </button>
-              <button id="{{'scenario_' + i + '_example_delete_step_'}}" a
+              <button id="{{'scenario_' + i + '_example_delete_step_'}}"
               class="actionButton" uk-tooltip title="Delete Step"
               (click)="removeStepFromExample();">
                 <em class="material-icons">delete</em>
               </button>
-              <button id="{{'scenario_' + i + '_example_copy_step_'}}" a
+              <button id="{{'scenario_' + i + '_example_copy_step_'}}"
               class="actionButton" uk-tooltip title="Copy Step to Clipboard"
               (click)="copyBlockExample();">
                 <em class="material-icons">content_copy</em>

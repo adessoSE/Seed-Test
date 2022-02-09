@@ -47,6 +47,16 @@
     text-align: right;
   }
 
+  #add_scenario{
+    color:  var(--ocean-blue);
+    font-size: 24px;
+    float: right;
+    cursor: pointer;
+    border: none;
+    line-height: 25px;
+    background: none;
+  }
+
   .modal-title{
     color: var(--white);
   }
@@ -292,7 +302,7 @@
     justify-content: flex-start;
     margin-left: 0px;
   }
-  
+
 @media screen and (max-width: 600px) {
   .grid{
       display: grid;

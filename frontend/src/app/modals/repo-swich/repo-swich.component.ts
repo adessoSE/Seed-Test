@@ -74,10 +74,10 @@ export class RepoSwichComponent implements OnInit {
   /**
      * Update Repositories after change
      */
-   updateRepos() {
+  updateRepos() {
     const value = sessionStorage.getItem('repositories');
     const repositories: RepositoryContainer[] = JSON.parse(value);
     this.repos = repositories.filter(repo => repo.value != this.currentRepo);
-      this.filteredRepos = new MatTableDataSource(this.repos);
+    this.filteredRepos = new MatTableDataSource(this.repos);
   }
 }
