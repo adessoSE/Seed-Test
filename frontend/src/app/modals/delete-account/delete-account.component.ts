@@ -42,7 +42,7 @@ export class DeleteAccountComponent {
             this.toastr.info('', 'User Deleted');
             this.apiService.logoutEvent.emit();
         });
-      this.modalReference.close;
+      this.modalReference.close();
     } else {
       this.unallowableNameToast();
       this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
