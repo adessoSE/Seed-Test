@@ -12,6 +12,8 @@ export class RenameScenarioComponent {
 
   modalReference: NgbModalRef;
 
+  scenarioName:string;
+
   @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
@@ -22,8 +24,7 @@ export class RenameScenarioComponent {
  */
    openRenameScenarioModal(oldTitle: string) {
     this.modalReference = this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
-    const name = document.getElementById('newTitle') as HTMLInputElement;
-    name.placeholder = oldTitle;
+    this.scenarioName = oldTitle;
   }
 
 /**

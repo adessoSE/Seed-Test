@@ -13,7 +13,10 @@ export class RenameStoryComponent {
   modalReference: NgbModalRef;
 
   @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
-  storyDescription: string;
+
+  storyDescription: string = 'Story Description';
+
+  storyName: string;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
@@ -24,9 +27,8 @@ export class RenameStoryComponent {
    */
   openRenameStoryModal(oldTitle: string, oldDescription: string) {
     this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
-    const title = document.getElementById('newStoryTitle') as HTMLInputElement;
+    this.storyName = oldTitle;
     const description = document.getElementById('newStoryDescription') as HTMLInputElement;
-    title.placeholder = oldTitle;
     description.placeholder = oldDescription;
   }
 

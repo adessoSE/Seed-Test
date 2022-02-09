@@ -35,6 +35,12 @@
     align-items: center;
   }
 
+  .ScenarioInfoLeft{
+      display: inline;
+      padding: 5px;
+      align-items: center;
+  }
+
  .storyInfoRight{
     padding: 5px;
  }
@@ -91,7 +97,7 @@
   .emptyStories{
     color: #999;
     padding: 10px;
-  } 
+  }
 
   .emptyStories h1{
     color: #999;
@@ -100,7 +106,7 @@
   .darkTheme.emptyStories h1 {
     color: white;
   }
-  
+
   .emptyStories a {
     display: block;
   }
@@ -191,13 +197,13 @@
     min-width: 5px;
   }
 
-/* 
+/*
   :host ::ng-deep .darkTheme input {
     background: transparent;
     color: white;
     border-bottom: 1px solid #60767b;
   } */
-  
+
 
   .storyHeaderContainer{
     display: grid;
@@ -248,7 +254,7 @@
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    background: var(--ocean-blue); 
+    background: var(--ocean-blue);
     border: none;
     line-height: 25px;
   }
@@ -268,7 +274,7 @@
   .darkTheme .uk-card-footer {
     border-top: 1px solid #B0BEC5;
   }
-  
+
   .button:hover {
     background: var(--marine-blue);
   }
@@ -304,15 +310,15 @@
     padding: 1px;
     cursor: pointer;
   }
-  
+
   :host ::ng-deep .uk-nav > li > .dropdownStep {
     color: var(--ocean-blue);
-  }  
+  }
 
   :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
-  } 
-    
+  }
+
   :host ::ng-deep .uk-nav > li > span:hover {
       color: gray;
   }
@@ -320,7 +326,7 @@
   :host ::ng-deep .darkTheme .uk-nav > li > span:hover {
     color: white;
   }
-  
+
  /*  .disabled {
     color: gray !important;
     background: var(--white) !important;
@@ -341,7 +347,7 @@
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
   }
-  
+
   :host ::ng-deep .scenarioBarContainer .disabled em{
     color: gray !important;
     /* background: #f8f8f8 !important; */
@@ -508,9 +514,9 @@
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8; 
+  background-color: #f8f8f8;
 }  */
-/* 
+/*
 .darkTheme.scenarioBarContainer {
   border-bottom: 1px solid black;
 }
@@ -621,12 +627,12 @@
 }
 
 :host ::ng-deep .darkTheme .actionButton > em {
-  color:#000000 !important;
+  color:#000000;
 }
 
 :host ::ng-deep .scenarioButton em{
   color:  var(--ocean-blue);
-} 
+}
 
 :host ::ng-deep .darkTheme.scenarioButton em{
   color:  var(--ocean-blue);
@@ -695,7 +701,7 @@
 #storyInfoTextVerticalPosition {
   left: 8em;
   top: -4em;
-} 
+}
 
 
 #backgroundInfoTextVerticalPosition {
@@ -714,7 +720,7 @@
 .SmallHeadline5 span[rel="def"]{
   line-height: 1.5;
 }
-  
+
 .uk-icon {
   background-color: transparent !important;
 }

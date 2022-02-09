@@ -15,11 +15,11 @@
                 <span>Change Story Title</span>
                 <span class="material-icons" display-title="Enter a unique story name">drive_file_rename_outline</span>
                 <div class="inputField">
-                    <input type="text" id="newStoryTitle" ngModel name="newStoryTitle" placeholder="New title" required>
+                    <input type="text" id="newStoryTitle" [(ngModel)]="storyName" name="newStoryTitle" required>
                 </div>
                 <span>Edit Story Description</span>
                 <span class="material-icons" display-title="Enter story description">drive_file_rename_outline</span>
-                <textarea [(ngModel)]="storyDescription" id="newStoryDescription" placeholder="Story Description"></textarea>
+                <textarea [(ngModel)]="storyDescription" id="newStoryDescription"></textarea>
             </div>
         </div>
     </form>
