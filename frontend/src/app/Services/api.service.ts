@@ -208,10 +208,11 @@ export class ApiService {
 
     /**
      * Emits the rename project event
-     * @param newTitel 
+     * @param newTitel
+     * @param proj
      */
-    renameProjectEmit(newTitel) {
-        this.renameProjectEvent.emit(newTitel);
+    renameProjectEmitter(proj: RepositoryContainer) {
+        this.renameProjectEvent.emit(proj);  
     }
 
     /**
@@ -275,16 +276,33 @@ export class ApiService {
 
     /**
      * Retrieves a report
-     * @param reportName
+     * @param reportId
      * @returns
      */
-    getReport(reportName: string) {
+    getReport(reportId: string) {
+        this.apiServer = localStorage.getItem('url_backend');
+        if (this.apiServer) {
+            const str = this.apiServer + '/mongo/report/' + reportId;
+            return this.http.get(str,  { responseType: 'json', withCredentials: true})
+                .pipe(tap(resp => {
+                    console.log('Got single Report: ' + resp);
+                  }),
+                catchError(ApiService.handleError));
+        }
+    }
+
+    /**
+     * Retrieves a report
+     * @param reportName: name of the Report
+     * @returns
+     */
+    getReportByName(reportName: string) {
         this.apiServer = localStorage.getItem('url_backend');
         if (this.apiServer) {
             const str = this.apiServer + '/run/report/' + reportName;
             return this.http.get(str,  { responseType: 'json', withCredentials: true})
-                .pipe(tap(resp => {
-                    //
+              .pipe(tap(resp => {
+                    // console.log('Got single Report by Name: ' + resp);
                 }),
                 catchError(ApiService.handleError));
         }
@@ -311,7 +329,7 @@ export class ApiService {
     getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
 
-        const str = this.apiServer + '/user/repositories';
+        const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
@@ -838,7 +856,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, body, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Add new scenario in story ' + storyID + '!', resp)
+                console.log('Add new scenario in story ' + storyID + '!', resp);
             }));
     }
 

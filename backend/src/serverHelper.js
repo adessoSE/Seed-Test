@@ -958,11 +958,10 @@ async function getReportHistory(storyId) {
 
 async function createReport(res, reportName) {
 	// console.log(`reportName in createReport: ${reportName}`);
-	const report = await mongo.getReport(reportName);
+	const report = await mongo.getReportByName(reportName);
 	const resolvedPath = path.resolve(`features/${reportName}.json`);
 	// console.log(`resolvedPath in createReport: ${resolvedPath}`);
-	fs.writeFileSync(resolvedPath, report.jsonReport,
-		(err) => { console.log('Error:', err); });
+	fs.writeFileSync(resolvedPath, report.jsonReport, (err) => { console.log('Error:', err); });
 	reporter.generate(setOptions(reportName));
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
@@ -1009,9 +1008,7 @@ async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatu
 
 async function updateScenarioTestStatus(uploadedReport) {
 	try {
-		await mongo.updateScenarioStatus(
-			uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus
-		);
+		await mongo.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus);
 	} catch (e) {
 		console.log('Could not Update Scenario LastTestPassed.');
 	}

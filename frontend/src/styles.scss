@@ -758,6 +758,10 @@ a.notPassed{
   color: red !important;
 }
 
+.darkTheme a.notPassed{
+  color: red !important;
+}
+
 div.passed{
   color: green !important;
 }
@@ -803,8 +807,8 @@ div.notPassed{
   background-color: var(--light-grey);
 }
 
-.darkTheme.mat-app-background, 
-.darkTheme .mat-app-background {
+.mat-app-background .darkTheme, 
+.mat-app-background.darkTheme {
   background-color: map-get($mat-blue-grey, 800);
 }
 
@@ -833,9 +837,14 @@ a.repoLink:hover{
   color:var(--light-blue) !important;
 }
 
+a:hover {
+  color:var(--black) !important;
+}
+
 .darkTheme a:hover {
   color:var(--white) !important;
 } 
+
 
 .darkTheme span.infoIcon {
   color: var(--white) !important;

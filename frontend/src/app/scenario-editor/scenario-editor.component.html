@@ -117,24 +117,24 @@
             </div>
           </div>
         </div>
-        <div class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
+        <div  class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
           <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag >
-              <div class="text-inline SmallBody1regularLH" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
+            <div #parentEl class="stepsContainer" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" style="margin-right: 20px;" cdkDrag >
+              <div class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                 <div class="dragIconContainer" cdkDragHandle >
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
                 <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
-                <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
+                  <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, null)" [checked]="currentStep.checked">
                 </div>
                 <div *ngIf="!(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
-                  <input type="checkbox" class="checkbox checkboxDropdown" id="{{'scenario_' + i + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
-                  </div>
+                  <input type="checkbox" class="checkbox checkboxDropdown" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, null)" [checked]="currentStep.checked">
+                </div>
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
-                <div style="display: flex;" *ngIf="currentStep.values.length > 0">
+                <div style="display: flex;" *ngIf="currentStep.values.length > 0" >
                   <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=0">
-                  <input id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
-                   type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" />
+                    <input #firstInput [style.width]="(firstInput.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(firstInput.value.length*8) + 'px' : this.width + 'px'" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
+                    type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" style="padding-left: 5px; padding-right: 5px;"/>
                   </div>
                   <div *ngIf="currentStep.selectionValue==0">
                     <mat-form-field appearance="standard">
@@ -145,10 +145,10 @@
                         </mat-select>
                     </mat-form-field>
                   </div>
-                   {{currentStep.mid}}
+                  {{currentStep.mid}}
                    <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1">
-                  <input id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
-                   type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" />
+                    <input #secondInput [style.width]="(secondInput.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(secondInput.value.length*8) + 'px' : this.width + 'px'" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
+                    type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" style="padding-left: 5px; padding-right: 5px;"/>
                   </div>
                   <div *ngIf="currentStep.selectionValue==1">
                     <mat-form-field appearance="standard">
@@ -161,8 +161,8 @@
                   </div>
                   {{currentStep.post}}
                 </div>
-                <input id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
-                  type="text" value="{{value}}" on-input="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" />
+                <input #thirdInput [style.width]="(thirdInput.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(thirdInput.value.length*8) + 'px' : this.width + 'px'" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
+                type="text" value="{{value}}" on-input="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" style="padding-left: 5px; padding-right: 5px;"/>
                   <div *ngIf="currentStep.outdated">
                     <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                       <span rel="def">
@@ -181,7 +181,7 @@
           <!--Action bar-->
           <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="exampleBarContainer">
             <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
-            <div [class.disabled]="!this.activeExampleActionBar">
+            <div [class.disabled]="!this.activeExampleActionBar" class="actionBarButtonGroup">
               <button id="{{'scenario_' + i + '_example_addBlock_step_'}}"
               class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
               (click)="saveExampleBlock($event);">

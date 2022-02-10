@@ -65,7 +65,6 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
-import { RenameProjectComponent } from './modals/rename-project/rename-project.component';
 
 @NgModule({
   declarations: [
@@ -111,7 +110,6 @@ import { RenameProjectComponent } from './modals/rename-project/rename-project.c
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
-    RenameProjectComponent,
   ],
   imports: [
     NgbModule,
