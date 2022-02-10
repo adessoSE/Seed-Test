@@ -212,7 +212,7 @@ export class ApiService {
      * @param proj
      */
     renameProjectEmitter(proj: RepositoryContainer) {
-        this.renameProjectEvent.emit(proj);  
+        this.renameProjectEvent.emit(proj);
     }
 
     /**
@@ -266,8 +266,8 @@ export class ApiService {
      */
     githubCallback(code: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/user/callback?code=' + code;
-        return this.http.get(str, {withCredentials: true})
+        const url = this.apiServer + '/user/callback?code=' + code;
+        return this.http.get(url, {withCredentials: true})
             .pipe(tap(resp => {
                 //
             }),
@@ -440,14 +440,14 @@ export class ApiService {
 
     /**
      * Updates repo
-     * 
+     *
      * @param repoID
      * @param newRepoName
      * @param user
-     * @returns 
+     * @returns
      */
     public updateRepository(repoID, newRepoName: string, user : any): Observable<any> {
-        this.apiServer = localStorage.getItem('url_backend');       
+        this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .put<RepositoryContainer>(this.apiServer + '/user/repository/' + repoID + '/' + user, {repoName: newRepoName}, ApiService.getOptions())
             .pipe(tap(resp => {
