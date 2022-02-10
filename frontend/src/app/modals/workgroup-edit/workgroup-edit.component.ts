@@ -52,6 +52,8 @@ export class WorkgroupEditComponent {
     */
   modalReference: NgbModalRef;
 
+  projectName: string;
+
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
@@ -75,8 +77,7 @@ export class WorkgroupEditComponent {
     this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-titles'});
     const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
     header.textContent = 'Project: ' + project.value;
-    const name = document.getElementById('newTitle') as HTMLInputElement;
-    name.placeholder = project.value;
+    this.projectName = project.value;
 
     this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
         this.workgroupList = res.member;
