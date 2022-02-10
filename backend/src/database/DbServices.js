@@ -124,7 +124,7 @@ async function getUserById(id) {
 async function getUserByGithub(login, id) {
 	try {
 		const db = dbConnection.getConnection();
-		const query = { $and: [{ 'github.id': id.toString() }, { 'github.login': login.toString() }] };
+		const query = { $and: [{ 'github.id': id }, { 'github.login': login.toString() }] };
 		return db.collection(userCollection).findOne(query);
 	} catch (e) {
 		console.log(`ERROR in getUserByGithub: ${e}`);
