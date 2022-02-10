@@ -1,9 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-// const process = require('process');
 const fetch = require('node-fetch');
-// const request = require('request');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
@@ -93,8 +91,7 @@ router.post('/login', (req, res, next) => {
 			});
 		})(req, res, next);
 	} catch (error) {
-		if (error) res.status(401).json(error);
-		else res.status(401).json(error);
+		res.status(401).json(error);
 	}
 });
 
@@ -274,17 +271,16 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		let { Host, AccountName, Password } = req.user.jira;
+		const { Host, AccountName } = req.user.jira;
+		let { Password } = req.user.jira;
 		Password = helper.decryptPassword(Password);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
-		// const cookieJar = request.jar();
 
 		const tmpStories = new Map();
 		const storiesArray = [];
 		const options = {
 			method: 'GET',
-			// jar: cookieJar,
 			headers: {
 				'cache-control': 'no-cache',
 				Authorization: `Basic ${auth}`
@@ -295,53 +291,47 @@ router.get('/stories', async (req, res) => {
 		try {
 			await fetch(
 				`http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`,
-				options,
-				async (error2, response2, body) => {
-					if (error2) res.status(500)
-						.json(error2);
-					else {
-						try {
-							// TODO delete this? or create method: createJiraRepoIfNoneExists
-							repo = await mongo.createJiraRepoIfNoneExists(req.query.projectKey, source);
-							const json = JSON.parse(body).issues;
-							for (const issue of json) if (issue.fields.labels.includes('Seed-Test')) {
-								console.log('jiraIssue', issue);
-								const story = {
-									story_id: issue.id,
-									title: issue.fields.summary,
-									body: issue.fields.description,
-									state: issue.fields.status.name,
-									issue_number: issue.key,
-									storySource: 'jira'
-								};
-								if (issue.fields.assignee !== null) {
-									// skip in case of "unassigned"
-									story.assignee = issue.fields.assignee.name;
-									story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
-								} else {
-									story.assignee = 'unassigned';
-									story.assignee_avatar_url = null;
-								}
-								const entry = await helper.fuseStoryWithDb(story, issue.id);
-								console.log('fuse jira', story, entry);
-								tmpStories.set(entry._id.toString(), entry);
-								storiesArray.push(entry._id);
+				options)
+				.then(async (response) => response.json())
+				.then(async (json) => {
+					try {
+						repo = await mongo.getOneJiraRepository(req.query.projectKey);
+						for (const issue of json.issues) if (issue.fields.labels.includes('Seed-Test')) {
+							console.log('jiraIssue', issue);
+							const story = {
+								story_id: issue.id,
+								title: issue.fields.summary,
+								body: issue.fields.description,
+								state: issue.fields.status.name,
+								issue_number: issue.key,
+								storySource: 'jira'
+							};
+							if (issue.fields.assignee !== null) {
+								// skip in case of "unassigned"
+								story.assignee = issue.fields.assignee.name;
+								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
+							} else {
+								story.assignee = 'unassigned';
+								story.assignee_avatar_url = null;
 							}
-						} catch (e) {
-							console.log('Jira Error while getting issues:', e);
+							const entry = await helper.fuseStoryWithDb(story, issue.id);
+							console.log('fuse jira', story, entry);
+							tmpStories.set(entry._id.toString(), entry);
+							storiesArray.push(entry._id);
 						}
-						Promise.all(storiesArray)
-							.then((array) => {
-								const orderedStories = matchOrder(array, tmpStories, repo);
-								res.status(200)
-									.json(orderedStories);
-							})
-							.catch((e) => {
-								console.log(e);
-							});
+					} catch (e) {
+						console.log('Jira Error while getting issues:', e);
 					}
-				}
-			);
+					Promise.all(storiesArray)
+						.then((array) => {
+							const orderedStories = matchOrder(array, tmpStories, repo);
+							res.status(200)
+								.json(orderedStories);
+						})
+						.catch((e) => {
+							console.log(e);
+						});
+				});
 		} catch (e) {
 			console.log('Jira Error during API call:', e);
 		}

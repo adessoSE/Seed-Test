@@ -124,8 +124,11 @@ async function getUserById(id) {
 async function getUserByGithub(login, id) {
 	try {
 		const db = dbConnection.getConnection();
-		const query = { $and: [{ 'github.id': id }, { 'github.login': login.toString() }] };
-		return db.collection(userCollection).findOne(query);
+		if (typeof id === 'number') {
+			const query = { $and: [{ 'github.id': id }, { 'github.login': login.toString() }] };
+			return db.collection(userCollection)
+				.findOne(query);
+		}
 	} catch (e) {
 		console.log(`ERROR in getUserByGithub: ${e}`);
 		throw e;
@@ -715,7 +718,26 @@ async function getOneRepository(ownerId, name) {
  */
 async function getOneGitRepository(name) {
 	try {
-		const query = { repoName: name.toString(), repoType: 'github' };
+		const query = {
+			repoName: name.toString(),
+			repoType: 'github'
+		};
+		const db = dbConnection.getConnection();
+		return await db.collection(repositoriesCollection)
+			.findOne(query);
+	} catch (e) {
+		console.log(`ERROR in getOneGitRepository${e}`);
+	}
+}
+
+/**
+ *
+ * @param {*} name
+ * @returns one JiraRepositoryObject
+ */
+async function getOneJiraRepository(name) {
+	try {
+		const query = { repoName: name.toString(), repoType: 'jira' };
 		const db = dbConnection.getConnection();
 		return await db.collection(repositoriesCollection).findOne(query);
 	} catch (e) {
@@ -1323,6 +1345,7 @@ module.exports = {
 	deleteRepository,
 	getOneRepository,
 	getOneGitRepository,
+	getOneJiraRepository,
 	getAllStoriesOfRepo,
 	createRepo,
 	createStoryGroup,
