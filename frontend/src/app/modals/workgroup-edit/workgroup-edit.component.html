@@ -17,7 +17,7 @@
                     <label>{{this.workgroupOwner}}</label>
                     
                     <div class="divWrapper">
-                        <input class="workGroupEmail leftMargin" type="text" ngModel id="newTitle" name="newTitle" placeholder="New title">
+                        <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">
                         <button type="button" class="normalButton" (click)="renameProject(workgroupInviteForm)">Rename project</button>
                         <hr>
                         <input class="workGroupEmail leftMargin" type="email" ngModel name="email" placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
