@@ -292,22 +292,30 @@ async function updateStory(updatedStory) {
 }
 
 // get One Story
-// TODO: storySource not needed anymore? since we have all repos in DB
+// searches the story either by mongoDB _id:ObjectId() or by story_id (from GitHub or Jira)
 async function getOneStory(storyId, storySource) {
+	let query;
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const query = {
-			_id: ObjectId(storyId.toString()),
-			storySource: storySource.toString()
-		};
-		let story = await collection.findOne(query);
-		// TODO remove later when all used stories have the tag storySource
-		if (!story) story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined });
-		return story;
+		console.log(storyId);
+		if (typeof storyId === 'number' && (storySource === 'github' || storySource === 'jira')) {
+			query = {
+				story_id: storyId,
+				storySource: storySource.toString()
+			};
+		} else {
+			query = {
+				_id: ObjectId(storyId.toString()),
+				storySource: storySource.toString()
+			};
+		}
+		return await collection.findOne(query);
 	} catch (e) {
-		console.log(`ERROR in getOneStory: ${e}`);
-		throw e;
+		console.error(`ERROR in getOneStory: ${e}`);
+		// throw e;
+		// if there is no Story (e.g. if its a new GitHub repo), return null
+		return null;
 	}
 }
 
@@ -1303,7 +1311,6 @@ async function updateOneDriver(id, driver) {
 		console.log('ERROR in updateOneDriver: ', e);
 	}
 }
-
 
 module.exports = {
 	setIsSavedTestReport,
