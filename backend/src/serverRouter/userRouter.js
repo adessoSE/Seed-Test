@@ -250,8 +250,7 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-
-				const entry = await helper.fuseStoryWithDb(story, issue.id);
+				const entry = await helper.fuseStoryWithDb(story);
 				tmpStories.set(entry._id.toString(), entry);
 				tmpStoriesArray.push(entry._id);
 			}
@@ -286,18 +285,18 @@ router.get('/stories', async (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		// send request
 		let repo;
+		// send request to Jira API
 		try {
 			await fetch(
 				`http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`,
-				options)
+				options
+			)
 				.then(async (response) => response.json())
 				.then(async (json) => {
 					try {
 						repo = await mongo.getOneJiraRepository(req.query.projectKey);
 						for (const issue of json.issues) if (issue.fields.labels.includes('Seed-Test')) {
-							console.log('jiraIssue', issue);
 							const story = {
 								story_id: issue.id,
 								title: issue.fields.summary,
@@ -315,12 +314,11 @@ router.get('/stories', async (req, res) => {
 								story.assignee_avatar_url = null;
 							}
 							const entry = await helper.fuseStoryWithDb(story, issue.id);
-							console.log('fuse jira', story, entry);
 							tmpStories.set(entry._id.toString(), entry);
 							storiesArray.push(entry._id);
 						}
 					} catch (e) {
-						console.log('Jira Error while getting issues:', e);
+						console.error('Error while getting Jira issues:', e);
 					}
 					Promise.all(storiesArray)
 						.then((array) => {
@@ -329,11 +327,11 @@ router.get('/stories', async (req, res) => {
 								.json(orderedStories);
 						})
 						.catch((e) => {
-							console.log(e);
+							console.error(e);
 						});
 				});
 		} catch (e) {
-			console.log('Jira Error during API call:', e);
+			console.error('Jira Error during API call:', e);
 		}
 
 		// get DB Repo / Projects
@@ -343,7 +341,6 @@ router.get('/stories', async (req, res) => {
 	} else res.sendStatus(401);
 
 	function matchOrder(storiesIdList, storiesArray, repo) {
-		console.log('match order of', storiesIdList, storiesArray, repo);
 		const mySet = new Set(storiesIdList.concat(repo.stories).map((i) => i.toString()));
 		for (const i of repo.stories) mySet.delete(i.toString());
 
@@ -360,7 +357,6 @@ router.put('/stories/:_id', async (req, res) => {
 
 router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
-	console.log(req.query.code);
 	const params = new URLSearchParams();
 	params.append('client_id', process.env.GITHUB_CLIENT_ID);
 	params.append('client_secret', process.env.GITHUB_CLIENT_SECRET);
@@ -373,11 +369,7 @@ router.get('/callback', (req, res) => {
 		}
 	).then((response) => response.text())
 		.then((text) => {
-			console.log('text');
-			console.log(text);
 			const accessToken = text.split('&')[0].split('=')[1];
-			console.log('accessToken');
-			console.log(accessToken);
 			helper.getGithubData(res, req, accessToken);
 		});
 });
