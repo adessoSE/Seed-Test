@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle,curly */
-const { exec } = require('child_process');
+const ch = require('child_process');
 const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
@@ -711,24 +711,17 @@ function executeTest(req, res, stories, mode, story) {
 		}
 
 		const jsParam = JSON.stringify(parameters);
-		let worldParam = '';
-		for (let i = 0; i < jsParam.length; i++) {
-			if (jsParam[i] == '"') worldParam += '\\\"';
-			else worldParam += jsParam[i];
+		const cucumberArgs = [];
+		// specify location of feature to execute
+		cucumberArgs.push(`${path.normalize(`${featurePath}`)}`);
+		if (mode === 'scenario') {
+			// run single Scenario by using '--tags @ScenarioName'
+			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
 		}
-
-		console.log('worldParam', worldParam);
-
-		let cmd;
-		if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioId}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		console.log(`Executing: ${cmd}`);
-
-		exec(cmd, (error, stdout, stderr) => {
+		// specify desired location of JSON Report and pass world parameters for cucumber execution
+		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
+		console.log(`Executing: ${path.normalize(`${__dirname}/../${cucePath}.cmd`)} ${cucumberArgs}`);
+		ch.execFile(`${path.normalize(`${__dirname}/../${cucePath}.cmd`)}`, cucumberArgs, (error, stdout, stderr) => {
 			if (error) {
 				console.error(`exec error: ${error}`);
 				resolve({
