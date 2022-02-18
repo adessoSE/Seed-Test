@@ -1,6 +1,6 @@
 <br>
 <!-- Message if no stories avaliable -->
-<div [class.darkTheme]="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
+<div [class.darkTheme] ="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
     <div class="tutorialDiv uk-card uk-card-default">
@@ -28,7 +28,7 @@
   <h1 class="LargeHeadline2">Loading Stories ...</h1>
 </div>
 
-<div [class.darkTheme]="isDark" class="emptyStories" *ngIf="storiesError">
+<div class="emptyStories" *ngIf="storiesError">
   <h1 class="LargeHeadline2">You are not authorized to use this project</h1>
 </div>
 
@@ -49,7 +49,8 @@
           </dfn>
 
       </div>
-      <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
+      <span *ngIf="!this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase }}</span>
+      <span *ngIf="this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
       <div *ngIf="db">
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
         <button id="story_change_title" class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip

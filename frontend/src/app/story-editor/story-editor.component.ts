@@ -19,6 +19,7 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { first } from 'rxjs/operators';
 
 /**
  * Empty background
