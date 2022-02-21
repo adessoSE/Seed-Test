@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import {HttpInterceptor, HttpRequest, HttpHandler, HttpResponse, HttpEvent} from '@angular/common/http';
-import { finalize, tap } from 'rxjs/operators';
+import { finalize, tap , catchError} from 'rxjs/operators';
 import { NGXLogger } from "ngx-logger";
-import {Observable} from "rxjs";
+import { Observable } from "rxjs";
 
 @Injectable()
 export class HttpLoggerInterceptor implements HttpInterceptor {
   constructor(private logger: NGXLogger) {
+    console.log("constructor http interceptor");
+    
   }
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const startTime = Date.now();
@@ -20,9 +22,16 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
           status = 'failed';
           if (event instanceof HttpResponse) {
             status = 'succeeded';
+            console.log("response");
+            
           }
-            console.log('http-logger tap', event)
-        })/*,
+          console.log('http-logger tap', event)
+        }),
+        catchError((err, ob)=>{
+          console.error(err);
+          return ob;
+        })
+        /*,
         finalize(() => {
           const endTime = Date.now();
           //const message = req.method + " " + req.urlWithParams +" "+ status + " in " + (endTime - startTime) + "ms";
