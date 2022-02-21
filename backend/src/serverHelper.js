@@ -12,6 +12,7 @@ const AdmZip = require('adm-zip');
 const crypto = require('crypto');
 const passport = require('passport');
 const mongo = require('./database/DbServices');
+const winston = require('winston')
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
@@ -39,6 +40,16 @@ const options = {
 		Executed: 'Remote'
 	}
 };
+
+const logger = getLogger()
+
+logger.debug()
+logger.error("Hello, Winston logger, the first error!");
+logger.warn("Hello, Winston logger, the first warning!");
+logger.warn("Hello, Winston logger, the second warning!");
+logger.error("Hello, Winston logger, the second error!");
+logger.info("Hello, Winston logger, some info!");
+logger.debug("Hello, Winston logger, a debug!");
 
 // Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
@@ -1166,6 +1177,28 @@ async function exportProjectFeatureFiles(repoId) {
 	});
 }
 
+function getLogger(){
+	if(this.logger){
+		return this.logger
+	} else{
+		//Winston config
+		const logConfiguration = {
+			transports: [
+				new winston.transports.Console({
+					level: 'warn'
+				}),
+				new winston.transports.File({
+					level: 'error',
+					// Create the log directory if it does not exist
+					filename: './logs/backend.log'
+				})
+			]
+		};
+		return winston.createLogger(logConfiguration);
+	}
+}
+
+
 module.exports = {
 	// deleteOldReports,
 	getReportHistory,
@@ -1199,5 +1232,6 @@ module.exports = {
 	exportProjectFeatureFiles,
 	runReport,
 	starredRepositories,
-	dbProjects
+	dbProjects,
+	getLogger
 };
