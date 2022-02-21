@@ -5,7 +5,7 @@ import { NGXLogger } from "ngx-logger";
 import {Observable} from "rxjs";
 
 @Injectable()
-export class HttpLoggerService implements HttpInterceptor {
+export class HttpLoggerInterceptor implements HttpInterceptor {
   constructor(private logger: NGXLogger) {
   }
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -13,7 +13,7 @@ export class HttpLoggerService implements HttpInterceptor {
     let status: string;
 
     const detail = {'Time': startTime, 'reqMethod': req.method, 'reqURL': req.urlWithParams};
-    this.logger.log('sended request', detail);
+    this.logger.log('sended request', detail, req.headers);
 
     return next.handle(req).pipe(
         tap( event => {
@@ -21,14 +21,15 @@ export class HttpLoggerService implements HttpInterceptor {
           if (event instanceof HttpResponse) {
             status = 'succeeded';
           }
-        }),
+            console.log('http-logger tap', event)
+        })/*,
         finalize(() => {
           const endTime = Date.now();
           //const message = req.method + " " + req.urlWithParams +" "+ status + " in " + (endTime - startTime) + "ms";
 
           const detail = {'reqMethod': req.method, 'reqURL': req.urlWithParams, 'status': status, 'reqStartTime': startTime, 'reqEndTime': endTime}
           this.logger.log('got Response', detail)
-        })
+        })*/
     );
   }
 }

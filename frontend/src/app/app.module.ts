@@ -41,6 +41,7 @@ import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
+import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
@@ -129,6 +130,7 @@ import {HttpLoggerService} from "./Services/http-logger.service";
     DragDropModule,
     MatProgressSpinnerModule,
     CarouselModule,
+    HttpClientModule,
     LoggerModule.forRoot({
       serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
