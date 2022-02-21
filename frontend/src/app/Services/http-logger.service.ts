@@ -10,12 +10,12 @@ export class HttpLoggerService implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     const startTime = Date.now();
     let status: string;
-    const callstack = console.trace
+    //const callstack = console.trace
 
     return next.handle(req).pipe(
         tap(
             event => {
-              status = '';
+              status = 'failed';
               if (event instanceof HttpResponse) {
                 status = 'succeeded';
               }
@@ -23,17 +23,12 @@ export class HttpLoggerService implements HttpInterceptor {
             error => status = 'failed'
         ),
         finalize(() => {
-          const elapsedTime = Date.now() - startTime;
-          const message = req.method + " " + req.urlWithParams +" "+ status
-              + " in " + elapsedTime + "ms";
+          const endTime = Date.now();
+          //const message = req.method + " " + req.urlWithParams +" "+ status + " in " + (endTime - startTime) + "ms";
 
-          this.logDetails('log-front', req.method, req.urlWithParams, status, elapsedTime, callstack);
+          const detail = {'reqMethod': req.method, 'reqURL': req.urlWithParams, 'status': status, 'reqStartTime': startTime, 'reqEndTime': endTime}
+          this.logger.log('http front log', detail)
         })
     );
-  }
-  private logDetails(msg: string, method, url, status, time, trace) {
-      const detail = {'reqMethod': method, 'reqURL': url, 'status': status, "reqRT":time}
-      this.logger.log(msg, detail)
-      this.logger.trace(msg, detail,{'trace': trace});
   }
 }
