@@ -66,6 +66,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import {HttpLoggerService} from "./Services/http-logger.service";
 
 @NgModule({
   declarations: [
@@ -129,9 +130,9 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     MatProgressSpinnerModule,
     CarouselModule,
     LoggerModule.forRoot({
-      serverLoggingUrl: '/api/logs',
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.ERROR
+      serverLogLevel: NgxLoggerLevel.DEBUG
     }),
     ToastrModule.forRoot({
       timeOut: 3000
@@ -142,7 +143,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,
-    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }],
+    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }, { provide: HTTP_INTERCEPTORS, useClass: HttpLoggerService, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

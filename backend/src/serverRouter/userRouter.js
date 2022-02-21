@@ -9,13 +9,15 @@ const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
+const fs = require('fs')
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
-// router for all user requests
 
+// router for all user requests
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
+
 
 router
 	.use(cors())
@@ -373,5 +375,15 @@ router.get('/callback', (req, res) => {
 			helper.getGithubData(res, req, accessToken);
 		});
 });
+
+
+router.post('/log', (req, res) => {
+	//console.log(req.body)
+	const stream = fs.createWriteStream('./logs/front.log', {flags: 'a'});
+	//const info = req.body.additional? req.body.additional[0]: ''
+	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n')
+	stream.close()
+})
+
 
 module.exports = router;
