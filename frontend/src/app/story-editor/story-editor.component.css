@@ -759,3 +759,9 @@ font-weight: bold;
 button#background_up {
   padding-right: 20px;
 }
+
+.darkTheme.emptyStories h1,
+.darkTheme.emptyStories h4,
+.darkTheme.emptyStories p {
+  color: white;
+}
