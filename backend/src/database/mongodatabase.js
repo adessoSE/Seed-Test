@@ -655,12 +655,16 @@ async function createScenario(storyId, storySource) {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
 		const story = await findStory(storyId, storySource, collection);
-		const lastScenarioIndex = story.scenarios.length;
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) story.scenarios.push(tmpScenario);
 		else {
-			tmpScenario.scenario_id = story.scenarios[lastScenarioIndex - 1].scenario_id + 1;
-			story.scenarios.push(tmpScenario);
+			let newScenID = 0;
+			for (const scenario of story.scenarios) {
+				if (scenario.scenario_id > newScenID) {
+					newScenID = scenario.scenario_id;
+				}
+			}
+			tmpScenario.scenario_id = newScenID + 1;
 		}
 		await replace(story, collection);
 		return tmpScenario;
