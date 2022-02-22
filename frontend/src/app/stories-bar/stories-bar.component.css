@@ -10,6 +10,9 @@
     padding-bottom: 1px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
     background-color: var(--white);
+    overflow-y: scroll; 
+    max-height: 80vh;
+    height: 80vh;
   }
 
   .darkTheme.grid {
@@ -328,4 +331,9 @@
 
 .uk-open > .darkTheme.uk-accordion-title::before  {
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMThweCIgZmlsbD0iI0ZGRkZGRiI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE5IDEzSDV2LTJoMTR2MnoiLz48L3N2Zz4=);
+}
+
+::-webkit-scrollbar-thumb {
+  background: none;
+  box-shadow: none;
 }
