@@ -220,7 +220,7 @@
     width: 30em;
     padding: 0.5em;
     display: block;
-  } 
+  }
 
   .darkTheme .def:hover span {
     background-color: #90A4AE;
@@ -230,14 +230,13 @@
     border: 1px solid #999;
     background: white;
     overflow-y: scroll;
-    max-height: 80vh;
-    height: 80vh;
+    max-height: 88vmin;
     margin-top: 24px;
     margin-right: 2px;
   }
 
   .darkTheme#story {
-    border: 1px 1px 1px 1px solid #60767b;
+    border: 1px solid #60767b;
     background: #455A64;
   }
 
@@ -248,7 +247,7 @@
     margin-right: 5px;
   } */
 
-  
+
   /* double button see styles */
   .button {
     margin-right: 3px;

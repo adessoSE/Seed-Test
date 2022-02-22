@@ -5,7 +5,6 @@
     <div class="storyEditor">
         <app-story-editor [isDark] ="isDark" *ngIf="this.isStoryEditorActive" (report)="viewReport($event);" (changeEditor)="setEditor($event);"  [storiesBar]="storiesBar" [newSelectedStory]="selectedStory" [newSelectedScenario]="selectedScenario" [newStories]="stories" [testRunningForGroup]="testRunningForGroup"></app-story-editor>
         <app-report-history [isDark] ="isDark" *ngIf="!this.isStoryEditorActive" (changeEditor)="setEditor($event);" [newSelectedStory]="selectedStory" ></app-report-history>
-        <div>&nbsp;</div>
         <app-report [isDark] ="isDark" *ngIf="report" [report]="report"></app-report>
     </div>
 </div>
