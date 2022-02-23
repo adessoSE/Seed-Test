@@ -133,7 +133,6 @@ export class UpdateGroupComponent {
 
   updateGroup(form: NgForm) {
     console.log('selectedStories:', this.selectedStories);
-    //event.stopPropagation();
     const value = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
