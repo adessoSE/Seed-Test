@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormGroup, FormControl, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
+
 
 @Component({
   selector: 'app-change-jira-account',
@@ -29,6 +30,13 @@ export class ChangeJiraAccountComponent {
   */
   modalReference: NgbModalRef;
 
+  jiraForm = new FormGroup({
+    jiraAccountName: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    jiraPassword: new FormControl('', [Validators.required, Validators.pattern(/[\S]/), Validators.minLength(6)]),
+    jiraHost: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+  });
+
+  get jiraAccountName() { return this.jiraForm.get('jiraAccountName'); }
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {}
     /**
@@ -43,31 +51,21 @@ export class ChangeJiraAccountComponent {
   /**
    * Create or change Jira Account
    */
-  changeJiraAccountSubmit(form: NgForm) {
+  changeJiraAccountSubmit() {
     if (this.type === 'Jira') {
-      const jiraAccountName = form.value.jiraAccountName;
-      const jira_password = form.value.jira_password;
-      const jiraHost = form.value.jiraHost;
+      const jiraAccountName = this.jiraForm.value.jiraAccountName;
+      const jira_password = this.jiraForm.value.jiraPassword;
+      const jiraHost = this.jiraForm.value.jiraHost;
       const request = {
               'jiraAccountName': jiraAccountName,
               'jiraPassword': jira_password,
               'jiraHost': jiraHost,
-      };
+      };  
       this.apiService.createJiraAccount(request).subscribe(response => {
         this.jiraAccountResponse.emit(response);
-        this.modalReference.close();
       });
+      this.modalReference.close();
     }
-  }
-
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.changeJiraAccountSubmit(form);
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
-    this.changeJiraAccountSubmit(form);
   }
 
 }

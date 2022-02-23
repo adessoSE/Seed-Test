@@ -1,5 +1,4 @@
 <!-- New steps request modal-->
-
 <ng-template #newStepRequestModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
@@ -19,45 +18,46 @@
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
             <div>
-                <form #submitNewStep="ngForm" novalidate [disabled]="submitNewStep.invalid"
-                (keydown)="enterSubmit($event, submitNewStep)">
+                <form [formGroup]="newStepReqForm" novalidate (ngSubmit)="submitNewStepRequest()">
                     <div class="modalsContent">
-                        <div class="padding_top labelField" id="inputLabels">
-                            <label class="uk-form-label">Title*</label>
+                        <div class="padding_top">
+                            <div>
+                                <label class="uk-form-label">Title*</label>
+                                <input name="label_form" class="leftMargin" formControlName="title" required>
+                                <div *ngIf="title.invalid && (title.dirty || title.touched)" class="alert alert-danger">
+                                    <div *ngIf="title.errors?.['required']" style="font-size: small;">Title is required.</div>
+                                    <div *ngIf="title.errors?.['pattern']" style="font-size: small;">Enter valid title name.</div>
+                                </div>
+                            </div>
                             <br>
-                            <label class="uk-form-label">Type</label>
-                        </div>
-                        <div class="padding_top inputField">
-                            <input ngModel name="label_form" class="leftMargin" required>
-                            <br>
-                            <select id="type_form" name="type_form" style="width: fit-content; margin-left: 24px;">
-                                <option id="type_form_given" value="given">given</option>
-                                <option id="type_form_when" value="when">when</option>
-                                <option id="type_form_then" value="then">then</option>
-                            </select>
+                            <div>
+                                <label class="uk-form-label">Type </label>
+                                <select id="type_form" name="type_form" formControlName="type" style="width: fit-content; margin-left: 24px;">
+                                    <option id="type_form_given" value="given">given</option>
+                                    <option id="type_form_when" value="when">when</option>
+                                    <option id="type_form_then" value="then">then</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="padding_top">
-                            <textarea id="description_form" ngModel name="description_form"
-                            placeholder="Enter detailed description of the step"></textarea>
+                        <textarea id="description_form" formControlName="description" name="description_form"
+                        placeholder="Enter detailed description of the step"></textarea>
                     </div>
                     <div class="padding_top modalsContent" id="inputLabels">
-                        <div class="labelField">
+                        <div  id="emailField">
                             <label class="uk-form-label">Email*</label>
-                        </div>
-                        <div class="inputField" id="emailField">
-                            <input  ngModel type="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" class="uk-form-controls input leftMargin" required>
-                            <div style="margin-left: 5px;" *ngIf="submitNewStep.controls.email == undefined || (submitNewStep.controls.email.invalid && submitNewStep.controls.email.dirty)">Invalid email</div>
+                            <input formControlName="email" type="email" name="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" class="uk-form-controls input leftMargin" required>
                         </div>
                     </div>
                     <br>
+                    <div class="modal-footer">
+                        <button type="submit" class="normalButton" [disabled]="!newStepReqForm.valid"
+                        [ngStyle]="{'opacity': !newStepReqForm.valid ?  '50%' : '100%'}">Submit
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <button type="submit" class="normalButton" [disabled]="submitNewStep.invalid"
-        (click)="onClickSubmit($event, submitNewStep)">Submit
-        </button>
     </div>
 </ng-template>

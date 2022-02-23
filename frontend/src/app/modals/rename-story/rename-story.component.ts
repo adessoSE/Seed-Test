@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
 
@@ -14,9 +14,12 @@ export class RenameStoryComponent {
 
   @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
 
-  storyDescription: string = 'Story Description';
+  storyForm = new FormGroup ({
+    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    storyDescription: new FormControl(''),
+  });
 
-  storyName: string;
+  get storyTitle() { return this.storyForm.get('storyTitle'); }
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
@@ -27,32 +30,20 @@ export class RenameStoryComponent {
    */
   openRenameStoryModal(oldTitle: string, oldDescription: string) {
     this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
-    this.storyName = oldTitle;
-    const description = document.getElementById('newStoryDescription') as HTMLInputElement;
-    description.placeholder = oldDescription;
+    this.storyForm.setValue({
+      storyTitle: oldTitle,
+      storyDescription: oldDescription
+    });
   }
 
   /**
    * Submits the new name for the story & description
    */
-  submitRenameStory(form: NgForm) {
-    const title = form.value.newStoryTitle;
-    const description = this.storyDescription;
-    console.log(description);
+  submitRenameStory() {
+    const title = this.storyForm.value.storyTitle;
+    const description = this.storyForm.value.storyDescription;
     this.apiService.renameStoryEmit(title, description);
     this.modalReference.close();
-  }
-
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.submitRenameStory(form);
-      form.reset();
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
-    this.submitRenameStory(form);
-    form.reset();
   }
 
 }

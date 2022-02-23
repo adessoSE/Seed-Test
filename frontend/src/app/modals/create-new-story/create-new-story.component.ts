@@ -5,6 +5,7 @@ import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { ApiService } from 'src/app/Services/api.service';
+import { FormGroup, FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-create-new-story',
@@ -30,16 +31,15 @@ export class CreateNewStoryComponent {
 
   groupId: string;
 
-  storyTitle: string;
-
-  storyDescription: string;
-
   modalReference: NgbModalRef;
+
+  storyForm = new FormGroup ({
+    storyTitle: new FormControl(''),
+    storyDescription: new FormControl(''),
+  });
 
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
-
-  // createNewStoryModal
 
     /**
      * Opens the create new story modal
@@ -51,31 +51,18 @@ export class CreateNewStoryComponent {
   /**
    * Creates a new custom story
    */
-  createNewStory(event) {
-    event.stopPropagation();
-    const title = this.storyTitle;
+  createNewStory() {
+    const title = this.storyForm.value.storyTitle;
     if (title.trim() !== '') {
-      const description = (this.storyDescription === null) ? undefined : this.storyDescription;
-      this.storyTitle = null;
-      this.storyDescription = null;
+      const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
       const value = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
       const source = 'db';
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const story = {title, description};
       this.apiService.createCustomStoryEvent({repositoryContainer, story});
-      this.modalReference.close();
     }
-  }
-
-  enterSubmit(event) {
-    if (event.keyCode === 13) {
-      this.createNewStory(event);
-    }
-  }
-
-  onClickSubmit(event) {
-    this.createNewStory(event);
+    this.modalReference.close();
   }
 
 }

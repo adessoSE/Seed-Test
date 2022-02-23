@@ -1,5 +1,4 @@
 <!-- create Scenario Modal-->
-
 <ng-template #createScenarioModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
@@ -8,24 +7,23 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form #createScenarioForm="ngForm" novalidate [disabled]="createScenarioForm.invalid"
-        (keydown)="enterSubmit($event, createScenarioForm)">     
+    <form #createScenarioForm="ngForm" novalidate (ngSubmit)="createNewScenario(createScenarioForm)">     
         <div class="modal-body modal-xl">
             <div class="uk-card-title submitForm">
                 <div>
                     <div class="padding_top modalsContent">
-                        <span class="uk-form-label">Enter unique scenario name</span>
+                        <label class="uk-form-label">Enter unique scenario name*</label>
                         <span class="material-icons" display-title="Enter unique scenario name">drive_file_rename_outline</span>
                         <div class="inputField">
-                            <input type="text" ngModel id="newTitle" name="newTitle" placeholder="New title" required>
+                            <input type="text" ngModel id="newTitle" pattern="\S(.*\S)?" name="newTitle" placeholder="New title" required>
                         </div>                    
                     </div>
                 </div>
             </div>
         </div>
-    </form>
-    <div class="modal-footer">
-        <button class="normalButton" (click)="onClickSubmit(createScenarioForm)">Submit
-        </button>
-    </div>    
+        <div class="modal-footer">
+            <button class="normalButton" type="submit" [disabled]="!createScenarioForm.valid"
+            [ngStyle]="{'opacity': !createScenarioForm.valid ?  '50%' : '100%'}">Submit</button>
+        </div> 
+    </form>   
 </ng-template>

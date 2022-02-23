@@ -55,4 +55,20 @@
   background: #B0BEC5;
 }
 
+label {
+    float: left;
+    margin-left: -227px;
+    padding: 5px 0 0;
+    position: relative;
+    text-align: right;
+    width: 200px;
+}
+
+.modalsContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+} 
+
 

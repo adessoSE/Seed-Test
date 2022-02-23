@@ -2,11 +2,6 @@
     width: 10% !important;
 }
 
-#inputLabels label {
-    margin-top: .25rem;
-    margin-bottom: .25rem;
-}
-
 #storydescription{
     resize: both;
     width: 100%;
@@ -38,3 +33,19 @@
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
 }
+
+label {
+    float: left;
+    margin-left: -227px;
+    padding: 5px 0 0;
+    position: relative;
+    text-align: right;
+    width: 200px;
+}
+
+.modalsContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+} 

@@ -8,24 +8,24 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form #renameStory="ngForm" novalidate [disabled]="renameStory.invalid"
-    (keydown)="enterSubmit($event, renameStory)" type="submit">
+    <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid"
+    (ngSubmit)="submitRenameStory()">
         <div class="modal-body modal-xl">
             <div class="padding_top modalsContent">
-                <span>Change Story Title</span>
-                <span class="material-icons" display-title="Enter a unique story name">drive_file_rename_outline</span>
-                <div class="inputField">
-                    <input type="text" id="newStoryTitle" [(ngModel)]="storyName" name="newStoryTitle" required>
+                <div>
+                    <label>Change Story Title</label>
+                    <input type="text" id="newStoryTitle" formControlName="storyTitle" name="newStoryTitle" required>
                 </div>
-                <span>Edit Story Description</span>
-                <span class="material-icons" display-title="Enter story description">drive_file_rename_outline</span>
-                <textarea [(ngModel)]="storyDescription" id="newStoryDescription"></textarea>
+                <div style="display: contents;">
+                    <span>Edit Story Description</span>
+                    <textarea formControlName="storyDescription" id="newStoryDescription storydescription" style="width: 100%;"></textarea>
+                </div>
             </div>
         </div>
+        <div class="modal-footer">
+            <button type="submit" class="normalButton" [disabled]="!storyForm.valid"
+            [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit
+            </button>
+        </div>
     </form>
-    <div class="modal-footer">
-        <button class="normalButton"
-        (click)="onClickSubmit(renameStory)">Submit
-        </button>
-    </div>
 </ng-template>

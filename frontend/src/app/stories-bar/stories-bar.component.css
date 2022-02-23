@@ -59,6 +59,10 @@
     background: none;
   }
 
+  .darkTheme #add_scenario {
+    color: var(--light-blue);
+  }
+
   .modal-title{
     color: var(--white);
   }

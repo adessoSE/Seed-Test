@@ -36,16 +36,4 @@ export class RenameScenarioComponent {
     this.modalReference.close();
   }
 
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.submitRenameScenario(form);
-      form.reset();
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
-    this.submitRenameScenario(form);
-    form.reset();
-  }
-
 }
