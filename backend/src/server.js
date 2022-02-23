@@ -102,26 +102,29 @@ app
 	.use(bodyParser.json({ limit: '100kb' }))
 	.use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
 	.use((_, __, next) => {
-		console.log('Time:', Date.now());
-		let current_datetime = new Date();
-		let formatted_date =
-			current_datetime.getFullYear() +
-			"-" +
-			(current_datetime.getMonth() + 1) +
-			"-" +
-			current_datetime.getDate() +
-			" " +
-			current_datetime.getHours() +
-			":" +
-			current_datetime.getMinutes() +
-			":" +
-			current_datetime.getSeconds();
-		let method = _.method;
-		let url = _.url;
-		let status = __.statusCode;
-		let log = `[${formatted_date}] ${method}:${url} ${status}`;
-		logger.debug(log)
-		next();
+		if (_.url.includes('log') && !_.url.includes('login')) next();
+		else{
+			console.log('Time:', Date.now());
+			let current_datetime = new Date();
+			let formatted_date =
+				current_datetime.getFullYear() +
+				"-" +
+				(current_datetime.getMonth() + 1) +
+				"-" +
+				current_datetime.getDate() +
+				" " +
+				current_datetime.getHours() +
+				":" +
+				current_datetime.getMinutes() +
+				":" +
+				current_datetime.getSeconds();
+			let method = _.method;
+			let url = _.url;
+			let status = __.statusCode;
+			let log = `[${formatted_date}] ${method}:${url} ${status}`;
+			logger.debug(log)
+			next();
+		}
 	})
 	.use('/api/script', scriptRouter)
 	.use('/api/run', runReportRouter)
