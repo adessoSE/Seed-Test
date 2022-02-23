@@ -12,7 +12,6 @@ const AdmZip = require('adm-zip');
 const crypto = require('crypto');
 const passport = require('passport');
 const mongo = require('./database/DbServices');
-const winston = require('winston')
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
@@ -41,15 +40,6 @@ const options = {
 	}
 };
 
-const logger = getLogger()
-
-logger.debug()
-logger.error("Hello, Winston logger, the first error!");
-logger.warn("Hello, Winston logger, the first warning!");
-logger.warn("Hello, Winston logger, the second warning!");
-logger.error("Hello, Winston logger, the second error!");
-logger.info("Hello, Winston logger, some info!");
-logger.debug("Hello, Winston logger, a debug!");
 
 // Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
@@ -1177,39 +1167,6 @@ async function exportProjectFeatureFiles(repoId) {
 	});
 }
 
-function getLogger(){
-	if(this.logger){
-		return this.logger
-	} else{
-		//Winston config
-		const myformat = winston.format.combine(
-			winston.format.colorize(),
-			winston.format.timestamp(),
-			winston.format.align(),
-			winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
-		);
-		const logConfiguration = {
-			transports: [
-				new winston.transports.Console({
-					level: 'debug',
-					format: myformat
-				}),
-				new winston.transports.File({
-					level: 'warn',
-					filename: './logs/backend_warn.log',
-					format: myformat
-				}),
-				new winston.transports.File({
-					level: 'debug',
-					filename: './logs/backend_debug.log',
-					format: myformat
-				})
-			]
-		};
-		return winston.createLogger(logConfiguration);
-	}
-}
-
 
 module.exports = {
 	// deleteOldReports,
@@ -1244,6 +1201,5 @@ module.exports = {
 	exportProjectFeatureFiles,
 	runReport,
 	starredRepositories,
-	dbProjects,
-	getLogger
+	dbProjects
 };
