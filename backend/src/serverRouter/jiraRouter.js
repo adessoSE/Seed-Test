@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 
 const router = express.Router();
+
 // router for all jira requests
 router
 	.use(cors())
@@ -57,7 +58,6 @@ router.post('/user/create/', (req, res) => {
 router.post('/login', (req, res) => {
 	if (typeof req.body.jiraAccountName !== 'undefined') {
 		const { jiraAccountName, jiraPassword, jiraServer } = req.body;
-		// console.log(jiraAccountName, jiraPassword, jiraServer);
 		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
 			.toString('base64');
 		const options = {

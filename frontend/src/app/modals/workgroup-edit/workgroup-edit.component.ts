@@ -181,13 +181,13 @@ export class WorkgroupEditComponent {
   /**
   * Submits the new name for the scenario
   */
-  renameProject(form : NgForm) {
+  renameProject(form: NgForm) {
     const name = form.value.newTitle;
     const project = this.workgroupProject;
-    if(name.replace(/\s/g, '').length > 0) {
+    if (name.replace(/\s/g, '').length > 0) {
       project.value = name;
    }
-    //Emits rename event
+    // Emits rename event
     this.apiService.renameProjectEmitter(project);
   }
 

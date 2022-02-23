@@ -15,10 +15,9 @@ const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
-const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'aes-192-cbc';
+const cryptoAlgorithm = 'AES-256-GCM';
 const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
 const iv = Buffer.alloc(16, 0);
 
@@ -1160,7 +1159,6 @@ async function exportProjectFeatureFiles(repoId) {
 }
 
 module.exports = {
-	// deleteOldReports,
 	getReportHistory,
 	uniqueRepositories,
 	jiraProjects,
