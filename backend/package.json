@@ -11,7 +11,8 @@
     "database": "node src/database/installDatabase.js",
     "clean": "rimraf ./dist",
     "tsc": "tsc",
-    "lint": "./node_modules/.bin/eslint src/database --fix"
+    "lint": "./node_modules/.bin/eslint src/database --fix",
+    "exec-test": "./node_modules/.bin/cucumber-js"
   },
   "private": true,
   "dependencies": {

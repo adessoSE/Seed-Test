@@ -29,7 +29,7 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		//console.log(_.url + JSON.stringify(_.user));
+		// console.log(_.url + JSON.stringify(_.user));
 		console.log('Time of mongoDB request:', Date.now());
 		next();
 	});
@@ -51,12 +51,12 @@ router.post('/createRepository', async (req, res) => {
 	res.status(200).json('');
 });
 
-//creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
+// creates a new empty Story in the DB and adds the generated StoryId to the "stories"-Array in the corresponding Repo
 router.post('/createStory', async (req, res) => {
-	console.log("Der Create wird ausgeführt")
-	let resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.body._id)
-	await mongo.insertStoryIdIntoRepo( resultStoryId, req.body._id)
-		res.status(200).json('');
+	console.log('Der Create wird ausgeführt');
+	const resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.body._id);
+	await mongo.insertStoryIdIntoRepo(resultStoryId, req.body._id);
+	res.status(200).json('');
 });
 
 // update background
@@ -71,8 +71,9 @@ router.post('/background/update/:storyID/:storySource', async (req, res) => {
 		handleError(res, error, error, 500);
 	}
 });
+
 // delete background
-//TODO storySource aus dem Frontend mitsenden
+// TODO storySource aus dem Frontend mitsenden
 router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
 	try {
 		await mongo.deleteBackground(req.params.storyID, req.params.storySource);
@@ -88,7 +89,7 @@ router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
 router.post('/user/update/:userID', async (req, res) => {
 	try {
 		const user = req.body;
-		let updatedUser = await mongo.updateUser(parseString(req.params.userID, 10), user)
+		const updatedUser = await mongo.updateUser(req.params.userID.toString(), user);
 		res.status(200).json(updatedUser);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -97,11 +98,8 @@ router.post('/user/update/:userID', async (req, res) => {
 // delete user
 router.delete('/user/delete', async (req, res) => {
 	try {
-		if (req.user){
-			await mongo.deleteUser(req.user._id)
-		} else {
-			res.sendStatus(401);
-		}
+		if (req.user) await mongo.deleteUser(req.user._id);
+		else res.sendStatus(401);
 		res.sendStatus(200);
 	} catch (error) {
 		handleError(res, error, error, 500);
@@ -110,26 +108,22 @@ router.delete('/user/delete', async (req, res) => {
 
 // get userObject
 router.get('/user', async (req, res) => {
-	if (req.user) {
-		try {
-			const result = await mongo.getUserData(req.user._id);
-			res.status(200).json(result);
-		} catch (error) {
-			handleError(res, error, error, 500);
-		}
-	} else {
-		res.sendStatus(400);
+	if (req.user) try {
+		const result = await mongo.getUserData(req.user._id);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
 	}
+	 else res.sendStatus(400);
 });
 
-//save custom Blocks
+// save custom Blocks
 router.post('/saveBlock', async (req, res) => {
 	try {
-		let body = req.body
-		if (!req.user){
-			res.sendStatus(401)
-		}else{
-			body.owner = ObjectID(req.user._id)
+		const { body } = req;
+		if (!req.user) res.sendStatus(401);
+		else {
+			body.owner = ObjectID(req.user._id);
 			const result = await mongo.saveBlock(body);
 			res.status(200).json(result);
 		}
@@ -138,7 +132,7 @@ router.post('/saveBlock', async (req, res) => {
 	}
 });
 
-//update custom Blocks
+// update custom Blocks
 router.post('/updateBlock/:name', async (req, res) => {
 	try {
 		const result = await mongo.updateBlock(req.params.name, req.body);
@@ -150,18 +144,14 @@ router.post('/updateBlock/:name', async (req, res) => {
 
 router.get('/getBlocks/:repoId', async (req, res) => {
 	try {
-		//if (!req.user){
-		//	res.sendStatus(401)
-		//}else{
-			const result = await mongo.getBlocks(req.user._id, req.params.repoId);
-			res.status(200).json(result);
-		//}
+		const result = await mongo.getBlocks(req.user._id, req.params.repoId);
+		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
 });
 
-//delete a CustomBlock needs the name of the block
+// delete a CustomBlock needs the name of the block
 router.delete('/deleteBlock/:blockId', async (req, res) => {
 	try {
 		const result = await mongo.deleteBlock(req.params.blockId, req.user._id);

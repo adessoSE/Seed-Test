@@ -157,8 +157,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     @ViewChild('createNewGroup') createNewGroup: CreateNewGroupComponent;
     @ViewChild('createNewStory') createNewStory: CreateNewStoryComponent;
-    @ViewChild('updateGroup') updateGroup : UpdateGroupComponent;
-    @ViewChild('createNewScenario') createNewScenario : CreateScenarioComponent;
+    @ViewChild('updateGroup') updateGroup: UpdateGroupComponent;
+    @ViewChild('createNewScenario') createNewScenario: CreateScenarioComponent;
 
     /**
      * Constructor
@@ -235,10 +235,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.scenarioStatusChangeObservable = this.apiService.scenarioStatusChangeEvent.subscribe(custom => {
-            let storyIndex = this.filteredStories.findIndex(story => story._id === custom.storyId);
-            let scenarioIndex = this.filteredStories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
+            const storyIndex = this.filteredStories.findIndex(story => story._id === custom.storyId);
+            const scenarioIndex = this.filteredStories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
             this.filteredStories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
-        })
+        });
 
 
     }
@@ -248,13 +248,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.createGroupEmitter.unsubscribe();
         this.updateGroupEmitter.unsubscribe();
         this.deleteGroupEmitter.unsubscribe();
-        if(!this.deleteStoryObservable.closed){
+        if (!this.deleteStoryObservable.closed) {
             this.deleteStoryObservable.unsubscribe();
         }
-        if(!this.themeObservable.closed){
+        if (!this.themeObservable.closed) {
             this.themeObservable.unsubscribe();
         }
-        if(!this.getStoriesObservable.closed){
+        if (!this.getStoriesObservable.closed) {
             this.getStoriesObservable.unsubscribe();
         }
     }
@@ -308,18 +308,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.testRunningGroup.emit(true);
         this.apiService.runGroup(id, group._id, null).subscribe((ret: any) => {
             this.report.emit(ret);
-            console.log('Group report, No Frontend Yet');
             this.testRunningGroup.emit(false);
-            const report_id = ret.reportId
+            const report_id = ret.reportId;
             this.apiService.getReport(report_id)
-            .subscribe((report: GroupReport)=>{
+            .subscribe((report: GroupReport) => {
                 report.storyStatuses.forEach(story => {
                     story.scenarioStatuses.forEach(scenario => {
                         this.apiService.scenarioStatusChangeEmit(
                             story.storyId, scenario.scenarioId, scenario.status);
-                    })
-                })
-            })
+                    });
+                });
+            });
         });
     }
 
@@ -455,7 +454,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
   * @param story
   */
   deleteStory() {
-    if(this.stories.find(x => x === this.selectedStory)){
+    if (this.stories.find(x => x === this.selectedStory)) {
     const repository = localStorage.getItem('id');
     { this.apiService
        .deleteStory(repository, this.selectedStory._id)
@@ -481,7 +480,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * Filters stories for searchterm
    */
   storyTermChange(storiesToFilter = this.stories) {
-    if(this.storyString){
+    if (this.storyString) {
         this.filteredStories = storiesToFilter.filter(story => story.title.toLowerCase().includes(this.storyString.toLowerCase()));
     } else {
         this.filteredStories = storiesToFilter;
@@ -492,7 +491,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
    * Filters group for searchterm
    */
     groupTermChange() {
-      if(this.groupString){
+      if (this.groupString) {
         this.filteredGroups = this.groups.filter(group => group.name.toLowerCase().includes(this.groupString.toLowerCase()));
       } else {
           this.filteredGroups = this.groups;
