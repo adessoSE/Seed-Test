@@ -214,11 +214,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     width: 10% !important;
 }
 
-#inputLabels label {
-    margin-top: .25rem;
-    margin-bottom: .25rem;
-}
-
 .addTeamMembersLabel {
     position: relative;
     left: -67px;
@@ -258,3 +253,19 @@ div#deleteText > p {
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
 }
+
+label {
+    float: left;
+    margin-left: -145px;
+    padding: 5px 0 0;
+    position: relative;
+    text-align: right;
+    width: 130px;
+}
+
+.modalsContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+} 

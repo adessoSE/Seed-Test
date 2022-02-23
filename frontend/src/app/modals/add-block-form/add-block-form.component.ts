@@ -129,9 +129,7 @@ export class AddBlockFormComponent {
     }
 
     enterSubmit(event) {
-      if (event.keyCode === 13) {
-        this.addBlockFormSubmit();
-      }
+      this.addBlockFormSubmit();
     }
 
     onClickSubmit() {

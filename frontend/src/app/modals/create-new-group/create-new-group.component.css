@@ -2,10 +2,6 @@
     width: 10% !important;
 }
 
-#inputLabels label {
-    margin-top: .25rem;
-    margin-bottom: .25rem;
-}
 
 table {
     width: 100%;
@@ -96,3 +92,26 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     margin: unset;
     width: 14px;
 }
+
+label {
+    float: left;
+    margin-left: -227px;
+    padding: 5px 0 0;
+    position: relative;
+    text-align: right;
+    width: 200px;
+}
+
+.alignContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+} 
+
+.modalsContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+} 

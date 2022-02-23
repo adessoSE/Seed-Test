@@ -2,11 +2,6 @@
     width: 10% !important;
 }
 
-#inputLabels label {
-    margin-top: .25rem;
-    margin-bottom: .25rem;
-}
-
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
     -webkit-border-radius: 1ex;
@@ -28,3 +23,19 @@
 ::ng-deep.darkTheme::-webkit-scrollbar-corner {
   background: #B0BEC5;
 }
+
+label {
+  float: left;
+  margin-left: -227px;
+  padding: 5px 0 0;
+  position: relative;
+  text-align: right;
+  width: 200px;
+}
+
+.modalsContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+} 
