@@ -226,7 +226,7 @@ router.get('/stories', async (req, res) => {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-		const githubRepoUrl = githubName.toString() + githubRepo.toString();
+		const githubRepoUrl = `${githubName.toString()}/${githubRepo.toString()}`;
 		const tmpStories = new Map();
 		const tmpStoriesArray = [];
 

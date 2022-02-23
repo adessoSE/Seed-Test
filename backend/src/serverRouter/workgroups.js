@@ -32,7 +32,8 @@ router
 		next();
 	});
 
-// if an workgroup with the id exists it adds the email as a new user, if not it creates a workgroup and adds the member
+// if an workgroup with the id exists it adds the email as a new user
+// else it creates a workgroup and adds the member
 router.post('/wgmembers/:id', async (req, res) => {
 	try {
 		req.body.email = req.body.email.toLowerCase();
@@ -63,8 +64,7 @@ router.put('/wgmembers/:id', async (req, res) => {
 			res.status(400).json({ error: 'No User with this Email' });
 			return;
 		}
-		const result = await mongo.updateMemberStatus(req.params.id, req.body);
-		return result;
+		return await mongo.updateMemberStatus(req.params.id, req.body);
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}

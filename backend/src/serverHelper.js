@@ -712,15 +712,16 @@ function executeTest(req, res, stories, mode, story) {
 		const jsParam = JSON.stringify(parameters);
 		const cucumberArgs = [];
 		// specify location of feature to execute
-		cucumberArgs.push(`${path.normalize(`${featurePath}`)}`);
+		cucumberArgs.push(path.normalize(featurePath));
 		if (mode === 'scenario') {
 			// run single Scenario by using '--tags @ScenarioName'
 			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
 		}
 		// specify desired location of JSON Report and pass world parameters for cucumber execution
 		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
-		console.log(`Executing: ${path.normalize(`${__dirname}/../${cucePath}.cmd`)} ${cucumberArgs}`);
-		ch.execFile(`${path.normalize(`${__dirname}/../${cucePath}.cmd`)}`, cucumberArgs, (error, stdout, stderr) => {
+		console.log('Executing:');
+		console.log(path.normalize(`${__dirname}/../${cucePath}.cmd`) + cucumberArgs);
+		ch.execFile(path.normalize(`${__dirname}/../${cucePath}.cmd`), cucumberArgs, (error, stdout, stderr) => {
 			if (error) {
 				console.error(`exec error: ${error}`);
 				resolve({
