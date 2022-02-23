@@ -10,6 +10,8 @@ import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
 import {Group} from '../model/Group';
+import { ToastrService } from 'ngx-toastr';
+
 
 /**
  * Service to communicate between components and the backend
@@ -19,11 +21,12 @@ import {Group} from '../model/Group';
 })
 
 export class ApiService {
+  
 
-    /**
+    /** 
      * @ignore
      */
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private toastr: ToastrService) {
     }
 
     /**
@@ -1049,4 +1052,17 @@ export class ApiService {
             .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
     }
 
+    public storyUnique(buttonId : string,input: string, array: Story[], story?: Story) {
+ 
+    array = array ? array : [];
+    input = input ? input : '';
+
+    const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+    if ((input && !array.find(i => i.title == input)) || (story ? array.find(g => g._id == story._id && g.title == input) : false)) {
+        button.disabled = false;
+    } else {
+        button.disabled = true;
+        this.toastr.error('This Story Title is already in use. Please choose another Title');
+    }
+    }
 }

@@ -15,7 +15,7 @@
                         <label class="uk-form-label">Enter unique story title*</label>
                     </div>
                     <div class="inputField" >
-                        <input id="storytitle" [(ngModel)]="storytitle" placeholder=" Title" name="storytitle" (keyup)="storyUnique($event, storytitle, stories)" required></div>
+                        <input id="storytitle" [(ngModel)]="storytitle" placeholder=" Title" name="storytitle" (keyup)="storyUnique()"></div>
                     </div>
                 <textarea [(ngModel)]="storyDescription" name="storydescription" id="storydescription" placeholder="Enter a brief description of your test story"></textarea>
             </form>

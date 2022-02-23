@@ -43,7 +43,7 @@ export class CreateNewStoryComponent {
   
 
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+  constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
   // createNewStoryModal
 
@@ -84,17 +84,9 @@ export class CreateNewStoryComponent {
   onClickSubmit(event) {
     this.createNewStory(event);
   }
-  storyUnique(event, input: String, array: Story[], story?: Story) {
- 
-    array = array ? array : [];
-    input = input ? input : '';
-
-    const button = ( document.getElementById('createNewStory')) as HTMLButtonElement;
-    if ((input && !array.find(i => i.title == input)) || (story ? array.find(g => g._id == story._id && g.title == input) : false)) {
-        button.disabled = false;
-    } else {
-        button.disabled = true;
-        this.toastr.error('This Story Title is already in use. Please choose another Title');
-    }
+  
+  storyUnique(){
+    this.apiService.storyUnique('createNewStory',this.storytitle,this.stories, this.story);
   }
+
 }

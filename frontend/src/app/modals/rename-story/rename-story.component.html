@@ -15,12 +15,12 @@
                 <span >Enter unique story name</span>
                 <span class="material-icons" display-title="Enter unique story name">drive_file_rename_outline</span>
                 <div class="inputField">
-                    <input [(ngModel)]=storytitle id="newStoryTitle" name="storytitle" placeholder="New title" (keyup)="storyUnique($event, storytitle, stories, story)"required>
+                    <input [(ngModel)]=storytitle id="newStoryTitle" name="storytitle" placeholder="New title" (keyup) = "storyUnique()"> 
                 </div>                    
             </div>
         </div>
     </form>
-    <div class="modal-footer"> 
+    <div class="modal-footer">  
         <button class="normalButton" id= "submitRenameStory" (click)="onClickSubmit(renameStory)">Submit
         </button>
     </div>  
