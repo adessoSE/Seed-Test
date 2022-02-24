@@ -102,7 +102,7 @@ export class CreateNewGroupComponent {
     }
   }
 
-  /* groupUnique(event, input: string, array: Group[], group?: Group) {
+  groupUnique(event, input: string, array: Group[], group?: Group) {
     array = array ? array : [];
     input = input ? input : '';
 
@@ -113,7 +113,7 @@ export class CreateNewGroupComponent {
         button.disabled = true;
         this.toastr.error('Choose another group name');
     }
-  } */
+  }
 
   /**
      * Creates a new custom story
