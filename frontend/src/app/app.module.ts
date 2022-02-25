@@ -144,7 +144,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,
-    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }, { provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
+    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

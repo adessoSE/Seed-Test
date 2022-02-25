@@ -102,7 +102,8 @@ app
 	.use(bodyParser.json({ limit: '100kb' }))
 	.use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
 	.use((_, __, next) => {
-		if (_.url.includes('log') && !_.url.includes('login')) next();
+		if (_.url.endsWith('log')) 
+		{next()}
 		else{
 			console.log('Time:', Date.now());
 			let current_datetime = new Date();
