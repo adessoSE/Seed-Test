@@ -12,6 +12,8 @@ export class RenameScenarioComponent {
 
   modalReference: NgbModalRef;
 
+  scenarioName:string;
+
   @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
@@ -22,8 +24,7 @@ export class RenameScenarioComponent {
  */
    openRenameScenarioModal(oldTitle: string) {
     this.modalReference = this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
-    const name = document.getElementById('newTitle') as HTMLInputElement;
-    name.placeholder = oldTitle;
+    this.scenarioName = oldTitle;
   }
 
 /**
@@ -33,18 +34,6 @@ export class RenameScenarioComponent {
     const name = form.value.newTitle;
     this.apiService.renameScenarioEmit(name);
     this.modalReference.close();
-  }
-
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.submitRenameScenario(form);
-      form.reset();
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
-    this.submitRenameScenario(form);
-    form.reset();
   }
 
 }

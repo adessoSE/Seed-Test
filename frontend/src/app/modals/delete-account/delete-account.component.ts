@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from 'src/app/Services/api.service';
 
@@ -19,6 +19,8 @@ export class DeleteAccountComponent {
      */
   email: string;
 
+  modalReference: NgbModalRef;
+
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
 
   /**
@@ -27,7 +29,7 @@ export class DeleteAccountComponent {
      */
   openDeleteAccountModal(email) {
     this.email = email;
-    this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+    this.modalReference = this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
   }
 
   /**
@@ -40,6 +42,7 @@ export class DeleteAccountComponent {
             this.toastr.info('', 'User Deleted');
             this.apiService.logoutEvent.emit();
         });
+      this.modalReference.close();
     } else {
       this.unallowableNameToast();
       this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
@@ -53,15 +56,5 @@ export class DeleteAccountComponent {
   unallowableNameToast() {
     this.toastr.warning('', 'Enter a valid e-mail', {
     });
-  }
-
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.deleteAccount(form);
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
-    this.deleteAccount(form);
   }
 }

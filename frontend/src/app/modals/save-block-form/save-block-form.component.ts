@@ -166,13 +166,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     return bool;
   }
 
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.submitSaveBlock(form);
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
+  onSubmit(form: NgForm) {
     this.submitSaveBlock(form);
   }
 

@@ -22,8 +22,6 @@ export class ThemingService {
   loadTheme () {
     if (localStorage.getItem('user-theme')) {
       this.currentTheme = localStorage.getItem('user-theme');
-    } else {
-      this.currentTheme;
     }
     this.renderTemplate(this.currentTheme);
   }

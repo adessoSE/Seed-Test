@@ -29,12 +29,11 @@ export class CreateScenarioComponent {
 
    /**
  * Opens the rename scenario Modal
- * @param oldTitle old scenario title
+ *
  */
   openCreateScenarioModal(selectedStory) {
     this.selectedStory = selectedStory;
     this.modalReference = this.modalService.open(this.createScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
-    //const name = document.getElementById('newTitle') as HTMLInputElement;
   }
   
   /**
@@ -42,21 +41,8 @@ export class CreateScenarioComponent {
   */
   createNewScenario(form: NgForm) {
     let scenarioName = form.value.newTitle;
-    //TODO: create Scenario Emitter (argument scenario name) 
+    //Create Scenario Emitter (argument scenario name) 
     this.createScenarioEvent.emit(scenarioName);
     this.modalReference.close();
   }
-  
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.createNewScenario(form);
-      form.reset();
-    }
-  }
-  
-  onClickSubmit(form: NgForm) {
-    this.createNewScenario(form);
-    form.reset();
-  }
-
 }

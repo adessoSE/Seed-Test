@@ -1,6 +1,6 @@
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
-@use '~@angular/material' as mat;
+@use '@angular/material' as mat;
 
 @import '~@angular/material/theming';
 @import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
@@ -758,6 +758,10 @@ a.notPassed{
   color: red !important;
 }
 
+.darkTheme a.notPassed{
+  color: red !important;
+}
+
 div.passed{
   color: green !important;
 }
@@ -803,8 +807,8 @@ div.notPassed{
   background-color: var(--light-grey);
 }
 
-.darkTheme.mat-app-background, 
-.darkTheme .mat-app-background {
+.mat-app-background .darkTheme, 
+.mat-app-background.darkTheme {
   background-color: map-get($mat-blue-grey, 800);
 }
 
@@ -833,9 +837,14 @@ a.repoLink:hover{
   color:var(--light-blue) !important;
 }
 
+a:hover {
+  color:var(--black) !important;
+}
+
 .darkTheme a:hover {
   color:var(--white) !important;
 } 
+
 
 .darkTheme span.infoIcon {
   color: var(--white) !important;
@@ -875,28 +884,19 @@ a.repoLink:hover{
 
 ::-webkit-scrollbar-thumb {
   background: map-get($mat-brown-palette, 200);
-  -webkit-border-radius: 1ex;
-  -webkit-box-shadow: 0px 1px 2px map-get($mat-brown-palette, 200);
-}
-
-::-webkit-scrollbar-corner {
-  background: map-get($mat-brown-palette, 200);
+  box-shadow: 0 1px 2px map-get($mat-brown-palette, 200);
 }
 
 .darkTheme ::-webkit-scrollbar-thumb,
 .darkTheme::-webkit-scrollbar-thumb {
   background: map-get($mat-blue-gray-palette, 200);
-  -webkit-border-radius: 1ex;
-  -webkit-box-shadow: 0px 1px 2px map-get($mat-blue-gray-palette, 200);
-}
-
-.darkTheme ::-webkit-scrollbar-corner
-.darkTheme::-webkit-scrollbar-corner {
-  background: map-get($mat-blue-gray-palette, 200);
+  box-shadow: 0 3px 10px map-get($mat-blue-gray-palette, 200);
+  border: 1px 1px 1px 1px black;
 }
 
 .darkTheme .mat-table,
-.darkTheme.mat-table {
+.darkTheme.mat-table,
+.darkTheme .mat-expansion-panel {
   background: map-get($mat-blue-grey, 700);
 
 }

@@ -43,7 +43,7 @@ export class ReportComponent implements OnInit {
      * @param apiService
      * @param route
      */
-    constructor(public apiService: ApiService, public route: ActivatedRoute, 
+    constructor(public apiService: ApiService, public route: ActivatedRoute,
         private themeService: ThemingService) {
         this.route.params.subscribe(params => {
             if (params.reportName) {
@@ -126,7 +126,7 @@ export class ReportComponent implements OnInit {
     }
 
     getReport(reportName: string) {
-        this.apiService.getReport(reportName).subscribe(resp => {
+        this.apiService.getReportByName(reportName).subscribe(resp => {
             console.log('report', resp);
             this.report = resp;
             this.ngOnChanges();
