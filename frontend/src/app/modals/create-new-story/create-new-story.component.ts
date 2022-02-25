@@ -33,10 +33,15 @@ export class CreateNewStoryComponent {
 
   modalReference: NgbModalRef;
 
+  story: Story;
+
+  storytitle: string;
+
   storyForm = new FormGroup ({
     storyTitle: new FormControl(''),
     storyDescription: new FormControl(''),
   });
+
 
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
@@ -44,7 +49,8 @@ export class CreateNewStoryComponent {
     /**
      * Opens the create new story modal
      */
-  openCreateNewStoryModal() {
+  openCreateNewStoryModal(stories: Story[]) {
+    this.stories = stories;
     this.modalReference = this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
@@ -65,4 +71,8 @@ export class CreateNewStoryComponent {
     this.modalReference.close();
   }
 
+  storyUnique() {
+    this.apiService.storyUnique('createNewStory', this.storytitle, this.stories, this.story);
+  }
 }
+

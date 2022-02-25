@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {FormControl, FormGroup, NgForm, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Story } from 'src/app/model/Story';
 import { ApiService } from 'src/app/Services/api.service';
 
 @Component({
@@ -14,6 +15,9 @@ export class RenameStoryComponent {
 
   @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
 
+  story: Story;
+  stories: Story[];
+  storytitle: string;
   storyForm = new FormGroup ({
     storyTitle: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
     storyDescription: new FormControl(''),
@@ -25,14 +29,18 @@ export class RenameStoryComponent {
 
   /**
    * Opens the rename story Modal
-   * @param oldTitle old story title
-   * @param oldDescription old description
+   * @param stories
+   * @param story
    */
-  openRenameStoryModal(oldTitle: string, oldDescription: string) {
+  openRenameStoryModal(stories: Story [], story: Story) {
+    this.stories = stories;
+    this.story = story;
     this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+    const title = document.getElementById('newStoryTitle') as HTMLInputElement;
+    title.placeholder = story.title;
     this.storyForm.setValue({
-      storyTitle: oldTitle,
-      storyDescription: oldDescription
+      storyTitle: story.title,
+      storyDescription: story.body
     });
   }
 
@@ -40,10 +48,25 @@ export class RenameStoryComponent {
    * Submits the new name for the story & description
    */
   submitRenameStory() {
-    const title = this.storyForm.value.storyTitle;
+    const title = this.storyForm.value.storytitle;
     const description = this.storyForm.value.storyDescription;
     this.apiService.renameStoryEmit(title, description);
     this.modalReference.close();
   }
 
+  // enterSubmit(event, form: NgForm) {
+  //   if (event.keyCode === 13) {
+  //     this.submitRenameStory();
+  //     form.reset();
+  //   }
+  // }
+  //
+  // onClickSubmit(form: NgForm) {
+  //   this.submitRenameStory();
+  //   form.reset();
+  // }
+
+  storyUnique() {
+    this.apiService.storyUnique('submitRenameStory', this.storytitle, this.stories, this.story);
+  }
 }

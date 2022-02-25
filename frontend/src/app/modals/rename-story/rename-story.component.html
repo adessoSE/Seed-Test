@@ -8,17 +8,18 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid"
-    (ngSubmit)="submitRenameStory()">
+    <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid">
         <div class="modal-body modal-xl">
             <div class="padding_top modalsContent">
                 <div>
-                    <label>Change Story Title</label>
-                    <input type="text" id="newStoryTitle" formControlName="storyTitle" name="newStoryTitle" required>
+                    <label>Edit Story Title</label>
+<!--                    <span class="material-icons" display-title="Enter unique story name">drive_file_rename_outline</span>-->
+                    <input id="newStoryTitle" type="text" name="newStoryTitle"
+                           formControlName="storyTitle" (keyup)="storyUnique()" required>
                 </div>
                 <div style="display: contents;">
                     <span>Edit Story Description</span>
-                    <textarea formControlName="storyDescription" id="newStoryDescription storydescription" style="width: 100%;"></textarea>
+                    <textarea formControlName="storyDescription" id="newStoryDescription" style="width: 100%;"></textarea>
                 </div>
             </div>
         </div>
