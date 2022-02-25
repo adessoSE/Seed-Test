@@ -75,7 +75,7 @@ export class UpdateGroupComponent {
     this.modalReference = this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
-  /* groupUnique(event, input: string, array: Group[], group?: Group) {
+  groupUnique(event, input: string, array: Group[], group?: Group) {
     array = array ? array : [];
     input = input ? input : '';
 
@@ -86,7 +86,7 @@ export class UpdateGroupComponent {
         button.disabled = true;
         this.toastr.error('Choose another Group-name');
     }
-  } */
+  }
 
    /**
    * Filters stories for searchterm
