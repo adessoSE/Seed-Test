@@ -55,6 +55,6 @@ export class RenameStoryComponent {
   }
 
   storyUnique() {
-    this.apiService.storyUnique('submitRenameStory', this.storytitle, this.stories, this.story);
+    this.apiService.storyUnique('submitRenameStory', this.storyForm.value.storyTitle, this.stories, this.story);
   }
 }

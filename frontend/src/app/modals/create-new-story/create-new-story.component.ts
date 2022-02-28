@@ -72,7 +72,7 @@ export class CreateNewStoryComponent {
   }
 
   storyUnique() {
-    this.apiService.storyUnique('createNewStory', this.storytitle, this.stories, this.story);
+    this.apiService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
   }
 }
 
