@@ -8,25 +8,25 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid">
-        <div class="modal-body modal-xl">
-            <div class="padding_top modalsContent">
+    <div class="modal-body">
+        <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid">
+            <div class="form-group modalsContent">
                 <div>
                     <label>Edit Story Title</label>
-                    <span class="material-icons" display-title="Enter unique story name">drive_file_rename_outline</span>
                     <input id="newStoryTitle" type="text" name="newStoryTitle"
-                           formControlName="storyTitle" (keyup)="storyUnique()" required>
-                </div>
-                <div style="display: contents;">
-                    <span>Edit Story Description</span>
-                    <textarea formControlName="storyDescription" id="newStoryDescription" style="width: 100%;"></textarea>
+                       formControlName="storyTitle" (keyup)="storyUnique()" required>
                 </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button type="submit" class="normalButton" [disabled]="!storyForm.valid"
-            [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit
-            </button>
-        </div>
-    </form>
+            <div >
+                <span>Edit Story Description</span>
+                <textarea formControlName="storyDescription" id="newStoryDescription" id="storydescription"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="normalButton" [disabled]="!storyForm.valid"
+                [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit
+                </button>
+            </div>
+        </form>
+
+    </div>
 </ng-template>
