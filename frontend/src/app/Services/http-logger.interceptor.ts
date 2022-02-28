@@ -19,13 +19,8 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
 
     return next.handle(req).pipe(
         tap( event => {
-          status = 'failed';
-          if (event instanceof HttpResponse) {
-            status = 'succeeded';
-            console.log("response");
-            
-          }
-          console.log('http-logger tap', event)
+          //status = event instanceof HttpResponse? 'succeeded': 'failed';
+          console.debug('http-logger tap', event)
         }),
         catchError((err, ob)=>{
           console.error(err);

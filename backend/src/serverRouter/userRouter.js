@@ -383,7 +383,7 @@ router.post('/log', (req, res) => {
 	//const info = req.body.additional? req.body.additional[0]: ''
 	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n')
 	stream.close()
-	res.sendStatus(200)
+	res.status(200).json('logged')
 })
 
 
