@@ -210,20 +210,33 @@
     grid-template-columns: 1fr auto 1fr auto;
   }
 
-  /* .def:hover span[rel=def] {
+  .def {
+    color: #999;
+    cursor: help;
+    position: relative; 
+    z-index: 2;
+  }
+  
+  span[rel=def] {
+    display: none;
+  }
+  
+  .def:hover span[rel=def] {
     font-size: small;
-    color: var(--white);
+    color: white;
     background-color: rgb(109, 109, 109);
     position: absolute;
-    bottom: 2em;
-    left: 2em;
-    width: 30em;
+    width: 28em;
     padding: 0.5em;
     display: block;
-  } */
+    white-space: pre-line;
+    opacity: 96%;
+    z-index: 2;
+  }
 
-  .darkTheme .def:hover span {
-    background-color: #90A4AE;
+  .darkTheme .def:hover span[rel=def] {
+    background-color: #78909C !important;
+  
   }
 
   #story{

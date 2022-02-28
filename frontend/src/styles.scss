@@ -692,7 +692,7 @@ $dark-theme: mat.define-dark-theme(
 .def {
   color: #999;
   cursor: help;
-  position: relative;
+  /* position: relative; */
   z-index: 2;
 }
 
@@ -714,16 +714,8 @@ span[rel=def] {
 }
 
 .darkTheme .def:hover span[rel=def] {
-  font-size: small;
-  color: white;
   background-color: #78909C !important;
-  position: absolute;
-  width: 28em;
-  padding: 0.5em;
-  display: block;
-  white-space: pre-line;
-  opacity: 96%;
-  z-index: 2;
+
 }
 
 .darkTheme .deleteButton {
