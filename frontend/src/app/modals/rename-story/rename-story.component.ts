@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import {FormControl, FormGroup, NgForm, Validators} from '@angular/forms';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from 'src/app/model/Story';
 import { ApiService } from 'src/app/Services/api.service';
@@ -53,18 +53,6 @@ export class RenameStoryComponent {
     this.apiService.renameStoryEmit(title, description);
     this.modalReference.close();
   }
-
-  // enterSubmit(event, form: NgForm) {
-  //   if (event.keyCode === 13) {
-  //     this.submitRenameStory();
-  //     form.reset();
-  //   }
-  // }
-  //
-  // onClickSubmit(form: NgForm) {
-  //   this.submitRenameStory();
-  //   form.reset();
-  // }
 
   storyUnique() {
     this.apiService.storyUnique('submitRenameStory', this.storytitle, this.stories, this.story);

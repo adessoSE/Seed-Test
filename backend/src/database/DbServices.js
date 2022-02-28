@@ -583,7 +583,6 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
 		const story = await findStory(storyId, storySource, collection);
-		const lastScenarioIndex = story.scenarios.length;
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
