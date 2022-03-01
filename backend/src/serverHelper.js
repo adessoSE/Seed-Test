@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle,curly */
-const { exec } = require('child_process');
+const ch = require('child_process');
 const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
@@ -15,10 +15,9 @@ const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
-const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'aes-192-cbc';
+const cryptoAlgorithm = 'AES-256-GCM';
 const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
 const iv = Buffer.alloc(16, 0);
 
@@ -712,24 +711,18 @@ function executeTest(req, res, stories, mode, story) {
 		}
 
 		const jsParam = JSON.stringify(parameters);
-		let worldParam = '';
-		for (let i = 0; i < jsParam.length; i++) {
-			if (jsParam[i] == '"') worldParam += '\\\"';
-			else worldParam += jsParam[i];
+		const cucumberArgs = [];
+		// specify location of feature to execute
+		cucumberArgs.push(path.normalize(featurePath));
+		if (mode === 'scenario') {
+			// run single Scenario by using '--tags @ScenarioName'
+			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
 		}
-
-		console.log('worldParam', worldParam);
-
-		let cmd;
-		if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioId}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		console.log(`Executing: ${cmd}`);
-
-		exec(cmd, (error, stdout, stderr) => {
+		// specify desired location of JSON Report and pass world parameters for cucumber execution
+		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
+		console.log('Executing:');
+		console.log(path.normalize(`${__dirname}/../${cucePath}.cmd`) + cucumberArgs);
+		ch.execFile(path.normalize(`${__dirname}/../${cucePath}.cmd`), cucumberArgs, (error, stdout, stderr) => {
 			if (error) {
 				console.error(`exec error: ${error}`);
 				resolve({
@@ -1169,7 +1162,6 @@ async function exportProjectFeatureFiles(repoId) {
 
 
 module.exports = {
-	// deleteOldReports,
 	getReportHistory,
 	uniqueRepositories,
 	jiraProjects,

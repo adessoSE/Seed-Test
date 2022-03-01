@@ -35,12 +35,12 @@ export class CreateCustomProjectComponent {
   submitRepo(form: NgForm) {
     const name = form.value.repo_name;
     if (!this.isEmptyOrSpaces(name)) {
-        this.apiService.createRepository(name).subscribe(resp => {
-            this.toastr.info('', 'Project created');
-            this.apiService.getRepositoriesEmitter();
-            this.apiService.updateRepositoryEmitter();
-            this.modalReference.close();
-        });
+      this.apiService.createRepository(name).subscribe(resp => {
+        this.toastr.info('', 'Project created');
+        this.apiService.getRepositoriesEmitter();
+        this.apiService.updateRepositoryEmitter();
+      });
+      this.modalReference.close();
     }
   }
 
@@ -51,16 +51,6 @@ export class CreateCustomProjectComponent {
    */
   isEmptyOrSpaces(str: string) {
       return str === null || str.match(/^ *$/) !== null;
-  }
-
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.submitRepo(form);
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
-    this.submitRepo(form);
   }
 
 }

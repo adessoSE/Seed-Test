@@ -583,8 +583,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
    * Adds a scenario to story
    */
   addScenario(event) {
-    //console.log(this.selectedStory.title);
-    let scenarioName = event;
+    const scenarioName = event;
     this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
     .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
@@ -982,7 +981,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * @param newStoryTitle
      */
     changeStoryTitle() {
-        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title, this.selectedStory.body);
+        this.renameStoryModal.openRenameStoryModal(this.stories, this.selectedStory);
     }
     /**
      * Renames the story

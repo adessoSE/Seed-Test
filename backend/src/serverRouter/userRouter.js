@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -15,7 +16,13 @@ const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
 
-// router for all user requests
+// Handling response errors
+function handleError(res, reason, statusMessage, code) {
+	console.error(`ERROR: ${reason}`);
+	res.status(code || 500)
+		.json({ error: statusMessage });
+}
+
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
 
 
@@ -53,7 +60,7 @@ router.post('/resetpassword', async (req, res) => {
 			uuid: id,
 			email: thisUser.email
 		});
-		nodeMail.sendResetLink(thisUser.email, id);
+		await nodeMail.sendResetLink(thisUser.email, id);
 		res.status(200)
 			.json();
 	} catch (error) {
@@ -71,7 +78,7 @@ router.patch('/reset', async (req, res) => {
 		req.body.password = bcrypt.hashSync(req.body.password, salt);
 		user.password = req.body.password;
 		await mongo.updateUser(user._id, user);
-		mongo.deleteRequest(user.email);
+		await mongo.deleteRequest(user.email);
 		res.status(204).json();
 	} else res.status(401).json();
 });
@@ -220,7 +227,7 @@ router.get('/stories', async (req, res) => {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-
+		const githubRepoUrl = `${githubName.toString()}/${githubRepo.toString()}`;
 		const tmpStories = new Map();
 		const tmpStoriesArray = [];
 
@@ -229,7 +236,7 @@ router.get('/stories', async (req, res) => {
 		const headers = {
 			Authorization: `token ${token}`
 		};
-		const response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers });
+		const response = await fetch(`https://api.github.com/repos/${githubRepoUrl}/issues?labels=story`, { headers });
 		if (response.status === 401) res.status(401).json('Github Status 401');
 		if (response.status === 200) {
 			repo = await mongo.getOneGitRepository(req.query.repoName);

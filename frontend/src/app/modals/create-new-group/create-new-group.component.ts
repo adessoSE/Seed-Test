@@ -1,4 +1,5 @@
 import { Component, EventEmitter, ViewChild} from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -30,8 +31,6 @@ export class CreateNewGroupComponent {
 
   selectedStories: string[];
 
-  groupTitle: string;
-
   groupId: string;
 
   isSequential: boolean;
@@ -54,7 +53,6 @@ export class CreateNewGroupComponent {
    openCreateNewGroupModal(groups: Group[]) {
     this.groups = groups;
     this.groupId = undefined;
-    this.groupTitle = '';
     this.isSequential = true;
     this.selectedStories = undefined;
     const value = localStorage.getItem('repository');
@@ -120,9 +118,9 @@ export class CreateNewGroupComponent {
   /**
      * Creates a new custom story
      */
-  createNewGroup(event) {
+  createNewGroup(event, form) {
     event.stopPropagation();
-    const title = this.groupTitle;
+    const title = form.value.title;
     if (title.trim() !== '') {
       const member_stories = this.selectedStories;
       var isSequential = this.isSequential;
@@ -137,14 +135,8 @@ export class CreateNewGroupComponent {
 
   }
 
-  enterSubmit(event) {
-    if (event.keyCode === 13) {
-      this.createNewGroup(event);
-    }
-  }
-
-  onClickSubmit(event) {
-    this.createNewGroup(event);
+  onSubmit(event, form :NgForm) {
+    this.createNewGroup(event, form);
   }
 
 }
