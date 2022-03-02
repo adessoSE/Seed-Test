@@ -630,16 +630,18 @@ async function runReport(req, res, stories, mode, parameters) {
 					});
 				// ##################################
 				// TODO: update this and add Comment for Jira, when everything else is done
-				// if (req.params.storySource === 'github' && req.user && req.user.github) {
-				// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-				// 		reportTime, story, scenario, mode, reportName);
-				// 	const githubValue = parameters.repository.split('/');
-				// 	const githubName = githubValue[0];
-				// 	const githubRepo = githubValue[1];
-				// 	postComment(story.issue_number, comment, githubName, githubRepo,
-				// 		req.user.github.githubToken);
-				// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-				// }
+				if (req.params.storySource === 'github' && req.user && req.user.github) {
+					//const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
+					//	reportTime, story, scenario, mode, reportName);
+					const comment = "Hallo Comment"
+					const githubValue = parameters.repository.split('/');
+					const githubName = githubValue[0];
+					const githubRepo = githubValue[1];
+					console.log(stories);
+					postComment(stories[0].issue_number, comment, githubName, githubRepo,
+						req.user.github.githubToken);
+					if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, stories[0].issue_number);
+				}
 			});
 		}
 	});
@@ -1039,17 +1041,25 @@ function renderComment(
 	return comment;
 }
 
-function postComment(issueNumber, comment, githubName, githubRepo, password) {
+
+async function postComment(issueNumber, comment, githubName, githubRepo, password) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
-	const body = { body: comment };
-	const request = new XMLHttpRequest();
-	request.open('POST', link, true, githubName, password);
-	request.send(JSON.stringify(body));
-	request.onreadystatechange = function () {
-		if (this.readyState === 4 && this.status === 200) {
-			const data = JSON.parse(request.responseText);
+	const auth = 'Basic ' + Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')
+	/** @type {Response} */
+	const response = await fetch(link, {
+		method: 'post',
+		body: JSON.stringify({body:comment}),
+		headers: {'Authorization': auth}
+	}).then((resp) => {
+		if( resp.status === 200 ) {
+			const data = JSON.parse(resp)
+			console.log(data)
 		}
-	};
+		return resp
+	})
+	const data = await response.json();
+
+	console.log(data);
 }
 
 function addLabelToIssue(githubName, githubRepo, password, issueNumber, label) {
