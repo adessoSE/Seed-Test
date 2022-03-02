@@ -137,6 +137,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     filteredGroups: Group[];
 
+    /**
+     * List to manually open element in group list
+     * "uk-open" for open
+     * "" for close
+     * Needs to be initialized at init
+     * Length = Number of Groups
+     */
+     liGroupList: String[];
+
     isFilterActive = false;
     showFilter = false;
     assigneeModel;
@@ -168,6 +177,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
+            this.liGroupList = new Array(this.groups.length).fill("")
         } );
 
         const version = localStorage.getItem('version');
@@ -207,6 +217,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
                     this.groupTermChange();
+                    this.liGroupList = new Array(this.filteredGroups.length).fill("")
+                    let index = this.filteredGroups.findIndex((group: any) => group.name === custom.group.title);
+                    this.liGroupList[index] = "uk-open"
+                    this.selectFirstStoryOfGroup2(this.filteredGroups[index])
+
                 });
             });
         });
@@ -329,6 +344,17 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     selectFirstStoryOfGroup(group: Group) {
         let story = group.member_stories[0];
         story = this.stories.find(o => o._id === story._id);
+        this.selectStoryScenario(story);
+    }
+
+    /**
+     * Basically same function but when call from new created group
+     * group.member_stories[0] == id from first story
+     * @param group 
+     */
+     selectFirstStoryOfGroup2(group: Group) {
+        let story = group.member_stories[0];
+        story = this.stories.find(o => o._id === story);
         this.selectStoryScenario(story);
     }
 
