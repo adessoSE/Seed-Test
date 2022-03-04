@@ -16,7 +16,13 @@ const environment = '../frontend/src/environments/environment';
 app.use(express.static(ngPath));
 
 app.get('/backendInfo', (req, res) => {
-  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID, version: process.env.VERSION});
+  res.json({
+    url: process.env.API_SERVER,
+    clientId: process.env.GITHUB_CLIENT_ID,
+    version: process.env.VERSION,
+    gecko_enabled: process.env.GECKO_ENABLED || false,
+    chromium_enabled: process.env.CHROMIUM_ENABLED || true
+  });
 });
 
 app.get('/*', (req, res) => {
