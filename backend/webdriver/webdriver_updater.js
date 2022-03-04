@@ -79,7 +79,7 @@ async function update_driver(browser, driver) {
 		return;
 	}
 
-	const downloadUrl = get_download_url(browser);
+	const downloadUrl = get_download_url(browser, latestVersion);
 	await download_and_extract_archive(driver, downloadUrl);
 
 	console.log('#\tInstallation successful');
@@ -175,16 +175,16 @@ function async_get_latest_version(browser, browserVersion) {
 	}
 }
 
-function get_download_url(browser) {
+function get_download_url(browser, latestVersion) {
 	switch (browser) {
 		case 'Chrome':
 			// https://chromedriver.chromium.org/downloads/version-selection
-			return get_chromedriver_download_url();
+			return get_chromedriver_download_url(latestVersion);
 
 		case 'Firefox':
 			// inspired by https://pypi.org/project/geckodriver-autoinstaller/
 			// https://firefox-source-docs.mozilla.org/_sources/testing/geckodriver/Support.md.txt
-			return get_geckodriver_download_url();
+			return get_geckodriver_download_url(latestVersion);
 
 		default:
 			throw new Error(`This webbrowser (${browser}) is not supported yet!`);
@@ -375,7 +375,7 @@ async function async_get_latest_chromedriver_version(chromeVersion) {
 	return async_request_data(helperUrl);
 }
 
-function get_chromedriver_download_url() {
+function get_chromedriver_download_url(latestVersion) {
 	const downloadUrl = `https://chromedriver.storage.googleapis.com/${latestVersion}/chromedriver_`;
 	switch (os_.platform) {
 		case 'win':
@@ -412,7 +412,7 @@ async function async_get_latest_geckodriver_version() {
 	});
 }
 
-function get_geckodriver_download_url() {
+function get_geckodriver_download_url(latestVersion) {
 	const url = `https://github.com/mozilla/geckodriver/releases/download/v${latestVersion}/geckodriver-v${latestVersion}-${os_.platform}${os_.architecture}`;
 	switch (os_.platform) {
 		case 'win':
@@ -421,6 +421,6 @@ function get_geckodriver_download_url() {
 		case 'macos':
 			return `${url}.tar.gz`;
 		default:
-			throw new Error(`This operating system (${platform}) is not supported yet!`);
+			throw new Error(`This operating system (${os_.platform}) is not supported yet!`);
 	}
 }

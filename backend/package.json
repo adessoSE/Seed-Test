@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "start:wd_updater": "node src/webdriver_updater.js",
+    "start:wd_updater": "node webdriver/webdriver_updater.js",
     "test": "jasmine",
     "database": "node src/database/installDatabase.js",
     "clean": "rimraf ./dist",
