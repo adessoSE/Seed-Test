@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import {HttpInterceptor, HttpRequest, HttpHandler, HttpResponse, HttpEvent} from '@angular/common/http';
+import {HttpInterceptor, HttpRequest, HttpHandler, HttpResponse, HttpEvent, HttpErrorResponse, HttpStatusCode} from '@angular/common/http';
 import { finalize, tap , catchError} from 'rxjs/operators';
 import { NGXLogger } from "ngx-logger";
-import { Observable } from "rxjs";
+import { Observable, throwError } from "rxjs";
 
 @Injectable()
 export class HttpLoggerInterceptor implements HttpInterceptor {
@@ -22,9 +22,11 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
           //status = event instanceof HttpResponse? 'succeeded': 'failed';
           console.debug('http-logger tap', event)
         }),
-        catchError((err, ob)=>{
+        catchError((err: HttpErrorResponse, ob)=>{
+          if(err.status == HttpStatusCode.Forbidden || err.status == HttpStatusCode.Unauthorized) window.location.href = '/login'
+          
           console.error(err);
-          return ob;
+          return throwError(()=> err)
         })
         /*,
         finalize(() => {
