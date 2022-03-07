@@ -144,7 +144,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Needs to be initialized at init
      * Length = Number of Groups
      */
-     liGroupList: String[];
+    liGroupList: string[];
 
     isFilterActive = false;
     showFilter = false;
@@ -217,7 +217,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
                     this.groupTermChange();
-                    
+
                     let allGroups = this.getSortedGroups()
                     this.liGroupList = new Array(allGroups.length).fill("")
                     let index = allGroups.findIndex((group: any) => group.name === custom.group.title);
