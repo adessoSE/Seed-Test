@@ -257,32 +257,13 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 							const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
 							const scenarioId = scenario.scenario_id;
 							console.log(` Scenario ID: ${scenarioId}`);
-							let scenarioPassedSteps = 0;
-							let scenarioFailedSteps = 0;
-							let scenarioSkippedSteps = 0;
+							
+							let scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps = stepResults(scenReport)
 
-							// for each step inside a scenario
-							for (const step of scenReport.steps) {
-								switch (step.result.status) {
-									case 'passed':
-										storyPassedSteps++;
-										scenarioPassedSteps++;
-										overallPassedSteps++;
-										break;
-									case 'failed':
-										storyFailedSteps++;
-										scenarioFailedSteps++;
-										overallFailedSteps++;
-										break;
-									case 'skipped':
-										storySkippedSteps++;
-										scenarioSkippedSteps++;
-										overallSkippedSteps++;
-										break;
-									default:
-										console.log(`Status default: ${step.result.status}`);
-								}
-							}
+							storyPassedSteps += scenarioPassedSteps
+							storyFailedSteps += scenarioFailedSteps
+							storySkippedSteps += scenarioSkippedSteps
+							
 							// add scenarioStatus to storyStatus
 							const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 							storyStatus.scenarioStatuses.push(
@@ -298,6 +279,9 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 						}
 						// end of For Each Scenario ################################
 
+						overallPassedSteps += storyPassedSteps
+						overallFailedSteps += storyFailedSteps
+						overallSkippedSteps += storySkippedSteps
 						// after all Scenarios and Steps:
 						// set Story Test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
 						storyStatus.status = testPassed(storyFailedSteps, storyPassedSteps);
@@ -327,6 +311,34 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 	return reportResults;
 }
 
+/**
+ * returns the results of all steps in a scenario
+ * @param scenarioReports 
+ */
+function stepResults(scenarioReports) {
+	let scenarioPassedSteps = 0;
+	let scenarioFailedSteps = 0;
+	let scenarioSkippedSteps = 0;
+
+	// for each step inside a scenario
+	for (const step of scenReport.steps) {
+		switch (step.result.status) {
+			case 'passed':
+				scenarioPassedSteps++;
+				break;
+			case 'failed':
+				scenarioFailedSteps++;
+				break;
+			case 'skipped':
+				scenarioSkippedSteps++;
+				break;
+			default:
+				console.log(`Status default: ${step.result.status}`);
+		}
+	}
+	return (scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps)
+}
+
 async function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
 	const reportResults = { reportName, reportOptions, overallTestStatus: false };
 	try {
@@ -347,25 +359,9 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 					// element = scenarios and "Before" / "After" statements
 					storyReport.elements.forEach((scenReport) => {
 						console.log(` Scenario ID: ${scenarioId}`);
-						let scenarioPassedSteps = 0;
-						let scenarioFailedSteps = 0;
-						let scenarioSkippedSteps = 0;
-						// for each step inside a scenario
-						scenReport.steps.forEach((step) => {
-							switch (step.result.status) {
-								case 'passed':
-									scenarioPassedSteps++;
-									break;
-								case 'failed':
-									scenarioFailedSteps++;
-									break;
-								case 'skipped':
-									scenarioSkippedSteps++;
-									break;
-								default:
-									console.log(`Status default: ${step.result.status}`);
-							}
-						});
+						
+						let scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps = stepResults(scenReport)
+
 						// set scenario status (for GitHub/Jira reporting comment)
 						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 						reportResults.scenarioStatus = {
@@ -430,29 +426,13 @@ async function analyzeStoryReport(stories, reportName, reportOptions) {
 						const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
 						const scenarioId = scenario.scenario_id;
 						console.log(` Scenario ID: ${scenarioId}`);
-						let scenarioPassedSteps = 0;
-						let scenarioFailedSteps = 0;
-						let scenarioSkippedSteps = 0;
 
-						// for each step inside a scenario
-						scenReport.steps.forEach((step) => {
-							switch (step.result.status) {
-								case 'passed':
-									storyPassedSteps++;
-									scenarioPassedSteps++;
-									break;
-								case 'failed':
-									storyFailedSteps++;
-									scenarioFailedSteps++;
-									break;
-								case 'skipped':
-									storySkippedSteps++;
-									scenarioSkippedSteps++;
-									break;
-								default:
-									console.log(`Status default: ${step.result.status}`);
-							}
-						});
+						let scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps = stepResults(scenReport)
+
+						storyPassedSteps += scenarioPassedSteps
+						storyFailedSteps += scenarioFailedSteps
+						storySkippedSteps += scenarioSkippedSteps
+
 						// set scenario status (for GitHub/Jira reporting comment)
 						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
 						reportResults.scenarioStatuses.push({
@@ -582,11 +562,15 @@ async function resolveReport(reportObj, mode, stories, req, res, callback) {
 	let { reportName } = reportObj;
 
 	// analyze Report:
-	const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId);
+	const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId)
+	.then((repRes)=>{
+		repRes.scenarioId = req.params.scenarioId;
+		repRes.reportTime = reportTime;
+		repRes.mode = mode;
+		return repRes
+	})
 	// add everything to reportResult
-	reportResults.scenarioId = req.params.scenarioId;
-	reportResults.reportTime = reportTime;
-	reportResults.mode = mode;
+	
 	// Group needs an adjusted Path to Report
 	if (mode === 'group') reportName = `${reportResults.reportName}/${reportResults.reportName}`;
 	callback(reportResults, reportName);
@@ -637,9 +621,11 @@ async function runReport(req, res, stories, mode, parameters) {
 					const githubValue = parameters.repository.split('/');
 					const githubName = githubValue[0];
 					const githubRepo = githubValue[1];
-					console.log(stories);
-					postComment(stories[0].issue_number, comment, githubName, githubRepo,
-						req.user.github.githubToken);
+					// fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+					// 	postComment(stories[0].issue_number, data, githubName, githubRepo,
+					// 		req.user.github.githubToken);
+					// })
+					
 					if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, stories[0].issue_number);
 				}
 			});
