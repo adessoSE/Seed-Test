@@ -77,11 +77,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
   set testRunningForGroup(groupRunning: boolean) {
       this.testRunningGroup = groupRunning;
       this.showResults = false;
-      try {
-        const loadingScreen: HTMLElement = document.getElementById('loading');
-        loadingScreen.scrollIntoView();
-      } catch (error) {
-      }
   }
     /**
      * Original step types
@@ -287,6 +282,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     ngDoCheck(): void {
           this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    }
+
+    ngAfterViewChecked(){
+        /**
+         * when loading for group is displayed scroll to it
+         */
+        if (this.testRunningGroup === true){
+            const loadingScreen = document.getElementById('loading');
+            loadingScreen.scrollIntoView();}
+
     }
 
     /**
@@ -836,7 +841,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
             // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
             // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
             loadingScreen.scrollIntoView();
-            this.apiService
+            /*this.apiService
                 .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
                     {browser: browserSelect,
                         repository: localStorage.getItem('repository'),
@@ -882,7 +887,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
                       //         });
                       //     }
                       // });
-                });
+                });*/
         } else {
             this.currentTestScenarioId = scenario_id;
             this.currentTestStoryId = this.selectedStory.story_id;
