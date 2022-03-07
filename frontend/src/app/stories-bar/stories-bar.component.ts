@@ -217,10 +217,12 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
                     this.groupTermChange();
-                    this.liGroupList = new Array(this.filteredGroups.length).fill("")
-                    let index = this.filteredGroups.findIndex((group: any) => group.name === custom.group.title);
+                    
+                    let allGroups = this.getSortedGroups()
+                    this.liGroupList = new Array(allGroups.length).fill("")
+                    let index = allGroups.findIndex((group: any) => group.name === custom.group.title);
                     this.liGroupList[index] = "uk-open"
-                    this.selectFirstStoryOfGroup2(this.filteredGroups[index])
+                    this.selectFirstStoryOfGroup(allGroups[index])
 
                 });
             });
@@ -344,17 +346,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     selectFirstStoryOfGroup(group: Group) {
         let story = group.member_stories[0];
         story = this.stories.find(o => o._id === story._id);
-        this.selectStoryScenario(story);
-    }
-
-    /**
-     * Basically same function but when call from new created group
-     * group.member_stories[0] == id from first story
-     * @param group 
-     */
-     selectFirstStoryOfGroup2(group: Group) {
-        let story = group.member_stories[0];
-        story = this.stories.find(o => o._id === story);
         this.selectStoryScenario(story);
     }
 
