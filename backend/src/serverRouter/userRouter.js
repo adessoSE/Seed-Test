@@ -195,7 +195,7 @@ router.get('/repositories', (req, res) => {
 			res.status(200).json(merged);
 		})
 		.catch((reason) => {
-			res.status(400).json('Wrong Github name or Token');
+			res.status(401).json('Wrong Github name or Token');
 			console.error(`Get Repositories Error: ${reason}`);
 		});
 });
