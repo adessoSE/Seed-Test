@@ -243,48 +243,17 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 				// for each story
 				for (const storyReport of cucumberReport) {
 					const story = stories[cucumberReport.indexOf(storyReport)];
-					const storyId = story._id;
-					console.log(` Story ID: ${storyId}`);
-					const storyStatus = { storyId, status: false, scenarioStatuses: [] };
 					try {
-						let storyPassedSteps = 0;
-						let storyFailedSteps = 0;
-						let storySkippedSteps = 0;
 
-						// for each scenario (called element in the .json report)
-						// element = scenarios and "Before" / "After" statements
-						for (const scenReport of storyReport.elements) {
-							const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
-							const scenarioId = scenario.scenario_id;
-							console.log(` Scenario ID: ${scenarioId}`);
-							
-							let scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps = stepResults(scenReport)
-
-							storyPassedSteps += scenarioPassedSteps
-							storyFailedSteps += scenarioFailedSteps
-							storySkippedSteps += scenarioSkippedSteps
-							
-							// add scenarioStatus to storyStatus
-							const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-							storyStatus.scenarioStatuses.push(
-								{
-									scenarioId: scenario.scenario_id,
-									status: scenStatus,
-									stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
-								}
-							);
-							// count number of passed and failed Scenarios:
-							if (scenStatus) scenariosTested.passed += 1;
-							else scenariosTested.failed += 1;
-						}
+						const result = featureResult(storyReport, story)
 						// end of For Each Scenario ################################
 
-						overallPassedSteps += storyPassedSteps
-						overallFailedSteps += storyFailedSteps
-						overallSkippedSteps += storySkippedSteps
+						overallPassedSteps += result.featureTestResults.passedSteps
+						overallFailedSteps += result.featureTestResults.failedSteps
+						overallSkippedSteps += result.featureTestResults.skippedSteps
 						// after all Scenarios and Steps:
 						// set Story Test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
-						storyStatus.status = testPassed(storyFailedSteps, storyPassedSteps);
+						storyStatus.status = testPassed(result.featureFailedSteps, result.featurePassedSteps);
 						storyStatus.storyStepResults = { passedSteps: storyPassedSteps, failedSteps: storyFailedSteps, skippedSteps: storySkippedSteps };
 						reportResults.storyStatuses.push(storyStatus);
 					} catch (error) {
@@ -312,16 +281,56 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 }
 
 /**
- * returns the results of all steps in a scenario
+ * returns the results of all steps in one story/feature
  * @param scenarioReports 
  */
-function stepResults(scenarioReports) {
+function featureResult(featureReport, feature){
+	const featureId = feature._id
+	console.log(` Story ID: ${featureId}`);
+	const featureStatus = { featureId, status: false, scenarioStatuses: [] };
+
+	let featurePassedSteps = 0;
+	let featureFailedSteps = 0;
+	let featureSkippedSteps = 0;
+	const scenariosTested = { passed: 0, failed: 0 };
+
+	// for each scenario (called element in the .json report)
+	// element = scenarios and "Before" / "After" statements
+	console.log(`NUMBER OF SCENARIOS IN REPORT: ${featureReport.elements.length}`);
+	for (const scenReport of featureReport.elements){
+		const scenario = feature.scenarios[featureReport.elements.indexOf(scenReport)];
+		let result = scenarioResult(scenReport, scenario)
+
+		//increment FeatureSteps
+		featurePassedSteps += result.scenarioPassedSteps
+		featureFailedSteps += result.scenarioFailedSteps
+		featureSkippedSteps += result.scenarioSkippedSteps
+
+		featureStatus.scenarioStatuses.push(result)
+
+		// count number of passed and failed Scenarios:
+		if (result.status) scenariosTested.passed += 1;
+		else scenariosTested.failed += 1;
+	}
+	featureStatus.featureTestResults = {passedSteps: featurePassedSteps, failedSteps: featureFailedSteps, skippedSteps: featureSkippedSteps}
+	featureStatus.status = testPassed(featureFailedSteps, featurePassedSteps)
+	return featureStatus
+
+}
+
+/**
+ * returns the result of all steps in one scenario
+ * @param scenarioReport
+ */
+function scenarioResult(scenarioReport, scenario) {
+	const scenarioId = scenario.scenario_id;
 	let scenarioPassedSteps = 0;
 	let scenarioFailedSteps = 0;
 	let scenarioSkippedSteps = 0;
+	console.log(`scenario ID: ${scenarioId}`);
 
 	// for each step inside a scenario
-	for (const step of scenReport.steps) {
+	for (const step of scenarioReport.steps) {
 		switch (step.result.status) {
 			case 'passed':
 				scenarioPassedSteps++;
@@ -336,11 +345,18 @@ function stepResults(scenarioReports) {
 				console.log(`Status default: ${step.result.status}`);
 		}
 	}
-	return (scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps)
+	// set scenario status (for GitHub/Jira reporting comment)
+	const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
+	const scenarioStatus = {
+		scenarioId,
+		status: scenStatus,
+		stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
+	};
+	return scenarioStatus
 }
 
 async function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
-	const reportResults = { reportName, reportOptions, overallTestStatus: false };
+	const reportResults = { reportName, reportOptions, overallTestStatus: false , scenarioStatuses: []};
 	try {
 		const reportPath = `./features/${reportName}.json`;
 		fs.readFile(reportPath, 'utf8', (err, data) => {
@@ -354,29 +370,13 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 				console.log(`Story ID: ${story._id}`);
 				console.log(story);
 				reportResults.storyId = story._id;
-				try {
-					// for each scenario (called element in the .json report)
-					// element = scenarios and "Before" / "After" statements
-					storyReport.elements.forEach((scenReport) => {
-						console.log(` Scenario ID: ${scenarioId}`);
-						
-						let scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps = stepResults(scenReport)
+				const scenarioReport = storyReport.elements[0]
 
-						// set scenario status (for GitHub/Jira reporting comment)
-						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-						reportResults.scenarioStatus = {
-							scenarioId,
-							status: scenStatus,
-							stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
-						};
-						reportResults.overallTestStatus = scenStatus;
-					});
-					// end of For Each Scenario ################################
-				} catch (error) {
-					reportResults.overallTestStatus = false;
-					console.log('iterating through report Json failed in serverHelper/runReport. '
-						+ 'Setting testStatus of Scenario to false.', error);
-				}
+				const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
+				let result = scenarioResult(scenarioReport, scenario)
+				overallTestStatus = result.status
+				reportResults.scenarioStatuses.push(result)
+
 			} catch (error) {
 				reportResults.overallTestStatus = false;
 				console.log('iterating through report Json failed in serverHelper/runReport. '
@@ -393,11 +393,10 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 
 // param: stories should only contain one Story
 async function analyzeStoryReport(stories, reportName, reportOptions) {
-	let storyStatus = false;
-	const reportResults = {
+	let reportResults = {
 		reportName,
 		reportOptions,
-		overallTestStatus: false,
+		status: false,
 		scenarioStatuses: []
 	};
 
@@ -406,62 +405,17 @@ async function analyzeStoryReport(stories, reportName, reportOptions) {
 		fs.readFile(reportPath, 'utf8', (err, data) => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
-			// reportResults.json = cucumberReport;
-			let storyPassedSteps = 0;
-			let storyFailedSteps = 0;
-			let storySkippedSteps = 0;
-			const scenariosTested = { passed: 0, failed: 0 };
+
 			try {
 				// for each story
 				const storyReport = cucumberReport[0];
-				console.log(`NUMBER OF SCENARIOS IN THE REPORT: ${storyReport.elements.length}`);
 				const story = stories[0];
-				const storyId = story._id;
-				console.log(` Story ID: ${storyId}`);
-				reportResults.storyId = storyId;
-				try {
-					// for each scenario (called element in the .json report)
-					// element = scenarios and "Before" / "After" statements
-					storyReport.elements.forEach((scenReport) => {
-						const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
-						const scenarioId = scenario.scenario_id;
-						console.log(` Scenario ID: ${scenarioId}`);
 
-						let scenarioPassedSteps, scenarioFailedSteps, scenarioSkippedSteps = stepResults(scenReport)
-
-						storyPassedSteps += scenarioPassedSteps
-						storyFailedSteps += scenarioFailedSteps
-						storySkippedSteps += scenarioSkippedSteps
-
-						// set scenario status (for GitHub/Jira reporting comment)
-						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-						reportResults.scenarioStatuses.push({
-							scenarioId,
-							status: scenStatus,
-							stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
-						});
-						// count number of passed and failed Scenarios:
-						if (scenStatus) scenariosTested.passed += 1;
-						else scenariosTested.failed += 1;
-					});
-					// end of For Each Scenario ################################
-					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
-					storyStatus = testPassed(storyFailedSteps, storyPassedSteps);
-				} catch (error) {
-					storyStatus = false;
-					console.log('iterating through report Json failed in serverHelper/runReport. '
-						+ 'Setting testStatus of Scenario to false.', error);
-				}
-				reportResults.overallTestStatus = storyStatus;
-				reportResults.storyStepResults = {
-					passedSteps: storyPassedSteps,
-					failedSteps: storyFailedSteps,
-					skippedSteps: storySkippedSteps
-				};
-				// moved to scenario
-				// reportResults.stepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
+				const result = featureResult(storyReport, story)
+				reportResults = {...reportResults, ...result}
+				
 			} catch (error) {
-				reportResults.overallTestStatus = false;
+				reportResults.status = false;
 				console.log('iterating through report Json failed in serverHelper/runReport. '
 					+ 'Setting testStatus of Report to false.', error);
 			}
