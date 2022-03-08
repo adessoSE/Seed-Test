@@ -1,6 +1,6 @@
 * {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 .grid{
@@ -11,7 +11,6 @@
     grid-template-areas:
     "storiesBar storyEditor storyEditor storyEditor";
     grid-column-gap: 10px;
-    padding-bottom: 5px;
 }
 
 .storiesBar{
@@ -24,7 +23,7 @@
 
 
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 1240px) {
     .grid{
         display: grid;
         grid-template-columns: 94%;

@@ -11,9 +11,9 @@
                 <div uk-dropdown="mode: click">
                   <ul class="dropdown-list">
                    <li *ngFor="let repository of repositories; let i = index" class="list-item">
-                     <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png">
-                     <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png">
-                     <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png">
+                     <img class="repo_img" *ngIf="this.apiService.isGithubRepo(repository)" src="../assets/GitHub-Mark-32px.png" alt="github">
+                     <img class="repo_img" *ngIf="this.apiService.isJiraRepo(repository)" src="../assets/jira-logo-gradient-blue@2x-300x177.png" alt="jira">
+                     <img class="repo_img" *ngIf="this.apiService.isCustomRepo(repository)"  src="../assets/database-5-32.png" alt="database">
                      <a id="{{'repository_' + i}}" (click)="selectRepository(repository)"
                       routerLink=''>{{repository.value}}</a>
                    </li>
@@ -29,7 +29,7 @@
           </li>
         </ul>
       </div>
-      <p id="version" class="Largecaption">Version 1.4.3</p>
+      <p id="version" class="Largecaption">Version 1.5</p>
     </div>
 
 
@@ -53,9 +53,6 @@
         <mat-icon>bedtime</mat-icon>
       </div>
       <div>
-        <a routerLink="/feedback">
-          <button class="rightButton">Feedback</button>
-        </a>
         <div class="dropdown">
           <button class="rightButton">Help</button>
           <div #helpMenu [class.closedMenu] = "closed">
@@ -65,7 +62,9 @@
             </div>
           </div>
         </div>
-        <a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test" uk-icon="github"></a>
+        <a routerLink="/feedback">
+          <button class="rightButton">Feedback</button>
+        </a>
       </div>
     </div>
   </div>
@@ -78,6 +77,7 @@
     <div class="footerCenter">
       <p class="impressum" id="impressum" (click)="openImpressum();">Impressum</p>
       <p class="terms" (click)="openTerms()">Terms</p>
+      <p><a class="repoButton" id="githubHref" href="https://github.com/adessoAG/Seed-Test"  rel="noopener noreferrer" target="_blank" uk-icon="github"></a></p>
     </div>
     <div class="expendable">
       <div id="impressumContent" class="impressumContent" *ngIf="showImpressum">
