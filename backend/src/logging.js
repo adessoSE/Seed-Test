@@ -42,8 +42,8 @@ function httpLog(req, res, next) {
 		});
 
 		res.on("finish", () => {
-			const { rawHeaders, httpVersion, method, socket, url } = req;
-    		const { remoteAddress, remoteFamily } = socket;
+			const { method, socket, url } = req;
+    		const { remoteAddress } = socket;
 
 			
 			let processingTime = Date.now() - requestStart

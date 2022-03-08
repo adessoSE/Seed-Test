@@ -385,9 +385,7 @@ router.get('/callback', (req, res) => {
 
 
 router.post('/log', (req, res) => {
-	//console.log(req.body)
 	const stream = fs.createWriteStream('./logs/front.log', {flags: 'a'});
-	//const info = req.body.additional? req.body.additional[0]: ''
 	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n')
 	stream.close()
 	res.status(200).json('logged')
