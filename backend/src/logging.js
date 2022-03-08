@@ -31,30 +31,29 @@ function getLogger(){
 const logger = getLogger();
 
 function httpLog(req, res, next) {
-    if (req.url.endsWith('log')) 
-		{next()}
-		else{
-			console.log('Time:', Date.now());
-			let current_datetime = new Date();
-			let formatted_date =
-				current_datetime.getFullYear() +
-				"-" +
-				(current_datetime.getMonth() + 1) +
-				"-" +
-				current_datetime.getDate() +
-				" " +
-				current_datetime.getHours() +
-				":" +
-				current_datetime.getMinutes() +
-				":" +
-				current_datetime.getSeconds();
-			let method = req.method;
-			let url = req.url;
+    if (req.url.endsWith('log')) {next()}
+	else{
+		const requestStart = Date.now()
+
+		let errorMessage = null;
+
+		req.on("error", error => {
+			errorMessage = error.message;
+		});
+
+		res.on("finish", () => {
+			const { rawHeaders, httpVersion, method, socket, url } = req;
+    		const { remoteAddress, remoteFamily } = socket;
+
+			
+			let processingTime = Date.now() - requestStart
 			let status = res.statusCode;
-			let log = `[${formatted_date}] ${method}:${url} ${status}`;
+			let log = `[${requestStart}, duration: ${processingTime}] ${method}:${url}, reqOrigin: ${remoteAddress}, resCode: ${status}`;
+			log += errorMessage? `\n error: ${errorMessage}`: ''
 			logger.debug(log)
-			next();
-		}
+		})
+		next()
+	}
     
 }
 
