@@ -213,7 +213,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     /**
      * if the Panel is open.
      */
-         panelOpenState = false;
+    panelOpenState = false;
+
+    /**
+     * Boolean driver indicator 
+     */
+    gecko_enabled
+    chromium_enabled
 
 
     /**
@@ -281,6 +287,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         } else {
           this.daisyVersion = false;
         }
+        
+        this.gecko_enabled = localStorage.getItem('gecko_enabled')
+        this.chromium_enabled = localStorage.getItem('chromium_enabled')
     }
 
     /**
