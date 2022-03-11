@@ -18,17 +18,17 @@
             <input name="password" id="password" type="password" placeholder="Password*" #password ngModel class="uk-form-controls input"
                  minlength="8" #name="ngModel" required><br>
               <span id="infoIcon" uk-icon="info"></span>
-              <i id="passwordLengthInfo">Password must be at least 8 characters long</i>
+              <em id="passwordLengthInfo">Password must be at least 8 characters long</em>
           <!--Confirm Password-->
             <label for="confirmPassword" class="uk-form-label"></label>
                   <input id="confirmPassword" type="password" name="confirmPassword"  placeholder="Confirm Password*"
                   minlength="8" #confirmPassword ngModel class="uk-form-controls input" #name="ngModel" required>
           <!--P and CP don't match-->
           <div *ngIf="registrationForm.errors?.passwordConfirmed" class="cross-validation-error-message alert alert-danger">
-              <i>Password</i> and <i>Confirm Password</i> do not match.
+              <em id="registrationErrorInfo">Password</em> and <em id="registrationErrorInfo">Confirm Password</em> do not match.
           </div>
           <div *ngIf="!registrationForm.errors?.passwordConfirmed && registrationForm.invalid && registrationForm.controls.email.dirty && registrationForm.controls.email.invalid" class="cross-validation-error-message alert alert-danger">
-            Please enter a valid <i>Email address</i>.
+            Please enter a valid <em id="registrationErrorInfo">Email address</em>.
         </div>
         </div>
         <button class="normalButton" type="submit" [disabled]="registrationForm.invalid">Register</button>

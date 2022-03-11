@@ -3,28 +3,28 @@
 <ng-template #renameScenarioModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="modalHeader"class="MediumSubline1H4 modal-title">Change Scenario Title</span>
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">Change scenario title</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <div class="modal-body modal-xl">
-        <div class="uk-card-title submitForm">
-            <div>
-                <form>
+    <form #renameScenario="ngForm" novalidate [disabled]="!renameScenario.valid"
+        (ngSubmit)="submitRenameScenario(renameScenario)">     
+        <div class="modal-body modal-xl">
+            <div class="uk-card-title submitForm">
+                <div>
                     <div class="padding_top modalsContent">
-                        <span class="uk-form-label">Enter unique scenario name</span>
+                        <label class="uk-form-label">Enter unique scenario name</label>
                         <span class="material-icons" display-title="Enter unique scenario name">drive_file_rename_outline</span>
-                        <div class="inputField">
-                            <input type="text" id="newTitle" placeholder="New title">
-                        </div>                    
+                        <input type="text" [ngModel]="scenarioName" pattern="\S(.*\S)?" id="newTitle" name="newTitle" required>                   
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="submitRenameScenario(); modal.close('Save click')">Submit
-        </button>
-    </div>
+        <div class="modal-footer">
+            <button class="normalButton" type="submit" [disabled]="!renameScenario.valid"
+            [ngStyle]="{'opacity': !renameScenario.valid ?  '50%' : '100%'}">Submit
+            </button>
+        </div>
+    </form>    
 </ng-template>

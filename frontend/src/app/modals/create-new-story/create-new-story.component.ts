@@ -1,10 +1,11 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { ApiService } from 'src/app/Services/api.service';
+import { FormGroup, FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-create-new-story',
@@ -18,49 +19,60 @@ export class CreateNewStoryComponent {
   /**
      * selectable Stories when create Group
      */
-   stories: Story[];
+  stories: Story[];
 
-   filteredStories: MatTableDataSource<Story>;
+  filteredStories: MatTableDataSource<Story>;
 
-   groups: Group[];
+  groups: Group[];
 
-   selectedStories: string[];
+  selectedStories: string[];
 
-   groupTitle: string;
+  groupTitle: string;
 
-   groupId: string;
+  groupId: string;
 
-  storyTitle: string;
+  modalReference: NgbModalRef;
 
-  storyDescription: string;
+  story: Story;
+
+  storytitle: string;
+
+  storyForm = new FormGroup ({
+    storyTitle: new FormControl(''),
+    storyDescription: new FormControl(''),
+  });
+
 
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
-  // createNewStoryModal
-
     /**
      * Opens the create new story modal
      */
-    openCreateNewStoryModal() {
-      this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+  openCreateNewStoryModal(stories: Story[]) {
+    this.stories = stories;
+    this.modalReference = this.modalService.open(this.createNewStoryModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
   /**
    * Creates a new custom story
    */
-  createNewStory(event) {
-      event.stopPropagation();
-      const title = this.storyTitle; //(document.getElementById('storytitle') as HTMLInputElement).value;
-      const description = this.storyDescription; //(document.getElementById('storydescription') as HTMLInputElement).value;
-      this.storyTitle = null;
-      this.storyDescription = null;
+  createNewStory() {
+    const title = this.storyForm.value.storyTitle;
+    if (title.trim() !== '') {
+      const description = (this.storyForm.value.storyDescription === '') ? undefined : this.storyForm.value.storyDescription;
       const value = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
       const source = 'db';
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const story = {title, description};
       this.apiService.createCustomStoryEvent({repositoryContainer, story});
+    }
+    this.modalReference.close();
   }
 
+  storyUnique() {
+    this.apiService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
+  }
 }
+

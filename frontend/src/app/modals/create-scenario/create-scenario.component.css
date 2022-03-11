@@ -1,14 +1,35 @@
-.mat-column-checkStory {
-    width: 10% !important;
+.uk-card-title {
+    font-size: medium;
 }
 
-.material-icons{
+.padding_top{
+    padding-top: 10px;
+}
+
+.padding_right{
+    padding-right: 10px;
+}
+
+.modal-body.modal-xl{
+    padding: 10px;
+}
+
+.submitForm{
+    width: 100%
+}
+
+#inputLabels label {
+    margin-top: .25rem;
+    margin-bottom: .25rem;
+}
+
+.material-icons {
     color: var(--brown-grey);
     opacity: 70%;
     margin: 0px 10px 0px 5px;
 }
 
-::ng-deep.darkTheme .material-icons{
+::ng-deep.darkTheme .material-icons {
     color: white;
 }
 
@@ -31,3 +52,5 @@ label {
     justify-content: center;
     align-items: center;
 } 
+
+

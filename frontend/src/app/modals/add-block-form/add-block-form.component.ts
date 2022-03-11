@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
 import { ApiService } from 'src/app/Services/api.service';
 import { StepType } from 'src/app/model/StepType';
@@ -9,14 +9,11 @@ import { StepType } from 'src/app/model/StepType';
   templateUrl: './add-block-form.component.html',
   styleUrls: ['./add-block-form.component.css']
 })
-export class AddBlockFormComponent{
+export class AddBlockFormComponent {
 
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
 
   /**
-     * Modal: add block form modal
-     */
-
     /**
      * Saved blocks
      */
@@ -52,6 +49,8 @@ export class AddBlockFormComponent{
       */
      clipboardBlock: Block;
 
+     modalReference: NgbModalRef;
+
   constructor(private modalService: NgbModal, public apiService: ApiService) {}
 
     /**
@@ -62,7 +61,7 @@ export class AddBlockFormComponent{
     openAddBlockFormModal(correspondingComponent: string, repoId: string) {
       this.getAllBlocks(repoId);
       this.correspondingComponent = correspondingComponent;
-      this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+      this.modalReference = this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
       this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
     }
 
@@ -106,6 +105,7 @@ export class AddBlockFormComponent{
    */
     addBlockFormSubmit() {
       this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent);
+      this.modalReference.close();
     }
 
   /**
@@ -120,7 +120,19 @@ export class AddBlockFormComponent{
           this.blocks.splice(rowIndex, 1);
           this.stepList = [];
           this.selectedBlock = null;
+          this.updateBlocksEventEmitter();
       });
     }
 
+    updateBlocksEventEmitter() {
+      this.apiService.updateBlocksEvent.emit();
+    }
+
+    enterSubmit(event) {
+      this.addBlockFormSubmit();
+    }
+
+    onClickSubmit() {
+      this.addBlockFormSubmit();
+    }
 }

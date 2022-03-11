@@ -60,13 +60,6 @@ table {
     font-family: Klavika, sans-serif;
 }
 
-.deleteProjectButton{
-    background-color: var(--grape);
-}
-.deleteProjectButton:hover{
-    background-color: var(--grape-purple);
-}
-
 .mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
   }
@@ -103,26 +96,4 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
-    -webkit-border-radius: 1ex;
-    -webkit-box-shadow: 0px 1px 2px #90CAF9;
-}
-
-::-webkit-scrollbar-corner {
-    background: #90CAF9;
-}
-
-::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
-::ng-deep.darkTheme::-webkit-scrollbar-thumb {
-  background: #B0BEC5;
-  -webkit-border-radius: 1ex;
-  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
-}
-
-::ng-deep.darkTheme ::-webkit-scrollbar-corner
-::ng-deep.darkTheme::-webkit-scrollbar-corner {
-  background: #B0BEC5;
-}
-
-.updateZIndex {
-	z-index: 1029
 }

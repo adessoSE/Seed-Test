@@ -2,10 +2,6 @@
     width: 10% !important;
 }
 
-#inputLabels label {
-    margin-top: .25rem;
-    margin-bottom: .25rem;
-}
 
 table {
     width: 100%;
@@ -52,24 +48,6 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
-    -webkit-border-radius: 1ex;
-    -webkit-box-shadow: 0px 1px 2px #90CAF9;
-}
-  
-::-webkit-scrollbar-corner {
-    background: #90CAF9;
-}
-
-::ng-deep.darkTheme ::-webkit-scrollbar-thumb,
-::ng-deep.darkTheme::-webkit-scrollbar-thumb {
-  background: #B0BEC5;
-  -webkit-border-radius: 1ex;
-  -webkit-box-shadow: 0px 1px 2px #B0BEC5;
-}
-
-::ng-deep.darkTheme ::-webkit-scrollbar-corner
-::ng-deep.darkTheme::-webkit-scrollbar-corner {
-  background: #B0BEC5;
 }
 
 #nameInput {
@@ -81,18 +59,41 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     margin-top: 0.5rem;
 }
 
-.toggleMargin {
-    /* margin-left: 10px; */
-    margin-bottom: 0.5rem;
-}
-
 .mat-icon {
-    margin-bottom: 0.5rem;
-    color: white;
-    font-size: 22px;
+    color: #999;
+    font-size: 19px;
+    height: 19px;
 }
 
-.infoIcon {
+::ng-deep.darkTheme > .mat-icon {
+    /* margin-bottom: 0.5rem; */
+    color: white;
+}
+
+.icon {
     margin: unset;
     width: 14px;
 }
+
+label {
+    float: left;
+    margin-left: -227px;
+    padding: 5px 0 0;
+    position: relative;
+    text-align: right;
+    width: 200px;
+}
+
+.alignContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+} 
+
+.modalsContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+} 

@@ -1,6 +1,5 @@
-<br>
 <!-- Message if no stories avaliable -->
-<div [class.darkTheme]="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
+<div [class.darkTheme] ="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
   <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
     <div class="tutorialDiv uk-card uk-card-default">
@@ -12,7 +11,7 @@
         </ul>
       </div>
       <div id="infoDiv">
-        <img id="infoImg" src="assets/aha-icon.png">
+        <img id="infoImg" src="assets/aha-icon.png" alt="user gets information icon">
         <p id=infoText>When using a custom project new stories can be created within our application.
           Create a custom project using the account settings.
         </p>
@@ -24,11 +23,11 @@
     <div id="firstStoryText"><p>... create your first story!</p></div>
   </div>
 </div>
-<div [class.darkTheme]="isDark" class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
+<div class="emptyStories" *ngIf="!storiesLoaded && !storiesError">
   <h1 class="LargeHeadline2">Loading Stories ...</h1>
 </div>
 
-<div [class.darkTheme]="isDark" class="emptyStories" *ngIf="storiesError">
+<div class="emptyStories" *ngIf="storiesError">
   <h1 class="LargeHeadline2">You are not authorized to use this project</h1>
 </div>
 
@@ -39,7 +38,7 @@
       <div>
           <span id="storyHeader" class="SmallCategory1" >Story</span>
           <dfn class="def">
-              <span id="infoIcon" uk-icon="info"></span>
+              <span class="infoIcon uk-icon" uk-icon="info"></span>
               <span rel="def" id="storyInfoTextVerticalPosition">A user story describes requirements for a software system.
                 It is consciously kept in short sentences and simple words.
                 A story includes several scenarios.
@@ -47,9 +46,10 @@
                 As a <...>, I want <...> so that <...>
               </span>
           </dfn>
-          
+
       </div>
-      <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase}}</span>
+      <span *ngIf="!this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase }}</span>
+      <span *ngIf="this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
       <div *ngIf="db">
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
         <button id="story_change_title" class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip
@@ -61,27 +61,35 @@
   </div>
     </div>
     <!--Description-->
-    <div class="title" (click)="openDescription();">
-      <div class="expand SmallHeadline5">
-        Description
-        <button id="description_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="!showDescription"></button>
-        <button id="description_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Description"  class="uk-float-right showButton" *ngIf="showDescription"></button>
-      </div>
-      <div class="SmallBody1regularLH" *ngIf="showDescription">
-        {{selectedStory.body}}
-      </div>
+    <br>
+    <div>
+      <mat-accordion>
+        <mat-expansion-panel hideToggle>
+        </mat-expansion-panel>
+        <mat-expansion-panel (opened)="panelOpenState = true"
+                             (closed)="panelOpenState = false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Description
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          {{selectedStory.body}}
+        </mat-expansion-panel>
+      </mat-accordion>
     </div>
     <!--Background-->
     <div class="title">
       <div class="expand SmallHeadline5" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
-        <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+        <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
           <span rel="def" id="backgroundInfoTextVerticalPosition">
             You can use the background to set actions, which will be carried out before testing the whole story.
             This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios.
             In short: A background allows to set Given-Steps used for all scenarios.
           </span>
         </dfn>
-        
+
         <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
         <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
       </div>
@@ -95,23 +103,23 @@
       <div class="scenarioBarContainer">
         <div class="actionBarButtonGroup">
           <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps"/>
-          <div *ngIf="this.activeActionBar">
-            <button id="{{'background_' + i + '_addBlock_step_'}}" a
+          <div [class.disabled]="!this.activeActionBar">
+            <button id="{{'background_addBlock_step_}}"
             class="actionButton" uk-tooltip title="Save Steps as Block"
             (click)="saveBlockBackground($event);">
               <em class="material-icons">queue</em>
             </button>
-            <button id="{{'background' + '_deactivate_step_'}}" a
+            <button id="{{'background_deactivate_step_}}"
              class="actionButton" uk-tooltip title="Deactivate Step"
             (click)="deactivateStep();">
               <em class="material-icons">do_not_touch</em>
             </button>
-            <button id="{{'background' + '_delete_step_'}}" a
+            <button id="{{'background_delete_step'}}"
             class="actionButton" uk-tooltip title="Delete Step"
            (click)="removeStepFromBackground();">
               <em class="material-icons">delete</em>
             </button>
-            <button id="{{'background_' + i + '_copy_step_'}}" a
+            <button id="{{'background_copy_step'}}"
             class="actionButton" uk-tooltip title="Copy Step to Clipboard"
             (click)="copyBlock();">
               <em class="material-icons">content_copy</em>
@@ -173,12 +181,11 @@
               <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
               type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
               <div *ngIf="currentStep.outdated">
-                <dfn class="def"><span id="infoIcon" uk-icon="info"></span>
+                <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                   <span rel="def">
                     This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the background to confirm your adjustments.
                   </span>
                 </dfn>
-                
               </div>
             </div>
           </div>
@@ -188,9 +195,10 @@
     <!--Buttons Run Story-->
     <div class="storyInfoContainer">
       <div class="storyInfoLeft">
-        <div class="dropdown">
-          <button class="button" (click)="openReportHistory()">View Reports</button>
-        </div>
+        <button class="button" (click)="openReportHistory()" uk-tooltip="Switch to Report View">
+          <em class="material-icons">insert_chart_outlined</em>
+          View Reports
+        </button>
       </div>
       <div class="storyInfoCenter" *ngIf="this.selectedScenario">
           <label class="selectLabel SmallIcontext">Run Story in one Session:</label>
@@ -201,7 +209,7 @@
             </span>
           </dfn>
           <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
-          <input id="defaultWaitTimeInput" class="waitTime" type="number" value=0 min=0 max=25000 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
+          <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
           <label class="selectLabel SmallIcontext">Browser:</label>
           <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
             <option value="chrome">Chrome</option>
@@ -209,45 +217,61 @@
           </select>
       </div>
       <div class="storyInfoRight uk-button-group">
-        <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning" uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
-        <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()">add_link</button>
-        <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
-          uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
-        <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-up"
-          uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
-        <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button" uk-icon="icon:download"
-          uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
-        <button *ngIf="!this.reportIsSaved" id="not_favorite_report_story" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
-          uk-tooltip="Download Test Results" type="button" (click)=" saveReport(this.reportId);"><em class="material-icons">star_border</em></button>
-        <button *ngIf="this.reportIsSaved" id="favorite_report_story" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
-          uk-tooltip="Download Test Results" type="button" (click)=" unsaveReport(this.reportId);"><em class="material-icons">star</em></button>
+        <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
+                uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
+        <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
+                uk-tooltip="Copy Story Link to Clipboard">add_link</button>
+        <button *ngIf="this.showResults" id="hide_results_top" [class.disabledButton]="!testDone" class="button"
+          uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
+          <em class="material-icons-outlined">expand_more</em></button>
+        <button *ngIf="!this.showResults" id="show_results_top" class="button" [class.disabledButton]="!testDone"
+          uk-tooltip="Show Test Results" type="button" (click)="hideResults()">
+          <em class="material-icons-outlined">expand_less</em></button>
+        <button id="download_results_top" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+          uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();">
+          <em class="material-icons-outlined">file_download</em></button>
+        <button *ngIf="!this.reportIsSaved" id="save_report_top"  class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+          uk-tooltip="Save Report" type="button" (click)=" saveReport(this.reportId);">
+          <em class="material-icons">save</em></button>
+        <button *ngIf="this.reportIsSaved" id="unsave_report_top" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+          uk-tooltip="Do not Save Report" type="button" (click)=" unsaveReport(this.reportId);">
+          <em class="material-icons-outlined">cancel</em></button>
       </div>
     </div>
 
     <!--Scenario Header-->
 
     <app-scenario-editor [isDark]="isDark" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
-    <app-save-block-form #saveBlockForm></app-save-block-form>
-    <app-add-block-form #addBlockForm></app-add-block-form>
+    <app-rename-story #renameStoryModal></app-rename-story>
+    <app-add-block-form #addBlockModal></app-add-block-form>
+    <app-save-block-form #saveBlockModal></app-save-block-form>
 
       <!--Buttons Run Scenario-->
       <div class="uk-card-footer">
-          <!--<div class="dropdown">
-            <button class="button" (click)="openReportHistory()">Latest Scenario Executions:</button>
-          </div>-->
+        <div class="ScenarioInfoLeft">
+          <button class="button" (click)="openReportHistory()" uk-tooltip="Switch to Report View">
+            <em class="material-icons">insert_chart_outlined</em>
+            View Reports
+          </button>
+        </div>
         <div class="uk-button-group uk-align-right">
          <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedScenario.scenario_id);">
             Run Scenario</button>
-          <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-down"
-            uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"></button>
-          <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button" uk-icon="icon:chevron-up"
-            uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"></button>
-          <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button" uk-icon="icon:download"
-            uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"></button>
-          <button *ngIf="!this.reportIsSaved" id="not_favorite_report_scenario" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
-            uk-tooltip="StoryReport is currently not Saved" type="button" (click)=" saveReport(this.reportId);"><em class="material-icons">star_border</em></button>
-          <button *ngIf="this.reportIsSaved" id="favorite_report_scenario" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
-            uk-tooltip="StoryReport is currently Saved" type="button" (click)=" unsaveReport(this.reportId);"><em class="material-icons">star</em></button>
+          <button *ngIf="this.showResults" id="hide_results_bottom" [class.disabledButton]="!testDone" class="button"
+                  uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
+            <em class="material-icons-outlined">expand_more</em></button>
+          <button *ngIf="!this.showResults" id="show_results_bottom" class="button" [class.disabledButton]="!testDone"
+                  uk-tooltip="Show Test Results" type="button" (click)="hideResults()">
+            <em class="material-icons-outlined">expand_less</em></button>
+          <button id="download_results_bottom" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+                  uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();">
+            <em class="material-icons-outlined">file_download</em></button>
+          <button *ngIf="!this.reportIsSaved" id="save_report_bottom"  class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+                  uk-tooltip="Save Report" type="button" (click)=" saveReport(this.reportId);">
+            <em class="material-icons">save</em></button>
+          <button *ngIf="this.reportIsSaved" id="unsave_report_bottom" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
+                  uk-tooltip="Do not Save Report" type="button" (click)=" unsaveReport(this.reportId);">
+            <em class="material-icons-outlined">cancel</em></button>
         </div>
     </div>
 
@@ -270,6 +294,3 @@
     </div>
   </div>
 </div>
-<app-rename-story #renameStoryModal></app-rename-story>
-<app-add-block-form #addBlockModal></app-add-block-form>
-<app-save-block-form #saveBlockModal></app-save-block-form>

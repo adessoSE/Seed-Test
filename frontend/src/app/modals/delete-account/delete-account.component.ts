@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgForm } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from 'src/app/Services/api.service';
 
@@ -18,6 +19,8 @@ export class DeleteAccountComponent {
      */
   email: string;
 
+  modalReference: NgbModalRef;
+
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
 
   /**
@@ -26,21 +29,32 @@ export class DeleteAccountComponent {
      */
   openDeleteAccountModal(email) {
     this.email = email;
-    this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+    this.modalReference = this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
   }
 
   /**
  * Deletes The Seed-Test account
  */
-  deleteAccount() {
-    const insertedEmail = (document.getElementById('insertedEmail') as HTMLInputElement).value;
-    if (insertedEmail == this.email) {
+  deleteAccount(form: NgForm) {
+    const insertedEmail = form.value.insertedEmail;
+    if (insertedEmail !== undefined && insertedEmail === this.email) {
         this.apiService.deleteUser().subscribe(resp => {
             this.toastr.info('', 'User Deleted');
             this.apiService.logoutEvent.emit();
         });
+      this.modalReference.close();
     } else {
-        this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+      this.unallowableNameToast();
+      this.modalService.open(this.deleteAccountModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
     }
+  }
+
+  /**
+ * Opens warning toast
+ */
+
+  unallowableNameToast() {
+    this.toastr.warning('', 'Enter a valid e-mail', {
+    });
   }
 }
