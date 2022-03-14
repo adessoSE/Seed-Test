@@ -373,7 +373,6 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 
 				const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
 				let result = scenarioResult(scenarioReport, scenario)
-				overallTestStatus = result.status
 				reportResults.scenarioStatuses.push(result)
 
 			} catch (error) {
@@ -515,16 +514,13 @@ async function resolveReport(reportObj, mode, stories, req, res, callback) {
 	let { reportName } = reportObj;
 
 	// analyze Report:
-	const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId)
-	.then((repRes)=>{
-		//repRes.scenarioId = req.params.scenarioId;
-		repRes.reportTime = reportTime;
-		repRes.mode = mode;
+	var reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId)
+	reportResults .reportTime = reportTime;
+	reportResults .mode = mode;
 
-		// Group needs an adjusted Path to Report
-		if (mode === 'group') reportName = `${repRes.reportName}/${repRes.reportName}`;
-		callback(repRes, reportName);
-	})
+	// Group needs an adjusted Path to Report
+	if (mode === 'group') reportName = `${reportResults.reportName}/${reportResults.reportName}`;
+	callback(reportResults, reportName);
 }
 
 async function runReport(req, res, stories, mode, parameters) {
@@ -571,12 +567,13 @@ async function runReport(req, res, stories, mode, parameters) {
 					const githubValue = parameters.repository.split('/');
 					const githubName = githubValue[0];
 					const githubRepo = githubValue[1];
-					// fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-					// 	postComment(stories[0].issue_number, data, githubName, githubRepo,
-					// 		req.user.github.githubToken);
-					// })
-					
+
+					postComment(stories[0].issue_number, "Test Finished", githubName, githubRepo, req.user.github.githubToken)
 					if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, stories[0].issue_number);
+				}
+				if (req.params.storySource === 'jira' && req.user && req.user.jira){
+					const password = decryptPassword(req.user.jira.Password);
+					postCommentJira(stories[0].issue_number, "Test Finished", req.user.jira.Host, req.user.jira.AccountName, password)
 				}
 			});
 		}
@@ -993,6 +990,21 @@ async function postComment(issueNumber, comment, githubName, githubRepo, passwor
 		}
 		return resp
 	})
+	const data = await response.json();
+
+	console.log(data);
+}
+
+async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword){
+	const link = `https://${host}/rest/api/2/issue/${issueId}/comment/` // always HTTPS
+	const auth = 'Basic ' + Buffer.from(`${jiraUser}:${jiraPassword}`, 'binary').toString('base64')
+	const body = {body:comment}
+	/** @type {Response} */
+	const response = await fetch(link, {
+		method: 'post',
+		body: JSON.stringify(body),
+		headers: {'Authorization': auth, 'Content-Type': 'application/json'}
+	});
 	const data = await response.json();
 
 	console.log(data);
