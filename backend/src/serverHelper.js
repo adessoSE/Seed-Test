@@ -357,10 +357,10 @@ function scenarioResult(scenarioReport, scenario) {
 }
 
 async function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
-	const reportResults = { reportName, reportOptions, overallTestStatus: false , scenarioStatuses: []};
+	const reportResults = { reportName, reportOptions, status: false , scenarioStatuses: []};
 	try {
 		const reportPath = `./features/${reportName}.json`;
-		fs.readFile(reportPath, 'utf8', (err, data) => {
+		return pfs.readFile(reportPath, 'utf8').then((data) => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
 			// reportResults.json = cucumberReport;
@@ -375,14 +375,17 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 
 				const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
 				let result = scenarioResult(scenarioReport, scenario)
+				reportResults.featureTestResults = result.stepResults
+				reportResults.scenariosTested = {passed: +result.status, failed: +!result.status}
+				reportResults.status = result.status
 				reportResults.scenarioStatuses.push(result)
-
+				return reportResults
 			} catch (error) {
-				reportResults.overallTestStatus = false;
+				reportResults.status = false;
 				console.log('iterating through report Json failed in serverHelper/runReport. '
 					+ 'Setting testStatus of Report to false.', error);
 			}
-		});
+		})
 	} catch (error) {
 		console.log(`fs.readFile error for file ./features/${reportName}.json`);
 	}
@@ -561,8 +564,9 @@ async function runReport(req, res, stories, mode, parameters) {
 				// ##################################
 				// TODO: update this and add Comment for Jira, when everything else is done
 				if (req.params.storySource === 'github' && req.user && req.user.github) {
-					//const comment = renderComment(req, reportResults.featureTestResults.passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-					//	reportTime, story, scenario, mode, reportName);
+					const comment = renderComment(req, reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+						reportResults.reportTime, stories[0], stories[0].scenarios[0], mode, reportName);
+					console.log(comment);
 					const githubValue = parameters.repository.split('/');
 					const githubName = githubValue[0];
 					const githubRepo = githubValue[1];
