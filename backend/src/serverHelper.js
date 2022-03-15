@@ -3,6 +3,7 @@
 /* eslint-disable no-underscore-dangle,curly */
 const { exec } = require('child_process');
 const fs = require('fs');
+const pfs = require('fs/promises')
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const fetch = require('node-fetch');
@@ -14,6 +15,7 @@ const passport = require('passport');
 const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
+const { resolve } = require('path');
 
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
@@ -301,9 +303,9 @@ function featureResult(featureReport, feature){
 		let result = scenarioResult(scenReport, scenario)
 
 		//increment FeatureSteps
-		featurePassedSteps += result.scenarioPassedSteps
-		featureFailedSteps += result.scenarioFailedSteps
-		featureSkippedSteps += result.scenarioSkippedSteps
+		featurePassedSteps += result.stepResults.passedSteps
+		featureFailedSteps += result.stepResults.failedSteps
+		featureSkippedSteps += result.stepResults.skippedSteps
 
 		featureStatus.scenarioStatuses.push(result)
 
@@ -400,10 +402,9 @@ async function analyzeStoryReport(stories, reportName, reportOptions) {
 
 	try {
 		const reportPath = `./features/${reportName}.json`;
-		fs.readFile(reportPath, 'utf8', (err, data) => {
+		return pfs.readFile(reportPath, 'utf8').then((data)=>{
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
-
 			try {
 				// for each story
 				const storyReport = cucumberReport[0];
@@ -411,19 +412,17 @@ async function analyzeStoryReport(stories, reportName, reportOptions) {
 
 				const result = featureResult(storyReport, story)
 				reportResults = {...reportResults, ...result}// sync reportResult with result
+				return reportResults
 				
 			} catch (error) {
 				reportResults.status = false;
 				console.log('iterating through report Json failed in serverHelper/runReport. '
 					+ 'Setting testStatus of Report to false.', error);
 			}
-		});
+		})
 	} catch (error) {
 		console.log(`fs.readFile error for file ./features/${reportName}.json`);
 	}
-	console.log('Report Results in analyzeStoryReport: ');
-	console.log(reportResults);
-	return reportResults;
 }
 
 async function failedReportPromise(reportName) {
@@ -568,12 +567,12 @@ async function runReport(req, res, stories, mode, parameters) {
 					const githubName = githubValue[0];
 					const githubRepo = githubValue[1];
 
-					postComment(stories[0].issue_number, "Test Finished", githubName, githubRepo, req.user.github.githubToken)
-					if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, stories[0].issue_number);
+					//postComment(stories[0].issue_number, "Test Finished", githubName, githubRepo, req.user.github.githubToken)
+					//if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, stories[0].issue_number);
 				}
 				if (req.params.storySource === 'jira' && req.user && req.user.jira){
 					const password = decryptPassword(req.user.jira.Password);
-					postCommentJira(stories[0].issue_number, "Test Finished", req.user.jira.Host, req.user.jira.AccountName, password)
+					//postCommentJira(stories[0].issue_number, "Test Finished", req.user.jira.Host, req.user.jira.AccountName, password)
 				}
 			});
 		}
