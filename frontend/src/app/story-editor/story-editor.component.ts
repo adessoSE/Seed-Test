@@ -288,8 +288,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
           this.daisyVersion = false;
         }
         
-        this.gecko_enabled = localStorage.getItem('gecko_enabled')
-        this.chromium_enabled = localStorage.getItem('chromium_enabled')
+        this.gecko_enabled = localStorage.getItem('gecko_enabled');
+        this.chromium_enabled = localStorage.getItem('chromium_enabled');
+        
     }
 
     /**

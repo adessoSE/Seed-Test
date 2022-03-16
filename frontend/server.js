@@ -19,7 +19,7 @@ app.get('/backendInfo', (req, res) => {
   res.json({
     url: process.env.API_SERVER,
     clientId: process.env.GITHUB_CLIENT_ID,
-    version: process.env.VERSION,
+    version: process.env.VERSION || "",
     gecko_enabled: process.env.GECKO_ENABLED || false,
     chromium_enabled: process.env.CHROMIUM_ENABLED || true
   });
