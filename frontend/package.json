@@ -53,6 +53,7 @@
     "@angular/cli": "^13.2.2",
     "@angular/compiler-cli": "^13.2.2",
     "@compodoc/compodoc": "^1.1.11",
+    "@popperjs/core": "^2.11.4",
     "@typescript-eslint/eslint-plugin": "5.12.1",
     "@typescript-eslint/parser": "5.12.1",
     "codelyzer": "^6.0.2",
