@@ -7,8 +7,8 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form #deleteAccountForm="ngForm" novalidate [disabled]="deleteAccountForm.invalid"
-    (keydown)="enterSubmit($event, deleteAccountForm);">   
+    <form #deleteAccountForm="ngForm" novalidate [disabled]="!deleteAccountForm.valid"
+    (ngSubmit)="deleteAccount(deleteAccountForm);">   
         <div class="modal-body">
             <div class="submitForm">
                 <div>
@@ -20,22 +20,21 @@
                             <span >This will also erase all of your saved repositories.</span>
                             <br>
                             <span>If you wish to erase your Seed-Account and connected data, please verify with your email.</span>
-                            <div class="modalsContent" id="inputLabels">
-                                <div class="labelField">
+                            <div class="modalsContent">
+                                <div>
                                     <label class="uk-form-label">Enter your email*</label>
-                                </div>
-                                <div class="inputField">
-                                    <input type="email" ngModel name="insertedEmail" class="leftMargin" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
-                                </div>    
+                                    <input type="email" ngModel name="insertedEmail" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+                                </div>  
                             </div> 
                         </div> 
                     </div> 
                 </div>
             </div>
         </div>
-    </form>
-    <div class="modal-footer">
-        <button type="button" class="normalButton deleteButton" (click)="onClickSubmit(deleteAccountForm)">Delete my Account
-        </button>
-    </div> 
+        <div class="modal-footer">
+            <button type="submit" class="normalButton deleteButton" [disabled]="!deleteAccountForm.valid"
+            [ngStyle]="{'opacity': !deleteAccountForm.valid ?  '50%' : '100%'}">Delete my Account
+            </button>
+        </div> 
+    </form>  
 </ng-template>

@@ -4,7 +4,7 @@ import { ViewModeDirective } from '../directives/view-mode.directive';
 import { EditModeDirective } from '../directives/edit-mode.directive';
 import { fromEvent, Subject } from 'rxjs';
 import { filter, take, switchMapTo } from 'rxjs/operators';
-import { untilDestroyed } from 'ngx-take-until-destroy';
+import { untilDestroyed } from '@ngneat/until-destroy';
 
 /**
  * Component to enable editable cells in the example table

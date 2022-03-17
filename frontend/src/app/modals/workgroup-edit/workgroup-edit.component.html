@@ -1,6 +1,6 @@
 <!-- Workgroup edit Modal-->
 <app-repo-swich #repoSwitchModal></app-repo-swich>
-<ng-template #workgroupEditModal [class.updateZIndex]="isCurrentToDelete" let-modal>
+<ng-template #workgroupEditModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <span id="workgroupHeader"class="MediumSubline1H4 modal-title">Project:</span>
@@ -15,9 +15,13 @@
                 (ngSubmit)="workgroupInvite(workgroupInviteForm);">
                     <label style="margin-right: 10px;">Project Owner:</label>
                     <label>{{this.workgroupOwner}}</label>
+                    
                     <div class="divWrapper">
+                        <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">
+                        <button type="button" class="normalButton" (click)="renameProject(workgroupInviteForm)">Rename project</button>
+                        <hr>
                         <input class="workGroupEmail leftMargin" type="email" ngModel name="email" placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
-                        <button type="submit" class="normalButton">Invite to Team</button>
+                        <button class="normalButton">Invite to Team</button>
                     </div>
                     <div class="canEditContainer divWrapper">
                         <label class="canEditLabel addTeamMembersLabel" >Can add team members</label>

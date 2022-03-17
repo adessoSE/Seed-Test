@@ -1,11 +1,11 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle,curly */
-const { exec } = require('child_process');
+const ch = require('child_process');
 const fs = require('fs');
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
-const request = require('request');
+const fetch = require('node-fetch');
 const reporter = require('cucumber-html-reporter');
 const lodash = require('lodash');
 const AdmZip = require('adm-zip');
@@ -15,10 +15,9 @@ const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 
-const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'aes-192-cbc';
+const cryptoAlgorithm = 'AES-256-GCM';
 const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
 const iv = Buffer.alloc(16, 0);
 
@@ -39,6 +38,7 @@ const options = {
 		Executed: 'Remote'
 	}
 };
+
 
 // Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
@@ -145,8 +145,11 @@ function cleanFileName(filename) {
 // Creates feature file
 function writeFile(dir, selectedStory) {
 	const filename = selectedStory.title + selectedStory._id;
-	fs.writeFile(path.join(__dirname, '../features',
-		`${cleanFileName(filename)}.feature`), getFeatureContent(selectedStory), (err) => {
+	fs.writeFile(path.join(
+		__dirname,
+		'../features',
+		`${cleanFileName(filename)}.feature`
+	), getFeatureContent(selectedStory), (err) => {
 		if (err) throw err;
 	});
 }
@@ -647,8 +650,7 @@ const nameSchemeChange = async (story) => {
 	if (!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title + story._id.toString())}.feature`).catch(() => null))) await updateFeatureFile(story._id, story.storySource);
 
 	// if old scheme still exists
-	if (await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null))
-		fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, (err) => console.log('failed to remove file', err));
+	if (await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null)) fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, (err) => console.log('failed to remove file', err));
 };
 
 async function deleteFeatureFile(storyTitle, storyId) {
@@ -709,32 +711,30 @@ function executeTest(req, res, stories, mode, story) {
 		}
 
 		const jsParam = JSON.stringify(parameters);
-		let worldParam = '';
-		for (let i = 0; i < jsParam.length; i++) {
-			if (jsParam[i] == '"') worldParam += '\\\"';
-			else worldParam += jsParam[i];
+		const cucumberArgs = [];
+		// specify location of feature to execute
+		cucumberArgs.push(path.normalize(featurePath));
+		if (mode === 'scenario') {
+			// run single Scenario by using '--tags @ScenarioName'
+			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
 		}
-
-		console.log('worldParam', worldParam);
-
-		let cmd;
-		if (mode === 'feature') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		if (mode === 'scenario') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --tags "@${req.params.issueID}_${req.params.scenarioId}" --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		if (mode === 'group') cmd = `${path.normalize(cucePath)} ${path.normalize(featurePath)} --format json:${path.normalize(jsonPath)} --world-parameters ${worldParam}`;
-
-		console.log(`Executing: ${cmd}`);
-
-		exec(cmd, (error, stdout, stderr) => {
+		// specify desired location of JSON Report and pass world parameters for cucumber execution
+		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
+		console.log('Executing:');
+		console.log(path.normalize(`${__dirname}/../${cucePath}.cmd`) + cucumberArgs);
+		ch.execFile(path.normalize(`${__dirname}/../${cucePath}.cmd`), cucumberArgs, (error, stdout, stderr) => {
 			if (error) {
 				console.error(`exec error: ${error}`);
-				resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+				resolve({
+					reportTime, story, scenarioId: req.params.scenarioId, reportName
+				});
 				return;
 			}
 			console.log(`stdout: ${stdout}`);
 			console.log(`stderr: ${stderr}`);
-			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+			resolve({
+				reportTime, story, scenarioId: req.params.scenarioId, reportName
+			});
 		});
 	});
 }
@@ -778,11 +778,8 @@ async function jiraProjects(user) {
 				const auth = Buffer.from(`${AccountName}:${Password}`)
 					.toString('base64');
 				const source = 'jira';
-				const cookieJar = request.jar();
 				const reqoptions = {
 					method: 'GET',
-					url: `http://${Host}/rest/api/2/issue/createmeta`,
-					jar: cookieJar,
 					qs: {
 						type: 'page',
 						title: 'title'
@@ -792,37 +789,37 @@ async function jiraProjects(user) {
 						Authorization: `Basic ${auth}`
 					}
 				};
-				request(reqoptions, async () => {
-					request(reqoptions, async (error2, response2, body) => {
-						let json = '';
-						try {
-							json = JSON.parse(body).projects;
-						} catch (e) {
-							console.warn('Jira Request did not work', e);
-							json = {};
-						}
-						let names = [];
-						let jiraRepo;
-						const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
-						if (Object.keys(json).length !== 0) {
-							for (const repo of json) {
-								if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
-									jiraRepo = await mongo.createJiraRepo(repo.name);
-								} else {
-									jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
+				fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
+					.then(async () => {
+						fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
+							.then((response) => response.json())
+							.then(async (json) => {
+								const { projects } = json;
+								let names = [];
+								let jiraRepo;
+								const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
+								if (Object.keys(projects).length !== 0) {
+									for (const repo of projects) {
+										if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
+											jiraRepo = await mongo.createJiraRepo(repo.name);
+										} else {
+											jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
+										}
+										names.push({
+											name: repo.name,
+											_id: jiraRepo._id
+										});
+									}
+									names = names.map((value) => ({
+										_id: value._id,
+										value: value.name,
+										source
+									}));
+									resolve(names);
 								}
-								names.push({ name: repo.name, _id: jiraRepo._id });
-							}
-							names = names.map((value) => ({
-								_id: value._id,
-								value: value.name,
-								source
-							}));
-							resolve(names);
-						}
-						resolve([]);
+								resolve([]);
+							});
 					});
-				});
 			} else resolve([]);
 		} catch (e) {
 			resolve([]);
@@ -862,13 +859,13 @@ function uniqueRepositories(repositories) {
 
 async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 	return new Promise((resolve, reject) => {
-		const xmlrequest = new XMLHttpRequest();
+		const request = new XMLHttpRequest();
 		// get Issues from GitHub
-		xmlrequest.open('GET', link, true, user, password);
-		xmlrequest.send();
-		xmlrequest.onreadystatechange = async function () {
+		request.open('GET', link, true, user, password);
+		request.send();
+		request.onreadystatechange = async function () {
 			if (this.readyState === 4 && this.status === 200) {
-				const data = JSON.parse(xmlrequest.responseText);
+				const data = JSON.parse(request.responseText);
 				const projects = [];
 				const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');
 				let mongoRepo;
@@ -877,7 +874,7 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 					if (!gitReposFromDb.some((entry) => entry.repoName === repo.full_name)) {
 						mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
 					} else {
-						mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name) //await mongo.getOneGitRepository(repo.full_name)
+						mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name); // await mongo.getOneGitRepository(repo.full_name)
 						if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(repo.full_name, ownerId, 'github');
 					}
 					const repoName = repo.full_name;
@@ -958,11 +955,10 @@ async function getReportHistory(storyId) {
 
 async function createReport(res, reportName) {
 	// console.log(`reportName in createReport: ${reportName}`);
-	const report = await mongo.getReport(reportName);
+	const report = await mongo.getReportByName(reportName);
 	const resolvedPath = path.resolve(`features/${reportName}.json`);
 	// console.log(`resolvedPath in createReport: ${resolvedPath}`);
-	fs.writeFileSync(resolvedPath, report.jsonReport,
-		(err) => { console.log('Error:', err); });
+	fs.writeFileSync(resolvedPath, report.jsonReport, (err) => { console.log('Error:', err); });
 	reporter.generate(setOptions(reportName));
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 	setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
@@ -1009,16 +1005,25 @@ async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatu
 
 async function updateScenarioTestStatus(uploadedReport) {
 	try {
-		await mongo.updateScenarioStatus(
-			uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus
-		);
+		await mongo.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus);
 	} catch (e) {
 		console.log('Could not Update Scenario LastTestPassed.');
 	}
 }
 
-function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, scenariosTested,
-	reportTime, story, scenario, mode, reportName) {
+function renderComment(
+	req,
+	stepsPassed,
+	stepsFailed,
+	stepsSkipped,
+	testStatus,
+	scenariosTested,
+	reportTime,
+	story,
+	scenario,
+	mode,
+	reportName
+) {
 	let comment = '';
 	const testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
 	const frontendUrl = process.env.FRONTEND_URL;
@@ -1031,6 +1036,7 @@ function renderComment(req, stepsPassed, stepsFailed, stepsSkipped, testStatus, 
 function postComment(issueNumber, comment, githubName, githubRepo, password) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
 	const body = { body: comment };
+	const request = new XMLHttpRequest();
 	request.open('POST', link, true, githubName, password);
 	request.send(JSON.stringify(body));
 	request.onreadystatechange = function () {
@@ -1043,6 +1049,7 @@ function postComment(issueNumber, comment, githubName, githubRepo, password) {
 function addLabelToIssue(githubName, githubRepo, password, issueNumber, label) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`;
 	const body = { labels: [label] };
+	const request = new XMLHttpRequest();
 	request.open('POST', link, true, githubName, password);
 	request.send(JSON.stringify(body));
 	request.onreadystatechange = function () {
@@ -1079,7 +1086,8 @@ function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumbe
 }
 
 const getGithubData = (res, req, accessToken) => {
-	request(
+	fetch(
+		`https://api.github.com/user?access_token=${accessToken}`,
 		{
 			uri: `https://api.github.com/user?access_token=${accessToken}`,
 			method: 'GET',
@@ -1088,26 +1096,29 @@ const getGithubData = (res, req, accessToken) => {
 					'User-Agent': 'SampleOAuth',
 					Authorization: `Token ${accessToken}`
 				}
-		},
-		async (err, response, body) => {
-			req.body = await JSON.parse(body);
+		}
+	)
+		.then((response) => response.json())
+		.then(async (json) => {
+			console.log('JSON in GetGitHubData');
+			console.log(json);
+			req.body = json;
 			req.body.githubToken = accessToken;
 			try {
 				await mongo.findOrRegister(req.body);
 				passport.authenticate('github-local', (error, user) => {
-					if (error) {
-						res.json({ error: 'Authentication Error' });
-					} else if (!user) {
-						res.json({ error: 'Authentication Error' });
-					}
-					req.logIn(user, async function (err) {
-						if (err) {
+					if (error || !user) res.json({ error: 'Authentication Error' });
+					req.logIn(user, (LoginError) => {
+						if (LoginError) {
 							res.json({ error: 'Login Error' });
 						} else {
 							res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
 							res.header('Access-Control-Allow-Credentials', 'true');
 							res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
-							res.json({ login: user.github.login, id: user.github.id });
+							res.json({
+								login: user.github.login,
+								id: user.github.id
+							});
 						}
 					});
 				})(req, res);
@@ -1115,8 +1126,7 @@ const getGithubData = (res, req, accessToken) => {
 				console.log('getGithubData error:', error);
 				res.sendStatus(400);
 			}
-		}
-	);
+		});
 };
 
 async function exportSingleFeatureFile(_id, source) {
@@ -1143,15 +1153,15 @@ async function exportProjectFeatureFiles(repoId) {
 		return await Promise.all(stories.map(async (story) => {
 			await this.nameSchemeChange(story);
 			try {
-				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`)
+				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
 				console.log('add FF');
 			} catch (e) { console.log('file not found'); }
 		})).then(() => zip.toBuffer());
 	});
 }
 
+
 module.exports = {
-	// deleteOldReports,
 	getReportHistory,
 	uniqueRepositories,
 	jiraProjects,
