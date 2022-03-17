@@ -145,7 +145,8 @@ export class ApiService {
      */
     static handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
-        return throwError(error);
+        //window.location.replace("/login")
+        return throwError(() => error);
     }
 
     /**
