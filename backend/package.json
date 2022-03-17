@@ -40,7 +40,9 @@
     "stream-to-string": "^1.2.0",
     "string-to-stream": "^3.0.1",
     "uuid": "^8.3.1",
-    "xmlhttprequest": "^1.8.0"
+    "winston": "^3.3.3",
+    "xmlhttprequest": "^1.8.0",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/jasmine": "^3.10.3",

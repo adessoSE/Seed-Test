@@ -39,6 +39,7 @@ const options = {
 	}
 };
 
+
 // Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
 
@@ -1158,6 +1159,7 @@ async function exportProjectFeatureFiles(repoId) {
 		})).then(() => zip.toBuffer());
 	});
 }
+
 
 module.exports = {
 	getReportHistory,
