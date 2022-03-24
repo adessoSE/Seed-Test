@@ -10,11 +10,11 @@ const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
+const fs = require('fs')
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
-// router for all user requests
 
 // Handling response errors
 function handleError(res, reason, statusMessage, code) {
@@ -24,6 +24,7 @@ function handleError(res, reason, statusMessage, code) {
 }
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
+
 
 router
 	.use(cors())
@@ -182,8 +183,8 @@ router.get('/repositories', (req, res) => {
 	}
 	// get repositories from individual sources
 	Promise.all([
-		helper.starredRepositories(req.user._id, githubId, githubName, token),
-		helper.ownRepositories(req.user._id, githubId, githubName, token),
+		helper.starredRepositories(req.user?._id, githubId, githubName, token),
+		helper.ownRepositories(req.user?._id, githubId, githubName, token),
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
@@ -194,7 +195,7 @@ router.get('/repositories', (req, res) => {
 			res.status(200).json(merged);
 		})
 		.catch((reason) => {
-			res.status(400).json('Wrong Github name or Token');
+			res.status(401).json('Wrong Github name or Token');
 			console.error(`Get Repositories Error: ${reason}`);
 		});
 });
@@ -381,5 +382,14 @@ router.get('/callback', (req, res) => {
 			helper.getGithubData(res, req, accessToken);
 		});
 });
+
+
+router.post('/log', (req, res) => {
+	const stream = fs.createWriteStream('./logs/front.log', {flags: 'a'});
+	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n')
+	stream.close()
+	res.status(200).json('logged')
+})
+
 
 module.exports = router;
