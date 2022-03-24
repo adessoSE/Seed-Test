@@ -77,11 +77,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
   set testRunningForGroup(groupRunning: boolean) {
       this.testRunningGroup = groupRunning;
       this.showResults = false;
-      try {
-        const loadingScreen: HTMLElement = document.getElementById('loading');
-        loadingScreen.scrollIntoView();
-      } catch (error) {
-      }
   }
     /**
      * Original step types
@@ -287,6 +282,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     ngDoCheck(): void {
           this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    }
+
+    ngAfterViewChecked(){
+        /**
+         * when loading for group is displayed scroll to it
+         */
+        if (this.testRunningGroup === true){
+            const loadingScreen = document.getElementById('loading');
+            loadingScreen.scrollIntoView();}
     }
 
     /**
