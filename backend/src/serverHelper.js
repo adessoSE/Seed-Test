@@ -234,7 +234,7 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 	try {
 		const reportPath = `./features/${grpName}/${grpName}.html.json`;
 		console.log(`Trying to Read: ${reportPath}`);
-		fs.readFile(reportPath, 'utf8', (err, data) => {
+		pfs.readFile(reportPath, 'utf8').then( data => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE Group-Report: ${cucumberReport.length}`);
 			// reportResults.json = cucumberReport;
@@ -268,6 +268,7 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 				reportResults.status = testPassed(overallPassedSteps, overallFailedSteps);
 				reportResults.groupStepResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
 				reportResults.scenariosTested = scenariosTested;
+				return reportResults
 			} catch (error) {
 				reportResults.overallTestStatus = false;
 				console.log('iterating through report Json failed in analyzeGroupReport.'
@@ -277,9 +278,6 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 	} catch (error) {
 		console.log(`fs.readFile error for file /features/${grpName}/${grpName}.json`);
 	}
-	console.log(`Report Results in analyzeGroupReport for Group ${grpName}: `);
-	console.log(reportResults);
-	return reportResults;
 }
 
 /**
@@ -563,20 +561,26 @@ async function runReport(req, res, stories, mode, parameters) {
 					});
 				// ##################################
 				// TODO: update this and add Comment for Jira, when everything else is done
-				if (req.params.storySource === 'github' && req.user && req.user.github) {
-					const comment = renderComment(req, reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-						reportResults.reportTime, stories[0], stories[0].scenarios[0], mode, reportName);
-					console.log(comment);
-					const githubValue = parameters.repository.split('/');
-					const githubName = githubValue[0];
-					const githubRepo = githubValue[1];
+				for(const [index, story] of stories.entries()){
+					var comment;
+					if(mode === 'group'){
+						comment = 'group execution finished'
+					} else {
+						 comment = renderComment(req, reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+							reportResults.reportTime, story, story.scenarios[0], mode, reportName);
+					}
+					if (req.params.storySource === 'github' && req.user && req.user.github) {
+						const githubValue = parameters.repository.split('/');
+						const githubName = githubValue[0];
+						const githubRepo = githubValue[1];
 
-					//postComment(stories[0].issue_number, "Test Finished", githubName, githubRepo, req.user.github.githubToken)
-					//if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, stories[0].issue_number);
-				}
-				if (req.params.storySource === 'jira' && req.user && req.user.jira){
-					const password = decryptPassword(req.user.jira.Password);
-					//postCommentJira(stories[0].issue_number, "Test Finished", req.user.jira.Host, req.user.jira.AccountName, password)
+						postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken)
+						if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+					}
+					if (req.params.storySource === 'jira' && req.user && req.user.jira){
+						const password = decryptPassword(req.user.jira.Password);
+						postCommentJira(story.issue_number, comment, req.user.jira.Host, req.user.jira.AccountName, password)
+					}
 				}
 			});
 		}
@@ -978,7 +982,7 @@ function renderComment(
 }
 
 
-async function postComment(issueNumber, comment, githubName, githubRepo, password) {
+async function postCommentGitHub(issueNumber, comment, githubName, githubRepo, password) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
 	const auth = 'Basic ' + Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')
 	/** @type {Response} */
