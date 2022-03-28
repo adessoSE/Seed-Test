@@ -1036,7 +1036,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         const timeout = 6000000;
         return this.http
-            .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
+        .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
 

@@ -1,8 +1,11 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, ElementRef} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 
 /**
  * Component to show the report
@@ -37,6 +40,8 @@ export class ReportComponent implements OnInit {
 
     isDark:boolean;
 
+    @ViewChild('iframe') iframe: ElementRef;
+
 
     /**
      * Retrieves the report
@@ -66,7 +71,7 @@ export class ReportComponent implements OnInit {
         this.themeService.themeChanged
         .subscribe((currentTheme) => {
             this.isDark = this.themeService.isDarkMode()
-    });
+        });
     }
 
     ngOnChanges() {
@@ -134,4 +139,28 @@ export class ReportComponent implements OnInit {
             // iframe.srcdoc = resp
         });
     }
+
+    public exportHtmlToPDF(){
+        const iframe = this.iframe.nativeElement;
+        const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
+
+        let divEl = iframe.contentWindow.document.getElementsByClassName('panel-collapse');
+        for (let i=0; i < divEl.length; i++) {
+            divEl[i].classList.add("in");
+        }
+
+        html2canvas(body).then(canvas => {
+              
+            let docWidth = 208;
+            let docHeight = canvas.height * docWidth / canvas.width;
+              
+            const contentDataURL = canvas.toDataURL('image/png')
+            let doc = new jsPDF('p', 'mm', 'a4');
+            let position = 0;
+            doc.addImage(contentDataURL, 'PNG', 0, position, docWidth, docHeight);
+              
+            doc.save(this.reportId+ '.pdf');
+        })
+    }
+      
 }
