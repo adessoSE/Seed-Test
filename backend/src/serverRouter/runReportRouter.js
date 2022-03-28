@@ -36,7 +36,7 @@ router.post('/Scenario/:issueID/:storySource/:scenarioId', (req, res) => {
 router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
 	const mystories = [];
-	for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id._id, 'db'));
+	for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id, 'db'));
 	req.body = group;
 	helper.runReport(req, res, mystories, 'group', req.body);
 });
