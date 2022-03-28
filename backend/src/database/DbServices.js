@@ -309,7 +309,6 @@ async function getOneStory(storyId, storySource) {
 		} else {
 			query = {
 				_id: ObjectId(storyId.toString()),
-				storySource: storySource.toString()
 			};
 		}
 		return await collection.findOne(query);
