@@ -46,3 +46,6 @@ Thumbs.db
 #Db Backup
 dbbackups/
 features/Group_Nr.
+
+webdriver/*
+!/webdriver/webdriver_updater.js
