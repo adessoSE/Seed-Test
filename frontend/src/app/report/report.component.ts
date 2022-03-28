@@ -5,7 +5,6 @@ import {saveAs} from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { JsonpInterceptor } from '@angular/common/http';
 
 
 /**
@@ -148,7 +147,7 @@ export class ReportComponent implements OnInit {
         let divEl = iframe.contentWindow.document.getElementsByClassName('panel-collapse');
         for (let i=0; i < divEl.length; i++) {
             divEl[i].classList.add("in");
-        };
+        }
 
         html2canvas(body).then(canvas => {
               
