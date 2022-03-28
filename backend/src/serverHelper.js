@@ -599,48 +599,48 @@ async function runReport(req, res, stories, mode, parameters) {
 		if (mode === 'group' && cumulate < stories.length) {
 			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
 			cumulate++;
-		} else {
-			resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
-				// generate HTML Report
-				console.log('reportName in callback of resolveReport:');
-				console.log(reportName);
-				console.log('reportResults in callback of resolveReport:');
-				console.log(reportResults);
-				// upload report to DB
-				mongo.uploadReport(reportResults)
-					.then((uploadedReport) => {
-						// read html Report and add it top response
-						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-							res.json({ htmlFile: data, reportId: uploadedReport._id });
-						});
-						updateLatestTestStatus(uploadedReport, mode);
-						// delete Group folder
-						if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
-						else {
-							// delete reports in filesystem after a while
-							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-						}
-					})
-					.catch((error) => {
-						console.log(`Could not UploadReport :  ./features/${reportName}.json
-						Rejection: ${error}`);
-						res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
-					});
-				// ##################################
-				// TODO: update this and add Comment for Jira, when everything else is done
-				// if (req.params.storySource === 'github' && req.user && req.user.github) {
-				// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-				// 		reportTime, story, scenario, mode, reportName);
-				// 	const githubValue = parameters.repository.split('/');
-				// 	const githubName = githubValue[0];
-				// 	const githubRepo = githubValue[1];
-				// 	postComment(story.issue_number, comment, githubName, githubRepo,
-				// 		req.user.github.githubToken);
-				// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-				// }
-			});
+			return
 		}
+		resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
+			// generate HTML Report
+			console.log('reportName in callback of resolveReport:');
+			console.log(reportName);
+			console.log('reportResults in callback of resolveReport:');
+			console.log(reportResults);
+			// upload report to DB
+			mongo.uploadReport(reportResults)
+				.then((uploadedReport) => {
+					// read html Report and add it top response
+					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+						res.json({ htmlFile: data, reportId: uploadedReport._id });
+					});
+					updateLatestTestStatus(uploadedReport, mode);
+					// delete Group folder
+					if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
+					else {
+						// delete reports in filesystem after a while
+						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+					}
+				})
+				.catch((error) => {
+					console.log(`Could not UploadReport :  ./features/${reportName}.json
+					Rejection: ${error}`);
+					res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+				});
+			// ##################################
+			// TODO: update this and add Comment for Jira, when everything else is done
+			// if (req.params.storySource === 'github' && req.user && req.user.github) {
+			// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
+			// 		reportTime, story, scenario, mode, reportName);
+			// 	const githubValue = parameters.repository.split('/');
+			// 	const githubName = githubValue[0];
+			// 	const githubRepo = githubValue[1];
+			// 	postComment(story.issue_number, comment, githubName, githubRepo,
+			// 		req.user.github.githubToken);
+			// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			// }
+		});
 	});
 }
 
