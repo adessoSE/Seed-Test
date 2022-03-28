@@ -4,26 +4,9 @@ import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
-import htmlToPdfmake from 'html-to-pdfmake';
+import html2canvas from 'html2canvas';
 import { JsonpInterceptor } from '@angular/common/http';
 
-pdfMake.fonts = {
-    HelveticaNeue: {
-      normal: 'Roboto-Regular.ttf',
-      bold: 'Roboto-Medium.ttf',
-      italics: 'Roboto-Italic.ttf',
-      bolditalics: 'Roboto-MediumItalic.ttf'
-    },
-    Roboto: {
-        normal: 'Roboto-Regular.ttf',
-        bold: 'Roboto-Medium.ttf',
-        italics: 'Roboto-Italic.ttf',
-        bolditalics: 'Roboto-MediumItalic.ttf'
-      }
-  };
 
 /**
  * Component to show the report
@@ -89,7 +72,7 @@ export class ReportComponent implements OnInit {
         this.themeService.themeChanged
         .subscribe((currentTheme) => {
             this.isDark = this.themeService.isDarkMode()
-    });
+        });
     }
 
     ngOnChanges() {
@@ -158,39 +141,27 @@ export class ReportComponent implements OnInit {
         });
     }
 
-    public downloadAsPDF() {
-        var htmlString = '';
+    public exportHtmlToPDF(){
         const iframe = this.iframe.nativeElement;
-        const projectName = iframe.contentWindow.document.getElementsByClassName('project-name')[0];
-        const pie_feats = iframe.contentWindow.document.getElementById('piechart_features');
-        const pie_scenario = iframe.contentWindow.document.getElementById('piechart_scenarios');
-        const panel_title = iframe.contentWindow.document.getElementsByClassName('panel-title');
-        const panel_body = iframe.contentWindow.document.getElementsByClassName('panel-body');
-        const steps = iframe.contentWindow.document.getElementsByClassName('text');
+        const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
 
-        htmlString += '<h1>' + projectName.innerText + '</h1>';
-        htmlString+= '<div style="width:200">' + pie_feats.innerHTML + '</div>';
-        htmlString+= '<div style="width:200">' + pie_scenario.innerHTML + '</div>';
-        htmlString+= '<br>';
-        htmlString+= '<b>' + panel_title[0].innerText + ': </b><br>';
-        htmlString+= panel_body[0].innerHTML;
-        var t_string1 = panel_title[1].innerText.trim().replace('\n', ' ').replace(':', ' ').split(/\s+/);
-        var t_string2 = panel_title[2].innerText.trim().replace('\n', ' ').replace(':', ' ').split(/\s+/);
-        htmlString+= '<br><div><b>' + t_string1[0] + ': </b><em>' +  t_string1.slice(1, t_string1.length).join(' ').slice(0,-1) + '</em></div><br>';
-        htmlString+= '<table><tr><th><b>' + t_string2[0] + '</b><br><b>' + t_string2[1] + ': </b><em>' +
-        t_string2.slice(2, t_string2.length).join(' ').slice(0,-3) + '</em></th></tr>';
-        for (let i=0; i < steps.length; i++) {
-            var arr = steps[i].innerText.trim().replace('\n', ' ').split(/\s+/);
-            
-            var line = '<tr><td><strong>' + arr[0] + ': </strong><em>' + arr.slice(1,arr.length).join(' ') + '</em></td></tr>';
-            htmlString+= line;   
-        }
-        htmlString += '</table>';
+        let divEl = iframe.contentWindow.document.getElementsByClassName('panel-collapse');
+        for (let i=0; i < divEl.length; i++) {
+            divEl[i].classList.add("in");
+        };
 
-        var html = htmlToPdfmake(htmlString);
-         
-        const documentDefinition = { content: html};
-        pdfMake.createPdf(documentDefinition).open(); 
-         
-      }
+        html2canvas(body).then(canvas => {
+              
+            let docWidth = 208;
+            let docHeight = canvas.height * docWidth / canvas.width;
+              
+            const contentDataURL = canvas.toDataURL('image/png')
+            let doc = new jsPDF('p', 'mm', 'a4');
+            let position = 0;
+            doc.addImage(contentDataURL, 'PNG', 0, position, docWidth, docHeight)
+              
+            doc.save(this.reportId+ '.pdf');
+        }); 
+    }
+      
 }

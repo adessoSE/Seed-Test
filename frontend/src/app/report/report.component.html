@@ -13,7 +13,7 @@
                 uk-tooltip="Save Report" type="button" (click)=" saveReport(this.reportId);"><em class="material-icons-outlined">save</em></button>
         <button *ngIf="this.reportIsSaved" id="unsave_report" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
                 uk-tooltip="Do not Save Report" type="button" (click)=" unsaveReport(this.reportId);"><em class="material-icons-outlined">cancel</em></button>
-        <button (click)="downloadAsPDF()" class="button" uk-tooltip="Generate PDF report">PDF</button>
+        <button (click)="exportHtmlToPDF()" class="button" uk-tooltip="Generate PDF report">PDF</button>
     </div>
 </div>
     <div id="testreport" class="uk-card uk-card-default padding uk-animation-fade" [hidden]=!showResults>
