@@ -183,8 +183,8 @@ router.get('/repositories', (req, res) => {
 	}
 	// get repositories from individual sources
 	Promise.all([
-		helper.starredRepositories(req.user?._id, githubId, githubName, token),
-		helper.ownRepositories(req.user?._id, githubId, githubName, token),
+		helper.starredRepositories(req.user._id, githubId, githubName, token),
+		helper.ownRepositories(req.user._id, githubId, githubName, token),
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
