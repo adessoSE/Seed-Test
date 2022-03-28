@@ -157,10 +157,10 @@ export class ReportComponent implements OnInit {
             const contentDataURL = canvas.toDataURL('image/png')
             let doc = new jsPDF('p', 'mm', 'a4');
             let position = 0;
-            doc.addImage(contentDataURL, 'PNG', 0, position, docWidth, docHeight)
+            doc.addImage(contentDataURL, 'PNG', 0, position, docWidth, docHeight);
               
             doc.save(this.reportId+ '.pdf');
-        }); 
+        })
     }
       
 }
