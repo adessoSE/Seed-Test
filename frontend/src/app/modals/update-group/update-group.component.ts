@@ -1,4 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -130,27 +131,19 @@ export class UpdateGroupComponent {
     this.apiService.deleteGroupEvent({'repo_id': repo_id, 'group_id': this.groupId});
   }
 
-  updateGroup(event) {
+  updateGroup(form: NgForm) {
     console.log('selectedStories:', this.selectedStories);
-    event.stopPropagation();
     const value = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
     const repositoryContainer: RepositoryContainer = {value, source, _id};
-    const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories, isSequential: this.isSeq};
+    const group: Group = {_id: this.groupId, name: form.value.title, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.apiService.updateGroupEvent({repositoryContainer, group});
     this.modalReference.close();
   }
 
-  enterSubmit(event) {
-    if (event.keyCode === 13) {
-      this.updateGroup(event);
-    }
-  }
-
-  onClickSubmit(event) {
+  onSubmit(event) {
     this.updateGroup(event);
-
   }
 
 }

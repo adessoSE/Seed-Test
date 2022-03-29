@@ -148,6 +148,7 @@ async function getUserByEmail(email) {
 
 async function registerUser(user) {
 	try {
+		console.log(user);
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(userCollection);
 		const dbUser = await getUserByEmail(user.email);
@@ -162,7 +163,7 @@ async function registerUser(user) {
 		}
 		return result;
 	} catch (e) {
-		console.log(`ERROR in registerGithubUser: ${e}`);
+		console.log(`ERROR in registerUser: ${e}`);
 		throw e;
 	}
 }
@@ -170,6 +171,7 @@ async function registerUser(user) {
 async function registerGithubUser(user) {
 	try {
 		const db = dbConnection.getConnection();
+		console.log(user);
 		return await db.collection(userCollection).insertOne({ github: user });
 	} catch (e) {
 		console.log(`ERROR in registerGithubUser: ${e}`);
@@ -307,7 +309,6 @@ async function getOneStory(storyId, storySource) {
 		} else {
 			query = {
 				_id: ObjectId(storyId.toString()),
-				storySource: storySource.toString()
 			};
 		}
 		return await collection.findOne(query);
@@ -581,7 +582,6 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
 		const story = await findStory(storyId, storySource, collection);
-		const lastScenarioIndex = story.scenarios.length;
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
@@ -1223,6 +1223,9 @@ async function addMember(id, user) {
 		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
 		const workGroup = await wGCollection.findOne({ Repo: ObjectId(id) });
 		if (!workGroup) {
+			if (typeof user.canEdit !== 'boolean') {
+				user.canEdit = user.canEdit.toString();
+			}
 			await wGCollection.insertOne({
 				name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
 			});

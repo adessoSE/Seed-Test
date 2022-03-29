@@ -13,16 +13,13 @@
           <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <form #saveBlockForm="ngForm" novalidate [disabled]="saveBlockForm.invalid"
-    (keydown)="enterSubmit($event, saveBlockForm)">
+    <form #saveBlockForm="ngForm" novalidate (ngSubmit)="onSubmit(saveBlockForm)">
       <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
           <div class="blockNameContainer modalsContent">
-              <div class="labelField uk-form-label" id="inputLabels">
+              <div class="uk-form-label" id="inputLabels">
                 <label>Enter block name*</label>
-              </div>
-              <div class="inputField">
-                <input type="text" id="blockNameInput" ngModel name="blockNameInput" placeholder="New block" class="blockNameInput leftMargin" required>
+                <input type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New block" class="blockNameInput leftMargin" required>
               </div>
           </div>
           <div class="tableContainer">
@@ -46,9 +43,10 @@
           </div>
         </div>
       </div>
+      <div class="modal-footer">
+        <button class="normalButton" type="submit" [disabled]="!saveBlockForm.valid"
+        [ngStyle]="{'opacity': !saveBlockForm.valid ?  '50%' : '100%'}">Submit
+        </button>
+      </div>
     </form>
-    <div class="modal-footer">
-      <button class="normalButton" (click)="onClickSubmit(saveBlockForm)">Submit
-      </button>
-    </div>
   </ng-template>

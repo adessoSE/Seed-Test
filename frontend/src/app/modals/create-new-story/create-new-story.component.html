@@ -1,28 +1,29 @@
 <!--Create New Story in custom project-->
 <ng-template #createNewStoryModal let-modal>
     <app-layout-modal></app-layout-modal>
-    <div (keydown)="enterSubmit($event)">
-        <div class="modal-header">
-            <span class="MediumSubline1H4 modal-title" id="modal-basic-title">Create new story</span>
-            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form>
-                <div class="form-group modalsContent">
-                    <div class="labelField" id="inputLabels" >
-                        <label class="uk-form-label">Enter unique story title*</label>
-                    </div>
-                    <div class="inputField" >
-                        <input [(ngModel)]="storyTitle" name="storytitle" id="storytitle" placeholder=" Title" style="margin-left: 24px;">
-                    </div>
+    <div class="modal-header">
+        <span class="MediumSubline1H4 modal-title" id="modal-basic-title">Create new story</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form [formGroup]="storyForm" novalidate (ngSubmit)="createNewStory()">
+            <div class="form-group modalsContent">
+                <div>
+                    <label class="uk-form-label">Enter unique story title*</label>
+                    <input name="storytitle" id="storytitle" pattern="\S(.*\S)?" formControlName="storyTitle"
+                           placeholder="Title" style="margin-left: 24px;" (keyup)="storyUnique()" required>
                 </div>
-                <textarea [(ngModel)]="storyDescription" name="storydescription" id="storydescription" placeholder="Enter a brief description of your test story"></textarea>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="normalButton" (click)="onClickSubmit($event)">Save</button>
-        </div>
+            </div>
+            <div>
+                <span>Add Story Description</span>
+                <textarea name="storydescription" id="storydescription" formControlName="storyDescription" placeholder="Enter a brief description of your test story"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="submitCreateNewStory" type="submit" class="normalButton" [disabled]="!storyForm.valid"
+                [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit</button>
+            </div>
+        </form>
     </div>
 </ng-template>

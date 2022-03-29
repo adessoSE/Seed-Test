@@ -57,14 +57,4 @@ export class DeleteAccountComponent {
     this.toastr.warning('', 'Enter a valid e-mail', {
     });
   }
-
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.deleteAccount(form);
-    }
-  }
-
-  onClickSubmit(form: NgForm) {
-    this.deleteAccount(form);
-  }
 }

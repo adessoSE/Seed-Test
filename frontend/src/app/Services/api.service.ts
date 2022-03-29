@@ -10,6 +10,8 @@ import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
 import {Group} from '../model/Group';
+import { ToastrService } from 'ngx-toastr';
+
 
 /**
  * Service to communicate between components and the backend
@@ -20,10 +22,11 @@ import {Group} from '../model/Group';
 
 export class ApiService {
 
+
     /**
      * @ignore
      */
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private toastr: ToastrService) {
     }
 
     /**
@@ -222,7 +225,7 @@ export class ApiService {
      * @param lastTestPassed value status changed to
      */
     scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
-        let val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
+        const val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
         this.scenarioStatusChangeEvent.emit(val);
     }
 
@@ -334,7 +337,7 @@ export class ApiService {
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
             sessionStorage.setItem('repositories', JSON.stringify(resp));
-            this.updateRepositoryEmitter()
+            this.updateRepositoryEmitter();
           }),
             catchError(ApiService.handleError));
     }
@@ -446,12 +449,12 @@ export class ApiService {
      * @param user
      * @returns
      */
-    public updateRepository(repoID, newRepoName: string, user : any): Observable<any> {
+    public updateRepository(repoID, newRepoName: string, user: any): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .put<RepositoryContainer>(this.apiServer + '/user/repository/' + repoID + '/' + user, {repoName: newRepoName}, ApiService.getOptions())
             .pipe(tap(resp => {
-                //console.log('Update repo ' + repoID + '!', resp)
+                // console.log('Update repo ' + repoID + '!', resp)
             }));
 
     }
@@ -866,7 +869,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Add new scenario in story ' + storyID + '!', resp)
+                console.log('Add new scenario in story ' + storyID + '!', resp);
             }));
     }
 
@@ -881,7 +884,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenarioID, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Get scenario in story ' + storyID + '!', resp)
+                console.log('Get scenario in story ' + storyID + '!', resp);
             }));
     }
 
@@ -898,7 +901,7 @@ export class ApiService {
         return this.http
             .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Update background for story ' + storyID )
+                console.log('Update background for story ' + storyID );
             }));
     }
 
@@ -1085,10 +1088,7 @@ export class ApiService {
      * @returns
      */
     isLoggedIn(): boolean {
-        // if (this.cookieService.check('connect.sid')) return true;
-        // return false;
-        if (localStorage.getItem('login')) { return true; }
-        return false;
+        return !!localStorage.getItem('login');
     }
 
     /**
@@ -1122,7 +1122,18 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
+            .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver});
     }
 
+    public storyUnique(buttonId: string, input: string, array: Story[], story?: Story) {
+        array = array ? array : [];
+        input = input ? input : '';
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if ((input && !array.find(i => i.title === input)) || (story ? array.find(g => g._id === story._id && g.title === input) : false)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('This Story Title is already in use. Please choose another Title');
+        }
+    }
 }
