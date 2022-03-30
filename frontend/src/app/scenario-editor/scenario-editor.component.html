@@ -100,7 +100,7 @@
            title="Add New Step" uk-tooltip>
             <em class="material-icons">add_circle_outline</em>
           </button>
-          <div *ngIf="sd != 'example'" uk-dropdown>
+          <div *ngIf="sd != 'example'" uk-dropdown="mode:click">
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of sortedStepTypes(); let j = index;" >
                 <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
