@@ -41,8 +41,10 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 		const id = typeof(ms) === 'object' ? ms._id : ms; // inconsistent in database
 		mystories.push(await mongo.getOneStory(id, 'db'))
 	}
+	let params = group
+	params.repository = req.body.repository
 	req.body = group;
-	helper.runReport(req, res, mystories, 'group', req.body);
+	helper.runReport(req, res, mystories, 'group', params);
 });
 
 router.get('/report/:reportName', (req, res) => {

@@ -221,7 +221,7 @@ function setOptions(reportName, reportPath = 'features/') {
 	return myOptions;
 }
 
-async function analyzeGroupReport(grpName, stories, reportOptions) {
+function analyzeGroupReport(grpName, stories, reportOptions) {
 	const reportResults = {
 		reportName: grpName,
 		reportOptions,
@@ -233,7 +233,7 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 	try {
 		const reportPath = `./features/${grpName}/${grpName}.html.json`;
 		console.log(`Trying to Read: ${reportPath}`);
-		pfs.readFile(reportPath, 'utf8').then( data => {
+		return pfs.readFile(reportPath, 'utf8').then( data => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE Group-Report: ${cucumberReport.length}`);
 			// reportResults.json = cucumberReport;
@@ -265,7 +265,7 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 				}
 				// end of for each story
 				reportResults.status = testPassed(overallPassedSteps, overallFailedSteps);
-				reportResults.groupStepResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
+				reportResults.groupTestResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
 				reportResults.scenariosTested = scenariosTested;
 				return reportResults
 			} catch (error) {
@@ -353,7 +353,7 @@ function scenarioResult(scenarioReport, scenario) {
 	return scenarioStatus
 }
 
-async function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
+function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
 	const reportResults = { reportName, reportOptions, status: false , scenarioStatuses: []};
 	try {
 		const reportPath = `./features/${reportName}.json`;
@@ -392,7 +392,7 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 }
 
 // param: stories should only contain one Story
-async function analyzeStoryReport(stories, reportName, reportOptions) {
+function analyzeStoryReport(stories, reportName, reportOptions) {
 	let reportResults = {
 		reportName,
 		reportOptions,
@@ -429,7 +429,7 @@ async function failedReportPromise(reportName) {
 	return { reportName: `Failed-${reportName}`, overallTestStatus: false };
 }
 
-async function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
+function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 	let reportOptions;
 	switch (mode) {
 		case 'scenario':
@@ -464,7 +464,7 @@ async function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 			return analyzeGroupReport(grpName, stories, reportOptions);
 		default:
 			console.log('Error: No mode provided in analyzeReport');
-			return failedReportPromise(reportName);
+			return new Promise(failedReportPromise(reportName));
 	}
 }
 
@@ -514,8 +514,8 @@ async function resolveReport(reportObj, mode, stories, req, res, callback) {
 
 	// analyze Report:
 	var reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId)
-	reportResults .reportTime = reportTime;
-	reportResults .mode = mode;
+	reportResults.reportTime = reportTime;
+	reportResults.mode = mode;
 
 	// Group needs an adjusted Path to Report
 	if (mode === 'group') reportName = `${reportResults.reportName}/${reportResults.reportName}`;
@@ -563,12 +563,14 @@ async function runReport(req, res, stories, mode, parameters) {
 				for(const [index, story] of stories.entries()){
 					var comment;
 					if(mode === 'group'){
-						comment = 'group execution finished'
-					} else {
-						 comment = renderComment(req, reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+						comment = `This Execution ist part of groupexecution ${parameters.name}\n`
+						comment += renderComment(req, reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+							reportResults.reportTime, story, story.scenarios[0], mode, reportName);
+					}else {
+						comment += renderComment(req, reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
 							reportResults.reportTime, story, story.scenarios[0], mode, reportName);
 					}
-					if (req.params.storySource === 'github' && req.user && req.user.github) {
+					if (story.storySource === 'github' && req.user && req.user.github) {
 						const githubValue = parameters.repository.split('/');
 						const githubName = githubValue[0];
 						const githubRepo = githubValue[1];
@@ -576,7 +578,7 @@ async function runReport(req, res, stories, mode, parameters) {
 						postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken)
 						if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 					}
-					if (req.params.storySource === 'jira' && req.user && req.user.jira){
+					if (story.storySource === 'jira' && req.user && req.user.jira){
 						const password = decryptPassword(req.user.jira.Password);
 						postCommentJira(story.issue_number, comment, req.user.jira.Host, req.user.jira.AccountName, password)
 					}

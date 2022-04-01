@@ -306,7 +306,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     runGroup(group: Group) {
         const id = localStorage.getItem('id');
         this.testRunningGroup.emit(true);
-        this.apiService.runGroup(id, group._id, null).subscribe((ret: any) => {
+        const params = { repository: localStorage.getItem('repository'), source: localStorage.getItem('source') }
+        this.apiService.runGroup(id, group._id, params).subscribe((ret: any) => {
             this.report.emit(ret);
             this.testRunningGroup.emit(false);
             const report_id = ret.reportId;
