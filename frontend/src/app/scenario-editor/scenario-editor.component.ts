@@ -157,7 +157,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     /**
      * Id of the last checked input field
      */
-    lastCheckedInput;
+    lastToFocus;
 
     /**
      * Last step id after adding new step 
@@ -229,11 +229,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         this.step_type_input1.changes.subscribe(_ => {
             this.step_type_input1.forEach(in_field => {
                 
-                if ( in_field.nativeElement.id === this.lastCheckedInput) {
+                if ( in_field.nativeElement.id === this.lastToFocus) {
                     in_field.nativeElement.focus();
                 }
             });
-            this.lastCheckedInput = '';
+            this.lastToFocus = '';
         });
     }
 
@@ -467,17 +467,17 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
                 case 'given':
                     this.selectedScenario.stepDefinitions.given.push(newStep);
                     var lastEl = this.selectedScenario.stepDefinitions.given.length-1;
-                    this.lastCheckedInput = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
+                    this.lastToFocus = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'when':
                     this.selectedScenario.stepDefinitions.when.push(newStep);
                     var lastEl = this.selectedScenario.stepDefinitions.when.length-1;
-                    this.lastCheckedInput = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
+                    this.lastToFocus = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'then':
                     this.selectedScenario.stepDefinitions.then.push(newStep);
                     var lastEl = this.selectedScenario.stepDefinitions.then.length-1;
-                    this.lastCheckedInput = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
+                    this.lastToFocus = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'example':
                     this.addExampleStep(step);
@@ -1288,7 +1288,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param event
      */
     resizeInput(event) {
-        if (event.target.id !== this.lastCheckedInput) {
+        if (event.target.id !== this.lastToFocus) {
             // reset variable
             this.width = this.minWidth + 'px';
         }
@@ -1300,7 +1300,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
             this.width = this.minWidth + 'px';
             event.target.style.setProperty('width', this.width);
         }
-        this.lastCheckedInput = event.target.id;
+        this.lastToFocus = event.target.id;
     }
 
     /**
