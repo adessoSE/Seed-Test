@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -25,7 +25,7 @@ import { CreateScenarioComponent } from '../modals/create-scenario/create-scenar
     styleUrls: ['./scenario-editor.component.css'],
 })
 
-export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
+export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, AfterViewInit {
 
 
     /**
@@ -160,6 +160,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
     lastCheckedInput;
 
     /**
+     * Last step id after adding new step 
+     */
+    lastStepId;
+
+    /**
      * Subscribtions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
@@ -175,6 +180,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * Parent line element of steps
      */
     @ViewChild('parentEl') parentEl: ElementRef;
+    @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
 
     /**
      * View child of the modals component
@@ -218,6 +224,18 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      */
     @Output()
     runTestScenarioEvent: EventEmitter<any> = new EventEmitter();
+
+    ngAfterViewInit(): void {
+        this.step_type_input1.changes.subscribe(_ => {
+            this.step_type_input1.forEach(in_field => {
+                
+                if ( in_field.nativeElement.id === this.lastCheckedInput) {
+                    in_field.nativeElement.focus();
+                }
+            });
+            this.lastCheckedInput = '';
+        });
+    }
 
     /**
      * retrieves the saved block from the session storage
@@ -440,7 +458,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param storyID
      * @param step
      */
-    addStepToScenario(storyID: any, step) {
+    addStepToScenario(storyID: any, step, step_idx) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if (newStep['type'] === this.newStepName) {
             this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
@@ -448,12 +466,18 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
             switch (newStep.stepType) {
                 case 'given':
                     this.selectedScenario.stepDefinitions.given.push(newStep);
+                    var lastEl = this.selectedScenario.stepDefinitions.given.length-1;
+                    this.lastCheckedInput = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'when':
                     this.selectedScenario.stepDefinitions.when.push(newStep);
+                    var lastEl = this.selectedScenario.stepDefinitions.when.length-1;
+                    this.lastCheckedInput = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'then':
                     this.selectedScenario.stepDefinitions.then.push(newStep);
+                    var lastEl = this.selectedScenario.stepDefinitions.then.length-1;
+                    this.lastCheckedInput = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'example':
                     this.addExampleStep(step);
