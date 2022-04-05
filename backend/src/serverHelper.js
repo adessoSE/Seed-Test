@@ -852,9 +852,18 @@ function dbProjects(user) {
 }
 
 function uniqueRepositories(repositories) {
-	return repositories.filter((repo, index, self) => index === self.findIndex((t) => (
-		t._id === repo._id
-	)));
+
+	const unique_ids = []
+	const unique = []
+
+    for(const i in repositories) {
+		if (unique_ids.indexOf(repositories[i]._id.toString()) <= -1) {
+			unique_ids.push(repositories[i]._id.toString());
+			unique.push(repositories[i]);
+		}
+    }
+
+	return unique
 }
 
 async function execRepositoryRequests(link, user, password, ownerId, githubId) {
