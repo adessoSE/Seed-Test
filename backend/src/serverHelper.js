@@ -571,7 +571,8 @@ async function runReport(req, res, stories, mode, parameters) {
 							reportResults.reportTime, story, story.scenarios[0], mode, reportName);
 					}
 					if (story.storySource === 'github' && req.user && req.user.github) {
-						const githubValue = parameters.repository.split('/');
+						const githubValue = parameters.repository?.split('/');
+						if (githubValue == null) {continue}
 						const githubName = githubValue[0];
 						const githubRepo = githubValue[1];
 
