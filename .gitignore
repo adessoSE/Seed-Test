@@ -88,6 +88,3 @@ backend/features/step_definitions/testing.js
 # Website Deployment with IIS
 **/web.config
 /website
-
-# logs
-backend/logs/

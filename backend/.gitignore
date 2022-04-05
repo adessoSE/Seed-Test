@@ -34,8 +34,6 @@ yarn-error.log
 testem.log
 /typings
 
-/logs
-
 /features/*
 !/features/step_definitions/*
 
@@ -49,3 +47,7 @@ features/Group_Nr.
 
 webdriver/*
 !/webdriver/webdriver_updater.js
+
+# logs
+.log
+

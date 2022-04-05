@@ -17,8 +17,8 @@ const emptyBackground = require('./models/emptyBackground');
 
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'AES-256-GCM';
-const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
+const cryptoAlgorithm = 'aes-256-cbc';
+const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
 const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report
