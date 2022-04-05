@@ -143,6 +143,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     exampleLastChecked = { id: undefined, step: undefined };
 
     /**
+     * Last checked input
+     */
+     lastCheckedInput;
+
+    /**
      * List of all checkboxes
      */
     allCheckboxes;
@@ -1301,7 +1306,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
             this.width = this.minWidth + 'px';
             event.target.style.setProperty('width', this.width);
         }
-        this.lastToFocus = event.target.id;
+        this.lastCheckedInput = event.target.id;
     }
 
     /**
