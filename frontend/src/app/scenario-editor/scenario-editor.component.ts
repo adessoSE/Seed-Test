@@ -1264,15 +1264,16 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
      * @param event
      */
     resizeInput(event) {
+        let string_input_scaled = event.target.value.length *8;
         if (event.target.id !== this.lastCheckedInput) {
             // reset variable
             this.width = this.minWidth + 'px';
         }
         if (event.target.parentElement.parentElement.parentElement.offsetWidth < this.parentEl.nativeElement.offsetWidth) {
-            setTimeout(() => this.width = Math.max(this.minWidth, event.target.value.length * 8) + 'px');
+            setTimeout(() => this.width = Math.max(this.minWidth, string_input_scaled) + 'px');
             event.target.style.setProperty('width', this.width);
         }
-        if (event.target.value.length <= 0) {
+        if (string_input_scaled <= this.minWidth) {
             this.width = this.minWidth + 'px';
             event.target.style.setProperty('width', this.width);
         }
@@ -1281,15 +1282,18 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck {
 
     /**
      * Resize input fields on load
-     * @param inputLen
+     * @param stringLen
      * @returns
      */
-    resizeOnLoad (inputLen) {
-        let result = inputLen;
-        if (inputLen <= 0) {
-            result = this.minWidth;
+    resizeOnLoad (stringLen) {
+        let string_input_scaled = stringLen *8;
+        
+        if (string_input_scaled <= this.minWidth) {
+            return this.minWidth;
         }
-        return result;
+        else {
+            return string_input_scaled;
+        } 
     }
 
 }
