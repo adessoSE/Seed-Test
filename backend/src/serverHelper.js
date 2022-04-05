@@ -565,7 +565,7 @@ async function runReport(req, res, stories, mode, parameters) {
 					if(mode === 'group'){
 						comment = `This Execution ist part of groupexecution ${parameters.name}\n`
 						comment += renderComment(req, reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-							reportResults.reportTime, story, story.scenarios[0], mode, reportName);
+							reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
 					}else {
 						comment += renderComment(req, reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
 							reportResults.reportTime, story, story.scenarios[0], mode, reportName);
