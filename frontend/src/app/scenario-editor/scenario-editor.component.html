@@ -100,10 +100,10 @@
            title="Add New Step" uk-tooltip>
             <em class="material-icons">add_circle_outline</em>
           </button>
-          <div *ngIf="sd != 'example'" uk-dropdown>
+          <div *ngIf="sd != 'example'" uk-dropdown="mode:hover">
             <ul class="uk-nav uk-dropdown-nav">
               <li *ngFor="let step of sortedStepTypes(); let j = index;" >
-                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(selectedStory._id,step);">
+                <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{'scenario_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStepToScenario(step, i);">
               {{step.type}}</span>
               </li>
             </ul>
@@ -111,7 +111,7 @@
           <div *ngIf="sd == 'example'">
             <div *ngFor="let step of originalStepTypes; let j = index;" >
               <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
-               (click)="addStepToScenario(selectedStory._id,step);" title="Add New Variable" uk-tooltip>
+               (click)="addStepToScenario(selectedStory._id,step)" title="Add New Variable" uk-tooltip>
                 <em class="material-icons">add_circle_outline</em>
               </button>
             </div>
@@ -125,7 +125,7 @@
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
                 <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
-                  <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, null)" [checked]="currentStep.checked">
+                  <input #checkbox type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, i, j, null)" [checked]="currentStep.checked">
                 </div>
                 <div *ngIf="!(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
                   <input type="checkbox" class="checkbox checkboxDropdown" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, null)" [checked]="currentStep.checked">
@@ -133,7 +133,7 @@
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
                 <div style="display: flex;" *ngIf="currentStep.values.length > 0" >
                   <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=0">
-                    <input #firstInput [style.width]="(firstInput.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(firstInput.value.length*8) + 'px' : this.width + 'px'" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
+                    <input [ngStyle]="{'width.px': (step_type_input1.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(step_type_input1.value.length) : this.width}" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
                     type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" style="padding-left: 5px; padding-right: 5px;"/>
                   </div>
                   <div *ngIf="currentStep.selectionValue==0">
@@ -147,7 +147,7 @@
                   </div>
                   {{currentStep.mid}}
                    <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1">
-                    <input #secondInput [style.width]="(secondInput.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(secondInput.value.length*8) + 'px' : this.width + 'px'" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
+                    <input [ngStyle]="{'width.px': (step_type_input2.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(step_type_input2.value.length) : this.width}" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
                     type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" style="padding-left: 5px; padding-right: 5px;"/>
                   </div>
                   <div *ngIf="currentStep.selectionValue==1">
@@ -161,7 +161,7 @@
                   </div>
                   {{currentStep.post}}
                 </div>
-                <input #thirdInput [style.width]="(thirdInput.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(thirdInput.value.length*8) + 'px' : this.width + 'px'" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
+                <input [ngStyle]="{'width.px': (step_type_input3.parentElement.parentElement.parentElement.offsetWidth < parentEl.offsetWidth) ? this.resizeOnLoad(step_type_input3.value.length) : this.width}" (input)="resizeInput($event)" id="{{'scenario_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
                 type="text" value="{{value}}" on-input="addToValues(step_type_input3.value,currentStep.stepType,currentStep, j , m + 2)" style="padding-left: 5px; padding-right: 5px;"/>
                   <div *ngIf="currentStep.outdated">
                     <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
