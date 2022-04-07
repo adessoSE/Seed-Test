@@ -125,7 +125,7 @@
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
                 <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
-                  <input type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, null)" [checked]="currentStep.checked">
+                  <input #checkbox type="checkbox" class="checkbox" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, i, j, null)" [checked]="currentStep.checked">
                 </div>
                 <div *ngIf="!(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
                   <input type="checkbox" class="checkbox checkboxDropdown" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, null)" [checked]="currentStep.checked">

@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit, OnChanges} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -15,6 +15,7 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { left } from '@popperjs/core';
 
 /**
  * Component of the Scenario Editor
@@ -25,7 +26,7 @@ import { CreateScenarioComponent } from '../modals/create-scenario/create-scenar
     styleUrls: ['./scenario-editor.component.css'],
 })
 
-export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, AfterViewInit {
+export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, AfterViewInit{
 
 
     /**
@@ -186,6 +187,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      */
     @ViewChild('parentEl') parentEl: ElementRef;
     @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
+    @ViewChildren('checkbox') checkboxes: QueryList<ElementRef>;
 
     /**
      * View child of the modals component
@@ -232,14 +234,17 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
 
     ngAfterViewInit(): void {
         this.step_type_input1.changes.subscribe(_ => {
-            this.step_type_input1.forEach(in_field => {
-                
+            this.step_type_input1.forEach(in_field => {  
                 if ( in_field.nativeElement.id === this.lastToFocus) {
                     in_field.nativeElement.focus();
                 }
             });
             this.lastToFocus = '';
         });
+        this.checkboxes.changes.subscribe(_ => {
+            this.allCheckboxes = this.checkboxes;
+            console.log(this.allCheckboxes);
+        })
     }
 
     /**
@@ -337,7 +342,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
-        this.allCheckboxes = stepDefs;
+        //this.allCheckboxes = stepDefs;
         /*}*/
         this.selectedScenario.saved = false;
     }
@@ -760,29 +765,28 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param currentStep
      * @returns
      */
-    setLastChecked (currentStep) {
-        for (let i = 0; i <= this.allCheckboxes[currentStep.stepType].length - 1; i++) {
-            if (currentStep.id === this.allCheckboxes[currentStep.stepType][i].id) {
-                if (currentStep.stepType === 'given') {
-                    this.givenLastChecked.id = i;
-                    this.givenLastChecked.step = currentStep;
-                    return;
-                } else if (currentStep.stepType === 'when') {
-                    this.whenLastChecked.id = i;
-                    this.whenLastChecked.step = currentStep;
-                    return;
-                } else if (currentStep.stepType === 'then') {
-                    this.thenLastChecked.id = i;
-                    this.thenLastChecked.step = currentStep;
-                    return;
-                } else {
-                    this.exampleLastChecked.id = i;
-                    this.exampleLastChecked.step = currentStep;
-                    return;
-                }
-
+    setLastChecked (currentStep, checkbox_id) {
+        switch (currentStep.stepType) {
+            case 'given': {
+                this.givenLastChecked.id = checkbox_id;
+                this.givenLastChecked.step = currentStep;
+                break
             }
-
+            case 'when': {
+                this.whenLastChecked.id = checkbox_id;
+                this.whenLastChecked.step = currentStep;
+                break
+            }
+            case 'then': {
+                this.thenLastChecked.id = checkbox_id;
+                this.thenLastChecked.step = currentStep;
+                break
+            }
+            case 'example': {
+                this.exampleLastChecked.id = checkbox_id;
+                this.exampleLastChecked.step = currentStep;
+                break
+            }
         }
     }
 
@@ -792,99 +796,77 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param step Current step
      * @param checkValue Check value
      */
-    handleClick(event, step, checkValue: boolean) {
-        // Get list of checkboxes
-        this.allCheckboxes = this.selectedScenario.stepDefinitions;
+    handleClick(event, step, step_id, checkbox_id, checkValue: boolean) {
+        //Load checkboxes
+        this.allCheckboxes = this.checkboxes;
 
         // Set current step to last checked if undefined given step type
         if (step.stepType === 'given' && this.givenLastChecked.id === undefined) {
-            this.setLastChecked(step);
+            this.setLastChecked(step, checkbox_id);
         } else if ( step.stepType === 'when' && this.whenLastChecked.id === undefined) {
-            this.setLastChecked(step);
+            this.setLastChecked(step, checkbox_id);
         } else if (step.stepType === 'then' && this.thenLastChecked.id === undefined) {
-            this.setLastChecked(step);
+            this.setLastChecked(step, checkbox_id);
         } else if (step.stepType === 'example' && this.exampleLastChecked.id === undefined) {
-            this.setLastChecked(step);
+            this.setLastChecked(step, checkbox_id);
         }
 
         // if key pressed is shift
         if (event.shiftKey) {
-            this.checkMany(step);
+            this.checkMany(step, step_id, checkbox_id);
         } else {
             this.checkStep(event, step, checkValue);
         }
 
         // Set current step to last checked
-        this.setLastChecked (step);
+        this.setLastChecked (step, checkbox_id);
     }
 
     /**
      * Checks many steps on shift click
      * @param currentStep
      */
-    checkMany(currentStep) {
+    checkMany(currentStep, step_id, checkbox_id) {
         // Find in this block start and end step
-        let startTemp;
-        let endTemp;
+        let newTmp = checkbox_id;  // current step id
+        let lastTmp;
         let start;
         let end;
-        for (let y = 0; y <= this.allCheckboxes[currentStep.stepType].length - 1; y++) {
-            if (currentStep.id === this.allCheckboxes[currentStep.stepType][y].id) {
-                if (currentStep.stepType === 'given') {
-                    startTemp = y;  // current step
-                    endTemp = this.givenLastChecked.id; // last checked step
-                    start = Math.min(startTemp, endTemp); // get starting & ending array element
-                    end = Math.max(startTemp, endTemp);
-                } else if (currentStep.stepType === 'when') {
-                    startTemp = y;  // current step
-                    endTemp = this.whenLastChecked.id; // last checked step
-                    start = Math.min(startTemp, endTemp); // get starting & ending array element
-                    end = Math.max(startTemp, endTemp);
 
-                } else if (currentStep.stepType === 'then') {
-                    startTemp = y;  // current step
-                    endTemp = this.thenLastChecked.id; // last checked step
-                    start = Math.min(startTemp, endTemp); // get starting & ending array element
-                    end = Math.max(startTemp, endTemp);
-                } else {
-                    startTemp = y;  // current step
-                    endTemp = this.exampleLastChecked.id; // last checked step
-                    start = Math.min(startTemp, endTemp); // get starting & ending array element
-                    end = Math.max(startTemp, endTemp);
-                }
-                // Check all steps in the list between start and end
-                let i = start;
-                for (i; i <= end; i++) {
-                    if (currentStep.stepType === 'given') {
-                        this.selectedScenario.stepDefinitions.given.forEach(steptype => {
-                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
-                                steptype.checked = this.givenLastChecked.step.checked;
-                            }
-                        });
-                    } else if (currentStep.stepType === 'when') {
-                        this.selectedScenario.stepDefinitions.when.forEach(steptype => {
-                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
-                                steptype.checked = this.whenLastChecked.step.checked;
-                            }
-                        });
-                    } else if (currentStep.stepType === 'then') {
-                        this.selectedScenario.stepDefinitions.then.forEach(steptype => {
-                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
-                                steptype.checked = this.thenLastChecked.step.checked;
-                            }
-                        });
-                    } else {
-                        this.selectedScenario.stepDefinitions.example.forEach(steptype => {
-                            if (steptype.id === this.allCheckboxes[currentStep.stepType][i].id) {
-                                steptype.checked = this.exampleLastChecked.step.checked;
-                            }
-                        });
-                    }
-
-                }
-
+        switch(currentStep.stepType) {
+            case 'given': {
+                lastTmp = this.givenLastChecked.id; // last checked step 
+                break
+            }
+            case 'when': {
+                lastTmp = this.whenLastChecked.id; // last checked step
+                break
+            }
+            case 'then': {
+                lastTmp = this.thenLastChecked.id; // last checked step
+                break
+            }
+            case 'example': {
+                lastTmp = this.exampleLastChecked.id; // last checked step
+                break
             }
         }
+
+        start = Math.min(newTmp, lastTmp); // get starting & ending array element
+        end = Math.max(newTmp, lastTmp);
+        
+        // Check all steps in the list between start and end
+        let id = 'scenario_'+step_id+'_checkbox_'
+        this.allCheckboxes.forEach(checkbox => {
+            for (let i = start+1; i <= end; i++) {
+                if (checkbox.nativeElement.id === id+i) {
+                    this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked = !this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked;     
+                }
+            }
+            if (checkbox.nativeElement.id === id+start) {
+                this.selectedScenario.stepDefinitions[currentStep.stepType][start].checked = checkbox.nativeElement.checked;
+            }
+        });          
     }
 
     /**
