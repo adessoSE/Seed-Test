@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, SimpleChanges, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit, OnChanges} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -15,7 +15,6 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import { left } from '@popperjs/core';
 
 /**
  * Component of the Scenario Editor
@@ -340,10 +339,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param stepIndex
      */
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
-        /*if (!this.editorLocked) {*/
         moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
-        //this.allCheckboxes = stepDefs;
-        /*}*/
         this.selectedScenario.saved = false;
     }
 
@@ -468,25 +464,26 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param storyID
      * @param step
      */
-    addStepToScenario(storyID: any, step, step_idx) {
+    addStepToScenario(step, step_idx) {
         const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions);
         if (newStep['type'] === this.newStepName) {
             this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
         } else {
+            var lastEl
             switch (newStep.stepType) {
                 case 'given':
                     this.selectedScenario.stepDefinitions.given.push(newStep);
-                    var lastEl = this.selectedScenario.stepDefinitions.given.length-1;
+                    lastEl = this.selectedScenario.stepDefinitions.given.length-1;
                     this.lastToFocus = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'when':
                     this.selectedScenario.stepDefinitions.when.push(newStep);
-                    var lastEl = this.selectedScenario.stepDefinitions.when.length-1;
+                    lastEl = this.selectedScenario.stepDefinitions.when.length-1;
                     this.lastToFocus = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'then':
                     this.selectedScenario.stepDefinitions.then.push(newStep);
-                    var lastEl = this.selectedScenario.stepDefinitions.then.length-1;
+                    lastEl = this.selectedScenario.stepDefinitions.then.length-1;
                     this.lastToFocus = 'scenario_'+step_idx+'_input_pre_'+ lastEl;
                     break;
                 case 'example':
