@@ -26,6 +26,11 @@
 
 #passwordLengthInfo{
     font-size: small;
+    color: black;
+}
+
+#registrationErrorInfo{
+    color: inherit;
 }
 
 #headerFont{

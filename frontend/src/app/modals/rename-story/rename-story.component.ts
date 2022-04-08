@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
 
 @Component({
@@ -9,26 +10,40 @@ import { ApiService } from 'src/app/Services/api.service';
 })
 export class RenameStoryComponent {
 
+  modalReference: NgbModalRef;
+
   @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
+
+  storyForm = new FormGroup ({
+    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    storyDescription: new FormControl(''),
+  });
+
+  get storyTitle() { return this.storyForm.get('storyTitle'); }
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
   /**
    * Opens the rename story Modal
    * @param oldTitle old story title
+   * @param oldDescription old description
    */
-  openRenameStoryModal(oldTitle: string) {
-    this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
-    const title = document.getElementById('newStoryTitle') as HTMLInputElement;
-    title.placeholder = oldTitle;
+  openRenameStoryModal(oldTitle: string, oldDescription: string) {
+    this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.storyForm.setValue({
+      storyTitle: oldTitle,
+      storyDescription: oldDescription
+    });
   }
 
   /**
-   * Submits the new name for the story
+   * Submits the new name for the story & description
    */
   submitRenameStory() {
-    const title = (document.getElementById('newStoryTitle') as HTMLInputElement).value ;
-    this.apiService.renameStoryEmit(title);
+    const title = this.storyForm.value.storyTitle;
+    const description = this.storyForm.value.storyDescription;
+    this.apiService.renameStoryEmit(title, description);
+    this.modalReference.close();
   }
 
 }

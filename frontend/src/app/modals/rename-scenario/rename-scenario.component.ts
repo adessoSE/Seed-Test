@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgForm } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
 
 @Component({
@@ -9,26 +10,30 @@ import { ApiService } from 'src/app/Services/api.service';
 })
 export class RenameScenarioComponent {
 
+  modalReference: NgbModalRef;
+
+  scenarioName:string;
+
   @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
-  /**
+/**
  * Opens the rename scenario Modal
  * @param oldTitle old scenario title
  */
    openRenameScenarioModal(oldTitle: string) {
-    this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
-    const name = document.getElementById('newTitle') as HTMLInputElement;
-    name.placeholder = oldTitle;
+    this.modalReference = this.modalService.open(this.renameScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.scenarioName = oldTitle;
   }
 
 /**
 * Submits the new name for the scenario
 */
-  submitRenameScenario() {
-    const name = (document.getElementById('newTitle') as HTMLInputElement).value;
+  submitRenameScenario(form: NgForm) {
+    const name = form.value.newTitle;
     this.apiService.renameScenarioEmit(name);
+    this.modalReference.close();
   }
 
 }

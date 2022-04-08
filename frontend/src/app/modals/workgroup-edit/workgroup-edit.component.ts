@@ -44,19 +44,18 @@ export class WorkgroupEditComponent {
     */
   userEmail = '';
   userId = '';
-
-  repos : RepositoryContainer[];
+  repos: RepositoryContainer[];
+  isCurrentToDelete = false;
 
    /**
     * Model Reference for closing
     */
   modalReference: NgbModalRef;
 
-  @Output() 
-  currentRepoToDeleteEvent : EventEmitter<boolean> = new EventEmitter();
+  projectName: string;
 
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
-  @ViewChild('repoSwitchModal') repoSwitchModal : RepoSwichComponent;
+  @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
     this.apiService.deleteRepositoryEvent.subscribe(() => {
@@ -78,6 +77,7 @@ export class WorkgroupEditComponent {
     this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-titles'});
     const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
     header.textContent = 'Project: ' + project.value;
+    this.projectName = project.value;
 
     this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
         this.workgroupList = res.member;
@@ -102,7 +102,7 @@ export class WorkgroupEditComponent {
       this.workgroupList = originList;
     }, (error) => {
       this.workgroupError = error.error.error;
-      this.showErrorToast ()
+      this.showErrorToast();
     });
 
   }
@@ -132,21 +132,23 @@ export class WorkgroupEditComponent {
 /**
  * Delete a custom repository
  */
-  deleteCustomRepo(){
-    if(this.userEmail == this.workgroupOwner) {
-      const currentRepo = localStorage.getItem('repository');
-      if ( this.workgroupProject.value == currentRepo) {
-        this.currentRepoToDeleteEvent.emit(true);
-        this.openRepoSwitchModal();
-      }
-      else {
-        this.currentRepoToDeleteEvent.emit(false);
-        this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(res =>{
-          this.apiService.getRepositoriesEmitter();
-          this.apiService.updateRepositoryEmitter();
-        });
-        this.modalReference.close();
-      }
+  deleteCustomRepo() {
+    if (this.userEmail == this.workgroupOwner) {
+      this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(() => {
+        this.apiService.getRepositoriesEmitter();
+        this.apiService.updateRepositoryEmitter();
+      });
+      this.modalReference.close();
+    }
+  }
+
+  isCurrentRepoToDelete() {
+    const currentRepo = localStorage.getItem('repository');
+    if ( this.workgroupProject.value === currentRepo) {
+      this.isCurrentToDelete = true;
+      this.openRepoSwitchModal();
+    } else {
+      this.showDeleteRepositoryToast();
     }
   }
 
@@ -170,8 +172,24 @@ export class WorkgroupEditComponent {
     this.repoSwitchModal.openModal();
   }
 
-  isCurrentToDelete (value):boolean {
-    return value
+  enterSubmit(event, form: NgForm) {
+    if (event.keyCode === 13) {
+      this.workgroupInvite(form);
+      form.reset();
+    }
+  }
+
+  /**
+  * Submits the new name for the scenario
+  */
+  renameProject(form: NgForm) {
+    const name = form.value.newTitle;
+    const project = this.workgroupProject;
+    if (name.replace(/\s/g, '').length > 0) {
+      project.value = name;
+   }
+    // Emits rename event
+    this.apiService.renameProjectEmitter(project);
   }
 
 }

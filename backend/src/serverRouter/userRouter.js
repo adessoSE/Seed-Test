@@ -1,21 +1,27 @@
+/* eslint-disable no-underscore-dangle */
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const process = require('process');
 const fetch = require('node-fetch');
-const request = require('request');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
-const mongo = require('../database/mongodatabase');
+const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
 // router for all user requests
+
+// Handling response errors
+function handleError(res, reason, statusMessage, code) {
+	console.error(`ERROR: ${reason}`);
+	res.status(code || 500)
+		.json({ error: statusMessage });
+}
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
 
@@ -37,33 +43,29 @@ router
 		next();
 	});
 
-// checks if a reset request already exists if true it delets the old request. Checks if an Account with this email exists, if true creates a request and saves it.
-// also sends an email via nodemailer with resetlink to the given emailadress.
+// checks if a reset request already exists if true it deletes the old request.
+// Checks if an Account with this email exists, if true creates a request and saves it.
+// also sends an email via nodemailer with reset-link to the given email-adress.
 router.post('/resetpassword', async (req, res) => {
 	const checkRequest = await mongo.getResetRequestByEmail(req.body.email);
-	if (checkRequest) {
-		await mongo.deleteRequest(req.body.email);
-	}
+	if (checkRequest) await mongo.deleteRequest(req.body.email);
+
 	const thisUser = await mongo.getUserByEmail(req.body.email);
 	// TODO if (!user)
-	if (thisUser) {
-		try {
-			const id = uuidv1();
-			await mongo.createResetRequest({
-				'createdAt': new Date(),
-				'uuid': id,
-				'email': thisUser.email
-			});
-			nodeMail.sendResetLink(thisUser.email, id);
-			res.status(200)
-				.json();
-		} catch (error) {
-			res.status(401)
-				.json(error);
-		}
-	} else {
-		console.log('UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!');
-	}
+	if (thisUser) try {
+		const id = uuidv1();
+		await mongo.createResetRequest({
+			createdAt: new Date(),
+			uuid: id,
+			email: thisUser.email
+		});
+		await nodeMail.sendResetLink(thisUser.email, id);
+		res.status(200)
+			.json();
+	} catch (error) {
+		res.status(401)
+			.json(error);
+	} else console.log('UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!');
 });
 
 // checks if requests exist if true, gets the according Account and changes the password
@@ -75,11 +77,9 @@ router.patch('/reset', async (req, res) => {
 		req.body.password = bcrypt.hashSync(req.body.password, salt);
 		user.password = req.body.password;
 		await mongo.updateUser(user._id, user);
-		mongo.deleteRequest(user.email);
+		await mongo.deleteRequest(user.email);
 		res.status(204).json();
-	} else {
-		res.status(401).json();
-	}
+	} else res.status(401).json();
 });
 
 // login user
@@ -87,34 +87,26 @@ router.post('/login', (req, res, next) => {
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
 	req.body.email = req.body.email.toLowerCase();
 	try {
-		passport.authenticate('normal-local', (error, user, info) => {
-			if (error) {
-				throw new UserError(error);
-			} else if (!user) {
+		passport.authenticate('normal-local', {}, (error, user, info) => {
+			if (error) throw error;
+			else if (!user) {
 				info.status = 'error';
 				return res.json(info);
 			}
-			req.logIn(user, async function (err) {
-				if (err) {
-					throw new UserError(err);
-				} else {
-					res.json(user);
-				}
+			req.logIn(user, async (err) => {
+				if (err) throw err;
+				else res.json(user);
 			});
 		})(req, res, next);
 	} catch (error) {
-		if (error instanceof UserError) {
-			res.status(401).json(error);
-		} else {
-			res.status(401).json(error);
-		}
+		res.status(401).json(error);
 	}
 });
 
 // login github account
 router.post('/githubLogin', (req, res) => {
 	req.body.id = parseInt(req.body.id, 10);
-	passport.authenticate('github-local', (error, user) => {
+	passport.authenticate('github-local', {}, (error, user) => {
 		if (error) res.status(401).json(error);
 		req.logIn(user, async (err) => {
 			if (err) return res.status(401).json(err);
@@ -207,6 +199,13 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
+// update repository
+router.put('/repository/:repo_id/:owner_id', async (req, res) => {
+	const repo = await mongo.updateRepository(req.params.repo_id, req.body, req.params.owner_id);
+	res.status(200).json(repo);
+	console.log(repo);
+});
+
 // delete repository
 router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
@@ -227,7 +226,7 @@ router.get('/stories', async (req, res) => {
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
-
+		const githubRepoUrl = `${githubName.toString()}/${githubRepo.toString()}`;
 		const tmpStories = new Map();
 		const tmpStoriesArray = [];
 
@@ -236,7 +235,7 @@ router.get('/stories', async (req, res) => {
 		const headers = {
 			Authorization: `token ${token}`
 		};
-		const response = await fetch(`https://api.github.com/repos/${githubName}/${githubRepo}/issues?labels=story`, { headers });
+		const response = await fetch(`https://api.github.com/repos/${githubRepoUrl}/issues?labels=story`, { headers });
 		if (response.status === 401) res.status(401).json('Github Status 401');
 		if (response.status === 200) {
 			repo = await mongo.getOneGitRepository(req.query.repoName);
@@ -259,19 +258,18 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-
-				let entry = await helper.fuseStoryWithDb(story, issue.id)
+				const entry = await helper.fuseStoryWithDb(story);
 				tmpStories.set(entry._id.toString(), entry);
-				tmpStoriesArray.push(entry._id)
+				tmpStoriesArray.push(entry._id);
 			}
 
-			Promise.all(tmpStoriesArray).then( array => {
-				const orderedStories = matchOrder(array, tmpStories, repo)
-				res.status(200).json(orderedStories)
-
-			}).catch((e) => {
-				console.log(e);
-			});
+			Promise.all(tmpStoriesArray).then((array) => {
+				const orderedStories = matchOrder(array, tmpStories, repo);
+				res.status(200).json(orderedStories);
+			})
+				.catch((e) => {
+					console.log(e);
+				});
 		}
 	} catch (err) {
 		res.status(503).send(err.message);
@@ -280,72 +278,68 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		let { Host, AccountName, Password } = req.user.jira;
+		const { Host, AccountName } = req.user.jira;
+		let { Password } = req.user.jira;
 		Password = helper.decryptPassword(Password);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
-		const cookieJar = request.jar();
 
 		const tmpStories = new Map();
 		const storiesArray = [];
 		const options = {
 			method: 'GET',
-			url: `http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`,
-			jar: cookieJar,
 			headers: {
 				'cache-control': 'no-cache',
 				Authorization: `Basic ${auth}`
 			}
 		};
-		// send request
 		let repo;
+		// send request to Jira API
 		try {
-			request(options, async (error2, response2, body) => {
-				if (error2) res.status(500).json(error2);
-				else {
+			await fetch(
+				`http://${Host}/rest/api/2/search?jql=project=${projectKey}+AND+labels=Seed-Test&startAt=0&maxResults=200`,
+				options
+			)
+				.then(async (response) => response.json())
+				.then(async (json) => {
 					try {
-						repo = await mongo.createJiraRepoIfNoneExists(req.query.projectKey, source)
-						const json = JSON.parse(body).issues;
-						for (const issue of json) {
-							if (issue.fields.labels.includes("Seed-Test")) {
-								console.log('jiraIssue', issue)
-								const story = {
-									story_id: issue.id,
-									title: issue.fields.summary,
-									body: issue.fields.description,
-									state: issue.fields.status.name,
-									issue_number: issue.key,
-									storySource: 'jira'
-								};
-								if (issue.fields.assignee !== null) {
-									// skip in case of "unassigned"
-									story.assignee = issue.fields.assignee.name;
-									story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
-								} else {
-									story.assignee = 'unassigned';
-									story.assignee_avatar_url = null;
-								}
-								let entry = await helper.fuseStoryWithDb(story, issue.id)
-								console.log('fuse jira', story, entry)
-								tmpStories.set(entry._id.toString(), entry)
-								storiesArray.push(entry._id)
+						repo = await mongo.getOneJiraRepository(req.query.projectKey);
+						for (const issue of json.issues) if (issue.fields.labels.includes('Seed-Test')) {
+							const story = {
+								story_id: issue.id,
+								title: issue.fields.summary,
+								body: issue.fields.description,
+								state: issue.fields.status.name,
+								issue_number: issue.key,
+								storySource: 'jira'
+							};
+							if (issue.fields.assignee !== null) {
+								// skip in case of "unassigned"
+								story.assignee = issue.fields.assignee.name;
+								story.assignee_avatar_url = issue.fields.assignee.avatarUrls['32x32'];
+							} else {
+								story.assignee = 'unassigned';
+								story.assignee_avatar_url = null;
 							}
+							const entry = await helper.fuseStoryWithDb(story, issue.id);
+							tmpStories.set(entry._id.toString(), entry);
+							storiesArray.push(entry._id);
 						}
 					} catch (e) {
-						console.log('Jira Error while getting issues:', e);
+						console.error('Error while getting Jira issues:', e);
 					}
 					Promise.all(storiesArray)
-						.then(array => {
-							const orderedStories = matchOrder(array, tmpStories, repo)
-							res.status(200).json(orderedStories)
+						.then((array) => {
+							const orderedStories = matchOrder(array, tmpStories, repo);
+							res.status(200)
+								.json(orderedStories);
 						})
 						.catch((e) => {
-							console.log(e);
+							console.error(e);
 						});
-				}
-			});
+				});
 		} catch (e) {
-			console.log('Jira Error during API call:', e);
+			console.error('Jira Error during API call:', e);
 		}
 
 		// get DB Repo / Projects
@@ -355,44 +349,37 @@ router.get('/stories', async (req, res) => {
 	} else res.sendStatus(401);
 
 	function matchOrder(storiesIdList, storiesArray, repo) {
-		console.log('match order of', storiesIdList, storiesArray, repo)
-		let mySet = new Set(storiesIdList.concat(repo.stories).map(i => i.toString()));
-		for(const i of repo.stories){
-			mySet.delete(i.toString())
-		}
-		const storyList = repo.stories.concat([...mySet])
+		const mySet = new Set(storiesIdList.concat(repo.stories).map((i) => i.toString()));
+		for (const i of repo.stories) mySet.delete(i.toString());
 
-		if (repo !== null) {
-			mongo.updateStoriesArrayInRepo(repo._id, storyList)
-		}
-
-		let orderedStories = storyList.map(i => storiesArray.get(i.toString()))
-		return orderedStories
-
+		const storyList = repo.stories.concat([...mySet]);
+		if (repo) mongo.updateStoriesArrayInRepo(repo._id, storyList);
+		return storyList.map((i) => storiesArray.get(i.toString()));
 	}
 });
 
 router.put('/stories/:_id', async (req, res) => {
-	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body)
-	res.status(200).json(result)
-})
+	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body);
+	res.status(200).json(result);
+});
 
 router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
-	request(
+	const params = new URLSearchParams();
+	params.append('client_id', process.env.GITHUB_CLIENT_ID);
+	params.append('client_secret', process.env.GITHUB_CLIENT_SECRET);
+	params.append('code', req.query.code);
+	fetch(
+		TOKEN_URL,
 		{
-			uri: TOKEN_URL,
 			method: 'POST',
-			form: {
-				client_id: process.env.GITHUB_CLIENT_ID,
-				client_secret: process.env.GITHUB_CLIENT_SECRET,
-				code: req.query.code
-			}
-		}, (err, response, body) => {
-			const accessToken = body.split('&')[0].split('=')[1];
-			helper.getGithubData(res, req, accessToken);
+			body: params
 		}
-	);
+	).then((response) => response.text())
+		.then((text) => {
+			const accessToken = text.split('&')[0].split('=')[1];
+			helper.getGithubData(res, req, accessToken);
+		});
 });
 
 module.exports = router;

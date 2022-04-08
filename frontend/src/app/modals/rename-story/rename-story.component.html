@@ -3,29 +3,29 @@
 <ng-template #renameStoryModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="modalHeader"class="MediumSubline1H4 modal-title">Change Story Title</span>
+        <span id="modalHeader" class="MediumSubline1H4 modal-title">Change Story Title</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <div class="modal-body modal-xl">
-        <div class="uk-card-title submitForm">
-            <div>
-                <form>
-                    <div class="padding_top modalsContent">
-                        <span >Enter unique story name</span>
-                        <span class="material-icons" display-title="Enter unique story name">drive_file_rename_outline</span>
-                        <div class="inputField">
-                            <input type="text" id="newStoryTitle" placeholder="New title">
-                        </div>
-                                            
-                    </div>
-                </form>
+    <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid"
+    (ngSubmit)="submitRenameStory()">
+        <div class="modal-body modal-xl">
+            <div class="padding_top modalsContent">
+                <div>
+                    <label>Change Story Title</label>
+                    <input type="text" id="newStoryTitle" formControlName="storyTitle" name="newStoryTitle" required>
+                </div>
+                <div style="display: contents;">
+                    <span>Edit Story Description</span>
+                    <textarea formControlName="storyDescription" id="newStoryDescription storydescription" style="width: 100%;"></textarea>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="submitRenameStory(); modal.close('Save click')">Submit
-        </button>
-    </div>
+        <div class="modal-footer">
+            <button type="submit" class="normalButton" [disabled]="!storyForm.valid"
+            [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit
+            </button>
+        </div>
+    </form>
 </ng-template>

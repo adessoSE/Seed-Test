@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
@@ -36,6 +37,11 @@ export class UpdateGroupComponent {
 
    isSeq: boolean;
 
+  /**
+  * Model Reference for closing
+  */
+  modalReference: NgbModalRef;
+
    /**
    * Columns of the story table table
    */
@@ -66,10 +72,10 @@ export class UpdateGroupComponent {
     for (const s of group.member_stories) {
         this.selectedStories.push(s._id);
     }
-    this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
-  groupUnique(event, input: string, array: Group[], group?: Group) {
+  /* groupUnique(event, input: string, array: Group[], group?: Group) {
     array = array ? array : [];
     input = input ? input : '';
 
@@ -80,7 +86,7 @@ export class UpdateGroupComponent {
         button.disabled = true;
         this.toastr.error('Choose another Group-name');
     }
-  }
+  } */
 
    /**
    * Filters stories for searchterm
@@ -125,15 +131,19 @@ export class UpdateGroupComponent {
     this.apiService.deleteGroupEvent({'repo_id': repo_id, 'group_id': this.groupId});
   }
 
-  updateGroup(event) {
+  updateGroup(form: NgForm) {
     console.log('selectedStories:', this.selectedStories);
-    event.stopPropagation();
     const value = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
     const repositoryContainer: RepositoryContainer = {value, source, _id};
-    const group: Group = {_id: this.groupId, name: this.groupTitle, member_stories: this.selectedStories, isSequential: this.isSeq};
+    const group: Group = {_id: this.groupId, name: form.value.title, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.apiService.updateGroupEvent({repositoryContainer, group});
+    this.modalReference.close();
+  }
+
+  onSubmit(event) {
+    this.updateGroup(event);
   }
 
 }

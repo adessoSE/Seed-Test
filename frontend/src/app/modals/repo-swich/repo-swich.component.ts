@@ -12,42 +12,42 @@ import { ApiService } from 'src/app/Services/api.service';
 })
 export class RepoSwichComponent implements OnInit {
 
-  repos : RepositoryContainer[];
+  repos: RepositoryContainer[];
 
   filteredRepos: MatTableDataSource<RepositoryContainer>;
 
   displayedColumnsRepos: string[] = ['repository'];
 
-  currentRepo
+  currentRepo;
+
   updateRepositoryObservable: Subscription;
 
-
-  @ViewChild("repoSwitch") repoSwitch: RepoSwichComponent;
+  @ViewChild('repoSwitch') repoSwitch: RepoSwichComponent;
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {
-    this.currentRepo = localStorage.getItem('repository')
+    this.currentRepo = localStorage.getItem('repository');
 
-    let value = sessionStorage.getItem('repositories')
-    let repositories: RepositoryContainer[] = JSON.parse(value)
-    this.repos = repositories.filter(repo => repo.value!=this.currentRepo);
+    const value = sessionStorage.getItem('repositories');
+    const repositories: RepositoryContainer[] = JSON.parse(value);
+    this.repos = repositories.filter(repo => repo.value != this.currentRepo);
     this.filteredRepos = new MatTableDataSource(this.repos);
   }
 
   ngOnInit(): void {
     this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => {
-      this.updateRepos()
-  });
+      this.updateRepos();
+    });
   }
 
   ngOnDestroy() {
-    if(!this.updateRepositoryObservable.closed){
+    if (!this.updateRepositoryObservable.closed) {
       this.updateRepositoryObservable.unsubscribe();
-  }
+    }
   }
 
   openModal() {
     this.modalService.open(this.repoSwitch, {ariaLabelledBy: 'modal-basic-titles'});
-  } 
+  }
 
    /**
    * Filters reporitories for searchterm
@@ -55,8 +55,8 @@ export class RepoSwichComponent implements OnInit {
   searchOnKey(filter: string) {
     this.filteredRepos.filterPredicate =  (data: RepositoryContainer, repoFilter: string) => data.value.trim().toLowerCase().indexOf(repoFilter) != -1;
     /* Apply filter */
-    this.filteredRepos.filter = filter.trim().toLowerCase(); 
-  } 
+    this.filteredRepos.filter = filter.trim().toLowerCase();
+  }
 
   /**
      * Selects the repository and redirects the user to the story editor
@@ -68,18 +68,16 @@ export class RepoSwichComponent implements OnInit {
     localStorage.setItem('repository', userRepository.value);
     localStorage.setItem('source', userRepository.source);
     localStorage.setItem('id', userRepository._id);
-    location.reload()
+    location.reload();
   }
 
   /**
      * Update Repositories after change
      */
-   updateRepos(){
-    let value = sessionStorage.getItem('repositories')
-    let repositories: RepositoryContainer[] = JSON.parse(value)
-    this.repos = repositories.filter(repo => repo.value!=this.currentRepo);
-      this.filteredRepos = new MatTableDataSource(this.repos);
-    
-} 
-
+  updateRepos() {
+    const value = sessionStorage.getItem('repositories');
+    const repositories: RepositoryContainer[] = JSON.parse(value);
+    this.repos = repositories.filter(repo => repo.value != this.currentRepo);
+    this.filteredRepos = new MatTableDataSource(this.repos);
+  }
 }

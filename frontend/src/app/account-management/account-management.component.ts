@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy, ViewChild, EventEmitter, Output} from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {NavigationEnd, Router} from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
@@ -12,6 +12,7 @@ import { CreateCustomProjectComponent } from '../modals/create-custom-project/cr
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { RepoSwichComponent } from '../modals/repo-swich/repo-swich.component';
+import { ToastrService } from 'ngx-toastr';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -28,10 +29,16 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Viewchild to create the modals
      */
     @ViewChild('changeJiraModal') changeJiraModal: ChangeJiraAccountComponent;
-    @ViewChild('createCustomProject') createCustomProject :CreateCustomProjectComponent;
+    @ViewChild('createCustomProject') createCustomProject: CreateCustomProjectComponent;
     @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
     @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
     @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
+
+    /**
+     * Viewchild to auto open mat-select
+     */
+    @ViewChild('ngSelect') ngSelect;
+
 
     /**
      * Repositories or projects of this user
@@ -76,14 +83,17 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     updateRepositoryObservable: Subscription;
     themeObservable: Subscription;
     getRepositoriesObservable: Subscription;
+    renamePrjectObservable: Subscription;
 
     /**
      * Constructor
      * @param apiService Connection to the api service
      * @param router router to handle url changes
      * @param themeService
+     * @param toastr
      */
-    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
+    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService,
+                private toastr: ToastrService, ) {
         this.routeSub = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
@@ -92,10 +102,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         if (!this.router.events) {
             this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
-                console.log('first load');
             });
         }
-        
     }
 
     ngOnInit() {
@@ -105,22 +113,31 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
+        this.renamePrjectObservable = this.apiService.renameProjectEvent.subscribe(proj => {
+            this.updateRepository(proj);
+        });
+
+        // fill repository list for download
+        this.searchRepos();
     }
 
     ngOnDestroy() {
-        if(!this.themeObservable.closed){
+        if (!this.themeObservable.closed) {
             this.themeObservable.unsubscribe();
         }
-        if(!this.updateRepositoryObservable.closed){
+        if (!this.updateRepositoryObservable.closed) {
             this.updateRepositoryObservable.unsubscribe();
         }
-        if(!this.routeSub.closed){
+        if (!this.routeSub.closed) {
             this.routeSub.unsubscribe();
         }
-        if(this.getRepositoriesObservable){
-            if(!this.getRepositoriesObservable.closed){
+        if (this.getRepositoriesObservable) {
+            if (!this.getRepositoriesObservable.closed) {
                 this.getRepositoriesObservable.unsubscribe();
             }
+        }
+        if (this.renamePrjectObservable.closed) {
+            this.renamePrjectObservable.unsubscribe();
         }
     }
 
@@ -162,7 +179,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Opens Modal to edit the workgroup
      * @param project
      */
-    workGroupEdit(project: RepositoryContainer){
+    workGroupEdit(project: RepositoryContainer) {
         this.workgroupEditModal.openWorkgroupEditModal(project, this.email, this.id);
     }
 
@@ -252,22 +269,34 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         }
     }
 
-    searchRepos(value) {
-        console.log(this.searchInput);
+    searchRepos() {
         this.searchInput = this.searchInput ? this.searchInput : '';
         this.searchList = [].concat(this.repositories).filter(repo => {
             if (repo.value.toLowerCase().indexOf(this.searchInput.toLowerCase()) == 0) {
                 return repo;
             }
         });
+        if (this.searchInput != '') {
+            this.ngSelect.open();
+        }
     }
 
     /**
      * Update Repositories after change
      */
-    updateRepos(){
-        let value = sessionStorage.getItem('repositories')
-        let repository: RepositoryContainer = JSON.parse(value)
-        this.seperateRepos(repository)
-    } 
+    updateRepos() {
+        const value = sessionStorage.getItem('repositories');
+        const repository: RepositoryContainer = JSON.parse(value);
+        this.seperateRepos(repository);
+
+        // update repo download list
+        this.searchRepos();
+    }
+
+    updateRepository(project: RepositoryContainer) {
+        this.apiService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {
+            this.apiService.getRepositories();
+            this.toastr.success('successfully saved', 'Repository');
+        });
+    }
 }

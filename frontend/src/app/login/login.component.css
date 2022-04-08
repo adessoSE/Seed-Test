@@ -26,7 +26,6 @@ h1{
     grid-area: formular;
     grid-row: 2 / 3;
     grid-column: 3 / 4;
-    text-align: center;
     background-color: var(--white); 
     margin-top: auto;
     margin-right: auto;
@@ -113,14 +112,53 @@ h1{
     border: 12px solid #999;
 }
 
+::ng-deep .owl-next{
+    margin: -30% 0 0 43% !important;
+    position: absolute !important;
+    background: none !important;
+}
+
+::ng-deep .owl-prev{
+    margin: -30% 0 0 -50% !important;
+    position: absolute !important;
+    background: none !important;
+}
+::ng-deep .owl-prev .material-icons:hover,
+::ng-deep .owl-next .material-icons:hover{
+    background: rgba(0, 0, 0, 0.1) !important;
+    
+}
+::ng-deep .owl-prev .material-icons,
+::ng-deep .owl-next .material-icons{
+    color: black;
+    border-radius: 50%;
+    padding: 10px;
+    display: inline;
+}
+
+::ng-deep .owl-theme .owl-nav{
+    margin: 0 0 0 0 !important;
+}
+::ng-deep .owl-carousel .owl-stage{
+    display: flex;
+}
+
 .slideDescription{
-    margin-top: 340px;
     background-color: #999;
+    height: 45px;
     color: var(--white);
-    height: 88px;
+    white-space: pre-line;
+    margin:0 0 0 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    position:absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+#carousel_arrow{
+    color: black;
 }
 
 .repo_img{
@@ -265,7 +303,6 @@ a.repoLink:hover{
         grid-area: formular;
         grid-row: 2 / 3;
         grid-column: 3 / 4;
-        text-align: center;
         background-color: var(--white);
         margin-top: 80px;
         margin-right: 100px;

@@ -2,30 +2,32 @@
 <ng-template #changeJiraAccountModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span class="MediumSubline1H4 modal-title">Change Jira-Account</span>
+        <span class="MediumSubline1H4 modal-title">Change Jira account</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <div class="modal-body">
-        <div class="submitForm">
-            <div>
-                <form>
+    <form [formGroup]="jiraForm" novalidate (ngSubmit)="changeJiraAccountSubmit()"> 
+        <div class="modal-body">
+            <div class="submitForm">
+                <div>
                     <div class="form-group modalsContent" id="jiraForm" *ngIf="type==='Jira'">
-                        <div class="labelField" id="inputLabels">
+                        <div>
                             <label class="uk-form-label">Enter existing account name*</label>
-                            <br>
-                            <label class="uk-form-label">Enter password*</label>
-                            <br>
-                            <label class="uk-form-label">Enter server URL*</label>
+                            <input name="jiraAccountName" formControlName="jiraAccountName" required>
+                            <div *ngIf="jiraAccountName.invalid && (jiraAccountName.dirty || jiraAccountName.touched)" class="alert alert-danger">
+                                <div *ngIf="jiraAccountName.errors?.['required']" style="font-size: small;">Title is required.</div>
+                                <div *ngIf="jiraAccountName.errors?.['pattern']" style="font-size: small;">Enter valid title name.</div>
+                            </div>
                         </div>
-                        <div class="inputField">
-                            <input  id="jiraAccountName">
-                            <br>
-                            <input id="jira_password" type="password">
-                            <br>
-                            <input id="jiraHost">
-                        </div>                  
+                        <div>
+                            <label class="uk-form-label">Enter password*</label>
+                            <input name="jira_password" type="password" formControlName="jiraPassword" required>    
+                        </div>  
+                        <div>
+                            <label class="uk-form-label">Enter server URL*</label>
+                            <input name="jiraHost" formControlName="jiraHost" required>
+                        </div>                
                     </div>
                     <div id="githubForm" *ngIf="type==='Github'">
                         <div class="padding_top uk-form-horizontal">
@@ -37,12 +39,12 @@
                             <input id="githubToken">
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="normalButton" (click)="changeJiraAccountSubmit(); modal.close('Save click')">Submit
-        </button>
-    </div>
+        <div class="modal-footer">
+            <button type="submit" [disabled]="!jiraForm.valid" 
+            [ngStyle]="{'opacity': !jiraForm.valid ?  '50%' : '100%'}" class="normalButton">Submit</button>
+        </div> 
+    </form>  
 </ng-template>
