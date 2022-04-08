@@ -12,7 +12,8 @@
             <div class="form-group modalsContent">
                 <div>
                     <label class="uk-form-label">Enter unique story title*</label>
-                    <input name="storytitle" id="storytitle" pattern="\S(.*\S)?" formControlName="storyTitle" placeholder="Title" style="margin-left: 24px;" required>
+                    <input name="storytitle" id="storytitle" pattern="\S(.*\S)?" formControlName="storyTitle"
+                           placeholder="Title" style="margin-left: 24px;" (keyup)="storyUnique()" required>
                 </div>
             </div>
             <div>
@@ -20,8 +21,8 @@
                 <textarea name="storydescription" id="storydescription" formControlName="storyDescription" placeholder="Enter a brief description of your test story"></textarea>
             </div>
             <div class="modal-footer">
-                <button type="submit" [disabled]="!storyForm.valid" 
-                [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}" class="normalButton">Save</button>
+                <button id="submitCreateNewStory" type="submit" class="normalButton" [disabled]="!storyForm.valid"
+                [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit</button>
             </div>
         </form>
     </div>

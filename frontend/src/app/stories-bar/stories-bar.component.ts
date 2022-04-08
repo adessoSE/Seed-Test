@@ -137,6 +137,15 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     filteredGroups: Group[];
 
+    /**
+     * List to manually open element in group list
+     * "uk-open" for open
+     * "" for close
+     * Needs to be initialized at init
+     * Length = Number of Groups
+     */
+    liGroupList: string[];
+
     isFilterActive = false;
     showFilter = false;
     assigneeModel;
@@ -168,6 +177,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     constructor(public apiService: ApiService, public toastr: ToastrService, public themeService: ThemingService) {
         this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
+            this.liGroupList = new Array(this.groups.length).fill("")
         } );
 
         const version = localStorage.getItem('version');
@@ -207,6 +217,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
                     this.groupTermChange();
+
+                    let allGroups = this.getSortedGroups()
+                    this.liGroupList = new Array(allGroups.length).fill("")
+                    let index = allGroups.findIndex((group: any) => group.name === custom.group.title);
+                    this.liGroupList[index] = "uk-open"
+                    this.selectFirstStoryOfGroup(allGroups[index])
+
                 });
             });
         });
@@ -372,7 +389,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * Opens a create New story Modal
      */
     openCreateNewStoryModal() {
-        this.createNewStory.openCreateNewStoryModal();
+        this.createNewStory.openCreateNewStoryModal(this.stories);
     }
 
     addScenario(scenarioName) {

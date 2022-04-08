@@ -336,7 +336,8 @@
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMThweCIgZmlsbD0iI0ZGRkZGRiI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE5IDEzSDV2LTJoMTR2MnoiLz48L3N2Zz4=);
 }
 
-::-webkit-scrollbar-thumb {
-  background: none;
-  box-shadow: none;
+::-webkit-scrollbar-thumb,
+.darkTheme::-webkit-scrollbar-thumb {
+  background: none !important;
+  box-shadow: none !important;
 }

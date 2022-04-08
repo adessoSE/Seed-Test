@@ -45,7 +45,6 @@ export class WorkgroupEditComponent {
   userEmail = '';
   userId = '';
   repos: RepositoryContainer[];
-  isCurrentToDelete = false;
 
    /**
     * Model Reference for closing
@@ -145,7 +144,6 @@ export class WorkgroupEditComponent {
   isCurrentRepoToDelete() {
     const currentRepo = localStorage.getItem('repository');
     if ( this.workgroupProject.value === currentRepo) {
-      this.isCurrentToDelete = true;
       this.openRepoSwitchModal();
     } else {
       this.showDeleteRepositoryToast();

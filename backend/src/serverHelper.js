@@ -17,8 +17,8 @@ const emptyBackground = require('./models/emptyBackground');
 
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'AES-256-GCM';
-const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
+const cryptoAlgorithm = 'aes-256-cbc';
+const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
 const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report
@@ -38,6 +38,7 @@ const options = {
 		Executed: 'Remote'
 	}
 };
+
 
 // Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
@@ -599,48 +600,48 @@ async function runReport(req, res, stories, mode, parameters) {
 		if (mode === 'group' && cumulate < stories.length) {
 			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
 			cumulate++;
-		} else {
-			resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
-				// generate HTML Report
-				console.log('reportName in callback of resolveReport:');
-				console.log(reportName);
-				console.log('reportResults in callback of resolveReport:');
-				console.log(reportResults);
-				// upload report to DB
-				mongo.uploadReport(reportResults)
-					.then((uploadedReport) => {
-						// read html Report and add it top response
-						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-							res.json({ htmlFile: data, reportId: uploadedReport._id });
-						});
-						updateLatestTestStatus(uploadedReport, mode);
-						// delete Group folder
-						if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
-						else {
-							// delete reports in filesystem after a while
-							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-						}
-					})
-					.catch((error) => {
-						console.log(`Could not UploadReport :  ./features/${reportName}.json
-						Rejection: ${error}`);
-						res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
-					});
-				// ##################################
-				// TODO: update this and add Comment for Jira, when everything else is done
-				// if (req.params.storySource === 'github' && req.user && req.user.github) {
-				// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-				// 		reportTime, story, scenario, mode, reportName);
-				// 	const githubValue = parameters.repository.split('/');
-				// 	const githubName = githubValue[0];
-				// 	const githubRepo = githubValue[1];
-				// 	postComment(story.issue_number, comment, githubName, githubRepo,
-				// 		req.user.github.githubToken);
-				// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-				// }
-			});
+			return
 		}
+		resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
+			// generate HTML Report
+			console.log('reportName in callback of resolveReport:');
+			console.log(reportName);
+			console.log('reportResults in callback of resolveReport:');
+			console.log(reportResults);
+			// upload report to DB
+			mongo.uploadReport(reportResults)
+				.then((uploadedReport) => {
+					// read html Report and add it top response
+					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+						res.json({ htmlFile: data, reportId: uploadedReport._id });
+					});
+					updateLatestTestStatus(uploadedReport, mode);
+					// delete Group folder
+					if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
+					else {
+						// delete reports in filesystem after a while
+						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+					}
+				})
+				.catch((error) => {
+					console.log(`Could not UploadReport :  ./features/${reportName}.json
+					Rejection: ${error}`);
+					res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+				});
+			// ##################################
+			// TODO: update this and add Comment for Jira, when everything else is done
+			// if (req.params.storySource === 'github' && req.user && req.user.github) {
+			// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
+			// 		reportTime, story, scenario, mode, reportName);
+			// 	const githubValue = parameters.repository.split('/');
+			// 	const githubName = githubValue[0];
+			// 	const githubRepo = githubValue[1];
+			// 	postComment(story.issue_number, comment, githubName, githubRepo,
+			// 		req.user.github.githubToken);
+			// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			// }
+		});
 	});
 }
 
@@ -851,9 +852,18 @@ function dbProjects(user) {
 }
 
 function uniqueRepositories(repositories) {
-	return repositories.filter((repo, index, self) => index === self.findIndex((t) => (
-		t._id === repo._id
-	)));
+
+	const unique_ids = []
+	const unique = []
+
+    for(const i in repositories) {
+		if (unique_ids.indexOf(repositories[i]._id.toString()) <= -1) {
+			unique_ids.push(repositories[i]._id.toString());
+			unique.push(repositories[i]);
+		}
+    }
+
+	return unique
 }
 
 async function execRepositoryRequests(link, user, password, ownerId, githubId) {
@@ -1158,6 +1168,7 @@ async function exportProjectFeatureFiles(repoId) {
 		})).then(() => zip.toBuffer());
 	});
 }
+
 
 module.exports = {
 	getReportHistory,

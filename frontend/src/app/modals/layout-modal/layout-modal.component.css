@@ -125,6 +125,10 @@
     color: white;
 }
 
+::ng-deep .modal-backdrop {
+    z-index: unset!important;
+  }
+
 
 
 

@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy, ViewChildren, ElementRef, QueryList, AfterViewInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -19,7 +19,6 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import { first } from 'rxjs/operators';
 
 /**
  * Empty background
@@ -34,7 +33,7 @@ const emptyBackground: Background = {stepDefinitions: {when: []}};
   templateUrl: './story-editor.component.html',
   styleUrls: ['./story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
+export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewInit {
 
   /**
    * set new currently selected scenario
@@ -78,11 +77,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
   set testRunningForGroup(groupRunning: boolean) {
       this.testRunningGroup = groupRunning;
       this.showResults = false;
-      try {
-        const loadingScreen: HTMLElement = document.getElementById('loading');
-        loadingScreen.scrollIntoView();
-      } catch (error) {
-      }
   }
     /**
      * Original step types
@@ -215,6 +209,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     panelOpenState = false;
 
+    /**
+     * Boolean driver indicator 
+     */
+    gecko_enabled
+    chromium_enabled
+
+    lastToFocus;
+
 
     /**
      * Subscribtions for all EventEmitter
@@ -243,6 +245,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
     @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
+    @ViewChildren('step_type_input1') step_type_input: QueryList<ElementRef>;
 
     /**
      * Event emitter to change to the report history component
@@ -281,6 +284,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
         } else {
           this.daisyVersion = false;
         }
+        
+        this.gecko_enabled = localStorage.getItem('gecko_enabled');
+        this.chromium_enabled = localStorage.getItem('chromium_enabled');
+        
     }
 
     /**
@@ -288,6 +295,28 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      */
     ngDoCheck(): void {
           this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    }
+
+    ngAfterViewInit(): void {
+        
+        this.step_type_input.changes.subscribe(_ => {
+            this.step_type_input.forEach(in_field => {
+                
+                if ( in_field.nativeElement.id === this.lastToFocus) {
+                    in_field.nativeElement.focus();
+                }
+            });
+            this.lastToFocus = '';
+        });
+    }
+
+    ngAfterViewChecked(){
+        /**
+         * when loading for group is displayed scroll to it
+         */
+        if (this.testRunningGroup === true){
+            const loadingScreen = document.getElementById('loading');
+            loadingScreen.scrollIntoView();}
     }
 
     /**
@@ -584,8 +613,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
    * Adds a scenario to story
    */
   addScenario(event) {
-    //console.log(this.selectedStory.title);
-    let scenarioName = event;
+    const scenarioName = event;
     this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
     .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
@@ -677,7 +705,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
   addStepToBackground(storyID: string, step: StepType) {
       const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions);
       if (newStep.stepType == 'when') {
-          this.selectedStory.background.stepDefinitions.when.push(newStep);
+            this.selectedStory.background.stepDefinitions.when.push(newStep);
+            var lastEl = this.selectedStory.background.stepDefinitions.when.length-1;
+            this.lastToFocus = 'background_step_input_pre'+ lastEl;
       }
       this.selectedStory.background.saved = false;
   }
@@ -983,7 +1013,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck {
      * @param newStoryTitle
      */
     changeStoryTitle() {
-        this.renameStoryModal.openRenameStoryModal(this.selectedStory.title, this.selectedStory.body);
+        this.renameStoryModal.openRenameStoryModal(this.stories, this.selectedStory);
     }
     /**
      * Renames the story

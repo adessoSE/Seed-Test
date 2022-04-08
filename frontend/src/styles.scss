@@ -714,16 +714,8 @@ span[rel=def] {
 }
 
 .darkTheme .def:hover span[rel=def] {
-  font-size: small;
-  color: white;
   background-color: #78909C !important;
-  position: absolute;
-  width: 28em;
-  padding: 0.5em;
-  display: block;
-  white-space: pre-line;
-  opacity: 96%;
-  z-index: 2;
+
 }
 
 .darkTheme .deleteButton {
@@ -879,18 +871,16 @@ a:hover {
 ::-webkit-scrollbar {
   height: 12px;
   width: 12px;
-  background: white;
+  background: none;
 }
 
 ::-webkit-scrollbar-thumb {
   background: map-get($mat-brown-palette, 200);
-  box-shadow: 0 1px 2px map-get($mat-brown-palette, 200);
 }
 
 .darkTheme ::-webkit-scrollbar-thumb,
 .darkTheme::-webkit-scrollbar-thumb {
-  background: map-get($mat-blue-gray-palette, 200);
-  box-shadow: 0 3px 10px map-get($mat-blue-gray-palette, 200);
+  background: map-get($mat-blue-gray-palette, 200)!important;
   border: 1px 1px 1px 1px black;
 }
 

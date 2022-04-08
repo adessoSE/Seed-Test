@@ -18,8 +18,8 @@ const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 
-if (!process.env.NODE_ENV) {
-	const dotenv = require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+	require('dotenv').config();
 }
 
 const userCollection = 'User';
@@ -309,7 +309,6 @@ async function getOneStory(storyId, storySource) {
 		} else {
 			query = {
 				_id: ObjectId(storyId.toString()),
-				storySource: storySource.toString()
 			};
 		}
 		return await collection.findOne(query);
@@ -583,7 +582,6 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
 		const story = await findStory(storyId, storySource, collection);
-		const lastScenarioIndex = story.scenarios.length;
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
