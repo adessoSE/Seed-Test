@@ -722,20 +722,6 @@ function executeTest(req, res, stories, mode, story) {
 		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
 		console.log('Executing:');
 		console.log(path.normalize(`${__dirname}/../${cucePath}.cmd`) + cucumberArgs);
-		// ch.execFile(path.normalize(`${__dirname}/../${cucePath}.cmd`), cucumberArgs, (error, stdout, stderr) => {
-		// 	if (error) {
-		// 		console.error(`exec error: ${error}`);
-		// 		resolve({
-		// 			reportTime, story, scenarioId: req.params.scenarioId, reportName
-		// 		});
-		// 		return;
-		// 	}
-		// 	console.log(`stdout: ${stdout}`);
-		// 	console.log(`stderr: ${stderr}`);
-		// 	resolve({
-		// 		reportTime, story, scenarioId: req.params.scenarioId, reportName
-		// 	});
-		// });
 
 		const runner = ch.spawn(path.normalize(`${__dirname}/../${cucePath}.cmd`) ,cucumberArgs);
 		runner.stdout.on("data",(data) => {
