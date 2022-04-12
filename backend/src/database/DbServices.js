@@ -18,8 +18,8 @@ const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
 
-if (!process.env.NODE_ENV) {
-	const dotenv = require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+	require('dotenv').config();
 }
 
 const userCollection = 'User';

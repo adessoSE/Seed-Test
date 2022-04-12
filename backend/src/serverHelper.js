@@ -19,8 +19,8 @@ const { resolve } = require('path');
 
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'AES-256-GCM';
-const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
+const cryptoAlgorithm = 'aes-256-cbc';
+const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
 const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report
@@ -40,6 +40,7 @@ const options = {
 		Executed: 'Remote'
 	}
 };
+
 
 // Time after which the report is deleted in minutes
 const reportDeletionTime = process.env.REPORT_DELETION_TIME || 5;
@@ -796,9 +797,18 @@ function dbProjects(user) {
 }
 
 function uniqueRepositories(repositories) {
-	return repositories.filter((repo, index, self) => index === self.findIndex((t) => (
-		t._id === repo._id
-	)));
+
+	const unique_ids = []
+	const unique = []
+
+    for(const i in repositories) {
+		if (unique_ids.indexOf(repositories[i]._id.toString()) <= -1) {
+			unique_ids.push(repositories[i]._id.toString());
+			unique.push(repositories[i]);
+		}
+    }
+
+	return unique
 }
 
 async function execRepositoryRequests(link, user, password, ownerId, githubId) {
@@ -1126,6 +1136,7 @@ async function exportProjectFeatureFiles(repoId) {
 		})).then(() => zip.toBuffer());
 	});
 }
+
 
 module.exports = {
 	getReportHistory,

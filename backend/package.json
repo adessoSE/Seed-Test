@@ -39,8 +39,12 @@
     "selenium-webdriver": "^4.1.1",
     "stream-to-string": "^1.2.0",
     "string-to-stream": "^3.0.1",
+    "tar": "^6.1.11",
+    "unzipper": "^0.10.11",
     "uuid": "^8.3.1",
-    "xmlhttprequest": "^1.8.0"
+    "winston": "^3.3.3",
+    "xmlhttprequest": "^1.8.0",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/jasmine": "^3.10.3",

@@ -145,7 +145,8 @@ export class ApiService {
      */
     static handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
-        return throwError(error);
+        //window.location.replace("/login")
+        return throwError(() => error);
     }
 
     /**
@@ -692,8 +693,11 @@ export class ApiService {
         const url = localStorage.getItem('url_backend');
         const clientId = localStorage.getItem('clientId');
         const version = localStorage.getItem('version');
+        const gecko_enabled = localStorage.getItem('gecko_enabled')
+        const chromium_enabled = localStorage.getItem('chromium_enabled')
 
-        if (url && url !== 'undefined' && clientId && clientId !== 'undefined' && version && version !== 'undefined') {
+        if (url && url !== 'undefined' && clientId && clientId !== 'undefined' && version && version !== 'undefined' &&
+                gecko_enabled && gecko_enabled !== 'undefined' && chromium_enabled && chromium_enabled !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
             return Promise.resolve(url);
@@ -703,6 +707,8 @@ export class ApiService {
              localStorage.setItem('url_backend', backendInfo.url);
              localStorage.setItem('clientId', backendInfo.clientId);
              localStorage.setItem('version', backendInfo.version);
+             localStorage.setItem('gecko_enabled', backendInfo.gecko_enabled);
+             localStorage.setItem('chromium_enabled', backendInfo.chromium_enabled);
              this.getBackendUrlEvent.emit();
          });
         }
@@ -1030,7 +1036,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         const timeout = 6000000;
         return this.http
-            .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
+        .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
 

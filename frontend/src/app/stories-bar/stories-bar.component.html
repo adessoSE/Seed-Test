@@ -111,7 +111,7 @@
     </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
-      <li *ngFor="let g of getSortedGroups(); let i = index " cdkDrag>
+      <li *ngFor="let g of getSortedGroups(); let i = index " class="{{liGroupList[i]}}" cdkDrag>
         <div id="groupList"  [class.darkTheme]="isDark" class=" Mediumaccordeon2 uk-accordion-title uk-background-muted" (click)="selectFirstStoryOfGroup(g)">
           <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
              title="{{g.name}}">
