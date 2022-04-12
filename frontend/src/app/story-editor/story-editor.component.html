@@ -133,17 +133,19 @@
           <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock(selectedStory._id)">
             <em class="material-icons">playlist_add</em>
           </button>
-          <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
-          class="scenarioButton" title="Add New Step" uk-tooltip>
-            <em class="material-icons">add_circle_outline</em>
-          </button>
-          <div uk-dropdown="pos: left-bottom">
-            <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of sortedStepTypes(); let i = index" >
-                <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
+          <div class="uk-inline">
+            <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
+            class="scenarioButton" title="Add New Step" uk-tooltip>
+              <em class="material-icons">add_circle_outline</em>
+            </button>
+            <div uk-dropdown="mode:hover">
+              <ul class="uk-nav uk-dropdown-nav">
+                <li *ngFor="let step of sortedStepTypes(); let i = index" >
+                  <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
                   {{step.type}}</span>
-              </li>
-            </ul>
+                </li>
+              </ul>
+            </div>
           </div>
           <button id="saveButton" class="scenarioButton" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
           title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
@@ -159,7 +161,7 @@
       </div>
 
 
-
+      <!-- Steps -->
       <div class="uk-steps">
         <br>
         <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
@@ -170,16 +172,20 @@
               </div>
               <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
               {{j+1}}. {{currentStep.pre}}
-              <p style="display:inline" *ngIf="currentStep.values.length > 0">
-                <input id="{{'background_step_input_pre' + j}}" #step_type_input
+              <div style="display:inline" *ngIf="currentStep.values.length > 0">
+                <input id="{{'background_step_input_pre' + j}}" #step_type_input1
                   type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" />
+              </div>
                   {{currentStep.mid}}
-                <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
+              <div>
+                <input id="{{'background_step_input_mid' + j}}"#step_type_input2 *ngIf="currentStep.values[1] != null"
                   type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" />
-              </p>
+              </div>
               {{currentStep.post}}
-              <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
-              type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
+              <div>
+                <input id="{{'background_step_input_post' + j + n}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let n = index"
+                type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
+              </div>
               <div *ngIf="currentStep.outdated">
                 <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                   <span rel="def">

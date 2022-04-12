@@ -380,7 +380,7 @@
     font-size: 18px;
     color: black;
     background-color: var(--white);
-    margin-top:3px
+    margin-top:1px;
   }
 
   .text-inline{
@@ -517,7 +517,8 @@
   .checkbox{
     margin-right: 5px;
     margin-bottom: 5px;
-    margin-left: 3px
+    margin-left: 3px;
+    margin-top: 5px
   }
 
   .checkbox:hover{
