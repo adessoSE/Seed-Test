@@ -143,11 +143,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     exampleLastChecked = { id: undefined, step: undefined };
 
     /**
-     * Last checked input
-     */
-     lastCheckedInput;
-
-    /**
      * List of all checkboxes
      */
     allCheckboxes;
@@ -155,9 +150,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     /**
      * Width of the input field
      */
-    minWidth = 200;
-    maxWidth = 400;
-    width = this.minWidth + 'px';
+    minWidth = 100;
 
     /**
      * Id of the last checked input field
@@ -184,7 +177,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     /**
      * Parent line element of steps
      */
-    @ViewChild('parentEl') parentEl: ElementRef;
+    @ViewChild('containerEl') containerEl: ElementRef;
     @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
 
     /**
@@ -1291,38 +1284,44 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     /**
      * Resizes the input field on string length
      * @param event
+     * @param values_amount
      */
-    resizeInput(event) {
-        let string_input_scaled = event.target.value.length *8;
-        if (event.target.id !== this.lastCheckedInput) {
-            // reset variable
-            this.width = this.minWidth + 'px';
+    resizeInput(event, values_amount) {
+        let string_input_scaled = event.target.value.trim().length *8;
+        let result =  this.minWidth;
+        if (event.target.parentElement.parentElement.parentElement.offsetWidth < this.containerEl.nativeElement.offsetWidth) {
+            if (values_amount <= 1) {
+                let maxWidth = 309;
+                result = Math.min(maxWidth, string_input_scaled);
+            }
+            if (values_amount == 2) {
+                let maxWidth = 170;
+                result = Math.min(maxWidth, string_input_scaled);
+            }
+            event.target.style.setProperty('width', result + "px");
+            
         }
-        if (event.target.parentElement.parentElement.parentElement.offsetWidth < this.parentEl.nativeElement.offsetWidth) {
-            setTimeout(() => this.width = Math.max(this.minWidth, string_input_scaled) + 'px');
-            event.target.style.setProperty('width', this.width);
-        }
-        if (string_input_scaled <= this.minWidth) {
-            this.width = this.minWidth + 'px';
-            event.target.style.setProperty('width', this.width);
-        }
-        this.lastCheckedInput = event.target.id;
     }
 
     /**
      * Resize input fields on load
-     * @param stringLen
+     * @param element element to resize
+     * @param values_amount Amount of input fields
      * @returns
      */
-    resizeOnLoad (stringLen) {
-        let string_input_scaled = stringLen *8;
-        
-        if (string_input_scaled <= this.minWidth) {
-            return this.minWidth;
+    resizeOnLoad (element, values_amount) {
+        let string_input_scaled = element.value.trim().length *8;
+        let result =  this.minWidth;
+        if (values_amount <= 1) { 
+            let maxWidth = 309;
+            result = Math.min(maxWidth, string_input_scaled);
         }
-        else {
-            return string_input_scaled;
-        } 
+        if (values_amount == 2) {
+            let maxWidth = 170;
+            result = Math.min(maxWidth, string_input_scaled);
+        }
+
+        return result
     }
 
 }
