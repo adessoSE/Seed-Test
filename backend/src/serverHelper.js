@@ -18,9 +18,8 @@ const emptyBackground = require('./models/emptyBackground');
 const rootPath = path.normalize('features');
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'aes-192-cbc';
-const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 24);
-const iv = Buffer.alloc(16, 0);
+const cryptoAlgorithm = 'aes-256-ccm';
+const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
 
 // this is needed for the html report
 const options = {
@@ -151,25 +150,36 @@ function writeFile(dir, selectedStory) {
 	});
 }
 
-function encriptPassword(text) {
-	const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
-	let encrypted = cipher.update(text, 'utf8', 'hex');
-	encrypted += cipher.final('hex');
-	return encrypted;
+function encryptPassword(text) {
+	const nonce = crypto.randomBytes(13);
+    const cipher = crypto.createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+    const ciphertext = cipher.update(text, 'utf8');
+    cipher.final();
+    const tag = cipher.getAuthTag();
+
+    return [ciphertext, nonce, tag];
 }
 
-function decryptPassword(encrypted) {
-	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
-	let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-	decrypted += decipher.final('utf8');
-	return decrypted;
+function decryptPassword(ciphertext, nonce, tag) {
+	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+    decipher.setAuthTag(tag);
+    const receivedPlaintext = decipher.update(ciphertext, null, 'utf8');
+    
+    try {
+        decipher.final();
+    } catch (err) {
+        throw new Error('Authentication failed!', { cause: err });
+    }
+    return receivedPlaintext;
 }
 
 async function updateJira(UserID, req) {
-	const password = encriptPassword(req.jiraPassword);
+	const [password, nonce, tag] = encryptPassword(req.jiraPassword);
 	const jira = {
 		AccountName: req.jiraAccountName,
 		Password: password,
+		Password_Nonce: nonce,
+		Password_Tag: tag,
 		Host: req.jiraHost
 	};
 	const user = await mongo.getUserData(UserID);
@@ -773,8 +783,8 @@ async function jiraProjects(user) {
 		try {
 			if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
 				// eslint-disable-next-line prefer-const
-				let { Host, AccountName, Password } = user.jira;
-				Password = decryptPassword(Password);
+				let { Host, AccountName, Password, Password_Nonce, Password_Tag} = user.jira;
+				Password = decryptPassword(Password, Password_Nonce, Password_Tag);
 				const auth = Buffer.from(`${AccountName}:${Password}`)
 					.toString('base64');
 				const source = 'jira';

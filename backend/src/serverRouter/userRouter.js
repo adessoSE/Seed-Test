@@ -280,8 +280,8 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		let { Host, AccountName, Password } = req.user.jira;
-		Password = helper.decryptPassword(Password);
+		let { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+		Password = helper.decryptPassword(Password, Password_Nonce, Password_Tag);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
 		const cookieJar = request.jar();
