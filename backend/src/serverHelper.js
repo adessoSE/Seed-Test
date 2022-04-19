@@ -667,20 +667,21 @@ function executeTest(req, res, stories, mode, story) {
 		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
 		console.log('Executing:');
 		console.log(path.normalize(`${__dirname}/../${cucePath}.cmd`) + cucumberArgs);
-		ch.execFile(path.normalize(`${__dirname}/../${cucePath}.cmd`), cucumberArgs, (error, stdout, stderr) => {
-			if (error) {
-				console.error(`exec error: ${error}`);
-				resolve({
-					reportTime, story, scenarioId: req.params.scenarioId, reportName
-				});
-				return;
-			}
-			console.log(`stdout: ${stdout}`);
-			console.log(`stderr: ${stderr}`);
+
+		const runner = ch.spawn(path.normalize(`${__dirname}/../${cucePath}.cmd`) ,cucumberArgs);
+		runner.stdout.on("data",(data) => {
+			console.log(`stdout: ${data}`);
+		})
+		runner.stderr.on("data", (data) => {console.log(`stderr: ${data}`);})
+		runner.on("error", (error) => {
+			console.error(`exec error: ${error}`);
 			resolve({
 				reportTime, story, scenarioId: req.params.scenarioId, reportName
 			});
-		});
+		})
+		runner.on("exit", (exCode, sig) => {//if more than one child use "close" https://nodejs.org/api/child_process.html#event-close
+			resolve({reportTime, story, scenarioId: req.params.scenarioId, reportName});
+		})
 	});
 }
 
