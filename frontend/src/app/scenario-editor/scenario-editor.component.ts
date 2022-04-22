@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit, Renderer2} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
