@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit, Renderer2} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
@@ -148,11 +148,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     allCheckboxes;
 
     /**
-     * Width of the input field
-     */
-    minWidth = 100;
-
-    /**
      * Id of the last checked input field
      */
     lastToFocus;
@@ -174,10 +169,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * View child of the example table
      */
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
-    /**
-     * Parent line element of steps
-     */
-    @ViewChild('containerEl') containerEl: ElementRef;
+
     @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
     @ViewChildren('checkbox') checkboxes: QueryList<ElementRef>;
 
@@ -235,8 +227,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
         this.checkboxes.changes.subscribe(_ => {
             this.allCheckboxes = this.checkboxes;
-            console.log(this.allCheckboxes);
-        })
+        });
     }
 
     /**
@@ -1258,49 +1249,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
 
     openCreateScenario() {
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
-    }
-
-    /**
-     * Resizes the input field on string length
-     * @param event
-     * @param values_amount
-     */
-    resizeInput(event, values_amount) {
-        let string_input_scaled = event.target.value.trim().length *8;
-        let result =  this.minWidth;
-        if (event.target.parentElement.parentElement.parentElement.offsetWidth < this.containerEl.nativeElement.offsetWidth) {
-            if (values_amount <= 1) {
-                let maxWidth = 309;
-                result = Math.min(maxWidth, string_input_scaled);
-            }
-            if (values_amount == 2) {
-                let maxWidth = 170;
-                result = Math.min(maxWidth, string_input_scaled);
-            }
-            event.target.style.setProperty('width', result + "px");
-            
-        }
-    }
-
-    /**
-     * Resize input fields on load
-     * @param element element to resize
-     * @param values_amount Amount of input fields
-     * @returns
-     */
-    resizeOnLoad (element, values_amount) {
-        let string_input_scaled = element.value.trim().length *8;
-        let result =  this.minWidth;
-        if (values_amount <= 1) { 
-            let maxWidth = 309;
-            result = Math.min(maxWidth, string_input_scaled);
-        }
-        if (values_amount == 2) {
-            let maxWidth = 170;
-            result = Math.min(maxWidth, string_input_scaled);
-        }
-
-        return result
     }
 
 }

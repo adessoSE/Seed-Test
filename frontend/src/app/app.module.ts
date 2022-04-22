@@ -67,6 +67,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import { ResizeInputDirective } from './resize-input.directive';
 
 @NgModule({
   declarations: [
@@ -112,6 +113,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
+    ResizeInputDirective,
   ],
   imports: [
     NgbModule,
