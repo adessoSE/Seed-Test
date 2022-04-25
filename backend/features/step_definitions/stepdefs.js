@@ -189,27 +189,15 @@ When('I click the button: {string}', async function clickButton(button) {
 	.then(async (currentUrl) => {
 		// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
 		if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-			.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-		else {
-			for (const [index,idString] of identifiers.entries()) {
-				try {
-					await driver.findElement(By.xpath(idString)).click();
-					break;
-				} catch (error) {
-					if (index === (identifiers.length -1)){
-						await driver.takeScreenshot()
-						.then(async (buffer) => {
-							world.attach(buffer, 'image/png');
-						});
-						throw Error(error);
-					}
-					continue;
-				}
-			}
+			.match(/^run[ _](story|scenario)$/) !== null){ 
+			throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
 		}
 	});
-	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async (readyState) => readyState === 'complete'));
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), 30000, 'Timed out after 30 seconds', 5000).then((elem)=>elem.click()) )
+	}
+	const resolved = await Promise.any(promises)
 	await driver.sleep(currentParameters.waitTime);
 });
 
