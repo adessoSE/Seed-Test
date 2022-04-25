@@ -296,30 +296,35 @@ When('I select the option {string}', async function selectviaXPath(dropd) {
 });
 
 // Hover over element and Select an Option
-When('I hover over the element {string} and select the option {string}', async function hoverClick(element, option) {//TODO FluentWait, Do before Pull Request
+When('I hover over the element {string} and select the option {string}', async function hoverClick(element, option) {
 	const world = this;
+	// const linkIdentifiers = [`${element}`, `//*[contains(text(),'${element}')]`]
+	// const selectionIdentifiers = [`${option}`, `//*[contains(text(),'${element}')]/following::*[text()='${option}']`, `//*[contains(text(),'${option}')]`]
+	const maxWait = 3000
+	const waitText = 'Timed out after 3 seconds'
+	const waitRetryTime = 100
 	try {
 		const action = driver.actions({ bridge: true });
-		const link = await driver.findElement(By.xpath(`${element}`));
+		const link = await driver.wait(until.elementLocated(By.xpath(`${element}`)),maxWait, waitText, waitRetryTime);
 		await action.move({ x: 0, y: 0, origin: link }).perform();
 		await driver.sleep(2000);
 		const action2 = driver.actions({ bridge: true });
-		const selection = await driver.findElement(By.xpath(`${option}`));
+		const selection = await driver.wait(until.elementLocated(By.xpath(`${option}`)), maxWait, waitText, waitRetryTime);
 		await action2.move({ origin: selection }).click()
 			.perform();
 	} catch (e) {
 		const action = driver.actions({ bridge: true });
-		const link = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]`));
+		const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), maxWait, waitText, waitRetryTime);
 		await action.move({ x: 0, y: 0, origin: link }).perform();
 		await driver.sleep(2000);
 		const action2 = driver.actions({ bridge: true });
 		try {
-			const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
+			const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`)), maxWait, waitText, waitRetryTime);
 			await action2.move({ origin: selection }).click()
 				.perform();
 		} catch (e2) {
 			try {
-				const selection = await driver.findElement((`//*[contains(text(),'${option}')]`));
+				const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), maxWait, waitText, waitRetryTime);
 				await action2.move({ origin: selection }).click()
 					.perform();
 			} catch (e3) {
@@ -348,7 +353,7 @@ When('I check the box {string}', async function checkBox(name) {
 	// await driver.wait(until.elementLocated(
 	// By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 	const world = this;
-//	const identifiers = [`//*[@type="checkbox" and @*="${name}"]`, `//*[contains(text(),'${name}')]//parent::label`, `//*[contains(text(),'${name}') or @*='${name}']`, `${name}`]
+	// const identifiers = [`//*[@type="checkbox" and @*="${name}"]`, `//*[contains(text(),'${name}')]//parent::label`, `//*[contains(text(),'${name}') or @*='${name}']`, `${name}`]
 	const maxWait = 3000
 	const waitText = 'Timed out after 3 seconds'
 	const waitRetryTime = 100
@@ -467,7 +472,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 	}
 	await Promise.any(promises)
 	.then(async (elem) => {
-		const resp = await body.getText().then((text) => text);
+		const resp = await elem.getText().then((text) => text);
 		expect(expectedText).to.equal(resp, 'Textfield does not match the string');
 	})
 	.catch(async (e) => {
@@ -485,7 +490,7 @@ Then('So I can see the text: {string}', async function (string) { // text is pre
 	try {
 		await driver.sleep(500);
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
-		await driver.wait(until.elementLocated(By.css('Body')), 2000)
+		await driver.wait(until.elementLocated(By.css('Body')), 3000)
 		.then(async (body) => {
 			const cssBody = await body.getText().then((bodytext) => bodytext);
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
@@ -512,8 +517,8 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), 3000, 'Timed out after 3 seconds', 100) )
 	}
 	await Promise.any(promises)
-	.then(async (body) => {
-		const resp = await body.getText().then((text) => text);
+	.then(async (elem) => {
+		const resp = await elem.getText().then((text) => text);
 		expect(resp).to.equal('', 'Textfield does contain some Text');
 	})
 	.catch(async (e) => {
