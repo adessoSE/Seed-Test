@@ -23,7 +23,7 @@ export class ResizeInputDirective {
     }, 500); 
   }
 
-  private resize(mode_type: String) {
+  private resize(mode_type: string) {
     //Set variables
     let string_coef = 4;
     let string_length = this.el.nativeElement.value.length+string_coef;
