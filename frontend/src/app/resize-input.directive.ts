@@ -20,7 +20,7 @@ export class ResizeInputDirective {
     setTimeout(() => {
       this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.parentElement.offsetWidth;
       this.resize('setup'); 
-    }, 500); 
+    }, 5); 
   }
 
   private resize(mode_type: string) {
