@@ -12,8 +12,8 @@ export class ResizeInputDirective {
 
   @HostBinding() maxWidth!: number;
 
-  @HostListener('keyup') onKeyUp() {
-    this.resize('keyup');
+  @HostListener('input', ['$event']) onInput() {
+    this.resize('input');
   }
 
   constructor(private el: ElementRef) {  
@@ -43,7 +43,7 @@ export class ResizeInputDirective {
       let gap = (this.maxWidth - parentWidth);
       if (gap > 0){
 
-        if (mode_type == 'keyup') {
+        if (mode_type == 'input') {
           this.el.nativeElement.setAttribute('size', this.el.nativeElement.getAttribute('size'));
         } 
         if (mode_type == 'setup') {
