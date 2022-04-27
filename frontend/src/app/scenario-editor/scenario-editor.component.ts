@@ -422,11 +422,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
       selectedCount(i: number): number{
         var counter = 0
         if (i === 0) {
-            this.selectedScenario.stepDefinitions.given.forEach(element => { element.checked ? counter++ : element});
+            this.selectedScenario.stepDefinitions.given.forEach(element => { if(element.checked){counter++;} });
         } else if (i === 1) {
-            this.selectedScenario.stepDefinitions.when.forEach(element => { element.checked ? counter++ : element});
+            this.selectedScenario.stepDefinitions.when.forEach(element => { if(element.checked){counter++;} });
         } else if (i === 2) {
-            this.selectedScenario.stepDefinitions.then.forEach(element => { element.checked ? counter++ : element});
+            this.selectedScenario.stepDefinitions.then.forEach(element => { if(element.checked){counter++;} });
         }
         return counter;
       }
