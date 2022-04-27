@@ -4,7 +4,7 @@ import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {CdkDragDrop, CdkDragStart, DragRef, moveItemInArray} from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { ToastrService } from 'ngx-toastr';
@@ -176,6 +176,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     addBlocktoScenarioObservable: Subscription;
     renameScenarioObservable: Subscription;
 
+    public dragging: DragRef = null;
+
     @Input() isDark: boolean;
     /**
      * View child of the example table
@@ -339,9 +341,95 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param stepIndex
      */
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
-        moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
+        if (this.selectedCount(stepIndex) > 1) {
+            var indices = event.item.data.indices
+            var change = event.currentIndex-event.previousIndex
+            if (change > 0){
+            indices.forEach((element, index) => {
+                moveItemInArray(this.getStepsList(stepDefs, stepIndex), element.index-index, event.currentIndex);
+            });
+            } else if (change < 0) {
+                indices.forEach((element, index) => {
+                    moveItemInArray(this.getStepsList(stepDefs, stepIndex), element.index+index, event.currentIndex+index);
+                });
+            }
+        } else {
+            moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
+        }
         this.selectedScenario.saved = false;
     }
+
+    /**
+     * Maps all selected steps to their index
+     * Sets dragging boolean
+     * @param event
+     * @param i 
+     */
+     dragStarted(event: CdkDragStart, i: number): void {
+        this.dragging = event.source._dragRef;
+        var indices = null;
+        if (i === 0) {
+            indices = this.selectedScenario.stepDefinitions.given
+            .map(function(element, index) {return {index: index, value: element}})
+            .filter(function(element) { return element.value.checked});
+        } else if (i === 1) {
+            indices = this.selectedScenario.stepDefinitions.when
+            .map(function(element, index) {return {index: index, value: element}})
+            .filter(function(element) { return element.value.checked});
+        } else if (i === 2) {
+            indices = this.selectedScenario.stepDefinitions.then
+            .map(function(element, index) {return {index: index, value: element}})
+            .filter(function(element) { return element.value.checked});
+        }
+        event.source.data = {
+          indices,
+          values: indices.map(i => i.index),
+          source: this,
+        };
+        //this.cdRef.detectChanges();
+      }
+    
+      /**
+       * Sets dragging boolean
+       */
+      dragEnded(): void {
+        this.dragging = null;
+        //this.cdRef.detectChanges();
+      }
+
+      /**
+       * Checks if step is selected
+       * @param i 
+       * @param j 
+       * @returns 
+       */
+      isSelected(i: number, j: number): boolean {
+        if (i === 0) {
+            return this.selectedScenario.stepDefinitions.given[j].checked;
+        } else if (i === 1) {
+            return this.selectedScenario.stepDefinitions.when[j].checked;
+        } else if (i === 2) {
+            return this.selectedScenario.stepDefinitions.then[j].checked;
+        }
+        return false;
+      }
+
+      /**
+       * Returns count of all selected step from one stepDefinition
+       * @param i 
+       * @returns 
+       */
+      selectedCount(i: number): number{
+        var counter = 0
+        if (i === 0) {
+            this.selectedScenario.stepDefinitions.given.forEach(element => { element.checked ? counter++ : element});
+        } else if (i === 1) {
+            this.selectedScenario.stepDefinitions.when.forEach(element => { element.checked ? counter++ : element});
+        } else if (i === 2) {
+            this.selectedScenario.stepDefinitions.then.forEach(element => { element.checked ? counter++ : element});
+        }
+        return counter;
+      }
 
     /**
      * Gets the steps list
