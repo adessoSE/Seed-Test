@@ -383,10 +383,9 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         }
         event.source.data = {
           indices,
-          values: indices.map(i => i.index),
+          values: indices.map(a => a.index),
           source: this,
         };
-        //this.cdRef.detectChanges();
       }
     
       /**
@@ -394,7 +393,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
        */
       dragEnded(): void {
         this.dragging = null;
-        //this.cdRef.detectChanges();
       }
 
       /**
