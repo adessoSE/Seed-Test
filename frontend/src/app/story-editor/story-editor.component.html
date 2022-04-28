@@ -173,17 +173,17 @@
               <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
               {{j+1}}. {{currentStep.pre}}
               <div style="display:inline" *ngIf="currentStep.values.length > 0">
-                <input id="{{'background_step_input_pre' + j}}" #step_type_input1
+                <input id="{{'background_step_input_pre' + j}}" #step_type_input
                   type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" />
               </div>
                   {{currentStep.mid}}
               <div>
-                <input id="{{'background_step_input_mid' + j}}"#step_type_input2 *ngIf="currentStep.values[1] != null"
+                <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
                   type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" />
               </div>
               {{currentStep.post}}
               <div>
-                <input id="{{'background_step_input_post' + j + n}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let n = index"
+                <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
                 type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
               </div>
               <div *ngIf="currentStep.outdated">
