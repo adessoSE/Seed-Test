@@ -165,26 +165,26 @@
       <div class="uk-steps">
         <br>
         <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
-          <div *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
-            <div class="text-inline SmallBody1regularLH" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
+          <div #containerEl class="stepsContainer" *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
+            <div #parentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
               <div class="dragIconContainer" cdkDragHandle>
                 <em class="material-icons dragIcon">drag_indicator</em>
               </div>
               <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
               {{j+1}}. {{currentStep.pre}}
               <div style="display:inline" *ngIf="currentStep.values.length > 0">
-                <input id="{{'background_step_input_pre' + j}}" #step_type_input
-                  type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" />
+                <input appResizeInput class="background" id="{{'background_step_input_pre' + j}}" #step_type_input
+                  type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
               </div>
                   {{currentStep.mid}}
               <div>
-                <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
-                  type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" />
+                <input appResizeInput class="background" id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
+                  type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
               </div>
               {{currentStep.post}}
               <div>
-                <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
-                type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
+                <input appResizeInput class="background" id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
+                type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
               </div>
               <div *ngIf="currentStep.outdated">
                 <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>

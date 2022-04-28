@@ -778,3 +778,14 @@ button#background_up {
 .darkTheme.emptyStories p {
   color: white;
 }
+
+.stepLine {
+  box-sizing: border-box;
+  width: fit-content;
+}
+
+.stepsContainer {
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+}

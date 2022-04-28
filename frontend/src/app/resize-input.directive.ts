@@ -12,22 +12,41 @@ export class ResizeInputDirective {
 
   @HostBinding() maxWidth!: number;
 
+  @HostBinding() class?;
+
   @HostListener('input', ['$event']) onInput() {
-    this.resize('input');
+    this.resize('input', this.class);
   }
 
   constructor(private el: ElementRef) {  
     setTimeout(() => {
-      this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.parentElement.offsetWidth;
-      this.resize('setup'); 
+      el.nativeElement.classList.forEach((value) => {
+        if (value == 'scenario' || value == 'background') {
+          this.class = value;
+        }
+      });
+      
+      if(this.class === 'scenario') {
+        this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.parentElement.offsetWidth;
+      }
+      if (this.class === 'background') {
+        this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
+      }
+      this.resize('setup', this.class); 
     }, 5); 
   }
 
-  private resize(mode_type: string) {
+  private resize(mode_type: string, class_name: string) {
     //Set variables
+    let parentWidth;
+    if (class_name === 'scenario') {
+      parentWidth = this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
+    }
+    if (class_name === 'background') {
+      parentWidth = this.el.nativeElement.parentElement.parentElement.offsetWidth;
+    }
     let string_coef = 4;
     let string_length = this.el.nativeElement.value.length+string_coef;
-    let parentWidth = this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
     let input_width = this.el.nativeElement.offsetWidth;
     let coef = 10;
     
