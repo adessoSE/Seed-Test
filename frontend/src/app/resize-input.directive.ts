@@ -25,13 +25,14 @@ export class ResizeInputDirective {
           this.class = value;
         }
       });
-      
-      if(this.class === 'scenario') {
-        this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.parentElement.offsetWidth;
-      }
+
       if (this.class === 'background') {
         this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
       }
+      else {
+        this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.parentElement.offsetWidth;
+      }
+      
       this.resize('setup', this.class); 
     }, 1); 
   }
