@@ -1,17 +1,18 @@
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
-const webdriver = require('selenium-webdriver');
+const webdriver = require('../../node_modules/selenium-webdriver');
 const fs = require('fs');
-const { By, until, Key } = require('selenium-webdriver');
+const { By, until, Key } = require('../../node_modules/selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
-const firefox = require('selenium-webdriver/firefox');
-const chrome = require('selenium-webdriver/chrome');
+const firefox = require('../../node_modules/selenium-webdriver/firefox');
+const chrome = require('../../node_modules/selenium-webdriver/chrome');
 
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
+chromeOptions.addArguments('--headless');
 // if (process.env.NODE_ENV) {
 // chromeOptions.addArguments('--headless');
 // }
