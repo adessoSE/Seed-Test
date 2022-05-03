@@ -166,9 +166,11 @@ function encryptPassword(text) {
 }
 
 function decryptPassword(ciphertext, nonce, tag) {
+	nonce = nonce? nonce.buffer: Buffer.alloc(13, 0);
 	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-    decipher.setAuthTag(tag);
-    const receivedPlaintext = decipher.update(ciphertext, null, 'utf8');
+    decipher.setAuthTag(tag.buffer);
+	console.log("ciphertext", ciphertext);
+	const receivedPlaintext = decipher.update(ciphertext.buffer, null, 'utf8');
     
     try {
         decipher.final();
@@ -745,37 +747,34 @@ async function jiraProjects(user) {
 						Authorization: `Basic ${auth}`
 					}
 				};
-				fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
-					.then(async () => {
-						fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
-							.then((response) => response.json())
-							.then(async (json) => {
-								const { projects } = json;
-								let names = [];
-								let jiraRepo;
-								const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
-								if (Object.keys(projects).length !== 0) {
-									for (const repo of projects) {
-										if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
-											jiraRepo = await mongo.createJiraRepo(repo.name);
-										} else {
-											jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
-										}
-										names.push({
-											name: repo.name,
-											_id: jiraRepo._id
-										});
-									}
-									names = names.map((value) => ({
-										_id: value._id,
-										value: value.name,
-										source
-									}));
-									resolve(names);
-								}
-								resolve([]);
+				fetch(`https://${Host}/rest/api/2/issue/createmeta`, reqoptions)
+				.then((response) => response.json())
+				.then(async (json) => {
+					const { projects } = json;
+					let names = [];
+					let jiraRepo;
+					const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
+					if (Object.keys(projects).length !== 0) {
+						for (const repo of projects) {
+							if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
+								jiraRepo = await mongo.createJiraRepo(repo.name);
+							} else {
+								jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
+							}
+							names.push({
+								name: repo.name,
+								_id: jiraRepo._id
 							});
-					});
+						}
+						names = names.map((value) => ({
+							_id: value._id,
+							value: value.name,
+							source
+						}));
+						resolve(names);
+					}
+					resolve([]);
+				});
 			} else resolve([]);
 		} catch (e) {
 			resolve([]);
