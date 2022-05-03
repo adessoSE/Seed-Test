@@ -493,9 +493,10 @@ async function execReport(req, res, stories, mode, parameters, callback) {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 			await nameSchemeChange(story);
 			executeTest(req, res, stories, mode, story)
-				.then((values) => {
-					callback(values);
-				});
+			.then((values) => {
+				callback(values);
+			})
+			.catch(reason => res.send(reason).status(500))
 		}
 	} catch (error) {
 		res.status(404)
@@ -664,7 +665,7 @@ function executeTest(req, res, stories, mode, story) {
 			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
 		}
 		// specify desired location of JSON Report and pass world parameters for cucumber execution
-		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
+		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
 		console.log('Executing:');
 		console.log(path.normalize(`${__dirname}/../${cucePath}.cmd`) + cucumberArgs);
 
