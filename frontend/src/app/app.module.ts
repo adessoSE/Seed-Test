@@ -41,8 +41,10 @@ import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
+import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -65,6 +67,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import { ResizeInputDirective } from './resize-input.directive';
 
 @NgModule({
   declarations: [
@@ -110,6 +113,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
+    ResizeInputDirective,
   ],
   imports: [
     NgbModule,
@@ -127,6 +131,12 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     DragDropModule,
     MatProgressSpinnerModule,
     CarouselModule,
+    HttpClientModule,
+    LoggerModule.forRoot({
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
+      level: NgxLoggerLevel.DEBUG,
+      serverLogLevel: NgxLoggerLevel.DEBUG
+    }),
     ToastrModule.forRoot({
       timeOut: 3000
     }),
@@ -136,7 +146,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,
-    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }],
+    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

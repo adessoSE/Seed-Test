@@ -34,7 +34,6 @@ export class CreateScenarioComponent {
   openCreateScenarioModal(selectedStory) {
     this.selectedStory = selectedStory;
     this.modalReference = this.modalService.open(this.createScenarioModal, {ariaLabelledBy: 'modal-basic-title'});
-    //const name = document.getElementById('newTitle') as HTMLInputElement;
   }
   
   /**
@@ -46,17 +45,4 @@ export class CreateScenarioComponent {
     this.createScenarioEvent.emit(scenarioName);
     this.modalReference.close();
   }
-  
-  enterSubmit(event, form: NgForm) {
-    if (event.keyCode === 13) {
-      this.createNewScenario(form);
-      form.reset();
-    }
-  }
-  
-  onClickSubmit(form: NgForm) {
-    this.createNewScenario(form);
-    form.reset();
-  }
-
 }

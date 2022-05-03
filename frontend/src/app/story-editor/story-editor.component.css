@@ -35,6 +35,12 @@
     align-items: center;
   }
 
+  .ScenarioInfoLeft{
+      display: inline;
+      padding: 5px;
+      align-items: center;
+  }
+
  .storyInfoRight{
     padding: 5px;
  }
@@ -91,7 +97,7 @@
   .emptyStories{
     color: #999;
     padding: 10px;
-  } 
+  }
 
   .emptyStories h1{
     color: #999;
@@ -100,7 +106,7 @@
   .darkTheme.emptyStories h1 {
     color: white;
   }
-  
+
   .emptyStories a {
     display: block;
   }
@@ -191,47 +197,59 @@
     min-width: 5px;
   }
 
-/* 
+/*
   :host ::ng-deep .darkTheme input {
     background: transparent;
     color: white;
     border-bottom: 1px solid #60767b;
   } */
-  
+
 
   .storyHeaderContainer{
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
   }
 
-/*   .def:hover span[rel=def] {
+  .def {
+    color: #999;
+    cursor: help;
+    position: relative; 
+    z-index: 2;
+  }
+  
+  span[rel=def] {
+    display: none;
+  }
+  
+  .def:hover span[rel=def] {
     font-size: small;
-    color: var(--white);
+    color: white;
     background-color: rgb(109, 109, 109);
     position: absolute;
-    bottom: 2em;
-    left: 2em;
-    width: 30em;
+    width: 28em;
     padding: 0.5em;
     display: block;
-  } */
+    white-space: pre-line;
+    opacity: 96%;
+    z-index: 2;
+  }
 
-  .darkTheme .def:hover span {
-    background-color: #90A4AE;
+  .darkTheme .def:hover span[rel=def] {
+    background-color: #78909C !important;
+  
   }
 
   #story{
-    border-top: 1px solid #999;
-    border-left: 1px solid #999;
-    border-bottom: 1px solid #999;
+    border: 1px solid #999;
     background: white;
-
+    overflow-y: scroll;
+    max-height: 88vmin;
+    margin-top: 24px;
+    margin-right: 2px;
   }
 
   .darkTheme#story {
-    border-top: 1px solid #60767b;
-    border-left: 1px solid #60767b;
-    border-bottom: 1px solid #60767b;
+    border: 1px solid #60767b;
     background: #455A64;
   }
 
@@ -241,6 +259,8 @@
     margin-left: 5px;
     margin-right: 5px;
   } */
+
+
   /* double button see styles */
   .button {
     margin-right: 3px;
@@ -248,7 +268,7 @@
     padding: 5px 10px;
     font-size: 15px;
     cursor: pointer;
-    background: var(--ocean-blue); 
+    background: var(--ocean-blue);
     border: none;
     line-height: 25px;
   }
@@ -268,7 +288,7 @@
   .darkTheme .uk-card-footer {
     border-top: 1px solid #B0BEC5;
   }
-  
+
   .button:hover {
     background: var(--marine-blue);
   }
@@ -304,15 +324,15 @@
     padding: 1px;
     cursor: pointer;
   }
-  
+
   :host ::ng-deep .uk-nav > li > .dropdownStep {
     color: var(--ocean-blue);
-  }  
+  }
 
   :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
-  } 
-    
+  }
+
   :host ::ng-deep .uk-nav > li > span:hover {
       color: gray;
   }
@@ -320,7 +340,7 @@
   :host ::ng-deep .darkTheme .uk-nav > li > span:hover {
     color: white;
   }
-  
+
  /*  .disabled {
     color: gray !important;
     background: var(--white) !important;
@@ -341,7 +361,7 @@
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
   }
-  
+
   :host ::ng-deep .scenarioBarContainer .disabled em{
     color: gray !important;
     /* background: #f8f8f8 !important; */
@@ -360,7 +380,7 @@
     font-size: 18px;
     color: black;
     background-color: var(--white);
-    margin-top:3px
+    margin-top:1px;
   }
 
   .text-inline{
@@ -497,7 +517,8 @@
   .checkbox{
     margin-right: 5px;
     margin-bottom: 5px;
-    margin-left: 3px
+    margin-left: 3px;
+    margin-top: 5px
   }
 
   .checkbox:hover{
@@ -508,9 +529,9 @@
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8; 
+  background-color: #f8f8f8;
 }  */
-/* 
+/*
 .darkTheme.scenarioBarContainer {
   border-bottom: 1px solid black;
 }
@@ -621,12 +642,12 @@
 }
 
 :host ::ng-deep .darkTheme .actionButton > em {
-  color:#000000 !important;
+  color:#000000;
 }
 
 :host ::ng-deep .scenarioButton em{
   color:  var(--ocean-blue);
-} 
+}
 
 :host ::ng-deep .darkTheme.scenarioButton em{
   color:  var(--ocean-blue);
@@ -695,7 +716,7 @@
 #storyInfoTextVerticalPosition {
   left: 8em;
   top: -4em;
-} 
+}
 
 
 #backgroundInfoTextVerticalPosition {
@@ -714,7 +735,7 @@
 .SmallHeadline5 span[rel="def"]{
   line-height: 1.5;
 }
-  
+
 .uk-icon {
   background-color: transparent !important;
 }
@@ -750,4 +771,10 @@ font-weight: bold;
 }
 button#background_up {
   padding-right: 20px;
+}
+
+.darkTheme.emptyStories h1,
+.darkTheme.emptyStories h4,
+.darkTheme.emptyStories p {
+  color: white;
 }

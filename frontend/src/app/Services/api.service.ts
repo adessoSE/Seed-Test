@@ -10,6 +10,8 @@ import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
 import {Group} from '../model/Group';
+import { ToastrService } from 'ngx-toastr';
+
 
 /**
  * Service to communicate between components and the backend
@@ -20,10 +22,11 @@ import {Group} from '../model/Group';
 
 export class ApiService {
 
+
     /**
      * @ignore
      */
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private toastr: ToastrService) {
     }
 
     /**
@@ -82,6 +85,11 @@ export class ApiService {
     public renameStoryEvent = new EventEmitter();
 
     /**
+     * Event emitter to rename the project
+     */
+    public renameProjectEvent = new EventEmitter();
+
+    /**
      * Event emitter to rename the description
      */
     public renameDescriptionEvent = new EventEmitter();
@@ -137,14 +145,15 @@ export class ApiService {
      */
     static handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
-        return throwError(error);
+        //window.location.replace("/login")
+        return throwError(() => error);
     }
 
     /**
      * Emits the run save option
      * @param option
      */
-    public runSaveOption(option: String) {
+    public runSaveOption(option: string) {
         this.runSaveOptionEvent.emit(option);
     }
 
@@ -202,13 +211,22 @@ export class ApiService {
     }
 
     /**
+     * Emits the rename project event
+     * @param newTitel
+     * @param proj
+     */
+    renameProjectEmitter(proj: RepositoryContainer) {
+        this.renameProjectEvent.emit(proj);
+    }
+
+    /**
      * Emits the scenario status change event
      * @param storyId id of the story
      * @param scenarioId id of the scenario thats changed
      * @param lastTestPassed value status changed to
      */
     scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
-        let val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
+        const val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
         this.scenarioStatusChangeEvent.emit(val);
     }
 
@@ -220,7 +238,9 @@ export class ApiService {
     getBlocks(repoId: string): Observable<Block[]> {
         const str = this.apiServer + '/mongo/getBlocks/' + repoId;
         return this.http.get<Block[]>(str,  ApiService.getOptions())
-        .pipe(tap(resp => {}),
+        .pipe(tap(resp => {
+            //
+        }),
         catchError(ApiService.handleError));
     }
 
@@ -250,23 +270,44 @@ export class ApiService {
      */
     githubCallback(code: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
-        const str = this.apiServer + '/user/callback?code=' + code;
-        return this.http.get(str, {withCredentials: true})
-            .pipe(tap(resp => {}),
+        const url = this.apiServer + '/user/callback?code=' + code;
+        return this.http.get(url, {withCredentials: true})
+            .pipe(tap(resp => {
+                //
+            }),
             catchError(ApiService.handleError));
     }
 
     /**
      * Retrieves a report
-     * @param reportName
+     * @param reportId
      * @returns
      */
-    getReport(reportName: string) {
+    getReport(reportId: string) {
+        this.apiServer = localStorage.getItem('url_backend');
+        if (this.apiServer) {
+            const str = this.apiServer + '/mongo/report/' + reportId;
+            return this.http.get(str,  { responseType: 'json', withCredentials: true})
+                .pipe(tap(resp => {
+                    console.log('Got single Report: ' + resp);
+                  }),
+                catchError(ApiService.handleError));
+        }
+    }
+
+    /**
+     * Retrieves a report
+     * @param reportName: name of the Report
+     * @returns
+     */
+    getReportByName(reportName: string) {
         this.apiServer = localStorage.getItem('url_backend');
         if (this.apiServer) {
             const str = this.apiServer + '/run/report/' + reportName;
             return this.http.get(str,  { responseType: 'json', withCredentials: true})
-                .pipe(tap(resp => {}),
+              .pipe(tap(resp => {
+                    // console.log('Got single Report by Name: ' + resp);
+                }),
                 catchError(ApiService.handleError));
         }
     }
@@ -280,7 +321,7 @@ export class ApiService {
         const str = this.apiServer + '/mongo/deleteBlock/' + blockId;
         return this.http.delete<any>(str, ApiService.getOptions())
         .pipe(tap(resp => {
-
+            //
         }),
           catchError(ApiService.handleError));
     }
@@ -292,12 +333,12 @@ export class ApiService {
     getRepositories(): Observable<RepositoryContainer[]> {
         this.apiServer = localStorage.getItem('url_backend');
 
-        const str = this.apiServer + '/user/repositories';
+        const str = this.apiServer + '/user/repositories';
 
         return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
           .pipe(tap(resp => {
             sessionStorage.setItem('repositories', JSON.stringify(resp));
-            this.updateRepositoryEmitter()//updateRepositoryEvent.emit(resp);
+            this.updateRepositoryEmitter();
           }),
             catchError(ApiService.handleError));
     }
@@ -313,6 +354,7 @@ export class ApiService {
         const str = this.apiServer + '/user/repositories/' + repo._id + '/' + user;
         return this.http.delete<any>(str, ApiService.getOptions())
         .pipe(tap(() => {
+            //
         }),
           catchError(ApiService.handleError));
     }
@@ -325,7 +367,7 @@ export class ApiService {
         const str = this.apiServer + '/github/disconnectGithub';
         return this.http.delete<any>(str, ApiService.getOptions())
         .pipe(tap(resp => {
-          // this.getStoriesEvent.emit(resp);
+            //
         }),
           catchError(ApiService.handleError));
     }
@@ -343,7 +385,7 @@ export class ApiService {
 
         return this.http.post<any>(str, user, ApiService.getOptions())
           .pipe(tap(resp => {
-            // this.getStoriesEvent.emit(resp);
+            //
           }),
             catchError(ApiService.handleError));
     }
@@ -361,8 +403,7 @@ export class ApiService {
 
         return this.http.post<any>(str, user, ApiService.getOptions())
           .pipe(tap(resp => {
-
-            // this.getStoriesEvent.emit(resp);
+            //
           }),
             catchError(ApiService.handleError));
     }
@@ -397,7 +438,26 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }));
+    }
+
+    /**
+     * Updates repo
+     *
+     * @param repoID
+     * @param newRepoName
+     * @param user
+     * @returns
+     */
+    public updateRepository(repoID, newRepoName: string, user: any): Observable<any> {
+        this.apiServer = localStorage.getItem('url_backend');
+        return this.http
+            .put<RepositoryContainer>(this.apiServer + '/user/repository/' + repoID + '/' + user, {repoName: newRepoName}, ApiService.getOptions())
+            .pipe(tap(resp => {
+                // console.log('Update repo ' + repoID + '!', resp)
+            }));
+
     }
 
     /**
@@ -412,6 +472,7 @@ export class ApiService {
         return this.http
             .get<Story>(this.apiServer + '/story/' + _id + '/' + source, ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }));
     }
 
@@ -429,6 +490,7 @@ export class ApiService {
         return this.http
             .post<Story>(this.apiServer + '/story/', body, ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }));
     }
 
@@ -441,6 +503,7 @@ export class ApiService {
         return this.http
             .put<Story>(this.apiServer + '/story/' + story._id, story, ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }));
     }
 
@@ -461,6 +524,7 @@ export class ApiService {
         return this.http
             .patch(this.apiServer + '/story/' + story_id + '/' + source, scenario_list, ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }));
     }
 
@@ -475,6 +539,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/user/resetpassword/', body)
             .pipe(tap(resp => {
+                //
             }));
     }
 
@@ -573,6 +638,7 @@ export class ApiService {
         localStorage.removeItem('login');
         return  this.http.get<string[]>(url, ApiService.getOptions())
           .pipe(tap(resp => {
+              //
           }),
             catchError(ApiService.handleError));
     }
@@ -627,8 +693,11 @@ export class ApiService {
         const url = localStorage.getItem('url_backend');
         const clientId = localStorage.getItem('clientId');
         const version = localStorage.getItem('version');
+        const gecko_enabled = localStorage.getItem('gecko_enabled')
+        const chromium_enabled = localStorage.getItem('chromium_enabled')
 
-        if (url && url !== 'undefined' && clientId && clientId !== 'undefined' && version && version !== 'undefined') {
+        if (url && url !== 'undefined' && clientId && clientId !== 'undefined' && version && version !== 'undefined' &&
+                gecko_enabled && gecko_enabled !== 'undefined' && chromium_enabled && chromium_enabled !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
             return Promise.resolve(url);
@@ -638,6 +707,8 @@ export class ApiService {
              localStorage.setItem('url_backend', backendInfo.url);
              localStorage.setItem('clientId', backendInfo.clientId);
              localStorage.setItem('version', backendInfo.version);
+             localStorage.setItem('gecko_enabled', backendInfo.gecko_enabled);
+             localStorage.setItem('chromium_enabled', backendInfo.chromium_enabled);
              this.getBackendUrlEvent.emit();
          });
         }
@@ -696,6 +767,7 @@ export class ApiService {
         return this.http
             .get<StepType[]>(this.apiServer + '/mongo/stepTypes', ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }));
     }
 
@@ -712,6 +784,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(resp => {
+                //
             }), catchError((err, caught) => {
                 return new Observable(subscriber => {
                     subscriber.next(err);
@@ -731,6 +804,7 @@ export class ApiService {
         return this.http
             .post<User>(this.apiServer + '/mongo/user/update/' + userID, user)
             .pipe(tap(resp => {
+                //
             }), catchError(this.handleStoryError));
     }
 
@@ -743,6 +817,7 @@ export class ApiService {
         return this.http
             .delete<any>(this.apiServer + '/mongo/user/delete', ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }), catchError(this.handleStoryError));
     }
 
@@ -759,7 +834,7 @@ export class ApiService {
 
         return this.http.post<any>(str, body, ApiService.getOptions())
         .pipe(tap(resp => {
-          // this.getStoriesEvent.emit(resp);
+            //
         }),
           catchError(ApiService.handleError));
     }
@@ -773,6 +848,7 @@ export class ApiService {
         return this.http
             .get<User>(this.apiServer + '/mongo/user/', ApiService.getOptions())
             .pipe(tap(resp => {
+                //
             }), catchError(this.handleStoryError));
     }
 
@@ -789,7 +865,7 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/story/' + storyID + '/' + storySource, body, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Add new scenario in story ' + storyID + '!', resp)
+                console.log('Add new scenario in story ' + storyID + '!', resp);
             }));
     }
 
@@ -799,7 +875,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Add new scenario in story ' + storyID + '!', resp)
+                console.log('Add new scenario in story ' + storyID + '!', resp);
             }));
     }
 
@@ -814,7 +890,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenarioID, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Get scenario in story ' + storyID + '!', resp)
+                console.log('Get scenario in story ' + storyID + '!', resp);
             }));
     }
 
@@ -831,7 +907,7 @@ export class ApiService {
         return this.http
             .post<Background>(this.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
             .pipe(tap(resp => {
-                console.log('Update background for story ' + storyID )
+                console.log('Update background for story ' + storyID );
             }));
     }
 
@@ -858,7 +934,7 @@ export class ApiService {
         return this.http
             .put<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+                //
             }));
     }
 
@@ -873,7 +949,7 @@ export class ApiService {
         return this.http
             .delete<any>(this.apiServer + '/run/report/' + reportId, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+                //
             }));
     }
 
@@ -887,7 +963,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/run/saveReport/' + reportId, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+                //
             }));
     }
 
@@ -901,7 +977,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/run/unsaveReport/' + reportId, ApiService.getOptions())
             .pipe(tap(resp => {
-                // console.log('Update scenario ' + scenario.scenario_id + ' in story ' + storyID, resp)
+                //
             }));
     }
 
@@ -917,6 +993,7 @@ export class ApiService {
         return this.http
             .delete<any>(this.apiServer + '/mongo/background/delete/' + storyID + '/' + storySource, ApiService.getOptions() )
             .pipe(tap(() => {
+                //
             }));
     }
 
@@ -932,6 +1009,7 @@ export class ApiService {
         return this.http
             .delete<any>(this.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id , ApiService.getOptions())
             .pipe(tap(() => {
+                //
             }));
     }
 
@@ -958,7 +1036,7 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
         const timeout = 6000000;
         return this.http
-            .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
+        .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
 
@@ -972,6 +1050,7 @@ export class ApiService {
         return this.http
             .get<any>(this.apiServer + '/run/reportHistory/' + storyId, ApiService.getOptions())
             .pipe(tap(() => {
+                //
             }));
     }
 
@@ -1015,10 +1094,7 @@ export class ApiService {
      * @returns
      */
     isLoggedIn(): boolean {
-        // if (this.cookieService.check('connect.sid')) return true;
-        // return false;
-        if (localStorage.getItem('login')) { return true; }
-        return false;
+        return !!localStorage.getItem('login');
     }
 
     /**
@@ -1052,7 +1128,18 @@ export class ApiService {
         this.apiServer = localStorage.getItem('url_backend');
 
         return this.http
-            .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver})
+            .post(this.apiServer + '/mongo/oneDriver/' + storyID, {oneDriver});
     }
 
+    public storyUnique(buttonId: string, input: string, array: Story[], story?: Story) {
+        array = array ? array : [];
+        input = input ? input : '';
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if ((input && !array.find(i => i.title === input)) || (story ? array.find(g => g._id === story._id && g.title === input) : false)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('This Story Title is already in use. Please choose another Title');
+        }
+    }
 }

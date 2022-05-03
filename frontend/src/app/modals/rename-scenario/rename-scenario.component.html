@@ -8,24 +8,23 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form #renameScenario="ngForm" novalidate [disabled]="renameScenario.invalid"
-        (keydown)="enterSubmit($event, renameScenario)">     
+    <form #renameScenario="ngForm" novalidate [disabled]="!renameScenario.valid"
+        (ngSubmit)="submitRenameScenario(renameScenario)">     
         <div class="modal-body modal-xl">
             <div class="uk-card-title submitForm">
                 <div>
                     <div class="padding_top modalsContent">
-                        <span class="uk-form-label">Enter unique scenario name</span>
+                        <label class="uk-form-label">Enter unique scenario name</label>
                         <span class="material-icons" display-title="Enter unique scenario name">drive_file_rename_outline</span>
-                        <div class="inputField">
-                            <input type="text" ngModel id="newTitle" name="newTitle" placeholder="New title" required>
-                        </div>                    
+                        <input type="text" [ngModel]="scenarioName" pattern="\S(.*\S)?" id="newTitle" name="newTitle" required>                   
                     </div>
                 </div>
             </div>
         </div>
-    </form>
-    <div class="modal-footer">
-        <button class="normalButton" (click)="onClickSubmit(renameScenario)">Submit
-        </button>
-    </div>    
+        <div class="modal-footer">
+            <button class="normalButton" type="submit" [disabled]="!renameScenario.valid"
+            [ngStyle]="{'opacity': !renameScenario.valid ?  '50%' : '100%'}">Submit
+            </button>
+        </div>
+    </form>    
 </ng-template>

@@ -71,7 +71,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "cucumber-frontend:build"
+            "browserTarget": "cucumber-frontend:build",
+            "poll": 2000
           },
           "configurations": {
             "production": {

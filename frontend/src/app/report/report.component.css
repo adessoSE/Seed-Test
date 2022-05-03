@@ -20,7 +20,7 @@
   .uk-card-footer{
     padding: 15px 0px;
   }
-  
+
   .button:hover {
     background: var(--marine-blue);
   }
@@ -33,11 +33,11 @@
 
   .uk-button-group{
     border-radius:4px;
-    border:2px solid var(--white);
   }
+
   .button > em{
     color: var(--white);
-    font-size: 18px;
+    font-size: 22px;
     vertical-align: text-top;
   }
   .padding{
