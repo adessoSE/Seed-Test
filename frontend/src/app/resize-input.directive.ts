@@ -15,7 +15,7 @@ export class ResizeInputDirective {
   @HostBinding() class?;
 
   @HostListener('input', ['$event']) onInput() {
-    this.resize('input', this.class);
+    this.resize('input');
   }
 
   constructor(private el: ElementRef) {  
@@ -33,19 +33,18 @@ export class ResizeInputDirective {
         this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.parentElement.offsetWidth;
       }
       
-      this.resize('setup', this.class); 
+      this.resize('setup'); 
     }, 1); 
   }
-
-  private resize(mode_type: string, class_name: string) {
+  
+  /**
+   * Resize input filed in backgroung or scenario on input string length
+   * @param mode_type 
+   */
+  private resize(mode_type: string) {
     //Set variables
-    let parentWidth;
-    if (class_name === 'scenario') {
-      parentWidth = this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
-    }
-    if (class_name === 'background') {
-      parentWidth = this.el.nativeElement.parentElement.parentElement.offsetWidth;
-    }
+    let parentWidth = this.setParentWidth();
+    
     let string_coef = 4;
     let string_length = this.el.nativeElement.value.length+string_coef;
     let input_width = this.el.nativeElement.offsetWidth;
@@ -74,6 +73,20 @@ export class ResizeInputDirective {
       else {
         this.el.nativeElement.setAttribute('size', this.minWidth);
       }
+    }
+  }
+
+  /**
+   * Set parent width depending on class name
+   * @returns 
+   */
+  private setParentWidth() {
+    if (this.class === 'background') {
+      return this.el.nativeElement.parentElement.parentElement.offsetWidth;
+    }
+    //if scenario
+    if (this.class === 'scenario') {
+      return this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
     }
   }
 
