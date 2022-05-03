@@ -245,7 +245,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
     @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
-    @ViewChildren('step_type_input1') step_type_input: QueryList<ElementRef>;
+    @ViewChildren('step_type_input') step_type_input: QueryList<ElementRef>;
 
     /**
      * Event emitter to change to the report history component
