@@ -33,7 +33,7 @@
     "lodash": "^4.17.21",
     "mongodb": "^3.7.3",
     "node-fetch": "^2.6.7",
-    "nodemailer": "^6.7.2",
+    "nodemailer": "^6.7.5",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "selenium-webdriver": "^4.1.1",
