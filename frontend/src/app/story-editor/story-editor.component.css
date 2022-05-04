@@ -367,7 +367,15 @@
     /* background: #f8f8f8 !important; */
   }
 
-  ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+  :host ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+    color: var(--buttonDisabled) !important;
+  }
+
+  :host ::ng-deep .scenarioHeaderContainer .disabled em {
+    color: gray !important;
+  }
+
+  :host ::ng-deep .darkTheme .scenarioHeaderContainer .disabled em {
     color: var(--buttonDisabled) !important;
   }
 

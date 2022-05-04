@@ -29,7 +29,7 @@
     "@angular/platform-browser-dynamic": "^13.2.3",
     "@angular/router": "^13.2.3",
     "@ng-bootstrap/ng-bootstrap": "^12.0.0",
-    "@ngneat/until-destroy": "^9.0.0",
+    "@ngneat/until-destroy": "^9.1.2",
     "canvg": "^4.0.0",
     "core-js": "^3.21.1",
     "dotenv": "^16.0.0",
@@ -48,7 +48,7 @@
     "node-sass": "^7.0.1",
     "request": "^2.88.2",
     "set-value": "4.1.0",
-    "uikit": "^3.9.4",
+    "uikit": "^3.14.1",
     "zone.js": "^0.11.4"
   },
   "devDependencies": {
