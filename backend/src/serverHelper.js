@@ -167,17 +167,17 @@ function encryptPassword(text) {
 
 function decryptPassword(ciphertext, nonce, tag) {
 	nonce = nonce? nonce.buffer: Buffer.alloc(13, 0);
-	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-    decipher.setAuthTag(tag.buffer);
-	console.log("ciphertext", ciphertext);
-	const receivedPlaintext = decipher.update(ciphertext.buffer, null, 'utf8');
-    
     try {
+		const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+		decipher.setAuthTag(tag.buffer);
+		console.log("ciphertext", ciphertext);
+		const receivedPlaintext = decipher.update(ciphertext.buffer, null, 'utf8');
         decipher.final();
+		return receivedPlaintext;
     } catch (err) {
+		console.log("Authentication Failed");// leaf in or replace with proper logging
         throw new Error('Authentication failed!', { cause: err });
     }
-    return receivedPlaintext;
 }
 
 async function updateJira(UserID, req) {
