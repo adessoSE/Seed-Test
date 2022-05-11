@@ -333,7 +333,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         await this.updateScenario();
         this.apiService.runSaveOption('run');
     }
-
+    //TODO: After change on dragging start checkbox changes to opposit. 
+    //TODO: Sometimes on draggint to the top relative to checked group one checkbox can fall apart
     /**
      * Drag and drop event for a step in the scenario
      * @param event
@@ -342,14 +343,14 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      */
     onDropScenario(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
         if (this.selectedCount(stepIndex) > 1) {
-            var indices = event.item.data.indices
-            var change = event.currentIndex-event.previousIndex
+            var indices = event.item.data.indices;
+            var change = event.currentIndex-event.previousIndex;
             if (change > 0){
-            indices.forEach((element, index) => {
+                indices.forEach((element, index) => {
                 moveItemInArray(this.getStepsList(stepDefs, stepIndex), element.index-index, event.currentIndex);
             });
             } else if (change < 0) {
-                indices.forEach((element, index) => {
+                indices.forEach((element, index) => {                 
                     moveItemInArray(this.getStepsList(stepDefs, stepIndex), element.index+index, event.currentIndex+index);
                 });
             }
@@ -908,6 +909,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     /**
      * Checks many steps on shift click
      * @param currentStep
+     * @param step_id
+     * @param checkbox_id
      */
     checkMany(currentStep, step_id, checkbox_id) {
         // Find in this block start and end step
@@ -941,13 +944,16 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         // Check all steps in the list between start and end
         let id = 'scenario_'+step_id+'_checkbox_'
         this.allCheckboxes.forEach(checkbox => {
-            for (let i = start+1; i <= end; i++) {
-                if (checkbox.nativeElement.id === id+i) {
-                    this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked = !this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked;     
-                }
-            }
             if (checkbox.nativeElement.id === id+start) {
                 this.selectedScenario.stepDefinitions[currentStep.stepType][start].checked = checkbox.nativeElement.checked;
+            } 
+            for (let i = start+1; i < end; i++) {
+                if (checkbox.nativeElement.id === id+i) {
+                    this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked = !checkbox.nativeElement.checked;     
+                }
+            }
+            if (checkbox.nativeElement.id === id+end ) {
+                this.selectedScenario.stepDefinitions[currentStep.stepType][end].checked = checkbox.nativeElement.checked;
             }
         });          
     }
