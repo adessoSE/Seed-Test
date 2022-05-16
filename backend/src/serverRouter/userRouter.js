@@ -188,16 +188,16 @@ router.get('/repositories', (req, res) => {
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
-		.then((repos) => {
-			let merged = [].concat(...repos);
-			// remove duplicates
-			merged = helper.uniqueRepositories(merged);
-			res.status(200).json(merged);
-		})
-		.catch((reason) => {
-			res.status(401).json('Wrong Github name or Token');
-			console.error(`Get Repositories Error: ${reason}`);
-		});
+	.then((repos) => {
+		let merged = [].concat(...repos);
+		// remove duplicates
+		merged = helper.uniqueRepositories(merged);
+		res.status(200).json(merged);
+	})
+	.catch((reason) => {
+		res.status(401).json('Wrong Github name or Token');
+		console.error(`Get Repositories Error: ${reason}`);
+	});
 });
 
 // update repository

@@ -192,7 +192,6 @@ async function updateJira(UserID, req) {
 	const user = await mongo.getUserData(UserID);
 	user.jira = jira;
 	await mongo.updateUser(UserID, user);
-	return 'Successful';
 }
 
 // Updates feature file based on _id
@@ -747,10 +746,10 @@ async function jiraProjects(user) {
 						Authorization: `Basic ${auth}`
 					}
 				};
-				fetch(`https://${Host}/rest/api/2/issue/createmeta`, reqoptions)
+				fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
 				.then((response) => response.json())
 				.then(async (json) => {
-					const { projects } = json;
+					const projects = 'projects' in json? json.projects : resolve([]);
 					let names = [];
 					let jiraRepo;
 					const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
@@ -774,7 +773,7 @@ async function jiraProjects(user) {
 						resolve(names);
 					}
 					resolve([]);
-				});
+				}).catch((error) => {console.error(error); resolve([])})
 			} else resolve([]);
 		} catch (e) {
 			resolve([]);
@@ -807,17 +806,14 @@ function dbProjects(user) {
 }
 
 function uniqueRepositories(repositories) {
-
 	const unique_ids = []
 	const unique = []
-
     for(const i in repositories) {
 		if (unique_ids.indexOf(repositories[i]._id.toString()) <= -1) {
 			unique_ids.push(repositories[i]._id.toString());
 			unique.push(repositories[i]);
 		}
     }
-
 	return unique
 }
 
