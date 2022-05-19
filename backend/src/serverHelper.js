@@ -19,9 +19,8 @@ const { resolve } = require('path');
 
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'aes-256-cbc';
+const cryptoAlgorithm = 'aes-256-ccm';
 const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
-const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report
 const options = {
@@ -156,31 +155,43 @@ function writeFile(dir, selectedStory) {
 	});
 }
 
-function encriptPassword(text) {
-	const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
-	let encrypted = cipher.update(text, 'utf8', 'hex');
-	encrypted += cipher.final('hex');
-	return encrypted;
+function encryptPassword(text) {
+	const nonce = crypto.randomBytes(13);
+    const cipher = crypto.createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+    const ciphertext = cipher.update(text, 'utf8');
+    cipher.final();
+    const tag = cipher.getAuthTag();
+
+    return [ciphertext, nonce, tag];
 }
 
-function decryptPassword(encrypted) {
-	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
-	let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-	decrypted += decipher.final('utf8');
-	return decrypted;
+function decryptPassword(ciphertext, nonce, tag) {
+	nonce = nonce? nonce.buffer: Buffer.alloc(13, 0);
+    try {
+		const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+		decipher.setAuthTag(tag.buffer);
+		console.log("ciphertext", ciphertext);
+		const receivedPlaintext = decipher.update(ciphertext.buffer, null, 'utf8');
+        decipher.final();
+		return receivedPlaintext;
+    } catch (err) {
+		console.log("Authentication Failed");// leaf in or replace with proper logging
+        throw new Error('Authentication failed!', { cause: err });
+    }
 }
 
 async function updateJira(UserID, req) {
-	const password = encriptPassword(req.jiraPassword);
+	const [password, nonce, tag] = encryptPassword(req.jiraPassword);
 	const jira = {
 		AccountName: req.jiraAccountName,
 		Password: password,
+		Password_Nonce: nonce,
+		Password_Tag: tag,
 		Host: req.jiraHost
 	};
 	const user = await mongo.getUserData(UserID);
 	user.jira = jira;
 	await mongo.updateUser(UserID, user);
-	return 'Successful';
 }
 
 // Updates feature file based on _id
@@ -720,8 +731,8 @@ async function jiraProjects(user) {
 		try {
 			if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
 				// eslint-disable-next-line prefer-const
-				let { Host, AccountName, Password } = user.jira;
-				Password = decryptPassword(Password);
+				let { Host, AccountName, Password, Password_Nonce, Password_Tag} = user.jira;
+				Password = decryptPassword(Password, Password_Nonce, Password_Tag);
 				const auth = Buffer.from(`${AccountName}:${Password}`)
 					.toString('base64');
 				const source = 'jira';
@@ -737,36 +748,33 @@ async function jiraProjects(user) {
 					}
 				};
 				fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
-					.then(async () => {
-						fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
-							.then((response) => response.json())
-							.then(async (json) => {
-								const { projects } = json;
-								let names = [];
-								let jiraRepo;
-								const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
-								if (Object.keys(projects).length !== 0) {
-									for (const repo of projects) {
-										if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
-											jiraRepo = await mongo.createJiraRepo(repo.name);
-										} else {
-											jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
-										}
-										names.push({
-											name: repo.name,
-											_id: jiraRepo._id
-										});
-									}
-									names = names.map((value) => ({
-										_id: value._id,
-										value: value.name,
-										source
-									}));
-									resolve(names);
-								}
-								resolve([]);
+				.then((response) => response.json())
+				.then(async (json) => {
+					const projects = 'projects' in json? json.projects : resolve([]);
+					let names = [];
+					let jiraRepo;
+					const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
+					if (Object.keys(projects).length !== 0) {
+						for (const repo of projects) {
+							if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
+								jiraRepo = await mongo.createJiraRepo(repo.name);
+							} else {
+								jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
+							}
+							names.push({
+								name: repo.name,
+								_id: jiraRepo._id
 							});
-					});
+						}
+						names = names.map((value) => ({
+							_id: value._id,
+							value: value.name,
+							source
+						}));
+						resolve(names);
+					}
+					resolve([]);
+				}).catch((error) => {console.error(error); resolve([])})
 			} else resolve([]);
 		} catch (e) {
 			resolve([]);
@@ -799,17 +807,14 @@ function dbProjects(user) {
 }
 
 function uniqueRepositories(repositories) {
-
 	const unique_ids = []
 	const unique = []
-
     for(const i in repositories) {
 		if (unique_ids.indexOf(repositories[i]._id.toString()) <= -1) {
 			unique_ids.push(repositories[i]._id.toString());
 			unique.push(repositories[i]);
 		}
     }
-
 	return unique
 }
 
