@@ -8,7 +8,7 @@
         </button>
     </div>
     <div class="modal-body">
-        <form [formGroup]="storyForm" novalidate (ngSubmit)="createNewStory()">
+        <form [formGroup]="storyForm" id="storyForm" novalidate (ngSubmit)="createNewStory()">
             <div class="form-group modalsContent">
                 <div>
                     <label class="uk-form-label">Enter unique story title*</label>

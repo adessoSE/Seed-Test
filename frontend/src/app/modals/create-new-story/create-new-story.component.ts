@@ -35,7 +35,7 @@ export class CreateNewStoryComponent {
 
   story: Story;
 
-  storytitle: string;
+  //storytitle: string;
 
   storyForm = new FormGroup ({
     storyTitle: new FormControl(''),
