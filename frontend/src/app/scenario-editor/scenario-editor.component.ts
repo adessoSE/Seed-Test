@@ -333,8 +333,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         await this.updateScenario();
         this.apiService.runSaveOption('run');
     }
-    //TODO: After change on dragging start checkbox changes to opposit. 
-    //TODO: Sometimes on draggint to the top relative to checked group one checkbox can fall apart
+
     /**
      * Drag and drop event for a step in the scenario
      * @param event
@@ -345,15 +344,42 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         if (this.selectedCount(stepIndex) > 1) {
             var indices = event.item.data.indices;
             var change = event.currentIndex-event.previousIndex;
+
+            let newList = []
+
             if (change > 0){
-                indices.forEach((element, index) => {
-                moveItemInArray(this.getStepsList(stepDefs, stepIndex), element.index-index, event.currentIndex);
-            });
-            } else if (change < 0) {
-                indices.forEach((element, index) => {                 
-                    moveItemInArray(this.getStepsList(stepDefs, stepIndex), element.index+index, event.currentIndex+index);
+                let startOfList = this.getStepsList(stepDefs, stepIndex).slice(0, event.currentIndex+1)
+                let middleOfList: StepType[] = []
+                let endOfList = this.getStepsList(stepDefs, stepIndex).slice(event.currentIndex+1)
+                indices.forEach((element) => {
+                    middleOfList.push(element.value)
                 });
+                let startOfListFiltered = startOfList.filter( ( el ) => !middleOfList.includes( el ) );
+                let endOfListFiltered = endOfList.filter( ( el ) => !middleOfList.includes( el ) );
+                startOfListFiltered.push(...middleOfList)
+                startOfListFiltered.push(...endOfListFiltered)
+                newList = startOfListFiltered
+            } else if (change < 0) {
+                let startOfList = this.getStepsList(stepDefs, stepIndex).slice(0, event.currentIndex)
+                let middleOfList: StepType[] = []
+                let endOfList = this.getStepsList(stepDefs, stepIndex).slice(event.currentIndex)
+                indices.forEach((element) => {
+                    middleOfList.push(element.value)
+                });
+                let endOfListFiltered = endOfList.filter( ( el ) => !middleOfList.includes( el ) );
+                startOfList.push(...middleOfList)
+                startOfList.push(...endOfListFiltered)
+                newList = startOfList
             }
+
+            if (stepIndex === 0) {
+                this.selectedScenario.stepDefinitions.given = newList
+            } else if (stepIndex === 1) {
+                this.selectedScenario.stepDefinitions.when = newList
+            } else if (stepIndex === 2) {
+                this.selectedScenario.stepDefinitions.then = newList
+            }
+            
         } else {
             moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
         }
