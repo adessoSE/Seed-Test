@@ -226,8 +226,10 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 
 	if(value.includes('@@')){
 		const date = new Date();
-		value = value.replace(/@@date/g, `${date.getDate()}.${date.getMonth()}.${date.getFullYear()}`)
-		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`)
+		value = value.replace(/@@timestamp/g, `${new Date().toISOString()}`);
+		value = value.replace(/@@date/g, `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}`);
+		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+		
 	}
 	
 	const promises = []
