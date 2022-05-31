@@ -143,21 +143,9 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     exampleLastChecked = { id: undefined, step: undefined };
 
     /**
-     * Last checked input
-     */
-     lastCheckedInput;
-
-    /**
      * List of all checkboxes
      */
     allCheckboxes;
-
-    /**
-     * Width of the input field
-     */
-    minWidth = 200;
-    maxWidth = 400;
-    width = this.minWidth + 'px';
 
     /**
      * Id of the last checked input field
@@ -183,10 +171,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * View child of the example table
      */
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
-    /**
-     * Parent line element of steps
-     */
-    @ViewChild('parentEl') parentEl: ElementRef;
+
     @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
     @ViewChildren('checkbox') checkboxes: QueryList<ElementRef>;
 
@@ -244,8 +229,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
         this.checkboxes.changes.subscribe(_ => {
             this.allCheckboxes = this.checkboxes;
-            console.log(this.allCheckboxes);
-        })
+        });
     }
 
     /**
@@ -1383,43 +1367,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
 
     openCreateScenario() {
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
-    }
-
-    /**
-     * Resizes the input field on string length
-     * @param event
-     */
-    resizeInput(event) {
-        let string_input_scaled = event.target.value.length *8;
-        if (event.target.id !== this.lastCheckedInput) {
-            // reset variable
-            this.width = this.minWidth + 'px';
-        }
-        if (event.target.parentElement.parentElement.parentElement.offsetWidth < this.parentEl.nativeElement.offsetWidth) {
-            setTimeout(() => this.width = Math.max(this.minWidth, string_input_scaled) + 'px');
-            event.target.style.setProperty('width', this.width);
-        }
-        if (string_input_scaled <= this.minWidth) {
-            this.width = this.minWidth + 'px';
-            event.target.style.setProperty('width', this.width);
-        }
-        this.lastCheckedInput = event.target.id;
-    }
-
-    /**
-     * Resize input fields on load
-     * @param stringLen
-     * @returns
-     */
-    resizeOnLoad (stringLen) {
-        let string_input_scaled = stringLen *8;
-        
-        if (string_input_scaled <= this.minWidth) {
-            return this.minWidth;
-        }
-        else {
-            return string_input_scaled;
-        } 
     }
 
 }
