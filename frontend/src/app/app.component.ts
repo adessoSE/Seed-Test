@@ -5,6 +5,7 @@ import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { NGXLogger, NgxLoggerLevel } from 'ngx-logger';
 
 
 /**
@@ -64,13 +65,18 @@ export class AppComponent implements OnInit{
    * @param themeService
    */
 
-  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
+  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService, public logger: NGXLogger) {
   }
 
   /**
    * Retrieves Repositories
    */
   ngOnInit() {
+    this.logger.updateConfig({
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
+      level: NgxLoggerLevel.DEBUG,
+      serverLogLevel: NgxLoggerLevel.DEBUG
+    })
     this.logoutObservable = this.apiService.logoutEvent.subscribe(_ => {
       this.logout();
     });
