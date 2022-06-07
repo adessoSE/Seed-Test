@@ -133,7 +133,8 @@ import { ResizeInputDirective } from './resize-input.directive';
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
-      level: NgxLoggerLevel.DEBUG
+      level: NgxLoggerLevel.DEBUG,
+      serverLogLevel: NgxLoggerLevel.OFF
     }),
     ToastrModule.forRoot({
       timeOut: 3000
