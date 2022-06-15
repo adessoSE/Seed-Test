@@ -247,7 +247,7 @@
   }
   .searchBar{
     vertical-align: middle;
-    margin-left: 18px;
+    margin-right: 70px;
     white-space: nowrap;
     display: flex;
     justify-content: flex-end;
@@ -340,3 +340,18 @@
   background: none;
   box-shadow: none;
 }
+.tab-icon{
+  color: var(--brown-grey);
+  margin-bottom: 12px;
+  margin-right: 2px;
+}
+
+::ng-deep .mat-tab-label {
+ font-size: 19px;
+}
+
+::ng-deep .mat-tooltip {
+font-size: 13px  !important ;
+}
+
+
