@@ -281,7 +281,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
 
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
-        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, '',value.step,0,0)});
+        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 'addingExample',value.step,0,0)});
     }
 
     ngOnDestroy() {
@@ -1092,8 +1092,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param valueIndex
      */
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
-        console.log(step, stepIndex, valueIndex)
-        this.checkForExamples(input, step, valueIndex);
+        //console.log(step, stepIndex, valueIndex)
+        //this.checkForExamples(input, step, valueIndex);
         switch (stepType) {
             case 'given':
                 this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
@@ -1107,6 +1107,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
             case 'example':
                 this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
                 break;
+            case 'addingExample':
+                this.createExample(input, step, valueIndex);
         }
         this.selectedScenario.saved = false;
     }
@@ -1177,30 +1179,29 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param valueIndex
      */
     createExample(input: string, step: StepType, valueIndex: number) {
-        const cutInput = input.substr(1, input.length - 2);
-        this.handleExamples(input, cutInput, step, valueIndex);
+        //const cutInput = input.substr(1, input.length - 2);
+        this.handleExamples(input, step, valueIndex);
     }
 
     /**
      * Handles the update for examples
      * @param input
-     * @param cutInput
      * @param step
      * @param valueIndex
      */
-    handleExamples(input: string, cutInput: string, step: StepType, valueIndex: number) {
+    handleExamples(input: string, step: StepType, valueIndex: number) {
         // changes example header name if the name is just changed in step
         if (this.exampleHeaderChanged(input, step, valueIndex)) {
             this.uncutInputs[this.uncutInputs.indexOf(step.values[valueIndex])] = input;
-            this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
+            this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = input;
         } else {
             this.uncutInputs.push(input);
             // for first example creates 2 steps
             if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
-                this.createFirstExample(cutInput, step);
+                this.createFirstExample(input, step);
             } else {
                 // else just adds as many values to the examples to fill up the table
-                this.fillExamples(cutInput, step);
+                this.fillExamples(input, step);
             }
         }
         this.exampleChild.updateTable();
