@@ -17,7 +17,7 @@ chromeOptions.addArguments('--headless');
 // chromeOptions.addArguments('--headless');
 // }
 chromeOptions.addArguments('--disable-dev-shm-usage');
-// chromeOptions.addArguments('--no-sandbox')
+chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');

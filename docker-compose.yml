@@ -5,8 +5,7 @@ services:
     ports:
       - "8080:8080"
     container_name: "Seed-backend"
-    # depends_on: 
-    #   - selenium
+    
   frontend:
     build: ./frontend
     ports:
@@ -14,10 +13,3 @@ services:
     container_name: "Seed-frontend"
     depends_on:
       - backend
-  # selenium:
-  #   image: selenium/standalone-chrome
-  #   build: docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-chrome
-  #   ports:
-  #     - "5900:5900"
-  #     - "4444:4444"
-  #   container_name: selenium_chrome
