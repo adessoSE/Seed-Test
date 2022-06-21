@@ -281,7 +281,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
 
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
-        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(name => this.addExampleStep(name));
+        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, '',value.step,0,0)});
     }
 
     ngOnDestroy() {
@@ -1092,6 +1092,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param valueIndex
      */
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
+        console.log(step, stepIndex, valueIndex)
         this.checkForExamples(input, step, valueIndex);
         switch (stepType) {
             case 'given':
@@ -1379,9 +1380,9 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
     }
 
-    openNewExample() {
+    openNewExample(step) {
         console.log(this.newExampleModal)
-        this.newExampleModal.openNewExampleModal(this.selectedStory);
+        this.newExampleModal.openNewExampleModal(this.selectedStory, step);
     }
 
 }
