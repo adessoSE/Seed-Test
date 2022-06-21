@@ -111,8 +111,8 @@
           </div>
           <div *ngIf="sd == 'example'">
             <div *ngFor="let step of originalStepTypes; let j = index;" >
-              <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
-               (click)="addStepToScenario(selectedStory._id,step)" title="Add New Variable" uk-tooltip>
+              <button *ngIf="step.stepType===sd" id="{{'scenario_add_step' + i}}" 
+               (click)="openNewExample(step)" title="Add New Variable" uk-tooltip>
                 <em class="material-icons">add_circle_outline</em>
               </button>
             </div>
@@ -236,4 +236,4 @@
 <app-new-step-request #newStepRequest></app-new-step-request>
 <app-rename-scenario #renameScenarioModal></app-rename-scenario>
 <app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)"></app-create-scenario>
-
+<app-new-example #newExampleModal></app-new-example>

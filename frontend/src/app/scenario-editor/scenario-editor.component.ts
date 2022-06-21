@@ -15,6 +15,8 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { NewExampleComponent } from './../modals/new-example/new-example.component';
+
 
 /**
  * Component of the Scenario Editor
@@ -163,6 +165,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     runSaveOptionObservable: Subscription;
     addBlocktoScenarioObservable: Subscription;
     renameScenarioObservable: Subscription;
+    newExampleObservable: Subscription;
 
     public dragging: DragRef = null;
 
@@ -183,6 +186,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
+    @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
 
     /**
      * Original step types not sorted or changed
@@ -277,6 +281,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
 
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
+        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(name => this.addExampleStep(name));
     }
 
     ngOnDestroy() {
@@ -288,6 +293,9 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         }
         if (!this.renameScenarioObservable.closed) {
             this.renameScenarioObservable.unsubscribe();
+        }
+        if (!this.newExampleObservable.closed) {
+            this.newExampleObservable.unsubscribe();
         }
     }
 
@@ -598,7 +606,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param step
      */
     addExampleStep(step: StepType) {
-        if (this.selectedScenario.stepDefinitions.example.length > 0) {
+        console.log(this.selectedScenario.stepDefinitions.example.length)
+        //if (this.selectedScenario.stepDefinitions.example.length > 0) {
             const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
             this.selectedScenario.stepDefinitions.example.push(newStep);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
@@ -606,7 +615,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
                 this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
             }
             this.exampleChild.updateTable();
-        }
+        //}
         this.selectedScenario.saved = false;
     }
 
@@ -1366,7 +1375,13 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     }
 
     openCreateScenario() {
+        console.log(this.createScenarioModal)
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
+    }
+
+    openNewExample() {
+        console.log(this.newExampleModal)
+        this.newExampleModal.openNewExampleModal(this.selectedStory);
     }
 
 }

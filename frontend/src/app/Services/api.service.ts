@@ -115,6 +115,11 @@ export class ApiService {
     public scenarioStatusChangeEvent = new EventEmitter();
 
     /**
+     * Event emitter to add a example to a scenario
+     */
+     public newExampleEvent = new EventEmitter();
+
+    /**
      * Event emitter to create a custom story
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
@@ -228,6 +233,14 @@ export class ApiService {
     scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
         const val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
         this.scenarioStatusChangeEvent.emit(val);
+    }
+
+    /**
+     * Emits the new example event
+     * @param name example name
+     */
+     newExampleEmit(name) {
+        this.newExampleEvent.emit(name);
     }
 
     /**
