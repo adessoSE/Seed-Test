@@ -734,7 +734,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
           post: obj.post,
           stepType: obj.stepType,
           type: obj.type,
-          values: obj.values
+          values: obj.values,
+          isExample: obj.isExample
       };
       return newStep;
   }

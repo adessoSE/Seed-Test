@@ -55,7 +55,7 @@ export interface StepType {
     /**
      * List of booleans defining if value is a example
      */
-    isExample?: boolean[];
+    isExample: boolean[];
 
     /**
      * Outdated currently not used

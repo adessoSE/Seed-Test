@@ -281,7 +281,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
 
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
-        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 'addingExample',value.step,0,0)});        
+        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 'addingExample',value.step,0,0)});
     }
 
     ngOnDestroy() {
@@ -636,7 +636,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
             post: obj.post,
             stepType: stepType === 'example' ? stepType : obj.stepType,
             type: obj.type,
-            values: stepType === 'example' ? ['value'] : obj.values
+            values: stepType === 'example' ? ['value'] : obj.values,
+            isExample: stepType === 'example' ? [true] : [false]
         };
         return newStep;
     }
