@@ -281,7 +281,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
 
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
-        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 'addingExample',value.step,0,0)});
+        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 'addingExample',value.step,0,0)});        
     }
 
     ngOnDestroy() {
@@ -1092,8 +1092,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param valueIndex
      */
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
-        //console.log(step, stepIndex, valueIndex)
-        //this.checkForExamples(input, step, valueIndex);
         switch (stepType) {
             case 'given':
                 this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
@@ -1109,8 +1107,39 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
                 break;
             case 'addingExample':
                 this.createExample(input, step, valueIndex);
+                break;
         }
         this.selectedScenario.saved = false;
+    }
+
+    /**
+     * Adds whether value is example or not
+     * @param input
+     * @param stepType
+     * @param step
+     * @param stepIndex
+     * @param valueIndex
+     */
+     addIsExample(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
+        switch (stepType) {
+            case 'given':
+                this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+                break;
+            case 'when':
+                this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+                break;
+            case 'then':
+                this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+                break;
+        }
+     }
+
+    /**
+     * 
+     * @returns returns all examples in list
+     */
+    getExampleList(){
+        return this.selectedScenario.stepDefinitions.example[0].values
     }
 
     /**
