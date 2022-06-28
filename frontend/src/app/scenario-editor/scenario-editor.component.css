@@ -104,9 +104,6 @@ em.dragIcon{
   cursor: pointer;
 }
 
-#checkbox_all_example{
-  margin-left: 10px;
-}
 
 #checkbox_all{
   margin-top: 2px;
@@ -408,5 +405,5 @@ table {
 }
 
 .inputOrExample{
-  width: 17px;
+  width: 16px;
 }

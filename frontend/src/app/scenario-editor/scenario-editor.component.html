@@ -140,11 +140,11 @@
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
                 <div style="display: flex;" *ngIf="currentStep.values.length > 0" >
                   <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=0" style="display: flex;">
-                  <div *ngIf="currentStep.isExample[0] == false || !currentStep.values[0] || (currentStep.values[0].slice(0,1) != '<' && currentStep.values[0].slice(-1) != '>' && currentStep.isExample[0] != true)">
+                  <div *ngIf="currentStep.isExample[0] == false || !currentStep.values[0]">
                     <input appResizeInput class="scenario" id="{{'scenario_' + i + '_input_pre_' + j}}" #step_type_input1
                     type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value,currentStep.stepType,currentStep, j, 0)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                   </div>
-                  <div *ngIf="currentStep.isExample[0] == true || (currentStep.values[0].slice(0,1) == '<' && currentStep.values[0].slice(-1) == '>' && currentStep.isExample[0] != false)">
+                  <div *ngIf="currentStep.isExample[0] == true" style="display: flex; padding-right: 1px;">
                     <mat-form-field appearance="standard" class="exampleList">
                       <mat-select [ngModel]="currentStep.values[0]" (selectionChange)="addToValues($event.value,currentStep.stepType,currentStep, j, 0)">
                         <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList">
@@ -177,7 +177,7 @@
                       <input appResizeInput class="scenario" id="{{'scenario_' + i + '_input_mid_' + j}}" #step_type_input2
                     type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value,currentStep.stepType,currentStep, j, 1)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                     </div>
-                    <div *ngIf="currentStep.isExample[1] == true">
+                    <div *ngIf="currentStep.isExample[1] == true" style="display: flex; padding-right: 1px;">
                       <mat-form-field appearance="standard" class="exampleList">
                         <mat-select [ngModel]="currentStep.values[1]" (selectionChange)="addToValues($event.value,currentStep.stepType,currentStep, j, 1)">
                           <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList">
@@ -225,31 +225,35 @@
         <br>
         <ng-template #exampleCondition>
           <!--Action bar-->
-          <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="exampleBarContainer">
-            <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
+          <div class="scenarioBarContainer" style="margin:0 !important">
+          <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="actionBarButtonGroup">
+            <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Examples">
             <div [class.disabled]="!this.activeExampleActionBar" class="actionBarButtonGroup">
-              <button id="{{'scenario_' + i + '_example_addBlock_step_'}}"
-              class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
-              (click)="saveExampleBlock($event);">
-                <em class="material-icons">queue</em>
-              </button>
-              <button id="{{'scenario_' + i + '_example_deactivate_step_'}}"
-                class="actionButton deactivateStepButton" uk-tooltip title="Deactivate Step"
+              <!--button id="{{'scenario_' + i + '_example_deactivate_step_'}}"
+                class="actionButton deactivateStepButton" uk-tooltip title="Deactivate Example"
                 (click)="deactivateExampleStep();">
                 <em class="material-icons">do_not_touch</em>
-              </button>
+              </button-->
               <button id="{{'scenario_' + i + '_example_delete_step_'}}"
-              class="actionButton" uk-tooltip title="Delete Step"
+              class="actionButton" uk-tooltip title="Delete Example"
               (click)="removeStepFromExample();">
                 <em class="material-icons">delete</em>
               </button>
-              <button id="{{'scenario_' + i + '_example_copy_step_'}}"
-              class="actionButton" uk-tooltip title="Copy Step to Clipboard"
+              <!--button id="{{'scenario_' + i + '_example_copy_step_'}}"
+              class="actionButton" uk-tooltip title="Copy Example to Clipboard"
               (click)="copyBlockExample();">
                 <em class="material-icons">content_copy</em>
-              </button>
+              </button-->
             </div>
           </div>
+          <div class="scenarioButtonGroup">
+            <button id="{{'scenario_' + i + '_example_add_step_'}}"
+              class="scenarioButton" uk-tooltip title="Add Example"
+              (click)="addRowToExamples();">
+                <em class="material-icons">add</em>
+              </button>
+          </div>
+        </div>
           <app-example-table #exampleChildView [isDark]="isDark" [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
         </ng-template>
       </div>

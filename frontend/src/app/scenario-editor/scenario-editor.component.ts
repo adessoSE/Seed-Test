@@ -1278,6 +1278,15 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         }
     }
 
+    addRowToExamples(){
+        let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
+        row.values.forEach((value, index) => {
+            row.values[index] = 'value'
+        });
+        this.selectedScenario.stepDefinitions.example.push(row)
+        this.exampleChild.updateTable();
+    }
+
     /**
      * if the example header got changed
      * @param input
