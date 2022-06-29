@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from 'src/app/model/Story';
@@ -13,7 +13,7 @@ export class RenameStoryComponent {
 
   modalReference: NgbModalRef;
 
-  @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
+  @ViewChild('renameStoryModal') renameStoryModal: TemplateRef<RenameStoryComponent>;
 
   story: Story;
   stories: Story[];

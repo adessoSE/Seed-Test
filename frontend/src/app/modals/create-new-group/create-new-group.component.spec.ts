@@ -1,4 +1,6 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ToastrModule } from 'ngx-toastr';
 
 import { CreateNewGroupComponent } from './create-new-group.component';
 
@@ -8,7 +10,8 @@ describe('CreateNewGroupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CreateNewGroupComponent ]
+      declarations: [ CreateNewGroupComponent ],
+      imports: [HttpClientTestingModule, ToastrModule.forRoot()]
     })
     .compileComponents();
   });

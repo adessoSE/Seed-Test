@@ -1,4 +1,6 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ToastrModule } from 'ngx-toastr';
 
 import { NewStepRequestComponent } from './new-step-request.component';
 
@@ -8,7 +10,8 @@ describe('NewStepRequestComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NewStepRequestComponent ]
+      declarations: [ NewStepRequestComponent ],
+      imports: [HttpClientTestingModule, ToastrModule.forRoot()]
     })
     .compileComponents();
   });

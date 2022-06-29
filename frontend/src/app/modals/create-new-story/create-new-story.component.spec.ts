@@ -1,87 +1,105 @@
-import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {HttpClientTestingModule} from '@angular/common/http/testing'
-
+import {findComponent} from '../../../test_helper'
 import { CreateNewStoryComponent } from './create-new-story.component';
 import { ToastrModule } from 'ngx-toastr';
 import { By } from '@angular/platform-browser';
+import { Story } from 'src/app/model/Story';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ApiService } from 'src/app/Services/api.service';
+import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
+
+const stories:Story[] = [{_id: 1, issue_number: 36523, story_id: 37727, storySource: 'github', 
+      background: undefined, scenarios: [], oneDriver: true, title: 'test story', body: '',
+      state: '', assignee: 'alice', assignee_avatar_url: 'url/to/my/photo', lastTestPassed: false}];
+
+
+@Component({
+  template: `
+    <div>
+    <ng-container *ngTemplateOutlet="modal"> </ng-container>
+    </div>
+    <app-create-new-story> </app-create-new-story> 
+    `,
+})
+
+class WrapperComponent implements AfterViewInit {
+  @ViewChild(CreateNewStoryComponent) storyComponentRef: CreateNewStoryComponent;
+
+  modal: TemplateRef<any>;
+
+  constructor(private cdr: ChangeDetectorRef) {}
+
+  ngAfterViewInit() {
+    this.modal = this.storyComponentRef.createNewStoryModal;
+    this.cdr.detectChanges();
+  }
+}
 
 describe('CreateNewStoryComponent', () => {
-  let component: CreateNewStoryComponent;
-  let fixture: ComponentFixture<CreateNewStoryComponent>;
+  let fixture: ComponentFixture<WrapperComponent>;
+  let wrapperComponent: WrapperComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CreateNewStoryComponent ],
+      declarations: [ CreateNewStoryComponent, WrapperComponent ],
       imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule, ToastrModule.forRoot()]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CreateNewStoryComponent);
-    component = fixture.componentInstance;
+    fixture = TestBed.createComponent(WrapperComponent);
+    wrapperComponent = fixture.debugElement.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  it('create the app', async () => {
+    expect(wrapperComponent).toBeDefined();
+    expect(wrapperComponent.storyComponentRef).toBeDefined();
+});
 
-  it('story form to be truthy', () => {
-    expect(component.storyForm).toBeTruthy();
+  it('story form to be truthy & invalid', () => {
+    const form = findComponent(fixture,'#storyForm');
+    expect(form).toBeTruthy();
+    expect(form.nativeElement.valid).toBeFalsy();
   });
 
   it('test group form elemnt count', () => {
-    fakeAsync(() => {
-      const inputElemnt = fixture.debugElement.queryAll(By.css('#storytitle'));
-      expect(inputElemnt.length).toEqual(1);
-      const textElement = fixture.debugElement.queryAll(By.css('#storydescription'));
-      expect(textElement.length).toEqual(1);
-    }); 
+    const inputElemnt = fixture.debugElement.queryAll(By.css('#storytitle'));
+    expect(inputElemnt.length).toEqual(1);
+    const textElement = fixture.debugElement.queryAll(By.css('#storydescription'));
+    expect(textElement.length).toEqual(1); 
   });
 
-  it('check story form values', () => {
-    const storyForm = component.storyForm;
-    const storyFormValues = {
-      storyTitle: '',
-      storyDescription: ''
-    }
-    expect(storyForm.value).toEqual(storyFormValues);
-  });
+  it('should leave disabled the submit button', fakeAsync(() => {
+    const submitbutton = findComponent(fixture, '.normalButton');
+    expect(submitbutton.nativeElement.disabled).toBeTruthy();
+  }));
 
-  it('button click should submit the form', () => {
-    //expect(component.storyForm.valid).not.toBeTruthy();
-    component.storyForm.setValue({storyTitle: 'new stora name', storyDescription: 'a brief story desctiption'} );
-    jest.spyOn(component, 'createNewStory');
-    //component.createNewStory();
-    //expect(component.storyForm.valid).toBeTruthy();
-    expect(component.storyForm.get('storyTitle').value).toEqual('new stora name');
-    expect(component.storyForm.get('storyDescription').value).toEqual('a brief story desctiption');
-  });
+  it('should enable button on form filled', fakeAsync(() => {
+    const inputElemnt = findComponent(fixture, '#storytitle');
+    const textElement = findComponent(fixture, '#storydescription');  
+    inputElemnt.nativeElement.value = 'new story name';
+    inputElemnt.triggerEventHandler('input', null);
+    textElement.nativeElement.value = 'a brief story desctiption';
+    textElement.triggerEventHandler('input', null);
+    fixture.detectChanges();
+    tick();
+    const submitbutton = findComponent(fixture, '.normalButton');
+    expect(submitbutton.nativeElement.disabled).toBeFalsy();
+  }));
 
-  it('check username update', () => {
-    fakeAsync(() => {
-      const storyTitleElement = fixture.debugElement.query(By.css('#storytitle'));
-      storyTitleElement.nativeElement.value = "new title";
-      fixture.detectChanges();
-      const storyTitle = component.storyForm.get('storyTitle');
-      expect(storyTitleElement.nativeElement.value).toEqual(storyTitle.value);
-      expect(storyTitle.errors.required).toBeTruthy();
-    });
-  }); 
-
-  it('check story description update', () => {
-    fakeAsync(() => {
-      const storyDescriptionElement = fixture.debugElement.query(By.css('#storydescription'));
-      storyDescriptionElement.nativeElement.value = 'This is a story description to be displayed on the screen';
-      storyDescriptionElement.nativeElement.dispatchEvent(new Event('input'));
-      fixture.detectChanges();
-      fixture.whenStable().then(() => {
-        const storyDescription = component.storyForm.get('storyDescription');
-        expect(storyDescriptionElement.nativeElement.value).toEqual(storyDescription.value);
-        expect(storyDescription.errors).toBeNull();
-      });
-    });
-  });
+  it('should define title & description', fakeAsync(() => {
+    const inputElemnt = findComponent(fixture, '#storytitle');
+    inputElemnt.nativeElement.value = 'new story name';
+    inputElemnt.triggerEventHandler('input', null);
+    const textElement = findComponent(fixture, '#storydescription');
+    textElement.nativeElement.value = 'a brief story desctiption';
+    textElement.triggerEventHandler('input', null);
+    fixture.detectChanges();
+    expect(inputElemnt.nativeElement.value).toEqual('new story name');
+    expect(textElement.nativeElement.value).toEqual('a brief story desctiption');
+  })); 
 });

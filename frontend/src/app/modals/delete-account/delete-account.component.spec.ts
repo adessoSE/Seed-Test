@@ -1,4 +1,6 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ToastrModule } from 'ngx-toastr';
 
 import { DeleteAccountComponent } from './delete-account.component';
 
@@ -8,7 +10,8 @@ describe('DeleteAccountComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DeleteAccountComponent ]
+      declarations: [ DeleteAccountComponent ],
+      imports: [HttpClientTestingModule, ToastrModule.forRoot()]
     })
     .compileComponents();
   });

@@ -9,7 +9,7 @@
         </button>
     </div>
     <div class="modal-body">
-        <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid">
+        <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid" (ngSubmit)="submitRenameStory()">
             <div class="form-group modalsContent">
                 <div>
                     <label>Edit Story Title</label>

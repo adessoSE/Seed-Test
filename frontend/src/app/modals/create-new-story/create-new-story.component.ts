@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
@@ -14,7 +14,7 @@ import { FormGroup, FormControl} from '@angular/forms';
 })
 export class CreateNewStoryComponent {
 
-  @ViewChild('createNewStoryModal') createNewStoryModal: CreateNewStoryComponent;
+  @ViewChild('createNewStoryModal') createNewStoryModal: TemplateRef<CreateNewStoryComponent>;
 
   /**
      * selectable Stories when create Group
