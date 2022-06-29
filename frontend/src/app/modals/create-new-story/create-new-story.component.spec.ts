@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {HttpClientTestingModule} from '@angular/common/http/testing'
 import {findComponent} from '../../../test_helper'
@@ -55,23 +55,23 @@ describe('CreateNewStoryComponent', () => {
     fixture.detectChanges();
   });
 
-  it('create the app', async () => {
+  it('create the app', fakeAsync(() => {
     expect(wrapperComponent).toBeDefined();
     expect(wrapperComponent.storyComponentRef).toBeDefined();
-});
+}));
 
-  it('story form to be truthy & invalid', () => {
+  it('story form to be truthy & invalid', fakeAsync (() => {
     const form = findComponent(fixture,'#storyForm');
     expect(form).toBeTruthy();
     expect(form.nativeElement.valid).toBeFalsy();
-  });
+  }));
 
-  it('test group form elemnt count', () => {
+  it('test group form elemnt count', fakeAsync(() => {
     const inputElemnt = fixture.debugElement.queryAll(By.css('#storytitle'));
-    expect(inputElemnt.length).toEqual(1);
     const textElement = fixture.debugElement.queryAll(By.css('#storydescription'));
+    expect(inputElemnt.length).toEqual(1);
     expect(textElement.length).toEqual(1); 
-  });
+  }));
 
   it('should leave disabled the submit button', fakeAsync(() => {
     const submitbutton = findComponent(fixture, '.normalButton');
@@ -86,7 +86,6 @@ describe('CreateNewStoryComponent', () => {
     textElement.nativeElement.value = 'a brief story desctiption';
     textElement.triggerEventHandler('input', null);
     fixture.detectChanges();
-    tick();
     const submitbutton = findComponent(fixture, '.normalButton');
     expect(submitbutton.nativeElement.disabled).toBeFalsy();
   }));
