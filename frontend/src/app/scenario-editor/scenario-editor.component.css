@@ -392,3 +392,17 @@ table {
 .disabled{
   opacity: 0.8;
 }
+
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+.select-item-drag-preview {
+  background-color: rgba(204, 0, 102, 0);
+  font-weight: bold;
+  border: 2px solid #666;
+  border-radius: 50%;
+  display: inline-block;
+  width: 30px;
+  line-height: 30px;
+  text-align: center;
+}

@@ -1,17 +1,17 @@
 <div [class.darkTheme]="isDark" class="grid">
     <br>
+    <mat-tab-group [dynamicHeight]='true'>
+      <mat-tab label="Stories">
+          <ng-template mat-tab-label>
+            <label matTooltip="A user story describes requirements for a software system.
+            It is consciously kept in short sentences and simple words.
+            A story includes several scenarios.
+            The following template is recommended:
+            As a <...>, I want <...> so that <...>"> 
+              Stories
+          </label>              
+          </ng-template>
     <div class="searchBarWrapper">
-      <div class="uk-card-title storyBar"><span class="MediumCategory1" id="storyHeader">Stories</span>
-      <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-        <span rel="def" class="infoTextLeftPosition" id="storyInfoTextVerticalPosition">A user story describes requirements for a software system.
-          It is consciously kept in short sentences and simple words.
-          A story includes several scenarios.
-          The following template is recommended:
-          As a <...>, I want <...> so that <...>
-        </span>
-      </dfn>
-
-    </div>
     <!-- search bar here -->
   </div>
   <hr>
@@ -51,6 +51,7 @@
         </mat-select>
     </mat-form-field>
     <mat-form-field appearance="standard" class="filterFormField">
+
       <mat-label>Group</mat-label>
         <mat-select [(ngModel)]="groupModel" (selectionChange)="filter()">
           <mat-option>--</mat-option>
@@ -97,17 +98,21 @@
     </div>
     <br>
     <hr>
-    <div class="searchBarWrapper">
-      <div class="uk-card-title storyBar"><span class="MediumCategory1" id="groupHeader">Groups</span>
-        <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-          <span rel="def">Create a Group and add Stories to run multiple Stories at once!</span>
-        </dfn>
-      </div>
-      <span class="searchBar">
+  </mat-tab>
+  <mat-tab label="Groups">
+    <ng-template mat-tab-label>
+      <mat-icon class="tab-icon">folder_open</mat-icon>
+      <label matTooltip="Create a Group and add Stories to run multiple Stories at once!">   
+        Groups
+      </label>
+    </ng-template>
+    <div class="searchBarWrapper"> 
+    </div>
+    <hr>
+      <div class="searchBar">
         <em class="material-icons" id="searchBarIcons">search</em>
         <input class="searchInput" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"/>
-        <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>
-      </span>
+        <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>  
     </div>
     <hr>
     <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
@@ -124,7 +129,6 @@
           </span>
         </div>
 
-
         <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
           <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
             <a class="Largecaption scenarioListItem" cdkDrag>
@@ -138,6 +142,8 @@
     <div id="createNewGroupDiv">
       <button class="normalButton" (click)="openCreateNewGroupModal()">Create New Group</button>
     </div>
+  </mat-tab>
+</mat-tab-group>
 </div>
 <app-create-new-group #createNewGroup></app-create-new-group>
 <app-create-new-story #createNewStory></app-create-new-story>

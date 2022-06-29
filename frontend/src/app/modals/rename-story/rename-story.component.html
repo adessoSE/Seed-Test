@@ -9,11 +9,11 @@
         </button>
     </div>
     <div class="modal-body">
-        <form [formGroup]="storyForm" novalidate [disabled]="!storyForm.valid" (ngSubmit)="submitRenameStory()">
+        <form [formGroup]="storyForm" novalidate (ngSubmit)="submitRenameStory()">
             <div class="form-group modalsContent">
                 <div>
                     <label>Edit Story Title</label>
-                    <input id="newStoryTitle" type="text" name="newStoryTitle"
+                    <input id="newStoryTitle" type="text" name="newStoryTitle" pattern="\S(.*\S)?"
                        formControlName="storyTitle" (keyup)="storyUnique()" required>
                 </div>
             </div>

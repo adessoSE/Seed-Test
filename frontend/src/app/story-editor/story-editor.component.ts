@@ -323,6 +323,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      * Subscribes to all necessary events
      */
     ngOnInit() {
+
+        // in event that stories are already loaded
+        if(this.stories){
+            this.storiesLoaded = true;
+        }
+        
         this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
             this.storiesLoaded = true;
             this.storiesError = false;
