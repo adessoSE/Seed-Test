@@ -16,6 +16,7 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
+import * as e from 'express';
 
 
 /**
@@ -159,6 +160,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      */
     lastStepId;
 
+    indexOfExampleToDelete;
+
     /**
      * Subscribtions for all EventEmitter
      */
@@ -166,6 +169,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     addBlocktoScenarioObservable: Subscription;
     renameScenarioObservable: Subscription;
     newExampleObservable: Subscription;
+    renameExampleObservable: Subscription;
 
     public dragging: DragRef = null;
 
@@ -282,6 +286,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
 
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
         this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 'addingExample',value.step,0,0)});
+        this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column)})
     }
 
     ngOnDestroy() {
@@ -296,6 +301,9 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         }
         if (!this.newExampleObservable.closed) {
             this.newExampleObservable.unsubscribe();
+        }
+        if (!this.renameExampleObservable.closed) {
+            this.renameExampleObservable.unsubscribe();
         }
     }
 
@@ -1095,13 +1103,28 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     addToValues(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
         switch (stepType) {
             case 'given':
-                this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
+                if(this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]){
+                    this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = '<' + input + '>';
+                }
+                else {
+                    this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
+                }
                 break;
             case 'when':
-                this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+                if(this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex]){
+                    this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = '<' + input + '>';
+                }
+                else {
+                    this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+                }
                 break;
             case 'then':
-                this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
+                if(this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex]){
+                    this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = '<' + input + '>';
+                }
+                else {
+                    this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
+                }
                 break;
             case 'example':
                 this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
@@ -1121,7 +1144,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param stepIndex
      * @param valueIndex
      */
-     addIsExample(input: string, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
+     addIsExample(input, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
+        if(input == true){
+            input = 'example'
+        }
         switch (stepType) {
             case 'given':
                 this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
@@ -1140,7 +1166,29 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @returns returns all examples in list
      */
     getExampleList(){
-        return this.selectedScenario.stepDefinitions.example[0].values
+        console.log(this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length && this.selectedScenario.stepDefinitions.example[0].values.length)
+        if(this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length && this.selectedScenario.stepDefinitions.example[0].values.length){
+            return this.selectedScenario.stepDefinitions.example[0].values
+        }
+        return undefined
+    }
+
+    /**
+     * Rename an example
+     * @param newName 
+     * @param index index of example in values array
+     */
+    renameExample(newName, index){
+        let oldName = this.selectedScenario.stepDefinitions.example[0].values[index]
+        this.selectedScenario.stepDefinitions.example[0].values[index] = newName
+        this.exampleChild.updateTable();
+
+        this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
+            value.values.forEach((val, i) => {
+              if(val == '<'+oldName+'>')
+              this.selectedScenario.stepDefinitions.then[index].values[i] = '<'+newName+'>'
+            })
+          })
     }
 
     /**

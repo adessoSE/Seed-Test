@@ -407,3 +407,9 @@ table {
 .inputOrExample{
   width: 16px;
 }
+
+#inputExample{
+  background: #f8f8f8;
+  border-radius: 50%;
+  height: 29px;
+}

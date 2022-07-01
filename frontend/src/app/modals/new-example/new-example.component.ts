@@ -1,3 +1,4 @@
+import { Scenario } from './../../model/Scenario';
 import { StepType } from './../../model/StepType';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -17,6 +18,9 @@ export class NewExampleComponent{
      */
    selectedStory: Story;
    step: StepType;
+   selectedScenario: Scenario;
+   newName: string;
+   columnIndex;
 
    modalReference: NgbModalRef;
 
@@ -40,15 +44,27 @@ export class NewExampleComponent{
       this.modalReference = this.modalService.open(this.newExampleModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
+    renameExample(scenario: Scenario, columnIndex) {
+      this.selectedScenario = scenario;
+      this.columnIndex = columnIndex;
+      this.newName = scenario.stepDefinitions.example[0].values[columnIndex]
+      this.modalReference = this.modalService.open(this.newExampleModal, {ariaLabelledBy: 'modal-basic-title'});
+    }
+
   /**
   * Submits the new name for the scenario
   */
    createNewExample(form: NgForm) {
-    let exampleName = form.value.newName;
-    //Create Scenario Emitter (argument scenario name) 
-    this.apiService.newExampleEvent.emit({step:this.step,name:exampleName});
-    console.log(exampleName)
-    this.modalReference.close();
+    if (this.newName){
+      this.apiService.renameExampleEvent.emit({name:form.value.newName, column:this.columnIndex})
+      this.modalReference.close();
+    } else{
+
+      let exampleName = form.value.newName;
+      //Create Scenario Emitter (argument scenario name) 
+      this.apiService.newExampleEvent.emit({step:this.step,name:exampleName});
+      this.modalReference.close();
+    }
   }
 
 }

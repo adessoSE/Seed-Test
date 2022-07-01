@@ -15,7 +15,7 @@
                         <label class="uk-form-label">Enter example name*</label>
                         <span class="material-icons" display-title="Enter example name">drive_file_rename_outline</span>
                         <div >
-                            <input type="text" ngModel id="newTitle" pattern="\S(.*\S)?" name="newName" placeholder="New Name" required>
+                            <input type="text" [ngModel]="newName" id="newTitle" pattern="\S(.*\S)?" name="newName" placeholder="New Name" required>
                         </div>                    
                     </div>
                 </div>

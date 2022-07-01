@@ -99,6 +99,11 @@ export class ApiService {
      */
     public deleteScenarioEvent = new EventEmitter();
 
+    /**
+     * Event emitter to delete the example
+     */
+     public deleteExampleEvent = new EventEmitter();
+
      /**
      * Event emitter to delete the story
      */
@@ -118,6 +123,8 @@ export class ApiService {
      * Event emitter to add a example to a scenario
      */
      public newExampleEvent = new EventEmitter();
+    
+    public renameExampleEvent = new EventEmitter();
 
     /**
      * Event emitter to create a custom story
@@ -167,6 +174,13 @@ export class ApiService {
      */
     public deleteScenarioEmitter() {
         this.deleteScenarioEvent.emit();
+    }
+
+    /**
+     * Emits the delete example event
+     */
+     public deleteExampleEmitter() {
+        this.deleteExampleEvent.emit();
     }
 
      /**
@@ -241,6 +255,10 @@ export class ApiService {
      */
      newExampleEmit(name) {
         this.newExampleEvent.emit(name);
+    }
+
+    renameExampleEmit(name) {
+        this.renameExampleEvent.emit(name);
     }
 
     /**
