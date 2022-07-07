@@ -15,8 +15,11 @@ RUN npm install --force
 # Bundle app source
 COPY . .
 
-EXPOSE 4200
+#EXPOSE 4200
+EXPOSE ${PORT}
 
 # Aus frontend/package.json
 CMD ["node", "server.js"]
 
+# keeps container running without doing anything so you can bash into it
+# ENTRYPOINT ["tail", "-f", "/dev/null"]

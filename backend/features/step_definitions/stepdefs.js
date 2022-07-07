@@ -1,3 +1,4 @@
+const os = require('os');
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
@@ -12,12 +13,13 @@ const chrome = require('../../node_modules/selenium-webdriver/chrome');
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
-chromeOptions.addArguments('--headless');
-// if (process.env.NODE_ENV) {
-// chromeOptions.addArguments('--headless');
-// }
+
+if (!os.platform().includes('win')) {
+	chromeOptions.addArguments('--headless');
+	chromeOptions.addArguments('--no-sandbox');
+}
+
 chromeOptions.addArguments('--disable-dev-shm-usage');
-chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');

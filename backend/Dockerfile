@@ -26,13 +26,13 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 # Bundle app source
 COPY . .
 
-EXPOSE 8080
+EXPOSE ${PORT}
 
 # Start dbus-daemon for google-chrome
 RUN service dbus start
 
 # starts the backend server
-# CMD ["node", "src/server.js"]
+CMD ["npm", "run", "start"]
 
 # keeps container running without doing anything so you can bash into it
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
