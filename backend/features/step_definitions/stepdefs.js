@@ -230,7 +230,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	if(value.includes('@@')){
 		const date = new Date();
 		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
-		value = value.replace(/@@date/g, `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}`);//getMonth is zeroBased
+		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
 		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
 		
 	}
@@ -619,19 +619,13 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 After(async () => {
 	if (currentParameters.oneDriver) {
 		scenarioIndex += 1;
+		await driver.sleep(500);
 		if (scenarioIndex === testLength) {
-			// Without Timeout driver quit is happening too quickly. Need a better solution
-			// https://github.com/SeleniumHQ/selenium/issues/5560
-			const condition = until.elementLocated(By.name('loader'));
-			driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
 			await driver.quit();
 		}
 	} else {
 		scenarioIndex += 1;
-		// Without Timeout driver quit is happening too quickly. Need a better solution
-		// https://github.com/SeleniumHQ/selenium/issues/5560
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+		await driver.sleep(500);
 		await driver.quit();
 	}
 });
