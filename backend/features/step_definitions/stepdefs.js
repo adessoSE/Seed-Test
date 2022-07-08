@@ -1,22 +1,25 @@
+const os = require('os');
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
-const webdriver = require('selenium-webdriver');
+const webdriver = require('../../node_modules/selenium-webdriver');
 const fs = require('fs');
-const { By, until, Key } = require('selenium-webdriver');
+const { By, until, Key } = require('../../node_modules/selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
-const firefox = require('selenium-webdriver/firefox');
-const chrome = require('selenium-webdriver/chrome');
+const firefox = require('../../node_modules/selenium-webdriver/firefox');
+const chrome = require('../../node_modules/selenium-webdriver/chrome');
 
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
-// if (process.env.NODE_ENV) {
-// chromeOptions.addArguments('--headless');
-// }
+
+if (!os.platform().includes('win')) {
+	chromeOptions.addArguments('--headless');
+	chromeOptions.addArguments('--no-sandbox');
+}
+
 chromeOptions.addArguments('--disable-dev-shm-usage');
-// chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
@@ -227,7 +230,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	if(value.includes('@@')){
 		const date = new Date();
 		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
-		value = value.replace(/@@date/g, `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}`);//getMonth is zeroBased
+		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
 		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
 		
 	}
@@ -616,19 +619,13 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 After(async () => {
 	if (currentParameters.oneDriver) {
 		scenarioIndex += 1;
+		await driver.sleep(500);
 		if (scenarioIndex === testLength) {
-			// Without Timeout driver quit is happening too quickly. Need a better solution
-			// https://github.com/SeleniumHQ/selenium/issues/5560
-			const condition = until.elementLocated(By.name('loader'));
-			driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
 			await driver.quit();
 		}
 	} else {
 		scenarioIndex += 1;
-		// Without Timeout driver quit is happening too quickly. Need a better solution
-		// https://github.com/SeleniumHQ/selenium/issues/5560
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+		await driver.sleep(500);
 		await driver.quit();
 	}
 });
