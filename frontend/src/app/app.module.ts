@@ -48,6 +48,8 @@ import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 import {MatSelectModule} from '@angular/material/select';
@@ -67,6 +69,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import { ResizeInputDirective } from './resize-input.directive';
 
 @NgModule({
   declarations: [
@@ -112,6 +115,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
+    ResizeInputDirective,
   ],
   imports: [
     NgbModule,
@@ -131,9 +135,8 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
-      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.DEBUG
+      serverLogLevel: NgxLoggerLevel.OFF
     }),
     ToastrModule.forRoot({
       timeOut: 3000
@@ -141,6 +144,8 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     MatSlideToggleModule,
     MatIconModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatTooltipModule,
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,

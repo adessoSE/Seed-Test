@@ -188,16 +188,16 @@ router.get('/repositories', (req, res) => {
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
-		.then((repos) => {
-			let merged = [].concat(...repos);
-			// remove duplicates
-			merged = helper.uniqueRepositories(merged);
-			res.status(200).json(merged);
-		})
-		.catch((reason) => {
-			res.status(401).json('Wrong Github name or Token');
-			console.error(`Get Repositories Error: ${reason}`);
-		});
+	.then((repos) => {
+		let merged = [].concat(...repos);
+		// remove duplicates
+		merged = helper.uniqueRepositories(merged);
+		res.status(200).json(merged);
+	})
+	.catch((reason) => {
+		res.status(401).json('Wrong Github name or Token');
+		console.error(`Get Repositories Error: ${reason}`);
+	});
 });
 
 // update repository
@@ -279,9 +279,8 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		const { Host, AccountName } = req.user.jira;
-		let { Password } = req.user.jira;
-		Password = helper.decryptPassword(Password);
+		let { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+		Password = helper.decryptPassword(Password, Password_Nonce, Password_Tag);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
 

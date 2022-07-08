@@ -3,6 +3,7 @@
 /* eslint-disable no-underscore-dangle,curly */
 const ch = require('child_process');
 const fs = require('fs');
+const pfs = require('fs/promises')
 const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
 const fetch = require('node-fetch');
@@ -15,12 +16,12 @@ const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const os = require('os');
+const { resolve } = require('path');
 
 const featuresPath = path.normalize('features/');
 
-const cryptoAlgorithm = 'aes-256-cbc';
+const cryptoAlgorithm = 'aes-256-ccm';
 const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
-const iv = Buffer.alloc(16, 0);
 
 // this is needed for the html report
 const options = {
@@ -155,31 +156,43 @@ function writeFile(dir, selectedStory) {
 	});
 }
 
-function encriptPassword(text) {
-	const cipher = crypto.createCipheriv(cryptoAlgorithm, key, iv);
-	let encrypted = cipher.update(text, 'utf8', 'hex');
-	encrypted += cipher.final('hex');
-	return encrypted;
+function encryptPassword(text) {
+	const nonce = crypto.randomBytes(13);
+    const cipher = crypto.createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+    const ciphertext = cipher.update(text, 'utf8');
+    cipher.final();
+    const tag = cipher.getAuthTag();
+
+    return [ciphertext, nonce, tag];
 }
 
-function decryptPassword(encrypted) {
-	const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, iv);
-	let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-	decrypted += decipher.final('utf8');
-	return decrypted;
+function decryptPassword(ciphertext, nonce, tag) {
+	nonce = nonce? nonce.buffer: Buffer.alloc(13, 0);
+    try {
+		const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
+		decipher.setAuthTag(tag.buffer);
+		console.log("ciphertext", ciphertext);
+		const receivedPlaintext = decipher.update(ciphertext.buffer, null, 'utf8');
+        decipher.final();
+		return receivedPlaintext;
+    } catch (err) {
+		console.log("Authentication Failed");// leaf in or replace with proper logging
+        throw new Error('Authentication failed!', { cause: err });
+    }
 }
 
 async function updateJira(UserID, req) {
-	const password = encriptPassword(req.jiraPassword);
+	const [password, nonce, tag] = encryptPassword(req.jiraPassword);
 	const jira = {
 		AccountName: req.jiraAccountName,
 		Password: password,
+		Password_Nonce: nonce,
+		Password_Tag: tag,
 		Host: req.jiraHost
 	};
 	const user = await mongo.getUserData(UserID);
 	user.jira = jira;
 	await mongo.updateUser(UserID, user);
-	return 'Successful';
 }
 
 // Updates feature file based on _id
@@ -221,22 +234,24 @@ function setOptions(reportName, reportPath = 'features/') {
 	return myOptions;
 }
 
-async function analyzeGroupReport(grpName, stories, reportOptions) {
+function analyzeGroupReport(grpName, stories, reportOptions) {
 	const reportResults = {
 		reportName: grpName,
 		reportOptions,
-		overallTestStatus: false,
-		storyStatuses: []
+		status: false,
+		storyStatuses: [],
+		scenariosTested:{},
+		groupStepResults: {}
 	};
 	try {
 		const reportPath = `./features/${grpName}/${grpName}.html.json`;
 		console.log(`Trying to Read: ${reportPath}`);
-		fs.readFile(reportPath, 'utf8', (err, data) => {
+		return pfs.readFile(reportPath, 'utf8').then( data => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE Group-Report: ${cucumberReport.length}`);
 			// reportResults.json = cucumberReport;
 			try {
-				const scenariosTested = { passed: 0, failed: 0 };
+				let scenariosTested = { passed: 0, failed: 0 };
 				let overallPassedSteps = 0;
 				let overallFailedSteps = 0;
 				let overallSkippedSteps = 0;
@@ -244,66 +259,17 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 				// for each story
 				for (const storyReport of cucumberReport) {
 					const story = stories[cucumberReport.indexOf(storyReport)];
-					const storyId = story._id;
-					console.log(` Story ID: ${storyId}`);
-					const storyStatus = { storyId, status: false, scenarioStatuses: [] };
 					try {
-						let storyPassedSteps = 0;
-						let storyFailedSteps = 0;
-						let storySkippedSteps = 0;
+						const result = featureResult(storyReport, story)
 
-						// for each scenario (called element in the .json report)
-						// element = scenarios and "Before" / "After" statements
-						for (const scenReport of storyReport.elements) {
-							const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
-							const scenarioId = scenario.scenario_id;
-							console.log(` Scenario ID: ${scenarioId}`);
-							let scenarioPassedSteps = 0;
-							let scenarioFailedSteps = 0;
-							let scenarioSkippedSteps = 0;
-
-							// for each step inside a scenario
-							for (const step of scenReport.steps) {
-								switch (step.result.status) {
-									case 'passed':
-										storyPassedSteps++;
-										scenarioPassedSteps++;
-										overallPassedSteps++;
-										break;
-									case 'failed':
-										storyFailedSteps++;
-										scenarioFailedSteps++;
-										overallFailedSteps++;
-										break;
-									case 'skipped':
-										storySkippedSteps++;
-										scenarioSkippedSteps++;
-										overallSkippedSteps++;
-										break;
-									default:
-										console.log(`Status default: ${step.result.status}`);
-								}
-							}
-							// add scenarioStatus to storyStatus
-							const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-							storyStatus.scenarioStatuses.push(
-								{
-									scenarioId: scenario.scenario_id,
-									status: scenStatus,
-									stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
-								}
-							);
-							// count number of passed and failed Scenarios:
-							if (scenStatus) scenariosTested.passed += 1;
-							else scenariosTested.failed += 1;
-						}
-						// end of For Each Scenario ################################
-
+						overallPassedSteps += result.featureTestResults.passedSteps
+						overallFailedSteps += result.featureTestResults.failedSteps
+						overallSkippedSteps += result.featureTestResults.skippedSteps
 						// after all Scenarios and Steps:
-						// set Story Test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
-						storyStatus.status = testPassed(storyFailedSteps, storyPassedSteps);
-						storyStatus.storyStepResults = { passedSteps: storyPassedSteps, failedSteps: storyFailedSteps, skippedSteps: storySkippedSteps };
-						reportResults.storyStatuses.push(storyStatus);
+						scenariosTested.passed += result.scenariosTested.passed
+						scenariosTested.failed += result.scenariosTested.failed
+
+						reportResults.storyStatuses.push(result);
 					} catch (error) {
 						storyStatus.status = false;
 						reportResults.storyStatuses.push(storyStatus);
@@ -311,9 +277,10 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 					}
 				}
 				// end of for each story
-				reportResults.overallTestStatus = testPassed(overallPassedSteps, overallFailedSteps);
-				reportResults.groupStepResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
+				reportResults.status = testPassed(overallPassedSteps, overallFailedSteps);
+				reportResults.groupTestResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
 				reportResults.scenariosTested = scenariosTested;
+				return reportResults
 			} catch (error) {
 				reportResults.overallTestStatus = false;
 				console.log('iterating through report Json failed in analyzeGroupReport.'
@@ -323,16 +290,87 @@ async function analyzeGroupReport(grpName, stories, reportOptions) {
 	} catch (error) {
 		console.log(`fs.readFile error for file /features/${grpName}/${grpName}.json`);
 	}
-	console.log(`Report Results in analyzeGroupReport for Group ${grpName}: `);
-	console.log(reportResults);
-	return reportResults;
 }
 
-async function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
-	const reportResults = { reportName, reportOptions, overallTestStatus: false };
+/**
+ * returns the results of all steps in one story/feature
+ * @param scenarioReports 
+ */
+function featureResult(featureReport, feature){
+	const featureId = feature._id
+	console.log(` Story ID: ${featureId}`);
+	const featureStatus = { featureId, status: false, scenarioStatuses: [],featureTestResults:{} ,scenariosTested: { passed: 0, failed: 0 }};
+
+	let featurePassedSteps = 0;
+	let featureFailedSteps = 0;
+	let featureSkippedSteps = 0;
+
+	// for each scenario (called element in the .json report)
+	// element = scenarios and "Before" / "After" statements
+	console.log(`NUMBER OF SCENARIOS IN REPORT: ${featureReport.elements.length}`);
+	for (const scenReport of featureReport.elements){
+		const scenario = feature.scenarios[featureReport.elements.indexOf(scenReport)];
+		let result = scenarioResult(scenReport, scenario)
+
+		//increment FeatureSteps
+		featurePassedSteps += result.stepResults.passedSteps
+		featureFailedSteps += result.stepResults.failedSteps
+		featureSkippedSteps += result.stepResults.skippedSteps
+
+		featureStatus.scenarioStatuses.push(result)
+
+		// count number of passed and failed Scenarios:
+		if (result.status) featureStatus.scenariosTested.passed += 1;
+		else featureStatus.scenariosTested.failed += 1;
+	}
+	featureStatus.featureTestResults = {passedSteps: featurePassedSteps, failedSteps: featureFailedSteps, skippedSteps: featureSkippedSteps}
+	featureStatus.status = testPassed(featureFailedSteps, featurePassedSteps)
+	return featureStatus
+
+}
+
+/**
+ * returns the result of all steps in one scenario
+ * @param scenarioReport
+ */
+function scenarioResult(scenarioReport, scenario) {
+	const scenarioId = scenario.scenario_id;
+	let scenarioPassedSteps = 0;
+	let scenarioFailedSteps = 0;
+	let scenarioSkippedSteps = 0;
+	console.log(`scenario ID: ${scenarioId}`);
+
+	// for each step inside a scenario
+	for (const step of scenarioReport.steps) {
+		switch (step.result.status) {
+			case 'passed':
+				scenarioPassedSteps++;
+				break;
+			case 'failed':
+				scenarioFailedSteps++;
+				break;
+			case 'skipped':
+				scenarioSkippedSteps++;
+				break;
+			default:
+				console.log(`Status default: ${step.result.status}`);
+		}
+	}
+	// set scenario status (for GitHub/Jira reporting comment)
+	const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
+	const scenarioStatus = {
+		scenarioId,
+		status: scenStatus,
+		stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
+	};
+	return scenarioStatus
+}
+
+function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
+	const reportResults = { reportName, reportOptions, status: false , scenarioStatuses: []};
 	try {
 		const reportPath = `./features/${reportName}.json`;
-		fs.readFile(reportPath, 'utf8', (err, data) => {
+		return pfs.readFile(reportPath, 'utf8').then((data) => {
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
 			// reportResults.json = cucumberReport;
@@ -343,51 +381,21 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 				console.log(`Story ID: ${story._id}`);
 				console.log(story);
 				reportResults.storyId = story._id;
-				try {
-					// for each scenario (called element in the .json report)
-					// element = scenarios and "Before" / "After" statements
-					storyReport.elements.forEach((scenReport) => {
-						console.log(` Scenario ID: ${scenarioId}`);
-						let scenarioPassedSteps = 0;
-						let scenarioFailedSteps = 0;
-						let scenarioSkippedSteps = 0;
-						// for each step inside a scenario
-						scenReport.steps.forEach((step) => {
-							switch (step.result.status) {
-								case 'passed':
-									scenarioPassedSteps++;
-									break;
-								case 'failed':
-									scenarioFailedSteps++;
-									break;
-								case 'skipped':
-									scenarioSkippedSteps++;
-									break;
-								default:
-									console.log(`Status default: ${step.result.status}`);
-							}
-						});
-						// set scenario status (for GitHub/Jira reporting comment)
-						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-						reportResults.scenarioStatus = {
-							scenarioId,
-							status: scenStatus,
-							stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
-						};
-						reportResults.overallTestStatus = scenStatus;
-					});
-					// end of For Each Scenario ################################
-				} catch (error) {
-					reportResults.overallTestStatus = false;
-					console.log('iterating through report Json failed in serverHelper/runReport. '
-						+ 'Setting testStatus of Scenario to false.', error);
-				}
+				const scenarioReport = storyReport.elements[0]
+
+				const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
+				let result = scenarioResult(scenarioReport, scenario)
+				reportResults.featureTestResults = result.stepResults
+				reportResults.scenariosTested = {passed: +result.status, failed: +!result.status}
+				reportResults.status = result.status
+				reportResults.scenarioStatuses.push(result)
+				return reportResults
 			} catch (error) {
-				reportResults.overallTestStatus = false;
+				reportResults.status = false;
 				console.log('iterating through report Json failed in serverHelper/runReport. '
 					+ 'Setting testStatus of Report to false.', error);
 			}
-		});
+		})
 	} catch (error) {
 		console.log(`fs.readFile error for file ./features/${reportName}.json`);
 	}
@@ -397,109 +405,44 @@ async function analyzeScenarioReport(stories, reportName, scenarioId, reportOpti
 }
 
 // param: stories should only contain one Story
-async function analyzeStoryReport(stories, reportName, reportOptions) {
-	let storyStatus = false;
-	const reportResults = {
+function analyzeStoryReport(stories, reportName, reportOptions) {
+	let reportResults = {
 		reportName,
 		reportOptions,
-		overallTestStatus: false,
+		status: false,
 		scenarioStatuses: []
 	};
 
 	try {
 		const reportPath = `./features/${reportName}.json`;
-		fs.readFile(reportPath, 'utf8', (err, data) => {
+		return pfs.readFile(reportPath, 'utf8').then((data)=>{
 			const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
-			// reportResults.json = cucumberReport;
-			let storyPassedSteps = 0;
-			let storyFailedSteps = 0;
-			let storySkippedSteps = 0;
-			const scenariosTested = { passed: 0, failed: 0 };
 			try {
 				// for each story
 				const storyReport = cucumberReport[0];
-				console.log(`NUMBER OF SCENARIOS IN THE REPORT: ${storyReport.elements.length}`);
 				const story = stories[0];
-				const storyId = story._id;
-				console.log(` Story ID: ${storyId}`);
-				reportResults.storyId = storyId;
-				try {
-					// for each scenario (called element in the .json report)
-					// element = scenarios and "Before" / "After" statements
-					storyReport.elements.forEach((scenReport) => {
-						const scenario = story.scenarios[storyReport.elements.indexOf(scenReport)];
-						const scenarioId = scenario.scenario_id;
-						console.log(` Scenario ID: ${scenarioId}`);
-						let scenarioPassedSteps = 0;
-						let scenarioFailedSteps = 0;
-						let scenarioSkippedSteps = 0;
 
-						// for each step inside a scenario
-						scenReport.steps.forEach((step) => {
-							switch (step.result.status) {
-								case 'passed':
-									storyPassedSteps++;
-									scenarioPassedSteps++;
-									break;
-								case 'failed':
-									storyFailedSteps++;
-									scenarioFailedSteps++;
-									break;
-								case 'skipped':
-									storySkippedSteps++;
-									scenarioSkippedSteps++;
-									break;
-								default:
-									console.log(`Status default: ${step.result.status}`);
-							}
-						});
-						// set scenario status (for GitHub/Jira reporting comment)
-						const scenStatus = testPassed(scenarioFailedSteps, scenarioPassedSteps);
-						reportResults.scenarioStatuses.push({
-							scenarioId,
-							status: scenStatus,
-							stepResults: { passedSteps: scenarioPassedSteps, failedSteps: scenarioFailedSteps, skippedSteps: scenarioSkippedSteps }
-						});
-						// count number of passed and failed Scenarios:
-						if (scenStatus) scenariosTested.passed += 1;
-						else scenariosTested.failed += 1;
-					});
-					// end of For Each Scenario ################################
-					// set test status (failed = Nr. of failed Steps | passed = Nr. of passed Steps)
-					storyStatus = testPassed(storyFailedSteps, storyPassedSteps);
-				} catch (error) {
-					storyStatus = false;
-					console.log('iterating through report Json failed in serverHelper/runReport. '
-						+ 'Setting testStatus of Scenario to false.', error);
-				}
-				reportResults.overallTestStatus = storyStatus;
-				reportResults.storyStepResults = {
-					passedSteps: storyPassedSteps,
-					failedSteps: storyFailedSteps,
-					skippedSteps: storySkippedSteps
-				};
-				// moved to scenario
-				// reportResults.stepResults = { storyPassedSteps, storyFailedSteps, storySkippedSteps };
+				const result = featureResult(storyReport, story)
+				reportResults = {...reportResults, ...result}// sync reportResult with result
+				return reportResults
+				
 			} catch (error) {
-				reportResults.overallTestStatus = false;
+				reportResults.status = false;
 				console.log('iterating through report Json failed in serverHelper/runReport. '
 					+ 'Setting testStatus of Report to false.', error);
 			}
-		});
+		})
 	} catch (error) {
 		console.log(`fs.readFile error for file ./features/${reportName}.json`);
 	}
-	console.log('Report Results in analyzeStoryReport: ');
-	console.log(reportResults);
-	return reportResults;
 }
 
 async function failedReportPromise(reportName) {
 	return { reportName: `Failed-${reportName}`, overallTestStatus: false };
 }
 
-async function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
+function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 	let reportOptions;
 	switch (mode) {
 		case 'scenario':
@@ -534,7 +477,7 @@ async function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 			return analyzeGroupReport(grpName, stories, reportOptions);
 		default:
 			console.log('Error: No mode provided in analyzeReport');
-			return failedReportPromise(reportName);
+			return new Promise(failedReportPromise(reportName));
 	}
 }
 
@@ -562,9 +505,10 @@ async function execReport(req, res, stories, mode, parameters, callback) {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
 			await nameSchemeChange(story);
 			executeTest(req, res, stories, mode, story)
-				.then((values) => {
-					callback(values);
-				});
+			.then((values) => {
+				callback(values);
+			})
+			.catch(reason => res.send(reason).status(500))
 		}
 	} catch (error) {
 		res.status(404)
@@ -583,11 +527,10 @@ async function resolveReport(reportObj, mode, stories, req, res, callback) {
 	let { reportName } = reportObj;
 
 	// analyze Report:
-	const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId);
-	// add everything to reportResult
-	reportResults.scenarioId = req.params.scenarioId;
+	var reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId)
 	reportResults.reportTime = reportTime;
 	reportResults.mode = mode;
+
 	// Group needs an adjusted Path to Report
 	if (mode === 'group') reportName = `${reportResults.reportName}/${reportResults.reportName}`;
 	callback(reportResults, reportName);
@@ -601,48 +544,62 @@ async function runReport(req, res, stories, mode, parameters) {
 		if (mode === 'group' && cumulate < stories.length) {
 			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
 			cumulate++;
-			return
-		}
-		resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
-			// generate HTML Report
-			console.log('reportName in callback of resolveReport:');
-			console.log(reportName);
-			console.log('reportResults in callback of resolveReport:');
-			console.log(reportResults);
-			// upload report to DB
-			mongo.uploadReport(reportResults)
-				.then((uploadedReport) => {
-					// read html Report and add it top response
-					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-						res.json({ htmlFile: data, reportId: uploadedReport._id });
+		} else {
+			resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
+				// generate HTML Report
+				console.log('reportName in callback of resolveReport:');
+				console.log(reportName);
+				console.log('reportResults in callback of resolveReport:');
+				console.log(reportResults);
+				// upload report to DB
+				mongo.uploadReport(reportResults)
+					.then((uploadedReport) => {
+						// read html Report and add it top response
+						fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+							res.json({ htmlFile: data, reportId: uploadedReport._id });
+						});
+						updateLatestTestStatus(uploadedReport, mode);
+						// delete Group folder
+						if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
+						else {
+							// delete reports in filesystem after a while
+							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
+							setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+						}
+					})
+					.catch((error) => {
+						console.log(`Could not UploadReport :  ./features/${reportName}.json
+						Rejection: ${error}`);
+						res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
 					});
-					updateLatestTestStatus(uploadedReport, mode);
-					// delete Group folder
-					if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
-					else {
-						// delete reports in filesystem after a while
-						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
-						setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
+				// ##################################
+				// TODO: update this and add Comment for Jira, when everything else is done
+				for(const [index, story] of stories.entries()){
+					var comment;
+					if(mode === 'group'){
+						comment = `This Execution ist part of groupexecution ${parameters.name}\n`
+						comment += renderComment(req, reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+							reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
+					}else {
+						comment += renderComment(req, reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+							reportResults.reportTime, story, story.scenarios[0], mode, reportName);
 					}
-				})
-				.catch((error) => {
-					console.log(`Could not UploadReport :  ./features/${reportName}.json
-					Rejection: ${error}`);
-					res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
-				});
-			// ##################################
-			// TODO: update this and add Comment for Jira, when everything else is done
-			// if (req.params.storySource === 'github' && req.user && req.user.github) {
-			// 	const comment = renderComment(req, passedSteps, failedSteps, skippedSteps, testStatus, scenariosTested,
-			// 		reportTime, story, scenario, mode, reportName);
-			// 	const githubValue = parameters.repository.split('/');
-			// 	const githubName = githubValue[0];
-			// 	const githubRepo = githubValue[1];
-			// 	postComment(story.issue_number, comment, githubName, githubRepo,
-			// 		req.user.github.githubToken);
-			// 	if (mode === 'feature') updateLabel(testStatus, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-			// }
-		});
+					if (story.storySource === 'github' && req.user && req.user.github) {
+						const githubValue = parameters.repository?.split('/');
+						if (githubValue == null) {continue}
+						const githubName = githubValue[0];
+						const githubRepo = githubValue[1];
+
+						postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken)
+						if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+					}
+					if (story.storySource === 'jira' && req.user && req.user.jira){
+						const password = decryptPassword(req.user.jira.Password);
+						postCommentJira(story.issue_number, comment, req.user.jira.Host, req.user.jira.AccountName, password)
+					}
+				}
+			});
+		}
 	});
 }
 
@@ -720,26 +677,26 @@ function executeTest(req, res, stories, mode, story) {
 			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
 		}
 		// specify desired location of JSON Report and pass world parameters for cucumber execution
-		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam);
-
+		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
 		// no cmd for non windows
 		const cmd = os.platform().includes('win') ? '.cmd' : ''
 		console.log('Executing:');
 		console.log(path.normalize(`${__dirname}/../${cucePath}${cmd}`) + cucumberArgs);
-		ch.execFile(path.normalize(`${__dirname}/../${cucePath}${cmd}`), cucumberArgs, (error, stdout, stderr) => {
-			if (error) {
-				console.error(`exec error: ${error}`);
-				resolve({
-					reportTime, story, scenarioId: req.params.scenarioId, reportName
-				});
-				return;
-			}
-			console.log(`stdout: ${stdout}`);
-			console.log(`stderr: ${stderr}`);
+
+		const runner = ch.spawn(path.normalize(`${__dirname}/../${cucePath}${cmd}`) ,cucumberArgs);
+		runner.stdout.on("data",(data) => {
+			console.log(`stdout: ${data}`);
+		})
+		runner.stderr.on("data", (data) => {console.log(`stderr: ${data}`);})
+		runner.on("error", (error) => {
+			console.error(`exec error: ${error}`);
 			resolve({
 				reportTime, story, scenarioId: req.params.scenarioId, reportName
 			});
-		});
+		})
+		runner.on("exit", (exCode, sig) => { // if more than one child use "close" https://nodejs.org/api/child_process.html#event-close
+			resolve({reportTime, story, scenarioId: req.params.scenarioId, reportName});
+		})
 	});
 }
 
@@ -777,8 +734,8 @@ async function jiraProjects(user) {
 		try {
 			if (typeof user !== 'undefined' && typeof user.jira !== 'undefined' && user.jira !== null) {
 				// eslint-disable-next-line prefer-const
-				let { Host, AccountName, Password } = user.jira;
-				Password = decryptPassword(Password);
+				let { Host, AccountName, Password, Password_Nonce, Password_Tag} = user.jira;
+				Password = decryptPassword(Password, Password_Nonce, Password_Tag);
 				const auth = Buffer.from(`${AccountName}:${Password}`)
 					.toString('base64');
 				const source = 'jira';
@@ -794,36 +751,33 @@ async function jiraProjects(user) {
 					}
 				};
 				fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
-					.then(async () => {
-						fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
-							.then((response) => response.json())
-							.then(async (json) => {
-								const { projects } = json;
-								let names = [];
-								let jiraRepo;
-								const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
-								if (Object.keys(projects).length !== 0) {
-									for (const repo of projects) {
-										if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
-											jiraRepo = await mongo.createJiraRepo(repo.name);
-										} else {
-											jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
-										}
-										names.push({
-											name: repo.name,
-											_id: jiraRepo._id
-										});
-									}
-									names = names.map((value) => ({
-										_id: value._id,
-										value: value.name,
-										source
-									}));
-									resolve(names);
-								}
-								resolve([]);
+				.then((response) => response.json())
+				.then(async (json) => {
+					const projects = 'projects' in json? json.projects : resolve([]);
+					let names = [];
+					let jiraRepo;
+					const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
+					if (Object.keys(projects).length !== 0) {
+						for (const repo of projects) {
+							if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
+								jiraRepo = await mongo.createJiraRepo(repo.name);
+							} else {
+								jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
+							}
+							names.push({
+								name: repo.name,
+								_id: jiraRepo._id
 							});
-					});
+						}
+						names = names.map((value) => ({
+							_id: value._id,
+							value: value.name,
+							source
+						}));
+						resolve(names);
+					}
+					resolve([]);
+				}).catch((error) => {console.error(error); resolve([])})
 			} else resolve([]);
 		} catch (e) {
 			resolve([]);
@@ -856,17 +810,14 @@ function dbProjects(user) {
 }
 
 function uniqueRepositories(repositories) {
-
 	const unique_ids = []
 	const unique = []
-
     for(const i in repositories) {
 		if (unique_ids.indexOf(repositories[i]._id.toString()) <= -1) {
 			unique_ids.push(repositories[i]._id.toString());
 			unique.push(repositories[i]);
 		}
     }
-
 	return unique
 }
 
@@ -1046,17 +997,40 @@ function renderComment(
 	return comment;
 }
 
-function postComment(issueNumber, comment, githubName, githubRepo, password) {
+
+async function postCommentGitHub(issueNumber, comment, githubName, githubRepo, password) {
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
-	const body = { body: comment };
-	const request = new XMLHttpRequest();
-	request.open('POST', link, true, githubName, password);
-	request.send(JSON.stringify(body));
-	request.onreadystatechange = function () {
-		if (this.readyState === 4 && this.status === 200) {
-			const data = JSON.parse(request.responseText);
+	const auth = 'Basic ' + Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')
+	/** @type {Response} */
+	const response = await fetch(link, {
+		method: 'post',
+		body: JSON.stringify({body:comment}),
+		headers: {'Authorization': auth}
+	}).then((resp) => {
+		if( resp.status === 200 ) {
+			const data = JSON.parse(resp)
+			console.log(data)
 		}
-	};
+		return resp
+	})
+	const data = await response.json();
+
+	console.log(data);
+}
+
+async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword){
+	const link = `https://${host}/rest/api/2/issue/${issueId}/comment/` // always HTTPS
+	const auth = 'Basic ' + Buffer.from(`${jiraUser}:${jiraPassword}`, 'binary').toString('base64')
+	const body = {body:comment}
+	/** @type {Response} */
+	const response = await fetch(link, {
+		method: 'post',
+		body: JSON.stringify(body),
+		headers: {'Authorization': auth, 'Content-Type': 'application/json'}
+	});
+	const data = await response.json();
+
+	console.log(data);
 }
 
 function addLabelToIssue(githubName, githubRepo, password, issueNumber, label) {

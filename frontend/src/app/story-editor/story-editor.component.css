@@ -367,7 +367,15 @@
     /* background: #f8f8f8 !important; */
   }
 
-  ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+  :host ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+    color: var(--buttonDisabled) !important;
+  }
+
+  :host ::ng-deep .scenarioHeaderContainer .disabled em {
+    color: gray !important;
+  }
+
+  :host ::ng-deep .darkTheme .scenarioHeaderContainer .disabled em {
     color: var(--buttonDisabled) !important;
   }
 
@@ -777,4 +785,15 @@ button#background_up {
 .darkTheme.emptyStories h4,
 .darkTheme.emptyStories p {
   color: white;
+}
+
+.stepLine {
+  box-sizing: border-box;
+  width: fit-content;
+}
+
+.stepsContainer {
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
 }
