@@ -1180,6 +1180,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     renameExample(newName, index){
         let oldName = this.selectedScenario.stepDefinitions.example[0].values[index]
         this.selectedScenario.stepDefinitions.example[0].values[index] = newName
+        this.uncutInputs[this.uncutInputs.indexOf('<'+oldName+'>')] = '<'+newName+'>';
         this.exampleChild.updateTable();
 
         this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
@@ -1214,21 +1215,14 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param valueIndex
      */
     handleExamples(input: string, step: StepType, valueIndex: number) {
-        // changes example header name if the name is just changed in step
-        if (this.exampleHeaderChanged(input, step, valueIndex)) {
-            this.uncutInputs[this.uncutInputs.indexOf(step.values[valueIndex])] = input;
-            this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = input;
+        this.uncutInputs.push(input);
+        // for first example creates 2 steps
+        if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
+            this.createFirstExample(input, step);
         } else {
-            this.uncutInputs.push(input);
-            // for first example creates 2 steps
-            if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
-                this.createFirstExample(input, step);
-            } else {
-                // else just adds as many values to the examples to fill up the table
-                this.fillExamples(input, step);
-            }
+            // else just adds as many values to the examples to fill up the table
+            this.fillExamples(input, step);
         }
-        this.exampleChild.updateTable();
 
     }
 
@@ -1241,7 +1235,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         for (let i = 0; i <= 2; i++) {
             const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
             this.selectedScenario.stepDefinitions.example.push(newStep);
-            this.exampleChild.updateTable();
         }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
         const table = document.getElementsByClassName('mat-table')[0];
@@ -1270,6 +1263,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
                 this.selectedScenario.stepDefinitions.example[j].values.push('value');
             }
         }
+        this.exampleChild.updateTable()
     }
 
     /**
