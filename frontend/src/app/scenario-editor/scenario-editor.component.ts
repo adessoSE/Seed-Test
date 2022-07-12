@@ -1130,7 +1130,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
                 this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
                 break;
             case 'addingExample':
-                this.createExample(input, step, valueIndex);
+                this.handleExamples(input, step, valueIndex);
                 break;
         }
         this.selectedScenario.saved = false;
@@ -1162,11 +1162,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      }
 
     /**
-     * 
+     * List all examples from scenario
      * @returns returns all examples in list
      */
     getExampleList(){
-        console.log(this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length && this.selectedScenario.stepDefinitions.example[0].values.length)
         if(this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length && this.selectedScenario.stepDefinitions.example[0].values.length){
             return this.selectedScenario.stepDefinitions.example[0].values
         }
@@ -1207,14 +1206,13 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
             })
           })
     }
-
     /**
      * Checks the input if an example should be generated or removed
      * @param input
      * @param step
      * @param valueIndex
      */
-    checkForExamples(input: string, step: StepType, valueIndex: number) {
+    /*checkForExamples(input: string, step: StepType, valueIndex: number) {
         // removes example if new input is not in example syntax < >
         if (this.inputRemovedExample(input, step, valueIndex)) {
             this.removeExample(step, valueIndex);
@@ -1223,12 +1221,12 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         if (this.inputHasExample(input)) {
             this.createExample(input, step, valueIndex);
         }
-    }
+    }*/
 
     /**
      * Removes an example
      */
-    removeExample(step: StepType, valueIndex: number) {
+    /*removeExample(step: StepType, valueIndex: number) {
         const cutOld = step.values[valueIndex].substr(1, step.values[valueIndex].length - 2);
         this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]), 1);
 
@@ -1244,7 +1242,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
                 table.classList.remove('mat-elevation-z8');
             }
         }
-    }
+    }*/
 
     /**
      * If the example got removed <>
@@ -1253,18 +1251,18 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param valueIndex
      * @returns
      */
-    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean {
+    /*inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean {
         return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && (!input.startsWith('<') || !input.endsWith('>'));
-    }
+    }*/
 
     /**
      * If the Input has now an example
      * @param input
      * @returns
      */
-    inputHasExample(input: string): boolean {
+    /*inputHasExample(input: string): boolean {
         return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input);
-    }
+    }*/
 
 
     /**
@@ -1273,10 +1271,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * @param step
      * @param valueIndex
      */
-    createExample(input: string, step: StepType, valueIndex: number) {
+    /*createExample(input: string, step: StepType, valueIndex: number) {
         //const cutInput = input.substr(1, input.length - 2);
         this.handleExamples(input, step, valueIndex);
-    }
+    }*/
 
     /**
      * Handles the update for examples
@@ -1343,6 +1341,9 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         }
     }
 
+    /**
+     * Adds a value to every example
+     */
     addRowToExamples(){
         let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
         row.values.forEach((value, index) => {
