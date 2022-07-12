@@ -15,6 +15,7 @@ const passport = require('passport');
 const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
+const os = require('os');
 const { resolve } = require('path');
 
 const featuresPath = path.normalize('features/');
@@ -677,10 +678,12 @@ function executeTest(req, res, stories, mode, story) {
 		}
 		// specify desired location of JSON Report and pass world parameters for cucumber execution
 		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
+		// no cmd for non windows
+		const cmd = os.platform().includes('win') ? '.cmd' : ''
 		console.log('Executing:');
-		console.log(path.normalize(`${__dirname}/../${cucePath}.cmd`) + cucumberArgs);
+		console.log(path.normalize(`${__dirname}/../${cucePath}${cmd}`) + cucumberArgs);
 
-		const runner = ch.spawn(path.normalize(`${__dirname}/../${cucePath}.cmd`) ,cucumberArgs);
+		const runner = ch.spawn(path.normalize(`${__dirname}/../${cucePath}${cmd}`) ,cucumberArgs);
 		runner.stdout.on("data",(data) => {
 			console.log(`stdout: ${data}`);
 		})
@@ -691,7 +694,7 @@ function executeTest(req, res, stories, mode, story) {
 				reportTime, story, scenarioId: req.params.scenarioId, reportName
 			});
 		})
-		runner.on("exit", (exCode, sig) => {//if more than one child use "close" https://nodejs.org/api/child_process.html#event-close
+		runner.on("exit", (exCode, sig) => { // if more than one child use "close" https://nodejs.org/api/child_process.html#event-close
 			resolve({reportTime, story, scenarioId: req.params.scenarioId, reportName});
 		})
 	});
