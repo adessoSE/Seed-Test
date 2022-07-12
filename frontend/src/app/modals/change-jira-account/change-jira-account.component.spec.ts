@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToastrModule } from 'ngx-toastr';
-
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component'
 import { ChangeJiraAccountComponent } from './change-jira-account.component';
 
 describe('ChangeJiraAccountComponent', () => {
@@ -10,7 +10,7 @@ describe('ChangeJiraAccountComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ChangeJiraAccountComponent ],
+      declarations: [ ChangeJiraAccountComponent, LayoutModalComponent ],
       imports: [HttpClientTestingModule, ToastrModule.forRoot()]
     })
     .compileComponents();

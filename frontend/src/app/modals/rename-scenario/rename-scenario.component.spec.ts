@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ToastrModule } from 'ngx-toastr';
-
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { RenameScenarioComponent } from './rename-scenario.component';
 
 describe('RenameScenarioComponent', () => {
@@ -10,7 +10,7 @@ describe('RenameScenarioComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RenameScenarioComponent ],
+      declarations: [ RenameScenarioComponent, LayoutModalComponent ],
       imports: [HttpClientTestingModule, ToastrModule.forRoot()]
     })
     .compileComponents();

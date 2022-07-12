@@ -8,3 +8,11 @@ export function findComponent<T>(
   ): DebugElement {
     return fixture.debugElement.query(By.css(selector));
 }
+
+export function findElements (element: DebugElement, selector: string)  {
+  return element.nativeElement.querySelectorAll(selector);
+}
+
+export function findElement (element: DebugElement, selector: string)  {
+  return element.nativeElement.querySelector(selector);
+}
