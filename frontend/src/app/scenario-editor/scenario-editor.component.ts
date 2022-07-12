@@ -1183,10 +1183,27 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         this.selectedScenario.stepDefinitions.example[0].values[index] = newName
         this.exampleChild.updateTable();
 
+        this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+            value.values.forEach((val, i) => {
+              if(val == '<'+oldName+'>') {
+                this.selectedScenario.stepDefinitions.given[index].values[i] = '<'+newName+'>'
+              }
+            })
+          })
+
+          this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+            value.values.forEach((val, i) => {
+              if(val == '<'+oldName+'>') {
+                this.selectedScenario.stepDefinitions.when[index].values[i] = '<'+newName+'>'
+              }
+            })
+          })
+
         this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
             value.values.forEach((val, i) => {
-              if(val == '<'+oldName+'>')
-              this.selectedScenario.stepDefinitions.then[index].values[i] = '<'+newName+'>'
+              if(val == '<'+oldName+'>') {
+                this.selectedScenario.stepDefinitions.then[index].values[i] = '<'+newName+'>'
+              }
             })
           })
     }

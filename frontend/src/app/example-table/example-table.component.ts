@@ -229,6 +229,22 @@ export class ExampleTableComponent implements OnInit {
       this.selectedScenario.stepDefinitions.example[index].values.splice(this.indexOfExampleToDelete, 1)
     })
 
+    this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+        if(val == '<'+oldName+'>')
+        this.selectedScenario.stepDefinitions.given[index].values[i] = undefined
+        this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
+      })
+    })
+
+    this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+        if(val == '<'+oldName+'>')
+        this.selectedScenario.stepDefinitions.when[index].values[i] = undefined
+        this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
+      })
+    })
+
     this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
       value.values.forEach((val, i) => {
         if(val == '<'+oldName+'>')
