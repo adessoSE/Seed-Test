@@ -9,21 +9,32 @@ const { expect } = require('chai');
 require('geckodriver');
 const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
+const edge = require('../../node_modules/selenium-webdriver/edge');
 
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
+const edgeOptions = new edge.Options();
 
 if (!os.platform().includes('win')) {
 	chromeOptions.addArguments('--headless');
 	chromeOptions.addArguments('--no-sandbox');
+	firefoxOptions.addArguments('--headless');
+	edgeOptions.addArguments('--headless');
+	edgeOptions.addArguments('--no-sandbox');
 }
 
 chromeOptions.addArguments('--disable-dev-shm-usage');
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
-chromeOptions.addArguments('--excludeSwitches=enable-logging')
+chromeOptions.addArguments('--excludeSwitches=enable-logging');
+
+edgeOptions.addArguments('--disable-dev-shm-usage');
+edgeOptions.addArguments('--ignore-certificate-errors');
+edgeOptions.addArguments('--start-maximized');
+edgeOptions.addArguments('--lang=de');
+edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -34,7 +45,6 @@ function CustomWorld({ attach, parameters }) {
 }
 let scenarioIndex = 0;
 let testLength;
-
 const searchTimeout = 15000
 
 setWorldConstructor(CustomWorld);
@@ -47,6 +57,7 @@ defineParameterType({
 	regexp: /true|false/,
 	transformer: (b) => (b === 'true')
 });
+
 
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
@@ -63,14 +74,14 @@ Before(async function () {
 			}
 		}
 	} else {
-
 		driver = new webdriver.Builder()
 			.forBrowser(currentParameters.browser)
 			.setChromeOptions(chromeOptions)
+			.setFirefoxOptions(firefoxOptions)
+			.setEdgeOptions(edgeOptions)
 			.build();
 	}
 });
-
 
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {

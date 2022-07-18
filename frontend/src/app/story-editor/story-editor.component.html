@@ -219,7 +219,8 @@
           <label class="selectLabel SmallIcontext">Browser:</label>
           <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
             <option *ngIf="this.chromium_enabled" value="chrome">Chrome</option>
-            <option *ngIf="this.gecko_enabled && !this.daisyVersion" value="firefox">Firefox</option>
+            <option  value="firefox">Firefox</option>
+            <option  value="MicrosoftEdge">Edge</option>
           </select>
       </div>
       <div class="storyInfoRight uk-button-group">
