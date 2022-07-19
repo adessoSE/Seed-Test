@@ -13,7 +13,7 @@
             <div class="form-group modalsContent">
                 <div>
                     <label>Edit Story Title</label>
-                    <input id="newStoryTitle" type="text" name="newStoryTitle" pattern="\S(.*\S)?"
+                    <input id="newStoryTitle" ngbAutofocus type="text" name="newStoryTitle" pattern="\S(.*\S)?"
                        formControlName="storyTitle" (keyup)="storyUnique()" required>
                 </div>
             </div>
@@ -27,6 +27,5 @@
                 </button>
             </div>
         </form>
-
     </div>
 </ng-template>

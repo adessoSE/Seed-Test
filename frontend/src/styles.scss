@@ -692,15 +692,14 @@ $dark-theme: mat.define-dark-theme(
 .def {
   color: #999;
   cursor: help;
-  /* position: relative; */
-  z-index: 2;
+  position: relative;
 }
 
 span[rel=def] {
   display: none;
 }
 
-.def:hover span[rel=def] {
+.def:hover span[rel=def]{
   font-size: small;
   color: white;
   background-color: rgb(109, 109, 109);
@@ -905,6 +904,15 @@ a:hover {
   color: white;
 }
 
+.darkTheme .mat-tooltip {
+  background-color: #78909C;
+  opacity: 96%;
+}
+
+.modal-backdrop {
+  /* bug fix - no overlay */    
+  z-index: 1040 !important;    
+}
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -213,12 +213,9 @@ em.dragIcon{
 }
 
 .scenarioTitle{
-  background: var(--white);
-  border: none;
-}
-
-.darkTheme, .scenarioTitle {
   background: transparent;
+  border: none;
+  margin-right: 2px;
 }
 
 .scenarioTitle > em{
@@ -227,9 +224,8 @@ em.dragIcon{
   transform: translate(0px, 3px)
 }
 
-#scenario_change_title > em {
-  font-size: 20px;
-  margin: 0px 5px;
+#scenario_change_title {
+  margin: 0px 3px;
 }
 
 .scenarioButton_unsaved em{

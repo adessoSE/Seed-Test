@@ -19,11 +19,12 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { RenameBackgroundComponent } from '../modals/rename-background/rename-background.component';
 
 /**
  * Empty background
  */
-const emptyBackground: Background = {stepDefinitions: {when: []}};
+const emptyBackground: Background = {name: 'New Background',stepDefinitions: {when: []}};
 
 /**
  * Component for the Story editor
@@ -214,7 +215,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      */
     gecko_enabled
     chromium_enabled
-
+    /**
+     * Indicates last input field to focus
+     */
     lastToFocus;
 
 
@@ -230,6 +233,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     themeObservable: Subscription;
     getBackendUrlObservable: Subscription;
     getStoriesObservable: Subscription;
+    renameBackgroundObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -245,6 +249,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
     @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
+    @ViewChild('renameBackgroundModal') renameBackgroundModal: RenameBackgroundComponent;
     @ViewChildren('step_type_input') step_type_input: QueryList<ElementRef>;
 
     /**
@@ -386,7 +391,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
 
         this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
             this.loadStepTypes();
-          });
+          }); 
+
+        this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
+            this.renameBackground(newName);
+        });
     }
 
     ngOnDestroy() {
@@ -416,6 +425,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
         }
         if (!this.getStoriesObservable.closed) {
             this.getStoriesObservable.unsubscribe();
+        }
+        if (!this.renameBackgroundObservable.closed) {
+            this.renameBackgroundObservable.unsubscribe();
         }
     }
 
@@ -649,14 +661,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
   }
 
   /**
-   * changes the name of the background
-   * @param name
-   */
-  backgroundNameChange(name: string) {
-      this.selectedStory.background.name = name;
-  }
-
-  /**
    * updates the background
    */
   updateBackground() {
@@ -688,7 +692,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
    */
   deleteBackground() {
       this.apiService
-          .deleteBackground(this.selectedStory.story_id, this.selectedStory.storySource)
+          .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
           .subscribe(resp => {
                 this.showBackground = false;
                 this.selectedStory.background = emptyBackground;
@@ -1036,6 +1040,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
       this.updateStory();
     }
 
+    renameBackground(newBackgroundName) {
+        this.selectedStory.background.name = newBackgroundName;
+        this.updateBackground();
+    }
+    
+
    /**
      * Updates the story
      *
@@ -1090,6 +1100,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     if (this.stories.find(x => x === this.selectedStory)) {
       this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
     }
+  }
+  /**
+   * Opens modal to rename background
+   */
+  changeBackgroundTitle() {
+    const background_name = this.selectedStory.background.name;
+    this.renameBackgroundModal.openRenameBackgroundModal(background_name);
   }
 
 }
