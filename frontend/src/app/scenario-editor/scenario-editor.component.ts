@@ -1432,7 +1432,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
 
     openNewExample(step) {
         console.log(this.newExampleModal)
-        this.newExampleModal.openNewExampleModal(this.selectedStory, step);
+        this.newExampleModal.openNewExampleModal(this.selectedScenario, step);
     }
 
 }

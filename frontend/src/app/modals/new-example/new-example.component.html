@@ -7,7 +7,7 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form #newExampleForm="ngForm" novalidate (ngSubmit)="createNewExample(newExampleForm)">     
+    <form [formGroup]="newExampleForm" novalidate (ngSubmit)="createNewExample(newExampleForm)">     
         <div class="modal-body modal-xl">
             <div class="uk-card-title submitForm">
                 <div>
@@ -15,14 +15,15 @@
                         <label class="uk-form-label">Enter example name*</label>
                         <span class="material-icons" display-title="Enter example name">drive_file_rename_outline</span>
                         <div >
-                            <input type="text" [ngModel]="newName" id="newTitle" pattern="\S(.*\S)?" name="newName" placeholder="New Name" required>
+                            <input type="text" formControlName="newName" id="newTitle" pattern="\S(.*\S)?" 
+                            name="newName" placeholder="New Name" (keyup)="uniqueExampleName()" required>
                         </div>                    
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="normalButton" type="submit" [disabled]="!newExampleForm.valid"
+            <button id="submitExample" class="normalButton" type="submit" [disabled]="!newExampleForm.valid"
             [ngStyle]="{'opacity': !newExampleForm.valid ?  '50%' : '100%'}">Submit</button>
         </div> 
     </form>   

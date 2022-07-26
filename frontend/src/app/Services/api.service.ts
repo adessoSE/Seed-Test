@@ -1173,4 +1173,14 @@ export class ApiService {
             this.toastr.error('This Story Title is already in use. Please choose another Title');
         }
     }
+
+    public uniqueExampleName(buttonId: string, input: string, array: string[]) {
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if (!array.includes(input)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('This Example Name is already in use. Please choose another Name');
+        }
+    }
 }
