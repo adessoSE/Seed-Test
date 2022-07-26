@@ -128,6 +128,11 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     clipboardBlock: Block = null;
 
     /**
+     * Block of example saved to the clipboard
+     */
+    clipboardExampleBlock: Block = null;
+
+    /**
      * If this is the daisy version and the auto logout should be shown
      */
     showDaisyAutoLogout = false;
@@ -245,6 +250,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      */
     ngDoCheck(): void {
         this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+        this.clipboardExampleBlock = JSON.parse(sessionStorage.getItem('copiedExampleBlock'));
     }
 
     /**
@@ -493,20 +499,7 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
     insertCopiedBlock() {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-                if (key == 'example') {
-                    if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))) {
-                        this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                    }
-                    if (j == 0) {
-                        step.values.forEach(el => {
-                            const s = '<' + el + '>';
-                            if (!this.uncutInputs.includes(s)) {
-                                this.uncutInputs.push(s);
-                            }
-                        });
-                    }
-                    this.exampleChild.updateTable();
-                } else {
+                if (key != 'example') {
                     this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
                 }
             });
@@ -809,9 +802,10 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
             }
         }
         const block: Block = {stepDefinitions: copyBlock};
-        sessionStorage.setItem('copiedBlock', JSON.stringify(block));
+        sessionStorage.setItem('copiedExampleBlock', JSON.stringify(block));
         this.allExampleChecked = false;
         this.activeExampleActionBar = false;
+        this.toastr.success('successfully copied', 'Examples');
     }
 
     /**
@@ -1276,6 +1270,31 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         });
         this.selectedScenario.stepDefinitions.example.push(row)
         this.exampleChild.updateTable();
+    }
+
+    /**
+     * Insert a copied block to the example block
+     */
+     insertCopiedExampleBlock() {
+        Object.keys(this.clipboardExampleBlock.stepDefinitions).forEach((key, index) => {
+            this.clipboardExampleBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                if (key == 'example') {
+                    if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))) {
+                        this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                    }
+                    if (j == 0) {
+                        step.values.forEach(el => {
+                            const s = '<' + el + '>';
+                            if (!this.uncutInputs.includes(s)) {
+                                this.uncutInputs.push(s);
+                            }
+                        });
+                    }
+                    this.exampleChild.updateTable();
+                }
+            });
+        });
+          this.selectedScenario.saved = false;
     }
 
     /**

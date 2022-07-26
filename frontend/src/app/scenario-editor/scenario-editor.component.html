@@ -263,7 +263,7 @@
             </div>
           </div>
           <div class="scenarioButtonGroup">
-            <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
+            <button type="button" class="scenarioButton" [class.disabled]="this.clipboardExampleBlock == null" [disabled]="this.clipboardExampleBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedExampleBlock()">
               <em class="material-icons">copy_all</em>
             </button>
             <button id="{{'scenario_' + i + '_example_add_step_'}}"
