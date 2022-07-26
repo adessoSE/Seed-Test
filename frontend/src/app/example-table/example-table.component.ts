@@ -121,7 +121,7 @@ export class ExampleTableComponent implements OnInit {
     //    return seen.has(k) ? false : seen.add(k);
     //});
     //this.selectedScenario.stepDefinitions.example[0].values = Array.from(seen);
-    this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
+    this.displayedColumns = [" "].concat(this.selectedScenario.stepDefinitions.example[0].values);
     const formArray: FormGroup[] = [];
     for (let i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++) {
       let toGroups = new FormGroup({},{updateOn: 'blur'});

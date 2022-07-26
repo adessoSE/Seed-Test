@@ -6,6 +6,8 @@
 
 	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" [class.darkTheme]= "isDark" matColumnDef={{column}}> 
 			<th class="headerRow MediumHeadline5" mat-header-cell *matHeaderCellDef scope="col"> 
+				<span *ngIf="first"></span>
+				<div *ngIf="!first">
 					{{column}}
 					<button id="inputExample" class="scenarioTitle" (click)="renameExample(columnIndex)">
 						<em class="material-icons">edit</em>
@@ -13,15 +15,16 @@
 					<button id="inputExample" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
 						<em class="material-icons">delete</em>
 					</button>
+				</div>
 			</th>
 			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
 				<input *ngIf="first" type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
-				<editable  (update)="updateField(columnIndex, rowIndex, column)">
+				<editable  *ngIf="!first" (update)="updateField(columnIndex-1, rowIndex, column)">
 						<ng-template viewMode>
 						{{element[column]}}
 						</ng-template>
 						<ng-template  editMode >
-							<input on-input="inputChange(rowIndex, columnIndex, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
+							<input on-input="inputChange(rowIndex, columnIndex-1, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
 						</ng-template>
 				</editable> 
 			</td>
