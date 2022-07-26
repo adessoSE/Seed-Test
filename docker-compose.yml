@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  backend:
+    build: 
+      ./backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8080:8080"
+    container_name: "Seed-backend"
+    
+  frontend:
+    build: 
+      ./frontend
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "4200:4200"
+    container_name: "Seed-frontend"
+    depends_on:
+      - backend

@@ -48,6 +48,8 @@ import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 import {MatSelectModule} from '@angular/material/select';
@@ -133,9 +135,8 @@ import { ResizeInputDirective } from './resize-input.directive';
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
-      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.DEBUG
+      serverLogLevel: NgxLoggerLevel.OFF
     }),
     ToastrModule.forRoot({
       timeOut: 3000
@@ -143,6 +144,8 @@ import { ResizeInputDirective } from './resize-input.directive';
     MatSlideToggleModule,
     MatIconModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatTooltipModule,
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,
