@@ -17,6 +17,7 @@ const dbConnection = require('./DbConnector');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
+const Collection = require('mongodb/lib/collection');
 
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
@@ -35,7 +36,10 @@ const ReportsCollection = 'Reports';
 // TODO: die eigene Methode replace kann oft durch die MongoMethode findOneAndReplace ersetzt werden!
 
 // Opening a pooling Database Connection via DbConnector
-dbConnection.establishConnection();
+dbConnection.establishConnection()
+.then(()=> console.log("db ",dbConnection.getConnection()))
+
+
 
 /**
  * Writes a PasswordResetRequest in the DB
@@ -244,7 +248,7 @@ async function mergeGithub(userId, login, id) {
 function findStory(storyId, storySource, collection) {
 	const id = ObjectId(storyId);
 	return new Promise((resolve, reject) => {
-		collection.findOne({ _id: id, storySource }, (err, result) => {
+		collection.findOne({ _id: id }, (err, result) => {
 			if (err) reject(err);
 			else resolve(result);
 		});
@@ -313,9 +317,10 @@ async function getOneStory(storyId, storySource) {
 		}
 		return await collection.findOne(query);
 	} catch (e) {
-		console.error(`ERROR in getOneStory: ${e}`);
+		//console.warn(`ERROR in getOneStory: ${e}`);
 		// throw e;
 		// if there is no Story (e.g. if its a new GitHub repo), return null
+		console.log("if no match return null")
 		return null;
 	}
 }
@@ -440,9 +445,7 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		story.background = updatedBackground;
-		return await replace(story, collection);
+		return collection.findOneAndUpdate({ _id: ObjectId(storyId) },{$set:{"background": updatedBackground}},{returnDocument: "after", upsert: true}).then((res)=>res.value);
 	} catch (e) {
 		console.log(`ERROR in updateBackground: ${e}`);
 		throw e;
@@ -451,16 +454,7 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 
 // DELETE Background
 async function deleteBackground(storyId, storySource) {
-	try {
-		const db = dbConnection.getConnection();
-		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		story.background = emptyBackground();
-		return await replace(story, collection);
-	} catch (e) {
-		console.log(`ERROR in deleteBackground: ${e}`);
-		throw e;
-	}
+	return updateBackground(storyId, null, emptyBackground());
 }
 
 async function createStory(storyTitle, storyDescription, repoId) {
@@ -581,7 +575,7 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, null, collection);
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
@@ -613,24 +607,15 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
  * @param {*} updatedScenario
  * @returns updated Scenario
  */
-async function updateScenario(storyId, storySource, updatedScenario) { // TODO: Remove storySource, das könnte mit findAndReplace ($set, upsert: true) deutlich schöner geschrieben werden
+async function updateScenario(storyId, storySource, updatedScenario) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		for (const scenario of story.scenarios) {
-			if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
-				story.scenarios.push(scenario);
-				break;
-			}
-			if (scenario.scenario_id === updatedScenario.scenario_id) {
-				story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
-				break;
-			}
-		}
-		let result = await replace(story, collection);
-		result = result.scenarios.find((o) => o.scenario_id === updatedScenario.scenarioId);
-		return result;
+
+		return collection.findOneAndUpdate({ _id: ObjectId(storyId) },{$set:{"scenarios.$[it]": updatedScenario}},
+			{arrayFilters:[{"it.scenario_id": updatedScenario.scenario_id}], returnDocument: "after", upsert: true, projection:{scenarios:true}})//Options
+		.then((res)=>{console.log(res.value); return res.value})
+		.then((result)=> result.scenarios.find((scen)=>scen.scenario_id==updatedScenario.scenario_id))
 	} catch (e) {
 		console.log(`ERROR in updateScenario: ${e}`);
 		throw e;
@@ -638,15 +623,11 @@ async function updateScenario(storyId, storySource, updatedScenario) { // TODO: 
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioId) { // TODO: remove storySource, kann man schöner mit FindOneAndDelete schreiben
+async function deleteScenario(storyId, storySource, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		for (let i = 0; i < story.scenarios.length; i++) {
-			if (story.scenarios[i].scenario_id === scenarioId) story.scenarios.splice(i, 1);
-		}
-		return await replace(story, collection);
+		return collection.findOneAndUpdate({ _id: ObjectId(storyId) },{$pull:{"scenarios":{"scenario_id": scenarioId}}},{returnDocument: "after"}).then((res)=> res.value);
 	} catch (e) {
 		console.log(`ERROR in deleteScenario: ${e}`);
 		throw e;
@@ -973,17 +954,6 @@ async function updateStoryStatus(storyId, storyLastTestStatus) {
 async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus) { // TODO: testen
 	try {
 		const db = dbConnection.getConnection();
-		// const collection = await db.collection(storiesCollection);
-		// const story = await collection.findOne({ _id: ObjectId(storyId) });
-		// const scenarioList = story.scenarios;
-		// const scenario = scenarioList.find((scen) => scen.scenario_id === parseInt(scenarioId, 10));
-		// if (scenario) {
-		// const index = story.scenarios.indexOf(scenario);
-		// scenario.lastTestPassed = scenarioLastTestStatus;
-		// story.scenarios[index] = scenario;
-		// }
-		// console.log('scenarioLastTestStatus');
-		// console.log(scenarioLastTestStatus);
 		return await db.collection(storiesCollection).updateOne(
 			{
 				_id: ObjectId(storyId),
@@ -994,7 +964,6 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 			}, {
 				$set: { lastTestPassed: scenarioLastTestStatus }
 			});
-		// return await collection.findOneAndReplace({ _id: ObjectId(storyId) }, story);
 	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);
 	}

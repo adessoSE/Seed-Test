@@ -1,4 +1,4 @@
-process.env.DATABASE_URI='mongodb+srv://Seed-Admin:KkPuqMeGUfgpyTVp@seed-tsqv2.mongodb.net/test?authSource=admin&replicaSet=Seed-shard-0&w=majority&readPreference=primary&retryWrites=true&ssl=true'
+process.env.DATABASE_URI='mongodb+srv://Seed-Tester:Z3ddLKExHIVxU0KT@seed.a9qkg.mongodb.net/?retryWrites=true&w=majority'
 //TODO Change to Test database once that is up
 const mongo = require('../src/database/DbServices');
 
@@ -16,65 +16,53 @@ describe('Mongodatabase', () => {
     });
 
     it('return story', (done) => {
-      const story = {  
-        "_id": "62b337b27f37a55f60836b0a" , 
-        "story_id": 0,  
-        "assignee": "unassigned",  
-        "title": "for get One Story",  
-        "body": "Some Explanation for this Story",  
-        "issue_number": 0,  
-        "background": {    
-         "name": "New Background",   
-         "stepDefinitions": {"when": []}
+      const story = {
+        "_id": null,
+        "story_id": 0,
+        "assignee": "unassigned",
+        "title": "for get One Story",
+        "body": "Some Explanation for this Story",
+        "issue_number": 0,
+        "background": {
+          "name": "New Background",
+          "stepDefinitions": {
+            "when": []
+          }
         },
-          "scenarios": [{
+        "scenarios": [{
             "scenario_id": 1,
             "name": "First Scenario",
             "comment": null,
             "stepDefinitions": {
               "given": [],
               "when": [{
-                "id": 1,
-                "mid": "",
-                "pre": "I go to the website:",
-                "stepType": "when",
-                "type": "Go To Website / URL",
-                "values": ["http://adesso.de/"]
-              }],
-              "then": [],
-              "example": []
-            },      
-            "lastTestPassed": null
-            }, {
-              "scenario_id": 2,
-              "name": "multiple Scenarios",
-              "comment": null,
-              "stepDefinitions": {
-                "given": [],
-                "when": [{ 
                   "id": 1,
                   "mid": "",
-                  "pre": "I go to the website:",            
+                  "pre": "I go to the website:",
                   "stepType": "when",
-                  "type": "Go To Website / URL",            
-                  "values": ["http://google.com"]
+                  "type": "Go To Website / URL",
+                  "values": [
+                    "http://adesso.de/"
+                  ]
                 }],
-                "then": [],
-                "example": []
-              },      
-              "lastTestPassed": null
-            }],  
-      "storySource": "db",  
-      "repo_type": "db",  
-      "state": "open",  
-      "assignee_avatar_url": null,  
-      "lastTestPassed": null,  
-      "oneDriver": false
-    }
-      // "_id":"62b337b27f37a55f60836b0a",
+              "then": [],
+              "example": []
+            },
+            "lastTestPassed": null
+          }],
+        "storySource": "db",
+        "repo_type": "db",
+        "state": "open",
+        "assignee_avatar_url": null,
+        "lastTestPassed": null,
+        "oneDriver": false
+      }
+      // "_id":"62df9c47dbf47cea2e9c38dc",
 
-      mongo.getOneStory("62b337b27f37a55f60836b0a", null).then( (result) => {
+      mongo.getOneStory("62df9c47dbf47cea2e9c38dc", null).then( (result) => {
         result._id = null;
+        console.log("result",result);
+        console.log("correct",story);
         expect(result).toEqual(story);
         done();
       });
@@ -82,16 +70,18 @@ describe('Mongodatabase', () => {
   });
 
   describe('updateBackground', () => {
+    const story_id = "62df9c47dbf47cea2e9c38dc"
     let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } };
     beforeEach((done) => {
-      mongo.getOneStory("62b337b27f37a55f60836b0a", null).then( (result) => {
+      mongo.getOneStory(story_id, null)
+      .then( (result) => {
         backgroundBefore = result.background;
         done();
       });
     });
 
     afterEach((done) => {
-      mongo.updateBackground("62b337b27f37a55f60836b0a", backgroundBefore)
+      mongo.updateBackground(story_id, null, backgroundBefore)
       .then( (result) => {
         done();
       });
@@ -106,7 +96,7 @@ describe('Mongodatabase', () => {
         },
       };
       const backgroundString = (JSON.stringify(background));
-      mongo.updateBackground(storyId, background)
+      mongo.updateBackground(story_id, null, background)
       .then( (result) => {
         expect(JSON.stringify(result)).toContain(backgroundString);
         done();
@@ -115,9 +105,10 @@ describe('Mongodatabase', () => {
   });
 
   describe('deleteBackground', () => {
+    const story_id = "62df9c47dbf47cea2e9c38dc"
     let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } }
     beforeEach((done) => {
-      mongo.getOneStory("62b337b27f37a55f60836b0a")
+      mongo.getOneStory(story_id, null)
       .then( (result) => {
         backgroundBefore = result.background;
         done();
@@ -125,24 +116,26 @@ describe('Mongodatabase', () => {
     });
 
     afterEach((done) => {
-      mongo.updateBackground("62b337b27f37a55f60836b0a", backgroundBefore)
+      mongo.updateBackground(story_id, null, backgroundBefore)
       .then( (result) => {
         done();
       });
     });
     it('return empty background', (done) => {
       const background = { name: 'New Background', stepDefinitions: { when: [] } };
-      mongo.deleteBackground("62b337b27f37a55f60836b0a")
+      mongo.deleteBackground(story_id, null)
       .then( (result) => {
         expect(result.background).toEqual(background);
         done();
       });
     });
   });
+
   describe('createScenario', () => {
+    const story_id = "62df9c47dbf47cea2e9c38dc"
     let scenarioId;
     afterEach((done) => {
-      mongo.deleteScenario("62b337b27f37a55f60836b0a", scenarioId)
+      mongo.deleteScenario(story_id, null, scenarioId)
       .then( (result) => {
         done();
       });
@@ -157,7 +150,7 @@ describe('Mongodatabase', () => {
         },
       };
 
-      mongo.createScenario("62b337b27f37a55f60836b0a")
+      mongo.createScenario(story_id, null, 'New Scenario')
       .then( (result) => {
         scenarioId = result.scenario_id;
         result.scenario_id = null;
@@ -169,20 +162,21 @@ describe('Mongodatabase', () => {
 
   describe('deleteScenario', () => {
     let scenarioId;
+    const story_id = "62df9c47dbf47cea2e9c38dc"
 
     beforeEach((done) => {
-      mongo.createScenario("62b337b27f37a55f60836b0a")
+      mongo.createScenario(story_id, null, 'New Scenario')
       .then( (result) => {
         scenarioId = result.scenario_id;
         done();
       });
     });
-    it('deletes a new scenario', (done) => {
+    it('deletes a new scenario', async() => {
       const scenario = `{"scenario_id":${scenarioId}`;
-      mongo.deleteScenario("62b337b27f37a55f60836b0a", scenarioId)
+      return mongo.deleteScenario(story_id, null, scenarioId)
       .then( (result) => {
+        console.log("result",result);
         expect(JSON.stringify(result)).not.toContain(scenario);
-        done();
       });
     });
   });
@@ -190,9 +184,10 @@ describe('Mongodatabase', () => {
   describe('updateScenario', () => {
     let oldScenario;
     let scenarioId;
+    const story_id = "62df9c47dbf47cea2e9c38dc"
 
     beforeEach((done) => {
-      mongo.createScenario("62b337b27f37a55f60836b0a")
+      mongo.createScenario(story_id, null, 'New Scenario')
       .then( (result) => {
         oldScenario = result;
         scenarioId = result.scenario_id;
@@ -201,7 +196,7 @@ describe('Mongodatabase', () => {
     });
 
     afterEach((done) => {
-      mongo.deleteScenario("62b337b27f37a55f60836b0a", scenarioId)
+      mongo.deleteScenario(story_id, null, scenarioId)
       .then( (result) => {
         done();
       });
@@ -211,9 +206,9 @@ describe('Mongodatabase', () => {
       const updateScenario = oldScenario;
       const newName = 'test';
       updateScenario.name = newName;
-      mongo.updateScenario("62b337b27f37a55f60836b0a", updateScenario)
+      mongo.updateScenario(story_id, null, updateScenario)
       .then( (result) => {
-        expect(result.scenarios[scenarioId - 1].name).toEqual(newName);
+        expect(result.name).toEqual(newName);
         done();
       });
     });
