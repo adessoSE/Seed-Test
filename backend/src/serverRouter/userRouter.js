@@ -226,8 +226,8 @@ router.get('/stories', async (req, res) => {
 	if (source === 'github' || !source) try {
 		const githubUsernameCheck = new RegExp(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i) // https://github.com/shinnn/github-username-regex
 		const githubReponameCheck = new RegExp(/^([a-z\d._-]){0,100}$/i)
-		if(!req.query.githubName.search(githubUsernameCheck))res.status(400).json("invalid username")
-		if(!req.query.repository.search(githubReponameCheck))res.status(400).json("invalid repository name")
+		if(!githubUsernameCheck.test(req.query.githubName.toString())) res.send("invalid Github username").status(400);
+		else if(!githubReponameCheck.test(req.query.repository.toString())) res.send("invalid Github Repositoryname").status(400);
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
