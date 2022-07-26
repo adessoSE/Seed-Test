@@ -223,12 +223,12 @@ em.dragIcon{
 
 .scenarioTitle > em{
   color:  var(--ocean-blue);
-  font-size: 20px;
+  font-size: 22px;
   transform: translate(0px, 3px)
 }
 
 #scenario_change_title > em {
-  font-size: 20px;
+  font-size: 22px;
   margin: 0px 5px;
 }
 
