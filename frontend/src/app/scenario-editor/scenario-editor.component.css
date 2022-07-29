@@ -78,6 +78,11 @@ em.dragIcon{
   padding-right: 770px;
 } */
 
+.infoIcon{
+  vertical-align: text-bottom;
+  padding-top: 0px !important;
+}
+
 /* #infoIconScenario{
   color: #999;
   margin-left: 5px;
