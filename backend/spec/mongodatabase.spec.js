@@ -61,8 +61,6 @@ describe('Mongodatabase', () => {
 
       mongo.getOneStory("62df9c47dbf47cea2e9c38dc", null).then( (result) => {
         result._id = null;
-        console.log("result",result);
-        console.log("correct",story);
         expect(result).toEqual(story);
         done();
       });
@@ -175,7 +173,6 @@ describe('Mongodatabase', () => {
       const scenario = `{"scenario_id":${scenarioId}`;
       return mongo.deleteScenario(story_id, null, scenarioId)
       .then( (result) => {
-        console.log("result",result);
         expect(JSON.stringify(result)).not.toContain(scenario);
       });
     });

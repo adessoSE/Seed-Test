@@ -405,11 +405,11 @@ async function addToStoryGroup(repoId, groupId, storyId) {
 	}
 }
 
-async function removeFromStoryGroup(repoId, groudId, storyId) {
+async function removeFromStoryGroup(repoId, groupId, storyId) {
 	try {
-		const group = await getOneStoryGroup(repoId, groudId);
+		const group = await getOneStoryGroup(repoId, groupId);
 		group.member_stories.splice(group.indexOf(storyId), 1);
-		await updateStoryGroup(repoId, groudId, group);
+		await updateStoryGroup(repoId, groupId, group);
 		return group;
 	} catch (e) {
 		console.log(`ERROR in removeFromStoryGroup: ${e}`);
@@ -490,9 +490,9 @@ async function createStory(storyTitle, storyDescription, repoId) {
  * Deletes the Story in the StoryCollection and deletes the _id in the corresponding Repository and the StoryGroups
  * @param {*} repoId
  * @param {*} storyId
- * @returns delteReport
+ * @returns deleteReport
  */
-async function deleteStory(repoId, storyId) {
+async function deleteStory(repoId, storyId) { // refactor use promise all
 	try {
 		const db = dbConnection.getConnection();
 		const repo = await db.collection(repositoriesCollection);
@@ -559,10 +559,10 @@ async function getAllStoriesOfRepo(ownerId, repoName, repoId) { // TODO: remove 
 }
 
 // GET ONE Scenario
-async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remove storySource, hier dürfte eh nur ein scenario beid er abfrage rauskommen das find im result kann man sich sparen
+async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remove storySource
 	try {
 		const db = dbConnection.getConnection();
-		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), storySource, 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
+		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
 		return scenarios.scenarios.find((o) => o.scenario_id === scenarioId);
 	} catch (e) {
 		console.log(`ERROR in getOneScenario: ${e}`);
@@ -581,13 +581,13 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		} else {
-			let newScenID = 0;
+			let newScenId = 0;
 			for (const scenario of story.scenarios) {
-				if (scenario.scenario_id > newScenID) {
-					newScenID = scenario.scenario_id;
+				if (scenario.scenario_id > newScenId) {
+					newScenId = scenario.scenario_id;
 				}
 			}
-			tmpScenario.scenario_id = newScenID + 1;
+			tmpScenario.scenario_id = newScenId + 1;
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		}
@@ -611,10 +611,9 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-
 		return collection.findOneAndUpdate({ _id: ObjectId(storyId) },{$set:{"scenarios.$[it]": updatedScenario}},
 			{arrayFilters:[{"it.scenario_id": updatedScenario.scenario_id}], returnDocument: "after", upsert: true, projection:{scenarios:true}})//Options
-		.then((res)=>{console.log(res.value); return res.value})
+		.then((res)=>{return res.value})
 		.then((result)=> result.scenarios.find((scen)=>scen.scenario_id==updatedScenario.scenario_id))
 	} catch (e) {
 		console.log(`ERROR in updateScenario: ${e}`);
@@ -922,16 +921,12 @@ async function deleteReport(reportId) {
 	return result;
 }
 
-async function setIsSavedTestReport(testReportId, isSaved) { // TODO:
+async function setIsSavedTestReport(testReportId, isSaved) {
 	try {
 		const db = dbConnection.getConnection();
 		db.collection(ReportDataCollection).updateOne({ _id: ObjectId(testReportId) }, {
 			$set: { isSaved }
 		});
-		// const updatedReport = await collection.findOne({ _id: ObjectId(testReportId) });
-		// updatedReport.isSaved = isSaved;
-		// result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
-		// updatedReport);
 	} catch (e) {
 		console.log('ERROR in setIsSavedTestReport', e);
 	}
