@@ -681,8 +681,7 @@ async function deleteRepository(repoId, ownerId) { // TODO: Dringend! Die einget
 	try {
 		const db = dbConnection.getConnection();
 		const collectionRepo = await db.collection(repositoriesCollection);
-		const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId) });
-		return await collectionRepo.deleteOne(repo);
+		return collectionRepo.deleteOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId) });
 	} catch (e) {
 		console.log(`ERROR in deleteRepository${e}`);
 		throw e;
@@ -693,7 +692,7 @@ async function getOneRepository(ownerId, name) {
 	try {
 		const repo = { owner: ObjectId(ownerId), repoName: name };
 		const db = dbConnection.getConnection();
-		return await db.collection(repositoriesCollection).findOne(repo);
+		return db.collection(repositoriesCollection).findOne(repo);
 	} catch (e) {
 		console.log(`ERROR in getOneRepository${e}`);
 	}
@@ -748,17 +747,17 @@ async function getAllSourceReposFromDb(source) {
 	}
 }
 
-async function createRepo(ownerId, name) {
+async function createRepo(ownerId, name) { 
 	try {
 		const emptyRepo = {
-			owner: ownerId, repoName: name.toString(), stories: [], repoType: 'db', customBlocks: [], groups: []
+			owner: ObjectId(ownerId), repoName: name.toString(), stories: [], repoType: 'db', customBlocks: [], groups: []
 		};
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
 		const query = { owner: ObjectId(ownerId), repoName: name.toString() };
 		const existingRepo = await collection.findOne(query);
 		if (existingRepo !== null) return 'Sie besitzen bereits ein Repository mit diesem Namen!';
-		collection.insertOne(emptyRepo);
+		return collection.insertOne(emptyRepo).then((ret)=>ret.insertedId)
 	} catch (e) {
 		console.log(`ERROR in createRepo${e}`);
 	}
@@ -771,7 +770,7 @@ async function createRepo(ownerId, name) {
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) {
+async function updateRepository(repoID, newName, user) { 
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
