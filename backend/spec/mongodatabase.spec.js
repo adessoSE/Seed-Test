@@ -222,14 +222,18 @@ describe('Mongodatabase', () => {
         done()
       })
     })
-    it('deletes orphan stories', async(done)=> {
-      const stories = [];
-      await Promise.all([
-        mongo.createStory('Test','Hallo Test', repoId), 
-        mongo.createStory('Test1','Hallo Test1', repoId)
-      ]).then((storyIds)=> stories.push(storyIds))
+    it('deletes orphan stories', async()=> {
+      const stories = await Promise.all([
+        mongo.createStory('Test','Hallo Test', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}),
+        mongo.createStory('Test1','Hallo Test1', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}) 
+      ])
       
-      expect(await mongo.deleteRepository(repoId, ownerId).then((ret)=>ret.acknowledged)).toEqual(true)
+      console.log("stories", stories);
+      
+      await mongo.deleteRepository(repoId, ownerId)
+      .then((ret)=>{
+        expect(ret.deletedCount).toEqual(1)
+      })
     })
   })
 
