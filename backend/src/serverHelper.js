@@ -658,11 +658,11 @@ function executeTest(req, res, stories, mode, story) {
 			parameters = prep.parameters;
 		}
 		const reportTime = Date.now();
-		const cucePath = 'node_modules/.bin/cucumber-js';
-		const featurePath = `features/${cleanFileName(story.title + story._id)}.feature`;
+		const cucePath = 'node_modules/.bin/';
+		const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
 		const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
-		let jsonPath = `features/${reportName}.json`;
+		let jsonPath = `../../features/${reportName}.json`;
 		if (mode === 'group') {
 			const grpDir = req.body.name;
 			jsonPath = `./features/${grpDir}/${reportName}.json`;
@@ -678,12 +678,20 @@ function executeTest(req, res, stories, mode, story) {
 		}
 		// specify desired location of JSON Report and pass world parameters for cucumber execution
 		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
+
 		// no cmd for non windows
 		const cmd = os.platform().includes('win') ? '.cmd' : ''
-		console.log('Executing:');
-		console.log(path.normalize(`${__dirname}/../${cucePath}${cmd}`) + cucumberArgs);
+		const cucumberCommand = `cucumber-js${cmd}`;
+		const cucumberPath = `${path.normalize(`${__dirname}/../${cucePath}`)}`	
 
-		const runner = ch.spawn(path.normalize(`${__dirname}/../${cucePath}${cmd}`) ,cucumberArgs);
+		console.log('\nExecuting:');
+		console.log(`Working Dir: "${cucumberPath}"`)
+		console.log(`Command: "${cucumberCommand}"`)
+		console.log(`Args: [${cucumberArgs}]\n`)
+
+		// const runner = ch.spawn(execCommand ,cucumberArgs);
+		const runner = ch.spawn(cucumberCommand ,cucumberArgs, {cwd: cucumberPath});
+
 		runner.stdout.on("data",(data) => {
 			console.log(`stdout: ${data}`);
 		})
