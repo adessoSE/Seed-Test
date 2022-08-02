@@ -689,7 +689,7 @@ function executeTest(req, res, stories, mode, story) {
 		console.log(`Command: "${cucumberCommand}"`)
 		console.log(`Args: [${cucumberArgs}]\n`)
 
-		// const runner = ch.spawn(execCommand ,cucumberArgs);
+		// spawn the process in the given directory (cwd)
 		const runner = ch.spawn(cucumberCommand ,cucumberArgs, {cwd: cucumberPath});
 
 		runner.stdout.on("data",(data) => {
