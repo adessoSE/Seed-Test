@@ -478,15 +478,19 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
 	const world = this;
 
-	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`, `${label}`]
+	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`,
+						`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`]
 	const promises = []
 	for(const idString of identifiers){
 		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 	}
 	await Promise.any(promises)
 	.then(async (elem) => {
-		const resp = await elem.getText().then((text) => text);
-		expect(expectedText).to.equal(resp, 'Textfield does not match the string');
+		let resp = await elem.getText().then((text) => text);
+		if (resp == '') {
+			resp = await elem.getAttribute("outerHTML");
+		}
+		expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
 	})
 	.catch(async (e) => {
 		await driver.takeScreenshot().then(async (buffer) => {
