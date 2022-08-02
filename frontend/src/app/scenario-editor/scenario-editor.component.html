@@ -2,7 +2,7 @@
   <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="scenario">
     <div class="title">
       <div class="scenarioHeaderContainer">
-        <div>
+        <div style="margin: auto 0">
           <span id="scenarioHeader" class="Smallnavigation2">Scenario</span>
             <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
               <span rel="def" id="scenarioInfoTextPosition">Each scenario is an example describing a specific behavioral aspect of the system.
@@ -31,7 +31,7 @@
           <em class="material-icons">keyboard_arrow_right</em>
           </button>
         </div>
-        <div style="justify-self: end;">
+        <div style="justify-self: end; padding: 2px 20px;">
           <button id="new_scenario scenario_change_title" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
             <em class="material-icons">add</em>
             </button>
