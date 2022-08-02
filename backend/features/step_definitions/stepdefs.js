@@ -488,7 +488,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 	.then(async (elem) => {
 		let resp = await elem.getText().then((text) => text);
 		if (resp == '') {
-			resp = await body.getAttribute("outerHTML");
+			resp = await elem.getAttribute("outerHTML");
 		}
 		expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
 	})
