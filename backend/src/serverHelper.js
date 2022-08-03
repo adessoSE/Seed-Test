@@ -680,9 +680,9 @@ function executeTest(req, res, stories, mode, story) {
 		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
 
 		// no cmd for non windows
-		const cmd = os.platform().includes('win') ? '.cmd' : ''
+		const cmd = os.platform().includes('win') ? '.cmd' : '';
 		const cucumberCommand = `cucumber-js${cmd}`;
-		const cucumberPath = `${path.normalize(`${__dirname}/../${cucePath}`)}`	
+		const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
 
 		console.log('\nExecuting:');
 		console.log(`Working Dir: "${cucumberPath}"`)
