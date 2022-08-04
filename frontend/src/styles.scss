@@ -771,6 +771,9 @@ div.notPassed{
   color: var(--light-blue);
 }
 
+.uk-dropdown{
+  position: static;
+}
 .darkTheme select, .darkTheme input, .darkTheme textarea {
   background: transparent;
   border-color: #60767b;
