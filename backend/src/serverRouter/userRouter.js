@@ -349,7 +349,7 @@ router.get('/stories', async (req, res) => {
 
 		// get DB Repo / Projects
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
-		const result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id);
+		const result = await mongo.getAllStoriesOfRepo(req.query.id);
 		res.status(200).json(result);
 	} else res.sendStatus(401);
 
