@@ -725,17 +725,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         }
     }
 
-    applyFuncOnIteration(callback: (step, v1) => void, value1): void {
-        for (const prop in this.selectedScenario.stepDefinitions) {
-            if(prop !== 'example') {
-                for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    let step = this.selectedScenario.stepDefinitions[prop][i];
-                    callback(step, value1);
-                }
-            }         
-        }
-    }
-
     /**
      * Opens add block form modal
      * @param event
