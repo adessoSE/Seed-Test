@@ -739,7 +739,7 @@ export class ApiService {
     }
 
     // only affects repo
-    updateStoryList(repo_id, _source, storiesList) {
+    updateStoryList(repo_id, storiesList) {
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
             .put(this.apiServer + '/user/stories/' + repo_id , storiesList, ApiService.getOptions())

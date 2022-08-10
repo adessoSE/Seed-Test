@@ -850,7 +850,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      */
     insertCopiedBlock() {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
-            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, _) => {
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, _i) => {
                 this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
         });

@@ -702,26 +702,38 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         } else {
             this.allChecked = !this.allChecked;
         }
-        if (this.allChecked) {
-            for (const prop in this.selectedScenario.stepDefinitions) {
-                if (prop !== 'example') {
-                    for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                        this.checkStep(this.selectedScenario.stepDefinitions[prop][i], true);
-                    }
-                }
-            }
+        if (this.allChecked) {        
+            this.checkOnIteration(true);
+
             this.activeActionBar = true;
             this.allChecked = true;
-        } else {
-            for (const prop in this.selectedScenario.stepDefinitions) {
-                if (prop !== 'example') {
-                    for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                        this.checkStep(this.selectedScenario.stepDefinitions[prop][i], false);
-                    }
-                }
-            }
+        } else  {
+            this.checkOnIteration(false);
+
             this.activeActionBar = false;
             this.allChecked = false;
+        }
+    }
+
+    checkOnIteration(checkValue: boolean) {
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if(prop !== 'example') {
+                for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    this.checkStep(this.selectedScenario.stepDefinitions[prop][i], checkValue);
+                }
+            }         
+        }
+    }
+    //TODO
+    applyFuncOnIteration(callback: (step, v1) => void, value1, value2?): void {
+        for (const prop in this.selectedScenario.stepDefinitions) {
+            if(prop !== 'example') {
+                for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                    let step = this.selectedScenario.stepDefinitions[prop][i];
+                    callback(step, value1);
+                    //this.checkStep(this.selectedScenario.stepDefinitions[prop][i], checkValue);
+                }
+            }         
         }
     }
 
@@ -968,7 +980,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
 
     /**
      * Checks a step
-     * @param $event
      * @param step
      * @param checkValue
      */
@@ -982,31 +993,28 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
         let stepCount = 0;
 
         for (const prop in this.selectedScenario.stepDefinitions) {
-            if (prop !== 'example') {
-                for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    stepCount++;
-                    if (this.selectedScenario.stepDefinitions[prop][i].checked) {
-                        checkCount++;
-                    }
+            for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+                stepCount++;
+                if (prop !== 'example' && this.selectedScenario.stepDefinitions[prop][i].checked) {
+                    checkCount++;
                 }
             }
         }
         if (checkCount >= stepCount) {
             this.allChecked = true;
-        } else {
-            this.allChecked = false;
-        }
-        if (checkCount <= 0) {
+            this.activeActionBar = true;
+            
+        } else if (checkCount <= 0) {
             this.allChecked = false;
             this.activeActionBar = false;
-        } else {
+        } else  {
             this.activeActionBar = true;
         }
+        
     }
 
     /**
      * Checks an example step
-     * @param $event
      * @param step
      * @param checkValue
      */
