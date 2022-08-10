@@ -183,6 +183,25 @@ describe('Mongodatabase', () => {
     });
   });
 
+  describe('update Story', () => {
+    let orgStory;
+    const story_id = "62b337b27f37a55f60836b0a"
+    beforeEach(async() => {
+      orgStory = {...await mongo.getOneStory(story_id, null)}//deep copy
+    })
+    afterEach(async() => {
+      return mongo.updateStory(orgStory)
+    })
+    it('updates Story', async() => {
+      const upStory = {...orgStory};
+      upStory.title = 'Updated Story'
+      //upStory.story_id = '5'
+      const newStory = await mongo.updateStory(upStory).then((res)=>res.value)
+      console.log("updated ", newStory);
+      expect(newStory.title).toEqual(upStory.title)
+    })
+  })
+
 
   describe('create repository', () => {
     let repoId;
@@ -190,7 +209,6 @@ describe('Mongodatabase', () => {
     const name = 'Test'
     it('creates a db repo',async() => {
       repoId = await mongo.createRepo(ownerId, name).catch((err)=>console.error(err))
-      console.log(repoId);
       await mongo.getOneRepository(ownerId, name)
       .then((repo)=>{
         repo._id = null
@@ -201,6 +219,9 @@ describe('Mongodatabase', () => {
         })
       })
     })
+    /* it('creates a db repo empty fails',async() => {
+      expect( await mongo.createRepo(ownerId, '')).rejects.toEqual('Sie besitzen bereits ein Repository mit diesem Namen!')
+    }) */
     afterEach((done)=>{
       mongo.deleteRepository(repoId, ownerId).then(()=>done())
     })
@@ -217,12 +238,11 @@ describe('Mongodatabase', () => {
     it('deletes repo', (done)=>{
       mongo.deleteRepository(repoId, ownerId)
       .then((ret)=>{
-        console.log(ret)
         expect(ret.deletedCount).toEqual(1)
         done()
       })
     })
-    it('deletes orphan stories', async()=> {
+    it('deletes orphan stories', async() => {
       const stories = await Promise.all([
         mongo.createStory('Test','Hallo Test', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}),
         mongo.createStory('Test1','Hallo Test1', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}) 
@@ -235,6 +255,30 @@ describe('Mongodatabase', () => {
         expect(ret.deletedCount).toEqual(1)
       })
     })
+    test.skip('deletes orphan workgroup',()=>{})
+    test.skip('deletes orphan Reports',()=>{})
+
+  })
+
+  describe('user', () => {
+    it('creates user', async() => {
+      const uid = await mongo.registerUser({email:'test@test.org', password: 'abcdefg'})
+      .then((res)=>{
+        expect(res.insertedCount).toEqual(1)
+        return res.insertedId;
+      })
+
+      await mongo.deleteUser(uid).then((res)=>{
+        const {resultUser, resultRepo} = res
+        expect(resultUser.deletedCount).toEqual(1)
+      })
+    })
+
+    test.skip('deletes userRepos',()=>{})
+  })
+
+  afterAll(() => {
+    //close db connection
   })
 
 });

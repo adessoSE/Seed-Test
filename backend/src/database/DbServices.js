@@ -75,7 +75,7 @@ async function getResetRequest(id) {
 /**
  *
  * @param {*} mail
- * @returns PasswordReetRquest
+ * @returns PasswordResetRequest
  */
 async function getResetRequestByEmail(mail) {
 	try {
@@ -89,7 +89,7 @@ async function getResetRequestByEmail(mail) {
 }
 
 /**
- *
+ * deletes Password reset request 
  * @param {*} mail
  * @returns deletion Report
  */
@@ -106,13 +106,13 @@ async function deleteRequest(mail) {
 
 /**
  *
- * @param {*} id
+ * @param {*} userId
  * @returns User
  */
-async function getUserById(id) {
+async function getUserById(userId) {
 	try {
 		const db = dbConnection.getConnection();
-		return await db.collection(userCollection).findOne({ _id: ObjectId(id) });
+		return await db.collection(userCollection).findOne({ _id: ObjectId(userId) });
 	} catch (e) {
 		console.log(`ERROR in getUserById: ${e}`);
 		throw e;
@@ -122,7 +122,7 @@ async function getUserById(id) {
 /**
  *
  * @param {*} login
- * @param {*} id
+ * @param {*} id githubUserId
  * @returns User
  */
 async function getUserByGithub(login, id) {
@@ -150,6 +150,11 @@ async function getUserByEmail(email) {
 	}
 }
 
+/**
+ * 
+ * @param {object} user {email:string, userId: String, password: string} 
+ * @returns 
+ */
 async function registerUser(user) {
 	try {
 		console.log(user);
@@ -158,7 +163,7 @@ async function registerUser(user) {
 		const dbUser = await getUserByEmail(user.email);
 		let result;
 		if (dbUser !== null) throw Error('User already exists');
-		else if (user.userId) {
+		else if (user.userId) { //update in register? attacker with userId could re-set anything
 			result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
 		} else {
 			delete user.userId;
@@ -264,7 +269,6 @@ function findStory(storyId, storySource, collection) {
 function replace(story, collection) {
 	const filter = {
 		_id: ObjectId(story._id.toString()),
-		storySource: story.storySource.toString()
 	};
 	story._id = ObjectId(story._id);
 	return new Promise((resolve, reject) => {
@@ -290,7 +294,7 @@ async function updateStory(updatedStory) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		return await replace(updatedStory, collection);
+		return await collection.findOneAndReplace({_id: ObjectId(updatedStory._id.toString())}, updatedStory, {returnDocument: "after"})
 	} catch (e) {
 		console.log(`ERROR updateStory: ${e}`);
 		throw e;
@@ -492,7 +496,7 @@ async function createStory(storyTitle, storyDescription, repoId) {
  * @param {*} storyId
  * @returns deleteReport
  */
-async function deleteStory(repoId, storyId) { // refactor use promise all
+async function deleteStory(repoId, storyId) { //TODO refactor use promise all
 	try {
 		const db = dbConnection.getConnection();
 		const repo = await db.collection(repositoriesCollection);
@@ -678,7 +682,7 @@ async function deleteRepositorys(ownerID) { // TODO: Dringend! Die eingetragenen
 }
 
 async function deleteRepository(repoId, ownerId) { // TODO: Dringend! Die eingetragenen Storys und die Einträge in Stories und Groups müssen gelöscht werden
-	try {
+	try {// todo delete Workgroup, delete story Reports
 		const db = dbConnection.getConnection();
 		const collectionRepo = await db.collection(repositoriesCollection)
 		const collectionStory = await db.collection(storiesCollection)
@@ -760,7 +764,7 @@ async function createRepo(ownerId, name) {
 		const collection = await db.collection(repositoriesCollection);
 		const query = { owner: ObjectId(ownerId), repoName: name.toString() };
 		const existingRepo = await collection.findOne(query);
-		if (existingRepo !== null) return 'Sie besitzen bereits ein Repository mit diesem Namen!';
+		if (existingRepo !== null || !name) return 'Sie besitzen bereits ein Repository mit diesem Namen!';// existing or empty name
 		return collection.insertOne(emptyRepo).then((ret)=>ret.insertedId)
 	} catch (e) {
 		console.log(`ERROR in createRepo${e}`);
@@ -779,9 +783,7 @@ async function updateRepository(repoID, newName, user) {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		const repo = await collection.findOne(repoFilter);
-		repo.repoName = newName.repoName;
-		return await collection.findOneAndUpdate(repoFilter, { $set: repo });
+		return collection.findOneAndUpdate(repoFilter, { $set: {"repo.repoName": newName} });
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;
@@ -1074,18 +1076,17 @@ async function getReportDataById(reportId) {
 
 // delete User in DB needs ID
 async function deleteUser(userID) {
-	try {
+	try {// delete user from Workgroup
 		const oId = ObjectId(userID);
 		const myObjt = { _id: oId };
 		const db = dbConnection.getConnection();
-		const repos = await db.collection(repositoriesCollection).find({ owner: oId })
-			.toArray();
+		const repos = await db.collection(repositoriesCollection).find({ owner: oId }).toArray();
 		if (repos) {
-			for (const repo of repos) for (const storyID of repo.stories) await db.collection(storiesCollection).deleteOne({ _id: ObjectId(storyID) });
+			for (const repo of repos) for (const storyID of repo.stories) await db.collection(storiesCollection).deleteOne({ _id: ObjectId(storyID) }); // use delete repo?
 
 			const resultRepo = await db.collection(repositoriesCollection).deleteMany({ owner: oId });
 			const resultUser = await db.collection(userCollection).deleteOne(myObjt);
-			return resultUser + resultRepo;
+			return {resultUser, resultRepo};
 		}
 		return null;
 	} catch (e) {
@@ -1180,27 +1181,30 @@ async function getWorkgroup(id) {
 	}
 }
 
-async function addMember(id, user) {
+/**
+ * 
+ * @param {*} repoId Repository Id
+ * @param {object} user User object {email:string, canEdit:boolean}
+ * @returns 
+ */
+async function addMember(repoId, user) {
 	try {
 		const db = dbConnection.getConnection();
 		const wGCollection = await db.collection(WorkgroupsCollection);
-		const check = await wGCollection.findOne({ Repo: ObjectId(id), Members: { $elemMatch: { email: user.email } } });
+		const check = await wGCollection.findOne({ Repo: ObjectId(repoId), Members: { $elemMatch: { email: user.email } } });
 		if (check) return 'Dieser User ist bereits in der Workgroup';
-		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(id) });
+		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
 		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
-		const workGroup = await wGCollection.findOne({ Repo: ObjectId(id) });
-		if (!workGroup) {
-			if (typeof user.canEdit !== 'boolean') {
-				user.canEdit = user.canEdit.toString();
-			}
+		const workGroup = await wGCollection.findOne({ Repo: ObjectId(repoId) });
+		if (!workGroup) { 
 			await wGCollection.insertOne({
-				name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
+				name: repo.repoName, owner: owner.email, Repo: ObjectId(repoId), Members: [{ email: user.email, canEdit: Boolean(user.canEdit) }]
 			});
 		} else {
-			await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
+			await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $push: { Members: user } });
 		}
 		const result = { owner: {}, member: [] };
-		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+		const wG = await wGCollection.findOne({ Repo: ObjectId(repoId) });
 		result.owner = { email: owner.email, canEdit: true };
 		result.member = wG.Members;
 		return result;
@@ -1217,7 +1221,7 @@ async function updateMemberStatus(repoId, user) {
 		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
 		const usersCollection = await db.collection(userCollection);
 		const owner = await usersCollection.findOne({ _id: repo.owner });
-		const updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { 'Members.$[elem].canEdit': user.canEdit } }, { arrayFilters: [{ 'elem.email': user.email }] });
+		const updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { 'Members.$[elem].canEdit': Boolean(user.canEdit) } }, { arrayFilters: [{ 'elem.email': user.email }] });
 		if (updatedWG) {
 			const wG = await wGCollection.findOne({ Repo: ObjectId(repoId) });
 			const result = { owner: {}, member: [] };
