@@ -128,9 +128,9 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
  */
   submitSaveBlock(form: NgForm) {
     if (this.exampleBlock) {
-        this.parentComponent.checkAllExampleSteps(null, false);
+        this.parentComponent.checkAllExampleSteps(false);
     } else {
-        this.parentComponent.checkAllSteps(null, false);
+        this.parentComponent.checkAllSteps(false);
     }
     let title = form.value.blockNameInput;
     if (title.trim() === '') {

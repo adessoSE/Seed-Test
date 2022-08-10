@@ -42,7 +42,7 @@
             </button>
             <button id="scenario_change_title" [class.disabled]="testRunning" [disabled]="testRunning"
             class="scenarioTitle" data-uk-tooltip title="Delete Scenario"
-            (click)="deleteScenario($event);">
+            (click)="deleteScenario();">
             <em class="material-icons">delete</em>
             </button>
         </div>
@@ -50,7 +50,7 @@
     <!--Action bar-->
   <div class="scenarioBarContainer">
     <div class="actionBarButtonGroup">
-      <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps">
+      <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps(null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps">
       <div [class.disabled]="!this.activeActionBar">
         <button id="{{'scenario_addBlock_step'}}" class="actionButton" uk-tooltip title="Save Steps as Block"
         (click)="saveBlock();">
@@ -74,7 +74,7 @@
       <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
         <em class="material-icons">copy_all</em>
       </button>
-      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock($event)">
+      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock()">
         <em class="material-icons">playlist_add</em>
       </button>
     </div>
@@ -188,11 +188,11 @@
         <ng-template #exampleCondition>
           <!--Action bar-->
           <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="exampleBarContainer">
-            <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
+            <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps(null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
             <div [class.disabled]="!this.activeExampleActionBar" class="actionBarButtonGroup">
               <button id="{{'scenario_' + i + '_example_addBlock_step_'}}"
               class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
-              (click)="saveExampleBlock($event);">
+              (click)="saveExampleBlock();">
                 <em class="material-icons">queue</em>
               </button>
               <button id="{{'scenario_' + i + '_example_deactivate_step_'}}"
@@ -223,7 +223,7 @@
            </div>
          <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
            <label>Auto Logout (Daisy)</label>
-           <input type="checkbox" id="daisyAutoLogout" (change)="this.setDaisyAutoLogout($event, $event.target.checked)" [defaultChecked]="this.selectedScenario.daisyAutoLogout">
+           <input type="checkbox" id="daisyAutoLogout" (change)="this.setDaisyAutoLogout($event.target.checked)" [defaultChecked]="this.selectedScenario.daisyAutoLogout">
          </form>
        </div>
 
