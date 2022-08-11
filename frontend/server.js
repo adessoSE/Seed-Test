@@ -21,7 +21,8 @@ app.get('/backendInfo', (req, res) => {
     clientId: process.env.GITHUB_CLIENT_ID,
     version: process.env.VERSION || "",
     gecko_enabled: process.env.GECKO_ENABLED || false,
-    chromium_enabled: process.env.CHROMIUM_ENABLED || true
+    chromium_enabled: process.env.CHROMIUM_ENABLED || true,
+    edge_enabled: process.env.EDGE_ENABLED || false,
   });
 });
 

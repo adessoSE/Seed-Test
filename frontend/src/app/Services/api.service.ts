@@ -695,9 +695,11 @@ export class ApiService {
         const version = localStorage.getItem('version');
         const gecko_enabled = localStorage.getItem('gecko_enabled')
         const chromium_enabled = localStorage.getItem('chromium_enabled')
+        const edge_enabled = localStorage.getItem('edge_enabled')
 
         if (url && url !== 'undefined' && clientId && clientId !== 'undefined' && version && version !== 'undefined' &&
-                gecko_enabled && gecko_enabled !== 'undefined' && chromium_enabled && chromium_enabled !== 'undefined') {
+                gecko_enabled && gecko_enabled !== 'undefined' && chromium_enabled && chromium_enabled !== 'undefined' && 
+                edge_enabled && edge_enabled !== 'undefined') {
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
             return Promise.resolve(url);
@@ -709,6 +711,7 @@ export class ApiService {
              localStorage.setItem('version', backendInfo.version);
              localStorage.setItem('gecko_enabled', backendInfo.gecko_enabled);
              localStorage.setItem('chromium_enabled', backendInfo.chromium_enabled);
+             localStorage.setItem('edge_enabled', backendInfo.edge_enabled)
              this.getBackendUrlEvent.emit();
          });
         }
