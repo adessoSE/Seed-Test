@@ -685,10 +685,10 @@ async function deleteRepository(repoId, ownerId) { // TODO: Dringend! Die einget
 	try {// todo delete Workgroup, delete story Reports
 		const db = dbConnection.getConnection();
 		const collectionRepo = await db.collection(repositoriesCollection)
-		const collectionStory = await db.collection(storiesCollection)
-		const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId)})
-		const storIds = repo.stories.map((val)=>ObjectId(val))
-		const storiesRes = await collectionStory.deleteMany({_id:{$in: storIds}})
+		// const collectionStory = await db.collection(storiesCollection)
+		// const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId)})
+		// const storIds = repo.stories.map((val)=>ObjectId(val))
+		// const storiesRes = await collectionStory.deleteMany({_id:{$in: storIds}})
 		return collectionRepo.deleteOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId)})
 	} catch (e) {
 		console.log(`ERROR in deleteRepository${e}`);
