@@ -232,7 +232,7 @@ describe('Mongodatabase', () => {
     const ownerId = '123456789012'
     const name = 'Test'
     beforeEach(async ()=> {
-      repoId = await mongo.createRepo(ownerId, name).catch((err)=>console.error(err))
+      repoId = await mongo.createRepo(ownerId, name).catch((err)=>console.error("delRepo before",err))
       console.log(repoId);
     })
     it('deletes repo', (done)=>{
@@ -242,7 +242,7 @@ describe('Mongodatabase', () => {
         done()
       })
     })
-    it('deletes orphan stories', async() => {
+    test.skip('deletes orphan stories', async() => {
       const stories = await Promise.all([
         mongo.createStory('Test','Hallo Test', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}),
         mongo.createStory('Test1','Hallo Test1', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}) 
@@ -275,6 +275,40 @@ describe('Mongodatabase', () => {
     })
 
     test.skip('deletes userRepos',()=>{})
+  })
+
+  describe('Workgroup', () => {
+    let repoId;
+    let ownerId;
+    const repoOwner = {email: "test@test.org", password: 'abcdefg', canEdit: false}
+    const user = {email: "test2@test.org", canEdit: false}
+    beforeEach(async()=>{
+      ownerId = await mongo.registerUser(repoOwner).then((res)=>res.insertedId)
+      repoId = await mongo.createRepo(ownerId, 'Test')
+      console.log("wg own & repo Id's", ownerId, repoId)
+    })
+
+    it('creates a Workgroup', async() => {
+      await mongo.addMember(repoId, user)
+      .then((res)=>{
+        console.log("workgroup", res)
+        expect(res.member.find((it)=>it.email === user.email)).toBeTruthy()
+      });
+    })
+
+    it('removes a member from Workgroup', async() => {
+      await mongo.addMember(repoId, user)
+      await mongo.removeFromWorkgroup(repoId, user)
+      .then((res)=>{
+        expect(!!res.member.find((it)=>it.email === user.email)).toBe(false)
+      })
+    })
+
+    afterEach(async()=>{
+      mongo.deleteRepository(repoId, ownerId)
+      await mongo.deleteUser(ownerId.toString())
+      // currently no way to cleanup(delete) workgroups
+    })
   })
 
   afterAll(() => {
