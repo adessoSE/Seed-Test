@@ -990,6 +990,7 @@ function renderComment(
 
 
 async function postCommentGitHub(issueNumber, comment, githubName, githubRepo, password) {
+	if(!checkValidGithub(githubName, githubRepo))return
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
 	const auth = 'Basic ' + Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')
 	/** @type {Response} */
@@ -1118,8 +1119,21 @@ async function exportProjectFeatureFiles(repoId) {
 	});
 }
 
+/**
+ * validates Github username and reponame
+ * @param {string} userName 
+ * @param {string} repoName 
+ * @returns boolean, true if they are valid
+ */
+function checkValidGithub(userName, repoName) {
+	const githubUsernameCheck = new RegExp(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i) // https://github.com/shinnn/github-username-regex
+	const githubReponameCheck = new RegExp(/^([a-z\d._-]){0,100}$/i)
+	return !!(githubUsernameCheck.test(userName.toString()) && githubReponameCheck.test(repoName.toString()));// !! 
+}
+
 
 module.exports = {
+	checkValidGithub,
 	getReportHistory,
 	uniqueRepositories,
 	jiraProjects,

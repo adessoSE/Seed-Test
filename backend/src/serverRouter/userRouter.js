@@ -224,10 +224,7 @@ router.get('/stories', async (req, res) => {
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
-		const githubUsernameCheck = new RegExp(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i) // https://github.com/shinnn/github-username-regex
-		const githubReponameCheck = new RegExp(/^([a-z\d._-]){0,100}$/i)
-		if(!githubUsernameCheck.test(req.query.githubName.toString())) res.send("invalid Github username").status(400);
-		else if(!githubReponameCheck.test(req.query.repository.toString())) res.send("invalid Github Repositoryname").status(400);
+		if(!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log("Username or Reponame not valid");
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
