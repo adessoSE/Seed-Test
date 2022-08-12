@@ -15,7 +15,7 @@ export class RenameBackgroundComponent{
 
   @ViewChild('renameBackground') renameBackground: RenameBackgroundComponent;
 
-  backgroundTitle = new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]);
+  backgroundTitle = new FormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 

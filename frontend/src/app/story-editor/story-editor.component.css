@@ -208,6 +208,7 @@
   .storyHeaderContainer{
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
+    padding-right: 40px;
   }
 
   /* .def {
@@ -757,4 +758,8 @@ button#background_up {
 
 .uk-inline {
   position: unset;
+}
+
+.backgroundTitle {
+  flex-grow: .5;
 }

@@ -49,16 +49,17 @@
 
       </div>
       <span *ngIf="!this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase }}</span>
-      <span *ngIf="this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
-      <div *ngIf="db">
+      <div *ngIf="db" style="flex-grow: .5;">
+        <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
         <button class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip
         title="Change Story Title">
-        <em class="material-icons">edit</em>
+          <em class="material-icons">edit</em>
+        </button>
+      </div>
+      <button id= "story_delete" class= "storyTitle" (click)= showDeleteStoryToast($event) uk-tooltip="Delete Story">
+        <em class="material-icons">delete</em> 
       </button>
-    <button id= "story_delete" class= "storyTitle" (click)= showDeleteStoryToast($event) uk-tooltip="Delete Story">
-    <em class="material-icons">delete</em> </button>
-  </div>
     </div>
     <!--Description-->
     <br>
@@ -87,13 +88,15 @@
       </mat-expansion-panel>
       <mat-expansion-panel (opened)="showBackground = true"
                            (closed)="showBackground = false">
-        <mat-expansion-panel-header>
-          <span class="MediumHeadline5"> {{selectedStory.background.name | titlecase}}</span>
-          <dev>
+        <mat-expansion-panel-header>  
+          <dev class="backgroundTitle">
+            <span class="MediumHeadline5"> {{selectedStory.background.name | titlecase}}</span>
             <button class="storyTitle" (click)="changeBackgroundTitle();" data-uk-tooltip
             title="Change Background Title">
               <em class="material-icons" id="story_change_title">edit</em>
             </button>
+          </dev>
+          <dev>
             <button id="saveButton" class="storyTitle" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
               title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
               (click)="updateBackground();">
