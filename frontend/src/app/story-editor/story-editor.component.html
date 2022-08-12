@@ -119,7 +119,7 @@
         </mat-expansion-panel-header>
         <div class="scenarioBarContainer">
           <div class="actionBarButtonGroup">
-            <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps"/>
+            <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps(null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps"/>
             <div [class.disabled]="!this.activeActionBar">
               <button id="{{'background_addBlock_step_}}"
               class="actionButton" uk-tooltip title="Save Steps as Block"
@@ -177,7 +177,7 @@
                 <div class="dragIconContainer" cdkDragHandle>
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
-                <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
+                <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep(currentStep, null)" [checked]="currentStep.checked">
                 {{j+1}}. {{currentStep.pre}}
                 <div style="display:inline" *ngIf="currentStep.values.length > 0">
                   <input appResizeInput class="background" id="{{'background_step_input_pre' + j}}" #step_type_input
