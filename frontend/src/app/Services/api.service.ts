@@ -129,7 +129,7 @@ export class ApiService {
 
     public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
 
-    public renameBackgroundEvent: EventEmitter<String> = new EventEmitter();
+    public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
  
 
     /**
