@@ -15,7 +15,7 @@ const environment = '../frontend/src/environments/environment';
 // Serve only the static files form the dist directory
 app.use(express.static(ngPath));
 
-app.get('/backendInfo', (req, res) => {
+app.get('/backendInfo', (_, res) => {
   res.json({
     url: process.env.API_SERVER,
     clientId: process.env.GITHUB_CLIENT_ID,
@@ -25,7 +25,7 @@ app.get('/backendInfo', (req, res) => {
   });
 });
 
-app.get('/*', (req, res) => {
+app.get('/*', (_, res) => {
   res.sendFile(path.join(ngPath, 'index.html'));
 });
 

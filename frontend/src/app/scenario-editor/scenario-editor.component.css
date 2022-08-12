@@ -78,6 +78,11 @@ em.dragIcon{
   padding-right: 770px;
 } */
 
+.infoIcon{
+  vertical-align: text-bottom;
+  padding-top: 0px !important;
+}
+
 /* #infoIconScenario{
   color: #999;
   margin-left: 5px;
@@ -218,14 +223,19 @@ em.dragIcon{
   margin-right: 2px;
 }
 
-.scenarioTitle > em{
+.darkTheme, .scenarioTitle {
+  background: transparent;
+}
+
+.scenarioTitle > em {
   color:  var(--ocean-blue);
-  font-size: 20px;
+  font-size: 24px;
   transform: translate(0px, 3px)
 }
 
-#scenario_change_title {
-  margin: 0px 3px;
+#scenario_change_title > em {
+  font-size: 24px;
+  margin: 0px 5px;
 }
 
 .scenarioButton_unsaved em{

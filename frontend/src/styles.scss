@@ -769,6 +769,9 @@ div.notPassed{
   background: #546E7A;
   color: var(--light-blue);
 }
+#static{
+  position: static;
+}
 
 .darkTheme select, .darkTheme input, .darkTheme textarea {
   background: transparent;

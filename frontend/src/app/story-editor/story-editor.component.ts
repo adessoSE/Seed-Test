@@ -347,7 +347,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
             this.storyDeleted();
         });
 
-        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(errorCode => {
+        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(_ => {
             this.storiesError = true;
             this.showEditor = false;
 
@@ -371,7 +371,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
         this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
             if (block[0] === 'background') {
                 block = block[1];
-                Object.keys(block.stepDefinitions).forEach((key, index) => {
+                Object.keys(block.stepDefinitions).forEach((key, _) => {
                     if (key === 'when') {
                         block.stepDefinitions[key].forEach((step: StepType) => {
                         this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
@@ -435,7 +435,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      * Opens add block modal
      * @param event
      */
-    addBlock(event) {
+    addBlock() {
         this.addBlockModal.openAddBlockFormModal('background', localStorage.getItem('id'));
     }
 
@@ -492,7 +492,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
             });
     }
 
-    setOneDriver(event) {
+    setOneDriver() {
         this.apiService
         .changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
         .subscribe((resp: any) => {
@@ -505,7 +505,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      * @param event
      * @param checkValue
      */
-    checkAllSteps(event, checkValue: boolean) {
+    checkAllSteps(checkValue: boolean) {
         if (checkValue != null) {
             this.allChecked = checkValue;
         } else {
@@ -514,7 +514,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
         if (this.allChecked) {
             for (const prop in this.selectedStory.background.stepDefinitions) {
                 for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], true);
+                    this.checkStep(this.selectedStory.background.stepDefinitions[prop][i], true);
                 }
             }
             this.activeActionBar = true;
@@ -522,7 +522,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
         } else {
             for (const prop in this.selectedStory.background.stepDefinitions) {
                 for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(null, this.selectedStory.background.stepDefinitions[prop][i], false);
+                    this.checkStep(this.selectedStory.background.stepDefinitions[prop][i], false);
                 }
             }
             this.activeActionBar = false;
@@ -532,11 +532,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
 
     /**
      * Checks one step in the checkbox
-     * @param event
      * @param step
      * @param checkValue
      */
-    checkStep(event, step, checkValue: boolean) {
+    checkStep(step, checkValue: boolean) {
         if (checkValue != null) {
             step.checked = checkValue;
         } else {
@@ -597,7 +596,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
    * Opens the delete scenario toast
    * @param scenario
    */
-  showDeleteScenarioToast(scenario: Scenario) {
+  showDeleteScenarioToast() {
     this.toastr.warning('', 'Do you really want to delete this scenario?', {
         toastComponent: DeleteScenarioToast
     });
@@ -610,7 +609,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
   deleteScenario(scenario: Scenario) {
     this.apiService
         .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
-        .subscribe(resp => {
+        .subscribe(_ => {
             this.scenarioDeleted();
             this.toastr.error('', 'Scenario deleted');
         });
@@ -668,7 +667,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     this.allChecked = false;
     this.activeActionBar = false;
 
-    Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, index) => {
+    Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
         this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
             delete step.checked;
             if (step.outdated) {
@@ -678,7 +677,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     });
       this.apiService
           .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
-          .subscribe(resp => {
+          .subscribe(_ => {
             this.toastr.success('successfully saved', 'Background');
             if (this.saveBackgroundAndRun) {
                 this.apiService.runSaveOption('saveScenario');
@@ -692,8 +691,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
    */
   deleteBackground() {
       this.apiService
-          .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
-          .subscribe(resp => {
+          .deleteBackground(this.selectedStory.story_id, this.selectedStory.storySource)
+          .subscribe(_ => {
                 this.showBackground = false;
                 this.selectedStory.background = emptyBackground;
                 this.selectedStory.background.saved = false;
@@ -712,11 +711,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
    * @param storyID
    * @param step
    */
-  addStepToBackground(storyID: string, step: StepType) {
+  addStepToBackground(step: StepType) {
       const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions);
       if (newStep.stepType == 'when') {
             this.selectedStory.background.stepDefinitions.when.push(newStep);
-            var lastEl = this.selectedStory.background.stepDefinitions.when.length-1;
+            const lastEl = this.selectedStory.background.stepDefinitions.when.length-1;
             this.lastToFocus = 'background_step_input_pre'+ lastEl;
       }
       this.selectedStory.background.saved = false;
@@ -813,9 +812,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
 
     /**
      * Save the block background
-     * @param event
+     *
      */
-    saveBlockBackground(event) {
+    saveBlockBackground() {
         const saveBlock: any = {when: []};
         for (const prop in this.selectedStory.background.stepDefinitions) {
             for (const s in this.selectedStory.background.stepDefinitions[prop]) {
@@ -854,8 +853,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      * Insert a block to the background
      */
     insertCopiedBlock() {
-        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
-            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, _i) => {
                 this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
         });
@@ -947,7 +946,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
    * @param event
    * @param newTime
    */
-    setStepWaitTime(event, newTime) {
+    setStepWaitTime(newTime) {
         if (this.selectedScenario) {
             this.selectedScenario.stepWaitTime = newTime;
             this.selectedScenario.saved = false;
@@ -956,10 +955,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
 
     /**
      * Set the browser
-     * @param event
      * @param newBrowser
      */
-    setBrowser(event, newBrowser) {
+    setBrowser(newBrowser) {
         this.selectedScenario.browser = newBrowser;
         this.selectedScenario.saved = false;
     }
@@ -998,7 +996,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
   */
     unsaveReport(reportId) {
         this.reportIsSaved = false;
-        return new Promise<void>((resolve, reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.apiService
         .unsaveReport(reportId)
         .subscribe(_resp => {
           resolve();
@@ -1012,7 +1010,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
    */
     saveReport(reportId) {
         this.reportIsSaved = true;
-        return new Promise<void>((resolve, reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.apiService
         .saveReport(reportId)
       . subscribe(_resp => {
             resolve();
@@ -1070,7 +1068,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
    * Opens the delete story toast
    * @param story
    */
-    showDeleteStoryToast(story: Story) {
+    showDeleteStoryToast() {
         this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
             toastComponent: DeleteStoryToast
         });
@@ -1087,9 +1085,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
 
   /**
      * Emitts the delete story event
-     * @param event
+     *
      */
-    deleteStory(event) {
+    deleteStory() {
         this.deleteStoryEvent.emit(this.selectedStory);
     }
 
