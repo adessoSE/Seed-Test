@@ -45,7 +45,7 @@ export class NewExampleComponent{
     openNewExampleModal(selectedScenario, step: StepType) {
       this.selectedScenario = selectedScenario;
       this.step = step;
-      this.exampleNames = this.selectedScenario.stepDefinitions.example[0].values
+      this.exampleNames = (this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length > 0)? this.selectedScenario.stepDefinitions.example[0].values : []
       this.modalReference = this.modalService.open(this.newExampleModal, {ariaLabelledBy: 'modal-basic-title'});
     }
 
