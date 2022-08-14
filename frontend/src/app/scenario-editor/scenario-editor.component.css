@@ -430,3 +430,11 @@ table {
 .exampleList ::ng-deep .mat-form-field-underline{
   bottom: 0px !important;
 }
+
+.exampleList ::ng-deep .mat-select-value{
+  color: var(--ocean-blue) !important;
+  font-weight: bold !important;
+}
+.exampleListOption {
+  font-weight: bold !important;
+}

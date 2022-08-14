@@ -87,15 +87,18 @@
           <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
           <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
           <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
-          <div *ngIf="sd == 'example'"> Example (Cases)
-            <!--<dfn *ngIf="sd == 'example'" class="def"><span id="infoIcon" uk-icon="info"></span>
+          <div *ngIf="sd == 'example'"> Multiple Scenarios
+            <dfn *ngIf="sd == 'example'" class="def"><span id="infoIcon" uk-icon="info"></span>
               <span rel="def">
+                Define multiple Values in your Steps, to run a Scenario with the same Steps multiple times, but with different Data. Each line in the following Table, results in a separate Scenario.
+              </span>
+              <!--span rel="def">
                 For using examples, you have to create placeholders in your Given/When/Then-Steps.
                 You can assign values to the placeholders, which will be used instead of them.
                 You can assign more than one value. If there is more than one value assigned,
                 the whole test will be run as often as there is a value that hasn't been used once.
                 Each test case created by this will be carried out individually and independent.
-              </span></dfn>-->
+              </span--></dfn>
           </div>
           <button *ngIf="sd != 'example'" id="{{'scenario_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
            title="Add New Step" uk-tooltip>
@@ -147,7 +150,7 @@
                   <div *ngIf="currentStep.isExample[0] == true" style="display: flex; padding-right: 1px;">
                     <mat-form-field appearance="standard" class="exampleList">
                       <mat-select [ngModel]="currentStep.values[0] | slice:1:-1" (selectionChange)="addToValues($event.value,currentStep.stepType,currentStep, j, 0)" placeholder="Choose Example" style="padding-left: 5px;">
-                        <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" style="padding-left: 5px;">
+                        <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" style="padding-left: 5px;" class="exampleListOption">
                           {{exampleList}}
                         </mat-option>
                       </mat-select>
@@ -179,7 +182,7 @@
                     <div *ngIf="currentStep.isExample[1] == true" style="display: flex; padding-right: 1px;">
                       <mat-form-field appearance="standard" class="exampleList">
                         <mat-select [ngModel]="currentStep.values[1] | slice:1:-1" (selectionChange)="addToValues($event.value,currentStep.stepType,currentStep, j, 1)" placeholder="Choose Example" style="padding-left: 5px;">
-                          <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList">
+                          <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" class="exampleListOption">
                             {{exampleList}}
                           </mat-option>
                         </mat-select>
@@ -191,6 +194,12 @@
                     <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input',currentStep.stepType,currentStep, j, 1)">
                       &nbsp;<em class="material-icons" id="inputExampleIcon">code_off</em>&nbsp;
                     </button>&nbsp;
+                    <!--span class="material-symbols-outlined">
+                      1x_mobiledata
+                      </span>
+                      <span class="material-symbols-outlined">
+                        voting_chip
+                        </span-->
                     <!--button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example',currentStep.stepType,currentStep, j, 1)">
                       &nbsp;<em class="material-icons" id="inputExampleIcon">edit_off</em>&nbsp;
                     </button>
