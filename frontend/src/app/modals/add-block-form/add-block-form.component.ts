@@ -7,7 +7,7 @@ import { StepType } from 'src/app/model/StepType';
 @Component({
   selector: 'app-add-block-form',
   templateUrl: './add-block-form.component.html',
-  styleUrls: ['./add-block-form.component.css']
+  styleUrls: ['./add-block-form.component.css', '../layout-modal/layout-modal.component.css']
 })
 export class AddBlockFormComponent {
 
@@ -62,7 +62,13 @@ export class AddBlockFormComponent {
       this.getAllBlocks(repoId);
       this.correspondingComponent = correspondingComponent;
       this.modalReference = this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
-      this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+      if (this.correspondingComponent == 'background') {
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('backgroundBlock'));
+      } else if (this.correspondingComponent == 'scenario') {
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('scenarioBlock'));
+      }
+
+      
     }
 
   /**

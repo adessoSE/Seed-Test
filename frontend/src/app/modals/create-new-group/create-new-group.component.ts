@@ -11,7 +11,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-create-new-group',
   templateUrl: './create-new-group.component.html',
-  styleUrls: ['./create-new-group.component.css']
+  styleUrls: ['./create-new-group.component.css',  '../layout-modal/layout-modal.component.css']
 })
 export class CreateNewGroupComponent {
 

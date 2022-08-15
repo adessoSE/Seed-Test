@@ -10,7 +10,7 @@ import { FormGroup, FormControl} from '@angular/forms';
 @Component({
   selector: 'app-create-new-story',
   templateUrl: './create-new-story.component.html',
-  styleUrls: ['./create-new-story.component.css']
+  styleUrls: ['./create-new-story.component.css',  '../layout-modal/layout-modal.component.css']
 })
 export class CreateNewStoryComponent {
 

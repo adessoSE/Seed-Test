@@ -52,6 +52,16 @@ table {
     text-align: center;
 }
 
+td.mat-cell {
+    text-align: start;
+    padding: 5px;
+}
+
+th.mat-header-cell {
+    text-align: start;
+    padding: 5px;
+}
+
 td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
     padding-right: 0px;
 }

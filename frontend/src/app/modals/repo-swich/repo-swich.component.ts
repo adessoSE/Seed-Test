@@ -8,7 +8,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-repo-swich',
   templateUrl: './repo-swich.component.html',
-  styleUrls: ['./repo-swich.component.css']
+  styleUrls: ['./repo-swich.component.css',  '../layout-modal/layout-modal.component.css']
 })
 export class RepoSwichComponent implements OnInit {
 

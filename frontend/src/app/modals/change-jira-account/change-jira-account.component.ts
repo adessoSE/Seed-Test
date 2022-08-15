@@ -7,7 +7,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-change-jira-account',
   templateUrl: './change-jira-account.component.html',
-  styleUrls: ['./change-jira-account.component.css']
+  styleUrls: ['./change-jira-account.component.css',  '../layout-modal/layout-modal.component.css']
 })
 export class ChangeJiraAccountComponent {
 
