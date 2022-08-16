@@ -218,8 +218,9 @@ em.dragIcon{
 }
 
 .scenarioTitle{
-  background: var(--white);
+  background: transparent;
   border: none;
+  margin-right: 2px;
 }
 
 .darkTheme, .scenarioTitle {

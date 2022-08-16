@@ -70,6 +70,7 @@ import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
 import { ResizeInputDirective } from './resize-input.directive';
+import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 
 @NgModule({
   declarations: [
@@ -116,6 +117,7 @@ import { ResizeInputDirective } from './resize-input.directive';
     RepoSwichComponent,
     CreateScenarioComponent,
     ResizeInputDirective,
+    RenameBackgroundComponent,
   ],
   imports: [
     NgbModule,

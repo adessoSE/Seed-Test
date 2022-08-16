@@ -129,6 +129,8 @@ export class ApiService {
 
     public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
 
+    public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
+ 
 
     /**
      * Gets api headers
@@ -208,6 +210,11 @@ export class ApiService {
      renameStoryEmit(newStoryTitle, newStoryDescription) {
         const val = {newStoryTitle, newStoryDescription};
         this.renameStoryEvent.emit(val);
+    }
+
+    renameBackgroundEmit(newBackgroundName) {
+        const val = newBackgroundName;
+        this.renameBackgroundEvent.emit(val);
     }
 
     /**

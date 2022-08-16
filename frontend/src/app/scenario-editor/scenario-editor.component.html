@@ -21,9 +21,9 @@
           <em class="material-icons">keyboard_arrow_left</em>
           </button>
           <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5"># {{selectedScenario.name | titlecase}}</span>
-          <button id="scenario_change_title" class="scenarioTitle" (click)="changeScenarioTitle();" data-uk-tooltip
+          <button class="scenarioTitle" (click)="changeScenarioTitle();" data-uk-tooltip
           title="Change Scenario Title">
-          <em class="material-icons">edit</em>
+          <em class="material-icons" id="scenario_change_title">edit</em>
           </button>
 
           <button id="scenario_shift_right" class="scenarioTitle" *ngIf="!arrowRight" data-uk-tooltip
@@ -35,12 +35,12 @@
           <button id="new_scenario scenario_change_title" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
             <em class="material-icons">add</em>
             </button>
-            <button id="scenario_change_title" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
+            <button [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
             title="Save Scenario" [ngClass]="{'scenarioButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
             (click)="updateScenario();">
-            <em class="material-icons">save</em>
+            <em class="material-icons" id="scenario_change_title">save</em>
             </button>
-            <button id="scenario_change_title" [class.disabled]="testRunning" [disabled]="testRunning"
+            <button [class.disabled]="testRunning" [disabled]="testRunning"
             class="scenarioTitle" data-uk-tooltip title="Delete Scenario"
             (click)="deleteScenario();">
             <em class="material-icons">delete</em>

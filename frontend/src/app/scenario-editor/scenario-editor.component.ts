@@ -171,7 +171,6 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
      * View child of the example table
      */
     @ViewChild('exampleChildView') exampleChild: ExampleTableComponent;
-
     @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
     @ViewChildren('checkbox') checkboxes: QueryList<ElementRef>;
 
