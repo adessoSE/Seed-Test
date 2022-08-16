@@ -689,15 +689,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
   /**
    * deletes the background
    */
-  deleteBackground() {
+    deleteBackground() {
       this.apiService
-          .deleteBackground(this.selectedStory.story_id, this.selectedStory.storySource)
+          .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
           .subscribe(_ => {
                 this.showBackground = false;
                 this.selectedStory.background = emptyBackground;
                 this.selectedStory.background.saved = false;
           });
-  }
+    }
 
   /**
    * Opens the background
