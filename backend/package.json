@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "jest",
+    "test-coverage": "jest --coverage",
     "database": "node src/database/installDatabase.js",
     "clean": "rimraf ./dist",
     "tsc": "tsc",

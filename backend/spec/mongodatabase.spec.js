@@ -289,11 +289,17 @@ describe('Mongodatabase', () => {
     })
 
     it('creates a Workgroup', async() => {
-      await mongo.addMember(repoId, user)
+      const wg = await mongo.addMember(repoId, user)
       .then((res)=>{
         console.log("workgroup", res)
         expect(res.member.find((it)=>it.email === user.email)).toBeTruthy()
-      });
+        return res;
+      })
+      await mongo.getMembers(repoId)
+      .then((res)=>{
+        expect(res).toEqual(wg)
+      })
+      
     })
 
     it('removes a member from Workgroup', async() => {
@@ -307,7 +313,7 @@ describe('Mongodatabase', () => {
     afterEach(async()=>{
       mongo.deleteRepository(repoId, ownerId)
       await mongo.deleteUser(ownerId.toString())
-      // currently no way to cleanup(delete) workgroups
+      // currently no way to cleanup/delete workgroups
     })
   })
 
