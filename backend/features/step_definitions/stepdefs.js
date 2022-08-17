@@ -237,7 +237,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	
 	const promises = []
 	for(const idString of identifiers){
-		promises.push( driver.wait(until.elementLocated((By.xpath(idString))), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
+		promises.push( driver.wait(until.elementLocated((By.xpath(idString))), searchTimeout, 100) )
 	}
 	await Promise.any(promises)
 	.then((elem) => {
