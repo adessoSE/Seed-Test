@@ -991,6 +991,7 @@ function renderComment(
 
 async function postCommentGitHub(issueNumber, comment, githubName, githubRepo, password) {
 	if(!checkValidGithub(githubName, githubRepo))return
+	if(!(new RegExp(/^\d+$/)).test(issueNumber))return
 	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
 	const auth = 'Basic ' + Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')
 	/** @type {Response} */
