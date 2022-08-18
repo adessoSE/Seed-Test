@@ -299,6 +299,11 @@ describe('Mongodatabase', () => {
       .then((res)=>{
         expect(res).toEqual(wg)
       })
+      user.canEdit = true
+      await mongo.updateMemberStatus(repoId, user)
+      .then((res)=>{
+        expect(res.member.find((it)=>it.email === user.email).canEdit).toBe(true)
+      })
       
     })
 
