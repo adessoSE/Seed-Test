@@ -193,7 +193,8 @@ export class AppComponent implements OnInit{
    */
   logout() {
     this.repositories = undefined;
-    this.apiService.logoutUser().subscribe(resp => {
+    this.apiService.logoutUser().subscribe(_ => {
+      //
     });
     this.router.navigate(['/login']);
   }

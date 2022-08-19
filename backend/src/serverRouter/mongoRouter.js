@@ -29,7 +29,6 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		// console.log(_.url + JSON.stringify(_.user));
 		console.log('Time of mongoDB request:', Date.now());
 		next();
 	});
@@ -144,7 +143,7 @@ router.post('/updateBlock/:name', async (req, res) => {
 
 router.get('/getBlocks/:repoId', async (req, res) => {
 	try {
-		const result = await mongo.getBlocks(req.user._id, req.params.repoId);
+		const result = await mongo.getBlocks(req.params.repoId);
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);

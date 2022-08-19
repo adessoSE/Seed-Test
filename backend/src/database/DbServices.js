@@ -536,7 +536,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 	}
 }
 
-async function updateScenarioList(storyId, source, scenarioList) {
+async function updateScenarioList(storyId, scenarioList) {
 	try {
 		const db = dbConnection.getConnection();
 		return await db.collection(storiesCollection).findOneAndUpdate({ _id: ObjectId(storyId) }, { $set: { scenarios: scenarioList } });
@@ -546,7 +546,7 @@ async function updateScenarioList(storyId, source, scenarioList) {
 	}
 }
 
-async function getAllStoriesOfRepo(ownerId, repoName, repoId) { // TODO: remove ownerId and repoName
+async function getAllStoriesOfRepo( repoId) {
 	const storiesArray = [];
 	try {
 		const db = dbConnection.getConnection();
@@ -991,12 +991,14 @@ async function uploadReport(reportResults) {
 	const db = dbConnection.getConnection();
 	const collection = await db.collection(ReportDataCollection);
 	fs.readFile(reportResults.reportOptions.jsonFile, 'utf8', async (err, data) => {
+		if(err)console.log(err)
+
 		const jReport = { jsonReport: data };
 		const len = Buffer.byteLength(JSON.stringify(data));
 		if (len >= 16000000) {
 			try {
 				reportData.bigReport = await uploadBigJsonData(jReport, reportResults.storyId);
-				console.log('ObjectID: of Big Report in UplaodReport: ', reportData.bigReport);
+				console.log('ObjectID: of Big Report in UploadReport: ', reportData.bigReport);
 				collection.insertOne(reportData);
 			} catch (e) {
 				console.log('ERROR in uploadReport', e);
@@ -1145,7 +1147,7 @@ async function updateBlock(name, updatedBlock) {
 }
 
 // get all Blocks by Id returns Array with all existing CustomBlocks
-async function getBlocks(userId, repoId) {
+async function getBlocks(repoId) {
 	try {
 		const db = dbConnection.getConnection();
 		return await db.collection(CustomBlocksCollection).find({ repositoryId: ObjectId(repoId) })

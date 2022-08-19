@@ -100,7 +100,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
  */
   createStepList() {
     this.stepListSaveBlock = [];
-    Object.keys(this.block.stepDefinitions).forEach((key, index) => {
+    Object.keys(this.block.stepDefinitions).forEach((key, _) => {
         this.block.stepDefinitions[key].forEach((step: StepType) => {
             this.stepListSaveBlock.push(step);
         });
@@ -109,9 +109,9 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
 /**
  * Checks if an example is contained in the step list
- * @param event
+ * 
  */
-  exampleCheck(event) {
+  exampleCheck() {
     this.exampleChecked = !this.exampleChecked;
     if (this.exampleChecked) {
         this.stepListComplete = JSON.parse(JSON.stringify(this.stepListSaveBlock));
@@ -128,9 +128,9 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
  */
   submitSaveBlock(form: NgForm) {
     if (this.exampleBlock) {
-        this.parentComponent.checkAllExampleSteps(null, false);
+        this.parentComponent.checkAllExampleSteps(false);
     } else {
-        this.parentComponent.checkAllSteps(null, false);
+        this.parentComponent.checkAllSteps(false);
     }
     let title = form.value.blockNameInput;
     if (title.trim() === '') {

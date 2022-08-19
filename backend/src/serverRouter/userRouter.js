@@ -224,6 +224,8 @@ router.get('/stories', async (req, res) => {
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
+		if(!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log("Username or Reponame not valid");
+
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
 		const token = (req.user) ? req.user.github.githubToken : process.env.TESTACCOUNT_TOKEN;
@@ -344,7 +346,7 @@ router.get('/stories', async (req, res) => {
 
 		// get DB Repo / Projects
 	} else if (source === 'db' && typeof req.user !== 'undefined' && req.query.repoName !== 'null') {
-		const result = await mongo.getAllStoriesOfRepo(req.user._id, req.query.repoName, req.query.id);
+		const result = await mongo.getAllStoriesOfRepo(req.query.id);
 		res.status(200).json(result);
 	} else res.sendStatus(401);
 

@@ -1,26 +1,41 @@
+const os = require('os');
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
-const webdriver = require('selenium-webdriver');
+const webdriver = require('../../node_modules/selenium-webdriver');
 const fs = require('fs');
-const { By, until, Key } = require('selenium-webdriver');
+const { By, until, Key } = require('../../node_modules/selenium-webdriver');
 const { expect } = require('chai');
 require('geckodriver');
-const firefox = require('selenium-webdriver/firefox');
-const chrome = require('selenium-webdriver/chrome');
+const firefox = require('../../node_modules/selenium-webdriver/firefox');
+const chrome = require('../../node_modules/selenium-webdriver/chrome');
+const edge = require('../../node_modules/selenium-webdriver/edge');
 
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
-// if (process.env.NODE_ENV) {
-// chromeOptions.addArguments('--headless');
-// }
+const edgeOptions = new edge.Options();
+
+if (!os.platform().includes('win')) {
+	chromeOptions.addArguments('--headless');
+	chromeOptions.addArguments('--no-sandbox');
+	firefoxOptions.addArguments('--headless');
+	edgeOptions.addArguments('--headless');
+	edgeOptions.addArguments('--no-sandbox');
+}
+
 chromeOptions.addArguments('--disable-dev-shm-usage');
 // chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
-chromeOptions.addArguments('--excludeSwitches=enable-logging')
+chromeOptions.addArguments('--excludeSwitches=enable-logging');
+
+edgeOptions.addArguments('--disable-dev-shm-usage');
+edgeOptions.addArguments('--ignore-certificate-errors');
+edgeOptions.addArguments('--start-maximized');
+edgeOptions.addArguments('--lang=de');
+edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -31,7 +46,6 @@ function CustomWorld({ attach, parameters }) {
 }
 let scenarioIndex = 0;
 let testLength;
-
 const searchTimeout = 15000
 
 setWorldConstructor(CustomWorld);
@@ -44,6 +58,7 @@ defineParameterType({
 	regexp: /true|false/,
 	transformer: (b) => (b === 'true')
 });
+
 
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
@@ -60,14 +75,14 @@ Before(async function () {
 			}
 		}
 	} else {
-
 		driver = new webdriver.Builder()
 			.forBrowser(currentParameters.browser)
 			.setChromeOptions(chromeOptions)
+			.setFirefoxOptions(firefoxOptions)
+			.setEdgeOptions(edgeOptions)
 			.build();
 	}
 });
-
 
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
@@ -467,15 +482,19 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
 	const world = this;
 
-	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`, `${label}`]
+	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`,
+						`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`]
 	const promises = []
 	for(const idString of identifiers){
 		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 	}
 	await Promise.any(promises)
 	.then(async (elem) => {
-		const resp = await elem.getText().then((text) => text);
-		expect(expectedText).to.equal(resp, 'Textfield does not match the string');
+		let resp = await elem.getText().then((text) => text);
+		if (resp == '') {
+			resp = await elem.getAttribute("outerHTML");
+		}
+		expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
 	})
 	.catch(async (e) => {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -608,19 +627,13 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 After(async () => {
 	if (currentParameters.oneDriver) {
 		scenarioIndex += 1;
+		await driver.sleep(500);
 		if (scenarioIndex === testLength) {
-			// Without Timeout driver quit is happening too quickly. Need a better solution
-			// https://github.com/SeleniumHQ/selenium/issues/5560
-			const condition = until.elementLocated(By.name('loader'));
-			driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
 			await driver.quit();
 		}
 	} else {
 		scenarioIndex += 1;
-		// Without Timeout driver quit is happening too quickly. Need a better solution
-		// https://github.com/SeleniumHQ/selenium/issues/5560
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+		await driver.sleep(500);
 		await driver.quit();
 	}
 });

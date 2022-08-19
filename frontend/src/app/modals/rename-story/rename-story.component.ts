@@ -19,7 +19,7 @@ export class RenameStoryComponent {
   stories: Story[];
   storytitle: string;
   storyForm = new FormGroup ({
-    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
     storyDescription: new FormControl(''),
   });
 

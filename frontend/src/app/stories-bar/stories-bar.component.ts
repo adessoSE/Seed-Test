@@ -201,7 +201,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createStoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
-            this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(respp => {
+            this.apiService.createStory(custom.story.title, custom.story.description, custom.repositoryContainer.value, custom.repositoryContainer._id).subscribe(_ => {
                 this.apiService.getStories(custom.repositoryContainer).subscribe((resp: Story[]) => {
                     this.stories = resp.filter(s => s != null);
                     this.filteredStories = this.stories;
@@ -212,7 +212,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.createGroupEmitter = this.apiService.createCustomGroupEmitter.subscribe(custom => {
-            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.isSequential).subscribe(respp => {
+            this.apiService.createGroup(custom.group.title, custom.repositoryContainer._id, custom.group.member_stories, custom.group.isSequential).subscribe(_ => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                     this.filteredGroups = this.groups;
@@ -228,14 +228,14 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             });
         });
         this.updateGroupEmitter = this.apiService.updateGroupEmitter.subscribe(custom => {
-            this.apiService.updateGroup(custom.repositoryContainer._id, custom.group._id, custom.group).subscribe(respp => {
+            this.apiService.updateGroup(custom.repositoryContainer._id, custom.group._id, custom.group).subscribe(_ => {
                 this.apiService.getGroups(custom.repositoryContainer._id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                 });
             });
         });
         this.deleteGroupEmitter = this.apiService.deleteGroupEmitter.subscribe(custom => {
-            this.apiService.deleteGroup(custom.repo_id, custom.group_id).subscribe(respp => {
+            this.apiService.deleteGroup(custom.repo_id, custom.group_id).subscribe(_ => {
                 this.apiService.getGroups(custom.repo_id).subscribe((resp: Group[]) => {
                     this.groups = resp;
                 });
@@ -243,7 +243,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.isDark = this.themeService.isDarkMode();
-        this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
             this.isDark = this.themeService.isDarkMode();
         });
 
@@ -427,10 +427,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     dropStory(event: CdkDragDrop<string[]>) {
-        const source = localStorage.getItem('source');
         const repo_id = localStorage.getItem('id');
         moveItemInArray(this.stories, event.previousIndex, event.currentIndex);
-        this.apiService.updateStoryList(repo_id, source, this.stories.map(s => s._id)).subscribe(ret => {
+        this.apiService.updateStoryList(repo_id, this.stories.map(s => s._id)).subscribe(_ => {
             // console.log(ret)
         });
     }
@@ -439,7 +438,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         const source = localStorage.getItem('source');
         const index = this.stories.findIndex(o => o._id === s._id);
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-        this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(ret => {
+        this.apiService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(_ => {
             // console.log(ret)
         });
     }
@@ -462,7 +461,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
         const pass_gr = this.groups[index];
         pass_gr.member_stories = this.groups[index].member_stories.map(o => o._id);
-        this.apiService.updateGroup(repo_id, group._id, pass_gr).subscribe( ret => {
+        this.apiService.updateGroup(repo_id, group._id, pass_gr).subscribe(_ => {
             // console.log(ret)
         });
     }
@@ -476,7 +475,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     const repository = localStorage.getItem('id');
     { this.apiService
        .deleteStory(repository, this.selectedStory._id)
-       .subscribe(resp => {
+       .subscribe(_ => {
            this.storyDeleted();
            this.apiService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
@@ -620,10 +619,10 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.isFilterActive = false;
     }
 
-     bouncer(array: Story []) {
+    bouncer() {
         return this.stories.filter(function(stories) {
           return stories;
         });
-      }
+    }
 
 }
