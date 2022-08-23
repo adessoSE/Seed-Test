@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Injectable, Input, OnInit, Output, QueryList, TemplateRef, ViewChild, ViewChildren} from '@angular/core';
+import { Component, ElementRef, Input, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
@@ -10,18 +10,16 @@ import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import { StepType } from '../model/StepType';
 import { Story } from '../model/Story';
 
-
 @Component({
-  selector: 'app-editor-parent',
-  templateUrl: './editor-parent.component.html',
-  styleUrls: ['../story-editor/story-editor.component.css', './editor-parent.component.css']
-}) export class EditorParentComponent{
+  selector: 'app-base-editor',
+  templateUrl: './base-editor.component.html',
+  styleUrls: ['./base-editor.component.css']
+})
+export class BaseEditorComponent {
 
   @ViewChildren('step_type_input') step_type_input: QueryList<ElementRef>;
 
   @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
-
-  @ViewChildren ('checkbox') checkboxes: QueryList<ElementRef>;
 
   /**
     * View child of the modals component
@@ -29,15 +27,11 @@ import { Story } from '../model/Story';
   @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
   @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
 
-  protected templateName: string; 
+  @Input() selectedScenario: Scenario;
 
-  selectedScenario: Scenario;
+  @Input() selectedStory: Story;
 
-  selectedStory: Story;
-
-  originalStepTypes: StepType[];
-
-  showDaisy = false;
+  @Input() originalStepTypes: StepType[];
 
   /**
   * Name for a new step
@@ -45,12 +39,6 @@ import { Story } from '../model/Story';
   newStepName = 'New Step';
 
   lastToFocus;
-
-  /**
-  * List of all checkboxes
-  */
-  allCheckboxes;
-
 
   /**
   * If the action bar is active
@@ -77,11 +65,11 @@ import { Story } from '../model/Story';
     */
   public testRunning = false;
 
-  constructor(public toastr: ToastrService) {}
+  @Input() templateName: string;
 
-  ngOnInit() {
-    console.log(this.templateName);
-  }; 
+  @Input() showBackground;
+
+  constructor(public toastr: ToastrService) {}
 
   /**
     * retrieves the saved block from the session storage
@@ -99,16 +87,17 @@ import { Story } from '../model/Story';
       default:
         break;
     }
+    if(this.allChecked) {
+      this.checkAllSteps(this.templateName, this.allChecked);
+    }
   }
 
-  ngAfterViewInit(): void {
-        
+  ngAfterViewInit(): void {   
     this.step_type_input.changes.subscribe(_ => {
         this.step_type_input.forEach(in_field => {
-            
-            if ( in_field.nativeElement.id === this.lastToFocus) {
-                in_field.nativeElement.focus();
-            }
+          if ( in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();   
+          }
         });
         this.lastToFocus = '';
     }); 
@@ -120,10 +109,7 @@ import { Story } from '../model/Story';
       });
       this.lastToFocus = '';
     });
-    this.allCheckboxes = this.checkboxes;
-    this.checkboxes.changes.subscribe(_ => {
-      this.allCheckboxes = this.checkboxes;
-    });
+
   }
 
   /**
@@ -131,54 +117,53 @@ import { Story } from '../model/Story';
     * @param input
     * @param stepIndex
     * @param valueIndex
-    * @param step
+    * @param step Optional argument
     */
   addToValues(input: string, stepIndex: number, valueIndex: number, step?: StepType): void {}
   
   /**
-   * Adds step
-   * @param step 
-   * @param storyOrScenario 
-   * @param step_idx 
-   */
-  addStep(step: StepType, storyOrScenario:any, step_idx?: any) {
+    * Adds step
+    * @param step 
+    * @param storyOrScenario 
+    * @param templateName
+    * @param step_idx 
+    */
+  addStep(step: StepType, storyOrScenario:any, templateName, step_idx?: any) {
     let lastEl;
     let newStep;
-    if (this.templateName == 'background') {
+    if (templateName == 'background') {
       newStep = this.createNewStep(step, storyOrScenario.background.stepDefinitions);
     } 
     else {
-      newStep = this.createNewStep(step, storyOrScenario.stepDefinitions, this.templateName);
+      newStep = this.createNewStep(step, storyOrScenario.stepDefinitions);
     }
     switch (newStep.stepType) {
       case 'given':
-          storyOrScenario.stepDefinitions.given.push(newStep);
-          lastEl = storyOrScenario.stepDefinitions.given.length-1;
-          this.lastToFocus = this.templateName+'_'+step_idx+'_input_pre_'+ lastEl;
-          console.log(this.lastToFocus);
-          break;
+        storyOrScenario.stepDefinitions.given.push(newStep);
+        lastEl = storyOrScenario.stepDefinitions.given.length-1;
+        this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
+        break;
       case 'when':
-        switch (this.templateName) {
+        switch (templateName) {
           case 'scenario':
             storyOrScenario.stepDefinitions.when.push(newStep);
             lastEl = storyOrScenario.stepDefinitions.when.length-1;
-            this.lastToFocus = this.templateName+'_'+step_idx+'_input_pre_'+ lastEl;
-            console.log(this.lastToFocus);
+            this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
             break;
-            
+             
           case 'background':
             storyOrScenario.background.stepDefinitions.when.push(newStep);
             lastEl = storyOrScenario.background.stepDefinitions.when.length-1;
-            this.lastToFocus = this.templateName+'_step_input_pre'+ lastEl;
+            this.lastToFocus = templateName+'_step_input_pre_'+ lastEl;
             storyOrScenario.background.saved = false;
             break;
         }
         break;
-    
+     
       case 'then':
         storyOrScenario.stepDefinitions.then.push(newStep);
         lastEl = storyOrScenario.stepDefinitions.then.length-1;
-        this.lastToFocus = this.templateName+'_'+step_idx+'_input_pre_'+ lastEl;
+        this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
         break;
           //TODO
       case 'example':
@@ -187,18 +172,17 @@ import { Story } from '../model/Story';
       default:
         break;
     }
-    if (this.templateName === 'scenario') {
+    if (templateName === 'scenario') {
       storyOrScenario.saved = false;
-    }
-    
+    } 
   }
-
-  /**
-  * Creates a new step
-  * @param step
-  * @param stepDefinitions
-  * @returns
-  */
+ 
+   /**
+   * Creates a new step
+   * @param step
+   * @param stepDefinitions
+   * @returns
+   */
   createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground, stepType?: string): StepType {
     const obj = JSON.parse(JSON.stringify(step));
     const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
@@ -213,14 +197,15 @@ import { Story } from '../model/Story';
     };
     return newStep;
   }
+ 
+ 
+   /**
+   * Gets the last id in the steps
+   * @param stepDefs
+   * @param stepStepType
+   * @returns
+   */
 
-
-  /**
-  * Gets the last id in the steps
-  * @param stepDefs
-  * @param stepStepType
-  * @returns
-  */
   getLastIDinStep(stepDefs: any, stepStepType: string): number {
     switch (stepStepType) {
       case 'given':
@@ -233,12 +218,12 @@ import { Story } from '../model/Story';
         return this.buildID(stepDefs.example);
     }
   }
-
-  /**
-  * gets the id of the step
-  * @param step
-  * @returns
-  */
+ 
+   /**
+   * gets the id of the step
+   * @param step
+   * @returns
+   */
   buildID(step): number {
     if (step.length !== 0) {
       return step[step.length - 1].id;
@@ -246,7 +231,7 @@ import { Story } from '../model/Story';
       return 0;
     }
   }
-
+ 
   getKeysList(stepDefs: StepDefinition) {
     if (stepDefs != null) {
       return Object.keys(stepDefs);
@@ -254,11 +239,11 @@ import { Story } from '../model/Story';
       return '';
     }
   }
-
-  /**
-  * Sort the step types 
-  * @returns 
-  */
+ 
+   /**
+   * Sort the step types 
+   * @returns 
+   */
   sortedStepTypes() {
     if (this.originalStepTypes) {
       const sortedStepTypes =  this.originalStepTypes;
@@ -268,54 +253,42 @@ import { Story } from '../model/Story';
       return sortedStepTypes;
     }
   }
-
-  /**
-   * Gets the steps list
-   * @param stepDefs 
-   * @param i 
-   * @returns 
-   */
+ 
+   /**
+    * Gets the steps list
+    * @param stepDefs 
+    * @param i number of steptype
+    * @returns 
+    */
   getStepsList(stepDefs: StepDefinition, i?: number) {
-    if(this.templateName == 'background') {
-      return stepDefs.when;
+    switch (i) {
+      case 0:
+        return stepDefs.given;
+      case 1:
+        return stepDefs.when;
+      case 2:
+        return stepDefs.then;
     }
-    else {
-      switch (i) {
-        case 0:
-          return stepDefs.given;
-        case 1:
-          return stepDefs.when;
-        case 2:
-          return stepDefs.then;
-      }
-      return stepDefs.example;
-    }
+    return stepDefs.example;
   }
+ 
+  /** Dragging element methods */
 
-  //Dragging element methods
-
-
-  /**
-    * Drag and drop event for a step 
-    * @param event
-    * @param stepDefs
-    * @param stepIndex
-    */
-  
-  /**
-    * Drag and drop event for a step 
-    * @param event
-    * @param stepDefs
-    * @param stepIndex
-    */
-  
+   
+   /**
+     * Drag and drop event for a step 
+     * @param event
+     * @param stepDefs
+     * @param stepIndex
+     */
+   
   onDrop(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
     if (this.selectedCount(stepIndex) > 1) {
       var indices = event.item.data.indices;
       var change = event.currentIndex-event.previousIndex;
-
+ 
       let newList = []
-
+ 
       if (change > 0){
         let startOfList = this.getStepsList(stepDefs, stepIndex).slice(0, event.currentIndex+1)
         let middleOfList: StepType[] = []
@@ -340,27 +313,28 @@ import { Story } from '../model/Story';
         startOfList.push(...endOfListFiltered)
         newList = startOfList
       }
-      
+       
       if (stepIndex === 0) {
-          this.selectedScenario.stepDefinitions.given = newList
+        this.selectedScenario.stepDefinitions.given = newList
       } else if (stepIndex === 1) {
-          this.selectedScenario.stepDefinitions.when = newList
+        this.selectedScenario.stepDefinitions.when = newList
       } else if (stepIndex === 2) {
-          this.selectedScenario.stepDefinitions.then = newList
+        this.selectedScenario.stepDefinitions.then = newList
       }
-      
+       
     } else {
-        moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
+      moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
     }
     this.selectedScenario.saved = false;
   }
-
+ 
   /**
-     * Maps all selected steps to their index
-     * Sets dragging boolean
-     * @param event
-     * @param i 
-     */
+    * Maps all selected steps to their index
+    * Sets dragging boolean
+    * @param event
+    * @param i 
+    */
+
   dragStarted(event: CdkDragStart, i: number): void {
     this.dragging = event.source._dragRef;
     var indices = null;
@@ -383,22 +357,24 @@ import { Story } from '../model/Story';
       values: indices.map(a => a.index),
       source: this,
     };
-  } 
+  }
 
-
+ 
+ 
   /**
     * Sets dragging boolean
     */
-   dragEnded(): void {
-    this.dragging = null;
+  dragEnded(): void {
+     this.dragging = null;
   }
-
+ 
   /**
     * Checks if step is selected
     * @param i 
     * @param j 
     * @returns 
     */
+
   isSelected(i: number, j: number): any {
     if (i === 0) {
       return this.selectedScenario.stepDefinitions.given[j].checked;
@@ -409,13 +385,14 @@ import { Story } from '../model/Story';
     }
     return false;
   }
-
+ 
   /**
     * Returns count of all selected step from one stepDefinition
     * @param i 
     * @returns 
     */
-   selectedCount(i: number) {
+
+  selectedCount(i: number) {
     var counter = 0
     if (i === 0) {
         this.selectedScenario.stepDefinitions.given.forEach(element => { if(element.checked){counter++;} });
@@ -426,7 +403,7 @@ import { Story } from '../model/Story';
     }
     return counter;
   }
-
+ 
   /**
     * Check all steps
     * @param temp_name
@@ -434,7 +411,7 @@ import { Story } from '../model/Story';
     */
   checkAllSteps(temp_name, checkValue: boolean) {
     if (checkValue != null) {
-        this.allChecked = checkValue;
+      this.allChecked = checkValue;
     } else {
         this.allChecked = !this.allChecked;
     }
@@ -450,14 +427,14 @@ import { Story } from '../model/Story';
         this.allChecked = false;
     }
   }
-
+ 
   checkOnIteration(temp_name, checkValue: boolean) {
     switch (temp_name) {
-      case 'background':
+      case 'scenario':
         for (const prop in this.selectedScenario.stepDefinitions) {
           if(prop !== 'example') {
             for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                this.checkStep(this.selectedScenario.stepDefinitions[prop][i], checkValue);
+              this.checkStep(this.selectedScenario.stepDefinitions[prop][i], checkValue);
             }
           } 
           else {
@@ -466,7 +443,7 @@ import { Story } from '../model/Story';
           }        
         }
         break;
-      case 'scenario':
+      case 'background':
         for (const prop in this.selectedStory.background.stepDefinitions) {
           for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
             this.checkStep(this.selectedStory.background.stepDefinitions[prop][i], checkValue);
@@ -475,89 +452,92 @@ import { Story } from '../model/Story';
         break;
     }
   }
-
+ 
   /**
-   *  Handles checkboxes on click
-   * @param event Click event
-   * @param step Current step
-   * @param step_id Check value
-   * @param checkbox_id 
-   * @param checkValue 
-   */
-  handleClick(event, step, step_id, checkbox_id, checkValue?: boolean) {
+    *  Handles checkboxes on click
+    * @param event Click event
+    * @param step Current step
+    * @param checkbox_id Checkbox id
+    * @param checkValue Optional value
+    */
+  handleClick(event, step, checkbox_id, checkValue?: boolean) {
     // if key pressed is shift
     if (event.shiftKey && this.lastVisitedTemplate == this.templateName) {
-      this.checkMany(step, step_id, checkbox_id);
+      this.checkMany(step, checkbox_id);
     } else {
       this.checkStep(step, checkValue);
     }
-
     // Set current step to last checked
     this.lastCheckedCheckboxIDx = checkbox_id;
     this.lastVisitedTemplate = this.templateName;
-
   }
-
+ 
   /**
-   * Checks many steps on shift click
-   * @param currentStep
-   * @param step_id
-   * @param checkbox_id
-   */
-  checkMany(currentStep, step_id, checkbox_id) {
-    let id = this.templateName+'_'+step_id+'_checkbox_'
+    * Checks many steps on shift click
+    * @param currentStep
+    * @param checkbox_id
+    */
+  
+  checkMany(currentStep, checkbox_id) {
     let newTmp:number = checkbox_id;  // current step id
     let lastTmp = this.lastCheckedCheckboxIDx;
-    let start: number;
-    let end: number;
     // Find in this block start and end step
-    start = Math.min(newTmp, lastTmp); // get starting & ending array element
-    end = Math.max(newTmp, lastTmp);
+
+    let start = Math.min(newTmp, lastTmp); // get starting & ending array element
+    let end = Math.max(newTmp, lastTmp);
+
     
     // Check all steps in the list between start and end
     switch(this.templateName) {
       case 'scenario':
-        this.allCheckboxes.forEach(checkbox => {      
-          for (let i = start+1; i <= end; i++) {
-            if (checkbox.nativeElement.id === id+i) {
-              this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked = !this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked;
-            }
-          }
-        });
+        const scenario_val = this.selectedScenario.stepDefinitions[currentStep.stepType][lastTmp].checked;
+        for (let i = start+1; i <= end; i++) {
+          this.selectedScenario.stepDefinitions[currentStep.stepType][i].checked = scenario_val;
+        }
         break;
-        //TODO: No checkbox list
       case 'background':
-        console.log(this.allCheckboxes);
-        this.allCheckboxes.forEach(checkbox => {
-          for (let i = start+1; i <= end; i++) {  
-            console.log(id+i);  
-            if (checkbox.nativeElement.id === id+i) {
-              this.selectedStory.background.stepDefinitions[currentStep.stepType][i].checked = !this.selectedStory.background.stepDefinitions[currentStep.stepType][i].checked;     
-            }
-          }
-        });
+        const background_val = this.selectedStory.background.stepDefinitions[currentStep.stepType][lastTmp].checked;
+        for (let i = start+1; i <= end; i++) {   
+          this.selectedStory.background.stepDefinitions[currentStep.stepType][i].checked = background_val;  
+        }
         break;
       case 'example':
         break;
     }
+    setTimeout(() => {
+      this.areAllStepsChecked();
+    }, 20);
+    
+
   }
-
-
+ 
+ 
   /**
-  * Checks a step
-  * @param step
-  * @param checkValue
-  */
+   * Checks a step
+   * @param step
+   * @param checkValue Optional value
+   */
+
   checkStep(step, checkValue?: boolean) {
     if (checkValue != null) {
         step.checked = checkValue;
     } else {
         step.checked = !step.checked;
     }
+
+    this.areAllStepsChecked();
+  }
+
+  /**
+   * Enables/disables action bar and checkbox in it depending on whether all steps are checked 
+   */
+  areAllStepsChecked() {
+
     let checkCount = 0;
     let stepCount = 0;
 
     switch(this.templateName) {
+
       case 'scenario':
         for (const prop in this.selectedScenario.stepDefinitions) {
           if (prop !== 'example') {
@@ -569,7 +549,9 @@ import { Story } from '../model/Story';
             }
           }
         }
+        this.updateActionBar(checkCount, stepCount);
         break;
+
       case 'background':
         for (const prop in this.selectedStory.background.stepDefinitions) {
           for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
@@ -578,7 +560,8 @@ import { Story } from '../model/Story';
               checkCount++;
             }
           }
-        }
+        } 
+        this.updateActionBar(checkCount, stepCount);
         break;
 
       case 'example':
@@ -586,39 +569,46 @@ import { Story } from '../model/Story';
         break;
 
     }
-
-    this.allChecked = checkCount >= stepCount;
-    if (checkCount <= 0) {
-        this.allChecked = false;
-        this.activeActionBar = false;
-    } else {
-        this.activeActionBar = true;
-    }
   }
 
   /**
-   * Returns the checked steptypes
-   * @param steptypes 
-   * @returns 
+   * De-/activates buttons & checkbox in action bar
+   * @param checkCount 
+   * @param stepCount 
    */
+  updateActionBar(checkCount, stepCount) {
+    this.allChecked = checkCount >= stepCount;
+    if (checkCount <= 0) {
+      this.allChecked = false;
+      this.activeActionBar = false;
+    } else {
+      this.activeActionBar = true;
+    }
+  }
+
+
+  /**
+    * Returns the checked steptypes (Temporarily not in use)
+    * @param steptypes 
+    * @returns 
+    */
+
   getChecked(steptypes) {
     return steptypes
       .map(function(element, index) {return {index: index, value: element}})
       .filter(function(element) { return element.value.checked});
   }
+ 
 
-  updateScenario () {}
-
-  addScenarioToStory(event) {}
-
-  //Action bar methods 
-
+  /** Action bar methods */
+ 
   /**
-     * Save a new block
-     * @param temp_name
-     */
-  saveBlock(temp_name): void {
+    * Save a new block
+    * @param temp_name
+    */
 
+  saveBlock(temp_name): void {
+ 
     const saveBlock = {given: [], when: [], then: [], example: []};
 
     switch (temp_name) {
@@ -652,11 +642,12 @@ import { Story } from '../model/Story';
     this.saveBlockModal.openSaveBlockFormModal(block, this);
 
   }
-
+ 
   /**
     * Deactivates all checked step
     * @param temp_name
     */
+
   deactivateStep(temp_name): void{
     switch (temp_name) {
       case 'background':
@@ -687,11 +678,12 @@ import { Story } from '../model/Story';
         break;
     }
   }
-
+ 
   /**
     * Removes a step
     * @param temp_name
     */
+
   removeStep (temp_name) {
     switch (temp_name) {
       case 'background':
@@ -723,13 +715,14 @@ import { Story } from '../model/Story';
     this.allChecked = false;
     this.activeActionBar = false;
   }
-
+ 
   /**
-     * Copy a block
-     * @param temp_name
-     */
-  copyBlock(temp_name):void {
+    * Copy a block
+    * @param temp_name
+    */
 
+  copyBlock(temp_name):void {
+ 
     const copyBlock = {given: [], when: [], then: [], example: []};
 
     switch (temp_name) {
@@ -771,11 +764,12 @@ import { Story } from '../model/Story';
     this.toastr.success('successfully copied', 'Step(s)');
 
   }
-
+ 
   /**
-   * Insert block from clipboard
-   * @param temp_name 
-   */
+    * Insert block from clipboard
+    * @param temp_name 
+    */
+
   insertCopiedBlock(temp_name): void{
     switch (temp_name) {
       case 'background':
@@ -816,12 +810,13 @@ import { Story } from '../model/Story';
         break;
     }
   }
-
+ 
   /**
     * Opens add block modal
     * @param temp_name
     */
-  addBlock( temp_name) {
+
+  addBlock(temp_name) {
     const id =  localStorage.getItem('id');
     switch(temp_name) {
       case 'background':
@@ -835,6 +830,5 @@ import { Story } from '../model/Story';
         break;
     } 
   }
-
 
 }

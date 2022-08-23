@@ -1,0 +1,232 @@
+.stepsListContainer{
+  display: flex;
+  justify-content: space-between;
+}
+  
+.stepsListContainer em{
+  color: var(--ocean-blue);
+}
+  
+.stepsListContainer .disabled em{
+  color: gray !important;
+}
+  
+  
+.stepsListContainer button{
+  border: none;
+  background: none;
+}
+
+:host ::ng-deep .checkbox{
+  margin-right: 5px;
+  margin-bottom: 5px;
+  margin-left: 3px;
+  margin-top: 5px
+} 
+
+:host ::ng-deep .checkbox:hover{
+  cursor: pointer;
+}
+
+:host ::ng-deep #checkbox_all_example{
+  margin-left: 10px;
+}
+  
+:host ::ng-deep #checkbox_all{
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-left: 6px;
+}
+
+.select-item-drag-preview {
+  background-color: rgba(204, 0, 102, 0);
+  font-weight: bold;
+  border: 2px solid #666;
+  border-radius: 50%;
+  display: inline-block;
+  width: 30px;
+  line-height: 30px;
+text-align: center;
+}
+
+input[type=checkbox] {
+  height: 13px;
+}
+
+.stepsContainer {
+	white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+}
+
+.stepLine {
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: inherit;
+  padding: 1px 20px 1px 20px;
+} 
+
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.select-item-drag-preview {
+  background-color: rgba(204, 0, 102, 0);
+  font-weight: bold;
+  border: 2px solid #666;
+  border-radius: 50%;
+  display: inline-block;
+  width: 30px;
+  line-height: 30px;
+  text-align: center;
+}
+
+.dragIconContainer{
+  text-align: center;
+  cursor: move;
+}
+
+em.dragIcon{
+  font-size: 18px;
+  color: black;
+  background-color: var(--white);
+  margin-top:1px;
+}
+
+.text-inline{
+  display: flex;
+}
+  
+.text-inline > button{
+  margin: 0 5px;
+}
+  
+.text-inline > p > input{
+  margin: 0 5px;
+}
+
+.uk-card-title {
+  font-size: medium;
+  font-weight: bold;
+}
+
+.pencil_icon {
+  padding-left: 12px;
+}
+
+.disabled {
+  color: gray !important;
+  /* background: var(--white) !important; */
+  font-style: italic;
+  text-decoration: line-through;
+}
+
+.darkTheme .disabled {
+  color: var(--buttonDisabled) !important;
+}
+
+.checkboxDropdown{
+  margin-top: -15px !important;
+}
+
+input[type="text"]{
+	margin: 1px;
+	padding: 1px;
+	border: none;
+	border-bottom: 1px solid #333;
+	position: relative;
+	top: -2px;
+	width: auto;
+	min-width: 5px;
+}
+
+.scenarioBarContainer{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  margin: 0px 20px;
+} 
+
+.scenarioBarContainer button,
+.exampleBarContainer button{
+  border: none;
+  background: none;
+  transform: translate(0px, -3px);
+  height: 24px;
+  border-radius: 10%;
+}
+
+.scenarioBarContainer > div,
+.exampleBarContainer{
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 10px 15px;
+  display: flex;
+  height: 40px;
+}
+
+.exampleBarContainer{
+  border-bottom: 1px solid #e5e5e5;
+  background-color: #f8f8f8;
+  display: flex;
+}
+
+.scenarioButton {
+  margin-right: 10px;
+}
+
+.actionBarButtonGroup{
+  margin-left: 3px;
+}
+
+.actionButton{
+  margin-left: 10px;
+}
+
+.actionButton > em{
+  color: #333;
+  font-size: 22px;
+}
+
+.darkTheme .actionButton > em {
+  color:#000000;
+}
+
+.scenarioButton em{
+  color:  var(--ocean-blue);
+}
+
+.darkTheme.scenarioButton em{
+  color:  var(--ocean-blue);
+}
+
+.scenarioButton em:active {
+  background-color: var(--ocean-blue);
+  color: var(--white);
+}
+
+.disabled input{
+	color: gray;
+	border-bottom: 1px solid gray;
+}
+
+.disabled input {
+	color: var(--buttonDisabled) !important;
+	border-color: var(--border);
+}
+
+.uk-dropdown{
+  padding: 15px;
+}
+
+.padding{
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-bottom: 20px;
+  padding-right: 20px;
+}
+
+.mat-form-field + .mat-form-field {
+  margin-left: 8px;
+}

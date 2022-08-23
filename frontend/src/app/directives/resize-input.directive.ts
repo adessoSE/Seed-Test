@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostBinding, HostListener} from '@angular/core';
+import { Directive, ElementRef, HostBinding, HostListener, Input} from '@angular/core';
 
 @Directive({
   selector: '[appResizeInput]'
@@ -10,30 +10,37 @@ export class ResizeInputDirective {
     */
   minWidth = 10;
 
+  @Input() containerEl: HTMLElement;
+
+  @Input() parentEl: HTMLElement;
+
   @HostBinding() maxWidth!: number;
 
   @HostBinding() class?;
 
-  @HostListener('input', ['$event']) onInput() {
-    this.resize('input');
+  @HostListener('change', ['$event']) onChange() {
+    this.resize('action');
   }
+
+  @HostListener('input', ['$event']) onInput() {
+    this.resize('action');
+  }
+
+ 
 
   constructor(private el: ElementRef) {  
     setTimeout(() => {
+      
       el.nativeElement.classList.forEach((value) => {
         if (value == 'scenario' || value == 'background') {
           this.class = value;
         }
       });
 
-      if (this.class === 'background') {
-        this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
-      }
-      else {
-        this.maxWidth = this.el.nativeElement.parentElement.parentElement.parentElement.parentElement.offsetWidth;
-      }
-      
-      this.resize('setup'); 
+      if (this.class === 'background' || this.class === 'scenario') {
+        this.maxWidth = this.containerEl.offsetWidth;
+      }  
+      this.resize('load'); 
     }, 1); 
   }
   
@@ -62,10 +69,10 @@ export class ResizeInputDirective {
       let gap = (this.maxWidth - parentWidth);
       if (gap > 0){
 
-        if (mode_type == 'input') {
+        if (mode_type == 'action') {
           this.el.nativeElement.setAttribute('size', this.el.nativeElement.getAttribute('size'));
         } 
-        if (mode_type == 'setup') {
+        if (mode_type == 'load') {
           let width = (input_width + gap)/coef;
           this.el.nativeElement.setAttribute('size', width);
         } 
@@ -81,12 +88,8 @@ export class ResizeInputDirective {
    * @returns 
    */
   private setParentWidth() {
-    if (this.class === 'background') {
-      return this.el.nativeElement.parentElement.parentElement.offsetWidth;
-    }
-    //if scenario
-    if (this.class === 'scenario') {
-      return this.el.nativeElement.parentElement.parentElement.parentElement.offsetWidth;
+    if (this.class === 'background' || this.class === 'scenario') {
+      return this.parentEl.offsetWidth;
     }
   }
 

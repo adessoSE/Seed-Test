@@ -1,25 +1,21 @@
-import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy, ViewChildren, ElementRef, QueryList, AfterViewInit} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy, ViewChildren, ElementRef, QueryList, AfterViewInit, TemplateRef, ViewContainerRef, ContentChild, EmbeddedViewRef} from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import { StepDefinition } from '../model/StepDefinition';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
-import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { StepType } from '../model/StepType';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
 import { DeleteScenarioToast } from '../deleteScenario-toast';
-import { Block } from '../model/Block';
 import { saveAs } from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
 import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
-import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { RenameBackgroundComponent } from '../modals/rename-background/rename-background.component';
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
 /**
  * Empty background
@@ -32,53 +28,54 @@ const emptyBackground: Background = {name: 'New Background',stepDefinitions: {wh
 @Component({
   selector: 'app-story-editor',
   templateUrl: './story-editor.component.html',
-  styleUrls: ['./story-editor.component.css']
+  styleUrls: ['../base-editor/base-editor.component.css','./story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewInit {
+export class StoryEditorComponent extends BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewInit {
 
   /**
    * set new currently selected scenario
    */
-  @Input()
-  set newSelectedScenario(scenario: Scenario) {
-      this.selectedScenario = scenario;
-      if (this.selectedStory) {
-          this.selectScenario(scenario);
-      }
-      this.activeActionBar = false;
-      this.allChecked = false;
-  }
-
-  /**
-   * set new stories
-   */
-  @Input()
-  set newStories(stories: Story[]) {
-        if (stories) {
-            this.stories = stories;
+    @Input()
+    set newSelectedScenario(scenario: Scenario) {
+        this.selectedScenario = scenario;
+        if (this.selectedStory) {
+            this.selectScenario(scenario);
         }
-  }
+        this.activeActionBar = false;
+        this.allChecked = false;
+    }
 
-  /**
-   * set new currently selected story
-   */
-  @Input()
-  set newSelectedStory(story: Story) {
-      this.selectedStory = story;
-      this.showEditor = true;
-      this.activeActionBar = false;
-      this.allChecked = false;
-  }
+    /**
+     * set new stories
+     */
+    @Input()
+    set newStories(stories: Story[]) {
+            if (stories) {
+                this.stories = stories;
+            }
+    }
 
-  /**
-   * show loading when tests of groups run
-   * hide result of story
-   */
-  @Input()
-  set testRunningForGroup(groupRunning: boolean) {
-      this.testRunningGroup = groupRunning;
-      this.showResults = false;
-  }
+    /**
+     * set new currently selected story
+     */
+    @Input()
+    set newSelectedStory(story: Story) {
+        this.selectedStory = story;
+        this.showEditor = true;
+        this.activeActionBar = false;
+        this.allChecked = false;
+    }
+
+    /**
+     * show loading when tests of groups run
+     * hide result of story
+     */
+    @Input()
+    set testRunningForGroup(groupRunning: boolean) {
+        this.testRunningGroup = groupRunning;
+        this.showResults = false;
+    }
+
     /**
      * Original step types
      */
@@ -180,10 +177,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      */
     saveBackgroundAndRun = false;
 
-    /**
-     * Block saved to clipboard
-     */
-    clipboardBlock: Block = null;
 
     /**
      * if the daisy version is currently used
@@ -220,6 +213,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     lastToFocus;
 
 
+    showDaisy = false;
+
     /**
      * Subscribtions for all EventEmitter
      */
@@ -244,12 +239,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     /**
      * View child of the modals component
      */
-    @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
-    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
-    @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
+    @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent; 
     @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
     @ViewChild('renameBackgroundModal') renameBackgroundModal: RenameBackgroundComponent;
-    @ViewChildren('step_type_input') step_type_input: QueryList<ElementRef>;
+    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+
 
     /**
      * Event emitter to change to the report history component
@@ -270,10 +264,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      */
     constructor(
         public apiService: ApiService,
-        private toastr: ToastrService,
+        toastr: ToastrService,
         public themeService: ThemingService
     ) {
-
+        super(toastr);
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
         }
@@ -294,26 +288,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
         this.edge_enabled = localStorage.getItem('edge_enabled');
         
     }
-
-    /**
-     * retrieves the saved block from the session storage
-     */
-    ngDoCheck(): void {
-          this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
-    }
-
-    ngAfterViewInit(): void {
-        
-        this.step_type_input.changes.subscribe(_ => {
-            this.step_type_input.forEach(in_field => {
-                
-                if ( in_field.nativeElement.id === this.lastToFocus) {
-                    in_field.nativeElement.focus();
-                }
-            });
-            this.lastToFocus = '';
-        });
-    }
+    
 
     ngAfterViewChecked(){
         /**
@@ -321,7 +296,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
          */
         if (this.testRunningGroup === true){
             const loadingScreen = document.getElementById('loading');
-            loadingScreen.scrollIntoView();}
+            loadingScreen.scrollIntoView();
+        }
+
     }
 
     /**
@@ -432,14 +409,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
     }
 
     /**
-     * Opens add block modal
-     * @param event
-     */
-    addBlock() {
-        this.addBlockModal.openAddBlockFormModal('background', localStorage.getItem('id'));
-    }
-
-    /**
      * Runs the test without saving it
      */
     runOption() {
@@ -465,14 +434,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
      * Select a new currently used scenario
      * @param scenario
      */
-  selectNewScenario(scenario: Scenario) {
+    selectNewScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
       if (this.selectedStory) {
           this.selectScenario(scenario);
       }
       this.activeActionBar = false;
       this.allChecked = false;
-  }
+    }
 
   /**
    * Change to the report history component
@@ -500,195 +469,84 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
         });
     }
 
+
     /**
-     * Checks all check boxes or unchecks
-     * @param event
-     * @param checkValue
+     * Opens the delete scenario toast
+     * @param scenario
      */
-    checkAllSteps(checkValue: boolean) {
-        if (checkValue != null) {
-            this.allChecked = checkValue;
-        } else {
-            this.allChecked = !this.allChecked;
-        }
-        if (this.allChecked) {
-            for (const prop in this.selectedStory.background.stepDefinitions) {
-                for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(this.selectedStory.background.stepDefinitions[prop][i], true);
-                }
-            }
-            this.activeActionBar = true;
-            this.allChecked = true;
-        } else {
-            for (const prop in this.selectedStory.background.stepDefinitions) {
-                for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                    this.checkStep(this.selectedStory.background.stepDefinitions[prop][i], false);
-                }
-            }
-            this.activeActionBar = false;
-            this.allChecked = false;
-        }
+    showDeleteScenarioToast() {
+        this.toastr.warning('', 'Do you really want to delete this scenario?', {
+            toastComponent: DeleteScenarioToast
+        });
     }
 
     /**
-     * Checks one step in the checkbox
-     * @param step
-     * @param checkValue
+     * Deletes scenario
+     * @param scenario
      */
-    checkStep(step, checkValue: boolean) {
-        if (checkValue != null) {
-            step.checked = checkValue;
-        } else {
-            step.checked = !step.checked;
-        }
-        let checkCount = 0;
-        let stepCount = 0;
-
-        for (const prop in this.selectedStory.background.stepDefinitions) {
-            for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                stepCount++;
-                if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
-                    checkCount++;
-                }
-            }
-        }
-        this.allChecked = checkCount >= stepCount;
-        if (checkCount <= 0) {
-            this.allChecked = false;
-            this.activeActionBar = false;
-        } else {
-            this.activeActionBar = true;
-        }
+    deleteScenario(scenario: Scenario) {
+        this.apiService
+            .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
+            .subscribe(_ => {
+                this.scenarioDeleted();
+                this.toastr.error('', 'Scenario deleted');
+            });
     }
 
     /**
-     * Removes a step from the background
+     * Removes scenario from the selected story
      */
-    removeStepFromBackground() {
-        for (const prop in this.selectedStory.background.stepDefinitions) {
-            for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
-                    this.selectedStory.background.stepDefinitions[prop].splice(i, 1);
-                }
-            }
+    scenarioDeleted() {
+        const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+        if (indexScenario !== -1) {
+            this.selectedStory.scenarios.splice(indexScenario, 1);
         }
-        this.selectedStory.background.saved = false;
+        this.showEditor = false;
+    }
+
+    /**
+     * Adds a scenario to story
+     */
+    addScenario(event) {
+        const scenarioName = event;
+        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+        .subscribe((resp: Scenario) => {
+            this.selectScenario(resp);
+            this.selectedStory.scenarios.push(resp);
+            this.toastr.info('', 'Scenario added');
+        });
+    }
+
+    /**
+     * updates the background
+     */
+    updateBackground() {
+        delete this.selectedStory.background.saved;
         this.allChecked = false;
         this.activeActionBar = false;
+
+        Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
+            this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
+                delete step.checked;
+                if (step.outdated) {
+                    step.outdated = false;
+                }
+            });
+        });
+        this.apiService
+            .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
+            .subscribe(_ => {
+                this.toastr.success('successfully saved', 'Background');
+                if (this.saveBackgroundAndRun) {
+                    this.apiService.runSaveOption('saveScenario');
+                    this.saveBackgroundAndRun = false;
+                }
+            });
     }
 
     /**
-     * Deactivates all checked steps
+     * deletes the background
      */
-    deactivateStep() {
-        for (const prop in this.selectedStory.background.stepDefinitions) {
-            for (const s in this.selectedStory.background.stepDefinitions[prop]) {
-                if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
-                    this.selectedStory.background.stepDefinitions[prop][s].deactivated = !this.selectedStory.background.stepDefinitions[prop][s].deactivated;
-                }
-            }
-        }
-        this.selectedStory.background.saved = false;
-    }
-
-
-  /**
-   * Opens the delete scenario toast
-   * @param scenario
-   */
-  showDeleteScenarioToast() {
-    this.toastr.warning('', 'Do you really want to delete this scenario?', {
-        toastComponent: DeleteScenarioToast
-    });
-  }
-
-  /**
-   * Deletes scenario
-   * @param scenario
-   */
-  deleteScenario(scenario: Scenario) {
-    this.apiService
-        .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
-        .subscribe(_ => {
-            this.scenarioDeleted();
-            this.toastr.error('', 'Scenario deleted');
-        });
-  }
-
-  /**
-   * Removes scenario from the selected story
-   */
-  scenarioDeleted() {
-    const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
-    if (indexScenario !== -1) {
-        this.selectedStory.scenarios.splice(indexScenario, 1);
-    }
-    this.showEditor = false;
-  }
-
-  /**
-   * Adds a scenario to story
-   */
-  addScenario(event) {
-    const scenarioName = event;
-    this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
-    .subscribe((resp: Scenario) => {
-        this.selectScenario(resp);
-        this.selectedStory.scenarios.push(resp);
-        this.toastr.info('', 'Scenario added');
-    });
-  }
-
-
-  /**
-   * Drag and drop event in the background
-   * @param event
-   * @param stepDefs
-   */
-  onDropBackground(event: CdkDragDrop<any>, stepDefs: StepDefinition) {
-      moveItemInArray(this.getBackgroundList(stepDefs), event.previousIndex, event.currentIndex);
-      this.selectedStory.background.saved = false;
-  }
-
-  /**
-   * Gets background step list
-   * @param stepDefinitions
-   * @returns
-   */
-  getBackgroundList(stepDefinitions: StepDefinitionBackground) {
-      return stepDefinitions.when;
-  }
-
-  /**
-   * updates the background
-   */
-  updateBackground() {
-    delete this.selectedStory.background.saved;
-    this.allChecked = false;
-    this.activeActionBar = false;
-
-    Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
-        this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
-            delete step.checked;
-            if (step.outdated) {
-                step.outdated = false;
-            }
-        });
-    });
-      this.apiService
-          .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
-          .subscribe(_ => {
-            this.toastr.success('successfully saved', 'Background');
-            if (this.saveBackgroundAndRun) {
-                this.apiService.runSaveOption('saveScenario');
-                this.saveBackgroundAndRun = false;
-            }
-        });
-  }
-
-  /**
-   * deletes the background
-   */
     deleteBackground() {
       this.apiService
           .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
@@ -699,412 +557,289 @@ export class StoryEditorComponent implements OnInit, OnDestroy, DoCheck, AfterVi
           });
     }
 
-  /**
-   * Opens the background
-   */
-  openBackground() {
-      this.showBackground = !this.showBackground;
-  }
+    /**
+     * Opens the background
+     */
+    openBackground() {
+        this.showBackground = !this.showBackground;
+    }
 
-  /**
-   * Adds a step to the background
-   * @param storyID
-   * @param step
-   */
-  addStepToBackground(step: StepType) {
-      const newStep = this.createNewStep(step, this.selectedStory.background.stepDefinitions);
-      if (newStep.stepType == 'when') {
-            this.selectedStory.background.stepDefinitions.when.push(newStep);
-            const lastEl = this.selectedStory.background.stepDefinitions.when.length-1;
-            this.lastToFocus = 'background_step_input_pre'+ lastEl;
-      }
-      this.selectedStory.background.saved = false;
-  }
-
-  /**
-   * Creates a new step
-   * @param step
-   * @param stepDefinitions
-   * @returns
-   */
-  createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground): StepType {
-      const obj = JSON.parse(JSON.stringify(step));
-      const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
-      const newStep: StepType = {
-          id: newId,
-          mid: obj.mid,
-          pre: obj.pre,
-          post: obj.post,
-          stepType: obj.stepType,
-          type: obj.type,
-          values: obj.values
-      };
-      return newStep;
-  }
-
-  /**
-   * Gets the last id in the steps
-   * @param stepDefs
-   * @param stepStepType
-   * @returns
-   */
-  getLastIDinStep(stepDefs: any, stepStepType: string): number {
-      switch (stepStepType) {
-          case 'given':
-              return this.buildID(stepDefs.given);
-          case 'when':
-              return this.buildID(stepDefs.when);
-          case 'then':
-              return this.buildID(stepDefs.then);
-          case 'example':
-              return this.buildID(stepDefs.example);
-      }
-  }
-
-  /**
-   * gets the id of the step
-   * @param step
-   * @returns
-   */
-  buildID(step): number {
-      if (step.length !== 0) {
-          return step[step.length - 1].id;
-      } else {
-          return 0;
-      }
-  }
-
-  /**
-   * add values to the background steps
-   * @param input
-   * @param stepIndex
-   * @param valueIndex
-   */
-  addToValuesBackground(input: string, stepIndex: number, valueIndex: number) {
-      this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-      this.selectedStory.background.saved = false;
-  }
+    addToValues(input: string, stepIndex: number, valueIndex: number) {
+        this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+        this.selectedStory.background.saved = false;
+    }
 
   /**
    * Select a scenario
    * @param scenario
    */
-  selectScenario(scenario: Scenario) {
-      this.selectedScenario = scenario;
-      this.showResults = false;
-      this.showEditor = true;
-      this.testDone = false;
-  }
 
-  /**
-   * Selects a story and scenario
-   * @param story
-   */
-  selectStoryScenario(story: Story) {
-      this.showResults = false;
-      this.selectedStory = story;
-      this.showEditor = true;
-      const storyIndex = this.stories.indexOf(this.selectedStory);
-      if (this.stories[storyIndex].scenarios[0] !== undefined) {
-          this.selectScenario(this.stories[storyIndex].scenarios[0]);
-      }
-  }
+	selectScenario(scenario: Scenario) {
+		this.selectedScenario = scenario;
+		this.showResults = false;
+		this.showEditor = true;
+		this.testDone = false;
+	}
 
-    /**
-     * Save the block background
-     *
-     */
-    saveBlockBackground() {
-        const saveBlock: any = {when: []};
-        for (const prop in this.selectedStory.background.stepDefinitions) {
-            for (const s in this.selectedStory.background.stepDefinitions[prop]) {
-               if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
-                   saveBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
-               }
-            }
-        }
+	/**
+		 * Selects a story and scenario
+		 * @param story
+		 */
 
-        const block: Block = {name: 'TEST', stepDefinitions: saveBlock};
-        this.saveBlockModal.openSaveBlockFormModal(block, this);
-    }
+	selectStoryScenario(story: Story) {
+		this.showResults = false;
+		this.selectedStory = story;
+		this.showEditor = true;
+		const storyIndex = this.stories.indexOf(this.selectedStory);
+		if (this.stories[storyIndex].scenarios[0] !== undefined) {
+				this.selectScenario(this.stories[storyIndex].scenarios[0]);
+		}
+	}
 
-    /**
-     * Copy a block
-     */
-    copyBlock() {
-        const copyBlock: any = {given: [], when: [], then: [], example: []};
-        for (const prop in this.selectedStory.background.stepDefinitions) {
-            if (prop !== 'example') {
-                for (const s in this.selectedStory.background.stepDefinitions[prop]) {
-                    if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
-                        this.selectedStory.background.stepDefinitions[prop][s].checked = false;
-                        copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
-                    }
-                }
-            }
-        }
-        const block: Block = {stepDefinitions: copyBlock};
-        sessionStorage.setItem('copiedBlock', JSON.stringify(block));
-        this.allChecked = false;
-        this.activeActionBar = false;
-    }
-
-    /**
-     * Insert a block to the background
-     */
-    insertCopiedBlock() {
-        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
-            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, _i) => {
-                this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-            });
-        });
-          this.selectedScenario.saved = false;
-    }
-
-
-    /**
+	/**
      * Make the API Request to run the tests and display the results as a chart
      * @param scenario_id
      */
-    runTests(scenario_id) {
-        if (this.storySaved()) {
-            this.testRunning = true;
-            this.report.emit(false);
-            const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
-            const loadingScreen: HTMLElement = document.getElementById('loading');
-            const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
-            // are these values already saved in the Scenario / Story?
-            // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
-            // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
-            loadingScreen.scrollIntoView();
-            this.apiService
-                .runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
-                    {browser: browserSelect,
-                        repository: localStorage.getItem('repository'),
-                        source: localStorage.getItem('source'),
-                        oneDriver: this.selectedStory.oneDriver
-                    })
-                .subscribe((resp: any) => {
-                    this.reportId = resp.reportId;
-                    iframe.srcdoc = resp.htmlFile;
-                    this.htmlReport = resp.htmlFile;
-                    this.testDone = true;
-                    this.showResults = true;
-                    this.testRunning = false;
-                    setTimeout(function () {
-                        iframe.scrollIntoView();
-                    }, 10);
-                    this.toastr.info('', 'Test is done');
-                    this.runUnsaved = false;
-                    this.apiService.getReport(this.reportId)
-                      .subscribe((report: any) => {
-                        if (scenario_id) {
-                            // ScenarioReport
-                            const val = report.scenarioStatuses.status;
-                            this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
-                        } else {
-                          // StoryReport
-                          report.scenarioStatuses.forEach(scenario => {
-                                this.apiService.scenarioStatusChangeEmit(
-                                  this.selectedStory._id, scenario.scenarioId, scenario.status);
-                            });
-                        }
-                      });
-                      // OLD VERSION:
-                      // this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
-                      // .subscribe((story) => {
-                      //     if (scenario_id) {
-                      //         const val = story.scenarios.filter(scenario => scenario.scenario_id === scenario_id);
-                      //         this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed);
-                      //     } else {
-                      //       story.scenarios.forEach(scenario => {
-                      //             this.apiService.scenarioStatusChangeEmit(
-                      //               this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed);
-                      //         });
-                      //     }
-                      // });
-                });
-        } else {
-            this.currentTestScenarioId = scenario_id;
-            this.currentTestStoryId = this.selectedStory.story_id;
-            this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
-                toastComponent: RunTestToast
-            });
-        }
-    }
+	 runTests(scenario_id) {
+		if (this.storySaved()) {
+				this.testRunning = true;
+				this.report.emit(false);
+				const iframe: HTMLIFrameElement = document.getElementById('testFrame') as HTMLIFrameElement;
+				const loadingScreen: HTMLElement = document.getElementById('loading');
+				const browserSelect = (document.getElementById('browserSelect') as HTMLSelectElement).value;
+				// are these values already saved in the Scenario / Story?
+				// const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
+				// const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
+				loadingScreen.scrollIntoView();
+				this.apiService
+						.runTests(this.selectedStory._id, this.selectedStory.storySource, scenario_id,
+								{browser: browserSelect,
+										repository: localStorage.getItem('repository'),
+										source: localStorage.getItem('source'),
+										oneDriver: this.selectedStory.oneDriver
+								})
+						.subscribe((resp: any) => {
+								this.reportId = resp.reportId;
+								iframe.srcdoc = resp.htmlFile;
+								this.htmlReport = resp.htmlFile;
+								this.testDone = true;
+								this.showResults = true;
+								this.testRunning = false;
+								setTimeout(function () {
+										iframe.scrollIntoView();
+								}, 10);
+								this.toastr.info('', 'Test is done');
+								this.runUnsaved = false;
+								this.apiService.getReport(this.reportId)
+									.subscribe((report: any) => {
+										if (scenario_id) {
+												// ScenarioReport
+												const val = report.scenarioStatuses.status;
+												this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
+										} else {
+											// StoryReport
+											report.scenarioStatuses.forEach(scenario => {
+														this.apiService.scenarioStatusChangeEmit(
+															this.selectedStory._id, scenario.scenarioId, scenario.status);
+												});
+										}
+									});
+									// OLD VERSION:
+									// this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
+									// .subscribe((story) => {
+									//     if (scenario_id) {
+									//         const val = story.scenarios.filter(scenario => scenario.scenario_id === scenario_id);
+									//         this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed);
+									//     } else {
+									//       story.scenarios.forEach(scenario => {
+									//             this.apiService.scenarioStatusChangeEmit(
+									//               this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed);
+									//         });
+									//     }
+									// });
+						});
+		} else {
+				this.currentTestScenarioId = scenario_id;
+				this.currentTestStoryId = this.selectedStory.story_id;
+				this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
+						toastComponent: RunTestToast
+				});
+		}
+}
 
-    /**
+/**
      * Download the test report
      */
-    downloadFile() {
-      const blob = new Blob([this.htmlReport], {type: 'text/html'});
-        saveAs(blob, this.selectedStory.title + '.html');
-    }
+ downloadFile() {
+	const blob = new Blob([this.htmlReport], {type: 'text/html'});
+		saveAs(blob, this.selectedStory.title + '.html');
+}
 
-  /**
+	/**
    * Set the time to wait between the steps
    * @param event
    * @param newTime
    */
-    setStepWaitTime(newTime) {
-        if (this.selectedScenario) {
-            this.selectedScenario.stepWaitTime = newTime;
-            this.selectedScenario.saved = false;
-        }
-    }
+	setStepWaitTime(newTime) {
+		if (this.selectedScenario) {
+				this.selectedScenario.stepWaitTime = newTime;
+				this.selectedScenario.saved = false;
+		}
+	}
 
-    /**
+	/**
      * Set the browser
      * @param newBrowser
      */
-    setBrowser(newBrowser) {
-        this.selectedScenario.browser = newBrowser;
-        this.selectedScenario.saved = false;
-    }
+	setBrowser(newBrowser) {
+		this.selectedScenario.browser = newBrowser;
+		this.selectedScenario.saved = false;
+	}
 
-    /**
+	/**
      * Hide the test results
      */
-    hideResults() {
-      this.showResults = !this.showResults;
-    }
+	hideResults() {
+		this.showResults = !this.showResults;
+	}
 
   /**
    * If the story is saved
    * @returns
    */
-    storySaved() {
-        return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
-    }
 
-  /**
-   * sort the step types
-   * @returns
-   */
-    sortedStepTypes() {
-        const sortedStepTypes = this.originalStepTypes;
-        sortedStepTypes.sort((a, b) => {
-            return a.id - b.id;
-        });
-        return sortedStepTypes;
-    }
+	storySaved() {
+		return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
+	}
 
  /**
   * Mark the report as not saved
   * @param reportId
   * @returns
   */
-    unsaveReport(reportId) {
-        this.reportIsSaved = false;
-        return new Promise<void>((resolve, _reject) => {this.apiService
-        .unsaveReport(reportId)
-        .subscribe(_resp => {
-          resolve();
-        }); });
-    }
+
+	unsaveReport(reportId) {
+		this.reportIsSaved = false;
+		return new Promise<void>((resolve, _reject) => {this.apiService
+		.unsaveReport(reportId)
+		.subscribe(_resp => {
+			resolve();
+		}); });
+	}
 
   /**
    * Mark the report as saved
    * @param reportId
    * @returns
    */
-    saveReport(reportId) {
-        this.reportIsSaved = true;
-        return new Promise<void>((resolve, _reject) => {this.apiService
-        .saveReport(reportId)
-      . subscribe(_resp => {
-            resolve();
-        }); });
-    }
-    /**
-     * Opens the Modal to rename the story
-     * @param newStoryTitle
-     */
-    changeStoryTitle() {
-        this.renameStoryModal.openRenameStoryModal(this.stories, this.selectedStory);
-    }
-    /**
+    
+	saveReport(reportId) {
+		this.reportIsSaved = true;
+		return new Promise<void>((resolve, _reject) => {this.apiService
+		.saveReport(reportId)
+		.subscribe(_resp => {
+				resolve();
+		}); });
+	}
+
+	/**
+  * Opens the Modal to rename the story
+  * @param newStoryTitle
+  */
+	changeStoryTitle() {
+		this.renameStoryModal.openRenameStoryModal(this.stories, this.selectedStory);
+	}
+
+	/**
      * Renames the story
      * @param newStoryTitle
      * @param newStoryDescription
      */
-    renameStory(newStoryTitle, newStoryDescription) {
-      if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
-        this.selectedStory.title = newStoryTitle;
-      }
-      if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
-        this.selectedStory.body = newStoryDescription;
-      }
-      this.updateStory();
-    }
+	renameStory(newStoryTitle, newStoryDescription) {
+		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+			this.selectedStory.title = newStoryTitle;
+		}
+		if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
+			this.selectedStory.body = newStoryDescription;
+		}
+		this.updateStory();
+	}
 
-    renameBackground(newBackgroundName) {
-        this.selectedStory.background.name = newBackgroundName;
-        this.updateBackground();
-    }
-    
-
-   /**
+	renameBackground(newBackgroundName) {
+		this.selectedStory.background.name = newBackgroundName;
+		this.updateBackground();
+	}
+  
+	/**
      * Updates the story
      *
      */
-    updateStory() {
-        {this.apiService
-            .updateStory(this.selectedStory)
-            .subscribe(_resp => {
-                this.toastr.success('successfully saved', 'Story');
-            }); }
-    }
+	updateStory() {
+		{this.apiService
+				.updateStory(this.selectedStory)
+				.subscribe(_resp => {
+						this.toastr.success('successfully saved', 'Story');
+				}); }
+	}
 
-    storyLink() {
-        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
-    }
+  storyLink() {
+    return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
+  }
 
-    showStoryLinkToast() {
-        this.toastr.success('', 'Successfully added Link to Clipboard!');
-    }
+  showStoryLinkToast() {
+    this.toastr.success('', 'Successfully added Link to Clipboard!');
+  }
 
   /**
    * Opens the delete story toast
-   * @param story
+   * 
    */
-    showDeleteStoryToast() {
-        this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
-            toastComponent: DeleteStoryToast
-        });
-    }
 
+	showDeleteStoryToast() {
+		this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
+				toastComponent: DeleteStoryToast
+		});
+	}
+    
 
-    downloadFeature() {
-      const source = this.selectedStory.storySource;
-      const id = this.selectedStory._id;
-      this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
-          saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
-      });
-    }
+	downloadFeature() {
+		const source = this.selectedStory.storySource;
+		const id = this.selectedStory._id;
+		this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+				saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
+		});
+	}
+
 
   /**
      * Emitts the delete story event
-     *
+     * TODO: Currently not in use
      */
-    deleteStory() {
-        this.deleteStoryEvent.emit(this.selectedStory);
-    }
-
-      /**
-  * Removes the selected story
-  */
-  storyDeleted() {
-    if (this.stories.find(x => x === this.selectedStory)) {
-      this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
-    }
+  deleteStory() {
+    this.deleteStoryEvent.emit(this.selectedStory);
   }
-  /**
-   * Opens modal to rename background
-   */
-  changeBackgroundTitle() {
-    const background_name = this.selectedStory.background.name;
-    this.renameBackgroundModal.openRenameBackgroundModal(background_name);
+
+  
+	/**
+     * Removes the selected story
+     */
+	storyDeleted() {
+		if (this.stories.find(x => x === this.selectedStory)) {
+		this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
+		}
+	}
+  
+
+	/**
+     * Opens modal to rename background
+     */
+	changeBackgroundTitle() {
+		const background_name = this.selectedStory.background.name;
+		this.renameBackgroundModal.openRenameBackgroundModal(background_name);
+	}
+
+  setShowDaisy(event) {
+    this.showDaisy = event;
   }
 
 }
