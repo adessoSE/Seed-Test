@@ -420,7 +420,7 @@ table {
 }*/
 
 .exampleList{
-  width: 110px;
+  min-width: 100px;
 }
 
 .exampleList ::ng-deep .mat-form-field-wrapper{
@@ -437,4 +437,29 @@ table {
 }
 .exampleListOption {
   font-weight: bold !important;
+}
+
+.exampleList ::ng-deep .mat-select-value {
+  max-width: max-content !important;
+}
+
+.exampleList ::ng-deep .mat-form-field-infix {
+  width: fit-content !important;
+}
+
+.exampleButton{
+  height: 25px;
+  width: 25px;
+
+  -moz-border-radius: 30px; /* or 50% */
+  border-radius: 30px; /* or 50% */
+  border: 2px solid;
+
+  text-align: center;
+
+  font-weight: bold;
+  font-size: 16px;
+  display: inline-block;
+  color: var(--ocean-blue)
+
 }
