@@ -353,6 +353,8 @@ export class ScenarioEditorComponent  implements OnInit, OnDestroy, DoCheck, Aft
                 startOfList.push(...middleOfList)
                 startOfList.push(...endOfListFiltered)
                 newList = startOfList
+            } else {
+                newList = this.getStepsList(stepDefs, stepIndex)
             }
 
             if (stepIndex === 0) {
