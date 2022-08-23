@@ -114,14 +114,14 @@ em.dragIcon{
   padding-left: 12px;
 }
 
-.disabled {
+:host ::ng-deep .disabled {
   color: gray !important;
   /* background: var(--white) !important; */
   font-style: italic;
   text-decoration: line-through;
 }
 
-.darkTheme .disabled {
+:host ::ng-deep .darkTheme .disabled {
   color: var(--buttonDisabled) !important;
 }
 
@@ -206,12 +206,12 @@ input[type="text"]{
   color: var(--white);
 }
 
-.disabled input{
+:host ::ng-deep .disabled input{
 	color: gray;
 	border-bottom: 1px solid gray;
 }
 
-.disabled input {
+:host ::ng-deep .disabled input {
 	color: var(--buttonDisabled) !important;
 	border-color: var(--border);
 }
@@ -227,6 +227,18 @@ input[type="text"]{
   padding-right: 20px;
 }
 
+/* Eventually not in use */
 .mat-form-field + .mat-form-field {
   margin-left: 8px;
 }
+
+:host ::ng-deep .scenarioBarContainer .disabled em{
+  color: gray !important;
+  /* background: #f8f8f8 !important; */
+}
+
+:host ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+  color: var(--buttonDisabled) !important;
+}
+
+

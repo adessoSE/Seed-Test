@@ -43,7 +43,7 @@ export class BaseEditorComponent {
   /**
   * If the action bar is active
   */
-  activeActionBar = false;
+  public activeActionBar = false;
 
   /**
   * If all steps are checked
@@ -313,6 +313,9 @@ export class BaseEditorComponent {
         startOfList.push(...endOfListFiltered)
         newList = startOfList
       }
+      else {
+        newList = this.getStepsList(stepDefs, stepIndex)
+      }
        
       if (stepIndex === 0) {
         this.selectedScenario.stepDefinitions.given = newList
@@ -549,7 +552,7 @@ export class BaseEditorComponent {
             }
           }
         }
-        this.updateActionBar(checkCount, stepCount);
+        this.updateAllActionBar(checkCount, stepCount);
         break;
 
       case 'background':
@@ -561,7 +564,7 @@ export class BaseEditorComponent {
             }
           }
         } 
-        this.updateActionBar(checkCount, stepCount);
+        this.updateAllActionBar(checkCount, stepCount);
         break;
 
       case 'example':
@@ -576,7 +579,7 @@ export class BaseEditorComponent {
    * @param checkCount 
    * @param stepCount 
    */
-  updateActionBar(checkCount, stepCount) {
+  updateAllActionBar(checkCount, stepCount) {
     this.allChecked = checkCount >= stepCount;
     if (checkCount <= 0) {
       this.allChecked = false;
@@ -830,5 +833,4 @@ export class BaseEditorComponent {
         break;
     } 
   }
-
 }

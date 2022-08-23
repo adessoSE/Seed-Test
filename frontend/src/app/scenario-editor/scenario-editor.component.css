@@ -249,15 +249,6 @@ em.dragIcon{
   color: #B0BEC5 !important;
 }*/
 
-:host ::ng-deep .scenarioBarContainer .disabled em{
-  color: gray !important;
-  /* background: #f8f8f8 !important; */
-}
-
-:host ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
-  color: var(--buttonDisabled) !important;
-}
-
 /* Eventually not in use */
 .uk-card-footer{
   padding-bottom: 0;

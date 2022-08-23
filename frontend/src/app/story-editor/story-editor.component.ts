@@ -50,9 +50,9 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
      */
     @Input()
     set newStories(stories: Story[]) {
-            if (stories) {
-                this.stories = stories;
-            }
+			if (stories) {
+				this.stories = stories;
+			}
     }
 
     /**
@@ -165,7 +165,7 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
     /**
      * If the action bar is active
      */
-    activeActionBar = false;
+    //activeActionBar = false;
 
     /**
      * If all steps are checked
@@ -517,6 +517,8 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
         });
     }
 
+    
+
     /**
      * updates the background
      */
@@ -524,6 +526,7 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
         delete this.selectedStory.background.saved;
         this.allChecked = false;
         this.activeActionBar = false;
+        
 
         Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
             this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
