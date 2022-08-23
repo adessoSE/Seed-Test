@@ -18,9 +18,9 @@
 				</div>
 			</th>
 			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
-				<div *ngIf="first">
+				<div *ngIf="first" class="checkboxWrapper">
 					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
-					&nbsp;&nbsp;&nbsp;&nbsp;{{rowIndex+1}}
+					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
 				</div>
 				<editable  *ngIf="!first" (update)="updateField(columnIndex-1, rowIndex, column)">
 						<ng-template viewMode>
