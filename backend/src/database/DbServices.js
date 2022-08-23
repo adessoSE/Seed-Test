@@ -1126,7 +1126,8 @@ async function getUserData(userID) {
 
 async function saveBlock(block) {
 	try {
-		block.repositoryId = ObjectId(block.repositoryId);
+		block.repositoryId = ObjectId(block.repositoryId)
+		block.owner = ObjectId(block.owner.toString())
 		const db = dbConnection.getConnection();
 		return await db.collection(CustomBlocksCollection).insertOne(block);
 	} catch (e) {
@@ -1135,7 +1136,7 @@ async function saveBlock(block) {
 	}
 }
 
-async function updateBlock(name, updatedBlock) {
+async function updateBlock(name, updatedBlock) { // delete by id but update by name?
 	const oldBlock = { name };
 	try {
 		const db = dbConnection.getConnection();
@@ -1151,7 +1152,7 @@ async function getBlocks(repoId) {
 	try {
 		const db = dbConnection.getConnection();
 		return await db.collection(CustomBlocksCollection).find({ repositoryId: ObjectId(repoId) })
-			.toArray();
+		.toArray();
 	} catch (e) {
 		console.log(`ERROR in getBlocks: ${e}`);
 		throw e;

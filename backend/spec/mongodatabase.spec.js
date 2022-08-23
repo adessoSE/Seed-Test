@@ -315,10 +315,33 @@ describe('Mongodatabase', () => {
       })
     })
 
-    afterEach(async()=>{
+    afterEach(async() => {
       mongo.deleteRepository(repoId, ownerId)
       await mongo.deleteUser(ownerId.toString())
       // currently no way to cleanup/delete workgroups
+    })
+  })
+
+  describe('Blocks', () => {
+    const block = {name:'aaa', stepDefinitions: {}, repository:'', source: '', repositoryId: '123456789112', owner: '123456789012'}
+    let blockId
+
+    it('creates a Block', async()=>{
+      blockId = await mongo.saveBlock(block).then((res)=>res.insertedId)
+    })
+    test.skip('updates a Block', async()=>{
+      const upBlock = block
+      upBlock.name = 'aba'
+      await mongo.updateBlock(block.name, upBlock);
+      return mongo.getBlocks(block.repositoryId).then((res)=>console.log(res))
+    })
+    it('gets all Blocks of repo', async()=>{
+      await mongo.getBlocks(block.repositoryId).then((res)=>{
+        expect(new Set(res.map((it)=>it.repositoryId.toString())).size).toEqual(1)
+      })
+    })
+    it('deletes a Block', async()=>{
+      await mongo.deleteBlock(blockId, block.owner).then((res)=>console.log(res))
     })
   })
 
