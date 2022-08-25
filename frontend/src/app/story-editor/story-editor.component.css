@@ -216,6 +216,10 @@
     padding-right: 40px;
   }
 
+  .storyHeaderContainer > div > button > em {
+    vertical-align: bottom;
+  }
+
   /* .def {
     color: #999;
     cursor: help;
@@ -445,6 +449,10 @@
   .backgroundTitleContainer {
     display: grid;
     grid-template-columns: 1fr auto;
+  }
+
+  .backgroundTitle > button > em {
+    vertical-align: bottom;
   }
 
   .mat-expansion-panel-header-title {
