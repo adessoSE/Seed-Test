@@ -22,7 +22,7 @@
           </button>
           <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5"># {{selectedScenario.name | titlecase}}</span>
           <button id="scenario_change_title" class="scenarioTitle" (click)="changeScenarioTitle();" data-uk-tooltip
-          title="Change Scenario Title">
+          title="Edit Scenario">
           <em class="material-icons">edit</em>
           </button>
 
@@ -32,7 +32,7 @@
           </button>
         </div>
         <div style="justify-self: end; padding: 2px 20px;">
-          <button id="new_scenario scenario_change_title" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
+          <button id="new_scenario scenario_change_title" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Create Scenario" type="button" (click)="openCreateScenario()">
             <em class="material-icons">add</em>
             </button>
             <button id="scenario_change_title" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip

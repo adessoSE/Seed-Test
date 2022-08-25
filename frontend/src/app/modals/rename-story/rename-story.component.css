@@ -1,59 +1,5 @@
-.uk-card-title {
-    font-size: medium;
-}
-
-.padding_top{
-    padding-top: 10px;
-}
-
-.padding_right{
-    padding-right: 10px;
-}
-
-.modal-body.modal-xl{
-    padding: 10px;
-}
-
-.submitForm{
-    width: 100%
-}
-
-.uk-form-label {
-    color: black;
-}
-
-.material-icons{
-    color: var(--brown-grey);
-    opacity: 70%;
-    margin: 0px 10px 0px 5px;
-}
-
-::ng-deep.darkTheme .material-icons {
-    color: white;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #90CAF9;
-}
-
-.normalButton:disabled{
-    opacity: 20%;
-}
-
-.modal-body{
-    margin: 30px;
-}
-span.description{
-    display: block!important;
-}
-
-label {
-    float: left;
-    margin-left: -227px;
-    padding: 5px 0.5px 0;
-    position: relative;
-    text-align: right;
-    width: 280px;
+.mat-column-checkStory {
+    width: 10% !important;
 }
 
 #newStoryDescription{
@@ -66,10 +12,26 @@ label {
     max-height: 200px;
 }
 
+::-webkit-scrollbar-thumb {
+    background: #90CAF9;
+}
+
+.normalButton:disabled{
+    opacity: 20%;
+}
+
+label {
+    float: left;
+    margin-left: -227px;
+    padding: 5px 0.5px 0;
+    position: relative;
+    text-align: right;
+    width: 280px;
+}
+
 .modalsContent {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-
