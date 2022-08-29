@@ -115,12 +115,12 @@ export class BaseEditorComponent {
   /**
     * Add values to input fields
     * @param input
-    * @param stepType
     * @param stepIndex
     * @param valueIndex
+    * @param stepType Optional argument
     * @param step Optional argument
     */
-   addToValues(input: string, stepType: string, stepIndex: number, valueIndex: number) { 
+   addToValues(input: string, stepIndex: number, valueIndex: number, stepType?: string, step?:StepType) { 
     if (this.templateName == 'background') { 
       this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input; 
       this.selectedStory.background.saved = false; 
