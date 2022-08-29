@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, OnInit, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
@@ -115,11 +115,35 @@ export class BaseEditorComponent {
   /**
     * Add values to input fields
     * @param input
+    * @param stepType
     * @param stepIndex
     * @param valueIndex
     * @param step Optional argument
     */
-  addToValues(input: string, stepIndex: number, valueIndex: number, step?: StepType): void {}
+   addToValues(input: string, stepType: string, stepIndex: number, valueIndex: number) { 
+    if (this.templateName == 'background') { 
+      this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input; 
+      this.selectedStory.background.saved = false; 
+    } 
+    else if(this.templateName == 'scenario') { 
+      switch (stepType) { 
+        case 'given': 
+          this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input; 
+          break; 
+        case 'when': 
+          this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input; 
+          break; 
+        case 'then': 
+          this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;  
+          break; 
+        case 'example': 
+          this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input; 
+          break; 
+      } 
+      this.selectedScenario.saved = false; 
+    }  
+      
+  }
   
   /**
     * Adds step
@@ -164,10 +188,6 @@ export class BaseEditorComponent {
         storyOrScenario.stepDefinitions.then.push(newStep);
         lastEl = storyOrScenario.stepDefinitions.then.length-1;
         this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
-        break;
-          //TODO
-      case 'example':
-        //this.addExampleStep(step);
         break;
       default:
         break;
@@ -284,8 +304,8 @@ export class BaseEditorComponent {
    
   onDrop(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
     if (this.selectedCount(stepIndex) > 1) {
-      var indices = event.item.data.indices;
-      var change = event.currentIndex-event.previousIndex;
+      let indices = event.item.data.indices;
+      let change = event.currentIndex-event.previousIndex;
  
       let newList = []
  
@@ -340,7 +360,7 @@ export class BaseEditorComponent {
 
   dragStarted(event: CdkDragStart, i: number): void {
     this.dragging = event.source._dragRef;
-    var indices = null;
+    let indices = null;
     if (i === 0) {
         indices = this.selectedScenario.stepDefinitions.given
         .map(function(element, index) {return {index: index, value: element}})
@@ -396,7 +416,7 @@ export class BaseEditorComponent {
     */
 
   selectedCount(i: number) {
-    var counter = 0
+    let counter = 0
     if (i === 0) {
         this.selectedScenario.stepDefinitions.given.forEach(element => { if(element.checked){counter++;} });
     } else if (i === 1) {
@@ -439,11 +459,7 @@ export class BaseEditorComponent {
             for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
               this.checkStep(this.selectedScenario.stepDefinitions[prop][i], checkValue);
             }
-          } 
-          else {
-            //TODO Example case
-            return
-          }        
+          }     
         }
         break;
       case 'background':
@@ -566,11 +582,8 @@ export class BaseEditorComponent {
         } 
         this.updateAllActionBar(checkCount, stepCount);
         break;
-
-      case 'example':
-        //TODO
+      default:
         break;
-
     }
   }
 
@@ -636,8 +649,7 @@ export class BaseEditorComponent {
             }
         }
         break;
-        //TODO
-      case 'example':
+      default:
         break;
     }
 
@@ -676,8 +688,7 @@ export class BaseEditorComponent {
         }
         this.selectedScenario.saved = false;
         break;
-        //TODO
-      case 'example':
+      default:
         break;
     }
   }
@@ -711,8 +722,7 @@ export class BaseEditorComponent {
         }
         this.selectedScenario.saved = false;
         break;
-        //TODO
-      case 'example':
+      default:
         break;
     }
     this.allChecked = false;
@@ -758,8 +768,7 @@ export class BaseEditorComponent {
         const scenarioBlock: Block = {stepDefinitions: copyBlock};
         sessionStorage.setItem('scenarioBlock', JSON.stringify(scenarioBlock));
         break;
-        //TODO
-      case 'example':
+      default:
         break;
     }
     this.allChecked = false;
@@ -789,20 +798,6 @@ export class BaseEditorComponent {
           this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
             if (key != 'example') {
               this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-            } else {
-                //TODO: example
-                /* if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))) {
-                  this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                }
-                if (j == 0) {
-                  step.values.forEach(el => {
-                    const s = '<' + el + '>';
-                    if (!this.uncutInputs.includes(s)) {
-                      this.uncutInputs.push(s);
-                    }
-                  });
-                }
-                this.exampleChild.updateTable(); */ 
             }
           });
         });
@@ -821,16 +816,6 @@ export class BaseEditorComponent {
 
   addBlock(temp_name) {
     const id =  localStorage.getItem('id');
-    switch(temp_name) {
-      case 'background':
-        this.addBlockModal.openAddBlockFormModal(temp_name, id);
-        break;
-      case 'scenario':
-        this.addBlockModal.openAddBlockFormModal(temp_name, id);
-        break;
-        //TODO
-      case 'example':
-        break;
-    } 
+    this.addBlockModal.openAddBlockFormModal(temp_name, id);
   }
 }

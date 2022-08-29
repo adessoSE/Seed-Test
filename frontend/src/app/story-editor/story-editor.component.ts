@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy, ViewChildren, ElementRef, QueryList, AfterViewInit, TemplateRef, ViewContainerRef, ContentChild, EmbeddedViewRef} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy, AfterViewInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -161,11 +161,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
      * id of the scenario which is currently getting tested
      */
     currentTestScenarioId: number;
-
-    /**
-     * If the action bar is active
-     */
-    //activeActionBar = false;
 
     /**
      * If all steps are checked
@@ -565,11 +560,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
      */
     openBackground() {
         this.showBackground = !this.showBackground;
-    }
-
-    addToValues(input: string, stepIndex: number, valueIndex: number) {
-        this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-        this.selectedStory.background.saved = false;
     }
 
   /**

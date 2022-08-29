@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, ElementRef, ViewChildren, QueryList, AfterViewInit, TemplateRef} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, AfterViewInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -470,25 +470,6 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
         this.selectedScenario.saved = false;
         this.allExampleChecked = false;
         this.activeExampleActionBar = false;
-    }
-
-    addToValues(input: string, stepIndex: number, valueIndex: number, step: StepType) {
-        this.checkForExamples(input, step, valueIndex);
-        switch (step.stepType) {
-            case 'given':
-                this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
-                break;
-            case 'when':
-                this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-                break;
-            case 'then':
-                this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
-                break;
-            case 'example':
-                this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
-                break;
-        }
-        this.selectedScenario.saved = false;
     }
 
     /**
