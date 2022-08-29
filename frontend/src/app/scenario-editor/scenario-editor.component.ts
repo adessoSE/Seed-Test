@@ -12,6 +12,9 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
+import { NewExampleComponent } from './../modals/new-example/new-example.component';
+import * as e from 'express';
+
 
 /**
  * Component of the Scenario Editor
@@ -104,6 +107,11 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
 
 
     /**
+     * Block of example saved to the clipboard
+     */
+    clipboardExampleBlock: Block = null;
+
+    /**
      * If this is the daisy version and the auto logout should be shown
      */
     showDaisyAutoLogout = false;
@@ -118,12 +126,16 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
      */
     lastStepId;
 
+    indexOfExampleToDelete;
+
     /**
      * Subscribtions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
     addBlocktoScenarioObservable: Subscription;
     renameScenarioObservable: Subscription;
+    newExampleObservable: Subscription;
+    renameExampleObservable: Subscription;
 
     //public dragging: DragRef = null;
 
@@ -142,6 +154,7 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
     @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
+    @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
 
 
     /**
@@ -215,7 +228,9 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
             }
         });
 
-        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));  
+        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
+        this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 'addingExample',value.step,0,0)});
+        this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column)})
     }
 
     ngOnDestroy() {
@@ -227,6 +242,12 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
         }
         if (!this.renameScenarioObservable.closed) {
             this.renameScenarioObservable.unsubscribe();
+        }
+        if (!this.newExampleObservable.closed) {
+            this.newExampleObservable.unsubscribe();
+        }
+        if (!this.renameExampleObservable.closed) {
+            this.renameExampleObservable.unsubscribe();
         }
     }
 
@@ -320,7 +341,8 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
      * @param step
      */
     addExampleStep(step: StepType) {
-        if (this.selectedScenario.stepDefinitions.example.length > 0) {
+        console.log(this.selectedScenario.stepDefinitions.example.length)
+        //if (this.selectedScenario.stepDefinitions.example.length > 0) {
             const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
             this.selectedScenario.stepDefinitions.example.push(newStep);
             const len = this.selectedScenario.stepDefinitions.example[0].values.length;
@@ -328,7 +350,7 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
                 this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
             }
             this.exampleChild.updateTable();
-        }
+        //}
         this.selectedScenario.saved = false;
     }
 
@@ -360,9 +382,10 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
             }
         }
         const block: Block = {stepDefinitions: copyBlock};
-        sessionStorage.setItem('scenarioBlock', JSON.stringify(block));
+        sessionStorage.setItem('copiedExampleBlock', JSON.stringify(block));
         this.allExampleChecked = false;
         this.activeExampleActionBar = false;
+        this.toastr.success('successfully copied', 'Examples');
     }
 
     /**
@@ -475,96 +498,90 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
     /**
      * Checks the input if an example should be generated or removed
      * @param input
+     * @param stepType
      * @param step
+     * @param stepIndex
      * @param valueIndex
      */
-    checkForExamples(input: string, step: StepType, valueIndex: number) {
-        // removes example if new input is not in example syntax < >
-        if (this.inputRemovedExample(input, step, valueIndex)) {
-            this.removeExample(step, valueIndex);
+     addIsExample(input, stepType: string, step: StepType, stepIndex: number, valueIndex: number) {
+        if(input == true){
+            input = 'example'
         }
-        // if input has < > and it is a new unique input
-        if (this.inputHasExample(input)) {
-            this.createExample(input, step, valueIndex);
+        switch (stepType) {
+            case 'given':
+                this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+                break;
+            case 'when':
+                this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+                break;
+            case 'then':
+                this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+                break;
         }
+     }
+
+    /**
+     * List all examples from scenario
+     * @returns returns all examples in list
+     */
+    getExampleList(){
+        if(this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length && this.selectedScenario.stepDefinitions.example[0].values.length){
+            return this.selectedScenario.stepDefinitions.example[0].values
+        }
+        return undefined
     }
 
     /**
-     * Removes an example
+     * Rename an example
+     * @param newName 
+     * @param index index of example in values array
      */
-    removeExample(step: StepType, valueIndex: number) {
-        const cutOld = step.values[valueIndex].substr(1, step.values[valueIndex].length - 2);
-        this.uncutInputs.splice(this.uncutInputs.indexOf(step.values[valueIndex]), 1);
+    renameExample(newName, index){
+        let oldName = this.selectedScenario.stepDefinitions.example[0].values[index]
+        this.selectedScenario.stepDefinitions.example[0].values[index] = newName
+        this.uncutInputs[this.uncutInputs.indexOf('<'+oldName+'>')] = '<'+newName+'>';
+        this.exampleChild.updateTable();
 
-        for (let i = 0; i < this.selectedScenario.stepDefinitions.example.length; i++) {
-            this.selectedScenario.stepDefinitions.example[i].values.splice(this.selectedScenario.stepDefinitions.example[0].values.indexOf(cutOld), 1);
-            if (this.selectedScenario.stepDefinitions.example[0].values.length == 0) {
-                this.selectedScenario.stepDefinitions.example.splice(0, this.selectedScenario.stepDefinitions.example.length);
-            }
-        }
-        if (!this.selectedScenario.stepDefinitions.example || this.selectedScenario.stepDefinitions.example.length <= 0) {
-            const table = document.getElementsByClassName('mat-table')[0];
-            if (table) {
-                table.classList.remove('mat-elevation-z8');
-            }
-        }
-    }
+        this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+            value.values.forEach((val, i) => {
+              if(val == '<'+oldName+'>') {
+                this.selectedScenario.stepDefinitions.given[index].values[i] = '<'+newName+'>'
+              }
+            })
+          })
 
-    /**
-     * If the example got removed <>
-     * @param input
-     * @param step
-     * @param valueIndex
-     * @returns
-     */
-    inputRemovedExample(input: string, step: StepType, valueIndex: number): boolean {
-        return step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && (!input.startsWith('<') || !input.endsWith('>'));
-    }
+          this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+            value.values.forEach((val, i) => {
+              if(val == '<'+oldName+'>') {
+                this.selectedScenario.stepDefinitions.when[index].values[i] = '<'+newName+'>'
+              }
+            })
+          })
 
-    /**
-     * If the Input has now an example
-     * @param input
-     * @returns
-     */
-    inputHasExample(input: string): boolean {
-        return input.startsWith('<') && input.endsWith('>') && !this.uncutInputs.includes(input);
-    }
-
-
-    /**
-     * Creates an example
-     * @param input
-     * @param step
-     * @param valueIndex
-     */
-    createExample(input: string, step: StepType, valueIndex: number) {
-        const cutInput = input.substr(1, input.length - 2);
-        this.handleExamples(input, cutInput, step, valueIndex);
+        this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
+            value.values.forEach((val, i) => {
+              if(val == '<'+oldName+'>') {
+                this.selectedScenario.stepDefinitions.then[index].values[i] = '<'+newName+'>'
+              }
+            })
+          })
     }
 
     /**
      * Handles the update for examples
      * @param input
-     * @param cutInput
      * @param step
      * @param valueIndex
      */
-    handleExamples(input: string, cutInput: string, step: StepType, valueIndex: number) {
-        // changes example header name if the name is just changed in step
-        if (this.exampleHeaderChanged(input, step, valueIndex)) {
-            this.uncutInputs[this.uncutInputs.indexOf(step.values[valueIndex])] = input;
-            this.selectedScenario.stepDefinitions.example[0].values[this.selectedScenario.stepDefinitions.example[0].values.indexOf(step.values[valueIndex].substr(1, step.values[valueIndex].length - 2))] = cutInput;
+    handleExamples(input: string, step: StepType, valueIndex: number) {
+        this.uncutInputs.push(input);
+        // for first example creates 2 steps
+        if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
+            this.createFirstExample(input, step);
         } else {
-            this.uncutInputs.push(input);
-            // for first example creates 2 steps
-            if (this.selectedScenario.stepDefinitions.example[0] === undefined) {
-                this.createFirstExample(cutInput, step);
-            } else {
-                // else just adds as many values to the examples to fill up the table
-                this.fillExamples(cutInput, step);
-            }
+            // else just adds as many values to the examples to fill up the table
+            this.fillExamples(input, step);
         }
-        this.exampleChild.updateTable();
 
     }
 
@@ -577,7 +594,6 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
         for (let i = 0; i <= 2; i++) {
             const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
             this.selectedScenario.stepDefinitions.example.push(newStep);
-            this.exampleChild.updateTable();
         }
         this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
         const table = document.getElementsByClassName('mat-table')[0];
@@ -606,6 +622,44 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
                 this.selectedScenario.stepDefinitions.example[j].values.push('value');
             }
         }
+        this.exampleChild.updateTable()
+    }
+
+    /**
+     * Adds a value to every example
+     */
+    addRowToExamples(){
+        let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
+        row.values.forEach((value, index) => {
+            row.values[index] = 'value'
+        });
+        this.selectedScenario.stepDefinitions.example.push(row)
+        this.exampleChild.updateTable();
+    }
+
+    /**
+     * Insert a copied block to the example block
+     */
+     insertCopiedExampleBlock() {
+        Object.keys(this.clipboardExampleBlock.stepDefinitions).forEach((key, index) => {
+            this.clipboardExampleBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                if (key == 'example') {
+                    if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))) {
+                        this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                    }
+                    if (j == 0) {
+                        step.values.forEach(el => {
+                            const s = '<' + el + '>';
+                            if (!this.uncutInputs.includes(s)) {
+                                this.uncutInputs.push(s);
+                            }
+                        });
+                    }
+                    this.exampleChild.updateTable();
+                }
+            });
+        });
+          this.selectedScenario.saved = false;
     }
 
     /**
@@ -723,6 +777,7 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
     }
 
     openCreateScenario() {
+        console.log(this.createScenarioModal)
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
     }
 

@@ -1,6 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { ApiService } from 'src/app/Services/api.service';
+import { Subscription } from 'rxjs';
+import { DeleteExampleToast } from './../deleteExample-toast';
+import { NewExampleComponent } from './../modals/new-example/new-example.component';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormArray, FormControl } from '@angular/forms';
 import { Scenario } from '../model/Scenario';
+import { ToastrService } from 'ngx-toastr';
 
 /**
  * Component of for the Example Table
@@ -36,21 +41,15 @@ export class ExampleTableComponent implements OnInit {
    */
   exampleThere: boolean = false;
 
+  deleteExampleObservable: Subscription;
+
+  indexOfExampleToDelete;
+
   /**
    * Event emitter to check if ththe example table should be removed or added to
    */
   @Output()
   checkRowIndex: EventEmitter<number> = new EventEmitter();
-
-  /**
-   * @ignore
-   */
-  constructor() {}
-
-    /**
-   * @ignore
-   */
-  ngOnInit() {}
 
   /**
    * Sets the new scenario
@@ -62,6 +61,32 @@ export class ExampleTableComponent implements OnInit {
   }
 
   @Input() isDark: boolean;
+
+  @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
+
+  /**
+     * Event emitter to delete the example
+     */
+   @Output()
+   deleteExampleEvent: EventEmitter<Scenario> = new EventEmitter();
+
+    /**
+   * @ignore
+   */
+     constructor( public apiService: ApiService, private toastr: ToastrService) {}
+
+     /**
+    * @ignore
+    */
+   ngOnInit() {
+     this.deleteExampleObservable = this.apiService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
+   }
+ 
+   ngOnDestroy() {
+     if (!this.deleteExampleObservable.closed) {
+         this.deleteExampleObservable.unsubscribe();
+     }
+ }
 
   /**
    * Sets the status of the scenario to not saved and overrides value of example
@@ -96,7 +121,7 @@ export class ExampleTableComponent implements OnInit {
     //    return seen.has(k) ? false : seen.add(k);
     //});
     //this.selectedScenario.stepDefinitions.example[0].values = Array.from(seen);
-    this.displayedColumns = this.selectedScenario.stepDefinitions.example[0].values;
+    this.displayedColumns = [" "].concat(this.selectedScenario.stepDefinitions.example[0].values);
     const formArray: FormGroup[] = [];
     for (let i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++) {
       let toGroups = new FormGroup({},{updateOn: 'blur'});
@@ -173,5 +198,63 @@ export class ExampleTableComponent implements OnInit {
   checkExample(event, rowIndex){
     this.checkRowIndex.emit(rowIndex + 1)
   }
+
+  renameExample(columnIndex){
+    this.newExampleModal.renameExample(this.selectedScenario, columnIndex);
+  }
+
+  /**
+   * Emitts the delete scenario event
+   * @param event
+   */
+  deleteExample(event, columnIndex) {
+    this.indexOfExampleToDelete = columnIndex
+    this.deleteExampleEvent.emit();
+    this.showDeleteExampleToast(event)
+  }
+
+  /**
+   * Opens the delete example toast
+   * @param scenario
+   */
+   showDeleteExampleToast(scenario: Scenario) {
+    this.toastr.warning('', 'Do you really want to delete this example?', {
+        toastComponent: DeleteExampleToast
+    });
+  }
+
+  deleteExampleFunction(){
+    let oldName = this.selectedScenario.stepDefinitions.example[0].values[this.indexOfExampleToDelete]
+    this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
+      this.selectedScenario.stepDefinitions.example[index].values.splice(this.indexOfExampleToDelete, 1)
+    })
+
+    this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+        if(val == '<'+oldName+'>'){
+          this.selectedScenario.stepDefinitions.given[index].values[i] = ""
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
+        }
+      })
+    })
+
+    this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+        if(val == '<'+oldName+'>'){
+          this.selectedScenario.stepDefinitions.when[index].values[i] = ""
+          this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
+        }
+      })
+    })
+
+    this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+        if(val == '<'+oldName+'>'){
+          this.selectedScenario.stepDefinitions.then[index].values[i] = ""
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined
+        }
+      })
+    })
+}
 
 }

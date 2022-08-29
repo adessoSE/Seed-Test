@@ -365,6 +365,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     selectStoryScenario(story: Story) {
         this.selectedStory = story;
+        this.initialyAddIsExample();
         this.storyChosen.emit(story);
         const storyIndex = this.stories.indexOf(this.selectedStory);
         if (this.stories[storyIndex].scenarios[0]) {
@@ -623,6 +624,37 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         return this.stories.filter(function(stories) {
           return stories;
         });
+    }
+
+      initialyAddIsExample(){
+        console.log(this.selectedStory)
+        this.selectedStory.scenarios.forEach(scenario => {
+            scenario.stepDefinitions.given.forEach((value, index) =>{
+                if(!scenario.stepDefinitions.given[index].isExample){
+                    scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
+                    value.values.forEach((val,i) => {
+                        scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                    })
+                }
+            })
+            scenario.stepDefinitions.when.forEach((value, index) =>{
+                if(!scenario.stepDefinitions.when[index].isExample){
+                    scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
+                    value.values.forEach((val,i) => {
+                        scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                    })
+                }
+            })
+            scenario.stepDefinitions.then.forEach((value, index) =>{
+                if(!scenario.stepDefinitions.then[index].isExample){
+                    scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
+                    value.values.forEach((val,i) => {
+                        scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                    })
+                }
+            })
+
+        })
     }
 
 }

@@ -38,6 +38,7 @@ import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { DeleteScenarioToast } from './deleteScenario-toast';
+import { DeleteExampleToast } from './deleteExample-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
@@ -95,6 +96,7 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
     ReportComponent,
     RunTestToast,
     DeleteScenarioToast,
+    DeleteExampleToast,
     DeleteStoryToast,
     DeleteRepositoryToast,
     ResetPasswordComponent,

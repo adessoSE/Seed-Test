@@ -99,6 +99,11 @@ export class ApiService {
      */
     public deleteScenarioEvent = new EventEmitter();
 
+    /**
+     * Event emitter to delete the example
+     */
+     public deleteExampleEvent = new EventEmitter();
+
      /**
      * Event emitter to delete the story
      */
@@ -113,6 +118,13 @@ export class ApiService {
      * Event emitter to reload scenario status
      */
     public scenarioStatusChangeEvent = new EventEmitter();
+
+    /**
+     * Event emitter to add a example to a scenario
+     */
+     public newExampleEvent = new EventEmitter();
+    
+    public renameExampleEvent = new EventEmitter();
 
     /**
      * Event emitter to create a custom story
@@ -164,6 +176,13 @@ export class ApiService {
      */
     public deleteScenarioEmitter() {
         this.deleteScenarioEvent.emit();
+    }
+
+    /**
+     * Emits the delete example event
+     */
+     public deleteExampleEmitter() {
+        this.deleteExampleEvent.emit();
     }
 
      /**
@@ -235,6 +254,18 @@ export class ApiService {
     scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
         const val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
         this.scenarioStatusChangeEvent.emit(val);
+    }
+
+    /**
+     * Emits the new example event
+     * @param name example name
+     */
+     newExampleEmit(name) {
+        this.newExampleEvent.emit(name);
+    }
+
+    renameExampleEmit(name) {
+        this.renameExampleEvent.emit(name);
     }
 
     /**
@@ -1150,6 +1181,16 @@ export class ApiService {
         } else {
             button.disabled = true;
             this.toastr.error('This Story Title is already in use. Please choose another Title');
+        }
+    }
+
+    public uniqueExampleName(buttonId: string, input: string, array: string[]) {
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if (!array.includes(input)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('This Example Name is already in use. Please choose another Name');
         }
     }
 }
