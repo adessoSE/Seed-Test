@@ -3,7 +3,7 @@
 <ng-template #renameStoryModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="modalHeader" class="MediumSubline1H4 modal-title">Change Story Title</span>
+        <span id="modalHeader" class="MediumSubline1H4 modal-title">Edit Story</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -12,19 +12,18 @@
         <form [formGroup]="storyForm" novalidate (ngSubmit)="submitRenameStory()">
             <div class="form-group modalsContent">
                 <div>
-                    <label>Edit Story Title</label>
-                    <input id="newStoryTitle" ngbAutofocus type="text" name="newStoryTitle" pattern="\S(.*\S)?"
-                       formControlName="storyTitle" (keyup)="storyUnique()" required>
+                    <label class="uk-form-label">Edit Story Title</label>
+                    <input id="newStoryTitle" name="newStoryTitle" pattern="\S(.*\S)?"
+                    formControlName="storyTitle"  style="margin-left: 24px;" (keyup)="storyUnique()" required>
                 </div>
             </div>
-            <div >
+            <div>
                 <span>Edit Story Description</span>
-                <textarea formControlName="storyDescription" id="newStoryDescription"></textarea>
+                 <textarea formControlName="storyDescription" id="newStoryDescription"></textarea>
             </div>
             <div class="modal-footer">
                 <button id="submitRenameStory" type="submit" class="normalButton" [disabled]="!storyForm.valid"
-                [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit
-                </button>
+                 [ngStyle]="{'opacity': !storyForm.valid ?  '50%' : '100%'}">Submit</button>
             </div>
         </form>
     </div>
