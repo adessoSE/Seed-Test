@@ -2,6 +2,7 @@ import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cd
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Block } from '../model/Block';
 import { Scenario } from '../model/Scenario';
@@ -26,6 +27,7 @@ export class BaseEditorComponent {
     */
   @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
   @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
+  @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
 
   @Input() selectedScenario: Scenario;
 
@@ -161,6 +163,9 @@ export class BaseEditorComponent {
     else {
       newStep = this.createNewStep(step, storyOrScenario.stepDefinitions);
     }
+    if (newStep['type'] === this.newStepName) {
+      this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
+    } 
     switch (newStep.stepType) {
       case 'given':
         storyOrScenario.stepDefinitions.given.push(newStep);

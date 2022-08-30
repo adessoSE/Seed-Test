@@ -6,9 +6,7 @@ import { StepType } from '../model/StepType';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { ToastrService } from 'ngx-toastr';
 import { Block } from '../model/Block';
-import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
-import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { BaseEditorComponent } from '../base-editor/base-editor.component';
@@ -150,9 +148,7 @@ export class ScenarioEditorComponent extends BaseEditorComponent implements OnIn
     /**
      * View child of the modals component
      */
-    @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
-    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
     @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
     @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
 

@@ -2,10 +2,10 @@ const os = require('os');
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
-const webdriver = require('../../node_modules/selenium-webdriver');
-const fs = require('fs');
-const { By, until, Key } = require('../../node_modules/selenium-webdriver');
 const { expect } = require('chai');
+const fs = require('fs');
+const webdriver = require('../../node_modules/selenium-webdriver');
+const { By, until, Key } = require('../../node_modules/selenium-webdriver');
 require('geckodriver');
 const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
@@ -45,7 +45,7 @@ function CustomWorld({ attach, parameters }) {
 }
 let scenarioIndex = 0;
 let testLength;
-const searchTimeout = 15000
+const searchTimeout = 15000;
 
 setWorldConstructor(CustomWorld);
 
@@ -57,7 +57,6 @@ defineParameterType({
 	regexp: /true|false/,
 	transformer: (b) => (b === 'true')
 });
-
 
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
@@ -86,7 +85,7 @@ Before(async function () {
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
 	this.role = string;
-	//await driver.sleep(currentParameters.waitTime);
+	// await driver.sleep(currentParameters.waitTime);
 });
 
 Given('I am on the website: {string}', async function getUrl(url) {
@@ -248,7 +247,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	
 	const promises = []
 	for(const idString of identifiers){
-		promises.push( driver.wait(until.elementLocated((By.xpath(idString))), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
+		promises.push( driver.wait(until.elementLocated((By.xpath(idString))), searchTimeout, 100) )
 	}
 	await Promise.any(promises)
 	.then((elem) => {
