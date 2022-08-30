@@ -65,12 +65,6 @@ export class ParentComponent implements OnInit, OnDestroy {
    * @param themeService
    */
   constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
-    if (this.apiService.urlReceived) {
-      this.loadStories();
-    } else {
-      this.apiService.getBackendInfo();
-    }
-
   }
 
   /**
@@ -86,9 +80,16 @@ export class ParentComponent implements OnInit, OnDestroy {
       });
     }
     this.isDark = this.themeService.isDarkMode();
-    this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
+    this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
       this.isDark = this.themeService.isDarkMode();
     });
+
+    // needs to be after getBackendUrlEvent subscribtion to work properly
+    if (this.apiService.urlReceived) {
+      this.loadStories();
+    } else {
+      this.apiService.getBackendInfo();
+    }
     
   }
 
@@ -162,7 +163,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * Change the editor to report history or story editor
    * @param event event
    */
-  setEditor(event) {
+  setEditor() {
     this.isStoryEditorActive = !this.isStoryEditorActive;
   }
 

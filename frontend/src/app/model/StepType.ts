@@ -58,7 +58,7 @@ export interface StepType {
     outdated?: boolean;
 
     /**
-     * checked currently not used
+     * checked 
      */
     checked?: boolean;
 

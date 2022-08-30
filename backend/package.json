@@ -1,8 +1,8 @@
 {
   "name": "seed-test-backend",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "engines": {
-    "node": "14.19.0"
+    "node": "16.17.0"
   },
   "scripts": {
     "start": "node src/server.js",
@@ -24,7 +24,6 @@
     "core-js": "^3.21.1",
     "cors": "^2.8.5",
     "cucumber-html-reporter": "^5.5.0",
-    "depcheck": "^1.4.3",
     "dotenv": "^10.0.0",
     "express": "^4.17.2",
     "express-flash": "0.0.2",
@@ -33,14 +32,18 @@
     "lodash": "^4.17.21",
     "mongodb": "^3.7.3",
     "node-fetch": "^2.6.7",
-    "nodemailer": "^6.7.2",
+    "nodemailer": "^6.7.5",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "selenium-webdriver": "^4.1.1",
     "stream-to-string": "^1.2.0",
     "string-to-stream": "^3.0.1",
+    "tar": "^6.1.11",
+    "unzipper": "^0.10.11",
     "uuid": "^8.3.1",
-    "xmlhttprequest": "^1.8.0"
+    "winston": "^3.3.3",
+    "xmlhttprequest": "^1.8.0",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/jasmine": "^3.10.3",

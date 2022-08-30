@@ -1,26 +1,40 @@
+const os = require('os');
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
-const webdriver = require('selenium-webdriver');
-const fs = require('fs');
-const { By, until, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
+const fs = require('fs');
+const webdriver = require('../../node_modules/selenium-webdriver');
+const { By, until, Key } = require('../../node_modules/selenium-webdriver');
 require('geckodriver');
-const firefox = require('selenium-webdriver/firefox');
-const chrome = require('selenium-webdriver/chrome');
+const firefox = require('../../node_modules/selenium-webdriver/firefox');
+const chrome = require('../../node_modules/selenium-webdriver/chrome');
+const edge = require('../../node_modules/selenium-webdriver/edge');
 
 let driver;
 const firefoxOptions = new firefox.Options();
 const chromeOptions = new chrome.Options();
-// if (process.env.NODE_ENV) {
-// chromeOptions.addArguments('--headless');
-// }
+const edgeOptions = new edge.Options();
+
+if (!os.platform().includes('win')) {
+	chromeOptions.addArguments('--headless');
+	chromeOptions.addArguments('--no-sandbox');
+	firefoxOptions.addArguments('--headless');
+	edgeOptions.addArguments('--headless');
+	edgeOptions.addArguments('--no-sandbox');
+}
+
 chromeOptions.addArguments('--disable-dev-shm-usage');
-// chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
-chromeOptions.addArguments('--excludeSwitches=enable-logging')
+chromeOptions.addArguments('--excludeSwitches=enable-logging');
+
+edgeOptions.addArguments('--disable-dev-shm-usage');
+edgeOptions.addArguments('--ignore-certificate-errors');
+edgeOptions.addArguments('--start-maximized');
+edgeOptions.addArguments('--lang=de');
+edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
@@ -31,6 +45,7 @@ function CustomWorld({ attach, parameters }) {
 }
 let scenarioIndex = 0;
 let testLength;
+const searchTimeout = 15000;
 
 setWorldConstructor(CustomWorld);
 
@@ -58,23 +73,19 @@ Before(async function () {
 			}
 		}
 	} else {
-
 		driver = new webdriver.Builder()
 			.forBrowser(currentParameters.browser)
 			.setChromeOptions(chromeOptions)
+			.setFirefoxOptions(firefoxOptions)
+			.setEdgeOptions(edgeOptions)
 			.build();
 	}
 });
 
-
-// driver = new webdriver.Builder().forBrowser("chrome").setChromeOptions(chromeOptions).build();
-
-
-
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
 	this.role = string;
-	await driver.sleep(currentParameters.waitTime);
+	// await driver.sleep(currentParameters.waitTime);
 });
 
 Given('I am on the website: {string}', async function getUrl(url) {
@@ -140,30 +151,23 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 	const world = this;
 	await driver.wait(async () => driver.executeScript('return document.readyState')
 		.then(async (readyState) => readyState === 'complete'));
-	try {
-		if (element !== '') try {
-			await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@id='${element}']`)));
-		} catch (e2) {
-			try {
-				await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[@*='${element}']`)));
-			} catch (e3) {
-				try {
-					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`//*[contains(@id, '${element}')]`)));
-				} catch (e4) {
-					await driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(`${element}`)));
-				}
-			}
-		}
-
+	const identifiers = [`//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`]
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(idString))) )
+	}
+	await Promise.any(promises)
+	.then(async () => {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
-	} catch (e) {
+	})
+	.catch(async (e) => {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
 		throw Error(e);
-	}
+	})
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -187,47 +191,28 @@ When('I go to the website: {string}', async function getUrl(url) {
 // timeouts if not found after 3 sec, afterwards selenium waits for next page to be loaded
 When('I click the button: {string}', async function clickButton(button) {
 	const world = this;
+	const identifiers = [`//*[@id='${button}']`, `//*[contains(@id,'${button}')]` , `//*[text()='${button}' or @*='${button}']` , `//*[contains(text(),'${button}')]` , `${button}`]
+
 	await driver.getCurrentUrl()
-		.then(async (currentUrl) => {
-			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-				.match(/^run[ _](story|scenario)$/) !== null) throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-			else try {
-				// first check for the exact id
-				await driver.findElement(By.xpath(`//*[@id='${button}']`)).click();
-			} catch (e) {
-				try {
-					// check for an id with the substring using contains
-					await driver.findElement(By.xpath(`//*[contains(@id,'${button}')]`))
-						.click();
-				} catch (e2) {
-					try {
-						// text() looks for a text node (inside an element like button
-						await driver.findElement(By.xpath(`//*[text()='${button}' or @*='${button}']`))
-							.click();
-					} catch (e3) {
-						try {
-							// check for any element containing the string
-							await driver.findElement(By.xpath(`//*[contains(text(),'${button}')]`))
-								.click();
-						} catch (e4) {
-							try {
-								await driver.findElement(By.xpath(`${button}`))
-									.click();
-							} catch (ed) {
-								await driver.takeScreenshot()
-									.then(async (buffer) => {
-										world.attach(buffer, 'image/png');
-									});
-								throw Error(e);
-							}
-						}
-					}
-				}
-			}
+	.then(async (currentUrl) => {
+		// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
+		if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
+			.match(/^run[ _](story|scenario)$/) !== null){ 
+			throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
+		}
+	});
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
+	}
+	await Promise.any(promises)
+	.then((elem) => elem.click())
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
 		});
-	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async (readyState) => readyState === 'complete'));
+		throw Error(e);
+	})
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -247,119 +232,75 @@ When('The site should wait for {string} milliseconds', async function (ms) {
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async function fillTextField(value, label) {
 	const world = this;
-	try {
-		await driver.findElement(By.xpath(`//input[@id='${label}']`)).clear();
-		await driver.findElement(By.xpath(`//input[@id='${label}']`)).sendKeys(value);
-	} catch (e) {
-		try {
-			await driver.findElement(By.xpath(`//input[contains(@id,'${label}')]`)).clear();
-			await driver.findElement(By.xpath(`//input[contains(@id,'${label}')]`)).sendKeys(value);
-		} catch (e2) {
-			try {
-				await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).clear();
-				await driver.findElement(By.xpath(`//textarea[@id='${label}']`)).sendKeys(value);
-			} catch (e3) {
-				try {
-					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).clear();
-					await driver.findElement(By.xpath(`//textarea[contains(@id,'${label}')]`)).sendKeys(value);
-				} catch (e4) {
-					try {
-						await driver.findElement(By.xpath(`//textarea[@*='${label}']`)).clear();
-						await driver.findElement(By.xpath(`//textarea[@*='${label}']`)).sendKeys(value);
-					} catch (e5) {
-						try {
-							await driver.findElement(By.xpath(`//textarea[contains(@*='${label}')]`)).clear();
-							await driver.findElement(By.xpath(`//textarea[contains(@*='${label}')]`)).sendKeys(value);
-						} catch (e6) {
-							try {
-								await driver.findElement(By.xpath(`//*[@id='${label}']`))
-									.clear();
-								await driver.findElement(By.xpath(`//*[@id='${label}']`))
-									.sendKeys(value);
-							} catch (e7) {
-								try {
-									await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`))
-										.clear();
-									await driver.findElement(By.xpath(`//input[@type='text' and @*='${label}']`))
-										.sendKeys(value);
-								} catch (e8) {
-									try {
-										await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`))
-											.clear();
-										await driver.findElement(By.xpath(`//label[contains(text(),'${label}')]/following::input[@type='text']`))
-											.sendKeys(value);
-									} catch (e9) {
-										try {
-											await driver.findElement(By.xpath(`${label}`))
-												.clear();
-											await driver.findElement(By.xpath(`${label}`))
-												.sendKeys(value);
-										} catch (e10) {
-											await driver.takeScreenshot()
-												.then(async (buffer) => {
-													world.attach(buffer, 'image/png');
-												});
-											throw Error(e);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+
+	const identifiers = [`//input[@id='${label}']`, `//input[contains(@id,'${label}')]`, `//textarea[@id='${label}']`, `//textarea[contains(@id,'${label}')]`,
+	 `//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`, 
+	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+
+	if(value.includes('@@')){
+		const date = new Date();
+		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
+		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
+		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+		
 	}
+	
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated((By.xpath(idString))), searchTimeout, 100) )
+	}
+	await Promise.any(promises)
+	.then((elem) => {
+		elem.clear()
+		elem.sendKeys(value)
+	})
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	})
 	await driver.sleep(currentParameters.waitTime);
 });
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
 	const world = this;
-	try {
-		await driver.findElement(By.xpath(`//*[@${label}='${radioname}']`)).click();
-	} catch (e) {
-		try {
-			await driver.findElement(By.xpath(`//*[contains(@${label}, '${radioname}')]`)).click();
-		} catch (e8) {
-			await driver.takeScreenshot().then(async (buffer) => {
-				world.attach(buffer, 'image/png');
-			});
-			throw Error(e);
-		}
+	const identifiers = [`//*[@${label}='${radioname}']`, `//*[contains(@${label}, '${radioname}')]`]
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 	}
+	await Promise.any(promises)
+	.then((elem) => elem.click())
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	})
 	await driver.sleep(currentParameters.waitTime);
 });
 
 // Select an Option from a dropdown-menu
 When('I select the option {string} from the drop-down-menue {string}', async function selectFromDropdown(value, dropd) {
 	let world;
-	try {
-		await driver.findElement(By.xpath(`//*[@*='${dropd}']/option[text()='${value}']`)).click();
-	} catch (e) {
-		try {
-			await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`)).click();
-		} catch (e2) {
-			try {
-				await driver.findElement(By.xpath(`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`)).click();
-			} catch (e3) {
-				try {
-					await driver.findElement(By.xpath(`//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`)).click();
-				} catch (e4) {
-					try {
-						await driver.findElement(By.xpath(`${dropd}`)).click();
-					} catch (e5) {
-						world = this;
-						await driver.takeScreenshot()
-							.then(async (buffer) => {
-								world.attach(buffer, 'image/png');
-							});
-						throw Error(e);
-					}
-				}
-			}
-		}
+
+	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
+	`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`]
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 	}
+	await Promise.any(promises)
+	.then((elem) => elem.click())
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	})
+
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -367,7 +308,7 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 When('I select the option {string}', async function selectviaXPath(dropd) {
 	const world = this;
 	try {
-		await driver.findElement(By.xpath(`${dropd}`)).click();
+		await driver.wait(until.elementLocated(By.xpath(`${dropd}`)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100).click()
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
@@ -380,28 +321,33 @@ When('I select the option {string}', async function selectviaXPath(dropd) {
 // Hover over element and Select an Option
 When('I hover over the element {string} and select the option {string}', async function hoverClick(element, option) {
 	const world = this;
+	// const linkIdentifiers = [`${element}`, `//*[contains(text(),'${element}')]`]
+	// const selectionIdentifiers = [`${option}`, `//*[contains(text(),'${element}')]/following::*[text()='${option}']`, `//*[contains(text(),'${option}')]`]
+	const maxWait = searchTimeout
+	const waitText = `Timed out after ${searchTimeout} ms`
+	const waitRetryTime = 100
 	try {
 		const action = driver.actions({ bridge: true });
-		const link = await driver.findElement(By.xpath(`${element}`));
+		const link = await driver.wait(until.elementLocated(By.xpath(`${element}`)),maxWait, waitText, waitRetryTime);
 		await action.move({ x: 0, y: 0, origin: link }).perform();
 		await driver.sleep(2000);
 		const action2 = driver.actions({ bridge: true });
-		const selection = await driver.findElement(By.xpath(`${option}`));
+		const selection = await driver.wait(until.elementLocated(By.xpath(`${option}`)), maxWait, waitText, waitRetryTime);
 		await action2.move({ origin: selection }).click()
 			.perform();
 	} catch (e) {
 		const action = driver.actions({ bridge: true });
-		const link = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]`));
+		const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), maxWait, waitText, waitRetryTime);
 		await action.move({ x: 0, y: 0, origin: link }).perform();
 		await driver.sleep(2000);
 		const action2 = driver.actions({ bridge: true });
 		try {
-			const selection = await driver.findElement(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`));
+			const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`)), maxWait, waitText, waitRetryTime);
 			await action2.move({ origin: selection }).click()
 				.perform();
 		} catch (e2) {
 			try {
-				const selection = await driver.findElement((`//*[contains(text(),'${option}')]`));
+				const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${option}')]`)), maxWait, waitText, waitRetryTime);
 				await action2.move({ origin: selection }).click()
 					.perform();
 			} catch (e3) {
@@ -430,30 +376,25 @@ When('I check the box {string}', async function checkBox(name) {
 	// await driver.wait(until.elementLocated(
 	// By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 	const world = this;
-	try {
-		// this one works, even if the element is not clickable (due to other elements blocking it):
-		await driver.findElement(By.xpath(`//*[@type="checkbox" and @*="${name}"]`)).sendKeys(Key.SPACE);
-	} catch (e) {
-		try {
-			// this one works, for a text label next to the actual checkbox
-			await driver.findElement(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)).click();
-		} catch (e2) {
-			// default
-			try {
-				await driver.findElement(By.xpath(`//*[contains(text(),'${name}') or @*='${name}']`)).click();
-			} catch (e3) {
-				try {
-					await driver.findElement(By.xpath(`${name}`)).click();
-				} catch (e4) {
-					await driver.takeScreenshot().then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-					throw Error(e);
-				}
-			}
-		}
-	}
-	await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
+	// const identifiers = [`//*[@type="checkbox" and @*="${name}"]`, `//*[contains(text(),'${name}')]//parent::label`, `//*[contains(text(),'${name}') or @*='${name}']`, `${name}`]
+	const maxWait = searchTimeout
+	const waitText = `Timed out after ${searchTimeout} ms`
+	const waitRetryTime = 100
+	const promises = [
+		driver.wait(until.elementLocated(By.xpath(`//*[@type="checkbox" and @*="${name}"]`)), maxWait, waitText, waitRetryTime).sendKeys(Key.SPACE),
+		driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)), maxWait, waitText, waitRetryTime).click(),
+		driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${name}') or @*='${name}']`)), maxWait, waitText, waitRetryTime).click(),
+		driver.wait(until.elementLocated(By.xpath(`${name}`)), maxWait, waitText, waitRetryTime).click()
+	]
+	await Promise.any(promises)
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	})
+
+	// await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -510,18 +451,19 @@ When('I switch to the next tab', async function switchToNewTab() {
 When('I want to upload the file from this path: {string} into this uploadfield: {string}',
 	async function uploadFile(path, input) {
 		const world = this;
-		try {
-			await driver.findElement(By.xpath(`//input[@*='${input}']`)).sendKeys(`${path}`);
-		} catch (e) {
-			try {
-				await driver.findElement(By.xpath(`${input}`)).sendKeys(`${path}`);
-			} catch (e2) {
-				await driver.takeScreenshot().then(async (buffer) => {
-					world.attach(buffer, 'image/png');
-				});
-				throw Error(e);
-			}
+		const identifiers = [`//input[@*='${input}']`, `${input}`]
+		const promises = []
+		for(const idString of identifiers){
+			promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 		}
+		await Promise.any(promises)
+		.then((elem) => elem.sendKeys(`${path}`))
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
+		})
 		await driver.sleep(currentParameters.waitTime);
 	});
 
@@ -545,55 +487,38 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 // Search a textfield in the html code and assert it with a Text
 Then('So I can see the text {string} in the textbox: {string}', async function checkForTextInField(expectedText, label) {
 	const world = this;
-	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async (readyState) => readyState === 'complete'));
-	try {
-		await driver.findElement(By.xpath(`//*[@id='${label}']`))
-			.then(async (body) => {
-				const resp = await body.getText().then((text) => text);
-				expect(expectedText).to.equal(resp, 'Textfield does not match the string');
-			});
-	} catch (e) {
-		try {
-			await driver.findElement(By.xpath(`//*[@*='${label}']`))
-				.then(async (body) => {
-					const resp = await body.getText().then((text) => text);
-					expect(expectedText).to.equal(resp, 'Textfield does not match the string');
-				});
-		} catch (e2) {
-			try {
-				await driver.findElement(By.xpath(`//*[contains(@*, '${label}')]`))
-					.then(async (body) => {
-						const resp = await body.getText().then((text) => text);
-						expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
-					});
-			} catch (e3) {
-				try {
-					await driver.findElement(By.xpath(`${label}`))
-						.then(async (body) => {
-							const resp = await body.getText().then((text) => text);
-							expect(expectedText).to.equal(resp, 'Textfield does not contain the string');
-						});
-				} catch (e4) {
-					await driver.takeScreenshot()
-						.then(async (buffer) => {
-							world.attach(buffer, 'image/png');
-						});
-					throw Error(e);
-				}
-			}
-		}
+
+	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@*, '${label}')]`,
+						`//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`]
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 	}
+	await Promise.any(promises)
+	.then(async (elem) => {
+		let resp = await elem.getText().then((text) => text);
+		if (resp == '') {
+			resp = await elem.getAttribute("outerHTML");
+		}
+		expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
+	})
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	})
 	await driver.sleep(currentParameters.waitTime);
 });
 
 // Search if a is text in html code
-Then('So I can see the text: {string}', async function (string) {
+Then('So I can see the text: {string}', async function (string) { // text is present
 	const world = this;
 	try {
 		await driver.sleep(500);
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
-		await driver.wait(until.elementLocated(By.css('Body')), 2000).then(async (body) => {
+		await driver.wait(until.elementLocated(By.css('Body')), searchTimeout)
+		.then(async (body) => {
 			const cssBody = await body.getText().then((bodytext) => bodytext);
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
@@ -612,45 +537,23 @@ Then('So I can see the text: {string}', async function (string) {
 // Search a textfield in the html code and assert if it's empty
 Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	const world = this;
-	await driver.sleep(500);
-	await driver.wait(async () => driver.executeScript('return document.readyState')
-		.then(async (readyState) => readyState === 'complete'));
-	try {
-		await driver.findElement(By.xpath(`//*[@id='${label}']`))
-			.then(async (body) => {
-				const resp = await body.getText().then((text) => text);
-				expect(resp).to.equal('', 'Textfield does contain some Text');
-			});
-	} catch (e) {
-		try {
-			await driver.findElement(By.xpath(`//*[@*='${label}']`))
-				.then(async (body) => {
-					const resp = await body.getText().then((text) => text);
-					expect(resp).to.equal('', 'Textfield does contain some Text');
-				});
-		} catch (e2) {
-			try {
-				await driver.findElement(By.xpath(`//*[contains(@id, '${label}')]`))
-					.then(async (body) => {
-						const resp = await body.getText().then((text) => text);
-						expect(resp).to.equal('', 'Textfield does contain some Text');
-					});
-			} catch (e3) {
-				try {
-					await driver.findElement(By.xpath(`${label}`))
-						.then(async (body) => {
-							const resp = await body.getText().then((text) => text);
-							expect(resp).to.equal('', 'Textfield does contain some Text');
-						});
-				} catch (e4) {
-					await driver.takeScreenshot().then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-				}
-				throw Error(e);
-			}
-		}
+	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@id, '${label}')]`, `${label}`]
+	// await driver.sleep(500);
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 	}
+	await Promise.any(promises)
+	.then(async (elem) => {
+		const resp = await elem.getText().then((text) => text);
+		expect(resp).to.equal('', 'Textfield does contain some Text');
+	})
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	})
 	await driver.takeScreenshot().then(async (buffer) => {
 		world.attach(buffer, 'image/png');
 	});
@@ -683,7 +586,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
-		await driver.wait(until.elementLocated(By.css('Body')), 2000).then(async (body) => {
+		await driver.wait(until.elementLocated(By.css('Body')), searchTimeout).then(async (body) => {
 			const cssBody = await body.getText().then((bodytext) => bodytext);
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
@@ -703,33 +606,25 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 // eslint-disable-next-line prefer-template
 Then('So the checkbox {string} is set to {string} [true OR false]', async function checkBoxIsChecked(checkboxName, checked1) {
 	const world = this;
+	const identifiers = [`//*[@type='checkbox' and @*='${checkboxName}']`, `//*[contains(text(),'${checkboxName}')]//parent::label`, `//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`, `${checkboxName}`]
 	const checked = (checked1 === 'true');
 	console.log(`checked ${checked} ${typeof (checked)}`);
 	let isChecked;
-	try {
-		// this one works, even if the element is not clickable (due to other elements blocking it):
-		isChecked = await driver.findElement(By.xpath(`//*[@type='checkbox' and @*='${checkboxName}']`)).isSelected();
-	} catch (e) {
-		try {
-			// this one works, for a text label next to the actual checkbox
-			isChecked = await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}')]//parent::label`)).isSelected();
-		} catch (e2) {
-			// default
-			try {
-				isChecked = await driver.findElement(By.xpath(`//*[contains(text(),'${checkboxName}') or @*='${checkboxName}']`)).isSelected();
-			} catch (e3) {
-				try {
-					isChecked = await driver.findElement(By.xpath(`${checkboxName}`)).isSelected();
-				} catch (e4) {
-					await driver.takeScreenshot().then(async (buffer) => {
-						world.attach(buffer, 'image/png');
-					});
-					throw Error(e);
-				}
-			}
-		}
+
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
 	}
-	expect(isChecked).to.equal(checked);
+	await Promise.any(promises)
+	.then((elem) => {
+		expect(elem.isSelected()).to.equal(checked)
+	})
+	.catch(async (e) => {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	})
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -738,19 +633,13 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 After(async () => {
 	if (currentParameters.oneDriver) {
 		scenarioIndex += 1;
+		await driver.sleep(500);
 		if (scenarioIndex === testLength) {
-			// Without Timeout driver quit is happening too quickly. Need a better solution
-			// https://github.com/SeleniumHQ/selenium/issues/5560
-			const condition = until.elementLocated(By.name('loader'));
-			driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
 			await driver.quit();
 		}
 	} else {
 		scenarioIndex += 1;
-		// Without Timeout driver quit is happening too quickly. Need a better solution
-		// https://github.com/SeleniumHQ/selenium/issues/5560
-		const condition = until.elementLocated(By.name('loader'));
-		driver.wait(async (drive) => condition.fn(drive), 1000, 'Loading failed.');
+		await driver.sleep(500);
 		await driver.quit();
 	}
 });

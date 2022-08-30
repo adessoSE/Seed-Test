@@ -36,7 +36,7 @@ export class RegistrationComponent implements OnInit {
     }
 
     /**
-     * Registers a user to Seed-Test
+     * Registers a user to Seed-Test and logs user in
      * @param form user form
      */
     async registerUser(form: NgForm){
@@ -47,9 +47,11 @@ export class RegistrationComponent implements OnInit {
         if (response.error && response.error.status === 'error') {
             this.error = response.error.message;
             //this.toastr.error(response.error.message, 'Registration')
-        } else {
+        }  else {
+            localStorage.setItem('login', 'true');
             this.toastr.success('successfully registered', 'Registration')
-            this.router.navigate(["/"]);
+            const user = {email: form.value.email, password: form.value.password}
+            this.apiService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']))
         } 
     }
 

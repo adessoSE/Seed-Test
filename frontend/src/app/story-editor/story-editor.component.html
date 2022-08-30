@@ -46,19 +46,19 @@
                 As a <...>, I want <...> so that <...>
               </span>
           </dfn>
-
       </div>
       <span *ngIf="!this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase }}</span>
-      <span *ngIf="this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
-      <div *ngIf="db">
+      <div *ngIf="db" style="flex-grow: .5;">
+        <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
-        <button id="story_change_title" class="storyTitle" (click)="changeStoryTitle();" data-uk-tooltip
+        <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" data-uk-tooltip
         title="Change Story Title">
-        <em class="material-icons">edit</em>
+          <em class="material-icons">edit</em>
+        </button>
+      </div>
+      <button id= "story_delete" class= "storyTitle" (click)= showDeleteStoryToast($event) uk-tooltip="Delete Story">
+        <em class="material-icons">delete</em> 
       </button>
-    <button id= "story_delete" class= "storyTitle" (click)= showDeleteStoryToast($event) uk-tooltip="Delete Story">
-    <em class="material-icons">delete</em> </button>
-  </div>
     </div>
     <!--Description-->
     <br>
@@ -67,10 +67,11 @@
         <mat-expansion-panel hideToggle>
         </mat-expansion-panel>
         <mat-expansion-panel (opened)="panelOpenState = true"
-                             (closed)="panelOpenState = false">
+                             (closed)="panelOpenState = false"
+                             id="widened-expansion-panel">
           <mat-expansion-panel-header>
             <mat-panel-title>
-              Description
+              <div class="Smallnavigation1">Description</div>
             </mat-panel-title>
             <mat-panel-description>
             </mat-panel-description>
@@ -79,119 +80,49 @@
         </mat-expansion-panel>
       </mat-accordion>
     </div>
+
     <!--Background-->
-    <div class="title">
-      <div class="expand SmallHeadline5" (click)="openBackground();">{{ 'background (Optional)' | titlecase }}
-        <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
-          <span rel="def" id="backgroundInfoTextVerticalPosition">
-            You can use the background to set actions, which will be carried out before testing the whole story.
-            This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios.
-            In short: A background allows to set Given-Steps used for all scenarios.
-          </span>
-        </dfn>
-
-        <button id="background_up" uk-icon="icon: chevron-down"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="!showBackground"></button>
-        <button id="background_down" uk-icon="icon: chevron-up"  uk-tooltip title="Show Background"  class="uk-float-right showButton" *ngIf="showBackground"></button>
-      </div>
-      <div class="backgroundContainer" *ngIf="showBackground">
-        <!--Buttons-->
-        <div class="marginLeft">
-          <input id="backgroundName" class="backgroundName" #backgroundName type="text" value="{{selectedStory.background.name}}" on-input="backgroundNameChange(backgroundName.value)" placeholder="Background Name" />
-        </div>
-
-      <!--Action bar-->
-      <div class="scenarioBarContainer">
-        <div class="actionBarButtonGroup">
-          <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps"/>
-          <div [class.disabled]="!this.activeActionBar">
-            <button id="{{'background_addBlock_step_}}"
-            class="actionButton" uk-tooltip title="Save Steps as Block"
-            (click)="saveBlockBackground($event);">
-              <em class="material-icons">queue</em>
+    <br>
+    <mat-accordion>
+      <mat-expansion-panel hideToggle>
+      </mat-expansion-panel>
+      <mat-expansion-panel (opened)="showBackground = true"
+                           (closed)="showBackground = false"
+                           id="widened-expansion-panel">
+        <mat-expansion-panel-header class="scenarioHeaderContainer">
+          <mat-panel-title>
+            <div class="Smallnavigation1">
+              {{ 'background (Optional)' | titlecase }} 
+              <span class="childElement infoIcon uk-icon" uk-icon="info" matTooltip="You can use the background to set actions, which will be carried out before testing the whole story.
+              This happens before the test runs through the Given/When/Then-Steps and is used across all scenarios.
+              In short: A background allows to set Given-Steps used for all scenarios."></span>
+            </div>
+          </mat-panel-title>
+          <div class="backgroundTitle">
+            <span class="MediumHeadline5"> {{selectedStory.background.name | titlecase}}</span>
+            <button class="storyTitle pencil_icon" (click)="changeBackgroundTitle();$event.stopPropagation();" data-uk-tooltip
+            title="Change Background Title">
+              <em class="material-icons">edit</em>
             </button>
-            <button id="{{'background_deactivate_step_}}"
-             class="actionButton" uk-tooltip title="Deactivate Step"
-            (click)="deactivateStep();">
-              <em class="material-icons">do_not_touch</em>
+          </div>
+          <div>
+            <button id="saveButton" class="storyTitle" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+              title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
+              (click)="updateBackground();$event.stopPropagation();">
+                <em class="material-icons">save</em>
             </button>
-            <button id="{{'background_delete_step'}}"
-            class="actionButton" uk-tooltip title="Delete Step"
-           (click)="removeStepFromBackground();">
+            <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
+              class="storyTitle" data-uk-tooltip title="Delete Background"
+              (click)="deleteBackground();$event.stopPropagation();">
               <em class="material-icons">delete</em>
             </button>
-            <button id="{{'background_copy_step'}}"
-            class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-            (click)="copyBlock();">
-              <em class="material-icons">content_copy</em>
-            </button>
           </div>
-        </div>
-        <div class="scenarioButtonGroup SmallHeadline5">
-          <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
-              <em  class="material-icons">copy_all</em>
-          </button>
-          <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock(selectedStory._id)">
-            <em class="material-icons">playlist_add</em>
-          </button>
-          <button id="background_add_step" [class.disabled]="testRunning" [disabled]="testRunning"
-          class="scenarioButton" title="Add New Step" uk-tooltip>
-            <em class="material-icons">add_circle_outline</em>
-          </button>
-          <div uk-dropdown="pos: left-bottom">
-            <ul class="uk-nav uk-dropdown-nav">
-              <li *ngFor="let step of sortedStepTypes(); let i = index" >
-                <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" id="{{'scenario_add_step_' + i + '_type_' + j}}" (click)="addStepToBackground(selectedStory._id,step);">
-                  {{step.type}}</span>
-              </li>
-            </ul>
-          </div>
-          <button id="saveButton" class="scenarioButton" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-          title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
-          (click)="updateBackground();">
-            <em class="material-icons">save</em>
-          </button>
-          <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
-          class="scenarioButton" data-uk-tooltip title="Delete Background"
-          (click)="deleteBackground($event);">
-          <em class="material-icons">delete</em>
-          </button>
-        </div>
-      </div>
-
-
-
-      <div class="uk-steps">
-        <br>
-        <div cdkDropList (cdkDropListDropped)="onDropBackground($event,selectedStory.background.stepDefinitions)">
-          <div *ngFor="let currentStep of getBackgroundList(selectedStory.background.stepDefinitions); let j=index;" cdkDrag>
-            <div class="text-inline SmallBody1regularLH" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
-              <div class="dragIconContainer" cdkDragHandle>
-                <em class="material-icons dragIcon">drag_indicator</em>
-              </div>
-              <input type="checkbox" class="checkbox" id="{{'background' + '_checkbox_' + j}}" (change)="this.checkStep($event, currentStep, null)" [checked]="currentStep.checked">
-              {{j+1}}. {{currentStep.pre}}
-              <p style="display:inline" *ngIf="currentStep.values.length > 0">
-                <input id="{{'background_step_input_pre' + j}}" #step_type_input
-                  type="text" value="{{currentStep.values[0]}}" on-input="addToValuesBackground(step_type_input.value,j,0)" />
-                  {{currentStep.mid}}
-                <input id="{{'background_step_input_mid' + j}}"#step_type_input *ngIf="currentStep.values[1] != null"
-                  type="text" value="{{currentStep.values[1]}}" on-input="addToValuesBackground(step_type_input.value,j,1)" />
-              </p>
-              {{currentStep.post}}
-              <input id="{{'background_step_input_post' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
-              type="text" value="{{value}}" on-input="addToValuesBackground(step_type_input.value,j , n + 2)" />
-              <div *ngIf="currentStep.outdated">
-                <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
-                  <span rel="def">
-                    This step got updated. Please check if the implemented logic is still valid. When you've adjusted the step, save the background to confirm your adjustments.
-                  </span>
-                </dfn>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        </mat-expansion-panel-header>
+        <app-base-editor *ngIf="showBackground == true" [templateName]="'background'" [selectedScenario]="selectedScenario"
+        [selectedStory]="selectedStory" [originalStepTypes]="originalStepTypes" [showBackground]="showBackground"></app-base-editor>
+      </mat-expansion-panel>
+    </mat-accordion>
+    <br> 
     <!--Buttons Run Story-->
     <div class="storyInfoContainer">
       <div class="storyInfoLeft">
@@ -202,25 +133,22 @@
       </div>
       <div class="storyInfoCenter" *ngIf="this.selectedScenario">
           <label class="selectLabel SmallIcontext">Run Story in one Session:</label>
-          <input type="checkbox" id="oneDriverCheck" (change)= "setOneDriver($event)" [checked]="this.selectedStory.oneDriver">
+          <input type="checkbox" id="oneDriverCheck" (change)= "setOneDriver()" [checked]="this.selectedStory.oneDriver">
           <dfn class="def"><span id="oneDriverInfoIcon" uk-icon="info"></span>
             <span rel="def" style="font-weight: normal;">
             Executes all scenarios consecutively in one single Browser session.
             </span>
           </dfn>
           <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
-          <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event, $event.target.valueAsNumber)">
+          <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200 value="{{this.selectedScenario.stepWaitTime || 0}}" (change)="setStepWaitTime($event.target.valueAsNumber)">
           <label class="selectLabel SmallIcontext">Browser:</label>
-          <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event, $event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
-            <option value="chrome">Chrome</option>
-            <option *ngIf="!this.daisyVersion" value="firefox">Firefox</option>
+          <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)" value="{{this.selectedScenario.browser || 'chrome'}}">
+            <option *ngIf="this.chromium_enabled" value="chrome">Chrome</option>
+            <option *ngIf="this.gecko_enabled" value="firefox">Firefox</option>
+            <option *ngIf="this.edge_enabled" value="MicrosoftEdge">Edge</option>
           </select>
       </div>
       <div class="storyInfoRight uk-button-group">
-        <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
-                uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
-        <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
-                uk-tooltip="Copy Story Link to Clipboard">add_link</button>
         <button *ngIf="this.showResults" id="hide_results_top" [class.disabledButton]="!testDone" class="button"
           uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
           <em class="material-icons-outlined">expand_more</em></button>
@@ -236,27 +164,28 @@
         <button *ngIf="this.reportIsSaved" id="unsave_report_top" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
           uk-tooltip="Do not Save Report" type="button" (click)=" unsaveReport(this.reportId);">
           <em class="material-icons-outlined">cancel</em></button>
+          <button id="run_story" class="button" [class.disabledButton]="testRunning" [disabled]="testRunning"
+                uk-tooltip="Runs all scenario tests for the story" type="button" (click)="runTests(null)">Run Story</button>
+        <button class="button material-icons" [cdkCopyToClipboard]="storyLink()" (click)="showStoryLinkToast()"
+                uk-tooltip="Copy Story Link to Clipboard">add_link</button>
       </div>
     </div>
 
     <!--Scenario Header-->
-
-    <app-scenario-editor [isDark]="isDark" #scenarioChild (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
+    <app-scenario-editor [isDark]="isDark" #scenarioChild (diasyLoginChanged)="setShowDaisy($event)" (selectNewScenarioEvent)="selectNewScenario($event);" (addScenarioEvent)="addScenario($event);" (deleteScenarioEvent)="showDeleteScenarioToast($event);" [originalStepTypes]="originalStepTypes" [testRunning]="testRunning" [newlySelectedStory]="selectedStory" [newlySelectedScenario]="selectedScenario"></app-scenario-editor>
     <app-rename-story #renameStoryModal></app-rename-story>
-    <app-add-block-form #addBlockModal></app-add-block-form>
-    <app-save-block-form #saveBlockModal></app-save-block-form>
+    <app-rename-background #renameBackgroundModal></app-rename-background>
+
 
       <!--Buttons Run Scenario-->
-      <div class="uk-card-footer">
-        <div class="ScenarioInfoLeft">
+      <div class="storyInfoContainer" id="justifyScenarioContent">
+        <div class="storyInfoLeft">
           <button class="button" (click)="openReportHistory()" uk-tooltip="Switch to Report View">
             <em class="material-icons">insert_chart_outlined</em>
             View Reports
           </button>
         </div>
-        <div class="uk-button-group uk-align-right">
-         <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedScenario.scenario_id);">
-            Run Scenario</button>
+        <div class="storyInfoRight uk-button-group">
           <button *ngIf="this.showResults" id="hide_results_bottom" [class.disabledButton]="!testDone" class="button"
                   uk-tooltip="Hide Test Results" type="button" (click)="hideResults()">
             <em class="material-icons-outlined">expand_more</em></button>
@@ -272,6 +201,8 @@
           <button *ngIf="this.reportIsSaved" id="unsave_report_bottom" class="button" [class.disabledButton]="!testDone" [disabled]="!testDone"
                   uk-tooltip="Do not Save Report" type="button" (click)=" unsaveReport(this.reportId);">
             <em class="material-icons-outlined">cancel</em></button>
+            <button id="run_scenario" class="button" uk-tooltip="Runs this scenario test" [class.disabledButton] ="testRunning" [disabled]="testRunning" type="button" (click)="runTests(this.selectedScenario.scenario_id);">
+              Run Scenario</button>
         </div>
     </div>
 
@@ -294,3 +225,5 @@
     </div>
   </div>
 </div>
+
+

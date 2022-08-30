@@ -41,13 +41,15 @@ import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
+import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
 import {ClipboardModule} from '@angular/cdk/clipboard';
+import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
-
-
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
@@ -65,6 +67,9 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import { ResizeInputDirective } from './directives/resize-input.directive';
+import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
+import { BaseEditorComponent } from './base-editor/base-editor.component';
 
 @NgModule({
   declarations: [
@@ -110,6 +115,9 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
+    ResizeInputDirective,
+    RenameBackgroundComponent,
+    BaseEditorComponent
   ],
   imports: [
     NgbModule,
@@ -127,16 +135,23 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
     DragDropModule,
     MatProgressSpinnerModule,
     CarouselModule,
+    HttpClientModule,
+    LoggerModule.forRoot({
+      level: NgxLoggerLevel.DEBUG,
+      serverLogLevel: NgxLoggerLevel.OFF
+    }),
     ToastrModule.forRoot({
       timeOut: 3000
     }),
     MatSlideToggleModule,
     MatIconModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatTooltipModule,
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,
-    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }],
+    [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

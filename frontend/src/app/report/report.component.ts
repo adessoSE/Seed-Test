@@ -1,8 +1,11 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, ElementRef} from '@angular/core';
 import {ApiService} from '../Services/api.service';
 import {ActivatedRoute} from '@angular/router';
 import {saveAs} from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 
 /**
  * Component to show the report
@@ -37,6 +40,8 @@ export class ReportComponent implements OnInit {
 
     isDark:boolean;
 
+    @ViewChild('iframe') iframe: ElementRef;
+
 
     /**
      * Retrieves the report
@@ -48,7 +53,7 @@ export class ReportComponent implements OnInit {
         this.route.params.subscribe(params => {
             if (params.reportName) {
                 if (!localStorage.getItem('url_backend')) {
-                    this.apiService.getBackendInfo().then(value => {
+                    this.apiService.getBackendInfo().then(_ => {
                         this.getReport(params.reportName);
                     });
                 } else {
@@ -64,9 +69,9 @@ export class ReportComponent implements OnInit {
     ngOnInit() {
         this.isDark = this.themeService.isDarkMode();
         this.themeService.themeChanged
-        .subscribe((currentTheme) => {
+        .subscribe((_) => {
             this.isDark = this.themeService.isDarkMode()
-    });
+        });
     }
 
     ngOnChanges() {
@@ -96,7 +101,7 @@ export class ReportComponent implements OnInit {
      */
     unsaveReport(reportId) {
         this.reportIsSaved = false;
-        return new Promise<void>((resolve, reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.apiService
             .unsaveReport(reportId)
             .subscribe(_resp => {
                 resolve();
@@ -110,7 +115,7 @@ export class ReportComponent implements OnInit {
      */
     saveReport(reportId) {
         this.reportIsSaved = true;
-        return new Promise<void>((resolve, reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.apiService
             .saveReport(reportId)
             .subscribe(_resp => {
                 resolve();
@@ -134,4 +139,28 @@ export class ReportComponent implements OnInit {
             // iframe.srcdoc = resp
         });
     }
+
+    public exportHtmlToPDF(){
+        const iframe = this.iframe.nativeElement;
+        const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
+
+        let divEl = iframe.contentWindow.document.getElementsByClassName('panel-collapse');
+        for (let element of divEl) {
+            element.classList.add("in");
+        }
+
+        html2canvas(body).then(canvas => {
+              
+            let docWidth = 208;
+            let docHeight = canvas.height * docWidth / canvas.width;
+              
+            const contentDataURL = canvas.toDataURL('image/png')
+            let doc = new jsPDF('p', 'mm', 'a4');
+            let position = 0;
+            doc.addImage(contentDataURL, 'PNG', 0, position, docWidth, docHeight);
+              
+            doc.save(this.reportId+ '.pdf');
+        })
+    }
+      
 }

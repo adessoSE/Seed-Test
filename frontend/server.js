@@ -2,7 +2,7 @@
 const request = require('request')
 
 if(!process.env.NODE_ENV){
-  const dotenv = require('dotenv').config();
+  require('dotenv').config();
 }
 
 const express = require('express');
@@ -15,11 +15,18 @@ const environment = '../frontend/src/environments/environment';
 // Serve only the static files form the dist directory
 app.use(express.static(ngPath));
 
-app.get('/backendInfo', (req, res) => {
-  res.json({ url: process.env.API_SERVER, clientId: process.env.GITHUB_CLIENT_ID, version: process.env.VERSION});
+app.get('/backendInfo', (_, res) => {
+  res.json({
+    url: process.env.API_SERVER,
+    clientId: process.env.GITHUB_CLIENT_ID,
+    version: process.env.VERSION || "",
+    gecko_enabled: process.env.GECKO_ENABLED || false,
+    chromium_enabled: process.env.CHROMIUM_ENABLED || true,
+    edge_enabled: process.env.EDGE_ENABLED || false,
+  });
 });
 
-app.get('/*', (req, res) => {
+app.get('/*', (_, res) => {
   res.sendFile(path.join(ngPath, 'index.html'));
 });
 

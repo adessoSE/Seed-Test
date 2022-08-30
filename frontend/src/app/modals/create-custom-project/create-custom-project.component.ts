@@ -7,7 +7,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-create-custom-project',
   templateUrl: './create-custom-project.component.html',
-  styleUrls: ['./create-custom-project.component.css']
+  styleUrls: ['./create-custom-project.component.css',  '../layout-modal/layout-modal.component.css']
 })
 export class CreateCustomProjectComponent {
 
