@@ -2,28 +2,26 @@
 <ng-template #createScenarioModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="modalHeader"class="MediumSubline1H4 modal-title">Create new scenario</span>
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">Create Scenario</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form #createScenarioForm="ngForm" novalidate (ngSubmit)="createNewScenario(createScenarioForm)">     
-        <div class="modal-body modal-xl">
-            <div class="uk-card-title submitForm">
-                <div>
-                    <div class="padding_top modalsContent">
-                        <label class="uk-form-label">Enter unique scenario name*</label>
-                        <span class="material-icons" display-title="Enter unique scenario name">drive_file_rename_outline</span>
-                        <div >
-                            <input type="text" ngModel id="newTitle" pattern="\S(.*\S)?" name="newTitle" placeholder="New title" required>
-                        </div>                    
+    <div class="modal-body modal-xl">
+        <form #createScenarioForm="ngForm" novalidate (ngSubmit)="createNewScenario(createScenarioForm)">     
+            <div class="submitForm">
+                <div class="form-group modalsContent">
+                    <div >
+                        <label class="uk-form-label">Enter unique scenario name* </label>
+                        <input type="text" ngModel id="newTitle" pattern="\S(.*\S)?" name="newTitle" 
+                        style="margin-left: 24px;" placeholder="New title" required>
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button class="normalButton" type="submit" [disabled]="!createScenarioForm.valid"
+                    [ngStyle]="{'opacity': !createScenarioForm.valid ?  '50%' : '100%'}">Submit</button>
+                </div> 
             </div>
-        </div>
-        <div class="modal-footer">
-            <button class="normalButton" type="submit" [disabled]="!createScenarioForm.valid"
-            [ngStyle]="{'opacity': !createScenarioForm.valid ?  '50%' : '100%'}">Submit</button>
-        </div> 
-    </form>   
+        </form>   
+    </div>
 </ng-template>
