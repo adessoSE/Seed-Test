@@ -6,7 +6,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-rename-scenario',
   templateUrl: './rename-scenario.component.html',
-  styleUrls: ['./rename-scenario.component.css']
+  styleUrls: ['./rename-scenario.component.css', '../layout-modal/layout-modal.component.css']
 })
 export class RenameScenarioComponent {
 

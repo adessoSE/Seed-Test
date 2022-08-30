@@ -7,7 +7,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-delete-account',
   templateUrl: './delete-account.component.html',
-  styleUrls: ['./delete-account.component.css']
+  styleUrls: ['./delete-account.component.css',  '../layout-modal/layout-modal.component.css']
 })
 export class DeleteAccountComponent {
 

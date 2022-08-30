@@ -7,7 +7,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-new-step-request',
   templateUrl: './new-step-request.component.html',
-  styleUrls: ['./new-step-request.component.css']
+  styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css']
 })
 export class NewStepRequestComponent {
 

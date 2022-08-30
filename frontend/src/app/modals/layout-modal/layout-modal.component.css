@@ -125,10 +125,12 @@
     color: white;
 }
 
-::ng-deep .modal-backdrop {
-    z-index: unset!important;
-  }
-
+/* .modalsContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}  */
 
 
 
