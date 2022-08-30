@@ -2,6 +2,7 @@ import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cd
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
 import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Block } from '../model/Block';
 import { Scenario } from '../model/Scenario';
@@ -26,6 +27,7 @@ export class BaseEditorComponent {
     */
   @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
   @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
+  @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
 
   @Input() selectedScenario: Scenario;
 
@@ -161,39 +163,43 @@ export class BaseEditorComponent {
     else {
       newStep = this.createNewStep(step, storyOrScenario.stepDefinitions);
     }
-    switch (newStep.stepType) {
-      case 'given':
-        storyOrScenario.stepDefinitions.given.push(newStep);
-        lastEl = storyOrScenario.stepDefinitions.given.length-1;
-        this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
-        break;
-      case 'when':
-        switch (templateName) {
-          case 'scenario':
-            storyOrScenario.stepDefinitions.when.push(newStep);
-            lastEl = storyOrScenario.stepDefinitions.when.length-1;
-            this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
-            break;
-             
-          case 'background':
-            storyOrScenario.background.stepDefinitions.when.push(newStep);
-            lastEl = storyOrScenario.background.stepDefinitions.when.length-1;
-            this.lastToFocus = templateName+'_step_input_pre_'+ lastEl;
-            storyOrScenario.background.saved = false;
-            break;
-        }
-        break;
-     
-      case 'then':
-        storyOrScenario.stepDefinitions.then.push(newStep);
-        lastEl = storyOrScenario.stepDefinitions.then.length-1;
-        this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
-        break;
-      default:
-        break;
-    }
-    if (templateName === 'scenario') {
-      storyOrScenario.saved = false;
+    if (newStep['type'] === this.newStepName) {
+      this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
+    } else {
+      switch (newStep.stepType) {
+        case 'given':
+          storyOrScenario.stepDefinitions.given.push(newStep);
+          lastEl = storyOrScenario.stepDefinitions.given.length-1;
+          this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
+          break;
+        case 'when':
+          switch (templateName) {
+            case 'scenario':
+              storyOrScenario.stepDefinitions.when.push(newStep);
+              lastEl = storyOrScenario.stepDefinitions.when.length-1;
+              this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
+              break;
+               
+            case 'background':
+              storyOrScenario.background.stepDefinitions.when.push(newStep);
+              lastEl = storyOrScenario.background.stepDefinitions.when.length-1;
+              this.lastToFocus = templateName+'_step_input_pre_'+ lastEl;
+              storyOrScenario.background.saved = false;
+              break;
+          }
+          break;
+       
+        case 'then':
+          storyOrScenario.stepDefinitions.then.push(newStep);
+          lastEl = storyOrScenario.stepDefinitions.then.length-1;
+          this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
+          break;
+        default:
+          break;
+      }
+      if (templateName === 'scenario') {
+        storyOrScenario.saved = false;
+      }
     } 
   }
  
