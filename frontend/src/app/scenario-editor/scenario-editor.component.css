@@ -23,31 +23,6 @@
   background-color: black !important;
 }
 
-/* input[type="text"]{
-  margin: 1px;
-  padding: 1px;
-  border: none;
-  border-bottom: 1px solid #333;
-  position: relative;
-  top: -2px;
-  width: auto;
-  min-width: 5px;
-} */
-/* 
-.dragIconContainer{
-  text-align: center;
-  cursor: move;
-}
-
-em.dragIcon{
-  font-size: 18px;
-  color: black;
-  background-color: var(--white);
-  margin-top:1px;
-}
- */
-
-
 #scenario{
   border: 1px solid #999;
 }
@@ -55,81 +30,6 @@ em.dragIcon{
 .darkTheme#scenario {
   border:1px solid #60767b;
 }
-
-
-
-
-/* #infoIcon{
-  color: #999;
-  margin-left: 5px;
-  margin-right: 5px;
-  padding-right: 770px;
-} */
-
-/* :host ::ng-deep .infoIcon{
-  vertical-align: text-bottom;
-  padding-top: 0px !important;
-} */
-
-/* #infoIconScenario{
-  color: #999;
-  margin-left: 5px;
-  margin-right: 5px;
-} */
-
-/* .uk-button-group{
-  border-radius:4px;
-  border:2px solid rgb(255, 255, 255);
-} */
-
-/* .checkboxDropdown{
-  margin-top: -15px !important;
-} */
-
-
-/* .scenarioButton {
-  margin-right: 10px;
-} */
-
-/* .actionButton{
-  margin-left: 10px;
-} */
-
-/* .actionButton > em{
-  color: #333;
-  font-size: 22px;
-} */
-
-/* .darkTheme .actionButton > em {
-  color:#000000 !important;
-} */
-
-/* .scenarioButton em{
-  color:  var(--ocean-blue);
-}  */
-
-/* .darkTheme.scenarioButton em{
-  color:  var(--ocean-blue);
-} */
-
-/* .scenarioButton em:active {
-  background-color: var(--ocean-blue);
-  color: var(--white);
-}  */
-
-/* .button {
-  margin-right: 3px;
-  color:var(--white);
-  padding: 0px 10px;
-  font-size: 15px;
-  cursor: pointer;
-  border-radius: 3px;
-  border: solid 1px var(--ocean-blue);
-  background: var(--ocean-blue);
-  background: -moz-linear-gradient(top,  var(--ocean-blue),  rgb(2, 111, 161));
-  line-height: 38px;
-  text-transform: uppercase;
-} */
 
 /* Eventually not in use ? */
 .marginButton{
@@ -154,17 +54,6 @@ em.dragIcon{
   margin-right: auto !important;
 }
 
-/* .button:hover {
-  background: rgb(2, 111, 161);
-} */
-
-/* :host ::ng-deep .padding{
-  padding-top: 20px;
-  padding-left: 20px;
-  padding-bottom: 20px;
-  padding-right: 20px;
-} */
-
 .scenarioTitle{
   background: transparent;
   border: none;
@@ -181,78 +70,17 @@ em.dragIcon{
   transform: translate(0px, 3px)
 }
 
-
-/* #scenario_change_title > em {
-  font-size: 24px;
-  margin: 0px 5px;
-} */
-
 /* .scenarioButton_unsaved em{
   color: red !important;
 } */
 
-/* .disabled input{
-  color: gray;
-  border-bottom: 1px solid gray;
-}
-
-.darkTheme .disabled input {
-  color:#B0BEC5;
-  border-bottom: 1px solid #B0BEC5;
-} */
-
-/* .uk-dropdown{
-  padding: 15px;
-} */
-
-/* .darkTheme .uk-dropdown {
-  background-color: #60767b;
-} */
-
-/* .uk-nav > li > span{
-  padding: 1px;
-  cursor: pointer;
-}
-
-.uk-nav > li > .dropdownStep {
-  color:var(--ocean-blue);
-}
-
-.darkTheme .uk-nav > li > .dropdownStep {
-  color: #40C4FF;
-}
-
-.uk-nav > li > span:hover {
-    color: gray;
-}
-
-.darkTheme .uk-nav > li > span:hover {
-  color: white;
-}
-
-.uk-nav > li > .dropdownStepUndefined {
-  color:var(--marine-blue);
-}
-
-.darkTheme .uk-nav > li > .dropdownStepUndefined {
-  color:#00B0FF;
-}
-
-.disabled {
-  color: gray !important;
-  background: var(--white) !important;
-  font-style: italic;
-  text-decoration: line-through;
-}
-
-.darkTheme .disabled {
-  color: #B0BEC5 !important;
-}*/
 
 /* Eventually not in use */
 .uk-card-footer{
   padding-bottom: 0;
 } 
+
+/* Seems not being in use  */
 
 /* .disabledButton{
   visibility: hidden;
