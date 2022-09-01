@@ -8,12 +8,13 @@
         </button>
     </div>
     <div class="modal-body">
-        <form #updateGroupForm="ngForm" novalidate (ngSubmit)="onSubmit(updateGroupForm)">
-            <div class="form-group groupstoryselectionouter">
+        <form #updateGroupForm="ngForm" novalidate (ngSubmit)="updateGroup(updateGroupForm)">
+            <div class="form-group groupouterdiv modalsContent">
                 <div class="modalsContent">
                     <div>
                         <label class="uk-form-label">Change group name</label>
-                        <input id="nameInput" ngModel [ngModel]="groupTitle" pattern="\S(.*\S)?" name="title">
+                        <input name="title" id="grouptitle" ngModel [ngModel]="groupTitle"
+                         pattern="\S(.*\S)?" style="margin-left: 24px;" (keyup)="groupUnique(updateGroupForm)" required>
                     </div>
                     <div >
                         <label class="uk-form-label">Find story </label>
@@ -43,7 +44,7 @@
                           <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Story </th>
                           <td mat-cell *matCellDef="let element"> 
                             <div class="emailTableContainer">
-                                <label>{{element.title}} </label>
+                                <span>{{element.title}} </span>
                             </div> 
                           </td>
                         </ng-container>
@@ -56,12 +57,13 @@
                         </ng-container>
                         <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumnsStories;"></tr>
-                      </table> 
+                    </table> 
                 </div>                
             </div>
             <div class="modal-footer">
                 <button type="button" class="normalButton deleteButton" (click)="deleteGroup($event); modal.dismiss()">Delete</button>
-                <button type="submit" class="normalButton">Update</button>
+                <button id="submitUpdateGroup" type="submit" class="normalButton"
+                [disabled]="!updateGroupForm.valid" [ngStyle]="{'opacity': !updateGroupForm.valid ?  '50%' : '100%'}">Update</button>
             </div>
         </form>
     </div>

@@ -1,6 +1,8 @@
+import { formatCurrency } from '@angular/common';
 import { Component, EventEmitter, ViewChild} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
+import { Title } from '@angular/platform-browser';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Group } from 'src/app/model/Group';
@@ -35,6 +37,8 @@ export class CreateNewGroupComponent {
 
   isSequential: boolean;
 
+  group: Group;
+
   modalReference: NgbModalRef;
 
   /**
@@ -45,7 +49,7 @@ export class CreateNewGroupComponent {
   closeWindowEventEmitter = new EventEmitter();
 
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
+  constructor(private modalService: NgbModal, public apiService: ApiService) {}
 
   /**
      * Opens the create new group modal
@@ -102,41 +106,31 @@ export class CreateNewGroupComponent {
     }
   }
 
-  groupUnique(event, input: string, array: Group[], group?: Group) {
-    array = array ? array : [];
-    input = input ? input : '';
-
-    const button = (group ? document.getElementById('groupUpdate') : document.getElementById('groupSave')) as HTMLButtonElement;
-    if ((input && !array.find(i => i.name == input)) || (group ? array.find(g => g._id == group._id && g.name == input) : false)) {
-        button.disabled = false;
-    } else {
-        button.disabled = true;
-        this.toastr.error('Choose another group name');
-    }
+  groupUnique(form :NgForm) {
+    this.apiService.groupUnique('submitCreateNewGroup', form.value.title, this.groups, this.group);
   }
 
   /**
      * Creates a new custom story
      */
-  createNewGroup(event, form) {
-    event.stopPropagation();
+  createNewGroup(form :NgForm) {
     const title = form.value.title;
     if (title.trim() !== '') {
       const member_stories = this.selectedStories;
       var isSequential = this.isSequential;
       const value = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
-      const source = localStorage.getItem('source');
+      const source ='db';
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const group = {title, member_stories, isSequential};
       this.apiService.createGroupEvent({repositoryContainer, group});
-      this.modalReference.close();
+     
     }
-
+    this.modalReference.close();
   }
 
-  onSubmit(event, form :NgForm) {
-    this.createNewGroup(event, form);
-  }
+  //  onSubmit(event, form :NgForm) {
+  //    this.createNewGroup(event, form);
+  //  }
 
 }

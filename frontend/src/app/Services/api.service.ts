@@ -11,6 +11,7 @@ import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
 import {Group} from '../model/Group';
 import { ToastrService } from 'ngx-toastr';
+import { isNull } from '@angular/compiler/src/output/output_ast';
 
 
 /**
@@ -1152,4 +1153,25 @@ export class ApiService {
             this.toastr.error('This Story Title is already in use. Please choose another Title');
         }
     }
-}
+    public groupUnique(buttonId: string, input: string, array: Group[], group?: Group){
+        array = array ? array : [];
+        input = input ? input : '';
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if ((input && !array.find(i => i.name === input)) || (group ? array.find(g => g._id == group._id && g.name == input) : false)){
+            button.disabled = false;
+        } 
+        
+        else {
+            if(input.length==0)
+            {
+                button.disabled = true;
+                this.toastr.error('The field can not be empty');
+            }
+           else
+           {
+             button.disabled = true;
+             this.toastr.error('This Group Title is already in use. Please choose another Title'); 
+           }
+        }
+    }
+} 
