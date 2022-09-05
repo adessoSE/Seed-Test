@@ -294,9 +294,9 @@ function analyzeGroupReport(grpName, stories, reportOptions) {
  * @param scenarioReports 
  */
 function featureResult(featureReport, feature){
-	const featureId = feature._id
-	console.log(` Story ID: ${featureId}`);
-	const featureStatus = { featureId, status: false, scenarioStatuses: [],featureTestResults:{} ,scenariosTested: { passed: 0, failed: 0 }};
+	const storyId = feature._id
+	console.log(` Story ID: ${storyId}`);
+	const featureStatus = { storyId, status: false, scenarioStatuses: [],featureTestResults:{} ,scenariosTested: { passed: 0, failed: 0 }};
 
 	let featurePassedSteps = 0;
 	let featureFailedSteps = 0;
