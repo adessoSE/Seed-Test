@@ -54,21 +54,21 @@
   margin-right: auto !important;
 }
 
-.scenarioTitle{
+/* :host ::ng-deep .scenarioTitle{
   background: transparent;
   border: none;
   margin-right: 2px;
-}
+} */
 
-.darkTheme, .scenarioTitle {
+/* :host ::ng-deep.darkTheme, .scenarioTitle {
   background: transparent;
-}
+} */
 
-.scenarioTitle > em {
+/* :host ::ng-deep .scenarioTitle > em {
   color:  var(--ocean-blue);
   font-size: 24px;
   transform: translate(0px, 3px)
-}
+}  */
 
 /* .scenarioButton_unsaved em{
   color: red !important;

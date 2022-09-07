@@ -71,6 +71,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
 import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
+import { NewExampleComponent } from './modals/new-example/new-example.component';
 
 @NgModule({
   declarations: [
@@ -119,7 +120,8 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
     CreateScenarioComponent,
     ResizeInputDirective,
     RenameBackgroundComponent,
-    BaseEditorComponent
+    BaseEditorComponent,
+    NewExampleComponent
   ],
   imports: [
     NgbModule,

@@ -42,28 +42,28 @@ export class NewExampleComponent{
     * Opens the new example Modal
     *
     */
-    openNewExampleModal(selectedScenario, step: StepType) {
-      this.selectedScenario = selectedScenario;
-      this.step = step;
-      this.exampleNames = (this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length > 0)? this.selectedScenario.stepDefinitions.example[0].values : []
-      this.modalReference = this.modalService.open(this.newExampleModal, {ariaLabelledBy: 'modal-basic-title'});
-    }
+   openNewExampleModal(selectedScenario, step: StepType) {
+    this.selectedScenario = selectedScenario;
+    this.step = step;
+    this.exampleNames = (this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length > 0)? this.selectedScenario.stepDefinitions.example[0].values : []
+    this.modalReference = this.modalService.open(this.newExampleModal, {ariaLabelledBy: 'modal-basic-title'});
+  }
 
-    renameExample(scenario: Scenario, columnIndex) {
-      this.selectedScenario = scenario;
-      this.columnIndex = columnIndex;
-      this.newExampleName = scenario.stepDefinitions.example[0].values[columnIndex]
-      this.newExampleForm.setValue({
-        newName: scenario.stepDefinitions.example[0].values[columnIndex]
-      });
-      this.exampleNames = this.selectedScenario.stepDefinitions.example[0].values
-      this.modalReference = this.modalService.open(this.newExampleModal, {ariaLabelledBy: 'modal-basic-title'});
-    }
+  renameExample(scenario: Scenario, columnIndex) {
+    this.selectedScenario = scenario;
+    this.columnIndex = columnIndex;
+    this.newExampleName = scenario.stepDefinitions.example[0].values[columnIndex]
+    this.newExampleForm.setValue({
+      newName: scenario.stepDefinitions.example[0].values[columnIndex]
+    });
+    this.exampleNames = this.selectedScenario.stepDefinitions.example[0].values
+    this.modalReference = this.modalService.open(this.newExampleModal, {ariaLabelledBy: 'modal-basic-title'});
+  }
 
   /**
   * Submits the new name for the scenario
   */
-   createNewExample() {
+  createNewExample() {
     if (this.newExampleName){
       this.apiService.renameExampleEvent.emit({name:this.newExampleForm.value.newName, column:this.columnIndex})
       this.modalReference.close();

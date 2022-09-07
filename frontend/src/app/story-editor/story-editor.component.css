@@ -236,9 +236,9 @@
   .button:focus {outline:0 !important;}
 
 
-  :host ::ng-deep #saveButton.iconButton_unsaved em{
+  /* :host ::ng-deep #saveButton.iconButton_unsaved em{
     color: red !important;
-  }
+  } */
 
   :host ::ng-deep .uk-nav > li > span{
     padding: 1px;
@@ -249,7 +249,7 @@
     color: var(--ocean-blue);
   }
 
-  :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
+  /* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
   }
 
@@ -259,7 +259,7 @@
 
   :host ::ng-deep .darkTheme .uk-nav > li > span:hover {
     color: white;
-  }
+  } */
   /* Eventually not in use */
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
@@ -358,9 +358,9 @@
     flex-grow: 0.4;
   }
 
-  .darkTheme .storyTitle{
+  /* .darkTheme .storyTitle{
     color: var(--light-blue);
-  }
+  } */
 
 :host ::ng-deep .darkTheme .scenarioBarContainer,
 :host ::ng-deep .darkTheme .exampleBarContainer{
