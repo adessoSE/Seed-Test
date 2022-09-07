@@ -380,6 +380,7 @@ function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
 
 				const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
 				let result = scenarioResult(scenarioReport, scenario)
+				reportResults.scenarioId = result.scenarioId
 				reportResults.featureTestResults = result.stepResults
 				reportResults.scenariosTested = {passed: +result.status, failed: +!result.status}
 				reportResults.status = result.status
