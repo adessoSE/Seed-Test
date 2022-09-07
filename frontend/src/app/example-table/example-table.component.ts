@@ -182,8 +182,6 @@ export class ExampleTableComponent implements OnInit {
    */
   updateTable() {
     if (this.selectedScenario.stepDefinitions.example[1]) {
-      console.log('fired!');
-      
       this.exampleThere = true;
       this.initializeTable();
       this.initializeTableControls();
