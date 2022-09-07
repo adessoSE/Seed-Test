@@ -22,12 +22,12 @@
 					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
 					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
 				</div>
-				<editable  *ngIf="!first" (update)="updateField(columnIndex-1, rowIndex, column)">
+				<editable *ngIf="!first" (update)="updateField(columnIndex, rowIndex, column)">
 						<ng-template viewMode>
 						{{element[column]}}
 						</ng-template>
-						<ng-template  editMode >
-							<input on-input="inputChange(rowIndex, columnIndex-1, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
+						<ng-template editMode >
+							<input on-input="inputChange(rowIndex, columnIndex, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
 						</ng-template>
 				</editable> 
 			</td>

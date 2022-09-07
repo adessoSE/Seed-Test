@@ -108,7 +108,7 @@ export class ExampleTableComponent implements OnInit {
     };
 
     let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
-    this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex] = reference._pendingValue
+    this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue
   }
 
   /**
@@ -157,10 +157,9 @@ export class ExampleTableComponent implements OnInit {
    * @param field name of the changed value column
    */
   updateField(columnIndex: number, rowIndex: number, field: string) {
-    console.log(columnIndex)
     const control = this.getControl(rowIndex, field);
     if (control.valid) {
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex] = control.value;
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = control.value;
       this.initializeTable();
     } else {
       console.log('CONTROL NOT VALID');
@@ -200,7 +199,7 @@ export class ExampleTableComponent implements OnInit {
   }
 
   renameExample(columnIndex){
-    this.newExampleModal.renameExample(this.selectedScenario, columnIndex);
+    this.newExampleModal.renameExample(this.selectedScenario, columnIndex-1);
   }
 
   /**
@@ -208,7 +207,7 @@ export class ExampleTableComponent implements OnInit {
    * @param event
    */
   deleteExample(event, columnIndex) {
-    this.indexOfExampleToDelete = columnIndex
+    this.indexOfExampleToDelete = columnIndex-1
     this.deleteExampleEvent.emit();
     this.showDeleteExampleToast(event)
   }
@@ -255,6 +254,8 @@ export class ExampleTableComponent implements OnInit {
         }
       })
     })
+
+    this.updateTable()
 }
 
 }
