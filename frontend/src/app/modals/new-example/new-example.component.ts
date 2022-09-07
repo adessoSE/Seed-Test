@@ -42,7 +42,7 @@ export class NewExampleComponent{
     * Opens the new example Modal
     *
     */
-   openNewExampleModal(selectedScenario, step: StepType) {
+  openNewExampleModal(selectedScenario, step: StepType) {
     this.selectedScenario = selectedScenario;
     this.step = step;
     this.exampleNames = (this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length > 0)? this.selectedScenario.stepDefinitions.example[0].values : []
@@ -63,7 +63,7 @@ export class NewExampleComponent{
   /**
   * Submits the new name for the scenario
   */
-  createNewExample() {
+   createNewExample() {
     if (this.newExampleName){
       this.apiService.renameExampleEvent.emit({name:this.newExampleForm.value.newName, column:this.columnIndex})
       this.modalReference.close();

@@ -55,6 +55,7 @@ export class BaseEditorComponent  {
       this.checkAllExampleSteps(false);
       this.checkAllSteps('scenario', false);
     }
+    this.selectedScenario = scenario;
   }
 
   /**
@@ -188,8 +189,8 @@ export class BaseEditorComponent  {
         this.selectedScenario.saved = false;
       }
     });
-      
-    this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample')});
+    
+    this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample', value.step)});
     this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column)});
   }
 
@@ -248,7 +249,6 @@ export class BaseEditorComponent  {
     if(this.exampleChildren.last !=undefined) {
       this.exampleChild = this.exampleChildren.last;
       this.exampleChild.updateTable();
-      console.log(this.exampleChild)
     }
     
   }
@@ -386,7 +386,7 @@ export class BaseEditorComponent  {
       type: obj.type,
       values: stepType === 'example' ? ['value'] : obj.values,
       isExample: stepType === 'example' ? [true] : [false]
-    };  
+    };
     return newStep;
   }
  
@@ -1097,7 +1097,7 @@ export class BaseEditorComponent  {
     * @param cutInput
     * @param step
     */
-  fillExamples(cutInput: string, step: StepType) {
+   fillExamples(cutInput: string, step: StepType) {
     this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
     // if the table has no rows add a row
 
@@ -1107,7 +1107,6 @@ export class BaseEditorComponent  {
       const len = this.selectedScenario.stepDefinitions.example[0].values.length;
       for (let j = 1; j < len; j++) {
         this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
-
       }
     } else {
       for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
@@ -1115,7 +1114,7 @@ export class BaseEditorComponent  {
       }
     }
     this.exampleChild.updateTable()
-  }
+}
 
 
   /**

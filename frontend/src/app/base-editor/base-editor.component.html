@@ -229,17 +229,17 @@
                     {{j+1}}. {{currentStep.pre}}
                     <div style="display:inline" *ngIf="currentStep.values.length > 0">
                       <input appResizeInput [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" elFocus class="{{name}}" id="{{name+'_step_input_pre_' + j}}" #step_type_input
-                        type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input.value,currentStep.stepType, j,0)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                        type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input.value, j,0,currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                     </div>
                         {{currentStep.mid}}
                     <div>
                       <input appResizeInput [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" class="{{name}}" id="{{name+'_step_input_mid_' + j}}" #step_type_input *ngIf="currentStep.values[1] != null"
-                        type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input.value,j,1)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                        type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input.value,j,1,currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                     </div>
                     {{currentStep.post}}
                     <div>
                       <input appResizeInput [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" class="{{name}}" id="{{name+'_step_input_post_' + j + n}}" #step_type_input *ngFor="let value of currentStep.values | slice:2; let n = index"
-                      type="text" value="{{value}}" on-input="addToValues(step_type_input.value,j , n + 2)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                      type="text" value="{{value}}" on-input="addToValues(step_type_input.value,j , n + 2, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                     </div>
                     <div *ngIf="currentStep.outdated">
                       <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>

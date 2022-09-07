@@ -118,7 +118,7 @@
             </button>
           </div>
         </mat-expansion-panel-header>
-        <ng-container *ngIf="this.showBackground">
+        <ng-container *ngIf="showBackground">
           <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario"
           [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes" ></app-base-editor>
         </ng-container> 
