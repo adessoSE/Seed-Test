@@ -1,10 +1,7 @@
-import { formatCurrency } from '@angular/common';
 import { Component, EventEmitter, ViewChild} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
 import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
@@ -120,7 +117,7 @@ export class CreateNewGroupComponent {
       var isSequential = this.isSequential;
       const value = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
-      const source ='db';
+      const source = localStorage.getItem('source');
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const group = {title, member_stories, isSequential};
       this.apiService.createGroupEvent({repositoryContainer, group});
