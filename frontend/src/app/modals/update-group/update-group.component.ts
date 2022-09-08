@@ -131,7 +131,7 @@ export class UpdateGroupComponent {
     console.log('selectedStories:', this.selectedStories);
     const value = localStorage.getItem('repository');
     const _id = localStorage.getItem('id');
-    const source = 'db';
+    const source = localStorage.getItem('source');
     const repositoryContainer: RepositoryContainer = {value, source, _id};
     const group: Group = {_id: this.groupId, name: form.value.title, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.apiService.updateGroupEvent({repositoryContainer, group});
