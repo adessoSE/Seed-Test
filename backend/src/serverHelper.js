@@ -659,7 +659,7 @@ function executeTest(req, _res, mode, story) {
 		let jsonPath = `../../features/${reportName}.json`;
 		if (mode === 'group') {
 			const grpDir = req.body.name;
-			jsonPath = `./features/${grpDir}/${reportName}.json`;
+			jsonPath = `../../features/${grpDir}/${reportName}.json`;
 		}
 
 		const jsParam = JSON.stringify(parameters);
