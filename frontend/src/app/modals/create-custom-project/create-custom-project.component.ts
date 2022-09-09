@@ -29,8 +29,6 @@ export class CreateCustomProjectComponent {
 
   repository: RepositoryContainer;
 
- // closeWindowEventEmitter = new EventEmitter();
-  
   // create custom project modal
 
     /**
@@ -64,7 +62,6 @@ export class CreateCustomProjectComponent {
 checkProject(buttonId: string, input: string, array: RepositoryContainer[], repository?: RepositoryContainer){
   array = array ? array : [];
   input = input ? input : '';
-  buttonId='submitCreateNewProject';
   const button = (document.getElementById(buttonId)) as HTMLButtonElement;
   if ((input && !array.find(i => i.value === input)) || (repository ? array.find(g => g._id == repository._id && g.value == input) : false)){
       button.disabled = false;

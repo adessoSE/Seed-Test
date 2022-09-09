@@ -11,7 +11,6 @@ import {RepositoryContainer} from '../model/RepositoryContainer';
 import { Block } from '../model/Block';
 import {Group} from '../model/Group';
 import { ToastrService } from 'ngx-toastr';
-import { isNull } from '@angular/compiler/src/output/output_ast';
 
 
 /**
