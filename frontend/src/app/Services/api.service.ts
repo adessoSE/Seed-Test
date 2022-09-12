@@ -119,6 +119,8 @@ export class ApiService {
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
 
+    public createRepositoryEmitter: EventEmitter<any> = new EventEmitter();
+
     public createCustomGroupEmitter: EventEmitter<any> = new EventEmitter();
 
     public updateGroupEmitter: EventEmitter<any> = new EventEmitter();
@@ -131,6 +133,9 @@ export class ApiService {
 
     public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
  
+    createRepositoryEvent(repository) {
+        this.createRepositoryEmitter.emit(repository);
+    }
 
     /**
      * Gets api headers
@@ -438,12 +443,12 @@ export class ApiService {
      * @param name
      * @returns
      */
-    createRepository(name: string): Observable<any> {
+    createRepository(name: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         console.log(this.apiServer);
-        const body = {'name' : name};
+        const body = {'name' : name,'_id': _id};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
+            .post<RepositoryContainer>(this.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
             .pipe(tap(_ => {
                 //
             }));
