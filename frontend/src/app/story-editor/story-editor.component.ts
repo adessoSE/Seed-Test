@@ -31,7 +31,7 @@ const emptyBackground: Background = {name: 'New Background',stepDefinitions: {wh
   templateUrl: './story-editor.component.html',
   styleUrls: ['../base-editor/base-editor.component.css','./story-editor.component.css']
 })
-export class StoryEditorComponent extends BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewInit {
+export class StoryEditorComponent implements OnInit, OnDestroy {
 
   /**
    * set new currently selected scenario
@@ -41,10 +41,7 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
         this.selectedScenario = scenario;
         if (this.selectedStory) {
             this.selectScenario(scenario);
-        }
-        this.activeActionBar = false;
-        this.allChecked = false;
-        
+        }   
     }
 
     /**
@@ -52,9 +49,9 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
      */
     @Input()
     set newStories(stories: Story[]) {
-			if (stories) {
-				this.stories = stories;
-			}
+        if (stories) {
+            this.stories = stories;
+        }
     }
 
     /**
@@ -64,8 +61,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
     set newSelectedStory(story: Story) {
         this.selectedStory = story;
         this.showEditor = true;
-        this.activeActionBar = false;
-        this.allChecked = false;
     }
 
     /**
@@ -165,11 +160,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
     currentTestScenarioId: number;
 
     /**
-     * If all steps are checked
-     */
-    allChecked = false;
-
-    /**
      * if the background should be saved and then the test run
      */
     saveBackgroundAndRun = false;
@@ -200,8 +190,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
      */
     panelOpenState = false;
 
-	clipboardBlock;
-
     /**
      * Boolean driver indicator 
      */
@@ -223,7 +211,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
     storiesErrorObservable: Subscription;
     deleteScenarioObservable: Subscription;
     runSaveOptionObservable: Subscription;
-    addBlocktoScenarioObservable: Subscription;
     renameStoryObservable: Subscription;
     themeObservable: Subscription;
     getBackendUrlObservable: Subscription;
@@ -243,9 +230,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
     @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent; 
     @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
     @ViewChild('renameBackgroundModal') renameBackgroundModal: RenameBackgroundComponent;
-    //@ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
-
-    //@ViewChildren('step_type_input') step_type_input: QueryList<ElementRef>;
 
     /**
      * Event emitter to change to the report history component
@@ -265,11 +249,10 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
      * Stories bar component
      */
     constructor(
-        apiService: ApiService,
-        toastr: ToastrService,
+        public apiService: ApiService,
+        public toastr: ToastrService,
         public themeService: ThemingService
     ) {
-        super(toastr, apiService);
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
         }
@@ -291,32 +274,15 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
         
     }
 
-   /*  ngAfterViewInit(): void {
-        this.step_type_input.changes.subscribe(_ => {
-            this.step_type_input.forEach(in_field => {
-              if ( in_field.nativeElement.id === this.lastToFocus) {
-                in_field.nativeElement.focus();   
-              }
-            });
-            this.lastToFocus = '';
-        }); 
-			super.ngAfterViewInit();
-    } */
-    
-
     ngAfterViewChecked(){
-			/**
+	    /**
         * when loading for group is displayed scroll to it
         */
-			if (this.testRunningGroup === true){
-				const loadingScreen = document.getElementById('loading');
-				loadingScreen.scrollIntoView();
-			}
+        if (this.testRunningGroup === true){
+            const loadingScreen = document.getElementById('loading');
+            loadingScreen.scrollIntoView();
+        }
     }
-
-    /* ngDoCheck(): void {
-      super.ngDoCheck();
-    } */
 
     /**
      * Subscribes to all necessary events
@@ -362,20 +328,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
             }
           });
 
-        /* this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
-            if (block[0] === 'background') {
-                block = block[1];
-                Object.keys(block.stepDefinitions).forEach((key, _) => {
-                    if (key === 'when') {
-                        block.stepDefinitions[key].forEach((step: StepType) => {
-                        this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                        });
-                    }
-                });
-                this.selectedStory.background.saved = false;
-            }
-        }); */
-
         this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe((changedValues) =>
             this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
             this.isDark = this.themeService.isDarkMode();
@@ -405,9 +357,7 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
         if (!this.runSaveOptionObservable.closed) {
             this.runSaveOptionObservable.unsubscribe();
         }
-        /* if (!this.addBlocktoScenarioObservable.closed) {
-            this.addBlocktoScenarioObservable.unsubscribe();
-        }  */
+
         if (!this.renameStoryObservable.closed) {
             this.renameStoryObservable.unsubscribe();
         }
@@ -424,89 +374,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
             this.renameBackgroundObservable.unsubscribe();
         }
     }
-
-		/* addToValues(input: string, stepIndex: number, valueIndex: number, stepType: string, step?: StepType): void {
-			this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-      this.selectedStory.background.saved = false;
-		} */
-
-		/* insertCopiedBlock(): void {
-			Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
-				this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-					this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-				});
-			});
-			this.selectedScenario.saved = false;
-		} */
-
-		/* copyBlock(): void {
-			const copyBlock: any = {given: [], when: [], then: [], example: []};
-      for (const prop in this.selectedStory.background.stepDefinitions) {
-				if (prop !== 'example') {
-						for (const s in this.selectedStory.background.stepDefinitions[prop]) {
-								if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
-										this.selectedStory.background.stepDefinitions[prop][s].checked = false;
-										copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
-								}
-						}
-				}
-			}
-      const backgroundBlock: Block = {stepDefinitions: copyBlock};
-      sessionStorage.setItem('backgroundBlock', JSON.stringify(backgroundBlock));
-      this.allChecked = false;
-      this.activeActionBar = false;
-		} */
-
-		/* removeStep(): void {
-			for (const prop in this.selectedStory.background.stepDefinitions) {
-				for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-					if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
-						this.selectedStory.background.stepDefinitions[prop].splice(i, 1);
-					}
-				}
-			}
-			this.selectedStory.background.saved = false;
-			this.allChecked = false;
-			this.activeActionBar = false;
-		} */
-
-		/* deactivateStep(): void {
-			for (const prop in this.selectedStory.background.stepDefinitions) {
-				for (const s in this.selectedStory.background.stepDefinitions[prop]) {
-					if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
-						this.selectedStory.background.stepDefinitions[prop][s].deactivated = !this.selectedStory.background.stepDefinitions[prop][s].deactivated;
-					}
-				}
-			}
-			this.selectedStory.background.saved = false;
-		} */
-
-		/* saveBlock(temp_name: any): void {
-			super.saveBlock(temp_name);
-		} */
-
-		/* handleClick(event: any, step: any, checkbox_id: any, checkValue?: boolean): void {
-			super.handleClick(event, step, checkbox_id, checkValue);
-		} */
-
-		/* addStep(step: StepType, storyOrScenario: any, templateName: any, step_idx?: any): void {
-			super.addStep(step, storyOrScenario, templateName, step_idx);
-		} */
-
-		/* addStep(step: StepType, storyOrScenario: any, templateName: any, step_idx?: any): void {
-			let lastEl;
-    	let newStep;
-			newStep = super.createNewStep(step, storyOrScenario.background.stepDefinitions);
-			switch (newStep.stepType) {
-				case 'when':
-					storyOrScenario.background.stepDefinitions.when.push(newStep);
-					lastEl = storyOrScenario.background.stepDefinitions.when.length-1;
-					this.lastToFocus = templateName+'_step_input_pre_'+ lastEl;
-					storyOrScenario.background.saved = false;
-					break;
-			 
-			}
-		} */
 
     /**
      * Runs the test without saving it
@@ -539,8 +406,6 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
       if (this.selectedStory) {
           this.selectScenario(scenario);
       }
-      this.activeActionBar = false;
-      this.allChecked = false;
     }
 
   /**
@@ -624,8 +489,8 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
      */
     updateBackground() {
         delete this.selectedStory.background.saved;
-        this.allChecked = false;
-        this.activeActionBar = false;
+        //this.allChecked = false;
+        //this.activeActionBar = false;
         
 
         Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
@@ -690,7 +555,7 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
 		this.showEditor = true;
 		const storyIndex = this.stories.indexOf(this.selectedStory);
 		if (this.stories[storyIndex].scenarios[0] !== undefined) {
-				this.selectScenario(this.stories[storyIndex].scenarios[0]);
+			this.selectScenario(this.stories[storyIndex].scenarios[0]);
 		}
 	}
 
@@ -880,13 +745,13 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
 				}); }
 	}
 
-  storyLink() {
-    return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
-  }
+    storyLink() {
+        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
+    }
 
-  showStoryLinkToast() {
-    this.toastr.success('', 'Successfully added Link to Clipboard!');
-  }
+    showStoryLinkToast() {
+        this.toastr.success('', 'Successfully added Link to Clipboard!');
+    }
 
   /**
    * Opens the delete story toast

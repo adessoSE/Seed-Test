@@ -13,7 +13,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AuthGuard} from './guards/auth.guard';
 import {MatTableModule} from '@angular/material/table';
 import {MatListModule} from '@angular/material/list';
-import {ExampleTableComponent} from './example-table/example-table.component';
+import {ExampleComponent, ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
 import {EditModeDirective} from './directives/edit-mode.directive';
@@ -121,7 +121,8 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     ResizeInputDirective,
     RenameBackgroundComponent,
     BaseEditorComponent,
-    NewExampleComponent
+    NewExampleComponent,
+    ExampleComponent
   ],
   imports: [
     NgbModule,

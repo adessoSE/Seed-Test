@@ -63,7 +63,7 @@ export class NewExampleComponent{
   /**
   * Submits the new name for the scenario
   */
-   createNewExample() {
+  createNewExample() {
     if (this.newExampleName){
       this.apiService.renameExampleEvent.emit({name:this.newExampleForm.value.newName, column:this.columnIndex})
       this.modalReference.close();

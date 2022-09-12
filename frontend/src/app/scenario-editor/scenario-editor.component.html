@@ -48,8 +48,11 @@
     </div>
   </div> 
   <!-- Shared template: Scenario's action bar & steps -->
-  <app-base-editor [templateName]="TEMPLATE_NAME" [newlySelectedScenario]="selectedScenario"
+  <app-base-editor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
   [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-base-editor>
+  
+  <app-example [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
+  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-example>
   <br>
   <div class="comment MediumButton1">
     <label>Comment</label><br>

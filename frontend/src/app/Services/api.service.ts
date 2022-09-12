@@ -122,7 +122,7 @@ export class ApiService {
     /**
      * Event emitter to add a example to a scenario
      */
-     public newExampleEvent = new EventEmitter();
+    public newExampleEvent = new EventEmitter();
     
     public renameExampleEvent = new EventEmitter();
 
@@ -142,7 +142,9 @@ export class ApiService {
     public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
 
     public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
- 
+    
+    /* Scenario change emitter */
+    public scenarioChangedEvent: EventEmitter<Scenario> = new EventEmitter();
 
     /**
      * Gets api headers
@@ -190,6 +192,11 @@ export class ApiService {
      */
     public deleteStoryEmitter() {
         this.deleteStoryEvent.emit();
+    }
+
+    /* Emits table changed event */
+    public scenarioChangedEmitter() {
+        this.scenarioChangedEvent.emit();
     }
 
     /**

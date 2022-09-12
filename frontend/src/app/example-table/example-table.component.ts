@@ -6,6 +6,55 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angu
 import { FormGroup, FormArray, FormControl } from '@angular/forms';
 import { Scenario } from '../model/Scenario';
 import { ToastrService } from 'ngx-toastr';
+import { Story } from '../model/Story';
+import { StepType } from '../model/StepType';
+
+
+@Component({
+  selector: 'app-example',
+  template: `<app-base-editor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
+  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-base-editor>
+  `,
+  styleUrls: ['./example-table.component.css'],
+  
+})
+
+/* Example component */
+export class ExampleComponent{
+
+  selectedScenario;
+
+  selectedStory;
+
+  @Input() originalStepTypes: StepType[];
+
+  @Input() templateName: string;
+
+  /**
+    * If the test is running
+    */
+  @Input() testRunning: boolean;
+
+  /**
+    * Sets a new selected story
+    */
+  @Input()
+  set newlySelectedStory(story: Story) {
+    this.selectedStory = story;
+  }
+
+  /**
+    * Sets a new selected scenaio
+    */
+  @Input()
+  set newlySelectedScenario(scenario: Scenario) {
+    this.selectedScenario = scenario;
+  }
+
+  readonly TEMPLATE_NAME ='example';
+
+}
+
 
 /**
  * Component of for the Example Table
@@ -65,10 +114,10 @@ export class ExampleTableComponent implements OnInit {
   @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
 
   /**
-     * Event emitter to delete the example
-     */
-   @Output()
-   deleteExampleEvent: EventEmitter<Scenario> = new EventEmitter();
+    * Event emitter to delete the example
+    */
+  @Output()
+  deleteExampleEvent: EventEmitter<Scenario> = new EventEmitter();
 
     /**
    * @ignore
@@ -78,14 +127,14 @@ export class ExampleTableComponent implements OnInit {
      /**
     * @ignore
     */
-   ngOnInit() {
-     this.deleteExampleObservable = this.apiService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
-   }
+  ngOnInit() {
+    this.deleteExampleObservable = this.apiService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
+  }
  
    ngOnDestroy() {
-     if (!this.deleteExampleObservable.closed) {
-         this.deleteExampleObservable.unsubscribe();
-     }
+    if (!this.deleteExampleObservable.closed) {
+      this.deleteExampleObservable.unsubscribe();
+    }
  }
 
   /**
@@ -200,6 +249,7 @@ export class ExampleTableComponent implements OnInit {
 
   renameExample(columnIndex){
     this.newExampleModal.renameExample(this.selectedScenario, columnIndex-1);
+    this.updateTable();
   }
 
   /**
@@ -256,6 +306,7 @@ export class ExampleTableComponent implements OnInit {
     })
 
     this.updateTable()
-}
+    this.selectedScenario.saved = false;
+  }
 
 }

@@ -28,6 +28,11 @@ export class BaseEditorComponent  {
   @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
 
   /**
+    * View child of the example table
+    */
+  @ViewChildren('exampleChildView') exampleChildren: QueryList<ExampleTableComponent>;
+
+  /**
     * View child of the modals component
     */
   @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
@@ -35,10 +40,7 @@ export class BaseEditorComponent  {
   @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
   @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
 
-  /**
-    * View child of the example table
-    */
-  @ViewChildren('exampleChildView') exampleChildren: QueryList<ExampleTableComponent>;
+
 
   selectedStory: Story;
 
@@ -47,13 +49,17 @@ export class BaseEditorComponent  {
   @Input() templateName: string;
 
   /**
+    * If the test is running
+    */
+  @Input() testRunning: boolean;
+
+  /**
     * Sets a new selected scenaio
     */
   @Input()
   set newlySelectedScenario(scenario: Scenario) {
     if (this.selectedScenario) {
-      this.checkAllExampleSteps(false);
-      this.checkAllSteps('scenario', false);
+      this.checkAllSteps(this.templateName, false);
     }
     this.selectedScenario = scenario;
   }
@@ -72,17 +78,8 @@ export class BaseEditorComponent  {
     */
   @Input()
   checkRowIndex(index: number) {
-    /* TODO for checking rows */
-    //this.checkStep(this.selectedScenario.stepDefinitions.example[index]);
-    this.checkExampleStep(this.selectedScenario.stepDefinitions.example[index], null);
+    this.checkStep(this.selectedScenario.stepDefinitions.example[index]);
   }
-
-  @Input()
-  removeRowIndex(index) {
-    this.removeStep('scenario');
-    this.selectedScenario.saved = false;
-  }
-
 
   /**
     * currently selected scenario
@@ -131,21 +128,7 @@ export class BaseEditorComponent  {
   newExampleObservable: Subscription;
   renameExampleObservable: Subscription;
   addBlocktoScenarioObservable: Subscription;
-
-  /**
-    * If the test is running
-    */
-  testRunning = false;
-
-  /**
-    * if the example action bar is active
-    */
-  activeExampleActionBar = false;
-
-  /**
-    * If all example steps are checked
-    */
-  allExampleChecked = false;
+  tableChangedObservable: Subscription;
 
 
   constructor(public toastr: ToastrService, public apiService: ApiService) {}
@@ -191,7 +174,12 @@ export class BaseEditorComponent  {
     });
     
     this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample', value.step)});
-    this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column)});
+    this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column);});
+    this.tableChangedObservable = this.apiService.scenarioChangedEvent.subscribe(() => {
+      console.log(this.selectedScenario.stepDefinitions.example);
+      this.checkAllSteps(this.templateName, false);
+    });
+    
   }
 
   ngOnDestroy(): void {
@@ -203,6 +191,9 @@ export class BaseEditorComponent  {
     }
     if (!this.renameExampleObservable.closed) {
       this.renameExampleObservable.unsubscribe();
+    } 
+    if (!this.tableChangedObservable.closed) {
+      this.tableChangedObservable.unsubscribe();
     } 
 
   }
@@ -220,12 +211,16 @@ export class BaseEditorComponent  {
         this.clipboardBlock = JSON.parse(sessionStorage.getItem('scenarioBlock'));
         break;
 
+      case 'example':
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedExampleBlock'));
+        break;
+
       default:
         break;
     }
     if(this.allChecked) {
       this.checkAllSteps(this.templateName, this.allChecked);
-    }
+    } 
   }
 
   ngAfterViewInit(): void {   
@@ -246,11 +241,9 @@ export class BaseEditorComponent  {
       this.lastToFocus = '';
     });
 
-    if(this.exampleChildren.last !=undefined) {
+    if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
-      this.exampleChild.updateTable();
     }
-    
   }
 
   /**
@@ -262,46 +255,50 @@ export class BaseEditorComponent  {
     * @param step Optional argument
     */
   addToValues(input: string, stepIndex: number, valueIndex: number, stepType: string, step?:StepType) { 
-    if (this.templateName == 'background') { 
-      this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input; 
-      this.selectedStory.background.saved = false; 
-    } 
-    else if(this.templateName == 'scenario') { 
-      switch (stepType) { 
-        case 'given':
-          if(this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]){
-            this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = '<' + input + '>';
-          }
-          else {
-            this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
-          }
-          break;
-        case 'when':
-          if(this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex]){
-            this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = '<' + input + '>';
-          }
-          else {
-            this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-          }
-          break;
-        case 'then':
-          if(this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex]){
-            this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = '<' + input + '>';
-          }
-          else {
-              this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
-          }
-          break;
-        case 'example':
-          this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
-          break;
-        case 'addingExample':
+    switch (this.templateName) {
+      case 'background':
+        this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input; 
+        this.selectedStory.background.saved = false; 
+        break;
+      case 'scenario':
+        switch (stepType) { 
+          case 'given':
+            if(this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]){
+              this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = '<' + input + '>';
+            }
+            else {
+              this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = input;
+            }
+            break;
+          case 'when':
+            if(this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex]){
+              this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = '<' + input + '>';
+            }
+            else {
+              this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+            }
+            break;
+          case 'then':
+            if(this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex]){
+              this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = '<' + input + '>';
+            }
+            else {
+                this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
+            }
+            break;
+          case 'example':
+            this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
+            this.selectedScenario.saved = false;
+        } 
+        this.selectedScenario.saved = false;
+        break; 
+      case 'example':
+        if (stepType == 'addingExample') {
           this.handleExamples(input, step);
-          break; 
-      } 
-      this.selectedScenario.saved = false; 
-    } 
-     
+          this.selectedScenario.saved = false;
+        }
+        break;
+    }
   }
   
   /**
@@ -641,6 +638,11 @@ export class BaseEditorComponent  {
           }       
         }
         break;
+      case 'example':
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+          this.checkStep(this.selectedScenario.stepDefinitions.example[i], checkValue);
+        }
+        break;
     }
   }
  
@@ -754,6 +756,15 @@ export class BaseEditorComponent  {
         } 
         this.updateAllActionBar(checkCount, stepCount);
         break;
+      case 'example':
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i > 0; i--) {
+          stepCount++;
+          if (this.selectedScenario.stepDefinitions.example[i].checked) {
+            checkCount++;
+          }
+        }
+        this.updateAllActionBar(checkCount, stepCount);
+        break;
       default:
         break;
     }
@@ -860,6 +871,14 @@ export class BaseEditorComponent  {
         }
         this.selectedScenario.saved = false;
         break;
+      case 'example':
+        for (const s in this.selectedScenario.stepDefinitions.example) {
+          if (this.selectedScenario.stepDefinitions.example[s].checked) {
+            this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated;
+          }
+        }
+        this.selectedScenario.saved = false;
+        break;
       default:
         break;
     }
@@ -894,6 +913,15 @@ export class BaseEditorComponent  {
         }
         this.selectedScenario.saved = false;
         break;
+      case 'example':
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 1; i--) {
+          if (this.selectedScenario.stepDefinitions.example[i].checked) {
+            this.selectedScenario.stepDefinitions.example.splice(i, 1);
+            this.exampleChild.updateTable();
+          }
+        }
+        this.selectedScenario.saved = false;
+        break;
       default:
         break;
     }
@@ -906,11 +934,11 @@ export class BaseEditorComponent  {
     * @param temp_name
     */
 
-  copyBlock(temp_name):void {
+  copyBlock():void {
  
     const copyBlock = {given: [], when: [], then: [], example: []};
 
-    switch (temp_name) {
+    switch (this.templateName) {
       case 'background':
         for (const prop in this.selectedStory.background.stepDefinitions) {
             if (prop !== 'example') {
@@ -924,6 +952,7 @@ export class BaseEditorComponent  {
         }
         const backgroundBlock: Block = {stepDefinitions: copyBlock};
         sessionStorage.setItem('backgroundBlock', JSON.stringify(backgroundBlock));
+        this.toastr.success('successfully copied', 'Step(s)');
         break;
 
       case 'scenario':
@@ -939,14 +968,30 @@ export class BaseEditorComponent  {
         }
         const scenarioBlock: Block = {stepDefinitions: copyBlock};
         sessionStorage.setItem('scenarioBlock', JSON.stringify(scenarioBlock));
+        this.toastr.success('successfully copied', 'Step(s)');
         break;
+
+      case 'example':
+        for (const prop in this.selectedScenario.stepDefinitions) {
+          if (prop == 'example') {
+            for (const s in this.selectedScenario.stepDefinitions[prop]) {
+              if (this.selectedScenario.stepDefinitions[prop][s].checked) {
+                this.selectedScenario.stepDefinitions[prop][s].checked = false;
+                copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
+              }
+            }
+          }
+        }
+        const block: Block = {stepDefinitions: copyBlock};
+        sessionStorage.setItem('copiedExampleBlock', JSON.stringify(block));
+        this.toastr.success('successfully copied', 'Examples');
+        break;  
+
       default:
         break;
     }
     this.allChecked = false;
     this.activeActionBar = false;
-    this.toastr.success('successfully copied', 'Step(s)');
-
   }
  
   /**
@@ -954,8 +999,8 @@ export class BaseEditorComponent  {
     * @param temp_name 
     */
 
-  insertCopiedBlock(temp_name): void{
-    switch (temp_name) {
+  insertCopiedBlock(): void{
+    switch (this.templateName) {
       case 'background':
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
           this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
@@ -970,6 +1015,28 @@ export class BaseEditorComponent  {
           this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
             if (key != 'example') {
               this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+            }
+          });
+        });
+        this.selectedScenario.saved = false;
+        break;
+
+      case 'example':
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
+          this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+            if (key == 'example') {
+              if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))) {
+                this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+              }
+              if (j == 0) {
+                step.values.forEach(el => {
+                  const s = '<' + el + '>';
+                  if (!this.uncutInputs.includes(s)) {
+                    this.uncutInputs.push(s);
+                  }
+                });
+              }
+              this.exampleChild.updateTable();
             }
           });
         });
@@ -1038,40 +1105,39 @@ export class BaseEditorComponent  {
     * @param index index of example in values array
     */
 	renameExample(newName, index){
-		let oldName = this.selectedScenario.stepDefinitions.example[0].values[index]
-		this.selectedScenario.stepDefinitions.example[0].values[index] = newName
-		this.uncutInputs[this.uncutInputs.indexOf('<'+oldName+'>')] = '<'+newName+'>';
-		this.exampleChild.updateTable();
+    if (this.templateName == 'example') {
+      let oldName = this.selectedScenario.stepDefinitions.example[0].values[index]
+		  this.selectedScenario.stepDefinitions.example[0].values[index] = newName
+		  this.uncutInputs[this.uncutInputs.indexOf('<'+oldName+'>')] = '<'+newName+'>';
+		  this.exampleChild.updateTable();
 
-		this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
-			value.values.forEach((val, i) => {
-				if(val == '<'+oldName+'>') {
-					this.selectedScenario.stepDefinitions.given[index].values[i] = '<'+newName+'>'
-				}
-			})
-		})
+      this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+        value.values.forEach((val, i) => {
+          if(val == '<'+oldName+'>') {
+            this.selectedScenario.stepDefinitions.given[index].values[i] = '<'+newName+'>'
+          }
+        })
+      })
 
-		this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
-			value.values.forEach((val, i) => {
-				if(val == '<'+oldName+'>') {
-					this.selectedScenario.stepDefinitions.when[index].values[i] = '<'+newName+'>'
-				}
-			})
-		})
+      this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+        value.values.forEach((val, i) => {
+          if(val == '<'+oldName+'>') {
+            this.selectedScenario.stepDefinitions.when[index].values[i] = '<'+newName+'>'
+          }
+        })
+      })
 
-		this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
-			value.values.forEach((val, i) => {
-				if(val == '<'+oldName+'>') {
-					this.selectedScenario.stepDefinitions.then[index].values[i] = '<'+newName+'>'
-				}
-			})
-		})
+      this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
+        value.values.forEach((val, i) => {
+          if(val == '<'+oldName+'>') {
+            this.selectedScenario.stepDefinitions.then[index].values[i] = '<'+newName+'>'
+          }
+        })
+      });
+      this.selectedScenario.saved = false
+    }
+		
 	}
-
-  /* openNewExample(step) {
-    console.log(this.newExampleModal)
-    this.newExampleModal.openNewExampleModal(this.selectedScenario, step);
-  } */
 
 
   /**
@@ -1097,24 +1163,26 @@ export class BaseEditorComponent  {
     * @param cutInput
     * @param step
     */
-   fillExamples(cutInput: string, step: StepType) {
-    this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
-    // if the table has no rows add a row
+  fillExamples(cutInput: string, step: StepType) {
+    if (this.templateName == 'example') {
+      this.selectedScenario.stepDefinitions.example[0].values.push(cutInput);
+      // if the table has no rows add a row
 
-    if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
-      const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
-      this.selectedScenario.stepDefinitions.example.push(newStep);
-      const len = this.selectedScenario.stepDefinitions.example[0].values.length;
-      for (let j = 1; j < len; j++) {
-        this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+      if (this.selectedScenario.stepDefinitions.example[1] === undefined) {
+        const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
+        this.selectedScenario.stepDefinitions.example.push(newStep);
+        const len = this.selectedScenario.stepDefinitions.example[0].values.length;
+        for (let j = 1; j < len; j++) {
+          this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+        }
+      } else {
+        for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
+          this.selectedScenario.stepDefinitions.example[j].values.push('value');
+        }
       }
-    } else {
-      for (let j = 1; j < this.selectedScenario.stepDefinitions.example.length; j++) {
-        this.selectedScenario.stepDefinitions.example[j].values.push('value');
-      }
+      this.exampleChild.updateTable()
     }
-    this.exampleChild.updateTable()
-}
+  }
 
 
   /**
@@ -1125,6 +1193,8 @@ export class BaseEditorComponent  {
   createFirstExample(cutInput: string, step: StepType) {
     for (let i = 0; i <= 2; i++) {
       const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
+      console.log(newStep);
+
       this.selectedScenario.stepDefinitions.example.push(newStep);
     }
     this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
@@ -1132,97 +1202,36 @@ export class BaseEditorComponent  {
     if (table) { table.classList.add('mat-elevation-z8'); }
   } 
 
+  /**
+    * Adds a value to every example
+    */
+  addRowToExamples(){
+    if (this.templateName == 'example') {
+      let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
+      row.values.forEach((value, index) => {
+        row.values[index] = 'value'
+      });
+      this.selectedScenario.stepDefinitions.example.push(row)
+      this.exampleChild.updateTable();
+      this.selectedScenario.saved = false;
+    }
+  }
 
   /**
     * Adds an example step
     * @param step
     */
   addExampleStep(step: StepType) {
-    console.log(this.selectedScenario.stepDefinitions.example.length)
     //if (this.selectedScenario.stepDefinitions.example.length > 0) {
-      const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
-      this.selectedScenario.stepDefinitions.example.push(newStep);
-      const len = this.selectedScenario.stepDefinitions.example[0].values.length;
-      for (let j = 1; j < len; j++) {
-        this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
-      }
-      this.exampleChild.updateTable();
+    const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
+    this.selectedScenario.stepDefinitions.example.push(newStep);
+    const len = this.selectedScenario.stepDefinitions.example[0].values.length;
+    for (let j = 1; j < len; j++) {
+      this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
+    }
+    this.exampleChild.updateTable();
     //}
-      this.selectedScenario.saved = false;
-  }
-
-  /**
-     * Checks an example step
-     * @param step
-     * @param checkValue
-     */
-   checkExampleStep(step, checkValue: boolean) {
-    if (checkValue != null) {
-        step.checked = checkValue;
-    } else {
-        step.checked = !step.checked;
-    }
-    let checkCount = 0;
-    let stepCount = 0;
-
-    for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
-        stepCount++;
-        if (this.selectedScenario.stepDefinitions.example[i].checked) {
-            checkCount++;
-        }
-    }
-
-    if (checkCount >= stepCount - 1) {
-        this.allExampleChecked = true;
-    } else {
-        this.allExampleChecked = false;
-    }
-    if (checkCount <= 0) {
-        this.allExampleChecked = false;
-        this.activeExampleActionBar = false;
-    } else {
-        this.activeExampleActionBar = true;
-    }
-  }
-
-  /**
-    * remove step from examples
-    */
-  removeStepFromExample() {
-    for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 1; i--) {
-        if (this.selectedScenario.stepDefinitions.example[i].checked) {
-            this.selectedScenario.stepDefinitions.example.splice(i, 1);
-            this.exampleChild.updateTable();
-        }
-    }
     this.selectedScenario.saved = false;
-    this.allExampleChecked = false;
-    this.activeExampleActionBar = false;
   }
 
-  /**
-     * Checks all example steps
-     * @param checkValue
-     */
-   checkAllExampleSteps(checkValue: boolean) {
-    if (checkValue != null) {
-        this.allExampleChecked = checkValue;
-    } else {
-        this.allExampleChecked = !this.allExampleChecked;
-    }
-    if (this.allExampleChecked) {
-        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
-            if (i == 0) { continue; }
-            this.checkExampleStep(this.selectedScenario.stepDefinitions.example[i], true);
-        }
-        this.activeExampleActionBar = true;
-        this.allExampleChecked = true;
-    } else {
-        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
-            this.checkExampleStep(this.selectedScenario.stepDefinitions.example[i], false);
-        }
-        this.activeExampleActionBar = false;
-        this.allExampleChecked = false;
-    }
-  }
 }
