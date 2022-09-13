@@ -81,6 +81,7 @@ backend/features/reporting_html*.html
 *.bat
 *.sh
 *.ps1
+!runDocker.bat
 
 # local testing for step-definition development
 backend/features/step_definitions/testing.js
