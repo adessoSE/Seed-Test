@@ -489,9 +489,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
      */
     updateBackground() {
         delete this.selectedStory.background.saved;
-        //this.allChecked = false;
-        //this.activeActionBar = false;
-        
 
         Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
             this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
@@ -504,6 +501,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.apiService
             .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
             .subscribe(_ => {
+                this.apiService.backgroundChangedEmitter();
                 this.toastr.success('successfully saved', 'Background');
                 if (this.saveBackgroundAndRun) {
                     this.apiService.runSaveOption('saveScenario');
@@ -730,7 +728,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
 	renameBackground(newBackgroundName) {
 		this.selectedStory.background.name = newBackgroundName;
-		this.updateBackground();
+        this.selectedStory.background.saved = false;
+		//this.updateBackground();
 	}
   
 	/**

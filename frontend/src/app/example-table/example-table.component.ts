@@ -250,6 +250,7 @@ export class ExampleTableComponent implements OnInit {
   renameExample(columnIndex){
     this.newExampleModal.renameExample(this.selectedScenario, columnIndex-1);
     this.updateTable();
+    this.apiService.scenarioChangedEmitter();
   }
 
   /**
@@ -277,6 +278,10 @@ export class ExampleTableComponent implements OnInit {
     this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
       this.selectedScenario.stepDefinitions.example[index].values.splice(this.indexOfExampleToDelete, 1)
     })
+
+    if(this.selectedScenario.stepDefinitions.example[0].values.length == 0){
+      this.selectedScenario.stepDefinitions.example = []
+    }
 
     this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
       value.values.forEach((val, i) => {

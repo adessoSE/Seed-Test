@@ -146,6 +146,9 @@ export class ApiService {
     /* Scenario change emitter */
     public scenarioChangedEvent: EventEmitter<Scenario> = new EventEmitter();
 
+    /* Background change emitter */
+    public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
+
     /**
      * Gets api headers
      * @returns
@@ -194,9 +197,14 @@ export class ApiService {
         this.deleteStoryEvent.emit();
     }
 
-    /* Emits table changed event */
+    /* Emits scenario changed event */
     public scenarioChangedEmitter() {
         this.scenarioChangedEvent.emit();
+    }
+
+    /* Emits background changed event */
+    public backgroundChangedEmitter() {
+        this.backgroundChangedEvent.emit();
     }
 
     /**

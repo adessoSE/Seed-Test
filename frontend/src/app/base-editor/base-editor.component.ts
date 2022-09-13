@@ -128,7 +128,8 @@ export class BaseEditorComponent  {
   newExampleObservable: Subscription;
   renameExampleObservable: Subscription;
   addBlocktoScenarioObservable: Subscription;
-  tableChangedObservable: Subscription;
+  scenarioChangedObservable: Subscription;
+  backgroundChangedObservable: Subscription;
 
 
   constructor(public toastr: ToastrService, public apiService: ApiService) {}
@@ -175,8 +176,11 @@ export class BaseEditorComponent  {
     
     this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample', value.step)});
     this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column);});
-    this.tableChangedObservable = this.apiService.scenarioChangedEvent.subscribe(() => {
+    this.scenarioChangedObservable = this.apiService.scenarioChangedEvent.subscribe(() => {
       console.log(this.selectedScenario.stepDefinitions.example);
+      this.checkAllSteps(this.templateName, false);
+    });
+    this.backgroundChangedObservable = this.apiService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(this.templateName, false);
     });
     
@@ -192,8 +196,8 @@ export class BaseEditorComponent  {
     if (!this.renameExampleObservable.closed) {
       this.renameExampleObservable.unsubscribe();
     } 
-    if (!this.tableChangedObservable.closed) {
-      this.tableChangedObservable.unsubscribe();
+    if (!this.scenarioChangedObservable.closed) {
+      this.scenarioChangedObservable.unsubscribe();
     } 
 
   }
