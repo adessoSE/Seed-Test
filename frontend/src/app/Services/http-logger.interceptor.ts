@@ -23,7 +23,7 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
         catchError((err: HttpErrorResponse)=>{
           if(err.status == HttpStatusCode.Unauthorized){
             if(window.location.pathname != '/login')window.location.href = '/login'
-            window.localStorage.setItem("login", 'false')}
+            window.localStorage.removeItem('login')}
           console.error(err);
           return throwError(()=> err)
         })
