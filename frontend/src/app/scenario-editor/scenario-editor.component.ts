@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, DoCheck, OnDestroy, AfterViewInit, TemplateRef, QueryList, ElementRef, ViewChildren} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -8,13 +8,8 @@ import { Block } from '../model/Block';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import { BaseEditorComponent } from '../base-editor/base-editor.component';
-import { NewExampleComponent } from './../modals/new-example/new-example.component';
 import * as e from 'express';
-import { ExampleTableComponent } from '../example-table/example-table.component';
-import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
-import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
-import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
+
 
 
 /**
@@ -274,17 +269,6 @@ export class ScenarioEditorComponent implements OnInit{
             }
         });
         return includesExample;
-    }
-
-    /**
-     * if the example header got changed
-     * @param input
-     * @param step
-     * @param valueIndex
-     * @returns
-     */
-    exampleHeaderChanged(input: string, step: StepType, valueIndex: number): boolean {
-        return input.startsWith('<') && input.endsWith('>') && step.values[valueIndex] != input && step.values[valueIndex] != '' && step.values[valueIndex].startsWith('<') && step.values[valueIndex].endsWith('>') && this.selectedScenario.stepDefinitions.example[valueIndex] !== undefined;
     }
 
     /**

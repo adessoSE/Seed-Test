@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy, AfterViewInit, ViewChildren, QueryList, ElementRef, TemplateRef} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -11,12 +11,10 @@ import { saveAs } from 'file-saver';
 import { DeleteStoryToast } from '../deleteStory-toast';
 import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
-import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { RenameBackgroundComponent } from '../modals/rename-background/rename-background.component';
-import { BaseEditorComponent } from '../base-editor/base-editor.component';
-import { Block } from '../model/Block';
+
 
 /**
  * Empty background
@@ -729,7 +727,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 	renameBackground(newBackgroundName) {
 		this.selectedStory.background.name = newBackgroundName;
         this.selectedStory.background.saved = false;
-		//this.updateBackground();
 	}
   
 	/**

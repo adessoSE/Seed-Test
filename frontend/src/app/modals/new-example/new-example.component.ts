@@ -1,8 +1,7 @@
 import { Scenario } from './../../model/Scenario';
 import { StepType } from './../../model/StepType';
-import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Component, Output, ViewChild, EventEmitter } from '@angular/core';
+import { Component, ViewChild} from '@angular/core';
 import { ApiService } from 'src/app/Services/api.service';
 import { FormGroup, FormControl} from '@angular/forms';
 

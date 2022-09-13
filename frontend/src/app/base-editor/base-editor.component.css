@@ -294,13 +294,10 @@ input[type="text"]{
 .exampleList ::ng-deep .mat-select-value{
   color: var(--ocean-blue) !important;
   font-weight: bold !important;
+  max-width: max-content !important;
 }
 .exampleListOption {
   font-weight: bold !important;
-}
-
-.exampleList ::ng-deep .mat-select-value {
-  max-width: max-content !important;
 }
 
 .exampleList ::ng-deep .mat-form-field-infix {

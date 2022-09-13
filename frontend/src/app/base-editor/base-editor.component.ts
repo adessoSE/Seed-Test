@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -14,7 +14,6 @@ import { ApiService } from '../Services/api.service';
 import { Subscription } from 'rxjs';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
-import { ScenarioEditorComponent } from '../scenario-editor/scenario-editor.component';
 
 @Component({
   selector: 'app-base-editor',
@@ -255,7 +254,7 @@ export class BaseEditorComponent  {
     * @param input
     * @param stepIndex
     * @param valueIndex
-    * @param stepType Optional argument
+    * @param stepType
     * @param step Optional argument
     */
   addToValues(input: string, stepIndex: number, valueIndex: number, stepType: string, step?:StepType) { 
@@ -265,8 +264,10 @@ export class BaseEditorComponent  {
         this.selectedStory.background.saved = false; 
         break;
       case 'scenario':
-        switch (stepType) { 
-          case 'given':
+        //updates steps given when then (example is handled in example block)
+        this.updateScenarioValues(input, stepIndex, valueIndex, stepType);
+        /* switch (stepType) { 
+          case 'given': 
             if(this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]){
               this.selectedScenario.stepDefinitions.given[stepIndex].values[valueIndex] = '<' + input + '>';
             }
@@ -280,7 +281,7 @@ export class BaseEditorComponent  {
             }
             else {
               this.selectedScenario.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-            }
+            } 
             break;
           case 'then':
             if(this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex]){
@@ -288,12 +289,12 @@ export class BaseEditorComponent  {
             }
             else {
                 this.selectedScenario.stepDefinitions.then[stepIndex].values[valueIndex] = input;
-            }
+            } 
             break;
           case 'example':
             this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
-            this.selectedScenario.saved = false;
-        } 
+            this.selectedScenario.saved = false; 
+        }  */
         this.selectedScenario.saved = false;
         break; 
       case 'example':
@@ -302,6 +303,22 @@ export class BaseEditorComponent  {
           this.selectedScenario.saved = false;
         }
         break;
+    }
+  }
+
+  /**
+    * Updates input values of scenario step types
+    * @param input
+    * @param stepIndex
+    * @param valueIndex
+    * @param stepType
+    */
+  updateScenarioValues(input: string, stepIndex: number, valueIndex: number, stepType: string) {
+    if(this.selectedScenario.stepDefinitions[stepType][stepIndex].isExample[valueIndex]){
+      this.selectedScenario.stepDefinitions[stepType][stepIndex].values[valueIndex] = '<' + input + '>';
+    }
+    else {
+      this.selectedScenario.stepDefinitions[stepType][stepIndex].values[valueIndex] = input;
     }
   }
   
@@ -626,6 +643,14 @@ export class BaseEditorComponent  {
  
   checkOnIteration(temp_name, checkValue: boolean) {
     switch (temp_name) {
+      case 'background':
+        for (const prop in this.selectedStory.background.stepDefinitions) {
+          for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
+            this.checkStep(this.selectedStory.background.stepDefinitions[prop][i], checkValue);
+          }       
+        }
+        break;
+
       case 'scenario':
         for (const prop in this.selectedScenario.stepDefinitions) {
           if(prop !== 'example') {
@@ -635,13 +660,7 @@ export class BaseEditorComponent  {
           }     
         }
         break;
-      case 'background':
-        for (const prop in this.selectedStory.background.stepDefinitions) {
-          for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-            this.checkStep(this.selectedStory.background.stepDefinitions[prop][i], checkValue);
-          }       
-        }
-        break;
+        
       case 'example':
         for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
           this.checkStep(this.selectedScenario.stepDefinitions.example[i], checkValue);
@@ -945,14 +964,12 @@ export class BaseEditorComponent  {
     switch (this.templateName) {
       case 'background':
         for (const prop in this.selectedStory.background.stepDefinitions) {
-            if (prop !== 'example') {
-                for (const s in this.selectedStory.background.stepDefinitions[prop]) {
-                    if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
-                        this.selectedStory.background.stepDefinitions[prop][s].checked = false;
-                        copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
-                    }
-                }
+          for (const s in this.selectedStory.background.stepDefinitions[prop]) {
+            if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
+              this.selectedStory.background.stepDefinitions[prop][s].checked = false;
+              copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
             }
+          }
         }
         const backgroundBlock: Block = {stepDefinitions: copyBlock};
         sessionStorage.setItem('backgroundBlock', JSON.stringify(backgroundBlock));
@@ -961,14 +978,14 @@ export class BaseEditorComponent  {
 
       case 'scenario':
         for (const prop in this.selectedScenario.stepDefinitions) {
-            if (prop !== 'example') {
-                for (const s in this.selectedScenario.stepDefinitions[prop]) {
-                    if (this.selectedScenario.stepDefinitions[prop][s].checked) {
-                        this.selectedScenario.stepDefinitions[prop][s].checked = false;
-                        copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
-                    }
-                }
+          if (prop !== 'example') {
+            for (const s in this.selectedScenario.stepDefinitions[prop]) {
+              if (this.selectedScenario.stepDefinitions[prop][s].checked) {
+                this.selectedScenario.stepDefinitions[prop][s].checked = false;
+                copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
+              }
             }
+          }
         }
         const scenarioBlock: Block = {stepDefinitions: copyBlock};
         sessionStorage.setItem('scenarioBlock', JSON.stringify(scenarioBlock));
@@ -976,14 +993,10 @@ export class BaseEditorComponent  {
         break;
 
       case 'example':
-        for (const prop in this.selectedScenario.stepDefinitions) {
-          if (prop == 'example') {
-            for (const s in this.selectedScenario.stepDefinitions[prop]) {
-              if (this.selectedScenario.stepDefinitions[prop][s].checked) {
-                this.selectedScenario.stepDefinitions[prop][s].checked = false;
-                copyBlock[prop].push(this.selectedScenario.stepDefinitions[prop][s]);
-              }
-            }
+        for (const s in this.selectedScenario.stepDefinitions.example) {
+          if (this.selectedScenario.stepDefinitions.example[s].checked) {
+            this.selectedScenario.stepDefinitions.example[s].checked = false;
+            copyBlock['example'].push(this.selectedScenario.stepDefinitions.example[s]);
           }
         }
         const block: Block = {stepDefinitions: copyBlock};
@@ -994,8 +1007,7 @@ export class BaseEditorComponent  {
       default:
         break;
     }
-    this.allChecked = false;
-    this.activeActionBar = false;
+    this.checkAllSteps(this.templateName,false);
   }
  
   /**
@@ -1086,20 +1098,20 @@ export class BaseEditorComponent  {
     * @param stepIndex
     * @param valueIndex
     */
-  addIsExample(input, stepIndex: number, valueIndex: number, stepType?: string, step?: StepType) {
-    if(input == true){
+  addIsExample(input, stepIndex: number, valueIndex: number, stepType: string, step?: StepType) {
+    /* if(input){
         input = 'example'
-    }
+    } */
     switch (stepType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
         break;
-        case 'when':
-          this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
-          break;
-        case 'then':
-          this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
-          break;
+      case 'when':
+        this.selectedScenario.stepDefinitions.when[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+        break;
+      case 'then':
+        this.selectedScenario.stepDefinitions.then[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
+        break;
     }
   }
 
