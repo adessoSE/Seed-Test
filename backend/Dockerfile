@@ -36,7 +36,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > mic
 RUN install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
 RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
 RUN rm microsoft.gpg
-RUN apt update && yes | apt install microsoft-edge-stable
+RUN apt update && yes | apt install microsoft-edge-stable 
 
 # install msedgedriver
 # get the latest stable version number and remove two FF FE Bytes at start and OD Byte at end (DataStreamBytes)
@@ -53,7 +53,7 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
-EXPOSE ${PORT}
+EXPOSE 8080
 
 # Start dbus-daemon for google-chrome
 RUN service dbus start
