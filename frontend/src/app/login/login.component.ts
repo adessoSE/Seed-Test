@@ -123,6 +123,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
             this.isDark = this.themeService.isDarkMode();
         });
+        if((!!localStorage.getItem('login'))==true){
+            if(localStorage.getItem('repository')){
+                this.router.navigate(['/'])
+            }
+            else{
+                this.getRepositories()
+            }
+        }
     }
 
     ngOnDestroy() {
