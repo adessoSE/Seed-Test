@@ -136,7 +136,8 @@ export class BaseEditorComponent  {
   ngOnInit(): void {
     this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
       if (this.templateName == 'background' && block[0] == 'background') {
-        block = block[1];
+        this.fillFieldsOnAddingBlocks(block);
+        /* block = block[1];
         Object.keys(block.stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             block.stepDefinitions[key].forEach((step: StepType) => {
@@ -144,11 +145,12 @@ export class BaseEditorComponent  {
             });
           }
         });
-        this.selectedStory.background.saved = false;
+        this.selectedStory.background.saved = false; */
       }
       
-      if (this.templateName == 'scenario' && block[0] == 'scenario') {        
-        block = block[1];
+      if (this.templateName == 'scenario' && block[0] == 'scenario') {   
+        this.fillFieldsOnAddingBlocks(block);     
+        /* block = block[1];
         Object.keys(block.stepDefinitions).forEach((key, index) => {
           block.stepDefinitions[key].forEach((step: StepType, j) => {
               if (key == 'example') {
@@ -168,7 +170,7 @@ export class BaseEditorComponent  {
                 this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
               }
           });
-        });
+        }); */
         this.selectedScenario.saved = false;
       }
     });
@@ -176,7 +178,7 @@ export class BaseEditorComponent  {
     this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample', value.step)});
     this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column);});
     this.scenarioChangedObservable = this.apiService.scenarioChangedEvent.subscribe(() => {
-      console.log(this.selectedScenario.stepDefinitions.example);
+      //console.log(this.selectedScenario.stepDefinitions.example);
       this.checkAllSteps(this.templateName, false);
     });
     this.backgroundChangedObservable = this.apiService.backgroundChangedEvent.subscribe(() => {
@@ -250,6 +252,32 @@ export class BaseEditorComponent  {
     if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
     }
+  }
+  fillFieldsOnAddingBlocks (block:any) {
+    block = block[1];
+    Object.keys(block.stepDefinitions).forEach((key, _) => {
+      block.stepDefinitions[key].forEach((step: StepType, j) => {
+        if (key === 'when') {
+          this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+        }
+        if (key == 'example') {
+          if (!this.selectedScenario.stepDefinitions[key][0] || !this.selectedScenario.stepDefinitions[key][0].values.some(r => step.values.includes(r))) {
+            this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+          }
+          if (j == 0) {
+            step.values.forEach(el => {
+              const s = '<' + el + '>';
+                if (!this.uncutInputs.includes(s)) {
+                  this.uncutInputs.push(s);
+                }
+            });
+          }
+          this.exampleChild.updateTable();
+        } else {
+          this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+        }
+      });
+    });
   }
 
   /**
@@ -625,13 +653,17 @@ export class BaseEditorComponent  {
     * @param temp_name
     * @param checkValue
     */
-  checkAllSteps(temp_name, checkValue: boolean) {
+  checkAllSteps(temp_name, checkValue?: boolean) {
     if (checkValue != null) {
       this.allChecked = checkValue;
     } else {
         this.allChecked = !this.allChecked;
     }
-    if (this.allChecked) {        
+
+    this.checkOnIteration(temp_name, this.allChecked);
+    this.areAllStepsChecked();
+
+    /* if (this.allChecked) {        
         this.checkOnIteration(temp_name, true);
 
         this.activeActionBar = true;
@@ -641,7 +673,7 @@ export class BaseEditorComponent  {
 
         this.activeActionBar = false;
         this.allChecked = false;
-    }
+    } */
   }
  
   checkOnIteration(temp_name, checkValue: boolean) {
@@ -665,7 +697,7 @@ export class BaseEditorComponent  {
         break;
         
       case 'example':
-        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 0; i--) {
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i > 0; i--) {
           this.checkStep(this.selectedScenario.stepDefinitions.example[i], checkValue);
         }
         break;
@@ -810,33 +842,20 @@ export class BaseEditorComponent  {
       this.activeActionBar = true;
     }
   }
-
-
-  /**
-    * Returns the checked steptypes (Temporarily not in use)
-    * @param steptypes 
-    * @returns 
-    */
-
-  getChecked(steptypes) {
-    return steptypes
-      .map(function(element, index) {return {index: index, value: element}})
-      .filter(function(element) { return element.value.checked});
-  }
  
 
   /** Action bar methods */
  
   /**
     * Save a new block
-    * @param temp_name
+    * 
     */
 
-  saveBlock(temp_name): void {
+  saveBlock(): void {
  
     const saveBlock = {given: [], when: [], then: [], example: []};
 
-    switch (temp_name) {
+    switch (this.templateName) {
       case 'background':
         for (const prop in this.selectedStory.background.stepDefinitions) {
             for (const s in this.selectedStory.background.stepDefinitions[prop]) {
@@ -869,11 +888,11 @@ export class BaseEditorComponent  {
  
   /**
     * Deactivates all checked step
-    * @param temp_name
+    * 
     */
 
-  deactivateStep(temp_name): void{
-    switch (temp_name) {
+  deactivateStep(): void{
+    switch (this.templateName) {
       case 'background':
         for (const prop in this.selectedStory.background.stepDefinitions) {
           for (const s in this.selectedStory.background.stepDefinitions[prop]) {
@@ -915,14 +934,14 @@ export class BaseEditorComponent  {
     * @param temp_name
     */
 
-  removeStep (temp_name) {
-    switch (temp_name) {
+  removeStep () {
+    switch (this.templateName) {
       case 'background':
         for (const prop in this.selectedStory.background.stepDefinitions) {
           for (let i = this.selectedStory.background.stepDefinitions[prop].length - 1; i >= 0; i--) {
-              if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
-                  this.selectedStory.background.stepDefinitions[prop].splice(i, 1);
-              }
+            if (this.selectedStory.background.stepDefinitions[prop][i].checked) {
+              this.selectedStory.background.stepDefinitions[prop].splice(i, 1);
+            }
           }
         }
         this.selectedStory.background.saved = false;
@@ -930,19 +949,19 @@ export class BaseEditorComponent  {
       case 'scenario':
         for (const prop in this.selectedScenario.stepDefinitions) {
           if (prop !== 'example') {
-              for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-                  if (this.selectedScenario.stepDefinitions[prop][i].checked) {
-                      this.selectedScenario.stepDefinitions[prop].splice(i, 1);
-                  }
+            for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+              if (this.selectedScenario.stepDefinitions[prop][i].checked) {
+                this.selectedScenario.stepDefinitions[prop].splice(i, 1);
               }
+            }
           }
         }
         this.selectedScenario.saved = false;
         break;
       case 'example':
-        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i >= 1; i--) {
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i > 0; i--) {
           if (this.selectedScenario.stepDefinitions.example[i].checked) {
-            this.selectedScenario.stepDefinitions.example.splice(i, 1);
+            this.selectedScenario.stepDefinitions.example.splice(i,1);
             this.exampleChild.updateTable();
           }
         }
@@ -951,36 +970,38 @@ export class BaseEditorComponent  {
       default:
         break;
     }
-    this.allChecked = false;
-    this.activeActionBar = false;
+    //this.allChecked = false;
+    //this.activeActionBar = false;
   }
  
   /**
     * Copy a block
-    * @param temp_name
+    * 
     */
 
   copyBlock():void {
  
-    const copyBlock = {given: [], when: [], then: [], example: []};
-
+    //const copyBlock = {given: [], when: [], then: [], example: []};
+    let block;
     switch (this.templateName) {
       case 'background':
-        for (const prop in this.selectedStory.background.stepDefinitions) {
+        block = this.addStepsToBlockOnIteration(this.selectedStory.background.stepDefinitions);
+        /* for (const prop in this.selectedStory.background.stepDefinitions) {
           for (const s in this.selectedStory.background.stepDefinitions[prop]) {
             if (this.selectedStory.background.stepDefinitions[prop][s].checked) {
               this.selectedStory.background.stepDefinitions[prop][s].checked = false;
               copyBlock[prop].push(this.selectedStory.background.stepDefinitions[prop][s]);
             }
           }
-        }
-        const backgroundBlock: Block = {stepDefinitions: copyBlock};
+        }*/
+        const backgroundBlock: Block = {stepDefinitions: block}; 
         sessionStorage.setItem('backgroundBlock', JSON.stringify(backgroundBlock));
         this.toastr.success('successfully copied', 'Step(s)');
         break;
 
       case 'scenario':
-        for (const prop in this.selectedScenario.stepDefinitions) {
+        block = this.addStepsToBlockOnIteration(this.selectedScenario.stepDefinitions);
+        /* for (const prop in this.selectedScenario.stepDefinitions) {
           if (prop !== 'example') {
             for (const s in this.selectedScenario.stepDefinitions[prop]) {
               if (this.selectedScenario.stepDefinitions[prop][s].checked) {
@@ -989,21 +1010,22 @@ export class BaseEditorComponent  {
               }
             }
           }
-        }
-        const scenarioBlock: Block = {stepDefinitions: copyBlock};
+        }*/
+        const scenarioBlock: Block = {stepDefinitions: block}; 
         sessionStorage.setItem('scenarioBlock', JSON.stringify(scenarioBlock));
         this.toastr.success('successfully copied', 'Step(s)');
         break;
 
       case 'example':
-        for (const s in this.selectedScenario.stepDefinitions.example) {
+        block = this.addStepsToBlockOnIteration(this.selectedScenario.stepDefinitions.example);
+        /* for (const s in this.selectedScenario.stepDefinitions.example) {
           if (this.selectedScenario.stepDefinitions.example[s].checked) {
             this.selectedScenario.stepDefinitions.example[s].checked = false;
             copyBlock['example'].push(this.selectedScenario.stepDefinitions.example[s]);
           }
-        }
-        const block: Block = {stepDefinitions: copyBlock};
-        sessionStorage.setItem('copiedExampleBlock', JSON.stringify(block));
+        }*/
+        const exampleBlock: Block = {stepDefinitions: block}; 
+        sessionStorage.setItem('copiedExampleBlock', JSON.stringify(exampleBlock));
         this.toastr.success('successfully copied', 'Examples');
         break;  
 
@@ -1012,10 +1034,31 @@ export class BaseEditorComponent  {
     }
     this.checkAllSteps(this.templateName,false);
   }
+
+  addStepsToBlockOnIteration(stepsList) {
+    const copyBlock = {given: [], when: [], then: [], example: []};
+    //Block for background and scenario handling except for example step
+    for (const prop in stepsList) {
+      if (prop !== 'example') {
+        for (const s in stepsList[prop]) {
+          if (stepsList[prop][s].checked) {
+            stepsList[prop][s].checked = false;
+            copyBlock[prop].push(stepsList[prop][s]);
+          }
+        }
+      }
+      //Block for example handling
+      if (stepsList[prop].checked) {
+        stepsList[prop].checked = false;
+        copyBlock['example'].push(stepsList[prop]);
+      }
+    }
+    return copyBlock
+  }
  
   /**
     * Insert block from clipboard
-    * @param temp_name 
+    * 
     */
 
   insertCopiedBlock(): void{
@@ -1069,12 +1112,12 @@ export class BaseEditorComponent  {
  
   /**
     * Opens add block modal
-    * @param temp_name
+    * 
     */
 
-  addBlock(temp_name) {
+  addBlock() {
     const id =  localStorage.getItem('id');
-    this.addBlockModal.openAddBlockFormModal(temp_name, id);
+    this.addBlockModal.openAddBlockFormModal(this.templateName, id);
   }
 
 
