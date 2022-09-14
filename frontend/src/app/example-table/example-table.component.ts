@@ -233,6 +233,7 @@ export class ExampleTableComponent implements OnInit {
       this.exampleThere = true;
       this.initializeTable();
       this.initializeTableControls();
+      this.apiService.scenarioChangedEmitter();
     } else {
       this.exampleThere = false;
     }
@@ -250,7 +251,6 @@ export class ExampleTableComponent implements OnInit {
   renameExample(columnIndex){
     this.newExampleModal.renameExample(this.selectedScenario, columnIndex-1);
     this.updateTable();
-    this.apiService.scenarioChangedEmitter();
   }
 
   /**
