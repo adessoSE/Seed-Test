@@ -198,6 +198,9 @@ export class BaseEditorComponent  {
     if (!this.scenarioChangedObservable.closed) {
       this.scenarioChangedObservable.unsubscribe();
     } 
+    if(!this.backgroundChangedObservable.closed) {
+      this.backgroundChangedObservable.unsubscribe();
+    }
 
   }
 

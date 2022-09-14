@@ -105,9 +105,7 @@ export class ScenarioEditorComponent implements OnInit{
      * Subscribtions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
-    addBlocktoScenarioObservable: Subscription;
     renameScenarioObservable: Subscription;
-    tableChangedObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -165,10 +163,6 @@ export class ScenarioEditorComponent implements OnInit{
     ngOnDestroy() {
         if (!this.runSaveOptionObservable.closed) {
             this.runSaveOptionObservable.unsubscribe();
-        }
-
-        if (!this.tableChangedObservable.closed) {
-            this.tableChangedObservable.unsubscribe();
         }
         if (!this.renameScenarioObservable.closed) {
             this.renameScenarioObservable.unsubscribe();
