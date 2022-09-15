@@ -1058,14 +1058,12 @@ export class BaseEditorComponent  {
       if (this.templateName !== 'example' && prop !== 'example') {
         for (const s in stepsList[prop]) {
           if (stepsList[prop][s].checked) {
-            //stepsList[prop][s].checked = false;
             copyBlock[prop].push(stepsList[prop][s]);
           }
         }
       } else {
         //Block for example handling
         if (stepsList[prop].checked) {
-          //stepsList[prop].checked = false;
           copyBlock['example'].push(stepsList[prop]);
         }
       }
