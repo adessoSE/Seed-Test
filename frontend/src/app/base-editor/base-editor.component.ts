@@ -63,6 +63,13 @@ export class BaseEditorComponent  {
     this.selectedScenario = scenario;
   }
 
+  @Input()
+  set uncheckBackgroundCheckboxes (showBackground) {
+    if (showBackground) {
+      this.checkAllSteps(false);
+    }
+  }
+
   /**
     * Sets a new selected story
     */
@@ -944,12 +951,11 @@ export class BaseEditorComponent  {
         this.selectedScenario.saved = false;
         break;
       case 'example':
-        this.deactivateOnIteration( this.selectedScenario.stepDefinitions.example);
-        /* for (const s in this.selectedScenario.stepDefinitions.example) {
+        for (const s in this.selectedScenario.stepDefinitions.example) {
           if (this.selectedScenario.stepDefinitions.example[s].checked) {
             this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated;
           }
-        } */
+        }
         this.selectedScenario.saved = false;
         break;
       default:
@@ -960,22 +966,14 @@ export class BaseEditorComponent  {
   deactivateOnIteration(stepsList) {
     //background & scenario
     for (const prop in stepsList) {
-      if (prop !== 'example' && this.templateName !== 'example') {
+      if (prop !== 'example') {
         for (const s in stepsList[prop]) {
           if (stepsList[prop][s].checked) {
             stepsList[prop][s].deactivated = !stepsList[prop][s].deactivated;
           }
         }
-      } else  {
-        // example
-        if (stepsList[prop].checked) {
-          console.log('yaaay');
-          
-          stepsList[prop].deactivated = !stepsList[prop].deactivated;
-        }
-      }
+      } 
     }
-
   }
  
   /**
@@ -1127,8 +1125,6 @@ export class BaseEditorComponent  {
           copyBlock['example'].push(stepsList[prop]);
         }
       }
-      
-      
     }
     return copyBlock
   }
