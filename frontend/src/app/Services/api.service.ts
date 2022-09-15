@@ -1214,7 +1214,7 @@ export class ApiService {
             this.toastr.error('This Example Name is already in use. Please choose another Name');
         }
     }
-}
+
     public groupUnique(buttonId: string, input: string, array: Group[], group?: Group){
         array = array ? array : [];
         input = input ? input : '';
@@ -1236,4 +1236,5 @@ export class ApiService {
            }
         }
     }
-} 
+}
+    
