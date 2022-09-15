@@ -690,7 +690,7 @@ export class BaseEditorComponent  {
   checkOnIteration(stepsList, checkValue: boolean) {
     //background & scenario
     for (const prop in stepsList) {
-      if(prop !== 'example' && this.templateName !== 'example') {
+      if(this.templateName !== 'example' && prop !== 'example') {
         for (let i = stepsList[prop].length - 1; i >= 0; i--) {
           this.checkStep(stepsList[prop][i], checkValue);
         }
@@ -1001,6 +1001,7 @@ export class BaseEditorComponent  {
       default:
         break;
     }
+    this.checkAllSteps(false);
     //this.allChecked = false;
     //this.activeActionBar = false;
   }
@@ -1012,7 +1013,7 @@ export class BaseEditorComponent  {
   removeStepOnIteration(stepsList) {
     //background & scenario
     for (const prop in stepsList) {
-      if (prop !== 'example' && this.templateName !== 'example') {
+      if (this.templateName !== 'example' && prop !== 'example') {
         for (let i = stepsList[prop].length - 1; i >= 0; i--) {
           if (stepsList[prop][i].checked) {
             stepsList[prop].splice(i, 1);
@@ -1102,7 +1103,7 @@ export class BaseEditorComponent  {
     const copyBlock = {given: [], when: [], then: [], example: []};
     //Block for background and scenario handling except for example step
     for (const prop in stepsList) {
-      if (prop !== 'example' && this.templateName !== 'example') {
+      if (this.templateName !== 'example' && prop !== 'example') {
         for (const s in stepsList[prop]) {
           if (stepsList[prop][s].checked) {
             //stepsList[prop][s].checked = false;
