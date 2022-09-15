@@ -118,7 +118,9 @@ table {
 }
 
 :host ::ng-deep .comment{
-  column-width: fill-available;
+  /* column-width: fill-available; */
+  margin-left: 20px;
+  margin-right: 20px;
 }
 :host ::ng-deep .comment > textarea {
   width: 100%;
