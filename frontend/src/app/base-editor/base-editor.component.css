@@ -366,3 +366,8 @@ input[type="text"]{
   color: red !important;
 }
 
+input.scenario, input.background {
+  text-align: center;
+  text-indent: 5px;
+}
+
