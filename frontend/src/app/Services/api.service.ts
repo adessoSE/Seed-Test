@@ -131,6 +131,8 @@ export class ApiService {
      */
     public createCustomStoryEmitter: EventEmitter<any> = new EventEmitter();
 
+    public createRepositoryEmitter: EventEmitter<any> = new EventEmitter();
+
     public createCustomGroupEmitter: EventEmitter<any> = new EventEmitter();
 
     public updateGroupEmitter: EventEmitter<any> = new EventEmitter();
@@ -145,6 +147,10 @@ export class ApiService {
     
     /* Scenario change emitter */
     public scenarioChangedEvent: EventEmitter<Scenario> = new EventEmitter();
+ 
+    createRepositoryEvent(repository) {
+        this.createRepositoryEmitter.emit(repository);
+    }
 
     /* Background change emitter */
     public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
@@ -484,12 +490,12 @@ export class ApiService {
      * @param name
      * @returns
      */
-    createRepository(name: string): Observable<any> {
+    createRepository(name: string, _id: string): Observable<any> {
         this.apiServer = localStorage.getItem('url_backend');
         console.log(this.apiServer);
-        const body = {'name' : name};
+        const body = {'name' : name,'_id': _id};
         return this.http
-            .post<any>(this.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
+            .post<RepositoryContainer>(this.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
             .pipe(tap(_ => {
                 //
             }));
@@ -1209,3 +1215,25 @@ export class ApiService {
         }
     }
 }
+    public groupUnique(buttonId: string, input: string, array: Group[], group?: Group){
+        array = array ? array : [];
+        input = input ? input : '';
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if ((input && !array.find(i => i.name === input)) || (group ? array.find(g => g._id == group._id && g.name == input) : false)){
+            button.disabled = false;
+        } 
+        
+        else {
+            if(input.length==0)
+            {
+                button.disabled = true;
+                this.toastr.error('The field can not be empty');
+            }
+           else
+           {
+             button.disabled = true;
+             this.toastr.error('This Group Title is already in use. Please choose another Title'); 
+           }
+        }
+    }
+} 

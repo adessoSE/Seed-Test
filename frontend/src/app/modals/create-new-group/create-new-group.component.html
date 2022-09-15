@@ -8,14 +8,14 @@
         </button>
     </div>
     <div class="modal-body">
-        <form #newGroupForm="ngForm" novalidate (ngSubmit)="onSubmit($event, newGroupForm)">
-            <div> 
-                <div class="form-group groupouterdiv modalsContent">
+        <form #newGroupForm="ngForm" novalidate (ngSubmit)="createNewGroup(newGroupForm)">
+            <div class="form-group groupouterdiv modalsContent"> 
+                <div class="modalsContent">
                     <div>
                         <label class="uk-form-label">Enter unique group name*</label> 
-                        <input id="nameInput" ngModel name="title" pattern="\S(.*\S)?" required>
+                        <input id="grouptitle" ngModel name="title"
+                        pattern="\S(.*\S)?" style="margin-left: 24px;" (keyup)="groupUnique(newGroupForm)" required>  
                     </div>
-                    <br>
                     <div>            
                         <label class="uk-form-label">Find story</label> 
                         <div class="searchWrapper">
@@ -68,7 +68,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="normalButton" [disabled]="!newGroupForm.valid" 
+                <button id="submitCreateNewGroup" type="submit" class="normalButton" [disabled]="!newGroupForm.valid" 
                 [ngStyle]="{'opacity': !newGroupForm.valid ?  '50%' : '100%'}">Save</button>
             </div>
         </form>

@@ -15,6 +15,7 @@ import { ApiService } from 'src/app/Services/api.service';
 })
 export class UpdateGroupComponent {
 
+  @ViewChild('updateGroupModal') updateGroupModal: UpdateGroupComponent;
   /**
      * selectable Stories when create Group
   */
@@ -27,6 +28,8 @@ export class UpdateGroupComponent {
    */
    groups: Group[];
 
+   group: Group;
+
    scrGroup: Group;
 
    selectedStories: string[];
@@ -37,19 +40,21 @@ export class UpdateGroupComponent {
 
    isSeq: boolean;
 
+   modalReference: NgbModalRef;
+
   /**
   * Model Reference for closing
   */
-  modalReference: NgbModalRef;
+ 
 
    /**
    * Columns of the story table table
    */
    displayedColumnsStories: string[] = ['story', 'checkStory'];
 
-  @ViewChild('updateGroupModal') updateGroupModal: UpdateGroupComponent;
+  
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+  constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
   /**
      * Opens the create new group modal
@@ -75,17 +80,8 @@ export class UpdateGroupComponent {
     this.modalReference = this.modalService.open(this.updateGroupModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
-  groupUnique(event, input: string, array: Group[], group?: Group) {
-    array = array ? array : [];
-    input = input ? input : '';
-
-    const button = (group ? document.getElementById('groupUpdate') : document.getElementById('groupSave')) as HTMLButtonElement;
-    if ((input && !array.find(i => i.name == input)) || (group ? array.find(g => g._id == group._id && g.name == input) : false)) {
-        button.disabled = false;
-    } else {
-        button.disabled = true;
-        this.toastr.error('Choose another Group-name');
-    }
+  groupUnique(form :NgForm) {
+    this.apiService.groupUnique('submitUpdateGroup', form.value.title, this.groups, this.group);
   }
 
    /**
@@ -140,10 +136,6 @@ export class UpdateGroupComponent {
     const group: Group = {_id: this.groupId, name: form.value.title, member_stories: this.selectedStories, isSequential: this.isSeq};
     this.apiService.updateGroupEvent({repositoryContainer, group});
     this.modalReference.close();
-  }
-
-  onSubmit(event) {
-    this.updateGroup(event);
   }
 
 }

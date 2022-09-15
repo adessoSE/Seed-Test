@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from 'src/app/Services/api.service';
+import {RepositoryContainer} from 'src/app/model/RepositoryContainer';
 
 @Component({
   selector: 'app-create-custom-project',
@@ -16,33 +17,70 @@ export class CreateCustomProjectComponent {
   /**
   * Model Reference for closing
   */
-  modalReference: NgbModalRef;
-
   constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+ 
+  modalReference: NgbModalRef;
+  /**
+  * Existing Projects
+  */
+ repositories: RepositoryContainer[];
+
+  repoId: string;
+
+  repository: RepositoryContainer;
 
   // create custom project modal
 
     /**
      * Open the create custom project modal
      */
-  openCreateCustomProjectModal() {
-    this.modalReference = this.modalService.open(this.createCustomProjectModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+  openCreateCustomProjectModal(repositories: RepositoryContainer[]) {
+    this.repositories=repositories;
+    this.modalReference = this.modalService.open(this.createCustomProjectModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
   /**
    * Submits the repository to the backend
    */
-  submitRepo(form: NgForm) {
-    const name = form.value.repo_name;
-    if (!this.isEmptyOrSpaces(name)) {
-      this.apiService.createRepository(name).subscribe(resp => {
-        this.toastr.info('', 'Project created');
-        this.apiService.getRepositoriesEmitter();
-        this.apiService.updateRepositoryEmitter();
-      });
-      this.modalReference.close();
+   createNewProject(form: NgForm) {
+    const title = form.value.title;
+    const id=form.value._id
+    if (!this.isEmptyOrSpaces(title)) {
+        this.apiService.createRepository(title, id).subscribe(resp => {
+         this.toastr.info('', 'Project created');
+         this.apiService.getRepositoriesEmitter();
+         this.apiService.updateRepositoryEmitter();
+       });
     }
+    this.modalReference.close();
   }
+  projectUnique(form: NgForm){
+    this.checkProject('submitCreateNewProject', form.value.title, this.repositories, this.repository)
+
+}
+
+checkProject(buttonId: string, input: string, array: RepositoryContainer[], repository?: RepositoryContainer){
+  array = array ? array : [];
+  input = input ? input : '';
+  const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+  if ((input && !array.find(i => i.value === input)) || (repository ? array.find(g => g._id == repository._id && g.value == input) : false)){
+      button.disabled = false;
+  } 
+  
+  else {
+      if(input.length==0)
+      {
+          button.disabled = true;
+          this.toastr.error('The field can not be empty');
+      }
+     else
+     {
+       button.disabled = true;
+       this.toastr.error('This Project Title is already in use. Please choose another Title'); 
+     }
+  }
+}
+
 
   /**
    * Checks if the string is empty or only contains spaces
