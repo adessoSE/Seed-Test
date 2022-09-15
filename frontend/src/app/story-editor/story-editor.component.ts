@@ -281,6 +281,10 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
         this.gecko_enabled = localStorage.getItem('gecko_enabled');
         this.chromium_enabled = localStorage.getItem('chromium_enabled');
         this.edge_enabled = localStorage.getItem('edge_enabled');
+
+        this.gecko_emulators = localStorage.getItem('gecko_emulators');
+        this.chromium_emulators = localStorage.getItem('chromium_emulators');
+        this.edge_emulators = localStorage.getItem('edge_emulators');
         
     }
     
@@ -688,6 +692,48 @@ export class StoryEditorComponent extends BaseEditorComponent implements OnInit,
 		this.selectedScenario.browser = newBrowser;
 		this.selectedScenario.saved = false;
 	}
+
+    // ------------------------------- EMULATOR --------------------------------
+    
+    /**
+     * Boolean emulator indicator
+     */
+    emulator_enabled;
+
+    /**
+     * List of supported emulators for gecko
+     */
+    gecko_emulators;
+
+     /**
+     * List of supported emulators for gecko
+     */
+    chromium_emulators;
+
+     /**
+     * List of supported emulators for gecko
+     */
+    edge_emulators;
+
+    /**
+     * Set if an emulator should be used
+     * @param enabled Boolean
+     */
+     setEmulatorEnabled(enabled) {
+         this.emulator_enabled = enabled;
+         this.selectedScenario.saved = false;
+     }
+    
+    /**
+     * Set the emultaor
+     * @param newEmultaor
+     */
+	setEmulator(newEmulator) {
+		this.selectedScenario.emulator = newEmulator;
+		this.selectedScenario.saved = false;
+	}
+
+    // ------------------------------- EMULATOR -----------------------------
 
 	/**
      * Hide the test results
