@@ -19,7 +19,7 @@ export class ResizeInputDirective {
   @HostBinding() class?;
 
   @HostListener('change', ['$event']) onChange() {
-    this.resize('action');
+    this.resize('load');
   }
 
   @HostListener('input', ['$event']) onInput() {
@@ -52,23 +52,22 @@ export class ResizeInputDirective {
     //Set variables
     let parentWidth = this.setParentWidth();
     
-    let string_coef = 4;
-    let string_length = this.el.nativeElement.value.length+string_coef;
+    let string_coef = 6;
+    let string_length = this.el.nativeElement.value.length;
     let input_width = this.el.nativeElement.offsetWidth;
     let coef = 10;
     
     //Check if maxWidth exceeded 
     if((parentWidth - input_width + string_length*coef) < this.maxWidth) {
-      if (string_length == 0 ){
+      if (string_length <= 10 ){
         this.el.nativeElement.setAttribute('size', this.minWidth);
       } else {
-        this.el.nativeElement.setAttribute('size', string_length);
+        this.el.nativeElement.setAttribute('size', string_length-string_coef);
       }
     }  
     else {
       let gap = (this.maxWidth - parentWidth);
-      if (gap > 0){
-
+      if (gap >= 0){
         if (mode_type == 'action') {
           this.el.nativeElement.setAttribute('size', this.el.nativeElement.getAttribute('size'));
         } 
@@ -78,7 +77,13 @@ export class ResizeInputDirective {
         } 
       }
       else {
-        this.el.nativeElement.setAttribute('size', this.minWidth);
+        if (mode_type == 'action') {
+          this.el.nativeElement.setAttribute('size', this.el.nativeElement.getAttribute('size')+gap);
+        } 
+        if (mode_type == 'load') {
+          let width = (input_width - gap)/coef;
+          this.el.nativeElement.setAttribute('size', width);
+        } 
       }
     }
   }

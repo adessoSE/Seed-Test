@@ -367,7 +367,7 @@ input[type="text"]{
 }
 
 input.scenario, input.background {
-  text-align: center;
-  text-indent: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
