@@ -1269,21 +1269,6 @@ export class BaseEditorComponent  {
   } 
 
   /**
-    * Adds a value to every example
-    */
-  addRowToExamples(){
-    if (this.templateName == 'example') {
-      let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
-      row.values.forEach((value, index) => {
-        row.values[index] = 'value'
-      });
-      this.selectedScenario.stepDefinitions.example.push(row)
-      this.exampleChild.updateTable();
-      this.selectedScenario.saved = false;
-    }
-  }
-
-  /**
     * Adds an example step
     * @param step
     */

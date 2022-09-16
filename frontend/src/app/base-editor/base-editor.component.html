@@ -38,9 +38,6 @@
         <button *ngIf="name != 'example'" id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock()">
           <em class="material-icons-outlined">queue</em>
         </button>
-        <button *ngIf="name == 'example'" id="{{name+'_' + i + '_example_add_step_'}}" class="scenarioButton" uk-tooltip title="Add Example" (click)="addRowToExamples();">
-          <em class="material-icons">add</em>
-        </button>
       </div>
     </div>
   </ng-template>
