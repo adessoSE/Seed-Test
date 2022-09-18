@@ -102,10 +102,10 @@
                             </mat-form-field>
                           </div>&nbsp;
                           <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType, currentStep)" uk-tooltip="Use Multipe Scenarios">
-                            &nbsp;<p class="exampleButton">1+</p><!--em class="material-icons" id="inputExampleIcon">code</em-->&nbsp;
+                            &nbsp;<p class="exampleButton">1+</p>&nbsp;
                           </button>
                           <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType, currentStep)" uk-tooltip="Use Textfield">
-                            &nbsp;<p class="exampleButton">1</p><!--em class="material-icons" id="inputExampleIcon">code_off</em-->&nbsp;
+                            &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </div>
                         <div *ngIf="currentStep.selectionValue==0">
@@ -134,10 +134,10 @@
                               </mat-form-field>
                             </div>&nbsp;
                             <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 1,currentStep.stepType, currentStep)" uk-tooltip="Use Multipe Scenarios">
-                              &nbsp;<em class="material-icons" id="inputExampleIcon">table_chart</em>&nbsp;
+                              &nbsp;<p class="exampleButton">1+</p>&nbsp;
                             </button>
                             <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType, currentStep)" uk-tooltip="Use Textfield">
-                              &nbsp;<em class="material-icons" id="inputExampleIcon">drive_file_rename_outline</em>&nbsp;
+                              &nbsp;<p class="exampleButton">1</p>&nbsp;
                             </button>&nbsp;
                           </div>
                           
