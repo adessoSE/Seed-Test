@@ -48,8 +48,6 @@ import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 import {MatSelectModule} from '@angular/material/select';
@@ -69,7 +67,8 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
-import { ResizeInputDirective } from './directives/resize-input.directive';
+import { ResizeInputDirective } from './resize-input.directive';
+import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 
 @NgModule({
   declarations: [
@@ -116,6 +115,7 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
     RepoSwichComponent,
     CreateScenarioComponent,
     ResizeInputDirective,
+    RenameBackgroundComponent,
   ],
   imports: [
     NgbModule,
@@ -135,8 +135,9 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.OFF
+      serverLogLevel: NgxLoggerLevel.DEBUG
     }),
     ToastrModule.forRoot({
       timeOut: 3000
@@ -144,8 +145,6 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
     MatSlideToggleModule,
     MatIconModule,
     MatExpansionModule,
-    MatTabsModule,
-    MatTooltipModule,
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,

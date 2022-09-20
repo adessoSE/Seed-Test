@@ -17,10 +17,13 @@ export class RenameStoryComponent {
 
   story: Story;
   stories: Story[];
+  storytitle: string;
   storyForm = new FormGroup ({
-    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
     storyDescription: new FormControl(''),
   });
+
+  get storyTitle() { return this.storyForm.get('storyTitle'); }
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 
@@ -33,6 +36,8 @@ export class RenameStoryComponent {
     this.stories = stories;
     this.story = story;
     this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+    const title = document.getElementById('newStoryTitle') as HTMLInputElement;
+    title.placeholder = story.title;
     this.storyForm.setValue({
       storyTitle: story.title,
       storyDescription: story.body
@@ -43,7 +48,7 @@ export class RenameStoryComponent {
    * Submits the new name for the story & description
    */
   submitRenameStory() {
-    const title = this.storyForm.value.storyTitle;
+    const title = this.storyForm.value.storytitle;
     const description = this.storyForm.value.storyDescription;
     this.apiService.renameStoryEmit(title, description);
     this.modalReference.close();

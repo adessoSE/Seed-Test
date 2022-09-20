@@ -5,7 +5,6 @@ import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { NGXLogger, NgxLoggerLevel } from 'ngx-logger';
 
 
 /**
@@ -65,7 +64,7 @@ export class AppComponent implements OnInit{
    * @param themeService
    */
 
-  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService, public logger: NGXLogger) {
+  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
   }
 
   /**
@@ -80,14 +79,7 @@ export class AppComponent implements OnInit{
 
     this.getRepositories();
     if (!this.apiService.urlReceived) {
-      this.apiService.getBackendInfo()
-      .then(()=>{ //Logger config
-        this.logger.updateConfig({
-          serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
-          level: NgxLoggerLevel.DEBUG,
-          serverLogLevel: NgxLoggerLevel.DEBUG
-        })
-      })
+      this.apiService.getBackendInfo();
     }
     this.themeService.loadTheme();
     this.isDark = this.themeService.isDarkMode();
@@ -201,7 +193,8 @@ export class AppComponent implements OnInit{
    */
   logout() {
     this.repositories = undefined;
-    this.apiService.logoutUser().subscribe(resp => {
+    this.apiService.logoutUser().subscribe(_ => {
+      //
     });
     this.router.navigate(['/login']);
   }

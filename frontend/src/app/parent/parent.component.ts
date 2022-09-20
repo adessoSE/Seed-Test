@@ -80,7 +80,7 @@ export class ParentComponent implements OnInit, OnDestroy {
       });
     }
     this.isDark = this.themeService.isDarkMode();
-    this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
+    this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
       this.isDark = this.themeService.isDarkMode();
     });
 
@@ -163,7 +163,7 @@ export class ParentComponent implements OnInit, OnDestroy {
    * Change the editor to report history or story editor
    * @param event event
    */
-  setEditor(event) {
+  setEditor() {
     this.isStoryEditorActive = !this.isStoryEditorActive;
   }
 

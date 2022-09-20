@@ -224,7 +224,7 @@ a:hover{
   position: fixed;
   background-color: var(--light-grey);
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 99999 !important;
+  z-index: 1;
   list-style-type: none;
   overflow-y: auto;
   max-height: 70%;
@@ -341,9 +341,6 @@ a:hover{
 .mat-icon {
   vertical-align: middle;
   margin-bottom: 6px;
-}
-.menuselection   {
-  z-index: 99999 !important;
 }
 
 

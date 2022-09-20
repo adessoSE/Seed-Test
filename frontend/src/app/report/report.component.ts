@@ -53,7 +53,7 @@ export class ReportComponent implements OnInit {
         this.route.params.subscribe(params => {
             if (params.reportName) {
                 if (!localStorage.getItem('url_backend')) {
-                    this.apiService.getBackendInfo().then(value => {
+                    this.apiService.getBackendInfo().then(_ => {
                         this.getReport(params.reportName);
                     });
                 } else {
@@ -69,7 +69,7 @@ export class ReportComponent implements OnInit {
     ngOnInit() {
         this.isDark = this.themeService.isDarkMode();
         this.themeService.themeChanged
-        .subscribe((currentTheme) => {
+        .subscribe((_) => {
             this.isDark = this.themeService.isDarkMode()
         });
     }
@@ -101,7 +101,7 @@ export class ReportComponent implements OnInit {
      */
     unsaveReport(reportId) {
         this.reportIsSaved = false;
-        return new Promise<void>((resolve, reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.apiService
             .unsaveReport(reportId)
             .subscribe(_resp => {
                 resolve();
@@ -115,7 +115,7 @@ export class ReportComponent implements OnInit {
      */
     saveReport(reportId) {
         this.reportIsSaved = true;
-        return new Promise<void>((resolve, reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.apiService
             .saveReport(reportId)
             .subscribe(_resp => {
                 resolve();
@@ -145,8 +145,8 @@ export class ReportComponent implements OnInit {
         const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
 
         let divEl = iframe.contentWindow.document.getElementsByClassName('panel-collapse');
-        for (let i=0; i < divEl.length; i++) {
-            divEl[i].classList.add("in");
+        for (let element of divEl) {
+            element.classList.add("in");
         }
 
         html2canvas(body).then(canvas => {

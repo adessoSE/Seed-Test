@@ -2,7 +2,7 @@
   <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="scenario">
     <div class="title">
       <div class="scenarioHeaderContainer">
-        <div>
+        <div style="margin: auto 0">
           <span id="scenarioHeader" class="Smallnavigation2">Scenario</span>
             <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
               <span rel="def" id="scenarioInfoTextPosition">Each scenario is an example describing a specific behavioral aspect of the system.
@@ -21,9 +21,9 @@
           <em class="material-icons">keyboard_arrow_left</em>
           </button>
           <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5"># {{selectedScenario.name | titlecase}}</span>
-          <button id="scenario_change_title" class="scenarioTitle" (click)="changeScenarioTitle();" data-uk-tooltip
+          <button class="scenarioTitle" (click)="changeScenarioTitle();" data-uk-tooltip
           title="Change Scenario Title">
-          <em class="material-icons">edit</em>
+          <em class="material-icons" id="scenario_change_title">edit</em>
           </button>
 
           <button id="scenario_shift_right" class="scenarioTitle" *ngIf="!arrowRight" data-uk-tooltip
@@ -31,18 +31,18 @@
           <em class="material-icons">keyboard_arrow_right</em>
           </button>
         </div>
-        <div style="justify-self: end;">
+        <div style="justify-self: end; padding: 2px 20px;">
           <button id="new_scenario scenario_change_title" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
             <em class="material-icons">add</em>
             </button>
-            <button id="scenario_change_title" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
+            <button [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
             title="Save Scenario" [ngClass]="{'scenarioButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
             (click)="updateScenario();">
-            <em class="material-icons">save</em>
+            <em class="material-icons" id="scenario_change_title">save</em>
             </button>
-            <button id="scenario_change_title" [class.disabled]="testRunning" [disabled]="testRunning"
+            <button [class.disabled]="testRunning" [disabled]="testRunning"
             class="scenarioTitle" data-uk-tooltip title="Delete Scenario"
-            (click)="deleteScenario($event);">
+            (click)="deleteScenario();">
             <em class="material-icons">delete</em>
             </button>
         </div>
@@ -50,7 +50,7 @@
     <!--Action bar-->
   <div class="scenarioBarContainer">
     <div class="actionBarButtonGroup">
-      <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps($event, null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps">
+      <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps(null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps">
       <div [class.disabled]="!this.activeActionBar">
         <button id="{{'scenario_addBlock_step'}}" class="actionButton" uk-tooltip title="Save Steps as Block"
         (click)="saveBlock();">
@@ -74,7 +74,7 @@
       <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
         <em class="material-icons">copy_all</em>
       </button>
-      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock($event)">
+      <button id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock()">
         <em class="material-icons">playlist_add</em>
       </button>
     </div>
@@ -119,10 +119,9 @@
           </div>
         </div>
         <div  class="uk-steps " *ngIf= "sd != 'example'; else exampleCondition">
-          <div cdkDropList  class="cdkListStyle" (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
-            <div #parentEl class="stepsContainer" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" style="margin-right: 20px;" cdkDrag (cdkDragStarted)="dragStarted($event, i)" (cdkDragEnded)="dragEnded()">
-              <div  *ngIf="!dragging || !isSelected(i, j)">
-              <div class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
+          <div cdkDropList (cdkDropListDropped)="onDropScenario($event,selectedScenario.stepDefinitions, i)">
+            <div #containerEl class="stepsContainer" *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions,i); let j=index;" cdkDrag >
+              <div #parentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                 <div class="dragIconContainer" cdkDragHandle >
                   <em class="material-icons dragIcon">drag_indicator</em>
                 </div>
@@ -131,11 +130,6 @@
                 </div>
                 <div *ngIf="!(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
                   <input type="checkbox" class="checkbox checkboxDropdown" id="{{'scenario_' + i + '_checkbox_' + j}}" (click)="this.handleClick($event, currentStep, null)" [checked]="currentStep.checked">
-                </div>
-                <div *cdkDragPreview>
-                  <div *ngIf="selectedCount(i)>1" class="select-item-drag-preview float-left">
-                    {{ selectedCount(i) || 1 }}
-                  </div>
                 </div>
                 {{i+1}}.{{j+1}} {{currentStep.pre}}
                 <div style="display: flex;" *ngIf="currentStep.values.length > 0" >
@@ -181,18 +175,17 @@
                 </div>
             </div>
           </div>
-          </div>
           <br>
         </div>
         <br>
         <ng-template #exampleCondition>
           <!--Action bar-->
           <div *ngIf="this.selectedScenario.stepDefinitions.example.length > 1" class="exampleBarContainer">
-            <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps($event, null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
+            <input type="checkbox" class="checkbox" id="checkbox_all_example" (change)="checkAllExampleSteps(null)" [checked]="this.allExampleChecked" uk-tooltip title="Check All Steps">
             <div [class.disabled]="!this.activeExampleActionBar" class="actionBarButtonGroup">
               <button id="{{'scenario_' + i + '_example_addBlock_step_'}}"
               class="actionButton deactivateStepButton" uk-tooltip title="Save Steps as Block"
-              (click)="saveExampleBlock($event);">
+              (click)="saveExampleBlock();">
                 <em class="material-icons">queue</em>
               </button>
               <button id="{{'scenario_' + i + '_example_deactivate_step_'}}"
@@ -223,7 +216,7 @@
            </div>
          <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
            <label>Auto Logout (Daisy)</label>
-           <input type="checkbox" id="daisyAutoLogout" (change)="this.setDaisyAutoLogout($event, $event.target.checked)" [defaultChecked]="this.selectedScenario.daisyAutoLogout">
+           <input type="checkbox" id="daisyAutoLogout" (change)="this.setDaisyAutoLogout($event.target.checked)" [defaultChecked]="this.selectedScenario.daisyAutoLogout">
          </form>
        </div>
 
