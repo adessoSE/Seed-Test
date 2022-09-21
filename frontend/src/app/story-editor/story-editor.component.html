@@ -264,11 +264,10 @@
           class="select"
           id="browserSelect"
           (change)="setBrowser($event.target.value)"
-          value="{{ this.selectedScenario.browser || 'chrome' }}"
         >
-          <option *ngIf="this.chromium_enabled" value="chrome">Chrome</option>
-          <option *ngIf="this.gecko_enabled" value="firefox">Firefox</option>
-          <option *ngIf="this.edge_enabled" value="MicrosoftEdge">Edge</option>
+          <option *ngIf="this.chromium_enabled" value="chrome" [selected]="this.selectedScenario.browser === 'chrome'">Chrome</option>
+          <option *ngIf="this.gecko_enabled" value="firefox" [selected]="this.selectedScenario.browser === 'firefox'">Firefox</option>
+          <option *ngIf="this.edge_enabled" value="MicrosoftEdge" [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
         </select>
 
         <!-- EMULATOR -->
