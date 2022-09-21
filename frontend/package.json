@@ -9,8 +9,8 @@
     "start": "npm run build & node server.js",
     "build": "ng build --configuration production",
     "test": "jest --verbose",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test-watch": "jest --watch",
+    "test-coverage": "jest --coverage",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "lint": "ng lint",
     "e2e": "ng e2e",
@@ -49,11 +49,12 @@
     "ngx-logger": "~4.3.3",
     "ngx-owl-carousel-o": "^7.0.1",
     "ngx-take-until-destroy": "^5.4.0",
-    "ngx-toastr": "14.2.1",
+    "ngx-toastr": "^14.3.0",
     "node-fetch": "^2.6.1",
     "request": "^2.88.2",
     "set-value": "4.1.0",
     "tar": "^6.1.11",
+    "tough-cookie": "^4.1.2",
     "uikit": "^3.14.1",
     "webpack": "^5.73.0",
     "zone.js": "^0.11.4"
@@ -92,6 +93,7 @@
       "<rootDir>/node_modules/",
       "<rootDir>/dist/"
     ],
+
     "coveragePathIgnorePatterns": [
       ".html"
     ],

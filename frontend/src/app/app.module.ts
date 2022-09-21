@@ -48,8 +48,6 @@ import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
-
-
 import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
@@ -67,7 +65,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
-import { ResizeInputDirective } from './resize-input.directive';
+import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 
 @NgModule({

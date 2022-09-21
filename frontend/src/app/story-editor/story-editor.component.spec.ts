@@ -13,7 +13,7 @@ import { ExampleTableComponent } from '../example-table/example-table.component'
 import { MatTableModule } from '@angular/material/table';
 import { EditableComponent } from '../editable/editable.component';
 import { ParentComponent } from '../parent/parent.component';
-import { StoriesBarComponent } from '../stories-bar/stories-bar.component';;
+import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { StepDefinition } from '../model/StepDefinition';
 import { Component, Injectable, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
@@ -136,14 +136,14 @@ describe('StoryEditorComponent', () => {
     });
   });
 
-  describe('backgroundNameChange', () => {
+  /* describe('backgroundNameChange', () => {
     it('should set selectedStory background name', () => {
       let name = 'TestBackground';
       component.selectedStory = story;
       component.backgroundNameChange(name);
       expect(component.selectedStory.background.name).toBe(name);
     });
-  })
+  }) */
 
   describe('updateBackground', () => {
     it('should update the background', () => {
@@ -193,7 +193,7 @@ describe('StoryEditorComponent', () => {
       let storyId = "shfisheiu";
       jest.spyOn(component, 'addStepToBackground');
       const newStep = component.createNewStep(step, component.selectedStory.background.stepDefinitions);
-      component.addStepToBackground(storyId, step);
+      component.addStepToBackground(step);
       tick();
       expect(component.selectedStory.background.stepDefinitions.when).toContainEqual(newStep);
       expect(component.addStepToBackground).toHaveBeenCalled();
