@@ -66,7 +66,7 @@ Before(async function () {
 			case 'chrome':
 				chromeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
 				break;
-			case 'edge':
+			case 'MicrosoftEdge':
 				edgeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
 				break;
 			case 'firefox':
