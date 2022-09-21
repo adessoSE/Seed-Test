@@ -29,7 +29,6 @@ chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
 chromeOptions.addArguments('--excludeSwitches=enable-logging');
-
 edgeOptions.addArguments('--disable-dev-shm-usage');
 edgeOptions.addArguments('--ignore-certificate-errors');
 edgeOptions.addArguments('--start-maximized');
@@ -61,6 +60,20 @@ defineParameterType({
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
 	currentParameters = this.parameters.scenarios[scenarioIndex];
+
+	if (currentParameters.emulator !== undefined) {
+		switch(currentParameters.browser) {
+			case 'chrome':
+				chromeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
+				break;
+			case 'edge':
+				edgeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
+				break;
+			case 'firefox':
+				// no way to do it ?
+		}
+	}
+
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) {
 			if (driver) {
