@@ -117,7 +117,7 @@ export class CreateNewGroupComponent {
       var isSequential = this.isSequential;
       const value = localStorage.getItem('repository');
       const _id = localStorage.getItem('id');
-      const source ='db';
+      const source = localStorage.getItem('source');
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const group = {title, member_stories, isSequential};
       this.apiService.createGroupEvent({repositoryContainer, group});

@@ -10,7 +10,7 @@ const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
-const fs = require('fs')
+const fs = require('fs');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -377,12 +377,27 @@ router.get('/callback', (req, res) => {
 			method: 'POST',
 			body: params
 		}
-	).then((response) => response.text())
-		.then((text) => {
-			const accessToken = text.split('&')[0].split('=')[1];
-			helper.getGithubData(res, req, accessToken);
-		});
+	)
+	.then((response) => response.text())
+	.then((text)=>mapper(text))
+	.then((data) => {
+		console.log(data);
+		if(data.error)throw Error("github user register failed")
+		else helper.getGithubData(res, req, data.access_token);
+	})
+	.catch((error)=>{
+		res.status(401).send(error.message)
+		console.error(error);
+	})
 });
+const mapper = (str) => { // maps Url endoded data to new object
+	const cleaned = decodeURIComponent(str)
+	const entities = cleaned.split('&').filter(Boolean).map(v => {
+		let a = v.split('=').map((x)=>x.toString())
+		return a
+	})
+	return Object.fromEntries(entities)
+}
 
 
 router.post('/log', (req, res) => {
