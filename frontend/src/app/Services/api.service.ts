@@ -800,12 +800,7 @@ export class ApiService {
             .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(_ => {
                 //
-            }), catchError(err => {
-                return new Observable(subscriber => {
-                    subscriber.next(err);
-                    subscriber.complete();
-                });
-            }));
+            }), catchError(ApiService.handleError));
     }
 
     /**
