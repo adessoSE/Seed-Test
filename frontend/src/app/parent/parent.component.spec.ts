@@ -63,7 +63,7 @@ describe('ParentComponent', () => {
   });
 
   it ('should render app-report-history', () => {
-    component.setEditor(true);
+    component.setEditor();
     fixture.detectChanges();
     const reportHistoryEl = findComponent(fixture, 'app-report-history');
     expect(reportHistoryEl).toBeTruthy();
