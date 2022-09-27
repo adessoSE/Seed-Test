@@ -62,10 +62,6 @@
     "typescript": "^4.5.5"
   },
   "jest": {
-    "testMatch": ["**/?(*.)+(spec|test).[jt]s?(x)"],
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ],
     "testPathIgnorePatterns": [
       "<rootDir>/spec/server.spec.js",
       "<rootDir>/spec/serverHelper.spec.js",
