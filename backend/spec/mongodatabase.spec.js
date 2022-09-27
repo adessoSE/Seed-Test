@@ -261,20 +261,47 @@ describe('Mongodatabase', () => {
   })
 
   describe('user', () => {
-    it('creates user', async() => {
-      const uid = await mongo.registerUser({email:'test@test.org', password: 'abcdefg'})
-      .then((res)=>{
-        expect(res.insertedCount).toEqual(1)
-        return res.insertedId;
-      })
-
-      await mongo.deleteUser(uid).then((res)=>{
+    const user = {email:'test@test.org', password: 'abcdefg'}
+    let userId;
+    afterAll(async()=>{
+      return mongo.deleteUser(userId).then((res)=>{
         const {resultUser, resultRepo} = res
         expect(resultUser.deletedCount).toEqual(1)
       })
     })
 
+    it('creates user', async() => {
+      userId = await mongo.registerUser(user)
+      .then((res)=>{
+        expect(res.insertedCount).toEqual(1)
+        return res.insertedId;
+      })
+    })
+    it('fails double user', async()=>{
+      await expect(await mongo.registerUser(user).catch((err)=> err)).toEqual(Error('User already exists'))
+    })
+
     test.skip('deletes userRepos',()=>{})
+  })
+
+  describe('github', () => {
+    let userId;
+    const userGithub = {login:'test', id:123456, githubToken:'12ab34cd56ef78gh'}
+    let githubUserId;
+    beforeAll(async()=>{
+      userId = await mongo.registerUser({email:'test@test.org', password: 'abcdefg'}).then((res)=>res.insertedId)
+    })
+
+    test('register a github user', async()=>{
+      githubUserId = await mongo.findOrRegisterGithub(userGithub).then((res)=>res.insertedId)
+    })
+
+    test('merge user&github standart', async()=>{
+      await mongo.mergeGithub(userId, userGithub.login, userGithub.id)
+      expect(await mongo.getUserById(githubUserId)).toBeFalsy()
+      await mongo.deleteUser(userId)
+    })
+
   })
 
   describe('Workgroup', () => {

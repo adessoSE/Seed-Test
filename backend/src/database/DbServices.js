@@ -177,6 +177,11 @@ async function registerUser(user) {
 	}
 }
 
+/**
+ * 
+ * @param {object} user minimum model {login:string,  id:number, githubToken:string} 
+ * @returns 
+ */
 async function registerGithubUser(user) {
 	try {
 		const db = dbConnection.getConnection();
@@ -191,17 +196,12 @@ async function registerGithubUser(user) {
 /**
  * replaces a User in the DB
  * @param {*} newUser
- * @param {*} collection
+ * @param {Collection} collection
  * @returns
  */
 function replaceUser(newUser, collection) {
 	const myObjt = { _id: ObjectId(newUser._id) };
-	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(myObjt, newUser, (err, result) => {
-			if (err) reject(err);
-			else resolve(result.value);
-		});
-	});
+	return collection.findOneAndReplace(myObjt, newUser).then((res)=>res.value);
 }
 
 async function updateGithubToken(objId, updatedToken) {
@@ -214,7 +214,7 @@ async function updateGithubToken(objId, updatedToken) {
 	}
 }
 
-async function findOrRegister(user) {
+async function findOrRegisterGithub(user) {
 	let result = await getUserByGithub(user.login, user.id);
 	if (!result) result = await registerGithubUser(user);
 	else result = await updateGithubToken(result._id, user.githubToken);
@@ -232,7 +232,7 @@ async function mergeGithub(userId, login, id) {
 
 		if (githubAccount.email) {
 			delete githubAccount.github;
-			await replaceUser(githubAccount, collection);
+			await replaceUser(githubAccount, collection)
 		} else await deleteUser(githubAccount._id);
 		return await replaceUser(seedAccount, collection);
 	} catch (e) {
@@ -1300,7 +1300,7 @@ module.exports = {
 	uploadReport,
 	disconnectGithub,
 	mergeGithub,
-	findOrRegister,
+	findOrRegisterGithub,
 	getUserByGithub,
 	getUserById,
 	registerUser,
