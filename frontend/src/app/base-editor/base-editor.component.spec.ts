@@ -1,6 +1,46 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ToastrModule } from 'ngx-toastr';
+import { Scenario } from '../model/Scenario';
+import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
+import { StepType } from '../model/StepType';
+import { Story } from '../model/Story';
 import { BaseEditorComponent } from './base-editor.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+
+
+let stepBackgroundDefinitions: StepDefinitionBackground = {"when":[{"_id":'5dce728851e70f2894a170b4',"id": 6, "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""], "post":""}]};
+
+let stories : Story[]= [{"story_id": 123,"_id":2,"storySource":"github", "background":
+  {"stepDefinitions":{"when":[]}},"scenarios":
+  [{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":
+  {"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"], "post":""}],
+  "when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"",
+  "values":["www.cucumber.com"],"post":""},{"id":2,"stepType":"when","type":"Button",
+  "pre":"I click the button:","mid":"","values":["Create Story"],"post":""}],
+  "then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text",
+  "mid":"in the textbox:","values":["New Story created","Success"], "post": ""}],
+  "example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation",
+  "stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"",
+  "values":["Guest"],"post":""}],"when":[{"id":1,"stepType":"when","type":"Website",
+  "pre":"I am on the website:","mid":"","values":["www.cucumber.com"],"post":""},
+  {"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"",
+  "values":["Create Story"],"post":""}],"then":[{"id":2,"stepType":"then","type":"Text",
+  "pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"], 
+  "post":""}],"example":[{"_id":"5dce728851e70f2894a170ae","id":1,"stepType":"example",
+  "type":"Add Variable","pre":"","mid":"","values":["BLUBB"], "post": ""}]}}],
+  "assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4",
+  "body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"},
+  {"_id": "a","story_id": 123, "storySource": "db","background":{"stepDefinitions":
+  {"when":[]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":
+  {"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"], "post": ""}],
+  "when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post": ""},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"], "post": ""}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"], "post": ""}],
+  "example":[]}},{"scenario_id":3,"name":"failed Story creation","comment":"","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"], "post": ""}],
+  "when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post": ""},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"], "post": ""}],
+  "then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"], "post":""}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
+
+const scenarios:Scenario[] = [{scenario_id: 2, name: 'my first scenario', stepDefinitions: {"when":[{"_id":'5dce728851e70f2894a170b4',"id": 6, "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""], "post":""}], "given":[{"_id":'5dce728851e70f2894a170b4',"id": 6, "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""], "post":""}],"then":[], "example": []},
+  comment: 'write some words about this scenario', lastTestPassed: false,
+  saved: true, daisyAutoLogout: true, stepWaitTime: 200, browser: 'chrome'}]
 
 describe('BaseEditorComponent', () => {
   let component: BaseEditorComponent;
@@ -8,7 +48,9 @@ describe('BaseEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ BaseEditorComponent ]
+      declarations: [ BaseEditorComponent ],
+      imports: [ToastrModule.forRoot()],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   });
@@ -22,4 +64,73 @@ describe('BaseEditorComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  /* TODO: Resolve StepDef dilemma */
+  describe('getStepsList', () => {
+    it('should return stepsList', () => {
+      //let when = component.getStepsList(stepBackgroundDefinitions, 1)
+      //expect(when).toBe(stepBackgroundDefinitions.when);
+    });
+  });
+
+  describe('addStep', () => {
+    beforeEach(() => {
+      component.selectedStory = stories[0];
+      component.selectedScenario = stories[0].scenarios[0];
+    });
+
+    it('should add a when step to the background', fakeAsync(() => {
+      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id": 0,"stepType":"when","type":"Button","pre":"I click the button:","mid":"", "post": "","values":[""]}
+      jest.spyOn(component, 'addStep');
+      const newStep = component.createNewStep(step, component.selectedStory.background.stepDefinitions);
+      component.addStep(step, component.selectedStory, 'background');
+      tick();
+      expect(component.selectedStory.background.stepDefinitions.when).toContainEqual(newStep);
+      expect(component.addStep).toHaveBeenCalled();
+    }));
+  });
+
+  describe('removeStep', () => {
+    it('should remove the step of the background', () => {
+      let story : Story= {"story_id": 123, "_id":1, "storySource": "github","background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":1,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""],"post": ""}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"post": ""}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post":""},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"],"post":""}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"],"post":""}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"post":""}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post":""},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"],"post":""}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"],"post":""}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"};
+      component.selectedStory = stories[0];
+      expect(component.selectedStory.background.stepDefinitions.when.length).toBe(1);
+      component.selectedStory.background.stepDefinitions["when"][0].checked = true;
+      component.removeStep('background');
+      expect(component.selectedStory.background.stepDefinitions.when.length).toBe(0);
+    })
+  })
+
+  describe('addToValues', () => {
+    it('should add hello to background values', () => {
+      let stories : Story[]= [{"story_id": 123, "_id":1, "storySource": "github","background":{"stepDefinitions":{"when":[{"_id":"5dce728851e70f2894a170b0","id":1,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":[""],"post": ""}]}},"scenarios":[{"scenario_id":1,"comment":"","name":"successful Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"post": ""}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post":""},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"],"post":""}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["New Story created","Success"],"post":""}],"example":[]}},{"scenario_id":3,"comment":"","name":"failed Story creation","stepDefinitions":{"given":[{"id":1,"stepType":"given","type":"Role","pre":"As a","mid":"","values":["Guest"],"post":""}],"when":[{"id":1,"stepType":"when","type":"Website","pre":"I am on the website:","mid":"","values":["www.cucumber.com"], "post":""},{"id":2,"stepType":"when","type":"Button","pre":"I click the button:","mid":"","values":["Create Story"],"post":""}],"then":[{"id":2,"stepType":"then","type":"Text","pre":"So I can see the text","mid":"in the textbox:","values":["Could not create Story","Error"],"post":""}],"example":[]}}],"assignee":"cniebergall","assignee_avatar_url":"https://avatars1.githubusercontent.com/u/45001224?v=4","body":"As a user,\r\nI want to be able to create new features\r\nSo I can test features of my project\r\n","issue_number": 7,"state":"open","title":"Story creation"}];
+      component.selectedStory = stories[0];
+      component.templateName = 'background';
+      let stepIndex = 0;
+      let valueIndex = 0;
+      let input = 'hello'
+
+      component.addToValues(input, stepIndex, valueIndex);
+      expect(component.templateName).toBe('background');
+      expect(component.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex]).toBe(input);
+    });
+  });
+
+  describe('addStepToScenario', () => {
+    beforeEach(() => {
+      component.selectedScenario = scenarios[0];
+    });
+   
+    it('should add a when step', fakeAsync(() => {
+      let step: StepType = {"_id":"5dce728851e70f2894a170b0","id": 0,"stepType":"when","type":"Button","pre":"I click the button:","mid":"", "post": "","values":[""]}
+      jest.spyOn(component, 'createNewStep');
+      let newStep = component.createNewStep( step, component.selectedScenario.stepDefinitions);
+      component.addStep(step, component.selectedScenario, 'scenario');
+      expect(component.createNewStep).toHaveBeenCalled();
+      expect(component.selectedScenario.stepDefinitions.when).toContainEqual(newStep);
+    }));
+
+  });
+
+
 });

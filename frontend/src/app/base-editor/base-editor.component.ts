@@ -286,7 +286,7 @@ export class BaseEditorComponent {
     * @param i number of steptype
     * @returns 
     */
-  getStepsList(stepDefs: StepDefinition, i?: number) {
+  getStepsList(stepDefs: StepDefinition, i: number) {
     switch (i) {
       case 0:
         return stepDefs.given;
