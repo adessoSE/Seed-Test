@@ -1,56 +1,27 @@
-.uk-card-title {
-    font-size: medium;
-}
-
-.padding_top{
-    padding-top: 10px;
-}
-
-.padding_right{
-    padding-right: 10px;
-}
-
-.modal-body.modal-xl{
-    padding: 10px;
-}
-
-.submitForm{
-    width: 100%
-}
-
-#inputLabels label {
-    margin-top: .25rem;
-    margin-bottom: .25rem;
-}
-
-.material-icons {
-    color: var(--brown-grey);
-    opacity: 70%;
-    margin: 0px 10px 0px 5px;
-}
-
-::ng-deep.darkTheme .material-icons {
-    color: white;
+.mat-column-checkStory {
+    width: 10% !important;
 }
 
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
 }
 
+.normalButton:disabled{
+    opacity: 20%;
+}
+
 label {
     float: left;
     margin-left: -227px;
-    padding: 5px 0 0;
+    padding: 5px 0.5px 0;
     position: relative;
     text-align: right;
-    width: 200px;
+    width: 280px;
 }
 
 .modalsContent {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-} 
-
-
+}

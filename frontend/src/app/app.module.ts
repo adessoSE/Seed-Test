@@ -48,6 +48,8 @@ import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
@@ -67,6 +69,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
 import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
+import { BaseEditorComponent } from './base-editor/base-editor.component';
 
 @NgModule({
   declarations: [
@@ -114,6 +117,7 @@ import { RenameBackgroundComponent } from './modals/rename-background/rename-bac
     CreateScenarioComponent,
     ResizeInputDirective,
     RenameBackgroundComponent,
+    BaseEditorComponent
   ],
   imports: [
     NgbModule,

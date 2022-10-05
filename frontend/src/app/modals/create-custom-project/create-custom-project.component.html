@@ -2,26 +2,26 @@
 <ng-template #createCustomProjectModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span class="MediumSubline1H4 modal-title">Create project</span>
+        <span class="MediumSubline1H4 modal-title">Create Custom Project</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form #createProjectForm="ngForm" novalidate (ngSubmit)="submitRepo(createProjectForm)">  
-        <div class="modal-body">
-            <div class="submitForm">
+    <div class="modal-body">
+      <form #createProjectForm="ngForm" novalidate (ngSubmit)="createNewProject(createProjectForm)">
+        <div class="submitForm">
+            <div class="form-group modalsContent">
                 <div>
-                    <div class="form-group modalsContent">
-                        <label class="uk-form-label">Enter unique project name*</label>
-                        <span class="material-icons" display-title="Enter unique story name">drive_file_rename_outline</span>
-                        <input defaultValue="YourRepoName" ngModel name="repo_name" required>
-                    </div>
+                    <label class="uk-form-label">Enter unique project name*</label>
+                    <input defaultValue="YourRepoName" ngModel name="title" pattern="\S(.*\S)?"
+                    style="margin-left: 24px;" (keyup)="projectUnique(createProjectForm)" required>
                 </div>
-            </div>
+            </div>    
+            <div class="modal-footer">
+                <button id="submitCreateNewProject" type="submit" [disabled]="!createProjectForm.valid" 
+                [ngStyle]="{'opacity': !createProjectForm.valid ?  '50%' : '100%'}" class="normalButton">Save</button>
+            </div>    
         </div>
-        <div class="modal-footer">
-            <button type="submit" [disabled]="!createProjectForm.valid" 
-            [ngStyle]="{'opacity': !createProjectForm.valid ?  '50%' : '100%'}" class="normalButton">Save</button>
-        </div>    
-    </form>
+      </form>
+    </div>
 </ng-template>

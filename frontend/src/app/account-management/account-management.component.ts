@@ -157,8 +157,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     /**
      * Opens Modal to create a new custom project
      */
-    newRepository() {
-        this.createCustomProject.openCreateCustomProjectModal();
+     newRepository() {
+        this.createCustomProject.openCreateCustomProjectModal(this.repositories);
     }
 
     /**

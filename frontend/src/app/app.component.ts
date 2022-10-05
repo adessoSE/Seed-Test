@@ -55,6 +55,7 @@ export class AppComponent implements OnInit{
   getRepositoriesObservable: Subscription;
   updateRepositoryObservable: Subscription;
   toggleObservable: Subscription;
+  createRepositoryEmitter: Subscription;
 
 
   /**
@@ -76,8 +77,12 @@ export class AppComponent implements OnInit{
     });
     this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
     this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
-
-    this.getRepositories();
+    
+    this.createRepositoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
+      this.apiService.createRepository(custom.repository.value, custom.repository._id).subscribe(_ => {
+          this.getRepositories()
+        });
+    });
     if (!this.apiService.urlReceived) {
       this.apiService.getBackendInfo();
     }

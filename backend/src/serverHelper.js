@@ -294,9 +294,9 @@ function analyzeGroupReport(grpName, stories, reportOptions) {
  * @param scenarioReports 
  */
 function featureResult(featureReport, feature){
-	const featureId = feature._id
-	console.log(` Story ID: ${featureId}`);
-	const featureStatus = { featureId, status: false, scenarioStatuses: [],featureTestResults:{} ,scenariosTested: { passed: 0, failed: 0 }};
+	const storyId = feature._id
+	console.log(` Story ID: ${storyId}`);
+	const featureStatus = { storyId, status: false, scenarioStatuses: [],featureTestResults:{} ,scenariosTested: { passed: 0, failed: 0 }};
 
 	let featurePassedSteps = 0;
 	let featureFailedSteps = 0;
@@ -380,6 +380,7 @@ function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
 
 				const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
 				let result = scenarioResult(scenarioReport, scenario)
+				reportResults.scenarioId = result.scenarioId
 				reportResults.featureTestResults = result.stepResults
 				reportResults.scenariosTested = {passed: +result.status, failed: +!result.status}
 				reportResults.status = result.status
@@ -586,10 +587,10 @@ async function runReport(req, res, stories, mode, parameters) {
 					postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken)
 					if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 				}
-				if (story.storySource === 'jira' && req.user && req.user.jira){
-					const password = decryptPassword(req.user.jira.Password);
-					postCommentJira(story.issue_number, comment, req.user.jira.Host, req.user.jira.AccountName, password)
-				}
+				// if (story.storySource === 'jira' && req.user && req.user.jira){
+				//	const password = decryptPassword(req.user.jira.Password);
+				// 	postCommentJira(story.issue_number, comment, req.user.jira.Host, req.user.jira.AccountName, password)
+				// }
 			}
 		});
 		
@@ -658,7 +659,7 @@ function executeTest(req, _res, mode, story) {
 		let jsonPath = `../../features/${reportName}.json`;
 		if (mode === 'group') {
 			const grpDir = req.body.name;
-			jsonPath = `./features/${grpDir}/${reportName}.json`;
+			jsonPath = `../../features/${grpDir}/${reportName}.json`;
 		}
 
 		const jsParam = JSON.stringify(parameters);
@@ -825,7 +826,7 @@ async function execRepositoryRequests(link, user, password, ownerId, githubId) {
 		request.send();
 		request.onreadystatechange = async () => {
 			if (request.readyState !== 4) return;
-			if (request.status !== 200) {reject(this.status)}
+			if (request.status !== 200) {reject(this.status); return}
 			const data = JSON.parse(request.responseText);
 			const projects = [];
 			const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');
