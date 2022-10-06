@@ -34,7 +34,7 @@
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                             </div>
                             <span class="flex-end-item">
-                            <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
+                            <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
                             </span>
                         </li>
                     </ng-container>
