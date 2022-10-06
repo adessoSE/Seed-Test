@@ -52,7 +52,7 @@
   <br>
   <div class="comment MediumButton1">
     <label>Comment</label><br>
-    <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" (change)="commentChange(comment.value)">
+    <textarea *ngIf="this.selectedScenario" id="commentBox" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" (change)="commentChange(comment.value)">
     </textarea>
   </div>
   <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
