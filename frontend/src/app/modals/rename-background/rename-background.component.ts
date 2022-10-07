@@ -25,8 +25,7 @@ export class RenameBackgroundComponent{
 
   submitRenameBackground() {
     const title = this.backgroundTitle.value;
-    this.apiService.renameBackgroundEmit(title);
-    console.log(title);   
+    this.apiService.renameBackgroundEmit(title);  
     this.modalReference.close();
   }
 
