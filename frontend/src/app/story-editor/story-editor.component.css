@@ -357,6 +357,9 @@
   .mat-expansion-panel-header-title {
     flex-grow: 0.4;
   }
+  #done{
+    color: green;
+  }
 
   /* .darkTheme .storyTitle{
     color: var(--light-blue);
@@ -495,6 +498,7 @@ button#background_up {
 
 .mat-expansion-panel#widened-expansion-panel {
   padding: 12px 0 12px 0px;
+  white-space: pre-wrap;
 }
 
 .mat-expansion-panel#widened-expansion-panel .mat-expansion-panel-header-title {
