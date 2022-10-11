@@ -99,6 +99,11 @@ export class ApiService {
      */
     public deleteScenarioEvent = new EventEmitter();
 
+    /**
+     * Event emitter to delete the example
+     */
+     public deleteExampleEvent = new EventEmitter();
+
      /**
      * Event emitter to delete the story
      */
@@ -113,6 +118,13 @@ export class ApiService {
      * Event emitter to reload scenario status
      */
     public scenarioStatusChangeEvent = new EventEmitter();
+
+    /**
+     * Event emitter to add a example to a scenario
+     */
+    public newExampleEvent = new EventEmitter();
+    
+    public renameExampleEvent = new EventEmitter();
 
     /**
      * Event emitter to create a custom story
@@ -132,10 +144,16 @@ export class ApiService {
     public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
 
     public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
+    
+    /* Scenario change emitter */
+    public scenarioChangedEvent: EventEmitter<Scenario> = new EventEmitter();
  
     createRepositoryEvent(repository) {
         this.createRepositoryEmitter.emit(repository);
     }
+
+    /* Background change emitter */
+    public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
 
     /**
      * Gets api headers
@@ -171,11 +189,28 @@ export class ApiService {
         this.deleteScenarioEvent.emit();
     }
 
+    /**
+     * Emits the delete example event
+     */
+     public deleteExampleEmitter() {
+        this.deleteExampleEvent.emit();
+    }
+
      /**
      * Emits the delete story event
      */
     public deleteStoryEmitter() {
         this.deleteStoryEvent.emit();
+    }
+
+    /* Emits scenario changed event */
+    public scenarioChangedEmitter() {
+        this.scenarioChangedEvent.emit();
+    }
+
+    /* Emits background changed event */
+    public backgroundChangedEmitter() {
+        this.backgroundChangedEvent.emit();
     }
 
     /**
@@ -240,6 +275,18 @@ export class ApiService {
     scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
         const val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
         this.scenarioStatusChangeEvent.emit(val);
+    }
+
+    /**
+     * Emits the new example event
+     * @param name example name
+     */
+     newExampleEmit(name) {
+        this.newExampleEvent.emit(name);
+    }
+
+    renameExampleEmit(name) {
+        this.renameExampleEvent.emit(name);
     }
 
     /**
@@ -1157,6 +1204,17 @@ export class ApiService {
             this.toastr.error('This Story Title is already in use. Please choose another Title');
         }
     }
+
+    public uniqueExampleName(buttonId: string, input: string, array: string[]) {
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if (!array.includes(input)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('This Example Name is already in use. Please choose another Name');
+        }
+    }
+
     public groupUnique(buttonId: string, input: string, array: Group[], group?: Group){
         array = array ? array : [];
         input = input ? input : '';
@@ -1178,4 +1236,5 @@ export class ApiService {
            }
         }
     }
-} 
+}
+    

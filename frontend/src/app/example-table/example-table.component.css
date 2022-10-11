@@ -15,3 +15,34 @@ table {
 .mat-table{
   font-family: Klavika, sans-serif;
 }
+
+.scenarioTitle{
+  background: var(--white);
+  border: none;
+}
+
+.scenarioTitle#example_add_step {
+  float: right;
+}
+
+.darkTheme, .scenarioTitle {
+  background: transparent;
+}
+
+.scenarioTitle > em{
+  color:  var(--ocean-blue);
+  font-size: 20px;
+  transform: translate(0px, 3px)
+}
+
+.checkboxWrapper{
+  display: inline-block;
+}
+
+.numbering{
+  font-weight: 500;
+  font-size: 17px;
+  margin-bottom: 0px !important;
+  display: inline-block;
+  vertical-align: middle;
+}
