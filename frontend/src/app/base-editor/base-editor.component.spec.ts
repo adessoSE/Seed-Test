@@ -1,14 +1,14 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ToastrModule } from 'ngx-toastr';
 import { Scenario } from '../model/Scenario';
-import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import { StepType } from '../model/StepType';
 import { Story } from '../model/Story';
 import { BaseEditorComponent } from './base-editor.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { StepDefinition } from '../model/StepDefinition';
 
 
-let stepBackgroundDefinitions: StepDefinitionBackground = {"when":[{"_id":'5dce728851e70f2894a170b4',"id": 6, "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""], "post":""}]};
+let stepBackgroundDefinitions: StepDefinition = {"given": [], "when":[{"_id":'5dce728851e70f2894a170b4',"id": 6, "stepType":"when", "type" :"HoverOverAndSelect", "pre":"I hover over the element", "mid":"and select the option","values":["",""], "post":""}], "then": [], "example":[]};
 
 let stories : Story[]= [{"story_id": 123,"_id":2,"storySource":"github", "background":
   {"stepDefinitions":{"when":[]}},"scenarios":
@@ -68,8 +68,8 @@ describe('BaseEditorComponent', () => {
   /* TODO: Resolve StepDef dilemma */
   describe('getStepsList', () => {
     it('should return stepsList', () => {
-      //let when = component.getStepsList(stepBackgroundDefinitions, 1)
-      //expect(when).toBe(stepBackgroundDefinitions.when);
+      let when = component.getStepsList(stepBackgroundDefinitions, 1)
+      expect(when).toBe(stepBackgroundDefinitions.when);
     });
   });
 

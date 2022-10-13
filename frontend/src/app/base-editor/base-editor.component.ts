@@ -209,7 +209,7 @@ export class BaseEditorComponent {
    * @param stepDefinitions
    * @returns
    */
-  createNewStep(step: StepType, stepDefinitions: StepDefinitionBackground, stepType?: string): StepType {
+  createNewStep(step: StepType, stepDefinitions: StepDefinition | StepDefinitionBackground, stepType?: string): StepType {
     const obj = JSON.parse(JSON.stringify(step));
     const newId = this.getLastIDinStep(stepDefinitions, obj.stepType) + 1;
     const newStep: StepType = {
