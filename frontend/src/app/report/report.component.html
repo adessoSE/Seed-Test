@@ -3,10 +3,6 @@
         <h3 class="title" style="display: inline-block">Test Results</h3>
 
     <div class="uk-button-group" style="text-align: right; float: right;">
-        <button id="hide_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button"
-                uk-tooltip="Hide Test Results" type="button" (click)="hideResults()" *ngIf="showResults"><em class="material-icons-outlined">expand_more</em></button>
-        <button id="show_results" [class.disabledButton] ="!showResults && !testDone" [disabled]="!showResults && !testDone" class="button"
-                uk-tooltip="Show Test Results" type="button" (click)="hideResults()" *ngIf="!showResults"><em class="material-icons-outlined">expand_less</em></button>
         <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
                 uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"><em class="material-icons-outlined">file_download</em></button>
         <button *ngIf="!this.reportIsSaved" id="save_report" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
