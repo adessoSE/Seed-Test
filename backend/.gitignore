@@ -35,7 +35,7 @@ testem.log
 /typings
 
 /features/*
-!/features/step_definitions/*
+!./features/step_definitions/*
 
 # System Files
 .DS_Store

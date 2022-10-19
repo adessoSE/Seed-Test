@@ -628,6 +628,22 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 	await driver.sleep(currentParameters.waitTime);
 });
 
+Then('So on element {string} the css property {string} is {string}', async function cssIs(element, property, value) {
+	const world = this;
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`]
+	
+	const promises = []
+	for(const idString of identifiers){
+		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
+	}
+	await Promise.any(promises)
+	.then((elem) => {
+		const actual = elem.getCssValue(property)
+		expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`)
+	});
+	
+});
+
 // Closes the webdriver (Browser)
 // runs after each Scenario
 After(async () => {
