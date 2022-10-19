@@ -10,7 +10,7 @@ import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 @Component({
   selector: 'app-workgroup-edit',
   templateUrl: './workgroup-edit.component.html',
-  styleUrls: ['./workgroup-edit.component.css']
+  styleUrls: ['./workgroup-edit.component.css', '../layout-modal/layout-modal.component.css']
 })
 export class WorkgroupEditComponent {
 

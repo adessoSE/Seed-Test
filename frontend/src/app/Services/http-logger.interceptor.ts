@@ -20,7 +20,7 @@ export class HttpLoggerInterceptor implements HttpInterceptor {
         tap( event => {
           console.debug('http-logger tap', event)
         }),
-        catchError((err: HttpErrorResponse, ob)=>{
+        catchError((err: HttpErrorResponse)=>{
           if(err.status == HttpStatusCode.Unauthorized){
             if(window.location.pathname != '/login')window.location.href = '/login'
             window.localStorage.setItem("login", 'false')}

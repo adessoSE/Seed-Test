@@ -89,7 +89,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.error = undefined;
         this.routeObservable = this.route.queryParams.subscribe((params) => {
            if (params.code) {
-                this.apiService.githubCallback(params.code).subscribe(resp => {
+                this.apiService.githubCallback(params.code).subscribe((resp) => {
                     if (resp.error) {
                         this.error = this.defaultErrorMessage; // resp.error
                     } else {
@@ -98,12 +98,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
                         const userId = localStorage.getItem('userId');
                         localStorage.removeItem('userId');
                         if (userId) {
-                            this.apiService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((respo) => {
+                            this.apiService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((_) => {
                                 this.loginGithubToken(resp.login, resp.id);
                             });
                         }
                     }
-                });
+                }, 
+                (error) => {this.error = this.defaultErrorMessage;}
+                )
             }
         });
     }
@@ -120,7 +122,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     ngOnInit() {
         this.isDark = this.themeService.isDarkMode();
-        this.themeObservable = this.themeService.themeChanged.subscribe((currentTheme) => {
+        this.themeObservable = this.themeService.themeChanged.subscribe((_) => {
             this.isDark = this.themeService.isDarkMode();
         });
     }
@@ -168,7 +170,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             stayLoggedIn: form.value.stayLoggedIn
         };
         // const response = await
-        this.apiService.loginUser(user).subscribe(resp => {
+        this.apiService.loginUser(user).subscribe(_ => {
             localStorage.setItem('login', 'true');
             // this.apiService.updateRepositoryEmitter();
             this.getRepositories();
@@ -223,7 +225,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
                 }
             }, 500);
 
-        }, (err) => {
+        }, (_) => {
             this.error = this.defaultErrorMessage;
             this.isLoadingRepositories = false;
         });

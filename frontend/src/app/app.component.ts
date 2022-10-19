@@ -5,6 +5,7 @@ import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { NGXLogger, NgxLoggerLevel } from 'ngx-logger';
 
 
 /**
@@ -55,6 +56,7 @@ export class AppComponent implements OnInit{
   getRepositoriesObservable: Subscription;
   updateRepositoryObservable: Subscription;
   toggleObservable: Subscription;
+  createRepositoryEmitter: Subscription;
 
 
   /**
@@ -64,7 +66,7 @@ export class AppComponent implements OnInit{
    * @param themeService
    */
 
-  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService) {
+  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService, public logger: NGXLogger) {
   }
 
   /**
@@ -76,10 +78,21 @@ export class AppComponent implements OnInit{
     });
     this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
     this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
-
-    this.getRepositories();
+    
+    this.createRepositoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
+      this.apiService.createRepository(custom.repository.value, custom.repository._id).subscribe(_ => {
+          this.getRepositories()
+        });
+    });
     if (!this.apiService.urlReceived) {
-      this.apiService.getBackendInfo();
+      this.apiService.getBackendInfo()
+      .then(()=>{ //Logger config
+        this.logger.updateConfig({
+          serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
+          level: NgxLoggerLevel.DEBUG,
+          serverLogLevel: NgxLoggerLevel.DEBUG
+        })
+      })
     }
     this.themeService.loadTheme();
     this.isDark = this.themeService.isDarkMode();
@@ -193,7 +206,8 @@ export class AppComponent implements OnInit{
    */
   logout() {
     this.repositories = undefined;
-    this.apiService.logoutUser().subscribe(resp => {
+    this.apiService.logoutUser().subscribe(_ => {
+      //
     });
     this.router.navigate(['/login']);
   }

@@ -12,6 +12,10 @@
   border-top: 1px solid #e5e5e5;
  }
 
+ .storyInfoContainer#justifyScenarioContent {
+  justify-content: space-between;
+ }
+
  .darkTheme .storyInfoContainer {
     border-top: 1px solid #B0BEC5;
  }
@@ -28,7 +32,7 @@
   .storyInfoRight { order: 3; }
 
 }
-  .storyInfoLeft{
+  .storyInfoLeft, .storyInfoRight{
     display: flex;
     justify-content: flex-start;
     padding: 5px;
@@ -51,41 +55,42 @@
   vertical-align: text-top;
 }
 
- .storyInfoCenter{
-    display: flex;
-    justify-content: flex-end;
-    padding: 5px;
-    align-items: center;
- }
+.storyInfoCenter{
+  display: flex;
+  justify-content: flex-end;
+  padding: 5px;
+  align-items: center;
+}
 
- .selectLabel{
-   margin-right: 3px;
- }
+.selectLabel{
+  margin-right: 3px;
+}
 
- .select {
-   width: 120px;
- }
+.select {
+  width: 120px;
+}
 
- .waitTime {
-   width: 70px;
-   margin-right: 5px;
- }
+.waitTime {
+  width: 70px;
+  margin-right: 5px;
+}
 
- #oneDriverCheck {
-   margin-right: 5px;
- }
+#oneDriverCheck {
+  margin-right: 5px;
+}
 
- #oneDriverInfoIcon{
-   margin-right: 10px;
-   margin-bottom: 7px;
-   width: 13px;
- }
+#oneDriverInfoIcon{
+  /* margin-right: 10px;
+  margin-bottom: 7px; */
+  width: 13px;
+  vertical-align: baseline;
+}
 
- .arrowLeft{
-   width: 130px;
-   float: left;
-   margin-right: 5px;
- }
+.arrowLeft{
+  width: 130px;
+  float: left;
+  margin-right: 5px;
+}
 
  #firstStoryText{
    padding-top: 30px;
@@ -109,21 +114,6 @@
 
   .emptyStories a {
     display: block;
-  }
-
-  /* .disabled input{
-    color: gray;
-    border-bottom: none;
-  } */
-
-  :host ::ng-deep .disabled input{
-    color: gray;
-    border-bottom: 1px solid gray;
-  }
-
-  ::ng-deep .darkTheme .disabled input {
-    color: var(--buttonDisabled) !important;
-    border-color: var(--border);
   }
 
   #noStoriesHeader{
@@ -175,68 +165,14 @@
     padding-bottom: 5px;
   }
 
-/*   .def {
-      color: #999;
-      cursor: help;
-      position: relative;
-      top: -2px;
-  }
-
-  .def span[rel=def] {
-      display: none;
-  } */
-
-  :host ::ng-deep input[type="text"]{
-    margin: 1px;
-    padding: 1px;
-    border: none;
-    border-bottom: 1px solid #333;
-    position: relative;
-    top: -2px;
-    width: auto;
-    min-width: 5px;
-  }
-
-/*
-  :host ::ng-deep .darkTheme input {
-    background: transparent;
-    color: white;
-    border-bottom: 1px solid #60767b;
-  } */
-
-
   .storyHeaderContainer{
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
+    padding-right: 40px;
   }
 
-  .def {
-    color: #999;
-    cursor: help;
-    position: relative; 
-    z-index: 2;
-  }
-  
-  span[rel=def] {
-    display: none;
-  }
-  
-  .def:hover span[rel=def] {
-    font-size: small;
-    color: white;
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    width: 28em;
-    padding: 0.5em;
-    display: block;
-    white-space: pre-line;
-    opacity: 96%;
-    z-index: 2;
-  }
-
-  .darkTheme .def:hover span[rel=def] {
-    background-color: #78909C !important;
-  
+  .storyHeaderContainer > div > button > em {
+    vertical-align: bottom;
   }
 
   #story{
@@ -254,14 +190,6 @@
   }
 
 
-  /* #infoIcon{
-    color: #999;
-    margin-left: 5px;
-    margin-right: 5px;
-  } */
-
-
-  /* double button see styles */
   .button {
     margin-right: 3px;
     color:var(--white);
@@ -273,6 +201,10 @@
     line-height: 25px;
   }
 
+  .button:hover {
+    background: rgb(2, 111, 161);
+  }
+
   .darkTheme .button {
     background: #607D8B;
   }
@@ -280,11 +212,11 @@
   .material-icons{
     font-size: 24px;
   }
-
+  /* Eventually not in use */
   .uk-card-footer{
     padding: 15px 0px;
   }
-
+ 
   .darkTheme .uk-card-footer {
     border-top: 1px solid #B0BEC5;
   }
@@ -303,22 +235,10 @@
 
   .button:focus {outline:0 !important;}
 
-  .uk-button-group{
-    border-radius:4px;
-    /* border:2px solid var(--white); */
-  }
 
-  .padding{
-    padding: 20px;
-  }
-
-  #saveButton.iconButton_unsaved em{
+  /* :host ::ng-deep #saveButton.iconButton_unsaved em{
     color: red !important;
-  }
-
-  .uk-dropdown{
-    padding: 15px;
-  }
+  } */
 
   :host ::ng-deep .uk-nav > li > span{
     padding: 1px;
@@ -329,7 +249,7 @@
     color: var(--ocean-blue);
   }
 
-  :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
+  /* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
   }
 
@@ -339,65 +259,19 @@
 
   :host ::ng-deep .darkTheme .uk-nav > li > span:hover {
     color: white;
-  }
-
- /*  .disabled {
-    color: gray !important;
-    background: var(--white) !important;
-    font-style: italic;
   } */
-
-  :host ::ng-deep .disabled {
-    color: gray !important;
-    /* background: var(--white) !important; */
-    font-style: italic;
-    text-decoration: line-through;
-  }
-
-  ::ng-deep .darkTheme .disabled {
-    color: var(--buttonDisabled) !important;
-  }
-
+  /* Eventually not in use */
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
   }
 
-  :host ::ng-deep .scenarioBarContainer .disabled em{
+
+  :host ::ng-deep .scenarioHeaderContainer .disabled em {
     color: gray !important;
-    /* background: #f8f8f8 !important; */
   }
 
-  ::ng-deep .darkTheme .scenarioBarContainer .disabled em {
+  :host ::ng-deep .darkTheme .scenarioHeaderContainer .disabled em {
     color: var(--buttonDisabled) !important;
-  }
-
-  .dragIconContainer{
-    text-align: center;
-    cursor: move;
-  }
-
-  em.dragIcon{
-    font-size: 18px;
-    color: black;
-    background-color: var(--white);
-    margin-top:1px;
-  }
-
-  .text-inline{
-    display: flex;
-  }
-
-  .text-inline > button{
-    margin: 0 5px;
-  }
-
-  .text-inline > p > input{
-    margin: 0 5px;
-  }
-
-  .uk-card-title {
-    font-size: medium;
-    font-weight: bold;
   }
 
   .disabledButton{
@@ -409,9 +283,6 @@
     background: var(--buttonDisabled) !important;
   }
 
-  input.backgroundName{
-    margin: 5px;
-  }
 
   #loading{
     /* text-align: center;
@@ -428,21 +299,24 @@
     color: white;
   }
 
+  /* Eventually not in use */
   .showButton{
     padding-right: 40px;
   }
 
+  /* Eventually not in use */
   .expand:hover {
     background-color: lightgrey;
     transition: 0.3s;
     cursor: pointer;
-    margin: 3px 3px 3px 3px;
   }
 
+  /* Eventually not in use */
   .darkTheme .expand:hover {
     background-color: #90A4AE;
   }
 
+  /* Eventually not in use */
   .backgroundContainer{
     margin-bottom: 20px;
   }
@@ -460,202 +334,61 @@
   }
 
   .storyTitle{
-    color: var(--ocean-blue);
-    /* background: var(--white); */
-    background: none;
     border: none;
+    background: transparent;
     text-align: center; margin: 0px auto;
     margin-right: 2px;
   }
 
-  .darkTheme .storyTitle {
-    color: var(--light-blue);
-  }
-  .marginLeft{
-    margin-left: 40px;
-    display:inline-block;
+  .storyTitle > em {
+    color: var(--ocean-blue);
   }
 
-/*   span.notPassed{
-    background-color: red;
+  /* Eventually not in use */
+  .backgroundTitleContainer {
+    display: grid;
+    grid-template-columns: 1fr auto;
   }
 
-  span.passed{
-    background-color: green;
+  .backgroundTitle > button > em {
+    vertical-align: bottom;
   }
 
-  .darkTheme span.passed {
-    background-color: #4CAF50;
+  .mat-expansion-panel-header-title {
+    flex-grow: 0.4;
   }
-
-  a.passed{
+  #done{
     color: green;
   }
 
-  .darkTheme a.passed {
-    color: #4CAF50;
-  }
-
-  a.notPassed{
-    color: red;
+  /* .darkTheme .storyTitle{
+    color: var(--light-blue);
   } */
 
-  .dot {
-    height: 20px;
-    width: 20px;
-    background-color: #bbb;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 20px;
-    vertical-align: middle;
-  }
-
-  .lastTestText {
-    margin-right: 10px;
-  }
-
-  .checkbox{
-    margin-right: 5px;
-    margin-bottom: 5px;
-    margin-left: 3px;
-    margin-top: 5px
-  }
-
-  .checkbox:hover{
-    cursor: pointer;
-  }
-
-/* .scenarioBarContainer{
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
-}  */
-/*
-.darkTheme.scenarioBarContainer {
-  border-bottom: 1px solid black;
-}
-
-.exampleBarContainer{
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
-  display: flex;
-}
-
-.scenarioBarContainer button,
-.exampleBarContainer button{
-  border: none;
-  background: #f8f8f8;
-  transform: translate(0px, -3px);
-  height: 24px;
-  border-radius: 10%;
-}
-
-.scenarioBarContainer > div,
-.exampleBarContainer{
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 10px 15px;
-  display: flex;
-  height: 40px;
-}
-
-.actionBarButtonGroup{
-  margin-left: 3px;
-}
-
-.scenarioButton {
-  margin-right: 10px;
-}
-
-.actionButton > em{
-  color: #333;
-  font-size: 22px;
-}
-
-.actionButton{
-  margin-left: 10px;
-}
-
-.scenarioButton em{
-  color:  var(--ocean-blue);
-}
-
-.scenarioButton em:active {
-  background-color: var(--ocean-blue);
-  color: var(--white);
-} */
-
-:host ::ng-deep .scenarioBarContainer{
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
-  margin: 0px 20px;
-}
-
 :host ::ng-deep .darkTheme .scenarioBarContainer,
-::ng-deep .darkTheme .exampleBarContainer{
+:host ::ng-deep .darkTheme .exampleBarContainer{
   background-color: #546E7A !important;
   border-bottom: 1px solid #B0BEC5 !important;
+} 
+
+/* Eventually not in use */
+.dot {
+  height: 20px;
+  width: 20px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 20px;
+  vertical-align: middle;
 }
 
-:host ::ng-deep .exampleBarContainer{
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
-  display: flex;
-}
-
-:host ::ng-deep .scenarioBarContainer button,
-.exampleBarContainer button{
-  border: none;
-  background: none;
-  transform: translate(0px, -3px);
-  height: 24px;
-  border-radius: 10%;
-}
-
-:host ::ng-deep .scenarioBarContainer > div,
-.exampleBarContainer{
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 10px 15px;
-  display: flex;
-  height: 40px;
-}
-
-:host ::ng-deep .scenarioButton {
+/* Eventually not in use */
+.lastTestText {
   margin-right: 10px;
 }
 
-:host ::ng-deep .actionBarButtonGroup{
-  margin-left: 3px;
-}
-
-:host ::ng-deep .actionButton{
-  margin-left: 10px;
-}
-
-:host ::ng-deep .actionButton > em{
-  color: #333;
-  font-size: 22px;
-}
-
-:host ::ng-deep .darkTheme .actionButton > em {
-  color:#000000;
-}
-
-:host ::ng-deep .scenarioButton em{
-  color:  var(--ocean-blue);
-}
-
-:host ::ng-deep .darkTheme.scenarioButton em{
-  color:  var(--ocean-blue);
-}
-
-:host ::ng-deep .scenarioButton em:active {
-  background-color: var(--ocean-blue);
-  color: var(--white);
+.mat-expansion-panel-body {
+  padding: 20px;
 }
 
 /* The container <div> - needed to position the dropdown content */
@@ -701,27 +434,9 @@
   display: block;
 }
 
-#story_change_title > em {
-  color: var(--ocean-blue);
-  font-size: 24px;
-  padding-left: 4px;
-}
-
 #story_delete > em{
   color: var(--ocean-blue);
    font-size: 24px;
-
-}
-
-#storyInfoTextVerticalPosition {
-  left: 8em;
-  top: -4em;
-}
-
-
-#backgroundInfoTextVerticalPosition {
-  left: 15em;
-  top: 0em;
 }
 
 .darkTheme p {
@@ -744,16 +459,16 @@
 }
 
 .mat-expansion-panel{
-width: 96% !important;
-left: 30px;
-border: 0 !important;
-box-shadow: none;
-font-weight: bold;
-
+  /* width: 96% !important; */
+  left: 30px;
+  border: 0 !important;
+  /* box-shadow: none;  */
+  font-weight: bold;
+  position: unset;
 }
 .mat-expansion-panel-header{
     margin: 0;
-    padding: 0;
+    padding: 0 20px 0 40px;
     top: 0;
     left: 0;
     border: 0;
@@ -767,8 +482,10 @@ font-weight: bold;
     letter-spacing: normal;
     color: var(--black);
     height: 24px;
-    padding-right: 31px;
+    padding-right: 24px; 
 }
+
+/* Eventually not in use */
 button#background_up {
   padding-right: 20px;
 }
@@ -777,4 +494,21 @@ button#background_up {
 .darkTheme.emptyStories h4,
 .darkTheme.emptyStories p {
   color: white;
+}
+
+.mat-expansion-panel#widened-expansion-panel {
+  padding: 12px 0 12px 0px;
+  white-space: pre-wrap;
+}
+
+.mat-expansion-panel#widened-expansion-panel .mat-expansion-panel-header-title {
+  color: var(--brown-grey) !important;
+}
+
+.uk-inline {
+  position: unset;
+}
+
+.backgroundTitle {
+  flex-grow: .58;
 }

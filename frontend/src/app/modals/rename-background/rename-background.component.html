@@ -1,0 +1,27 @@
+<!-- rename Background Modal-->
+
+<ng-template #renameBackground let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span id="modalHeader" class="MediumSubline1H4 modal-title">Change Background Title</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div (keydown.enter)="enterSubmit($event)">
+            <div class="form-group modalsContent">
+                <div>
+                    <label>Edit Background Title</label>
+                    <input ngbAutofocus type="text" [formControl]="backgroundTitle">
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button  (click)="onClickSubmit()" class="normalButton" [disabled]="!backgroundTitle.valid"
+                [ngStyle]="{'opacity': !backgroundTitle.valid ?  '50%' : '100%'}">Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</ng-template>

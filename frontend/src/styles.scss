@@ -692,18 +692,19 @@ $dark-theme: mat.define-dark-theme(
 .def {
   color: #999;
   cursor: help;
-  /* position: relative; */
-  z-index: 2;
+  position: relative;
+  vertical-align: text-bottom;
 }
 
 span[rel=def] {
   display: none;
 }
 
-.def:hover span[rel=def] {
+.def:hover span[rel=def]{
   font-size: small;
   color: white;
   background-color: rgb(109, 109, 109);
+  border-radius: 5px;
   position: absolute;
   width: 28em;
   padding: 0.5em;
@@ -770,6 +771,9 @@ div.notPassed{
   background: #546E7A;
   color: var(--light-blue);
 }
+#static{
+  position: static;
+}
 
 .darkTheme select, .darkTheme input, .darkTheme textarea {
   background: transparent;
@@ -804,7 +808,8 @@ div.notPassed{
   background-color: map-get($mat-blue-grey, 800);
 }
 
-.darkTheme span {
+.darkTheme .Smallnavigation1, .darkTheme .Smallnavigation2,
+.darkTheme span{
   color: var(--white);
 }
 
@@ -905,6 +910,22 @@ a:hover {
   color: white;
 }
 
+.darkTheme .mat-tooltip {
+  background-color: #78909C;
+  opacity: 96%;
+}
+
+.modal-backdrop {
+  z-index: 1040 !important;    
+} 
+
+.mat-tooltip {
+  font-style: italic !important;
+}
+
+button:focus, input[type="button"]:focus, input[type="submit"]:focus { 
+  outline: none;
+} 
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

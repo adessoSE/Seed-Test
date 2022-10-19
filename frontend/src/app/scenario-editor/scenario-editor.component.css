@@ -6,6 +6,8 @@
 .scenarioHeaderContainer{
   display: grid;
   grid-template-columns: 1fr auto 1fr auto;
+  margin: 0 20px;
+  padding: 12px 0 12px 0;
 }
 
 :host ::ng-deep .mat-form-field-appearance-standard .mat-form-field-flex {
@@ -21,41 +23,6 @@
   background-color: black !important;
 }
 
-/* input[type="text"]{
-  margin: 1px;
-  padding: 1px;
-  border: none;
-  border-bottom: 1px solid #333;
-  position: relative;
-  top: -2px;
-  width: auto;
-  min-width: 5px;
-} */
-
-.dragIconContainer{
-  text-align: center;
-  cursor: move;
-}
-
-em.dragIcon{
-  font-size: 18px;
-  color: black;
-  background-color: var(--white);
-  margin-top:1px;
-}
-
-.text-inline{
-  display: flex;
-}
-
-.text-inline > button{
-  margin: 0 5px;
-}
-
-.text-inline > p > input{
-  margin: 0 5px;
-}
-
 #scenario{
   border: 1px solid #999;
 }
@@ -64,247 +31,56 @@ em.dragIcon{
   border:1px solid #60767b;
 }
 
-.uk-card-title {
-  font-size: medium;
-  font-weight: bold;
-}
-
-
-/* #infoIcon{
-  color: #999;
-  margin-left: 5px;
-  margin-right: 5px;
-  padding-right: 770px;
-} */
-
-/* #infoIconScenario{
-  color: #999;
-  margin-left: 5px;
-  margin-right: 5px;
-} */
-
-.uk-button-group{
-  border-radius:4px;
-  border:2px solid rgb(255, 255, 255);
-}
-
-.checkbox{
-  margin-right: 5px;
-  margin-bottom: 5px;
-  margin-left: 3px;
-  margin-top: 5px
-}
-
-.checkboxDropdown{
-  margin-top: -15px !important;
-}
-
-.checkbox:hover{
-  cursor: pointer;
-}
-
-#checkbox_all_example{
-  margin-left: 10px;
-}
-
-#checkbox_all{
-  margin-top: 2px;
-  margin-bottom: 2px;
-  margin-left: 6px;
-}
-
-.darkTheme .scenarioBarContainer, .darkTheme .exampleBarContainer {
-  background-color: #546E7A;
-  border-bottom: 1px solid #B0BEC5;
-}
-
-.exampleBarContainer{
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f8f8;
-  display: flex;
-}
-.scenarioBarContainer button,
-.exampleBarContainer button{
-  border: none;
-  background: none;
-  transform: translate(0px, -3px);
-  height: 24px;
-  border-radius: 10%;
-}
-
-.scenarioBarContainer > div,
-.exampleBarContainer{
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 10px 15px;
-  display: flex;
-  height: 40px;
-}
-
-/* .scenarioButton {
-  margin-right: 10px;
-} */
-
-/* .actionButton{
-  margin-left: 10px;
-} */
-
-/* .actionButton > em{
-  color: #333;
-  font-size: 22px;
-} */
-
-/* .darkTheme .actionButton > em {
-  color:#000000 !important;
-} */
-
-/* .scenarioButton em{
-  color:  var(--ocean-blue);
-}  */
-
-/* .darkTheme.scenarioButton em{
-  color:  var(--ocean-blue);
-} */
-
-/* .scenarioButton em:active {
-  background-color: var(--ocean-blue);
-  color: var(--white);
-}  */
-
-.button {
-  margin-right: 3px;
-  color:var(--white);
-  padding: 0px 10px;
-  font-size: 15px;
-  cursor: pointer;
-  border-radius: 3px;
-  border: solid 1px var(--ocean-blue);
-  background: var(--ocean-blue);
-  background: -moz-linear-gradient(top,  var(--ocean-blue),  rgb(2, 111, 161));
-  line-height: 38px;
-  text-transform: uppercase;
-}
+/* Eventually not in use ? */
 .marginButton{
   margin: 5px;
 }
+
+/* Eventually not in use ? */
 .modal-title{
   color: var(--white);
 }
 
+/* Eventually not in use ? */
 .modal-header2{
   background-color: var(--ocean-blue);
   padding: 15px;
   margin-bottom: 5px;
 }
 
+/* Eventually not in use ? */
 .modalMargin{
   margin-left: auto !important;
   margin-right: auto !important;
 }
-.button:hover {
-  background: rgb(2, 111, 161);
-}
-.padding{
-  padding-top: 20px;
-  padding-left: 20px;
-  padding-bottom: 20px;
-  padding-right: 20px;
-}
 
-.scenarioTitle{
-  background: var(--white);
-  border: none;
-}
-
-.darkTheme, .scenarioTitle {
+/* :host ::ng-deep .scenarioTitle{
   background: transparent;
-}
+  border: none;
+  margin-right: 2px;
+} */
 
-.scenarioTitle > em{
+/* :host ::ng-deep.darkTheme, .scenarioTitle {
+  background: transparent;
+} */
+
+/* :host ::ng-deep .scenarioTitle > em {
   color:  var(--ocean-blue);
-  font-size: 20px;
+  font-size: 24px;
   transform: translate(0px, 3px)
-}
+}  */
 
-#scenario_change_title > em {
-  font-size: 20px;
-  margin: 0px 5px;
-}
-
-.scenarioButton_unsaved em{
+/* .scenarioButton_unsaved em{
   color: red !important;
-}
-
-/* .disabled input{
-  color: gray;
-  border-bottom: 1px solid gray;
-}
-
-.darkTheme .disabled input {
-  color:#B0BEC5;
-  border-bottom: 1px solid #B0BEC5;
 } */
 
-.uk-dropdown{
-  padding: 15px;
-}
 
-/* .darkTheme .uk-dropdown {
-  background-color: #60767b;
-} */
-
-/* .uk-nav > li > span{
-  padding: 1px;
-  cursor: pointer;
-}
-
-.uk-nav > li > .dropdownStep {
-  color:var(--ocean-blue);
-}
-
-.darkTheme .uk-nav > li > .dropdownStep {
-  color: #40C4FF;
-}
-
-.uk-nav > li > span:hover {
-    color: gray;
-}
-
-.darkTheme .uk-nav > li > span:hover {
-  color: white;
-}
-
-.uk-nav > li > .dropdownStepUndefined {
-  color:var(--marine-blue);
-}
-
-.darkTheme .uk-nav > li > .dropdownStepUndefined {
-  color:#00B0FF;
-}
-
-.disabled {
-  color: gray !important;
-  background: var(--white) !important;
-  font-style: italic;
-  text-decoration: line-through;
-}
-
-.darkTheme .disabled {
-  color: #B0BEC5 !important;
-}
-
-.scenarioBarContainer .disabled em{
-  color: gray !important;
-  background: #f8f8f8 !important;
-}
-
-.darkTheme .scenarioBarContainer .disabled em {
-  color: gray
-}
-
+/* Eventually not in use */
 .uk-card-footer{
   padding-bottom: 0;
-}
+} 
+
+/* Seems not being in use  */
 
 /* .disabledButton{
   visibility: hidden;
@@ -319,75 +95,43 @@ table {
   width: 100%;
 }
 
-.comment{
-  column-width: fill-available;
-}
-.comment > textarea {
-  width: 100%;
-  height: 50px;
-}
-
-.daisyAutoLogout{
-  column-width: 100px;
-  float:right;
-}
-
-#daisyAutoLogout{
-  margin-left: 5px;
-}
-
 /* .scenario_unsaved {
   color: red !important;
 } */
 
-.stepsListContainer{
-  display: flex;
-  justify-content: space-between;
-}
-
-.stepsListContainer em{
-  color: var(--ocean-blue);
-}
-
-.stepsListContainer .disabled em{
-  color: gray !important;
-}
-
-
-.stepsListContainer button{
-  border: none;
-  background: none;
-}
 
 .title span[rel="def"] {
   font-weight: normal;
   line-height: 1.5;
 }
 
-#scenarioInfoTextPosition {
-  left: 11em;
-  top: -8em;
-}
-
 .darkTheme span {
   background: transparent;
 }
 
-.darkTheme button {
+/* .darkTheme button {
   background: transparent;
-}
-
-.stepsContainer {
-  white-space: nowrap;
-  overflow: hidden;
-  width: 100%;
-}
-
-.stepLine {
-  box-sizing: border-box;
-  width: fit-content;
-}
+} */
 
 .disabled{
   opacity: 0.8;
+}
+
+:host ::ng-deep .comment{
+  /* column-width: fill-available; */
+  margin-left: 20px;
+  margin-right: 20px;
+}
+:host ::ng-deep .comment > textarea {
+  width: 100%;
+  height: 50px;
+}
+
+:host ::ng-deep .daisyAutoLogout{
+  column-width: 100px;
+  float:right;
+}
+
+:host ::ng-deep #daisyAutoLogout{
+  margin-left: 5px;
 }

@@ -13,7 +13,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AuthGuard} from './guards/auth.guard';
 import {MatTableModule} from '@angular/material/table';
 import {MatListModule} from '@angular/material/list';
-import {ExampleTableComponent} from './example-table/example-table.component';
+import {ExampleComponent, ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
 import {EditModeDirective} from './directives/edit-mode.directive';
@@ -38,6 +38,7 @@ import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { DeleteScenarioToast } from './deleteScenario-toast';
+import { DeleteExampleToast } from './deleteExample-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
@@ -48,8 +49,8 @@ import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
 import { ThemingService } from './Services/theming.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
-
-
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
@@ -67,7 +68,10 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
-import { ResizeInputDirective } from './resize-input.directive';
+import { ResizeInputDirective } from './directives/resize-input.directive';
+import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
+import { BaseEditorComponent } from './base-editor/base-editor.component';
+import { NewExampleComponent } from './modals/new-example/new-example.component';
 
 @NgModule({
   declarations: [
@@ -93,6 +97,7 @@ import { ResizeInputDirective } from './resize-input.directive';
     ReportComponent,
     RunTestToast,
     DeleteScenarioToast,
+    DeleteExampleToast,
     DeleteStoryToast,
     DeleteRepositoryToast,
     ResetPasswordComponent,
@@ -114,6 +119,10 @@ import { ResizeInputDirective } from './resize-input.directive';
     RepoSwichComponent,
     CreateScenarioComponent,
     ResizeInputDirective,
+    RenameBackgroundComponent,
+    BaseEditorComponent,
+    NewExampleComponent,
+    ExampleComponent
   ],
   imports: [
     NgbModule,
@@ -133,9 +142,8 @@ import { ResizeInputDirective } from './resize-input.directive';
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
-      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.DEBUG
+      serverLogLevel: NgxLoggerLevel.OFF
     }),
     ToastrModule.forRoot({
       timeOut: 3000
@@ -143,6 +151,8 @@ import { ResizeInputDirective } from './resize-input.directive';
     MatSlideToggleModule,
     MatIconModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatTooltipModule,
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,
