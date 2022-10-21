@@ -1,9 +1,16 @@
+const path = require('path');
+require('dotenv').config({path: path.resolve(__dirname, './support/.env')})
+//TODO Change to Test database once that is up
 const mongo = require('../src/database/DbServices');
 
 describe('Mongodatabase', () => {
+  beforeAll(async()=>{
+    await new Promise(resolve=>setTimeout(resolve, 1000))
+    jest.useRealTimers();
+  })
   describe('getOneStory', () => {
     it('return null', (done) => {
-      mongo.getOneStory(-1, (result) => {
+      mongo.getOneStory(-1, null).then((result) => {
         expect(result).toBe(null);
         done();
       });
@@ -11,54 +18,49 @@ describe('Mongodatabase', () => {
 
     it('return story', (done) => {
       const story = {
-        _id: null,
-        story_id: 540215588,
-        assignee: 'dsorna',
-        assignee_avatar_url: 'https://avatars3.githubusercontent.com/u/44997601?v=4',
-        background: null,
-        body: 'HTML-Elemente wie Buttons, Textfelder, etc. via ihrem Hover-Text finden.',
-        issue_number: 67,
-        scenarios: [{
-          scenario_id: 1,
-          name: 'Find Button By Hover-Text',
-          stepDefinitions: {
-            given: [{
-              id: 1, mid: '', pre: 'I am on the website:', stepType: 'given', type: 'Website', values: ['https://seed-test-frontend.herokuapp.com/'],
-            }],
-            when: [{
-              id: 1, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['story0'],
-            }, {
-              id: 2, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['Runs all scenario tests for the story'],
-            }, {
-              id: 3, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['logout'],
-            }],
-            then: [],
-            example: [],
-          },
-        }, {
-          scenario_id: 2,
-          name: 'Fail Finding Button due to wrong Hover-Text',
-          stepDefinitions: {
-            given: [{
-              id: 1, mid: '', pre: 'I am on the website:', stepType: 'given', type: 'Website', values: ['https://seed-test-frontend.herokuapp.com/#'],
-            }],
-            when: [{
-              id: 1, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['story0'],
-            }, {
-              id: 2, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['TESTRuns all scenario tests for the story'],
-            }, {
-              id: 3, mid: '', pre: 'I click the button:', stepType: 'when', type: 'Button', values: ['logout'],
-            }],
-            then: [],
-            example: [],
-          },
-        }],
-        state: 'open',
-        title: 'Finden eines Elements über den Hover-Text',
-      };
-      // "_id":"5dfb4e289c78e1aa7ec05042",
+        "_id": null,
+        "story_id": 0,
+        "assignee": "unassigned",
+        "title": "for get One Story",
+        "body": "Some Explanation for this Story",
+        "issue_number": 0,
+        "background": {
+          "name": "New Background",
+          "stepDefinitions": {
+            "when": []
+          }
+        },
+        "scenarios": [{
+            "scenario_id": 1,
+            "name": "First Scenario",
+            "comment": null,
+            "stepDefinitions": {
+              "given": [],
+              "when": [{
+                  "id": 1,
+                  "mid": "",
+                  "pre": "I go to the website:",
+                  "stepType": "when",
+                  "type": "Go To Website / URL",
+                  "values": [
+                    "http://adesso.de/"
+                  ]
+                }],
+              "then": [],
+              "example": []
+            },
+            "lastTestPassed": null
+          }],
+        "storySource": "db",
+        "repo_type": "db",
+        "state": "open",
+        "assignee_avatar_url": null,
+        "lastTestPassed": null,
+        "oneDriver": false
+      }
+      // "_id":"62b337b27f37a55f60836b0a",
 
-      mongo.getOneStory(540215588, (result) => {
+      mongo.getOneStory("62b337b27f37a55f60836b0a", null).then( (result) => {
         result._id = null;
         expect(result).toEqual(story);
         done();
@@ -66,99 +68,32 @@ describe('Mongodatabase', () => {
     });
   });
 
-  describe('showSteptypes', () => {
-    it('returns all steptypes', (done) => {
-      let stepTypes = [{
-        _id: null, id: '', stepType: 'when', type: 'HoverOverAndSelect', pre: 'I hover over the element', mid: 'and select the option', values: ['', ''],
-      }, {
-        _id: null, id: '', stepType: 'when', type: 'Textfield', pre: 'I insert', mid: 'into the field', values: ['', ''],
-      }, {
-        _id: null, id: '', stepType: 'when', type: 'Dropdown', pre: 'I select the option', mid: 'from the drop-down-menue', values: ['', ''],
-      }, {
-        _id: null, id: '', stepType: 'then', type: 'Website', pre: 'So I will be navigated to the website:', mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'given', type: 'Role', pre: 'As a', mid: '', values: [''], selection: ['Guest', 'User'],
-      }, {
-        _id: null, id: '', stepType: 'given', type: 'Website', pre: 'I am on the website:', mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'when', type: 'Radio', pre: 'I select ', mid: 'from the selection', values: ['', ''],
-      }, {
-        _id: null, id: '', stepType: 'when', type: 'Checkbox', pre: 'I select from the', mid: 'multiple selection, the values', values: ['', ''],
-      }, {
-        _id: null, id: '', stepType: 'example', type: 'Add Variable', pre: '', mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'when', type: 'Website', pre: 'I go to the website:', mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'then', type: 'Text', pre: 'So I can see the text', mid: 'in the textbox:', values: ['', ''],
-      }, {
-        _id: null, id: '', stepType: 'when', type: 'Button', pre: 'I click the button:', mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'then', type: 'Not This Text', pre: "So I can't see the text:", mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'given', type: 'Undefined Step', pre: 'Recommended Title:', mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'when', type: 'Undefined Step', pre: 'Recommended Title:', mid: '', values: [''],
-      }, {
-        _id: null, id: '', stepType: 'then', type: 'Undefined Step', pre: 'Recommended Title:', mid: '', values: [''],
-      }];
-      stepTypes = JSON.stringify(stepTypes);
-      mongo.showSteptypes((result) => {
-        result.map(s => s._id = null);
-        result = JSON.stringify(result);
-        expect(result).toContain(stepTypes[0]);
-        expect(result).toContain(stepTypes[1]);
-        expect(result).toContain(stepTypes[2]);
-        expect(result).toContain(stepTypes[3]);
-        expect(result).toContain(stepTypes[4]);
-        expect(result).toContain(stepTypes[5]);
-        expect(result).toContain(stepTypes[6]);
-        expect(result).toContain(stepTypes[7]);
-        expect(result).toContain(stepTypes[8]);
-        expect(result).toContain(stepTypes[9]);
-        expect(result).toContain(stepTypes[10]);
-        expect(result).toContain(stepTypes[11]);
-        expect(result).toContain(stepTypes[12]);
-        expect(result).toContain(stepTypes[13]);
-        expect(result).toContain(stepTypes[14]);
-        expect(result).toContain(stepTypes[15]);
-        done();
-      });
-    });
-  });
-
-  describe('createBackground', () => {
-    const storyId = 386692544;
-
-    afterEach((done) => {
-      mongo.deleteBackground(storyId, (result) => {
-        done();
-      });
-    });
-    it('creates Background', (done) => {
-      const background = '"background":{"name":"New Background","stepDefinitions":{"when":[]}}';
-      mongo.createBackground(storyId, (result) => {
-        result._id = null;
-        expect(JSON.stringify(result)).toContain(background);
-        done();
-      });
-    });
-  });
-
-  describe('updateBackground', () => {
-    const storyId = 386696070;
-    let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } };
+  describe('background', () => {
+    const story_id = "62b337b27f37a55f60836b0a"
+    let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } }
     beforeEach((done) => {
-      mongo.getOneStory(storyId, (result) => {
+      mongo.getOneStory(story_id, null)
+      .then( (result) => {
         backgroundBefore = result.background;
         done();
       });
     });
 
     afterEach((done) => {
-      mongo.updateBackground(storyId, backgroundBefore, (result) => {
+      mongo.updateBackground(story_id, null, backgroundBefore)
+      .then( (result) => {
         done();
       });
     });
+    it('return empty background', (done) => {
+      const background = { name: 'New Background', stepDefinitions: { when: [] } };
+      mongo.deleteBackground(story_id, null)
+      .then( (result) => {
+        expect(result.background).toEqual(background);
+        done();
+      });
+    });
+
     it('returns updatedBackground', (done) => {
       const background = {
         name: 'Test',
@@ -169,41 +104,20 @@ describe('Mongodatabase', () => {
         },
       };
       const backgroundString = (JSON.stringify(background));
-      mongo.updateBackground(storyId, background, (result) => {
+      mongo.updateBackground(story_id, null, background)
+      .then( (result) => {
         expect(JSON.stringify(result)).toContain(backgroundString);
         done();
       });
     });
   });
 
-  describe('deleteBackground', () => {
-    const storyId = 386697647;
-    let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } };;
-    beforeEach((done) => {
-      mongo.getOneStory(storyId, (result) => {
-        backgroundBefore = result.background;
-        done();
-      });
-    });
-
-    afterEach((done) => {
-      mongo.updateBackground(storyId, backgroundBefore, (result) => {
-        done();
-      });
-    });
-    it('return empty background', (done) => {
-      const background = { name: 'New Background', stepDefinitions: { when: [] } };
-      mongo.deleteBackground(storyId, (result) => {
-        expect(result.background).toEqual(background);
-        done();
-      });
-    });
-  });
   describe('createScenario', () => {
-    const storyId = 386696256;
+    const story_id = "62b337b27f37a55f60836b0a"
     let scenarioId;
     afterEach((done) => {
-      mongo.deleteScenario(storyId, scenarioId, (result) => {
+      mongo.deleteScenario(story_id, null, scenarioId)
+      .then( (result) => {
         done();
       });
     });
@@ -217,7 +131,8 @@ describe('Mongodatabase', () => {
         },
       };
 
-      mongo.createScenario(storyId, (result) => {
+      mongo.createScenario(story_id, null, 'New Scenario')
+      .then( (result) => {
         scenarioId = result.scenario_id;
         result.scenario_id = null;
         expect(result).toEqual(scenario);
@@ -226,32 +141,15 @@ describe('Mongodatabase', () => {
     });
   });
 
-  describe('deleteScenario', () => {
-    const storyId = 386693823;
-    let scenarioId;
 
-    beforeEach((done) => {
-      mongo.createScenario(storyId, (result) => {
-        scenarioId = result.scenario_id;
-        done();
-      });
-    });
-    it('deletes a new scenario', (done) => {
-      const scenario = `{"scenario_id":${scenarioId}`;
-      mongo.deleteScenario(storyId, scenarioId, (result) => {
-        expect(JSON.stringify(result)).not.toContain(scenario);
-        done();
-      });
-    });
-  });
-
-  describe('updateScenario', () => {
-    const storyId = 386692174;
+  describe('scenario', () => {
     let oldScenario;
     let scenarioId;
+    const story_id = "62b337b27f37a55f60836b0a"
 
     beforeEach((done) => {
-      mongo.createScenario(storyId, (result) => {
+      mongo.createScenario(story_id, null, 'New Scenario')
+      .then( (result) => {
         oldScenario = result;
         scenarioId = result.scenario_id;
         done();
@@ -259,19 +157,223 @@ describe('Mongodatabase', () => {
     });
 
     afterEach((done) => {
-      mongo.deleteScenario(storyId, scenarioId, (result) => {
+      mongo.deleteScenario(story_id, null, scenarioId)
+      .then( (result) => {
         done();
       });
     });
 
-    it('updated story', (done) => {
+    it('updates Scenario', (done) => {
       const updateScenario = oldScenario;
       const newName = 'test';
       updateScenario.name = newName;
-      mongo.updateScenario(storyId, updateScenario, (result) => {
-        expect(result.scenarios[scenarioId - 1].name).toEqual(newName);
+      mongo.updateScenario(story_id, null, updateScenario)
+      .then( (result) => {
+        expect(result.name).toEqual(newName);
         done();
       });
     });
+
+    it('deletes a scenario', async() => {
+      const scenario = `{"scenario_id":${scenarioId}`;
+      return mongo.deleteScenario(story_id, null, scenarioId)
+      .then( (result) => {
+        expect(JSON.stringify(result)).not.toContain(scenario);
+      });
+    });
   });
+
+  describe('update Story', () => {
+    let orgStory;
+    const story_id = "62b337b27f37a55f60836b0a"
+    beforeEach(async() => {
+      orgStory = {...await mongo.getOneStory(story_id, null)}//deep copy
+    })
+    afterEach(async() => {
+      return mongo.updateStory(orgStory)
+    })
+    it('updates Story', async() => {
+      const upStory = {...orgStory};
+      upStory.title = 'Updated Story'
+      //upStory.story_id = '5'
+      const newStory = await mongo.updateStory(upStory).then((res)=>res.value)
+      console.log("updated ", newStory);
+      expect(newStory.title).toEqual(upStory.title)
+    })
+  })
+
+
+  describe('create repository', () => {
+    let repoId;
+    const ownerId = '313233343536373839303132' //fictional -> owner not in db
+    const name = 'Test'
+    it('creates a db repo',async() => {
+      repoId = await mongo.createRepo(ownerId, name).catch((err)=>console.error(err))
+      await mongo.getOneRepository(ownerId, name)
+      .then((repo)=>{
+        repo._id = null
+        repo.owner = repo.owner.toString()
+        expect(repo).toEqual({
+          _id: null,
+          owner: ownerId, repoName: name, stories: [], repoType: 'db', customBlocks: [], groups: []
+        })
+      })
+    })
+    /* it('creates a db repo empty fails',async() => {
+      expect( await mongo.createRepo(ownerId, '')).rejects.toEqual('Sie besitzen bereits ein Repository mit diesem Namen!')
+    }) */
+    afterEach((done)=>{
+      mongo.deleteRepository(repoId, ownerId).then(()=>done())
+    })
+  })
+
+  describe('delete repository', () => {
+    let repoId;
+    const ownerId = '123456789012'
+    const name = 'Test'
+    beforeEach(async ()=> {
+      repoId = await mongo.createRepo(ownerId, name).catch((err)=>console.error("delRepo before",err))
+      console.log(repoId);
+    })
+    it('deletes repo', (done)=>{
+      mongo.deleteRepository(repoId, ownerId)
+      .then((ret)=>{
+        expect(ret.deletedCount).toEqual(1)
+        done()
+      })
+    })
+    test.skip('deletes orphan stories', async() => {
+      const stories = await Promise.all([
+        mongo.createStory('Test','Hallo Test', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}),
+        mongo.createStory('Test1','Hallo Test1', repoId).then(async(stId)=>{await mongo.insertStoryIdIntoRepo(stId, repoId);return stId}) 
+      ])
+      
+      console.log("stories", stories);
+      
+      await mongo.deleteRepository(repoId, ownerId)
+      .then((ret)=>{
+        expect(ret.deletedCount).toEqual(1)
+      })
+    })
+    test.skip('deletes orphan workgroup',()=>{})
+    test.skip('deletes orphan Reports',()=>{})
+
+  })
+
+  describe('user', () => {
+    const user = {email:'test@test.org', password: 'abcdefg'}
+    let userId;
+    afterAll(async()=>{
+      return mongo.deleteUser(userId).then((res)=>{
+        const {resultUser, resultRepo} = res
+        expect(resultUser.deletedCount).toEqual(1)
+      })
+    })
+
+    it('creates user', async() => {
+      userId = await mongo.registerUser(user)
+      .then((res)=>{
+        expect(res.insertedCount).toEqual(1)
+        return res.insertedId;
+      })
+    })
+    it('fails double user', async()=>{
+      await expect(await mongo.registerUser(user).catch((err)=> err)).toEqual(Error('User already exists'))
+    })
+
+    test.skip('deletes userRepos',()=>{})
+  })
+
+  describe('github', () => {
+    let userId;
+    const userGithub = {login:'test', id:123456, githubToken:'12ab34cd56ef78gh'}
+    let githubUserId;
+    beforeAll(async()=>{
+      userId = await mongo.registerUser({email:'test@test.org', password: 'abcdefg'}).then((res)=>res.insertedId)
+    })
+
+    test('register a github user', async()=>{
+      githubUserId = await mongo.findOrRegisterGithub(userGithub).then((res)=>res.insertedId)
+    })
+
+    test('merge user&github standart', async()=>{
+      await mongo.mergeGithub(userId, userGithub.login, userGithub.id)
+      expect(await mongo.getUserById(githubUserId)).toBeFalsy()
+      await mongo.deleteUser(userId)
+    })
+
+  })
+
+  describe('Workgroup', () => {
+    let repoId;
+    let ownerId;
+    const repoOwner = {email: "test@test.org", password: 'abcdefg', canEdit: false}
+    const user = {email: "test2@test.org", canEdit: false}
+    beforeEach(async()=>{
+      ownerId = await mongo.registerUser(repoOwner).then((res)=>res.insertedId)
+      repoId = await mongo.createRepo(ownerId, 'Test')
+      console.log("wg own & repo Id's", ownerId, repoId)
+    })
+
+    it('creates a Workgroup', async() => {
+      const wg = await mongo.addMember(repoId, user)
+      .then((res)=>{
+        console.log("workgroup", res)
+        expect(res.member.find((it)=>it.email === user.email)).toBeTruthy()
+        return res;
+      })
+      await mongo.getMembers(repoId)
+      .then((res)=>{
+        expect(res).toEqual(wg)
+      })
+      user.canEdit = true
+      await mongo.updateMemberStatus(repoId, user)
+      .then((res)=>{
+        expect(res.member.find((it)=>it.email === user.email).canEdit).toBe(true)
+      })
+      
+    })
+
+    it('removes a member from Workgroup', async() => {
+      await mongo.addMember(repoId, user)
+      await mongo.removeFromWorkgroup(repoId, user)
+      .then((res)=>{
+        expect(!!res.member.find((it)=>it.email === user.email)).toBe(false)
+      })
+    })
+
+    afterEach(async() => {
+      mongo.deleteRepository(repoId, ownerId)
+      await mongo.deleteUser(ownerId.toString())
+      // currently no way to cleanup/delete workgroups
+    })
+  })
+
+  describe('Blocks', () => {
+    const block = {name:'aaa', stepDefinitions: {}, repository:'', source: '', repositoryId: '123456789112', owner: '123456789012'}
+    let blockId
+
+    it('creates a Block', async()=>{
+      blockId = await mongo.saveBlock(block).then((res)=>res.insertedId)
+    })
+    test.skip('updates a Block', async()=>{
+      const upBlock = block
+      upBlock.name = 'aba'
+      await mongo.updateBlock(block.name, upBlock);
+      return mongo.getBlocks(block.repositoryId).then((res)=>console.log(res))
+    })
+    it('gets all Blocks of repo', async()=>{
+      await mongo.getBlocks(block.repositoryId).then((res)=>{
+        expect(new Set(res.map((it)=>it.repositoryId.toString())).size).toEqual(1)
+      })
+    })
+    it('deletes a Block', async()=>{
+      await mongo.deleteBlock(blockId, block.owner).then((res)=>console.log(res))
+    })
+  })
+
+  afterAll(() => {
+    //close db connection
+  })
+
 });

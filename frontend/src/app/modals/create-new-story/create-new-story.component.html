@@ -12,8 +12,8 @@
             <div class="form-group modalsContent">
                 <div>
                     <label class="uk-form-label">Enter unique story title*</label>
-                    <input name="storytitle" id="storytitle" pattern="\S(.*\S)?" formControlName="storyTitle"
-                           placeholder="Title" style="margin-left: 24px;" (keyup)="storyUnique()" required>
+                    <input id="storytitle" formControlName="storyTitle"
+                           placeholder="Title" style="margin-left: 24px;" (keyup)="storyUnique()">
                 </div>
             </div>
             <div>

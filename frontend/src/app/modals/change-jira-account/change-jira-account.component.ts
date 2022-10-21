@@ -31,9 +31,9 @@ export class ChangeJiraAccountComponent {
   modalReference: NgbModalRef;
 
   jiraForm = new FormGroup({
-    jiraAccountName: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
-    jiraPassword: new FormControl('', [Validators.required, Validators.pattern(/[\S]/), Validators.minLength(6)]),
-    jiraHost: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    jiraAccountName: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    jiraPassword: new FormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)]),
+    jiraHost: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
   });
 
   get jiraAccountName() { return this.jiraForm.get('jiraAccountName'); }
