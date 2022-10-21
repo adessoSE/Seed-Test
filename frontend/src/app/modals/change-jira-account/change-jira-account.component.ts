@@ -63,6 +63,7 @@ export class ChangeJiraAccountComponent {
       };  
       this.apiService.createJiraAccount(request).subscribe(response => {
         this.jiraAccountResponse.emit(response);
+        window.location.reload();
       });
       this.modalReference.close();
     }
