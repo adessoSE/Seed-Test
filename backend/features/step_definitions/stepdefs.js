@@ -236,7 +236,14 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 
 	const identifiers = [`//input[@id='${label}']`, `//input[contains(@id,'${label}')]`, `//textarea[@id='${label}']`, `//textarea[contains(@id,'${label}')]`,
 	 `//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`, 
-	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`]
+	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
+
+	if(value.includes('@@')){
+		const date = new Date();
+		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
+		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
+		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+	}
 	
 	const promises = []
 	for(const idString of identifiers){
