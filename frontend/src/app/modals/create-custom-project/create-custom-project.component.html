@@ -13,7 +13,7 @@
             <div class="form-group modalsContent">
                 <div>
                     <label class="uk-form-label">Enter unique project name*</label>
-                    <input defaultValue="YourRepoName" ngModel name="title" pattern="\S(.*\S)?"
+                    <input defaultValue="YourRepoName" id="projectTitle" ngModel name="title" pattern="\S(.*\S)?"
                     style="margin-left: 24px;" (keyup)="projectUnique(createProjectForm)" required>
                 </div>
             </div>    
