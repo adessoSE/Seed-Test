@@ -101,10 +101,10 @@
                               </mat-select>
                             </mat-form-field>
                           </div>&nbsp;
-                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType, currentStep)" uk-tooltip="Use Multipe Scenarios">
+                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType, currentStep)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
                             &nbsp;<p class="exampleButton">1+</p>&nbsp;
                           </button>
-                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType, currentStep)" uk-tooltip="Use Textfield">
+                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType, currentStep)" uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </div>
@@ -133,10 +133,10 @@
                                 </mat-select>
                               </mat-form-field>
                             </div>&nbsp;
-                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 1,currentStep.stepType, currentStep)" uk-tooltip="Use Multipe Scenarios">
+                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 1,currentStep.stepType, currentStep)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
                               &nbsp;<p class="exampleButton">1+</p>&nbsp;
                             </button>
-                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType, currentStep)" uk-tooltip="Use Textfield">
+                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType, currentStep)" uk-tooltip="title: Use Textfield; pos: right">
                               &nbsp;<p class="exampleButton">1</p>&nbsp;
                             </button>&nbsp;
                           </div>
