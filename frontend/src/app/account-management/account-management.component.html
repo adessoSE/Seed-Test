@@ -34,7 +34,7 @@
                                 <a class="MediumBody2 repoLink" id="db_{{'repository_'+i}}" (click)="selectRepository(repository);" >{{repository.value}}</a>
                             </div>
                             <span class="flex-end-item">
-                            <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
+                            <mat-icon class="set-name-button setting-icon" *ngIf="repository.canEdit" id="edit_{{'repository_'+i}}" (click)="workGroupEdit(repository)" data-uk-tooltip title="Edit project">settings</mat-icon>
                             </span>
                         </li>
                     </ng-container>
@@ -57,7 +57,7 @@
                       <mat-select #ngSelect [(ngModel)]="downloadRepoID">
                         <mat-option *ngFor="let repo of searchList" [value]="repo._id">{{repo.value}}</mat-option>
                       </mat-select>
-                  </mat-form-field>
+                </mat-form-field>
             </div>
             <div>
             <button (click)="downloadProjectFeatures(downloadRepoID)"  class="normalButton">Download</button>

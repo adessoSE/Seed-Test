@@ -587,10 +587,11 @@ async function runReport(req, res, stories, mode, parameters) {
 					postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken)
 					if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 				}
-				// if (story.storySource === 'jira' && req.user && req.user.jira){
-				//	const password = decryptPassword(req.user.jira.Password);
-				// 	postCommentJira(story.issue_number, comment, req.user.jira.Host, req.user.jira.AccountName, password)
-				// }
+				if (story.storySource === 'jira' && req.user && req.user.jira){
+					let { Host, AccountName, Password, Password_Nonce, Password_Tag} = req.user.jira;
+					Password = decryptPassword(Password, Password_Nonce, Password_Tag);
+					postCommentJira(story.issue_number, comment, Host, AccountName, Password)
+				}
 			}
 		});
 		
@@ -1072,7 +1073,7 @@ const getGithubData = (res, req, accessToken) => {
 		req.body = json;
 		req.body.githubToken = accessToken;
 		try {
-			await mongo.findOrRegister(req.body);
+			await mongo.findOrRegisterGithub(req.body);
 			passport.authenticate('github-local', (error, user) => {
 				if (error || !user) res.json({ error: 'Authentication Error' });
 				req.logIn(user, (LoginError) => {

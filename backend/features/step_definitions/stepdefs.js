@@ -25,6 +25,7 @@ if (!os.platform().includes('win')) {
 }
 
 chromeOptions.addArguments('--disable-dev-shm-usage');
+// chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
@@ -242,7 +243,6 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
 		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
 		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
-		
 	}
 	
 	const promises = []
