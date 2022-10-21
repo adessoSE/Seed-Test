@@ -41,15 +41,25 @@ router.post('/user/create/', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		fetch(`http://${jiraHost}/rest/auth/1/session`, options)
-		.then((response) => response.json())
-		.then(() => {
-			helper.updateJira(req.user._id, req.body)
-			.then((result) => {
-				res.status(200).json(result);
-			});
-		}).catch((error)=>console.error(error));
-		res.status(401).json('User doesnt exist.');//in case of error
+		const re = new RegExp('^[.:a-zA-Z0-9]+$');//jiraHost must only consist of letters, numbes, '.' and ':' to represent URLs or IPs and ports
+		const jiraHost_forgeCheck = re.test(jiraHost);
+		if(jiraHost_forgeCheck){
+			const jiraURL = `http://${jiraHost}/rest/auth/1/session`
+			fetch(jiraURL, options)
+			.then((response) => response.json())
+			.then(() => {
+				helper.updateJira(req.user._id, req.body)
+				.then((result) => {
+					res.status(200).json(result);
+				});
+			}).catch((error)=>console.error(error));
+			res.status(401).json('User doesnt exist.');//in case of error
+		} else {
+			console.error('Given JiraHost does not comply with URL structure.');
+			res.status(401)
+				.json('Given JiraHost does not comply with URL structure.');
+		}
+		
 	} else {
 		console.error('User doesnt exist.');
 		res.status(401)
