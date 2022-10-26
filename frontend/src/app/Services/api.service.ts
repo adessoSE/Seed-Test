@@ -729,7 +729,6 @@ export class ApiService {
             return Promise.resolve(url);
         } else {
 
-            
         return this.http.get<any>(window.location.origin + '/backendInfo', ApiService.getOptions()).toPromise().then((backendInfo) => {
              localStorage.setItem('url_backend', backendInfo.url);
              localStorage.setItem('clientId', backendInfo.clientId);

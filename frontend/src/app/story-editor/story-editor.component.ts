@@ -1,55 +1,37 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  ViewChild,
-  DoCheck,
-  EventEmitter,
-  Output,
-  OnDestroy,
-  AfterViewInit,
-} from "@angular/core";
-import { ApiService } from "../Services/api.service";
-import { Story } from "../model/Story";
-import { Scenario } from "../model/Scenario";
-import { StepType } from "../model/StepType";
-import { Background } from "../model/Background";
-import { ToastrService } from "ngx-toastr";
-import { RunTestToast } from "../runSave-toast";
-import { DeleteScenarioToast } from "../deleteScenario-toast";
-import { saveAs } from "file-saver";
-import { DeleteStoryToast } from "../deleteStory-toast";
-import { ThemingService } from "../Services/theming.service";
-import { RenameStoryComponent } from "../modals/rename-story/rename-story.component";
-import { SaveBlockFormComponent } from "../modals/save-block-form/save-block-form.component";
-import { Subscription } from "rxjs";
-import { CreateScenarioComponent } from "../modals/create-scenario/create-scenario.component";
-import { RenameBackgroundComponent } from "../modals/rename-background/rename-background.component";
-import { BaseEditorComponent } from "../base-editor/base-editor.component";
+import {Component, OnInit, Input, ViewChild, DoCheck, EventEmitter, Output, OnDestroy, AfterViewInit} from '@angular/core';
+import { ApiService } from '../Services/api.service';
+import { Story } from '../model/Story';
+import { Scenario } from '../model/Scenario';
+import { StepType } from '../model/StepType';
+import { Background } from '../model/Background';
+import { ToastrService } from 'ngx-toastr';
+import { RunTestToast } from '../runSave-toast';
+import { DeleteScenarioToast } from '../deleteScenario-toast';
+import { saveAs } from 'file-saver';
+import { DeleteStoryToast } from '../deleteStory-toast';
+import { ThemingService } from '../Services/theming.service';
+import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
+import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
+import { Subscription } from 'rxjs';
+import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
+import { RenameBackgroundComponent } from '../modals/rename-background/rename-background.component';
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
 /**
  * Empty background
  */
-const emptyBackground: Background = {
-  name: "New Background",
-  stepDefinitions: { when: [] },
-};
+const emptyBackground: Background = {name: 'New Background',stepDefinitions: {when: []}};
 
 /**
  * Component for the Story editor
  */
 @Component({
-  selector: "app-story-editor",
-  templateUrl: "./story-editor.component.html",
-  styleUrls: [
-    "../base-editor/base-editor.component.css",
-    "./story-editor.component.css",
-  ],
+  selector: 'app-story-editor',
+  templateUrl: './story-editor.component.html',
+  styleUrls: ['../base-editor/base-editor.component.css','./story-editor.component.css']
 })
-export class StoryEditorComponent
-  extends BaseEditorComponent
-  implements OnInit, OnDestroy, DoCheck, AfterViewInit
-{
+export class StoryEditorComponent extends BaseEditorComponent implements OnInit, OnDestroy, DoCheck, AfterViewInit {
+
   /**
    * set new currently selected scenario
    */
@@ -190,6 +172,7 @@ export class StoryEditorComponent
    */
   saveBackgroundAndRun = false;
 
+
   /**
    * if the daisy version is currently used
    */
@@ -208,7 +191,7 @@ export class StoryEditorComponent
   /**
    * Name for a new step
    */
-  newStepName = "New Step";
+    newStepName = 'New Step';
 
   /**
    * if the Panel is open.
@@ -223,6 +206,7 @@ export class StoryEditorComponent
   edge_enabled;
 
   lastToFocus;
+
 
   showDaisy = false;
 
@@ -245,16 +229,16 @@ export class StoryEditorComponent
   /**
    * View child of the scenario editor
    */
-  @ViewChild("scenarioChild") scenarioChild;
+    @ViewChild('scenarioChild') scenarioChild;
 
   /**
    * View child of the modals component
    */
-  @ViewChild("renameStoryModal") renameStoryModal: RenameStoryComponent;
-  @ViewChild("createScenarioForm") createScenarioForm: CreateScenarioComponent;
-  @ViewChild("renameBackgroundModal")
-  renameBackgroundModal: RenameBackgroundComponent;
-  @ViewChild("saveBlockModal") saveBlockModal: SaveBlockFormComponent;
+    @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent; 
+    @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
+    @ViewChild('renameBackgroundModal') renameBackgroundModal: RenameBackgroundComponent;
+    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+
 
   /**
    * Event emitter to change to the report history component
@@ -287,8 +271,8 @@ export class StoryEditorComponent
       this.storiesLoaded = true;
       this.storiesError = false;
     }
-    const version = localStorage.getItem("version");
-    if (version === "DAISY" || version === "HEROKU" || !version) {
+        const version = localStorage.getItem('version');
+        if (version === 'DAISY' || version === 'HEROKU' || !version) {
       this.daisyVersion = true;
     } else {
       this.daisyVersion = false;
@@ -309,104 +293,88 @@ export class StoryEditorComponent
       this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
   }
 
-  ngAfterViewChecked() {
+
+    ngAfterViewChecked(){
     /**
      * when loading for group is displayed scroll to it
      */
-    if (this.testRunningGroup === true) {
-      const loadingScreen = document.getElementById("loading");
+        if (this.testRunningGroup === true){
+            const loadingScreen = document.getElementById('loading');
       loadingScreen.scrollIntoView();
     }
+
   }
 
   /**
    * Subscribes to all necessary events
    */
   ngOnInit() {
+
     // in event that stories are already loaded
-    if (this.stories) {
+        if(this.stories){
       this.storiesLoaded = true;
     }
 
-    this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe(
-      (stories: Story[]) => {
+        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
         this.storiesLoaded = true;
         this.storiesError = false;
         this.showEditor = false;
         this.setStories(stories);
-        this.db = localStorage.getItem("source") === "db";
-      }
-    );
+            this.db = localStorage.getItem('source') === 'db' ;
+        });
 
-    this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(
-      () => {
+        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
         this.showEditor = false;
         this.storyDeleted();
-      }
-    );
+        });
 
-    this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(
-      (_) => {
+        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(_ => {
         this.storiesError = true;
         this.showEditor = false;
-      }
-    );
 
-    this.deleteScenarioObservable =
-      this.apiService.deleteScenarioEvent.subscribe(() => {
+        });
+
+        this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
         this.deleteScenario(this.selectedScenario);
       });
 
-    this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(
-      (option) => {
-        if (option === "run") {
+        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
+            if (option === 'run') {
           this.runUnsaved = true;
           this.runOption();
         }
-        if (option === "saveRun") {
+            if (option === 'saveRun') {
           this.saveBackgroundAndRun = true;
           this.updateBackground();
         }
-      }
-    );
+          });
 
-    this.addBlocktoScenarioObservable =
-      this.apiService.addBlockToScenarioEvent.subscribe((block) => {
-        if (block[0] === "background") {
+        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
+            if (block[0] === 'background') {
           block = block[1];
           Object.keys(block.stepDefinitions).forEach((key, _) => {
-            if (key === "when") {
-              block.stepDefinitions[key].forEach((step: StepType) => {
-                this.selectedStory.background.stepDefinitions[key].push(
-                  JSON.parse(JSON.stringify(step))
-                );
-              });
-            }
+              if (key === 'when') {
+                  block.stepDefinitions[key].forEach((step: StepType) => {
+                  this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                  });
+              }
           });
           this.selectedStory.background.saved = false;
         }
       });
 
-    this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe(
-      (changedValues) =>
-        this.renameStory(
-          changedValues.newStoryTitle,
-          changedValues.newStoryDescription
-        )
-    );
+        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe((changedValues) =>
+          this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
     this.isDark = this.themeService.isDarkMode();
     this.themeObservable = this.themeService.themeChanged.subscribe(() => {
       this.isDark = this.themeService.isDarkMode();
     });
 
-    this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(
-      () => {
+        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
         this.loadStepTypes();
-      }
-    );
+          }); 
 
-    this.renameBackgroundObservable =
-      this.apiService.renameBackgroundEvent.subscribe((newName) => {
+        this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
       });
   }
@@ -465,6 +433,7 @@ export class StoryEditorComponent
     this.stories = stories;
   }
 
+
   /**
    * Select a new currently used scenario
    * @param scenario
@@ -474,7 +443,6 @@ export class StoryEditorComponent
     if (this.selectedStory) {
       this.selectScenario(scenario);
     }
-    
     this.activeActionBar = false;
     this.allChecked = false;
   }
@@ -490,7 +458,9 @@ export class StoryEditorComponent
    * load the step types
    */
   loadStepTypes() {
-    this.apiService.getStepTypes().subscribe((resp: StepType[]) => {
+        this.apiService
+            .getStepTypes()
+            .subscribe((resp: StepType[]) => {
       this.originalStepTypes = resp;
     });
   }
@@ -503,13 +473,14 @@ export class StoryEditorComponent
       });
   }
 
+
   /**
    * Opens the delete scenario toast
    * @param scenario
    */
   showDeleteScenarioToast() {
-    this.toastr.warning("", "Do you really want to delete this scenario?", {
-      toastComponent: DeleteScenarioToast,
+        this.toastr.warning('', 'Do you really want to delete this scenario?', {
+            toastComponent: DeleteScenarioToast
     });
   }
 
@@ -519,14 +490,10 @@ export class StoryEditorComponent
    */
   deleteScenario(scenario: Scenario) {
     this.apiService
-      .deleteScenario(
-        this.selectedStory._id,
-        this.selectedStory.storySource,
-        scenario
-      )
-      .subscribe((_) => {
+            .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
+            .subscribe(_ => {
         this.scenarioDeleted();
-        this.toastr.error("", "Scenario deleted");
+                this.toastr.error('', 'Scenario deleted');
       });
   }
 
@@ -534,9 +501,7 @@ export class StoryEditorComponent
    * Removes scenario from the selected story
    */
   scenarioDeleted() {
-    const indexScenario: number = this.selectedStory.scenarios.indexOf(
-      this.selectedScenario
-    );
+        const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
     if (indexScenario !== -1) {
       this.selectedStory.scenarios.splice(indexScenario, 1);
     }
@@ -548,18 +513,15 @@ export class StoryEditorComponent
    */
   addScenario(event) {
     const scenarioName = event;
-    this.apiService
-      .addScenario(
-        this.selectedStory._id,
-        this.selectedStory.storySource,
-        scenarioName
-      )
+        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
       .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
         this.selectedStory.scenarios.push(resp);
-        this.toastr.info("", "Scenario added");
+            this.toastr.info('', 'Scenario added');
       });
   }
+
+    
 
   /**
    * updates the background
@@ -569,28 +531,21 @@ export class StoryEditorComponent
     this.allChecked = false;
     this.activeActionBar = false;
 
-    Object.keys(this.selectedStory.background.stepDefinitions).forEach(
-      (key, _) => {
-        this.selectedStory.background.stepDefinitions[key].forEach(
-          (step: StepType) => {
+
+        Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
+            this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
             delete step.checked;
             if (step.outdated) {
               step.outdated = false;
             }
-          }
-        );
-      }
-    );
+            });
+        });
     this.apiService
-      .updateBackground(
-        this.selectedStory._id,
-        this.selectedStory.storySource,
-        this.selectedStory.background
-      )
-      .subscribe((_) => {
-        this.toastr.success("successfully saved", "Background");
+            .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
+            .subscribe(_ => {
+                this.toastr.success('successfully saved', 'Background');
         if (this.saveBackgroundAndRun) {
-          this.apiService.runSaveOption("saveScenario");
+                    this.apiService.runSaveOption('saveScenario');
           this.saveBackgroundAndRun = false;
         }
       });
@@ -602,7 +557,7 @@ export class StoryEditorComponent
   deleteBackground() {
     this.apiService
       .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
-      .subscribe((_) => {
+          .subscribe(_ => {
         this.showBackground = false;
         this.selectedStory.background = emptyBackground;
         this.selectedStory.background.saved = false;
@@ -697,25 +652,19 @@ export class StoryEditorComponent
           setTimeout(function () {
             iframe.scrollIntoView();
           }, 10);
-          this.toastr.info("", "Test is done");
+								this.toastr.info('', 'Test is done');
           this.runUnsaved = false;
-          this.apiService.getReport(this.reportId).subscribe((report: any) => {
+								this.apiService.getReport(this.reportId)
+									.subscribe((report: any) => {
             if (scenario_id) {
               // ScenarioReport
               const val = report.scenarioStatuses.status;
-              this.apiService.scenarioStatusChangeEmit(
-                this.selectedStory._id,
-                scenario_id,
-                val
-              );
+												this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
             } else {
               // StoryReport
-              report.scenarioStatuses.forEach((scenario) => {
+											report.scenarioStatuses.forEach(scenario => {
                 this.apiService.scenarioStatusChangeEmit(
-                  this.selectedStory._id,
-                  scenario.scenarioId,
-                  scenario.status
-                );
+															this.selectedStory._id, scenario.scenarioId, scenario.status);
               });
             }
           });
@@ -736,13 +685,9 @@ export class StoryEditorComponent
     } else {
       this.currentTestScenarioId = scenario_id;
       this.currentTestStoryId = this.selectedStory.story_id;
-      this.toastr.info(
-        "Do you want to save before running the test?",
-        "Scenario was not saved",
-        {
-          toastComponent: RunTestToast,
-        }
-      );
+				this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
+						toastComponent: RunTestToast
+				});
     }
   }
 
@@ -750,8 +695,8 @@ export class StoryEditorComponent
    * Download the test report
    */
   downloadFile() {
-    const blob = new Blob([this.htmlReport], { type: "text/html" });
-    saveAs(blob, this.selectedStory.title + ".html");
+	const blob = new Blob([this.htmlReport], {type: 'text/html'});
+		saveAs(blob, this.selectedStory.title + '.html');
   }
 
   /**
@@ -847,13 +792,7 @@ export class StoryEditorComponent
    */
 
   storySaved() {
-    return (
-      this.runUnsaved ||
-      ((this.scenarioChild.selectedScenario.saved === undefined ||
-        this.scenarioChild.selectedScenario.saved) &&
-        (this.selectedStory.background.saved === undefined ||
-          this.selectedStory.background.saved))
-    );
+		return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
   }
 
   /**
@@ -864,11 +803,11 @@ export class StoryEditorComponent
 
   unsaveReport(reportId) {
     this.reportIsSaved = false;
-    return new Promise<void>((resolve, _reject) => {
-      this.apiService.unsaveReport(reportId).subscribe((_resp) => {
+		return new Promise<void>((resolve, _reject) => {this.apiService
+		.unsaveReport(reportId)
+		.subscribe(_resp => {
         resolve();
-      });
-    });
+		}); });
   }
 
   /**
@@ -879,11 +818,11 @@ export class StoryEditorComponent
 
   saveReport(reportId) {
     this.reportIsSaved = true;
-    return new Promise<void>((resolve, _reject) => {
-      this.apiService.saveReport(reportId).subscribe((_resp) => {
+		return new Promise<void>((resolve, _reject) => {this.apiService
+		.saveReport(reportId)
+		.subscribe(_resp => {
         resolve();
-      });
-    });
+		}); });
   }
 
   /**
@@ -891,10 +830,7 @@ export class StoryEditorComponent
    * @param newStoryTitle
    */
   changeStoryTitle() {
-    this.renameStoryModal.openRenameStoryModal(
-      this.stories,
-      this.selectedStory
-    );
+		this.renameStoryModal.openRenameStoryModal(this.stories, this.selectedStory);
   }
 
   /**
@@ -903,13 +839,10 @@ export class StoryEditorComponent
    * @param newStoryDescription
    */
   renameStory(newStoryTitle, newStoryDescription) {
-    if (newStoryTitle && newStoryTitle.replace(/\s/g, "").length > 0) {
+		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
       this.selectedStory.title = newStoryTitle;
     }
-    if (
-      newStoryDescription &&
-      newStoryDescription.replace(/\s/g, "").length > 0
-    ) {
+		if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
       this.selectedStory.body = newStoryDescription;
     }
     this.updateStory();
@@ -925,25 +858,19 @@ export class StoryEditorComponent
    *
    */
   updateStory() {
-    {
-      this.apiService.updateStory(this.selectedStory).subscribe((_resp) => {
-        this.toastr.success("successfully saved", "Story");
-      });
-    }
+		{this.apiService
+				.updateStory(this.selectedStory)
+				.subscribe(_resp => {
+						this.toastr.success('successfully saved', 'Story');
+				}); }
   }
 
   storyLink() {
-    return (
-      window.location.hostname +
-      ":" +
-      window.location.port +
-      "/story/" +
-      this.selectedStory._id
-    );
+    return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
   }
 
   showStoryLinkToast() {
-    this.toastr.success("", "Successfully added Link to Clipboard!");
+    this.toastr.success('', 'Successfully added Link to Clipboard!');
   }
 
   /**
@@ -952,25 +879,20 @@ export class StoryEditorComponent
    */
 
   showDeleteStoryToast() {
-    this.toastr.warning(
-      "",
-      "Do you really want to delete this story? It cannot be restored.",
-      {
-        toastComponent: DeleteStoryToast,
+		this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
+				toastComponent: DeleteStoryToast
+		});
       }
-    );
-  }
+    
 
   downloadFeature() {
     const source = this.selectedStory.storySource;
     const id = this.selectedStory._id;
-    this.apiService.downloadStoryFeatureFile(source, id).subscribe((ret) => {
-      saveAs(
-        ret,
-        this.selectedStory.title + this.selectedStory._id + ".feature"
-      );
+		this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+				saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
     });
   }
+
 
   /**
    * Emitts the delete story event
@@ -980,17 +902,16 @@ export class StoryEditorComponent
     this.deleteStoryEvent.emit(this.selectedStory);
   }
 
+  
   /**
    * Removes the selected story
    */
   storyDeleted() {
-    if (this.stories.find((x) => x === this.selectedStory)) {
-      this.stories.splice(
-        this.stories.findIndex((x) => x === this.selectedStory),
-        1
-      );
+		if (this.stories.find(x => x === this.selectedStory)) {
+		this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
     }
   }
+  
 
   /**
    * Opens modal to rename background
@@ -1003,4 +924,6 @@ export class StoryEditorComponent
   setShowDaisy(event) {
     this.showDaisy = event;
   }
+
 }
+
