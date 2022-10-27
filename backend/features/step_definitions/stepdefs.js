@@ -10,6 +10,7 @@ require('geckodriver');
 const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
+const { match } = require('assert');
 
 let driver;
 const firefoxOptions = new firefox.Options();
@@ -513,7 +514,8 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 		if (resp == '') {
 			resp = await elem.getAttribute("outerHTML");
 		}
-		expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
+		//expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
+		match(resp.toLowerCase(), RegExp(expectedText.toLowerCase()), 'Textfield does not contain the string: ' + resp)
 	})
 	.catch(async (e) => {
 		await driver.takeScreenshot().then(async (buffer) => {
