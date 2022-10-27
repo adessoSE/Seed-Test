@@ -34,56 +34,24 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   /**
    * set new currently selected scenario
    */
-<<<<<<< HEAD
-    @Input()
-    set newSelectedScenario(scenario: Scenario) {
-        this.selectedScenario = scenario;
-        if (this.selectedStory) {
-            this.selectScenario(scenario);
-        }   
-=======
   @Input()
-  set newSelectedScenario(scenario: Scenario) {    
-    this.selectedScenario = scenario;
-    if (this.selectedStory) {
-      this.selectScenario(scenario);
->>>>>>> CUC-305-Emulator
-    }
-    this.activeActionBar = false;
-    this.allChecked = false;
+  set newSelectedScenario(scenario: Scenario) {
+      this.selectedScenario = scenario;
+      if (this.selectedStory) {
+          this.selectScenario(scenario);
+      }   
   }
-
-<<<<<<< HEAD
-    /**
-     * set new stories
-     */
-    @Input()
-    set newStories(stories: Story[]) {
-        if (stories) {
-            this.stories = stories;
-        }
-=======
+    
   /**
-   * set new stories
-   */
+    * set new stories
+    */
   @Input()
   set newStories(stories: Story[]) {
-    if (stories) {
-      this.stories = stories;
->>>>>>> CUC-305-Emulator
+      if (stories) {
+            this.stories = stories;
+        }
     }
-  }
 
-<<<<<<< HEAD
-    /**
-     * set new currently selected story
-     */
-    @Input()
-    set newSelectedStory(story: Story) {
-        this.selectedStory = story;
-        this.showEditor = true;
-    }
-=======
   /**
    * set new currently selected story
    */
@@ -91,10 +59,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
     this.showEditor = true;
-    this.activeActionBar = false;
-    this.allChecked = false;
   }
->>>>>>> CUC-305-Emulator
 
   /**
    * show loading when tests of groups run
@@ -192,23 +157,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   currentTestScenarioId: number;
 
-<<<<<<< HEAD
     /**
      * if the background should be saved and then the test run
      */
     saveBackgroundAndRun = false;
-=======
-  /**
-   * If all steps are checked
-   */
-  allChecked = false;
-
-  /**
-   * if the background should be saved and then the test run
-   */
-  saveBackgroundAndRun = false;
->>>>>>> CUC-305-Emulator
-
 
   /**
    * if the daisy version is currently used
@@ -244,25 +196,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   lastToFocus;
 
-
   showDaisy = false;
 
-<<<<<<< HEAD
-    readonly TEMPLATE_NAME = 'background'
+  readonly TEMPLATE_NAME = 'background'
 
-    /**
-     * Subscribtions for all EventEmitter
-     */
-    deleteStoryObservable: Subscription;
-    storiesErrorObservable: Subscription;
-    deleteScenarioObservable: Subscription;
-    runSaveOptionObservable: Subscription;
-    renameStoryObservable: Subscription;
-    themeObservable: Subscription;
-    getBackendUrlObservable: Subscription;
-    getStoriesObservable: Subscription;
-    renameBackgroundObservable: Subscription;
-=======
   /**
    * Subscribtions for all EventEmitter
    */
@@ -270,13 +207,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   storiesErrorObservable: Subscription;
   deleteScenarioObservable: Subscription;
   runSaveOptionObservable: Subscription;
-  addBlocktoScenarioObservable: Subscription;
   renameStoryObservable: Subscription;
   themeObservable: Subscription;
   getBackendUrlObservable: Subscription;
   getStoriesObservable: Subscription;
   renameBackgroundObservable: Subscription;
->>>>>>> CUC-305-Emulator
 
   @Input() isDark: boolean;
 
@@ -284,7 +219,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * View child of the scenario editor
    */
     @ViewChild('scenarioChild') scenarioChild;
-
   /**
    * View child of the modals component
    */
@@ -306,7 +240,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   @Output() report: EventEmitter<any> = new EventEmitter();
 
-<<<<<<< HEAD
     /**
      * Stories bar component
      */
@@ -318,20 +251,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
         }
-=======
-  /**
-   * Stories bar component
-   */
-  constructor(
-    public apiService: ApiService,
-    toastr: ToastrService,
-    public themeService: ThemingService
-  ) {
-    super(toastr);
-    if (this.apiService.urlReceived) {
-      this.loadStepTypes();
-    }
->>>>>>> CUC-305-Emulator
 
     if (this.selectedStory) {
       this.storiesLoaded = true;
@@ -343,17 +262,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     } else {
       this.daisyVersion = false;
     }
-<<<<<<< HEAD
-
-    ngAfterViewChecked(){
-	    /**
-        * when loading for group is displayed scroll to it
-        */
-        if (this.testRunningGroup === true){
-            const loadingScreen = document.getElementById('loading');
-            loadingScreen.scrollIntoView();
-        }
-=======
 
     this.gecko_enabled = localStorage.getItem("gecko_enabled");
     this.chromium_enabled = localStorage.getItem("chromium_enabled");
@@ -361,26 +269,23 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
     this.gecko_emulators = localStorage.getItem("gecko_emulators");
     this.gecko_emulators =
-      this.gecko_emulators === "" ? [] : this.gecko_emulators.split(",");
+    this.gecko_emulators === "" ? [] : this.gecko_emulators.split(",");
     this.chromium_emulators = localStorage.getItem("chromium_emulators");
     this.chromium_emulators =
-      this.chromium_emulators === "" ? [] : this.chromium_emulators.split(",");
+    this.chromium_emulators === "" ? [] : this.chromium_emulators.split(",");
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
-      this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+    this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
   }
-
 
     ngAfterViewChecked(){
     /**
      * when loading for group is displayed scroll to it
      */
-        if (this.testRunningGroup === true){
-            const loadingScreen = document.getElementById('loading');
-      loadingScreen.scrollIntoView();
->>>>>>> CUC-305-Emulator
+      if (this.testRunningGroup === true){
+        const loadingScreen = document.getElementById('loading');
+        loadingScreen.scrollIntoView();
     }
-
   }
 
   /**
@@ -427,7 +332,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         }
           });
 
-<<<<<<< HEAD
         this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe((changedValues) =>
             this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
             this.isDark = this.themeService.isDarkMode();
@@ -438,39 +342,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
             this.loadStepTypes();
         }); 
-=======
-        this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
-            if (block[0] === 'background') {
-          block = block[1];
-          Object.keys(block.stepDefinitions).forEach((key, _) => {
-              if (key === 'when') {
-                  block.stepDefinitions[key].forEach((step: StepType) => {
-                  this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-                  });
-              }
-          });
-          this.selectedStory.background.saved = false;
-        }
-      });
-
-        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe((changedValues) =>
-          this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
-    this.isDark = this.themeService.isDarkMode();
-    this.themeObservable = this.themeService.themeChanged.subscribe(() => {
-      this.isDark = this.themeService.isDarkMode();
-    });
-
-        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
-        this.loadStepTypes();
-          }); 
->>>>>>> CUC-305-Emulator
 
         this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
       });
   }
 
-<<<<<<< HEAD
     ngOnDestroy() {
         if (!this.deleteStoryObservable.closed) {
             this.deleteStoryObservable.unsubscribe();
@@ -500,40 +377,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         if (!this.renameBackgroundObservable.closed) {
             this.renameBackgroundObservable.unsubscribe();
         }
-=======
-  ngOnDestroy() {
-    if (!this.deleteStoryObservable.closed) {
-      this.deleteStoryObservable.unsubscribe();
->>>>>>> CUC-305-Emulator
     }
-    if (!this.storiesErrorObservable.closed) {
-      this.storiesErrorObservable.unsubscribe();
-    }
-    if (!this.deleteScenarioObservable.closed) {
-      this.deleteScenarioObservable.unsubscribe();
-    }
-    if (!this.runSaveOptionObservable.closed) {
-      this.runSaveOptionObservable.unsubscribe();
-    }
-    if (!this.addBlocktoScenarioObservable.closed) {
-      this.addBlocktoScenarioObservable.unsubscribe();
-    }
-    if (!this.renameStoryObservable.closed) {
-      this.renameStoryObservable.unsubscribe();
-    }
-    if (!this.themeObservable.closed) {
-      this.themeObservable.unsubscribe();
-    }
-    if (!this.getBackendUrlObservable.closed) {
-      this.getBackendUrlObservable.unsubscribe();
-    }
-    if (!this.getStoriesObservable.closed) {
-      this.getStoriesObservable.unsubscribe();
-    }
-    if (!this.renameBackgroundObservable.closed) {
-      this.renameBackgroundObservable.unsubscribe();
-    }
-  }
+  
 
   /**
    * Runs the test without saving it
@@ -557,7 +402,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
 
-<<<<<<< HEAD
     /**
      * Select a new currently used scenario
      * @param scenario
@@ -567,20 +411,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       if (this.selectedStory) {
           this.selectScenario(scenario);
       }
-=======
-  /**
-   * Select a new currently used scenario
-   * @param scenario
-   */
-  selectNewScenario(scenario: Scenario) {
-    this.selectedScenario = scenario;
-    if (this.selectedStory) {
-      this.selectScenario(scenario);
->>>>>>> CUC-305-Emulator
     }
-    this.activeActionBar = false;
-    this.allChecked = false;
-  }
 
   /**
    * Change to the report history component
@@ -658,22 +489,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
     
 
-<<<<<<< HEAD
     /**
      * updates the background
      */
     updateBackground() {
         delete this.selectedStory.background.saved;
-=======
-  /**
-   * updates the background
-   */
-  updateBackground() {
-    delete this.selectedStory.background.saved;
-    this.allChecked = false;
-    this.activeActionBar = false;
-
->>>>>>> CUC-305-Emulator
 
         Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
             this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
@@ -708,21 +528,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       });
   }
 
-<<<<<<< HEAD
     /**
      * Opens the background
      */
     openBackground() {
       this.showBackground = !this.showBackground;
     }
-=======
-  /**
-   * Opens the background
-   */
-  openBackground() {
-    this.showBackground = !this.showBackground;
-  }
->>>>>>> CUC-305-Emulator
 
   /**
    * Select a scenario
@@ -741,7 +552,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     if (!scenario.browser) this.selectedScenario.browser = 'chrome'    
   }
 
-<<<<<<< HEAD
+  /**
+   * Selects a story and scenario
+   * @param story
+   */
 	selectStoryScenario(story: Story) {
 		this.showResults = false;
 		this.selectedStory = story;
@@ -751,22 +565,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 			this.selectScenario(this.stories[storyIndex].scenarios[0]);
 		}
 	}
-=======
-  /**
-   * Selects a story and scenario
-   * @param story
-   */
->>>>>>> CUC-305-Emulator
-
-  selectStoryScenario(story: Story) {
-    this.showResults = false;
-    this.selectedStory = story;
-    this.showEditor = true;
-    const storyIndex = this.stories.indexOf(this.selectedStory);
-    if (this.stories[storyIndex].scenarios[0] !== undefined) {
-      this.selectScenario(this.stories[storyIndex].scenarios[0]);
-    }
-  }
 
   /**
    * Make the API Request to run the tests and display the results as a chart
@@ -853,9 +651,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 				this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
 						toastComponent: RunTestToast
 				});
-<<<<<<< HEAD
 		}
-    }
+  }
 
     /**
      * Download the test report
@@ -864,18 +661,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         const blob = new Blob([this.htmlReport], {type: 'text/html'});
             saveAs(blob, this.selectedStory.title + '.html');
     }
-=======
-    }
-  }
-
-  /**
-   * Download the test report
-   */
-  downloadFile() {
-	const blob = new Blob([this.htmlReport], {type: 'text/html'});
-		saveAs(blob, this.selectedStory.title + '.html');
-  }
->>>>>>> CUC-305-Emulator
 
   /**
    * Set the time to wait between the steps
@@ -1026,7 +811,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     this.updateStory();
   }
 
-<<<<<<< HEAD
 	renameBackground(newBackgroundName) {
 		this.selectedStory.background.name = newBackgroundName;
         this.selectedStory.background.saved = false;
@@ -1037,18 +821,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
      *
      */
 	updateStory() {
-=======
-  renameBackground(newBackgroundName) {
-    this.selectedStory.background.name = newBackgroundName;
-    this.updateBackground();
-  }
-
-  /**
-   * Updates the story
-   *
-   */
-  updateStory() {
->>>>>>> CUC-305-Emulator
 		{this.apiService
 				.updateStory(this.selectedStory)
 				.subscribe(_resp => {
@@ -1117,4 +889,3 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
 }
-

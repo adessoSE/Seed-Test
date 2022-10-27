@@ -39,8 +39,6 @@ const ReportsCollection = 'Reports';
 dbConnection.establishConnection()
 .then(()=> console.log("db ",dbConnection.getConnection()))
 
-
-
 /**
  * Writes a PasswordResetRequest in the DB
  * @param {*} request
@@ -151,9 +149,9 @@ async function getUserByEmail(email) {
 }
 
 /**
- * 
+ *
  * @param {object} user {email:string, userId: String, password: string} 
- * @returns 
+ * @returns
  */
 async function registerUser(user) {
 	try {
@@ -178,9 +176,9 @@ async function registerUser(user) {
 }
 
 /**
- * 
+ *
  * @param {object} user minimum model {login:string,  id:number, githubToken:string} 
- * @returns 
+ * @returns
  */
 async function registerGithubUser(user) {
 	try {
@@ -201,7 +199,7 @@ async function registerGithubUser(user) {
  */
 function replaceUser(newUser, collection) {
 	const myObjt = { _id: ObjectId(newUser._id) };
-	return collection.findOneAndReplace(myObjt, newUser).then((res)=>res.value);
+	return collection.findOneAndReplace(myObjt, newUser).then((res) => res.value);
 }
 
 async function updateGithubToken(objId, updatedToken) {
@@ -232,7 +230,7 @@ async function mergeGithub(userId, login, id) {
 
 		if (githubAccount.email) {
 			delete githubAccount.github;
-			await replaceUser(githubAccount, collection)
+			await replaceUser(githubAccount, collection);
 		} else await deleteUser(githubAccount._id);
 		return await replaceUser(seedAccount, collection);
 	} catch (e) {
