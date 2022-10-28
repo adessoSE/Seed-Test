@@ -152,6 +152,8 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     MatSlideToggleModule,
     MatIconModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatTooltipModule,
   ],
   entryComponents: [RunTestToast],
   providers: [ApiService, AuthGuard, CookieService,
