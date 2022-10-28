@@ -86,10 +86,15 @@ li{
   height: 60px;
 }
 
-.close{
-  color: white;
-  outline: none;
-}
+  .close{
+    color: white;
+    outline: none;
+  }
+  .icon{
+    font-size: 14px;
+    vertical-align: text-bottom;
+    display: inline;
+  }
 
 .github-avatar{
   float: right;
