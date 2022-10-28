@@ -300,6 +300,10 @@ input[type="text"]{
   font-weight: bold !important;
 }
 
+.darkTheme ::ng-deep .exampleList .mat-select-value {
+  font-weight: 595 !important;
+ }
+ 
 .exampleList ::ng-deep .mat-form-field-infix {
   width: fit-content !important;
 }
@@ -366,3 +370,5 @@ input[type="text"]{
   color: red !important;
 }
 
+
+ 
