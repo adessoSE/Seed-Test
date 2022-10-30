@@ -8,20 +8,20 @@
         </button>
     </div>
     <div class="modal-body">
-        <form #newGroupForm="ngForm" novalidate (ngSubmit)="onSubmit($event, newGroupForm)">
-            <div> 
-                <div class="form-group groupouterdiv modalsContent">
+        <form #newGroupForm="ngForm" novalidate (ngSubmit)="createNewGroup(newGroupForm)">
+            <div class="form-group groupouterdiv modalsContent"> 
+                <div class="modalsContent">
                     <div>
                         <label class="uk-form-label">Enter unique group name*</label> 
-                        <input id="nameInput" ngModel name="title" pattern="\S(.*\S)?" required>
+                        <input id="grouptitle" ngModel name="title"
+                        pattern="\S(.*\S)?" style="margin-left: 24px;" (keyup)="groupUnique(newGroupForm)" required>  
                     </div>
-                    <br>
                     <div>            
                         <label class="uk-form-label">Find story</label> 
                         <div class="searchWrapper">
                             <em class="material-icons emoticon" id="searchBarIcons"
                             [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
-                            <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
+                            <input name="searchInput" id="findStory" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
                         </div> 
                     </div>
                 </div>
@@ -48,18 +48,11 @@
                             </div> 
                           </td>
                         </ng-container>
-        
-                        <ng-container  matColumnDef="checkStory">
-                            <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
-                            <td mat-cell *matCellDef="let element">
-                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
-                            </td>
-                        </ng-container>
             
                         <ng-container  matColumnDef="checkStory">
                             <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
                             <td mat-cell *matCellDef="let element">
-                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)" id="check_{{element.title}}">
                             </td>
                         </ng-container>
                         <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>
@@ -68,7 +61,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="normalButton" [disabled]="!newGroupForm.valid" 
+                <button id="submitCreateNewGroup" type="submit" class="normalButton" [disabled]="!newGroupForm.valid" 
                 [ngStyle]="{'opacity': !newGroupForm.valid ?  '50%' : '100%'}">Save</button>
             </div>
         </form>

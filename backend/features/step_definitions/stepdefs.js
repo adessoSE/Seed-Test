@@ -25,11 +25,11 @@ if (!os.platform().includes('win')) {
 }
 
 chromeOptions.addArguments('--disable-dev-shm-usage');
+// chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
 chromeOptions.addArguments('--excludeSwitches=enable-logging');
-
 edgeOptions.addArguments('--disable-dev-shm-usage');
 edgeOptions.addArguments('--ignore-certificate-errors');
 edgeOptions.addArguments('--start-maximized');
@@ -61,6 +61,20 @@ defineParameterType({
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
 	currentParameters = this.parameters.scenarios[scenarioIndex];
+
+	if (currentParameters.emulator !== undefined) {
+		switch(currentParameters.browser) {
+			case 'chrome':
+				chromeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
+				break;
+			case 'MicrosoftEdge':
+				edgeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
+				break;
+			case 'firefox':
+				// no way to do it ?
+		}
+	}
+
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) {
 			if (driver) {
@@ -242,7 +256,6 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
 		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
 		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
-		
 	}
 	
 	const promises = []

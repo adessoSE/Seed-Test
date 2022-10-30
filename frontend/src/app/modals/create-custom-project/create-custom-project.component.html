@@ -8,17 +8,17 @@
         </button>
     </div>
     <div class="modal-body">
-      <form #createProjectForm="ngForm" novalidate (ngSubmit)="submitRepo(createProjectForm)">
+      <form #createProjectForm="ngForm" novalidate (ngSubmit)="createNewProject(createProjectForm)">
         <div class="submitForm">
             <div class="form-group modalsContent">
                 <div>
                     <label class="uk-form-label">Enter unique project name*</label>
-                    <input defaultValue="YourRepoName" ngModel name="repo_name" pattern="\S(.*\S)?"
-                    style="margin-left: 24px;" required>
+                    <input defaultValue="YourRepoName" id="projectTitle" ngModel name="title" pattern="\S(.*\S)?"
+                    style="margin-left: 24px;" (keyup)="projectUnique(createProjectForm)" required>
                 </div>
             </div>    
             <div class="modal-footer">
-                <button type="submit" [disabled]="!createProjectForm.valid" 
+                <button id="submitCreateNewProject" type="submit" [disabled]="!createProjectForm.valid" 
                 [ngStyle]="{'opacity': !createProjectForm.valid ?  '50%' : '100%'}" class="normalButton">Save</button>
             </div>    
         </div>

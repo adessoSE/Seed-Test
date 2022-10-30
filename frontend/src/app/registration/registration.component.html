@@ -9,7 +9,7 @@
       <p class="wrongLogin" *ngIf="error">{{error}}</p>
       <!--Input Email-->
       <label class="uk-form-label"></label>
-      <input #email ngModel id="email" type="email" name="email" [class.wrongEmail]="registrationForm.controls.email == undefined || (registrationForm.controls.email.invalid && registrationForm.controls.email.dirty)" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,5}$" placeholder="Email*" class="uk-form-controls input" required>
+      <input #email ngModel id="email" type="email" name="email" [class.wrongEmail]="registrationForm.controls.email == undefined || (registrationForm.controls.email.invalid && registrationForm.controls.email.dirty)" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,5}$" placeholder="Email*" class="uk-form-controls input" required>
 
       <!--Cross Validation-->
         <div class="cross-validation" [class.cross-validation-error]="registrationForm.controls.password == undefined || registrationForm.errors?.passwordConfirmed || (registrationForm.controls.password.invalid && registrationForm.controls.password.dirty)">

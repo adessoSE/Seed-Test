@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LayoutModalComponent } from './layout-modal.component';
+import { NewExampleComponent } from './new-example.component';
 
-describe('LayoutModalComponent', () => {
-  let component: LayoutModalComponent;
-  let fixture: ComponentFixture<LayoutModalComponent>;
+describe('NewExampleComponent', () => {
+  let component: NewExampleComponent;
+  let fixture: ComponentFixture<NewExampleComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LayoutModalComponent ]
+      declarations: [ NewExampleComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LayoutModalComponent);
+    fixture = TestBed.createComponent(NewExampleComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -13,7 +13,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {AuthGuard} from './guards/auth.guard';
 import {MatTableModule} from '@angular/material/table';
 import {MatListModule} from '@angular/material/list';
-import {ExampleTableComponent} from './example-table/example-table.component';
+import {ExampleComponent, ExampleTableComponent} from './example-table/example-table.component';
 import {EditableComponent} from './editable/editable.component';
 import {ViewModeDirective} from './directives/view-mode.directive';
 import {EditModeDirective} from './directives/edit-mode.directive';
@@ -38,6 +38,7 @@ import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { DeleteScenarioToast } from './deleteScenario-toast';
+import { DeleteExampleToast } from './deleteExample-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
@@ -70,6 +71,7 @@ import { CreateScenarioComponent } from './modals/create-scenario/create-scenari
 import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
+import { NewExampleComponent } from './modals/new-example/new-example.component';
 
 @NgModule({
   declarations: [
@@ -95,6 +97,7 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
     ReportComponent,
     RunTestToast,
     DeleteScenarioToast,
+    DeleteExampleToast,
     DeleteStoryToast,
     DeleteRepositoryToast,
     ResetPasswordComponent,
@@ -117,7 +120,9 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
     CreateScenarioComponent,
     ResizeInputDirective,
     RenameBackgroundComponent,
-    BaseEditorComponent
+    BaseEditorComponent,
+    NewExampleComponent,
+    ExampleComponent
   ],
   imports: [
     NgbModule,
@@ -137,8 +142,9 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.OFF
+      serverLogLevel: NgxLoggerLevel.DEBUG
     }),
     ToastrModule.forRoot({
       timeOut: 3000

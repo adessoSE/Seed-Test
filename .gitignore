@@ -90,4 +90,4 @@ backend/features/step_definitions/testing.js
 /website
 
 #logs
-/backend/logs/
+/backend/logs/*
