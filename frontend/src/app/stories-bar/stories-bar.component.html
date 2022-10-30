@@ -14,7 +14,7 @@
   <div class="searchBarWrapper">
   <!-- search bar here -->
 </div>
-<hr>
+<br>
 <div class="storyFilterWrapper">
   <span class="searchBar" id="searchStoriesBar">
     <em class="material-icons" id="searchBarIcons">search</em>
@@ -97,7 +97,6 @@
     <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
   </div>
   <br>
-  <hr>
 </mat-tab>
 <mat-tab label="Groups">
   <ng-template mat-tab-label>
@@ -108,7 +107,7 @@
   </ng-template>
   <div class="searchBarWrapper"> 
   </div>
-  <hr>
+  <br>
     <div class="searchBar">
       <em class="material-icons" id="searchBarIcons">search</em>
       <input class="searchInput" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"/>
