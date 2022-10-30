@@ -49,4 +49,9 @@ export interface Scenario {
      * Selected browser to execute the test on
      */
     browser?: string;
+
+    /**
+     * Selected emultaor to execute the test with
+     */
+    emulator?: string;
 }

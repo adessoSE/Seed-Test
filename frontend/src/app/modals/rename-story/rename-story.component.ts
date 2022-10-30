@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from 'src/app/model/Story';
@@ -7,19 +7,19 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-rename-story',
   templateUrl: './rename-story.component.html',
-  styleUrls: ['./rename-story.component.css']
+  styleUrls: ['./rename-story.component.css', '../layout-modal/layout-modal.component.css']
 })
 export class RenameStoryComponent {
 
   modalReference: NgbModalRef;
 
-  @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
+  @ViewChild('renameStoryModal') renameStoryModal: TemplateRef<RenameStoryComponent>;
 
   story: Story;
   stories: Story[];
   storytitle: string;
   storyForm = new FormGroup ({
-    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
     storyDescription: new FormControl(''),
   });
 

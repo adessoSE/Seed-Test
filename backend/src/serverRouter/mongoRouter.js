@@ -29,7 +29,6 @@ router
 		next();
 	})
 	.use((_, __, next) => {
-		// console.log(_.url + JSON.stringify(_.user));
 		console.log('Time of mongoDB request:', Date.now());
 		next();
 	});
@@ -121,19 +120,17 @@ router.get('/user', async (req, res) => {
 router.post('/saveBlock', async (req, res) => {
 	try {
 		const { body } = req;
-		if (!req.user) res.sendStatus(401);
-		else {
+		if (!req.user){res.sendStatus(401);return;}
 			body.owner = ObjectID(req.user._id);
 			const result = await mongo.saveBlock(body);
 			res.status(200).json(result);
-		}
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
 });
 
 // update custom Blocks
-router.post('/updateBlock/:name', async (req, res) => {
+router.post('/updateBlock/:name', async (req, res) => { // isn't used in frontend, bug risk update by name. better blockId & owner like delete
 	try {
 		const result = await mongo.updateBlock(req.params.name, req.body);
 		res.status(200).json(result);
@@ -144,7 +141,7 @@ router.post('/updateBlock/:name', async (req, res) => {
 
 router.get('/getBlocks/:repoId', async (req, res) => {
 	try {
-		const result = await mongo.getBlocks(req.user._id, req.params.repoId);
+		const result = await mongo.getBlocks(req.params.repoId);
 		res.status(200).json(result);
 	} catch (error) {
 		handleError(res, error, error, 500);

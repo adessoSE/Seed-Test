@@ -7,7 +7,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-new-step-request',
   templateUrl: './new-step-request.component.html',
-  styleUrls: ['./new-step-request.component.css']
+  styleUrls: ['./new-step-request.component.css', '../layout-modal/layout-modal.component.css']
 })
 export class NewStepRequestComponent {
 
@@ -18,7 +18,7 @@ export class NewStepRequestComponent {
   @ViewChild('newStepRequestModal') newStepRequestModal: NewStepRequestComponent;
 
   newStepReqForm = new FormGroup ({
-    title: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    title: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
     type: new FormControl(''),
     description: new FormControl(''),
     email: new FormControl(''),

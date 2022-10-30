@@ -7,7 +7,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-create-scenario',
   templateUrl: './create-scenario.component.html',
-  styleUrls: ['./create-scenario.component.css']
+  styleUrls: ['./create-scenario.component.css', '../layout-modal/layout-modal.component.css']
 })
 export class CreateScenarioComponent {
 

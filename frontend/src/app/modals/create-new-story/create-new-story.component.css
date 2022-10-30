@@ -23,10 +23,10 @@
 label {
     float: left;
     margin-left: -227px;
-    padding: 5px 0 0;
+    padding: 5px 0.5px 0;
     position: relative;
     text-align: right;
-    width: 200px;
+    width: 280px;
 }
 
 .modalsContent {

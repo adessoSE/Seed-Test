@@ -1,0 +1,30 @@
+<!-- new Example Modal-->
+<ng-template #newExampleModal let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">Define a new scenario case</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form [formGroup]="newExampleForm" novalidate (ngSubmit)="createNewExample()">     
+        <div class="modal-body modal-xl">
+            <div class="uk-card-title submitForm">
+                <div>
+                    <div class="padding_top modalsContent">
+                        <label class="uk-form-label">Enter scenario name*</label>
+                        <span class="material-icons" display-title="Enter scenario name">drive_file_rename_outline</span>
+                        <div >
+                            <input type="text" formControlName="newName" id="newTitle" pattern="\S(.*\S)?" 
+                            name="newName" placeholder="New Name" (keyup)="uniqueExampleName()" required>
+                        </div>                    
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="submitExample" class="normalButton" type="submit" [disabled]="!newExampleForm.valid"
+            [ngStyle]="{'opacity': !newExampleForm.valid ?  '50%' : '100%'}">Submit</button>
+        </div> 
+    </form>   
+</ng-template>

@@ -36,20 +36,23 @@ export class RegistrationComponent implements OnInit {
     }
 
     /**
-     * Registers a user to Seed-Test
+     * Registers a user to Seed-Test and logs user in
      * @param form user form
      */
     async registerUser(form: NgForm){
-        let userId = localStorage.getItem('userId');
-        localStorage.removeItem('userId')
-        this.error = undefined;
-        let response = await this.apiService.registerUser(form.value.email, form.value.password, userId).toPromise()
-        if (response.error && response.error.status === 'error') {
-            this.error = response.error.message;
-            //this.toastr.error(response.error.message, 'Registration')
-        } else {
+        try{
+            let userId = localStorage.getItem('userId');
+            localStorage.removeItem('userId')
+            this.error = undefined;
+            let response = await this.apiService.registerUser(form.value.email, form.value.password, userId).toPromise()
+            localStorage.setItem('login', 'true');
             this.toastr.success('successfully registered', 'Registration')
-            this.router.navigate(["/"]);
+            const user = {email: form.value.email, password: form.value.password}
+            this.apiService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']))
+        }  catch(err) {
+           
+            this.toastr.error('User with this email alredy exist. Please enter another email', 'Email alredy exist')
+           
         } 
     }
 

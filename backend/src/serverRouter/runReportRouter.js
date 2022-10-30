@@ -24,21 +24,27 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID/:storySource', (req, res) => {
-	helper.runReport(req, res, [], 'feature', req.body);
+	helper.runReport(req, res, [], 'feature', req.body).catch( reason => res.send(reason).status(500));
 });
 
 // run single Scenario of a Feature
 router.post('/Scenario/:issueID/:storySource/:scenarioId', (req, res) => {
-	helper.runReport(req, res, [], 'scenario', req.body);
+	helper.runReport(req, res, [], 'scenario', req.body).catch( reason => res.send(reason).status(500));
 });
 
 // run one Group and return report
 router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
+	console.log(group);
 	const mystories = [];
-	for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id, 'db'));
+	for (const ms of group.member_stories){
+		const id = typeof(ms) === 'object' ? ms._id : ms; // inconsistent in database
+		mystories.push(await mongo.getOneStory(id, 'db'))
+	}
+	let params = group
+	params.repository = req.body.repository
 	req.body = group;
-	helper.runReport(req, res, mystories, 'group', req.body);
+	helper.runReport(req, res, mystories, 'group', req.body).catch( reason => res.send(reason).status(500));
 });
 
 router.get('/report/:reportName', (req, res) => {

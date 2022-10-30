@@ -1,14 +1,17 @@
 {
   "name": "seed-test-frontend",
-  "version": "1.5.0",
+  "version": "1.6.1",
   "engines": {
-    "node": "14.19.0"
+    "node": "16.17.0"
   },
   "scripts": {
     "ng": "ng",
     "start": "npm run build & node server.js",
     "build": "ng build --configuration production",
-    "test": "ng test --codeCoverage=true",
+    "test": "jest --verbose",
+    "test-watch": "jest --watch",
+    "test-coverage": "jest --coverage",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "prod": "ng serve -c production",
@@ -18,6 +21,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-devkit/build-angular": "^13.3.8",
     "@angular/animations": "^13.2.3",
     "@angular/cdk": "^13.2.4",
     "@angular/common": "^13.2.3",
@@ -29,22 +33,30 @@
     "@angular/platform-browser-dynamic": "^13.2.3",
     "@angular/router": "^13.2.3",
     "@ng-bootstrap/ng-bootstrap": "^12.0.0",
-    "@ngneat/until-destroy": "^9.0.0",
+    "@ngneat/until-destroy": "^9.1.2",
+    "canvg": "^4.0.0",
     "core-js": "^3.21.1",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "file-saver": "^2.0.5",
     "hammerjs": "^2.0.8",
+    "invert-kv": "^3.0.1",
+    "jest-preset-angular": "^12.2.2",
     "jquery": "^3.6.0",
+    "jspdf": "^2.5.1",
     "ngx-cookie-service": "^13.1.2",
+    "ngx-logger": "~4.3.3",
     "ngx-owl-carousel-o": "^7.0.1",
+    "ngx-take-until-destroy": "^5.4.0",
     "ngx-toastr": "14.2.1",
+    "node-fetch": "^2.6.1",
     "request": "^2.88.2",
-    "uikit": "^3.9.4",
+    "set-value": "4.1.0",
+    "tar": "^6.1.11",
+    "uikit": "^3.14.1",
     "zone.js": "^0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^13.2.4",
     "@angular-eslint/builder": "13.1.0",
     "@angular-eslint/eslint-plugin": "13.1.0",
     "@angular-eslint/eslint-plugin-template": "13.1.0",
@@ -53,22 +65,39 @@
     "@angular/cli": "^13.2.2",
     "@angular/compiler-cli": "^13.2.2",
     "@compodoc/compodoc": "^1.1.11",
+    "@popperjs/core": "^2.11.4",
+    "@types/jest": "^28.1.6",
     "@typescript-eslint/eslint-plugin": "5.12.1",
     "@typescript-eslint/parser": "5.12.1",
-    "codelyzer": "^6.0.2",
     "depcheck": "^1.4.2",
     "eslint": "^8.2.0",
-    "jasmine-core": "4.0.1",
-    "karma": "^6.3.16",
-    "karma-chrome-launcher": "~3.1.0",
-    "karma-coverage": "^2.1.0",
-    "karma-coverage-istanbul-reporter": "^3.0.3",
-    "karma-jasmine": "~4.0.1",
-    "karma-jasmine-html-reporter": "^1.7.0",
+    "jest": "^28.1.3",
+    "jest-canvas-mock": "^2.4.0",
+    "nodemon": "^2.0.19",
     "protractor": "^7.0.0",
-    "rxjs": "^7.5.1",
     "tslib": "^2.3.1",
-    "tslint": "^6.1.3",
     "typescript": "~4.5.4"
+  },
+  "jest": {
+    "preset": "jest-preset-angular",
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setup.jest.ts",
+      "jest-canvas-mock"
+    ],
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/dist/"
+    ],
+    "coveragePathIgnorePatterns": [
+      ".html"
+    ],
+    "ts-jest": {
+      "tsconfig": "<rootDir>/tsconfig.spec.json",
+      "stringifyContentPathRegex": "\\.html$"
+    },
+    "globals": {}
   }
 }

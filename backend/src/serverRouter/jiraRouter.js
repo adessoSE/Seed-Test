@@ -42,17 +42,19 @@ router.post('/user/create/', (req, res) => {
 			}
 		};
 		fetch(`http://${jiraHost}/rest/auth/1/session`, options)
-			.then((response) => response.json())
-			.then(() => {
-				helper.updateJira(req.user._id, req.body)
-					.then((result) => {
-						res.status(200).json(result);
-					});
+		.then((response) => response.json())
+		.then(() => {
+			helper.updateJira(req.user._id, req.body)
+			.then((result) => {
+				res.status(200).json(result);
 			});
+		}).catch((error)=>{console.error(error);
+			res.status(401).json('User doesnt exist. 1')});
+
 	} else {
-		console.error('User doesnt exist.');
+		console.error('User doesnt exist. 2');
 		res.status(401)
-			.json('User doesnt exist.');
+			.json('User doesnt exist. 3');
 	}
 });
 

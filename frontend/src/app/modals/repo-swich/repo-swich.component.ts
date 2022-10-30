@@ -8,7 +8,7 @@ import { ApiService } from 'src/app/Services/api.service';
 @Component({
   selector: 'app-repo-swich',
   templateUrl: './repo-swich.component.html',
-  styleUrls: ['./repo-swich.component.css']
+  styleUrls: ['./repo-swich.component.css',  '../layout-modal/layout-modal.component.css']
 })
 export class RepoSwichComponent implements OnInit {
 
@@ -26,7 +26,6 @@ export class RepoSwichComponent implements OnInit {
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {
     this.currentRepo = localStorage.getItem('repository');
-
     const value = sessionStorage.getItem('repositories');
     const repositories: RepositoryContainer[] = JSON.parse(value);
     this.repos = repositories.filter(repo => repo.value != this.currentRepo);
