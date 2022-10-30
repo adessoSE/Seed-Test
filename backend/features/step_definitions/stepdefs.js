@@ -10,7 +10,7 @@ require('geckodriver');
 const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
-const { match } = require('assert');
+const { match, doesNotMatch } = require('assert');
 
 let driver;
 const firefoxOptions = new firefox.Options();
@@ -515,7 +515,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 			resp = await elem.getAttribute("outerHTML");
 		}
 		//expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
-		match(resp.toLowerCase(), RegExp(expectedText.toLowerCase()), 'Textfield does not contain the string: ' + resp)
+		match(resp, RegExp(expectedText), 'Textfield does not contain the string: ' + resp)
 	})
 	.catch(async (e) => {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -538,7 +538,8 @@ Then('So I can see the text: {string}', async function (string) { // text is pre
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			expect(bodyAll.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
+			//expect(bodyAll.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
+			match(bodyAll,RegExp(string),'Error')
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -606,7 +607,8 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			expect(bodyAll.toLowerCase()).to.not.include(text.toString().toLowerCase(), 'Error');
+			// expect(bodyAll.toLowerCase()).to.not.include(text.toString().toLowerCase(), 'Error');
+			doesNotMatch(bodyAll,RegExp(text),'Error')
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
