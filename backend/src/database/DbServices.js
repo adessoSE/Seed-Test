@@ -1291,17 +1291,17 @@ async function updateOneDriver(id, driver) {
 
 function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	if (v instanceof Object) {
-	  for (var key in v) {
-		if (/^\$/.test(key)) {
-		  delete v[key];
-		} else {
-		  mongoSanitize(v[key]);
+		for (var key in v) {
+			if (/^\$/.test(key)) {
+				delete v[key];
+			} else {
+				mongoSanitize(v[key]);
+			}
 		}
-	  }
 	}
 	return v;
-  };
-  module.exports = sanitize;
+};
+
 
 
 module.exports = {
