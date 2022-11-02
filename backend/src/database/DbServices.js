@@ -183,6 +183,7 @@ async function registerUser(user) {
 async function registerGithubUser(user) {
 	try {
 		const db = dbConnection.getConnection();
+		user = mongoSanitize(user);
 		console.log(user);
 		return await db.collection(userCollection).insertOne({ github: user });
 	} catch (e) {
@@ -1124,6 +1125,7 @@ async function getUserData(userID) {
 
 async function saveBlock(block) {
 	try {
+		block = mongoSanitize(block);
 		block.repositoryId = ObjectId(block.repositoryId)
 		block.owner = ObjectId(block.owner.toString())
 		const db = dbConnection.getConnection();
@@ -1286,6 +1288,21 @@ async function updateOneDriver(id, driver) {
 		console.log('ERROR in updateOneDriver: ', e);
 	}
 }
+
+function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
+	if (v instanceof Object) {
+		for (var key in v) {
+			if (/^\$/.test(key)) {
+				delete v[key];
+			} else {
+				mongoSanitize(v[key]);
+			}
+		}
+	}
+	return v;
+};
+
+
 
 module.exports = {
 	setIsSavedTestReport,
