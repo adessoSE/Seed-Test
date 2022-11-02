@@ -308,6 +308,8 @@ export class BaseEditorComponent  {
     * @param stepType
     */
   updateScenarioValues(input: string, stepIndex: number, valueIndex: number, stepType: string) {
+    console.log(this.selectedScenario.stepDefinitions);
+    
     switch (stepType) { 
       case 'given': 
         if(this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]){
