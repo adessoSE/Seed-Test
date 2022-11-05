@@ -151,7 +151,6 @@ export class BaseEditorComponent  {
             });
           }
         });
-        //this.selectedStory.background.saved = false; 
         this.markUnsaved();
       }
       
@@ -167,7 +166,6 @@ export class BaseEditorComponent  {
               }
           });
         });
-        //this.selectedScenario.saved = false;
         this.markUnsaved();
       }
     });
@@ -286,19 +284,16 @@ export class BaseEditorComponent  {
     switch (this.templateName) {
       case 'background':
         this.selectedStory.background.stepDefinitions.when[stepIndex].values[valueIndex] = input; 
-        //this.selectedStory.background.saved = false; 
         this.markUnsaved();
         break;
       case 'scenario':
         //updates scenario steps 
         this.updateScenarioValues(input, stepIndex, valueIndex, stepType);
-        //this.selectedScenario.saved = false;
         this.markUnsaved();
         break; 
       case 'example':
         if (stepType == 'addingExample') {
           this.handleExamples(input, step);
-          //this.selectedScenario.saved = false;
           this.markUnsaved();
         }
         break;
@@ -342,7 +337,6 @@ export class BaseEditorComponent  {
         break;
       case 'example':
         this.selectedScenario.stepDefinitions.example[stepIndex].values[valueIndex] = input;
-        //this.selectedScenario.saved = false; 
         this.markUnsaved();
     }
     
@@ -385,7 +379,6 @@ export class BaseEditorComponent  {
               storyOrScenario.background.stepDefinitions.when.push(newStep);
               lastEl = storyOrScenario.background.stepDefinitions.when.length-1;
               this.lastToFocus = templateName+'_step_input_pre_'+ lastEl;
-              //storyOrScenario.background.saved = false;
               break;
           }
           break;
@@ -401,15 +394,12 @@ export class BaseEditorComponent  {
         default:
           break;
       }
-      /* if (templateName === 'scenario') {
-        storyOrScenario.saved = false;
-      } */
       this.markUnsaved();
     }
   }
 
   openNewExample(step) {
-    //console.log(this.newExampleModal)
+
     this.newExampleModal.openNewExampleModal(this.selectedScenario, step);
   } 
  
@@ -558,7 +548,6 @@ export class BaseEditorComponent  {
     } else {
       moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
     }
-    //this.selectedScenario.saved = false;
     this.markUnsaved();
   }
 
