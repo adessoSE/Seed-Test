@@ -94,7 +94,20 @@ li{
 .github-avatar{
   float: right;
 }
+.toTicket{
+  color: var(--ocean-blue);
+  font-size: 17px;
+  transform: translate(1px, 2px);
+  border: none;
+  background: transparent;
+  margin-left: 1px;
+}
+.toTicket > em{
+  background: transparent;
+  border: none;
+  margin-right: 2px;
 
+}
 a.storyListLink {
   transition: 0.2s;
   display: inline-block;
