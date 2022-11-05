@@ -37,7 +37,7 @@ const ReportsCollection = 'Reports';
 
 // Opening a pooling Database Connection via DbConnector
 dbConnection.establishConnection()
-.then(()=> console.log("db ",dbConnection.getConnection()))
+	.then(() => console.log('db ', dbConnection.getConnection()));
 
 /**
  * Writes a PasswordResetRequest in the DB
@@ -161,7 +161,7 @@ async function registerUser(user) {
 		const dbUser = await getUserByEmail(user.email);
 		let result;
 		if (dbUser !== null) throw Error('User already exists');
-		else if (user.userId) { //update in register? attacker with userId could re-set anything
+		else if (user.userId) { // update in register? attacker with userId could re-set anything
 			result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
 		} else {
 			delete user.userId;
@@ -177,7 +177,7 @@ async function registerUser(user) {
 
 /**
  *
- * @param {object} user minimum model {login:string,  id:number, githubToken:string} 
+ * @param {object} user minimum model {login:string,  id:number, githubToken:string}
  * @returns
  */
 async function registerGithubUser(user) {
@@ -247,7 +247,6 @@ async function mergeGithub(userId, login, id) {
  * @param storySource
  * @param collection
  */
-
 // TODO: storySource wont be needed anymore
 function findStory(storyId, storySource, collection) {
 	const id = ObjectId(storyId);
@@ -315,15 +314,15 @@ async function getOneStory(storyId, storySource) {
 			};
 		} else {
 			query = {
-				_id: ObjectId(storyId.toString()),
+				_id: ObjectId(storyId.toString())
 			};
 		}
 		return await collection.findOne(query);
 	} catch (e) {
-		//console.warn(`ERROR in getOneStory: ${e}`);
+		// console.warn(`ERROR in getOneStory: ${e}`);
 		// throw e;
 		// if there is no Story (e.g. if its a new GitHub repo), return null
-		console.log("if no match return null")
+		console.log('if no match return null');
 		return null;
 	}
 }
