@@ -31,13 +31,11 @@ table {
     width: 110%;
 }
 td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type{
-    padding-right: 0px;
     padding: 0 10px 0;
     word-break: break-all;
 }
 
 td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
-    padding-left: 0px;
     padding: 0 5px 0;
 }
 
