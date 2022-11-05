@@ -37,11 +37,11 @@
           <button *ngIf="this.selectedScenario.saved==false" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
           title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
           (click)="updateScenario();">
-          <img class="mat-icons" src="assets/unsaved.png">
+          <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
           </button>
           <button *ngIf="this.selectedScenario.saved!=false" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
           title="Without changes">
-          <img class="mat-icons" src="assets/save-done.png">
+          <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
           </button>
           <button [class.disabled]="testRunning" [disabled]="testRunning"
           class="scenarioTitle" data-uk-tooltip title="Delete Scenario"
