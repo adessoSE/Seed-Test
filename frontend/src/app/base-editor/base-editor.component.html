@@ -192,8 +192,9 @@
             <div *ngIf="sd == 'example'">
               <div *ngFor="let step of originalStepTypes; let j = index;" >
                 <button *ngIf="step.stepType===sd" id="{{name+'_add_step' + i}}" 
-                 (click)="openNewExample(step)" title="Add New Variable" uk-tooltip>
-                  <em class="material-icons">add_circle_outline</em>
+                 (click)="openNewExample(step)" title="Add New Variable" uk-tooltip
+                 disabled >
+                  <em style="color:gray!important" class="material-icons">add_circle_outline</em>
                 </button>
               </div>
             </div>
