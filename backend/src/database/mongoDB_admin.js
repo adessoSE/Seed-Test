@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const mongo = require('./DbServices');
 const stepTypes = require('./stepTypes');
+require('dotenv').config();
 
 const uri = process.env.DATABASE_URI;
 const dbName = 'Seed';
