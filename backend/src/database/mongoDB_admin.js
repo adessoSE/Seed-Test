@@ -5,12 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const mongo = require('./DbServices');
 const stepTypes = require('./stepTypes');
-const dbBackup = require('../../dbbackups/dbbackup.json');
 
 const uri = process.env.DATABASE_URI;
 const dbName = 'Seed';
 
-// eslint-disable-next-line max-len
 // ///////////////////////////////////////////    ADMIN  METHODS  ////////////////////////////////////////////
 
 // Please keep in mind that when you change the stepDefs in the Database with this function, you also have to apply that change manualy in the stepdefs.js in features/step_definitions
@@ -95,16 +93,27 @@ function getCollections() {
 	});
 }
 
+async function installDatabase() {
+	console.log (`Setting Up DB in: ${uri}`);
+	await makeCollection('stepTypes');
+	await makeCollection('Stories');
+	await makeCollection('User');
+	await insertMore('stepTypes', stepTypes());
+}
+
 // create Collection
-function makeCollection(name) {
-	MongoClient.connect(uri, { useNewUrlParser: true }, { useNewUrlParser: true }, (err, db) => {
+async function makeCollection(name) {
+	let connection = [];
+	await MongoClient.connect(uri, { poolSize: 20, useNewUrlParser: true, useUnifiedTopology: true }, async (err, dbo) => {
 		if (err) throw err;
-		const dbo = db.db(dbName);
-		dbo.createCollection(name, (error) => {
-			if (error) throw error;
-			console.log('Collection created!');
-			db.close();
-		});
+		connection = dbo.db('Seed');
+	});
+	// sleep 3000 ms
+	const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+	await delay(3000);
+	await connection.createCollection(name, (error) => {
+		if (error) throw error;
+		console.log(`Collection ${name} created!`);
 	});
 }
 
@@ -119,34 +128,6 @@ function insertOne(collection, content) {
 		});
 	});
 }
-
-// x= {
-//   "id": "0",
-//   "stepType": "when",
-//   "type": "Switch Tab",
-//   "pre": "I switch to the next tab",
-//   "mid": "",
-//   "values": [
-//   ]
-// };
-// x = {
-//   "id": "",
-//       "stepType": "when",
-//       "type": "Switch to newest Tab",
-//       "pre": "Switch to the newly opened tab",
-//       "mid": "",
-//       "values": [
-//   ]};
-// x= {
-//   "id": "",
-//     "stepType": "when",
-//     "type": "Switch to Tab Nr. X",
-//     "pre": "Switch to the tab number",
-//     "mid": "",
-//     "values": [
-//   ""
-// ]};
-// insertOne("stepTypes", x);
 
 // show content of a specific collection
 async function getCollection() {
@@ -235,12 +216,6 @@ function dropCollection() {
 	});
 }
 
-function installDatabase() {
-	makeCollection('stepTypes');
-	makeCollection('Stories');
-	makeCollection('User');
-	insertMore('stepTypes', stepTypes());
-}
 
 function deleteOldReports() {
 	MongoClient.connect(uri, { useNewUrlParser: true }, (err, db) => {

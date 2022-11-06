@@ -91,6 +91,13 @@
   vertical-align: baseline;
 }
 
+#emulatorInfoIcon{
+  /* margin-right: 10px;
+  margin-bottom: 7px; */
+  width: 13px;
+  vertical-align: baseline;
+}
+
 .arrowLeft{
   width: 130px;
   float: left;

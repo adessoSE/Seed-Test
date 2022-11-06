@@ -39,7 +39,7 @@ class="reportHistoryContainer">
         </div>
         <div *ngIf="reports" class="reportContainer">
             <div *ngFor="let rep of reports.storyReports; let i = index" class="report">
-                <a [class.notPassed]="!rep.overallTestStatus" [class.passed]="rep.overallTestStatus" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
+                <a [class.notPassed]="rep.scenariosTested.failed>0" [class.passed]="!rep.scenariosTested.failed" [routerLink]="'/report/' + rep.reportName" target="_blank">{{stringifyReportTime(rep.reportTime)}}</a>
                 <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: rep}"></ng-template>
             </div>
         </div>
@@ -51,7 +51,7 @@ class="reportHistoryContainer">
             </div>
             <div *ngIf="reports" class="reportContainer">
                 <div *ngFor="let scenrep of filterScenarioReports(scen); let j = index" class="report">
-                    <a [class.notPassed]="!scenrep.overallTestStatus" [class.passed]="scenrep.overallTestStatus" [routerLink]="'/report/' + scenrep.reportName" target="_blank">{{stringifyReportTime(scenrep.reportTime)}}</a>
+                    <a [class.notPassed]="scenrep.scenariosTested.failed>0" [class.passed]="!scenrep.scenariosTested.failed" [routerLink]="'/report/' + scenrep.reportName" target="_blank">{{stringifyReportTime(scenrep.reportTime)}}</a>
                     <ng-template *ngTemplateOutlet="reportButtons; context: {$implicit: scenrep}"></ng-template>
                 </div>
             </div>

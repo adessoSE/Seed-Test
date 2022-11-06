@@ -39,7 +39,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.selectedScenario = scenario;
       if (this.selectedStory) {
           this.selectScenario(scenario);
-      }   
+      }       
   }
     
   /**
@@ -49,7 +49,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   set newStories(stories: Story[]) {
       if (stories) {
             this.stories = stories;
-        }
+        }    
     }
 
   /**
