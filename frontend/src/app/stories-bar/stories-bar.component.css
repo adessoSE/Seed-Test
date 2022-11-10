@@ -111,7 +111,7 @@ li{
 a.storyListLink {
   transition: 0.2s;
   display: inline-block;
-  max-width: 77%;
+  max-width: 63%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
