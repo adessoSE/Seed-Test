@@ -250,10 +250,9 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
 	if(value.includes('@@')){
-		const date = new Date();
-		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
-		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
-		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+		console.log("KORBI" + value);
+		value = setValues(value);
+		console.log("KORBI" + value);
 	}
 	
 	const promises = []
@@ -273,6 +272,22 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	})
 	await driver.sleep(currentParameters.waitTime);
 });
+
+function setValues(value) {
+    const date = new Date();
+    value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
+    value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
+    value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+
+    // @@Day @@Month @@Year @@Hour @@Minute @@Seconds
+    value = value.replace(/@@day/g, `${("0" + date.getDate()).slice(-2)}`);
+    value = value.replace(/@@month/g, `${("0" + (date.getMonth() + 1)).slice(-2)}`);
+    value = value.replace(/@@year/g, `${date.getFullYear()}`);
+    value = value.replace(/@@hour/g, `${("0" + date.getHours()).slice(-2)}`);
+    value = value.replace(/@@minute/g, `${("0" + date.getMinutes()).slice(-2)}`);
+    value = value.replace(/@@seconds/g, `${("0" + date.getSeconds()).slice(-2)}`);
+	return value;
+}
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
