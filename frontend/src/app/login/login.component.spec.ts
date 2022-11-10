@@ -1,80 +1,147 @@
-import { async, ComponentFixture, TestBed, getTestBed, fakeAsync } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
-import { FormsModule, NgForm} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ToastrModule} from 'ngx-toastr';
+import { ROUTES } from '../routes/routes';
+import { AuthGuard } from '../guards/auth.guard';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment'
-import { tick } from '@angular/core/src/render3';
-import { of } from 'rxjs';
-import { tokenName } from '@angular/compiler';
+import {  Location } from '@angular/common';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import {findComponent} from '../../test_helper';
+import { By } from '@angular/platform-browser';
+import {RepositoryContainer} from '../model/RepositoryContainer';
 
-const testAccountName = 'adessoCucumber';
+const repositories: RepositoryContainer[] = [{_id: '1', value: 'myFirstRepo', source: 'db', canEdit: true}]
+
+class MockedApiService {
+  authenticated = false;
+
+  isAuthenticated() {
+    return this.authenticated
+  }
+}
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
+  let location: Location;
+  let router: Router;
+  let service: MockedApiService;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [FormsModule, HttpClientTestingModule, RouterTestingModule],
-      declarations: [ LoginComponent ]
+      providers: [AuthGuard, MockedApiService],
+      imports: [ HttpClientTestingModule, ReactiveFormsModule, FormsModule, RouterTestingModule.withRoutes(ROUTES), ToastrModule.forRoot()],
+      declarations: [ LoginComponent ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
+    router = TestBed.inject(Router);
+    location = TestBed.inject(Location);
+    service = TestBed.inject(MockedApiService);
     fixture = TestBed.createComponent(LoginComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
+    component = fixture.componentInstance;
+    router.getCurrentNavigation();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  describe('LoginComponent', ()=> {
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
 
-  it('should set localStorage item Repository', fakeAsync(() => {
-    const testRepo = 'TestRepo';
-    const injector = getTestBed();
-    const router = injector.get(Router);
-    component.selectRepository(testRepo)
-
-    expect(localStorage.getItem('repository')).toBe(testRepo);
-    expect(router.url).toEqual('/');
-  }));
-
-  describe('loginTestAccount', () => {
-
-    it('should set items for token and githubName', () => {
-      const repositories = ['adessoAG/Seed-Test','adessoCucumber/Cucumber','adessoCucumber/TestRepo'];
-      const token = 'undefined';
-      spyOn(component.apiService, 'getRepositories').and.returnValue(of(repositories));
+    it('should navigate to /testaccount on loginTestAccount', fakeAsync(() => {
+      jest.spyOn(component, 'loginTestAccount');
       component.loginTestAccount();
-      expect(localStorage.getItem('githubName')).toBe(testAccountName);
-      expect(localStorage.getItem('token')).toBe(token);
-      expect(component.error == undefined).toBeTruthy();
-      expect(component.apiService.getRepositories).toHaveBeenCalled();
-      expect(component.repositories).toBe(repositories);
-    });
+      tick();
+      expect(location.path()).toBe('/testaccount');
+    }));
+
+    it('should trigger loginTestAccount() on button click', fakeAsync(() => {
+      jest.spyOn(component, 'loginTestAccount');
+      const buttons = fixture.debugElement.queryAll(By.css('.linkButton'));
+      const button = buttons[buttons.length-1];
+      button.nativeElement.click();
+      tick();
+      fixture.detectChanges();
+      expect(component.loginTestAccount).toHaveBeenCalled();
+    }));
+
+    it('should call githubLogin() on click', fakeAsync(()=> {
+      jest.spyOn(component, 'githubLogin');
+      const gitHubLink = findComponent(fixture, '.githubLoginContainer');
+      gitHubLink.nativeElement.click();
+      tick();
+      fixture.detectChanges();
+      expect(component.githubLogin).toHaveBeenCalled();
+    }));
+
+    it('should trigger selectRepository() on clicking at repository', fakeAsync(() => {
+      jest.spyOn(component, 'selectRepository');
+      component.repositories = repositories;
+      fixture.detectChanges();
+      tick();
+      const repoLink = findComponent(fixture, '.repoLink');
+      repoLink.nativeElement.click();
+      tick();
+      fixture.detectChanges();
+      //component.selectRepository(repositories[0]);
+      expect(component.selectRepository).toHaveBeenCalled();
+      //expect(localStorage.getItem('repository')).toEqual(repositories[0].value);
+    }));
+
+    it(' onDark() should return true when user-theme set to dark in localStorage', fakeAsync(() => {
+      jest.spyOn(component, 'onDark');
+      localStorage.setItem('user-theme', 'dark');
+      tick();
+      component.onDark();
+      expect(component.onDark).toBeTruthy();
+
+    }));
+
+    it('should login on input', fakeAsync(()=> {
+      
+    }));
+
   });
 
-  describe('login', () => {
+  describe('login button', (()=> {
 
-    it('should set items for token and githubName', () => {
-      const repositories = ['adessoAG/Seed-Test', 'adessoCucumber/Cucumber', 'adessoCucumber/TestRepo'];
-      const token = 'undefined';
-      spyOn(component.apiService, 'getRepositories').and.returnValue(of(repositories));
-      const form = new NgForm(null, null);
-      form.value.token = token;
-      form.value.githubName = testAccountName;
+    it('should be disabled without form filled', fakeAsync(() => {
+      const loginButton = findComponent(fixture, '.normalButton');
+      fixture.detectChanges();
+      tick();
+      expect(loginButton.properties.disabled).toBeTruthy();
+    }));
 
-      component.login(form);
-      expect(localStorage.getItem('githubName')).toBe(testAccountName);
-      expect(localStorage.getItem('token')).toBe(token);
-      expect(component.error == undefined).toBeTruthy();
-      expect(component.apiService.getRepositories).toHaveBeenCalled();
-      expect(component.repositories).toBe(repositories);
-    });
-  });
+    it('should be enabled with form filled', fakeAsync(()=> {
+      const emailInput = findComponent(fixture, '#email');
+      const passwordInput = findComponent(fixture, '#password');
+      const loginButton = findComponent(fixture, '.normalButton');
+
+      fixture.detectChanges();
+      tick();
+
+      emailInput.nativeElement.value = 'alice789876@mybox.de';
+      passwordInput.nativeElement.value = '7723vjhakd6732';
+      var event = new Event('input');
+      emailInput.nativeElement.dispatchEvent(event);
+      passwordInput.nativeElement.dispatchEvent(event);
+
+      fixture.detectChanges();
+      tick();
+
+      expect(emailInput.nativeElement.value).toBe('alice789876@mybox.de');
+      expect(passwordInput.nativeElement.value).toBe('7723vjhakd6732');
+      expect(loginButton.properties.disabled).toBeFalsy();
+      
+    }));
+
+  }));
 
 });

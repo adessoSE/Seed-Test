@@ -26,7 +26,6 @@ export class RepoSwichComponent implements OnInit {
 
   constructor(private modalService: NgbModal, public apiService: ApiService) {
     this.currentRepo = localStorage.getItem('repository');
-
     const value = sessionStorage.getItem('repositories');
     const repositories: RepositoryContainer[] = JSON.parse(value);
     this.repos = repositories.filter(repo => repo.value != this.currentRepo);

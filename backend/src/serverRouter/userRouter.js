@@ -119,7 +119,7 @@ router.post('/githubLogin', (req, res) => {
 // register github account
 router.post('/githubRegister', async (req, res) => {
 	try {
-		const user = await mongo.findOrRegister(req.body);
+		const user = await mongo.findOrRegisterGithub(req.body);
 		res.json(user);
 	} catch (error) {
 		res.sendStatus(400);
@@ -160,7 +160,7 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout();
+	req.logout({},()=>{});
 	res.clearCookie('connect.sid', { path: '/' });
 	res.status(200).send({ status: 'success' });
 });

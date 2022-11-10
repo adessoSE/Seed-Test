@@ -142,8 +142,9 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.OFF
+      serverLogLevel: NgxLoggerLevel.DEBUG
     }),
     ToastrModule.forRoot({
       timeOut: 3000

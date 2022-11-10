@@ -1,5 +1,8 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ToastrModule } from 'ngx-toastr';
+import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { WorkgroupEditComponent } from './workgroup-edit.component';
 
 describe('WorkgroupEditComponent', () => {
@@ -8,7 +11,9 @@ describe('WorkgroupEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WorkgroupEditComponent ]
+      declarations: [ WorkgroupEditComponent, LayoutModalComponent ],
+      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
   });

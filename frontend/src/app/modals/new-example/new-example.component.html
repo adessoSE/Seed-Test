@@ -2,7 +2,7 @@
 <ng-template #newExampleModal let-modal>
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-        <span id="modalHeader"class="MediumSubline1H4 modal-title">Create new example</span>
+        <span id="modalHeader"class="MediumSubline1H4 modal-title">Define a new scenario case</span>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -12,8 +12,8 @@
             <div class="uk-card-title submitForm">
                 <div>
                     <div class="padding_top modalsContent">
-                        <label class="uk-form-label">Enter example name*</label>
-                        <span class="material-icons" display-title="Enter example name">drive_file_rename_outline</span>
+                        <label class="uk-form-label">Enter scenario name*</label>
+                        <span class="material-icons" display-title="Enter scenario name">drive_file_rename_outline</span>
                         <div >
                             <input type="text" formControlName="newName" id="newTitle"  pattern="\S(.*\S)?" 
                             name="newName" placeholder="New Name"  (keyup)="uniqueExample()" required>

@@ -18,7 +18,7 @@ export class NewStepRequestComponent {
   @ViewChild('newStepRequestModal') newStepRequestModal: NewStepRequestComponent;
 
   newStepReqForm = new FormGroup ({
-    title: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+    title: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
     type: new FormControl(''),
     description: new FormControl(''),
     email: new FormControl(''),
