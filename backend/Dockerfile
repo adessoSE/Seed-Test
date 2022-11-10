@@ -6,15 +6,6 @@ RUN yes | apt-get install wget
 # Create app directory
 WORKDIR /usr/src/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
-
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
-
 # install chrome 
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 RUN yes | apt install ./google-chrome-stable_current_amd64.deb
@@ -49,9 +40,12 @@ RUN unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/
 RUN rm -f latest_stable_with_weird_chars.txt
 RUN rm -f latest_stable.txt
 
-
 # Bundle app source
 COPY . .
+
+RUN npm install
+# If you are building your code for production
+# RUN npm ci --only=production
 
 EXPOSE 8080
 
