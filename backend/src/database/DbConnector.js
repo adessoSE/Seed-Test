@@ -20,7 +20,6 @@ function getConnection() {
 }
 
 module.exports = {
-
 	establishConnection,
 	getConnection
 };
