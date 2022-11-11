@@ -33,7 +33,7 @@
 
 <div *ngIf="stories && (showEditor === true)">
   <!--Story-->
-  <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story">
+  <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story" cdkScrollable>
     <div class="storyHeaderContainer">
       <div>
           <span id="storyHeader" class="SmallCategory1" >Story</span>
