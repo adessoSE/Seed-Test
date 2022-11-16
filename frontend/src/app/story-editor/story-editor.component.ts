@@ -251,7 +251,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
         }
-
+        this.loadStepTypes()
+  
     if (this.selectedStory) {
       this.storiesLoaded = true;
       this.storiesError = false;
@@ -345,7 +346,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
         this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
-      });
+      });     
   }
 
     ngOnDestroy() {
