@@ -371,8 +371,10 @@ input[type="text"]{
 }
 
 input.scenario, input.background {
-  padding-left: 10px;
-  padding-right: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
  
