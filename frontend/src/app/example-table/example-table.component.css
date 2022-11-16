@@ -21,6 +21,10 @@ table {
   border: none;
 }
 
+.scenarioTitle#example_add_step {
+  float: right;
+}
+
 .darkTheme, .scenarioTitle {
   background: transparent;
 }

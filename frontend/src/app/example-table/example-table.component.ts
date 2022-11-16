@@ -81,6 +81,11 @@ export class ExampleTableComponent implements OnInit {
   controls: FormArray;
 
   /**
+   * Last row to render add button
+   */
+  lastRow
+
+  /**
    * selected Scenario
    */
   selectedScenario: Scenario;
@@ -129,13 +134,28 @@ export class ExampleTableComponent implements OnInit {
     */
   ngOnInit() {
     this.deleteExampleObservable = this.apiService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
+    //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
   }
  
-   ngOnDestroy() {
+  ngOnDestroy() {
     if (!this.deleteExampleObservable.closed) {
       this.deleteExampleObservable.unsubscribe();
     }
- }
+  }
+
+  /**
+    * Adds a value to every example
+    */
+  addRowToExamples(){
+    let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
+      row.values.forEach((value, index) => {
+        row.values[index] = 'value'
+      });
+      this.selectedScenario.stepDefinitions.example.push(row)
+      this.updateTable();
+      this.selectedScenario.saved = false;
+  }
+
 
   /**
    * Sets the status of the scenario to not saved and overrides value of example
@@ -233,6 +253,7 @@ export class ExampleTableComponent implements OnInit {
       this.exampleThere = true;
       this.initializeTable();
       this.initializeTableControls();
+      this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
       this.apiService.scenarioChangedEmitter();
     } else {
       this.exampleThere = false;

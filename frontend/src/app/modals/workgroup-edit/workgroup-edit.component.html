@@ -20,7 +20,7 @@
                         <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">
                         <button type="button" class="normalButton" (click)="renameProject(workgroupInviteForm)">Rename project</button>
                         <hr>
-                        <input class="workGroupEmail leftMargin" type="email" ngModel name="email" placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+                        <input class="workGroupEmail leftMargin" type="email" id="emailField" ngModel name="email" placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
                         <button class="normalButton">Invite to Team</button>
                     </div>
                     <div class="canEditContainer divWrapper">

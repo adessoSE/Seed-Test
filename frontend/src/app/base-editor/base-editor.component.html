@@ -38,9 +38,6 @@
         <button *ngIf="name != 'example'" id="add_block" class="scenarioButton" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Add Saved Block" type="button" (click)="addBlock()">
           <em class="material-icons-outlined">queue</em>
         </button>
-        <button *ngIf="name == 'example'" id="{{name+'_' + i + '_example_add_step_'}}" class="scenarioButton" uk-tooltip title="Add Example" (click)="addRowToExamples();">
-          <em class="material-icons">add</em>
-        </button>
       </div>
     </div>
   </ng-template>
@@ -71,8 +68,8 @@
             </div>
             <div  class="uk-steps " *ngIf= "sd != 'example'">
               <div cdkDropList  class="cdkListStyle" (cdkDropListDropped)="onDrop($event,selectedScenario.stepDefinitions, i)">
-                <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions, i); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, i)" (cdkDragEnded)="dragEnded()">
-                  <div #scenarioContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(i, j)">
+                <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions, i); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, selectedScenario.stepDefinitions, i)" (cdkDragEnded)="dragEnded()">
+                  <div #scenarioContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(selectedScenario.stepDefinitions, i, j)">
                     <div #scenarioParentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                       <div class="dragIconContainer" cdkDragHandle >
                         <em class="material-icons dragIcon">drag_indicator</em>
@@ -84,8 +81,8 @@
                         <input type="checkbox" class="checkbox checkboxDropdown" id="{{name+'_' + i + '_checkbox_' + j}}" (click)="handleClick($event, currentStep, j)" [checked]="currentStep.checked">
                       </div>
                       <div *cdkDragPreview>
-                        <div *ngIf="selectedCount(i)>1" class="select-item-drag-preview float-left">
-                          {{ selectedCount(i) || 1 }}
+                        <div *ngIf="selectedCount(selectedScenario.stepDefinitions,i)>1" class="select-item-drag-preview float-left">
+                          {{ selectedCount(selectedScenario.stepDefinitions,i) || 1 }}
                         </div>
                       </div>
                       {{i+1}}.{{j+1}} {{currentStep.pre}}
@@ -104,11 +101,11 @@
                               </mat-select>
                             </mat-form-field>
                           </div>&nbsp;
-                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType, currentStep)" uk-tooltip="Use Multipe Scenarios">
-                            &nbsp;<p class="exampleButton">1+</p><!--em class="material-icons" id="inputExampleIcon">code</em-->&nbsp;
+                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType, currentStep)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                            &nbsp;<p class="exampleButton">1+</p>&nbsp;
                           </button>
-                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType, currentStep)" uk-tooltip="Use Textfield">
-                            &nbsp;<p class="exampleButton">1</p><!--em class="material-icons" id="inputExampleIcon">code_off</em-->&nbsp;
+                          <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType, currentStep)" uk-tooltip="title: Use Textfield; pos: right">
+                            &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </div>
                         <div *ngIf="currentStep.selectionValue==0">
@@ -123,24 +120,24 @@
                         {{currentStep.mid}}
                         <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1" style="display:flex">
                           <div *ngIf="currentStep.values[1] != null" style="display: flex;">
-                            <div *ngIf="currentStep.isExample[1] == false || (!currentStep.values[1] && currentStep.isExample[1] != true)">
+                            <div *ngIf="currentStep.isExample[0] == false || (!currentStep.values[1] && currentStep.isExample[0] != true)">
                               <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
                               type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)" style="min-width: 100px"/>
                             </div>
-                            <div *ngIf="currentStep.isExample[1] == true" style="display: flex; padding: 0px 1px 0px 1px;">
+                            <div *ngIf="currentStep.isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
                               <mat-form-field appearance="standard" class="exampleList">
-                                <mat-select [ngModel]="currentStep.values[1] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 1,currentStep.stepType,currentStep)" class="exampleMatSelect">
+                                <mat-select [ngModel]="currentStep.values[1] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 1, currentStep.stepType,currentStep)" class="exampleMatSelect">
                                   <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" class="exampleListOption">
                                     {{exampleList}}
                                   </mat-option>
                                 </mat-select>
                               </mat-form-field>
                             </div>&nbsp;
-                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 1,currentStep.stepType, currentStep)" uk-tooltip="Use Multipe Scenarios">
-                              &nbsp;<em class="material-icons" id="inputExampleIcon">table_chart</em>&nbsp;
+                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] != true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 1,currentStep.stepType, currentStep)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                              &nbsp;<p class="exampleButton">1+</p>&nbsp;
                             </button>
-                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[1] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType, currentStep)" uk-tooltip="Use Textfield">
-                              &nbsp;<em class="material-icons" id="inputExampleIcon">drive_file_rename_outline</em>&nbsp;
+                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType, currentStep)" uk-tooltip="title: Use Textfield; pos: right">
+                              &nbsp;<p class="exampleButton">1</p>&nbsp;
                             </button>&nbsp;
                           </div>
                           
@@ -195,8 +192,9 @@
             <div *ngIf="sd == 'example'">
               <div *ngFor="let step of originalStepTypes; let j = index;" >
                 <button *ngIf="step.stepType===sd" id="{{name+'_add_step' + i}}" 
-                 (click)="openNewExample(step)" title="Add New Variable" uk-tooltip>
-                  <em class="material-icons">add_circle_outline</em>
+                 (click)="openNewExample(step)" title="Add New Variable" uk-tooltip
+                 disabled >
+                  <em style="color:gray!important" class="material-icons">add_circle_outline</em>
                 </button>
               </div>
             </div>
@@ -225,12 +223,17 @@
                 </ul>
               </div>
             </div>
-            <div cdkDropList (cdkDropListDropped)="onDrop($event,selectedStory.background.stepDefinitions, i)">
-              <div  *ngFor="let currentStep of getStepsList(selectedStory.background.stepDefinitions, 1); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, i)" (cdkDragEnded)="dragEnded()">
-                <div #backgroundContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(0, j)">
+            <div cdkDropList (cdkDropListDropped)="onDrop($event,selectedStory.background.stepDefinitions, 1)">
+              <div  *ngFor="let currentStep of getStepsList(selectedStory.background.stepDefinitions, 1); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, selectedStory.background.stepDefinitions, 1)" (cdkDragEnded)="dragEnded()">
+                <div #backgroundContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(selectedStory.background.stepDefinitions, 1, j)">
                   <div #backgroundParentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
                     <div class="dragIconContainer" cdkDragHandle>
                       <em class="material-icons dragIcon">drag_indicator</em>
+                    </div>
+                    <div *cdkDragPreview>
+                      <div *ngIf="selectedCount(selectedStory.background.stepDefinitions,1)>1" class="select-item-drag-preview float-left">
+                        {{ selectedCount(selectedStory.background.stepDefinitions,1) || 1 }}
+                      </div>
                     </div>
                     <input type="checkbox" class="checkbox" id="{{name+'_'+i+'_checkbox_' + j}}" (click)="handleClick($event, currentStep, j)" [checked]="currentStep.checked">
                     {{j+1}}. {{currentStep.pre}}
