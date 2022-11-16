@@ -829,7 +829,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
     storyLink() {
-        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
+        return 'https://'+ window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
     }
 
     showStoryLinkToast() {
