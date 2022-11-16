@@ -12,7 +12,7 @@ import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-g
 import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
 import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-
+import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 
 /**
  * Component of the Stories bar
@@ -655,6 +655,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             })
 
         })
+    }
+    toTicket(story: string){
+        const value = localStorage.getItem('repository');
+        const _id = localStorage.getItem('id');
+        const source = localStorage.getItem('source');
+        const repositoryContainer: RepositoryContainer = {value, source, _id};
+        this.apiService.goToTicket(story, repositoryContainer);
     }
 
 }
