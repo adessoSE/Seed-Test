@@ -17,7 +17,6 @@ export class RenameStoryComponent {
 
   story: Story;
   stories: Story[];
-  storytitle: string;
   storyForm = new FormGroup ({
     storyTitle: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
     storyDescription: new FormControl(''),
@@ -48,7 +47,7 @@ export class RenameStoryComponent {
    * Submits the new name for the story & description
    */
   submitRenameStory() {
-    const title = this.storyForm.value.storytitle;
+    const title = this.storyForm.value.storyTitle;
     const description = this.storyForm.value.storyDescription;
     this.apiService.renameStoryEmit(title, description);
     this.modalReference.close();
