@@ -292,6 +292,7 @@ async function updateStory(updatedStory) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
+		updatedStory._id = ObjectId(updatedStory._id.toString())
 		return await collection.findOneAndReplace({_id: ObjectId(updatedStory._id.toString())}, updatedStory, {returnDocument: "after"})
 	} catch (e) {
 		console.log(`ERROR updateStory: ${e}`);
