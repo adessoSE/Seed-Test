@@ -677,7 +677,7 @@ export class BaseEditorComponent  {
     switch(this.templateName) {
       case 'background':
         //return stepDefs.when[j].checked;
-        this.returnCheckedValue(stepDefs, i, j);
+        return this.returnCheckedValue(stepDefs, i, j);
 
       case 'scenario':
         /* if (i === 0) {
@@ -688,7 +688,7 @@ export class BaseEditorComponent  {
             return stepDefs.then[j].checked;
         }
         return false; */
-        this.returnCheckedValue(stepDefs, i, j);
+        return this.returnCheckedValue(stepDefs, i, j);
     }
     
   }
