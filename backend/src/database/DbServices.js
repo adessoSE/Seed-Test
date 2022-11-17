@@ -17,6 +17,7 @@ const dbConnection = require('./DbConnector');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
+const Collection = require('mongodb/lib/collection');
 
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
@@ -35,7 +36,8 @@ const ReportsCollection = 'Reports';
 // TODO: die eigene Methode replace kann oft durch die MongoMethode findOneAndReplace ersetzt werden!
 
 // Opening a pooling Database Connection via DbConnector
-dbConnection.establishConnection();
+dbConnection.establishConnection()
+	.then(() => console.log('db ', dbConnection.getConnection()));
 
 /**
  * Writes a PasswordResetRequest in the DB
@@ -71,7 +73,7 @@ async function getResetRequest(id) {
 /**
  *
  * @param {*} mail
- * @returns PasswordReetRquest
+ * @returns PasswordResetRequest
  */
 async function getResetRequestByEmail(mail) {
 	try {
@@ -85,7 +87,7 @@ async function getResetRequestByEmail(mail) {
 }
 
 /**
- *
+ * deletes Password reset request 
  * @param {*} mail
  * @returns deletion Report
  */
@@ -102,13 +104,13 @@ async function deleteRequest(mail) {
 
 /**
  *
- * @param {*} id
+ * @param {*} userId
  * @returns User
  */
-async function getUserById(id) {
+async function getUserById(userId) {
 	try {
 		const db = dbConnection.getConnection();
-		return await db.collection(userCollection).findOne({ _id: ObjectId(id) });
+		return await db.collection(userCollection).findOne({ _id: ObjectId(userId) });
 	} catch (e) {
 		console.log(`ERROR in getUserById: ${e}`);
 		throw e;
@@ -118,7 +120,7 @@ async function getUserById(id) {
 /**
  *
  * @param {*} login
- * @param {*} id
+ * @param {*} id githubUserId
  * @returns User
  */
 async function getUserByGithub(login, id) {
@@ -146,6 +148,11 @@ async function getUserByEmail(email) {
 	}
 }
 
+/**
+ *
+ * @param {object} user {email:string, userId: String, password: string} 
+ * @returns
+ */
 async function registerUser(user) {
 	try {
 		console.log(user);
@@ -154,7 +161,7 @@ async function registerUser(user) {
 		const dbUser = await getUserByEmail(user.email);
 		let result;
 		if (dbUser !== null) throw Error('User already exists');
-		else if (user.userId) {
+		else if (user.userId) { // update in register? attacker with userId could re-set anything
 			result = await collection.update({ _id: ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
 		} else {
 			delete user.userId;
@@ -168,9 +175,15 @@ async function registerUser(user) {
 	}
 }
 
+/**
+ *
+ * @param {object} user minimum model {login:string,  id:number, githubToken:string}
+ * @returns
+ */
 async function registerGithubUser(user) {
 	try {
 		const db = dbConnection.getConnection();
+		user = mongoSanitize(user);
 		console.log(user);
 		return await db.collection(userCollection).insertOne({ github: user });
 	} catch (e) {
@@ -182,17 +195,12 @@ async function registerGithubUser(user) {
 /**
  * replaces a User in the DB
  * @param {*} newUser
- * @param {*} collection
+ * @param {Collection} collection
  * @returns
  */
 function replaceUser(newUser, collection) {
 	const myObjt = { _id: ObjectId(newUser._id) };
-	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(myObjt, newUser, (err, result) => {
-			if (err) reject(err);
-			else resolve(result.value);
-		});
-	});
+	return collection.findOneAndReplace(myObjt, newUser).then((res) => res.value);
 }
 
 async function updateGithubToken(objId, updatedToken) {
@@ -205,7 +213,7 @@ async function updateGithubToken(objId, updatedToken) {
 	}
 }
 
-async function findOrRegister(user) {
+async function findOrRegisterGithub(user) {
 	let result = await getUserByGithub(user.login, user.id);
 	if (!result) result = await registerGithubUser(user);
 	else result = await updateGithubToken(result._id, user.githubToken);
@@ -239,12 +247,11 @@ async function mergeGithub(userId, login, id) {
  * @param storySource
  * @param collection
  */
-
 // TODO: storySource wont be needed anymore
 function findStory(storyId, storySource, collection) {
 	const id = ObjectId(storyId);
 	return new Promise((resolve, reject) => {
-		collection.findOne({ _id: id, storySource }, (err, result) => {
+		collection.findOne({ _id: id }, (err, result) => {
 			if (err) reject(err);
 			else resolve(result);
 		});
@@ -260,7 +267,6 @@ function findStory(storyId, storySource, collection) {
 function replace(story, collection) {
 	const filter = {
 		_id: ObjectId(story._id.toString()),
-		storySource: story.storySource.toString()
 	};
 	story._id = ObjectId(story._id);
 	return new Promise((resolve, reject) => {
@@ -286,7 +292,8 @@ async function updateStory(updatedStory) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		return await replace(updatedStory, collection);
+		updatedStory._id = ObjectId(updatedStory._id.toString())
+		return await collection.findOneAndReplace({_id: ObjectId(updatedStory._id.toString())}, updatedStory, {returnDocument: "after"})
 	} catch (e) {
 		console.log(`ERROR updateStory: ${e}`);
 		throw e;
@@ -308,14 +315,15 @@ async function getOneStory(storyId, storySource) {
 			};
 		} else {
 			query = {
-				_id: ObjectId(storyId.toString()),
+				_id: ObjectId(storyId.toString())
 			};
 		}
 		return await collection.findOne(query);
 	} catch (e) {
-		console.error(`ERROR in getOneStory: ${e}`);
+		// console.warn(`ERROR in getOneStory: ${e}`);
 		// throw e;
 		// if there is no Story (e.g. if its a new GitHub repo), return null
+		console.log('if no match return null');
 		return null;
 	}
 }
@@ -400,11 +408,11 @@ async function addToStoryGroup(repoId, groupId, storyId) {
 	}
 }
 
-async function removeFromStoryGroup(repoId, groudId, storyId) {
+async function removeFromStoryGroup(repoId, groupId, storyId) {
 	try {
-		const group = await getOneStoryGroup(repoId, groudId);
+		const group = await getOneStoryGroup(repoId, groupId);
 		group.member_stories.splice(group.indexOf(storyId), 1);
-		await updateStoryGroup(repoId, groudId, group);
+		await updateStoryGroup(repoId, groupId, group);
 		return group;
 	} catch (e) {
 		console.log(`ERROR in removeFromStoryGroup: ${e}`);
@@ -440,9 +448,7 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		story.background = updatedBackground;
-		return await replace(story, collection);
+		return collection.findOneAndUpdate({ _id: ObjectId(storyId) },{$set:{"background": updatedBackground}},{returnDocument: "after", upsert: true}).then((res)=>res.value);
 	} catch (e) {
 		console.log(`ERROR in updateBackground: ${e}`);
 		throw e;
@@ -451,16 +457,7 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 
 // DELETE Background
 async function deleteBackground(storyId, storySource) {
-	try {
-		const db = dbConnection.getConnection();
-		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		story.background = emptyBackground();
-		return await replace(story, collection);
-	} catch (e) {
-		console.log(`ERROR in deleteBackground: ${e}`);
-		throw e;
-	}
+	return updateBackground(storyId, null, emptyBackground());
 }
 
 async function createStory(storyTitle, storyDescription, repoId) {
@@ -496,9 +493,9 @@ async function createStory(storyTitle, storyDescription, repoId) {
  * Deletes the Story in the StoryCollection and deletes the _id in the corresponding Repository and the StoryGroups
  * @param {*} repoId
  * @param {*} storyId
- * @returns delteReport
+ * @returns deleteReport
  */
-async function deleteStory(repoId, storyId) {
+async function deleteStory(repoId, storyId) { //TODO refactor use promise all
 	try {
 		const db = dbConnection.getConnection();
 		const repo = await db.collection(repositoriesCollection);
@@ -565,10 +562,10 @@ async function getAllStoriesOfRepo( repoId) {
 }
 
 // GET ONE Scenario
-async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remove storySource, hier dürfte eh nur ein scenario beid er abfrage rauskommen das find im result kann man sich sparen
+async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remove storySource
 	try {
 		const db = dbConnection.getConnection();
-		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), storySource, 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
+		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
 		return scenarios.scenarios.find((o) => o.scenario_id === scenarioId);
 	} catch (e) {
 		console.log(`ERROR in getOneScenario: ${e}`);
@@ -581,19 +578,19 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, null, collection);
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		} else {
-			let newScenID = 0;
+			let newScenId = 0;
 			for (const scenario of story.scenarios) {
-				if (scenario.scenario_id > newScenID) {
-					newScenID = scenario.scenario_id;
+				if (scenario.scenario_id > newScenId) {
+					newScenId = scenario.scenario_id;
 				}
 			}
-			tmpScenario.scenario_id = newScenID + 1;
+			tmpScenario.scenario_id = newScenId + 1;
 			tmpScenario.name = scenarioTitle;
 			story.scenarios.push(tmpScenario);
 		}
@@ -613,24 +610,14 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
  * @param {*} updatedScenario
  * @returns updated Scenario
  */
-async function updateScenario(storyId, storySource, updatedScenario) { // TODO: Remove storySource, das könnte mit findAndReplace ($set, upsert: true) deutlich schöner geschrieben werden
+async function updateScenario(storyId, storySource, updatedScenario) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		for (const scenario of story.scenarios) {
-			if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
-				story.scenarios.push(scenario);
-				break;
-			}
-			if (scenario.scenario_id === updatedScenario.scenario_id) {
-				story.scenarios.splice(story.scenarios.indexOf(scenario), 1, updatedScenario);
-				break;
-			}
-		}
-		let result = await replace(story, collection);
-		result = result.scenarios.find((o) => o.scenario_id === updatedScenario.scenarioId);
-		return result;
+		return collection.findOneAndUpdate({ _id: ObjectId(storyId) },{$set:{"scenarios.$[it]": updatedScenario}},
+			{arrayFilters:[{"it.scenario_id": updatedScenario.scenario_id}], returnDocument: "after", upsert: true, projection:{scenarios:true}})//Options
+		.then((res)=>{return res.value})
+		.then((result)=> result.scenarios.find((scen)=>scen.scenario_id==updatedScenario.scenario_id))
 	} catch (e) {
 		console.log(`ERROR in updateScenario: ${e}`);
 		throw e;
@@ -638,15 +625,11 @@ async function updateScenario(storyId, storySource, updatedScenario) { // TODO: 
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioId) { // TODO: remove storySource, kann man schöner mit FindOneAndDelete schreiben
+async function deleteScenario(storyId, storySource, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, storySource, collection);
-		for (let i = 0; i < story.scenarios.length; i++) {
-			if (story.scenarios[i].scenario_id === scenarioId) story.scenarios.splice(i, 1);
-		}
-		return await replace(story, collection);
+		return collection.findOneAndUpdate({ _id: ObjectId(storyId) },{$pull:{"scenarios":{"scenario_id": scenarioId}}},{returnDocument: "after"}).then((res)=> res.value);
 	} catch (e) {
 		console.log(`ERROR in deleteScenario: ${e}`);
 		throw e;
@@ -698,11 +681,14 @@ async function deleteRepositorys(ownerID) { // TODO: Dringend! Die eingetragenen
 }
 
 async function deleteRepository(repoId, ownerId) { // TODO: Dringend! Die eingetragenen Storys und die Einträge in Stories und Groups müssen gelöscht werden
-	try {
+	try {// todo delete Workgroup, delete story Reports
 		const db = dbConnection.getConnection();
-		const collectionRepo = await db.collection(repositoriesCollection);
-		const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId) });
-		return await collectionRepo.deleteOne(repo);
+		const collectionRepo = await db.collection(repositoriesCollection)
+		// const collectionStory = await db.collection(storiesCollection)
+		// const repo = await collectionRepo.findOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId)})
+		// const storIds = repo.stories.map((val)=>ObjectId(val))
+		// const storiesRes = await collectionStory.deleteMany({_id:{$in: storIds}})
+		return collectionRepo.deleteOne({ owner: ObjectId(ownerId), _id: ObjectId(repoId)})
 	} catch (e) {
 		console.log(`ERROR in deleteRepository${e}`);
 		throw e;
@@ -713,7 +699,7 @@ async function getOneRepository(ownerId, name) {
 	try {
 		const repo = { owner: ObjectId(ownerId), repoName: name };
 		const db = dbConnection.getConnection();
-		return await db.collection(repositoriesCollection).findOne(repo);
+		return db.collection(repositoriesCollection).findOne(repo);
 	} catch (e) {
 		console.log(`ERROR in getOneRepository${e}`);
 	}
@@ -768,17 +754,17 @@ async function getAllSourceReposFromDb(source) {
 	}
 }
 
-async function createRepo(ownerId, name) {
+async function createRepo(ownerId, name) { 
 	try {
 		const emptyRepo = {
-			owner: ownerId, repoName: name.toString(), stories: [], repoType: 'db', customBlocks: [], groups: []
+			owner: ObjectId(ownerId), repoName: name.toString(), stories: [], repoType: 'db', customBlocks: [], groups: []
 		};
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
 		const query = { owner: ObjectId(ownerId), repoName: name.toString() };
 		const existingRepo = await collection.findOne(query);
-		if (existingRepo !== null) return 'Sie besitzen bereits ein Repository mit diesem Namen!';
-		collection.insertOne(emptyRepo);
+		if (existingRepo !== null || !name) return 'Sie besitzen bereits ein Repository mit diesem Namen!';// existing or empty name
+		return collection.insertOne(emptyRepo).then((ret)=>ret.insertedId)
 	} catch (e) {
 		console.log(`ERROR in createRepo${e}`);
 	}
@@ -791,14 +777,12 @@ async function createRepo(ownerId, name) {
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) {
+async function updateRepository(repoID, newName, user) { 
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		const repo = await collection.findOne(repoFilter);
-		repo.repoName = newName.repoName;
-		return await collection.findOneAndUpdate(repoFilter, { $set: repo });
+		return collection.findOneAndUpdate(repoFilter, { $set: {"repo.repoName": newName} });
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;
@@ -941,16 +925,12 @@ async function deleteReport(reportId) {
 	return result;
 }
 
-async function setIsSavedTestReport(testReportId, isSaved) { // TODO:
+async function setIsSavedTestReport(testReportId, isSaved) {
 	try {
 		const db = dbConnection.getConnection();
 		db.collection(ReportDataCollection).updateOne({ _id: ObjectId(testReportId) }, {
 			$set: { isSaved }
 		});
-		// const updatedReport = await collection.findOne({ _id: ObjectId(testReportId) });
-		// updatedReport.isSaved = isSaved;
-		// result = await collection.findOneAndReplace({ _id: ObjectId(testReportId) },
-		// updatedReport);
 	} catch (e) {
 		console.log('ERROR in setIsSavedTestReport', e);
 	}
@@ -973,17 +953,6 @@ async function updateStoryStatus(storyId, storyLastTestStatus) {
 async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus) { // TODO: testen
 	try {
 		const db = dbConnection.getConnection();
-		// const collection = await db.collection(storiesCollection);
-		// const story = await collection.findOne({ _id: ObjectId(storyId) });
-		// const scenarioList = story.scenarios;
-		// const scenario = scenarioList.find((scen) => scen.scenario_id === parseInt(scenarioId, 10));
-		// if (scenario) {
-		// const index = story.scenarios.indexOf(scenario);
-		// scenario.lastTestPassed = scenarioLastTestStatus;
-		// story.scenarios[index] = scenario;
-		// }
-		// console.log('scenarioLastTestStatus');
-		// console.log(scenarioLastTestStatus);
 		return await db.collection(storiesCollection).updateOne(
 			{
 				_id: ObjectId(storyId),
@@ -994,7 +963,6 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 			}, {
 				$set: { lastTestPassed: scenarioLastTestStatus }
 			});
-		// return await collection.findOneAndReplace({ _id: ObjectId(storyId) }, story);
 	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);
 	}
@@ -1109,18 +1077,17 @@ async function getReportDataById(reportId) {
 
 // delete User in DB needs ID
 async function deleteUser(userID) {
-	try {
+	try {// delete user from Workgroup
 		const oId = ObjectId(userID);
 		const myObjt = { _id: oId };
 		const db = dbConnection.getConnection();
-		const repos = await db.collection(repositoriesCollection).find({ owner: oId })
-			.toArray();
+		const repos = await db.collection(repositoriesCollection).find({ owner: oId }).toArray();
 		if (repos) {
-			for (const repo of repos) for (const storyID of repo.stories) await db.collection(storiesCollection).deleteOne({ _id: ObjectId(storyID) });
+			for (const repo of repos) for (const storyID of repo.stories) await db.collection(storiesCollection).deleteOne({ _id: ObjectId(storyID) }); // use delete repo?
 
 			const resultRepo = await db.collection(repositoriesCollection).deleteMany({ owner: oId });
 			const resultUser = await db.collection(userCollection).deleteOne(myObjt);
-			return resultUser + resultRepo;
+			return {resultUser, resultRepo};
 		}
 		return null;
 	} catch (e) {
@@ -1158,7 +1125,9 @@ async function getUserData(userID) {
 
 async function saveBlock(block) {
 	try {
-		block.repositoryId = ObjectId(block.repositoryId);
+		block = mongoSanitize(block);
+		block.repositoryId = ObjectId(block.repositoryId)
+		block.owner = ObjectId(block.owner.toString())
 		const db = dbConnection.getConnection();
 		return await db.collection(CustomBlocksCollection).insertOne(block);
 	} catch (e) {
@@ -1167,7 +1136,7 @@ async function saveBlock(block) {
 	}
 }
 
-async function updateBlock(name, updatedBlock) {
+async function updateBlock(name, updatedBlock) { // delete by id but update by name?
 	const oldBlock = { name };
 	try {
 		const db = dbConnection.getConnection();
@@ -1183,7 +1152,7 @@ async function getBlocks(repoId) {
 	try {
 		const db = dbConnection.getConnection();
 		return await db.collection(CustomBlocksCollection).find({ repositoryId: ObjectId(repoId) })
-			.toArray();
+		.toArray();
 	} catch (e) {
 		console.log(`ERROR in getBlocks: ${e}`);
 		throw e;
@@ -1215,27 +1184,30 @@ async function getWorkgroup(id) {
 	}
 }
 
-async function addMember(id, user) {
+/**
+ * 
+ * @param {*} repoId Repository Id
+ * @param {object} user User object {email:string, canEdit:boolean}
+ * @returns 
+ */
+async function addMember(repoId, user) {
 	try {
 		const db = dbConnection.getConnection();
 		const wGCollection = await db.collection(WorkgroupsCollection);
-		const check = await wGCollection.findOne({ Repo: ObjectId(id), Members: { $elemMatch: { email: user.email } } });
+		const check = await wGCollection.findOne({ Repo: ObjectId(repoId), Members: { $elemMatch: { email: user.email } } });
 		if (check) return 'Dieser User ist bereits in der Workgroup';
-		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(id) });
+		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
 		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
-		const workGroup = await wGCollection.findOne({ Repo: ObjectId(id) });
-		if (!workGroup) {
-			if (typeof user.canEdit !== 'boolean') {
-				user.canEdit = user.canEdit.toString();
-			}
+		const workGroup = await wGCollection.findOne({ Repo: ObjectId(repoId) });
+		if (!workGroup) { 
 			await wGCollection.insertOne({
-				name: repo.repoName, owner: owner.email, Repo: ObjectId(id), Members: [{ email: user.email, canEdit: user.canEdit }]
+				name: repo.repoName, owner: owner.email, Repo: ObjectId(repoId), Members: [{ email: user.email, canEdit: Boolean(user.canEdit) }]
 			});
 		} else {
-			await wGCollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $push: { Members: user } });
+			await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $push: { Members: user } });
 		}
 		const result = { owner: {}, member: [] };
-		const wG = await wGCollection.findOne({ Repo: ObjectId(id) });
+		const wG = await wGCollection.findOne({ Repo: ObjectId(repoId) });
 		result.owner = { email: owner.email, canEdit: true };
 		result.member = wG.Members;
 		return result;
@@ -1252,7 +1224,7 @@ async function updateMemberStatus(repoId, user) {
 		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
 		const usersCollection = await db.collection(userCollection);
 		const owner = await usersCollection.findOne({ _id: repo.owner });
-		const updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { 'Members.$[elem].canEdit': user.canEdit } }, { arrayFilters: [{ 'elem.email': user.email }] });
+		const updatedWG = await wGCollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { 'Members.$[elem].canEdit': Boolean(user.canEdit) } }, { arrayFilters: [{ 'elem.email': user.email }] });
 		if (updatedWG) {
 			const wG = await wGCollection.findOne({ Repo: ObjectId(repoId) });
 			const result = { owner: {}, member: [] };
@@ -1317,6 +1289,21 @@ async function updateOneDriver(id, driver) {
 	}
 }
 
+function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
+	if (v instanceof Object) {
+		for (var key in v) {
+			if (/^\$/.test(key)) {
+				delete v[key];
+			} else {
+				mongoSanitize(v[key]);
+			}
+		}
+	}
+	return v;
+};
+
+
+
 module.exports = {
 	setIsSavedTestReport,
 	deleteReport,
@@ -1328,7 +1315,7 @@ module.exports = {
 	uploadReport,
 	disconnectGithub,
 	mergeGithub,
-	findOrRegister,
+	findOrRegisterGithub,
 	getUserByGithub,
 	getUserById,
 	registerUser,

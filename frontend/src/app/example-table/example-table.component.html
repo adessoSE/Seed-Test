@@ -4,18 +4,36 @@
         The actual rendered columns are set as a property on the row definition" -->
 
 
-	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" [class.darkTheme]= "isDark" matColumnDef={{column}}> 
-			<th class="headerRow MediumHeadline5" mat-header-cell *matHeaderCellDef scope="col"> {{column}}</th>
+	<ng-container *ngFor="let column of displayedColumns; let columnIndex = index;  let first = first;" matColumnDef={{column}}> 
+			<th class="headerRow MediumHeadline5" mat-header-cell *matHeaderCellDef scope="col"> 
+				<span *ngIf="first"></span>
+				<div *ngIf="!first">
+					{{column}}
+					<button id="inputExample" class="scenarioTitle" (click)="renameExample(columnIndex)">
+						<em class="material-icons">edit</em>
+					</button>
+					<button id="inputExample" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
+						<em class="material-icons">delete</em>
+					</button>
+				</div>
+			</th>
 			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
-				<input *ngIf="first" type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
-				<editable  (update)="updateField(columnIndex, rowIndex, column)">
+				<div *ngIf="first" class="checkboxWrapper">
+					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
+					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
+				</div>
+				<editable *ngIf="!first" (update)="updateField(columnIndex, rowIndex, column)">
 						<ng-template viewMode>
-						{{element[column]}}
+							{{element[column]}}
 						</ng-template>
-						<ng-template  editMode >
+						<ng-template editMode >
 							<input on-input="inputChange(rowIndex, columnIndex, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
 						</ng-template>
 				</editable> 
+				<button *ngIf="!first && this.lastRow == this.selectedScenario.stepDefinitions.example[rowIndex + 1]" id="example_add_step" class="scenarioTitle" uk-tooltip title="Add Example" (click)="addRowToExamples();">
+					<em class="material-icons">add</em>
+				</button>
+				
 			</td>
 	</ng-container>			
 	
@@ -23,4 +41,6 @@
 	<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
 </table>
+
+<app-new-example #newExampleModal></app-new-example>
 

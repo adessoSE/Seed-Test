@@ -89,7 +89,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         this.error = undefined;
         this.routeObservable = this.route.queryParams.subscribe((params) => {
            if (params.code) {
-                this.apiService.githubCallback(params.code).subscribe(resp => {
+                this.apiService.githubCallback(params.code).subscribe((resp) => {
                     if (resp.error) {
                         this.error = this.defaultErrorMessage; // resp.error
                     } else {
@@ -103,7 +103,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
                             });
                         }
                     }
-                });
+                }, 
+                (error) => {this.error = this.defaultErrorMessage;}
+                )
             }
         });
     }

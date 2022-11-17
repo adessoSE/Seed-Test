@@ -19,7 +19,7 @@
         title="Previous Scenario" (click)="scenarioShiftLeft();">
         <em class="material-icons">keyboard_arrow_left</em>
         </button>
-        <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5"># {{selectedScenario.name | titlecase}}</span>
+        <span *ngIf="this.selectedScenario" id="scenarioTitle" class="MediumHeadline5 scenarioTitle"># {{selectedScenario.name | titlecase}}</span>
         <button class="scenarioTitle pencil_icon" (click)="changeScenarioTitle();" data-uk-tooltip
         title="Change Scenario Title">
         <em class="material-icons">edit</em>
@@ -34,10 +34,14 @@
         <button id="new_scenario" class="scenarioTitle" [class.disabled]="testRunning" [disabled]="testRunning" uk-tooltip="Creates New Scenario" type="button" (click)="openCreateScenario()">
           <em class="material-icons">add</em>
           </button>
-          <button id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
+          <button *ngIf="this.selectedScenario.saved==false" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
           title="Save Scenario" [ngClass]="{'iconButton_unsaved': this.selectedScenario.saved === false && this.selectedScenario.saved !== undefined}"
           (click)="updateScenario();">
-          <em class="material-icons">save</em>
+          <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
+          </button>
+          <button *ngIf="this.selectedScenario.saved!=false" name="saveScenario" id="saveButton" [class.disabled]="this.scenarioSaved()" [disabled]="this.scenarioSaved()" class="scenarioTitle" data-uk-tooltip
+          title="Without changes">
+          <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
           </button>
           <button [class.disabled]="testRunning" [disabled]="testRunning"
           class="scenarioTitle" data-uk-tooltip title="Delete Scenario"
@@ -47,12 +51,16 @@
       </div>
     </div>
   </div> 
-  <app-base-editor [templateName]="'scenario'" [selectedScenario]="selectedScenario"
-  [selectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-base-editor>
+  <!-- Shared template: Scenario's action bar & steps -->
+  <app-base-editor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
+  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-base-editor>
+  
+  <app-example [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
+  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-example>
   <br>
   <div class="comment MediumButton1">
     <label>Comment</label><br>
-    <textarea *ngIf="this.selectedScenario" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" (change)="commentChange(comment.value)">
+    <textarea *ngIf="this.selectedScenario" id="commentBox" cols="50" rows="5" #comment type="text" value="{{selectedScenario.comment}}" (change)="commentChange(comment.value)">
     </textarea>
   </div>
   <form class="daisyAutoLogout" *ngIf="this.showDaisyAutoLogout">
@@ -63,35 +71,3 @@
 
 <app-rename-scenario #renameScenarioModal></app-rename-scenario>
 <app-create-scenario #createScenarioModal (createScenarioEvent)="addScenarioToStory($event)"></app-create-scenario>
-
-<!-- Example template TODO -->
-<ng-template #exampleCondition>
-  <!--Action bar-->
-  <div class="scenarioBarContainer">
-    <div class="actionBarButtonGroup">
-      <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps(null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps">
-      <div [class.disabled]="!this.activeActionBar">
-        <button id="{{'scenario_addBlock_step'}}" class="actionButton" uk-tooltip title="Save Steps as Block"
-        (click)="saveBlock();">
-          <em class="material-icons">queue</em>
-        </button>
-        <button id="{{'scenario_' + i + '_example_deactivate_step_'}}"
-          class="actionButton deactivateStepButton" uk-tooltip title="Deactivate Step"
-          (click)="deactivateExampleStep();">
-          <em class="material-icons">do_not_touch</em>
-        </button>
-        <button id="{{'scenario_' + i + '_example_delete_step_'}}"
-        class="actionButton" uk-tooltip title="Delete Step"
-        (click)="removeStepFromExample();">
-          <em class="material-icons">delete</em>
-        </button>
-        <button id="{{'scenario_' + i + '_example_copy_step_'}}"
-        class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-        (click)="copyBlockExample();">
-          <em class="material-icons">content_copy</em>
-        </button>
-      </div>
-    </div>
-    <app-example-table #exampleChildView [isDark]="isDark" [newSelectedScenario]="selectedScenario" (checkRowIndex)="checkRowIndex($event)"></app-example-table>
-  </div>
-</ng-template>

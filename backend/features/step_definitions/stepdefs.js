@@ -25,17 +25,20 @@ if (!os.platform().includes('win')) {
 }
 
 chromeOptions.addArguments('--disable-dev-shm-usage');
+// chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--ignore-certificate-errors');
 chromeOptions.addArguments('--start-maximized');
 chromeOptions.addArguments('--lang=de');
 chromeOptions.addArguments('--excludeSwitches=enable-logging');
-
 edgeOptions.addArguments('--disable-dev-shm-usage');
 edgeOptions.addArguments('--ignore-certificate-errors');
 edgeOptions.addArguments('--start-maximized');
 edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
+
+chromeOptions.setUserPreferences({ 'download.default_directory': 'C:\\Users\\Public\\seed_Downloads' });
+
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
 
@@ -61,6 +64,20 @@ defineParameterType({
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
 	currentParameters = this.parameters.scenarios[scenarioIndex];
+
+	if (currentParameters.emulator !== undefined) {
+		switch(currentParameters.browser) {
+			case 'chrome':
+				chromeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
+				break;
+			case 'MicrosoftEdge':
+				edgeOptions.setMobileEmulation({deviceName: currentParameters.emulator});
+				break;
+			case 'firefox':
+				// no way to do it ?
+		}
+	}
+
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) {
 			if (driver) {
@@ -85,7 +102,7 @@ Before(async function () {
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
 	this.role = string;
-	// await driver.sleep(currentParameters.waitTime);
+	// await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Given('I am on the website: {string}', async function getUrl(url) {
@@ -99,7 +116,7 @@ Given('I am on the website: {string}', async function getUrl(url) {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Given('I add a cookie with the name {string} and value {string}', async function addCookie(name, value) {
@@ -112,7 +129,7 @@ Given('I add a cookie with the name {string} and value {string}', async function
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Given('I remove a cookie with the name {string}', async function removeCookie(name) {
@@ -125,7 +142,7 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Take a Screenshot
@@ -143,7 +160,7 @@ Given('I take a screenshot', async function () {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Take a Screenshot and optionally scroll to a specific element
@@ -168,7 +185,7 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // ################### WHEN ##########################################
@@ -184,36 +201,46 @@ When('I go to the website: {string}', async function getUrl(url) {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // clicks a button if found in html code with xpath,
 // timeouts if not found after 3 sec, afterwards selenium waits for next page to be loaded
 When('I click the button: {string}', async function clickButton(button) {
 	const world = this;
-	const identifiers = [`//*[@id='${button}']`, `//*[contains(@id,'${button}')]` , `//*[text()='${button}' or @*='${button}']` , `//*[contains(text(),'${button}')]` , `${button}`]
-
+	const identifiers = [`//*[@id='${button}']`, `//*[contains(@id,'${button}')]`, `//*[text()='${button}' or @*='${button}']`, `//*[contains(text(),'${button}')]`, `${button}`];
 	await driver.getCurrentUrl()
-	.then(async (currentUrl) => {
-		// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-		if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-			.match(/^run[ _](story|scenario)$/) !== null){ 
-			throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-		}
-	});
-	const promises = []
-	for(const idString of identifiers){
-		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
-	}
-	await Promise.any(promises)
-	.then((elem) => elem.click())
-	.catch(async (e) => {
-		await driver.takeScreenshot().then(async (buffer) => {
-			world.attach(buffer, 'image/png');
+		.then(async (currentUrl) => {
+			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
+			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
+				.match(/^run[ _](story|scenario)$/) !== null)
+				throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
 		});
-		throw Error(e);
-	})
-	await driver.sleep(currentParameters.waitTime);
+	// for DAISY only:
+	// don't throw an error and end the testcase if "Alte Sitzung Beenden" is not found
+	if (button === 'Alte Sitzung beenden') {
+		try {
+			await driver.sleep(100);
+			await driver.wait(until.elementLocated(By.xpath(`//*[@name='kill-session']`)), 3 * 1000).click();
+		} catch (e) {
+			console.log('Button "Alte Sitzung beenden" not found. Skipping the Step...');
+		}
+		return;
+	} else {
+		const promises = [];
+		for(const idString of identifiers){
+			promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
+		}
+		await Promise.any(promises)
+			.then((elem) => elem.click())
+			.catch(async (e) => {
+				await driver.takeScreenshot().then(async (buffer) => {
+					world.attach(buffer, 'image/png');
+				});
+				throw Error(e);
+			});
+	}
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // selenium sleeps for a certain amount of time
@@ -232,7 +259,6 @@ When('The site should wait for {string} milliseconds', async function (ms) {
 // Search a field in the html code and fill in the value
 When('I insert {string} into the field {string}', async function fillTextField(value, label) {
 	const world = this;
-
 	const identifiers = [`//input[@id='${label}']`, `//input[contains(@id,'${label}')]`, `//textarea[@id='${label}']`, `//textarea[contains(@id,'${label}')]`,
 	 `//textarea[@*='${label}']`, `//textarea[contains(@*='${label}')]`, `//*[@id='${label}']`, `//input[@type='text' and @*='${label}']`, 
 	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
@@ -242,7 +268,6 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
 		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
 		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
-		
 	}
 	
 	const promises = []
@@ -260,7 +285,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // "Radio"
@@ -279,13 +304,12 @@ When('I select {string} from the selection {string}', async function clickRadioB
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Select an Option from a dropdown-menu
 When('I select the option {string} from the drop-down-menue {string}', async function selectFromDropdown(value, dropd) {
 	let world;
-
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
 	`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`]
 	const promises = []
@@ -300,7 +324,6 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 		});
 		throw Error(e);
 	})
-
 	await driver.sleep(currentParameters.waitTime);
 });
 
@@ -315,7 +338,7 @@ When('I select the option {string}', async function selectviaXPath(dropd) {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Hover over element and Select an Option
@@ -323,14 +346,14 @@ When('I hover over the element {string} and select the option {string}', async f
 	const world = this;
 	// const linkIdentifiers = [`${element}`, `//*[contains(text(),'${element}')]`]
 	// const selectionIdentifiers = [`${option}`, `//*[contains(text(),'${element}')]/following::*[text()='${option}']`, `//*[contains(text(),'${option}')]`]
-	const maxWait = searchTimeout
-	const waitText = `Timed out after ${searchTimeout} ms`
-	const waitRetryTime = 100
+	const maxWait = 2000; // do not set this too high, because the first and second try - catch can timeout
+	const waitText = `Timed out after ${searchTimeout} ms`;
+	const waitRetryTime = 100;
 	try {
 		const action = driver.actions({ bridge: true });
-		const link = await driver.wait(until.elementLocated(By.xpath(`${element}`)),maxWait, waitText, waitRetryTime);
+		const link = await driver.wait(until.elementLocated(By.xpath(`${element}`)), maxWait, waitText, waitRetryTime);
 		await action.move({ x: 0, y: 0, origin: link }).perform();
-		await driver.sleep(2000);
+		await driver.sleep(500);
 		const action2 = driver.actions({ bridge: true });
 		const selection = await driver.wait(until.elementLocated(By.xpath(`${option}`)), maxWait, waitText, waitRetryTime);
 		await action2.move({ origin: selection }).click()
@@ -339,7 +362,7 @@ When('I hover over the element {string} and select the option {string}', async f
 		const action = driver.actions({ bridge: true });
 		const link = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]`)), maxWait, waitText, waitRetryTime);
 		await action.move({ x: 0, y: 0, origin: link }).perform();
-		await driver.sleep(2000);
+		await driver.sleep(500);
 		const action2 = driver.actions({ bridge: true });
 		try {
 			const selection = await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${element}')]/following::*[text()='${option}']`)), maxWait, waitText, waitRetryTime);
@@ -358,7 +381,7 @@ When('I hover over the element {string} and select the option {string}', async f
 			}
 		}
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // TODO:
@@ -377,25 +400,25 @@ When('I check the box {string}', async function checkBox(name) {
 	// By.xpath('//*[@type="checkbox" and @*="'+ name +'"]'))).click();
 	const world = this;
 	// const identifiers = [`//*[@type="checkbox" and @*="${name}"]`, `//*[contains(text(),'${name}')]//parent::label`, `//*[contains(text(),'${name}') or @*='${name}']`, `${name}`]
-	const maxWait = searchTimeout
-	const waitText = `Timed out after ${searchTimeout} ms`
-	const waitRetryTime = 100
+	const maxWait = searchTimeout;
+	const waitText = `Timed out after ${searchTimeout} ms`;
+	const waitRetryTime = 100;
 	const promises = [
 		driver.wait(until.elementLocated(By.xpath(`//*[@type="checkbox" and @*="${name}"]`)), maxWait, waitText, waitRetryTime).sendKeys(Key.SPACE),
 		driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${name}')]//parent::label`)), maxWait, waitText, waitRetryTime).click(),
 		driver.wait(until.elementLocated(By.xpath(`//*[contains(text(),'${name}') or @*='${name}']`)), maxWait, waitText, waitRetryTime).click(),
 		driver.wait(until.elementLocated(By.xpath(`${name}`)), maxWait, waitText, waitRetryTime).click()
-	]
+	];
 	await Promise.any(promises)
-	.catch(async (e) => {
-		await driver.takeScreenshot().then(async (buffer) => {
-			world.attach(buffer, 'image/png');
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
 		});
-		throw Error(e);
-	})
 
 	// await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 When('Switch to the newly opened tab', async function switchToNewTab() {
@@ -409,7 +432,7 @@ When('Switch to the newly opened tab', async function switchToNewTab() {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 When('Switch to the tab number {string}', async function switchToSpecificTab(numberOfTabs) {
@@ -430,7 +453,7 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(num
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
@@ -445,7 +468,7 @@ When('I switch to the next tab', async function switchToNewTab() {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 When('I want to upload the file from this path: {string} into this uploadfield: {string}',
@@ -464,7 +487,7 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 			});
 			throw Error(e);
 		})
-		await driver.sleep(currentParameters.waitTime);
+		await driver.sleep(100 + currentParameters.waitTime);
 	});
 
 // ################### THEN ##########################################
@@ -481,7 +504,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Search a textfield in the html code and assert it with a Text
@@ -508,14 +531,13 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Search if a is text in html code
 Then('So I can see the text: {string}', async function (string) { // text is present
 	const world = this;
 	try {
-		await driver.sleep(500);
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
 		await driver.wait(until.elementLocated(By.css('Body')), searchTimeout)
 		.then(async (body) => {
@@ -531,14 +553,13 @@ Then('So I can see the text: {string}', async function (string) { // text is pre
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Search a textfield in the html code and assert if it's empty
 Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	const world = this;
 	const identifiers = [`//*[@id='${label}']`, `//*[@*='${label}']`, `//*[contains(@id, '${label}')]`, `${label}`]
-	// await driver.sleep(500);
 	const promises = []
 	for(const idString of identifiers){
 		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
@@ -557,7 +578,7 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	await driver.takeScreenshot().then(async (buffer) => {
 		world.attach(buffer, 'image/png');
 	});
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Then('So a file with the name {string} is downloaded in this Directory {string}',
@@ -578,7 +599,7 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 			});
 			throw Error(e);
 		}
-		await driver.sleep(currentParameters.waitTime);
+		await driver.sleep(100 + currentParameters.waitTime);
 	});
 
 // Search if a text isn't in html code
@@ -599,7 +620,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Check if a checkbox is set (true) or not (false)
@@ -625,7 +646,7 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Closes the webdriver (Browser)
@@ -633,13 +654,13 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 After(async () => {
 	if (currentParameters.oneDriver) {
 		scenarioIndex += 1;
-		await driver.sleep(500);
+		await driver.sleep(1000);
 		if (scenarioIndex === testLength) {
 			await driver.quit();
 		}
 	} else {
 		scenarioIndex += 1;
-		await driver.sleep(500);
+		await driver.sleep(1000);
 		await driver.quit();
 	}
 });

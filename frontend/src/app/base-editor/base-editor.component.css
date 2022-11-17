@@ -1,18 +1,18 @@
-.stepsListContainer{
+:host ::ng-deep .stepsListContainer{
   display: flex;
   justify-content: space-between;
 }
   
-.stepsListContainer em{
+:host ::ng-deep .stepsListContainer em{
   color: var(--ocean-blue);
 }
   
-.stepsListContainer .disabled em{
+:host ::ng-deep .stepsListContainer .disabled em{
   color: gray !important;
 }
   
   
-.stepsListContainer button{
+:host ::ng-deep .stepsListContainer button{
   border: none;
   background: none;
 }
@@ -155,6 +155,51 @@ input[type="text"]{
   height: 40px;
 }
 
+/* :host ::ng-deep .scenarioTitle{
+  background: transparent;
+  border: none;
+  margin-right: 2px;
+} */
+
+/* .scenarioTitle {
+  background: transparent;
+} */
+
+/* :host ::ng-deep .scenarioTitle > em {
+  color:  var(--ocean-blue);
+  font-size: 24px;
+  transform: translate(0px, 3px)
+} */
+
+:host ::ng-deep .scenarioTitle{
+  /* background: var(--white); */
+  background: transparent;
+  border: none;
+  margin-right: 2px;
+}
+
+/* :host ::ng-deep  .darkTheme, .scenarioTitle {
+  background: transparent;
+} */
+
+
+:host ::ng-deep  .scenarioTitle > em{
+  color:  var(--ocean-blue);
+  font-size: 24px;
+  transform: translate(0px, 3px)
+}
+
+/*#inputExample{
+  background: #f8f8f8;
+  border-radius: 50%;
+  height: 24px;
+  width: 24px;
+}
+#inputExampleIcon{
+  margin-top: -2px;
+  margin-left: -3px;
+}*/
+
 .exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
@@ -209,6 +254,10 @@ input[type="text"]{
   padding: 15px;
 }
 
+/* .darkTheme .uk-dropdown {
+  background-color: #60767b;
+} */
+
 .padding{
   padding-top: 20px;
   padding-left: 20px;
@@ -230,4 +279,96 @@ input[type="text"]{
   color: var(--buttonDisabled) !important;
 }
 
+.exampleList{
+  min-width: 100px;
+}
 
+.exampleList ::ng-deep .mat-form-field-wrapper{
+  padding-bottom: 0px !important;
+}
+
+.exampleList ::ng-deep .mat-form-field-underline{
+  bottom: 0px !important;
+}
+
+.exampleList ::ng-deep .mat-select-value{
+  color: var(--ocean-blue) !important;
+  font-weight: bold !important;
+  max-width: max-content !important;
+}
+.exampleListOption {
+  font-weight: bold !important;
+}
+
+.darkTheme ::ng-deep .exampleList .mat-select-value {
+  font-weight: 595 !important;
+ }
+ 
+.exampleList ::ng-deep .mat-form-field-infix {
+  width: fit-content !important;
+}
+
+.exampleButton{
+  height: 20px;
+  width: 20px;
+
+  -moz-border-radius: 30px; /* or 50% */
+  border-radius: 30px; /* or 50% */
+  border: 2px solid;
+
+  text-align: center;
+
+  font-weight: bold;
+  font-size: 12px;
+  display: inline-block;
+  color: var(--ocean-blue) 
+
+}
+
+.darkTheme ::ng-deep .exampleButton {
+  color: var(--light-blue) 
+}
+
+
+.exampleMatSelect{
+  padding-left: 5px;
+}
+
+.uk-nav > li > span{
+  padding: 1px;
+  cursor: pointer;
+}
+
+:host ::ng-deep .uk-nav > li > .dropdownStep {
+  color:var(--ocean-blue);
+}
+
+/* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
+  color: #40C4FF;
+} */
+:host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
+  color: var(--light-blue);
+}
+
+:host ::ng-deep .uk-nav > li > span:hover {
+    color: gray;
+}
+
+:host ::ng-deep .darkTheme .uk-nav > li > span:hover {
+  color: white;
+}
+
+:host ::ng-deep .uk-nav > li > .dropdownStepUndefined {
+  color:var(--marine-blue);
+}
+
+:host ::ng-deep .darkTheme .uk-nav > li > .dropdownStepUndefined {
+  color:#00B0FF;
+}
+
+#saveButton.iconButton_unsaved em{
+  color: red !important;
+}
+
+
+ 

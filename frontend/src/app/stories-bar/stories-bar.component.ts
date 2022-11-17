@@ -12,7 +12,7 @@ import { CreateNewGroupComponent } from '../modals/create-new-group/create-new-g
 import { CreateNewStoryComponent } from '../modals/create-new-story/create-new-story.component';
 import { UpdateGroupComponent } from '../modals/update-group/update-group.component';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-
+import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 
 /**
  * Component of the Stories bar
@@ -365,6 +365,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     selectStoryScenario(story: Story) {
         this.selectedStory = story;
+        this.initialyAddIsExample();
         this.storyChosen.emit(story);
         const storyIndex = this.stories.indexOf(this.selectedStory);
         if (this.stories[storyIndex].scenarios[0]) {
@@ -623,6 +624,44 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         return this.stories.filter(function(stories) {
           return stories;
         });
+    }
+
+      initialyAddIsExample(){
+        console.log(this.selectedStory)
+        this.selectedStory.scenarios.forEach(scenario => {
+            scenario.stepDefinitions.given.forEach((value, index) =>{
+                if(!scenario.stepDefinitions.given[index].isExample){
+                    scenario.stepDefinitions.given[index].isExample = new Array(value.values.length)
+                    value.values.forEach((val,i) => {
+                        scenario.stepDefinitions.given[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                    })
+                }
+            })
+            scenario.stepDefinitions.when.forEach((value, index) =>{
+                if(!scenario.stepDefinitions.when[index].isExample){
+                    scenario.stepDefinitions.when[index].isExample = new Array(value.values.length)
+                    value.values.forEach((val,i) => {
+                        scenario.stepDefinitions.when[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                    })
+                }
+            })
+            scenario.stepDefinitions.then.forEach((value, index) =>{
+                if(!scenario.stepDefinitions.then[index].isExample){
+                    scenario.stepDefinitions.then[index].isExample = new Array(value.values.length)
+                    value.values.forEach((val,i) => {
+                        scenario.stepDefinitions.then[index].isExample[i] = val.startsWith('<') && val.endsWith('>')
+                    })
+                }
+            })
+
+        })
+    }
+    toTicket(story: string){
+        const value = localStorage.getItem('repository');
+        const _id = localStorage.getItem('id');
+        const source = localStorage.getItem('source');
+        const repositoryContainer: RepositoryContainer = {value, source, _id};
+        this.apiService.goToTicket(story, repositoryContainer);
     }
 
 }

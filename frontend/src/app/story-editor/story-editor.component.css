@@ -68,6 +68,7 @@
 
 .select {
   width: 120px;
+  margin-right: 5px;
 }
 
 .waitTime {
@@ -79,7 +80,18 @@
   margin-right: 5px;
 }
 
+#emulatorCheck {
+  margin-right: 5px;
+}
+
 #oneDriverInfoIcon{
+  /* margin-right: 10px;
+  margin-bottom: 7px; */
+  width: 13px;
+  vertical-align: baseline;
+}
+
+#emulatorInfoIcon{
   /* margin-right: 10px;
   margin-bottom: 7px; */
   width: 13px;
@@ -115,21 +127,6 @@
   .emptyStories a {
     display: block;
   }
-
-  /* .disabled input{
-    color: gray;
-    border-bottom: none;
-  } */
-
-  /* :host ::ng-deep .disabled input{
-    color: gray;
-    border-bottom: 1px solid gray;
-  }
-
-  ::ng-deep .darkTheme .disabled input {
-    color: var(--buttonDisabled) !important;
-    border-color: var(--border);
-  } */
 
   #noStoriesHeader{
     padding: 20px;
@@ -180,36 +177,6 @@
     padding-bottom: 5px;
   }
 
-/*   .def {
-      color: #999;
-      cursor: help;
-      position: relative;
-      top: -2px;
-  }
-
-  .def span[rel=def] {
-      display: none;
-  } */
-
-  /* :host ::ng-deep input[type="text"]{
-    margin: 1px;
-    padding: 1px;
-    border: none;
-    border-bottom: 1px solid #333;
-    position: relative;
-    top: -2px;
-    width: auto;
-    min-width: 5px;
-  } */
-
-/*
-  :host ::ng-deep .darkTheme input {
-    background: transparent;
-    color: white;
-    border-bottom: 1px solid #60767b;
-  } */
-
-
   .storyHeaderContainer{
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
@@ -219,35 +186,6 @@
   .storyHeaderContainer > div > button > em {
     vertical-align: bottom;
   }
-
-  /* .def {
-    color: #999;
-    cursor: help;
-    position: relative; 
-    z-index: 2;
-  } */
-  
-  /* span[rel=def] {
-    display: none;
-  }
-  
-  .def:hover span[rel=def] {
-    font-size: small;
-    color: white;
-    background-color: rgb(109, 109, 109);
-    position: absolute;
-    width: 28em;
-    padding: 0.5em;
-    display: block;
-    white-space: pre-line;
-    opacity: 96%;
-    z-index: 2;
-  }
-
-  .darkTheme .def:hover span[rel=def] {
-    background-color: #78909C !important;
-  
-  } */
 
   #story{
     border: 1px solid #999;
@@ -262,13 +200,6 @@
     border: 1px solid #60767b;
     background: #455A64;
   }
-
-
-  /* #infoIcon{
-    color: #999;
-    margin-left: 5px;
-    margin-right: 5px;
-  } */
 
 
   .button {
@@ -316,21 +247,9 @@
 
   .button:focus {outline:0 !important;}
 
-  /* :host ::ng-deep .uk-button-group{
-    border-radius:4px;
-    border:2px solid var(--white); 
-  } */
 
- /*  .padding{
-    padding: 20px;
-  } */
-
-  :host ::ng-deep #saveButton.iconButton_unsaved em{
+  /* :host ::ng-deep #saveButton.iconButton_unsaved em{
     color: red !important;
-  }
-
-  /* .uk-dropdown{
-    padding: 15px;
   } */
 
   :host ::ng-deep .uk-nav > li > span{
@@ -342,7 +261,7 @@
     color: var(--ocean-blue);
   }
 
-  :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
+  /* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
   }
 
@@ -352,7 +271,7 @@
 
   :host ::ng-deep .darkTheme .uk-nav > li > span:hover {
     color: white;
-  }
+  } */
   /* Eventually not in use */
   .darkTheme .scenarioListItem:hover {
     background-color: var(--brown-grey);
@@ -376,9 +295,6 @@
     background: var(--buttonDisabled) !important;
   }
 
-  /* input.backgroundName{
-    margin: 5px;
-  } */
 
   #loading{
     /* text-align: center;
@@ -435,15 +351,15 @@
     text-align: center; margin: 0px auto;
     margin-right: 2px;
   }
-
+  
   .storyTitle > em {
     color: var(--ocean-blue);
   }
 
-  /* #story_change_title{
-    font-size: 20px;
-    margin: 0px 3px;
-  } */
+  .storyTitle > .mat-icons {
+    transform: translateY(-8px);
+    width: 25px;
+  }
 
   /* Eventually not in use */
   .backgroundTitleContainer {
@@ -458,33 +374,12 @@
   .mat-expansion-panel-header-title {
     flex-grow: 0.4;
   }
-
-  .darkTheme .storyTitle{
-    color: var(--light-blue);
-  }
-
-/*   span.notPassed{
-    background-color: red;
-  }
-
-  span.passed{
-    background-color: green;
-  }
-
-  .darkTheme span.passed {
-    background-color: #4CAF50;
-  }
-
-  a.passed{
+  #done{
     color: green;
   }
 
-  .darkTheme a.passed {
-    color: #4CAF50;
-  }
-
-  a.notPassed{
-    color: red;
+  /* .darkTheme .storyTitle{
+    color: var(--light-blue);
   } */
 
 :host ::ng-deep .darkTheme .scenarioBarContainer,
@@ -508,40 +403,6 @@
 .lastTestText {
   margin-right: 10px;
 }
-
-/* :host ::ng-deep .scenarioButton {
-  margin-right: 10px;
-}
-
-:host ::ng-deep .actionBarButtonGroup{
-  margin-left: 3px;
-}
-
-:host ::ng-deep .actionButton{
-  margin-left: 10px;
-}
-
-:host ::ng-deep .actionButton > em{
-  color: #333;
-  font-size: 22px;
-}
-
-:host ::ng-deep .darkTheme .actionButton > em {
-  color:#000000;
-}
-
-:host ::ng-deep .scenarioButton em{
-  color:  var(--ocean-blue);
-}
-
-:host ::ng-deep .darkTheme.scenarioButton em{
-  color:  var(--ocean-blue);
-}
-
-:host ::ng-deep .scenarioButton em:active {
-  background-color: var(--ocean-blue);
-  color: var(--white);
-} */
 
 .mat-expansion-panel-body {
   padding: 20px;
@@ -580,10 +441,6 @@
   display: block;
 }
 
-/* .darkTheme button {
-  background: transparent;
-} */
-
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {background-color: #f1f1f1}
 
@@ -593,12 +450,6 @@
 .dropdown:hover .dropdown-content {
   display: block;
 }
-
-/* #story_change_title > em {
-  color: var(--ocean-blue);
-  font-size: 24px;
-  padding-left: 4px;
-} */
 
 #story_delete > em{
   color: var(--ocean-blue);
@@ -664,6 +515,7 @@ button#background_up {
 
 .mat-expansion-panel#widened-expansion-panel {
   padding: 12px 0 12px 0px;
+  white-space: pre-wrap;
 }
 
 .mat-expansion-panel#widened-expansion-panel .mat-expansion-panel-header-title {
@@ -676,4 +528,19 @@ button#background_up {
 
 .backgroundTitle {
   flex-grow: .58;
+}
+
+.def:hover span[rel=def] {
+  font-size: small;
+  color: white;
+  background-color: rgb(109, 109, 109);
+  position: absolute;
+  width: 28em;
+  padding: 0.5em;
+  display: block;
+  white-space: pre-line;
+  opacity: 96%;
+  z-index: 2;
+  left: -7em;
+  top:auto;
 }

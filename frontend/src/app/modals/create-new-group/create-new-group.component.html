@@ -21,7 +21,7 @@
                         <div class="searchWrapper">
                             <em class="material-icons emoticon" id="searchBarIcons"
                             [style.opacity]="searchInput.value == '' ? '0.5' : '0.0'">search</em>
-                            <input name="searchInput" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
+                            <input name="searchInput" id="findStory" ngModel #searchInput="ngModel" (keyup)="searchOnKey($event.target.value)">
                         </div> 
                     </div>
                 </div>
@@ -48,18 +48,11 @@
                             </div> 
                           </td>
                         </ng-container>
-        
-                        <ng-container  matColumnDef="checkStory">
-                            <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
-                            <td mat-cell *matCellDef="let element">
-                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
-                            </td>
-                        </ng-container>
             
                         <ng-container  matColumnDef="checkStory">
                             <th id="checkboxStory" class="editColumn" mat-header-cell *matHeaderCellDef> Select story </th>
                             <td mat-cell *matCellDef="let element">
-                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)">
+                                <input type="checkbox" [checked]="isStoryChecked(element)"(change)="selectStory(element)" id="check_{{element.title}}">
                             </td>
                         </ng-container>
                         <tr mat-header-row *matHeaderRowDef="displayedColumnsStories"></tr>

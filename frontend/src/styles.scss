@@ -923,5 +923,9 @@ a:hover {
   font-style: italic !important;
 }
 
+button:focus, input[type="button"]:focus, input[type="submit"]:focus { 
+  outline: none;
+} 
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

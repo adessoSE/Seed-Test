@@ -99,6 +99,11 @@ export class ApiService {
      */
     public deleteScenarioEvent = new EventEmitter();
 
+    /**
+     * Event emitter to delete the example
+     */
+     public deleteExampleEvent = new EventEmitter();
+
      /**
      * Event emitter to delete the story
      */
@@ -113,6 +118,13 @@ export class ApiService {
      * Event emitter to reload scenario status
      */
     public scenarioStatusChangeEvent = new EventEmitter();
+
+    /**
+     * Event emitter to add a example to a scenario
+     */
+    public newExampleEvent = new EventEmitter();
+    
+    public renameExampleEvent = new EventEmitter();
 
     /**
      * Event emitter to create a custom story
@@ -132,10 +144,16 @@ export class ApiService {
     public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
 
     public renameBackgroundEvent: EventEmitter<string> = new EventEmitter();
+    
+    /* Scenario change emitter */
+    public scenarioChangedEvent: EventEmitter<Scenario> = new EventEmitter();
  
     createRepositoryEvent(repository) {
         this.createRepositoryEmitter.emit(repository);
     }
+
+    /* Background change emitter */
+    public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
 
     /**
      * Gets api headers
@@ -171,11 +189,28 @@ export class ApiService {
         this.deleteScenarioEvent.emit();
     }
 
+    /**
+     * Emits the delete example event
+     */
+     public deleteExampleEmitter() {
+        this.deleteExampleEvent.emit();
+    }
+
      /**
      * Emits the delete story event
      */
     public deleteStoryEmitter() {
         this.deleteStoryEvent.emit();
+    }
+
+    /* Emits scenario changed event */
+    public scenarioChangedEmitter() {
+        this.scenarioChangedEvent.emit();
+    }
+
+    /* Emits background changed event */
+    public backgroundChangedEmitter() {
+        this.backgroundChangedEvent.emit();
     }
 
     /**
@@ -240,6 +275,18 @@ export class ApiService {
     scenarioStatusChangeEmit(storyId, scenarioId, lastTestPassed) {
         const val = {storyId: storyId, scenarioId: scenarioId, lastTestPassed: lastTestPassed};
         this.scenarioStatusChangeEvent.emit(val);
+    }
+
+    /**
+     * Emits the new example event
+     * @param name example name
+     */
+     newExampleEmit(name) {
+        this.newExampleEvent.emit(name);
+    }
+
+    renameExampleEmit(name) {
+        this.renameExampleEvent.emit(name);
     }
 
     /**
@@ -709,9 +756,21 @@ export class ApiService {
         const chromium_enabled = localStorage.getItem('chromium_enabled')
         const edge_enabled = localStorage.getItem('edge_enabled')
 
-        if (url && url !== 'undefined' && clientId && clientId !== 'undefined' && version && version !== 'undefined' &&
-                gecko_enabled && gecko_enabled !== 'undefined' && chromium_enabled && chromium_enabled !== 'undefined' && 
-                edge_enabled && edge_enabled !== 'undefined') {
+        const gecko_emulators = localStorage.getItem('gecko_emulators')
+        const chromium_emulators = localStorage.getItem('chromium_emulators')
+        const edge_emulators = localStorage.getItem('edge_emulators')
+
+        if (url && url !== 'undefined' &&
+                clientId && clientId !== 'undefined' &&
+                version && version !== 'undefined' &&
+                gecko_enabled && gecko_enabled !== 'undefined' &&
+                chromium_enabled && chromium_enabled !== 'undefined' && 
+                edge_enabled && edge_enabled !== 'undefined' && 
+                gecko_emulators && gecko_emulators !== 'undefined' && 
+                chromium_emulators && chromium_emulators !== 'undefined' && 
+                edge_emulators && edge_emulators !== 'undefined'
+                ) {    
+                    
             this.urlReceived = true;
             this.getBackendUrlEvent.emit();
             return Promise.resolve(url);
@@ -724,6 +783,9 @@ export class ApiService {
              localStorage.setItem('gecko_enabled', backendInfo.gecko_enabled);
              localStorage.setItem('chromium_enabled', backendInfo.chromium_enabled);
              localStorage.setItem('edge_enabled', backendInfo.edge_enabled)
+             localStorage.setItem('gecko_emulators', backendInfo.gecko_emulators)
+             localStorage.setItem('chromium_emulators', backendInfo.chromium_emulators)
+             localStorage.setItem('edge_emulators', backendInfo.edge_emulators)
              this.getBackendUrlEvent.emit();
          });
         }
@@ -800,12 +862,7 @@ export class ApiService {
             .post<any>(this.apiServer + '/user/register', user)
             .pipe(tap(_ => {
                 //
-            }), catchError(err => {
-                return new Observable(subscriber => {
-                    subscriber.next(err);
-                    subscriber.complete();
-                });
-            }));
+            }), catchError(ApiService.handleError));
     }
 
     /**
@@ -1157,6 +1214,17 @@ export class ApiService {
             this.toastr.error('This Story Title is already in use. Please choose another Title');
         }
     }
+
+    public uniqueExampleName(buttonId: string, input: string, array: string[]) {
+        const button = (document.getElementById(buttonId)) as HTMLButtonElement;
+        if (!array.includes(input)) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+            this.toastr.error('This Example Name is already in use. Please choose another Name');
+        }
+    }
+
     public groupUnique(buttonId: string, input: string, array: Group[], group?: Group){
         array = array ? array : [];
         input = input ? input : '';
@@ -1178,4 +1246,17 @@ export class ApiService {
            }
         }
     }
-} 
+    public goToTicket(storyId: string, repository: RepositoryContainer) {
+        if (repository.source === 'github') {
+            const AUTHORIZE_URL = 'https://github.com/adessoSE/Seed-Test/issues/';
+            const s = `${AUTHORIZE_URL}${storyId}`;
+            return window.open(s);
+        } else if (repository.source === 'jira') {
+            const AUTHORIZE_URL = 'https://jira.adesso.de/browse/';
+            const s = `${AUTHORIZE_URL}${storyId}`;
+            return window.open(s);
+        }
+
+    }
+}
+    
