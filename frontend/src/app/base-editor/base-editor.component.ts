@@ -535,10 +535,11 @@ export class BaseEditorComponent  {
         indices.forEach((element) => {
           middleOfList.push(element.value)
         });
+        let startOfListFiltered = startOfList.filter( ( el ) => !middleOfList.includes( el ) );
         let endOfListFiltered = endOfList.filter( ( el ) => !middleOfList.includes( el ) );
-        startOfList.push(...middleOfList)
-        startOfList.push(...endOfListFiltered)
-        newList = startOfList
+        startOfListFiltered.push(...middleOfList)
+        startOfListFiltered.push(...endOfListFiltered)
+        newList = startOfListFiltered
       }
       else {
         newList = this.getStepsList(stepDefs, stepIndex)
@@ -625,7 +626,6 @@ export class BaseEditorComponent  {
         } */
         break;
     }
-    
     event.source.data = {
       indices,
       values: indices.map(a => a.index),
