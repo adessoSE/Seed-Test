@@ -82,6 +82,10 @@ em.dragIcon{
   margin-top:1px;
 }
 
+em.dragIcon.dragDisabled{
+  color: grey !important;
+}
+
 .text-inline{
   display: flex;
 }
