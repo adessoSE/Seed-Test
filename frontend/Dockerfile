@@ -15,8 +15,7 @@ RUN npm install --force
 # Bundle app source
 COPY . .
 
-#EXPOSE 4200
-EXPOSE ${PORT}
+EXPOSE 4200
 
 # Aus frontend/package.json
 CMD ["node", "server.js"]
