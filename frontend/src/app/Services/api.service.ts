@@ -37,7 +37,7 @@ export class ApiService {
     /**
      * If the backend url was received
      */
-    public urlReceived = false;
+    public urlReceived = localStorage.getItem('url_backend') && localStorage.getItem('url_backend') !== 'undefined';
 
     /**
      * Event Emitter if the stories could not be retrieved
@@ -759,6 +759,8 @@ export class ApiService {
         const gecko_emulators = localStorage.getItem('gecko_emulators')
         const chromium_emulators = localStorage.getItem('chromium_emulators')
         const edge_emulators = localStorage.getItem('edge_emulators')
+
+        console.log("GET BACKEND INFO");
 
         if (url && url !== 'undefined' &&
                 clientId && clientId !== 'undefined' &&

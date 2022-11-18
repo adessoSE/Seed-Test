@@ -251,7 +251,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
         }
-        this.loadStepTypes()
   
     if (this.selectedStory) {
       this.storiesLoaded = true;
@@ -340,8 +339,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             this.isDark = this.themeService.isDarkMode();
         });
 
-        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
-            this.loadStepTypes();
+        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {       
+          this.loadStepTypes();
         }); 
 
         this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
