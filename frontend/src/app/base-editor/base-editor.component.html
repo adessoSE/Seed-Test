@@ -71,7 +71,7 @@
                 <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions, i); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, selectedScenario.stepDefinitions, i)" (cdkDragEnded)="dragEnded()">
                   <div #scenarioContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(selectedScenario.stepDefinitions, i, j)">
                     <div #scenarioParentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
-                      <div class="dragIconContainer" cdkDragHandle >
+                      <div class="dragIconContainer" cdkDragHandle>
                         <em class="material-icons dragIcon">drag_indicator</em>
                       </div>
                       <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null)">
