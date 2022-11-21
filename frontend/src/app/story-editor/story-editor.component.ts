@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
@@ -246,7 +247,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     constructor(
         public apiService: ApiService,
         public toastr: ToastrService,
-        public themeService: ThemingService
+        public themeService: ThemingService,
+        public router: Router
     ) {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -315,6 +317,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.storiesError = true;
         this.showEditor = false;
 
+        window.localStorage.removeItem('login')
+        this.router.navigate(['/login']);  
         });
 
         this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
@@ -829,7 +833,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
     storyLink() {
-        return window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
+        return 'https://'+ window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
     }
 
     showStoryLinkToast() {

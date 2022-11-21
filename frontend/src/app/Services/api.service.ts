@@ -1246,5 +1246,17 @@ export class ApiService {
            }
         }
     }
+    public goToTicket(storyId: string, repository: RepositoryContainer) {
+        if (repository.source === 'github') {
+            const AUTHORIZE_URL = 'https://github.com/adessoSE/Seed-Test/issues/';
+            const s = `${AUTHORIZE_URL}${storyId}`;
+            return window.open(s);
+        } else if (repository.source === 'jira') {
+            const AUTHORIZE_URL = 'https://jira.adesso.de/browse/';
+            const s = `${AUTHORIZE_URL}${storyId}`;
+            return window.open(s);
+        }
+
+    }
 }
     

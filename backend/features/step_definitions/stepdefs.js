@@ -36,6 +36,9 @@ edgeOptions.addArguments('--start-maximized');
 edgeOptions.addArguments('--lang=de');
 edgeOptions.addArguments('--excludeSwitches=enable-logging');
 // chromeOptions.addArguments('--start-fullscreen');
+
+chromeOptions.setUserPreferences({ 'download.default_directory': 'C:\\Users\\Public\\seed_Downloads' });
+
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
 
@@ -99,7 +102,7 @@ Before(async function () {
 // / #################### GIVEN ########################################
 Given('As a {string}', async function (string) {
 	this.role = string;
-	// await driver.sleep(currentParameters.waitTime);
+	// await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Given('I am on the website: {string}', async function getUrl(url) {
@@ -113,7 +116,7 @@ Given('I am on the website: {string}', async function getUrl(url) {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Given('I add a cookie with the name {string} and value {string}', async function addCookie(name, value) {
@@ -126,7 +129,7 @@ Given('I add a cookie with the name {string} and value {string}', async function
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Given('I remove a cookie with the name {string}', async function removeCookie(name) {
@@ -139,7 +142,7 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Take a Screenshot
@@ -157,7 +160,7 @@ Given('I take a screenshot', async function () {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Take a Screenshot and optionally scroll to a specific element
@@ -182,7 +185,7 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // ################### WHEN ##########################################
@@ -198,7 +201,7 @@ When('I go to the website: {string}', async function getUrl(url) {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // clicks a button if found in html code with xpath,
@@ -207,26 +210,37 @@ When('I click the button: {string}', async function clickButton(button) {
 	const world = this;
 	const identifiers = [`//*[@id='${button}']`, `//*[contains(@id,'${button}')]`, `//*[text()='${button}' or @*='${button}']`, `//*[contains(text(),'${button}')]`, `${button}`];
 	await driver.getCurrentUrl()
-	.then(async (currentUrl) => {
-		// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
-		if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
-			.match(/^run[ _](story|scenario)$/) !== null){ 
-			throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
-		}
-	});
-	const promises = []
-	for(const idString of identifiers){
-		promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
-	}
-	await Promise.any(promises)
-	.then((elem) => elem.click())
-	.catch(async (e) => {
-		await driver.takeScreenshot().then(async (buffer) => {
-			world.attach(buffer, 'image/png');
+		.then(async (currentUrl) => {
+			// prevent Button click on "Run Story" or "Run Scenario" to prevent recursion
+			if ((currentUrl === 'http://localhost:4200/' || currentUrl === 'https://seed-test-frontend.herokuapp.com/') && button.toLowerCase()
+				.match(/^run[ _](story|scenario)$/) !== null)
+				throw new Error('Executing Seed-Test inside a scenario is not allowed, to prevent recursion!');
 		});
-		throw Error(e);
-	})
-	await driver.sleep(currentParameters.waitTime);
+	// for DAISY only:
+	// don't throw an error and end the testcase if "Alte Sitzung Beenden" is not found
+	if (button === 'Alte Sitzung beenden') {
+		try {
+			await driver.sleep(100);
+			await driver.wait(until.elementLocated(By.xpath(`//*[@name='kill-session']`)), 3 * 1000).click();
+		} catch (e) {
+			console.log('Button "Alte Sitzung beenden" not found. Skipping the Step...');
+		}
+		return;
+	} else {
+		const promises = [];
+		for(const idString of identifiers){
+			promises.push( driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100) )
+		}
+		await Promise.any(promises)
+			.then((elem) => elem.click())
+			.catch(async (e) => {
+				await driver.takeScreenshot().then(async (buffer) => {
+					world.attach(buffer, 'image/png');
+				});
+				throw Error(e);
+			});
+	}
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // selenium sleeps for a certain amount of time
@@ -271,7 +285,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // "Radio"
@@ -290,7 +304,7 @@ When('I select {string} from the selection {string}', async function clickRadioB
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Select an Option from a dropdown-menu
@@ -324,7 +338,7 @@ When('I select the option {string}', async function selectviaXPath(dropd) {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Hover over element and Select an Option
@@ -367,7 +381,7 @@ When('I hover over the element {string} and select the option {string}', async f
 			}
 		}
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // TODO:
@@ -404,7 +418,7 @@ When('I check the box {string}', async function checkBox(name) {
 		});
 
 	// await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 When('Switch to the newly opened tab', async function switchToNewTab() {
@@ -418,7 +432,7 @@ When('Switch to the newly opened tab', async function switchToNewTab() {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 When('Switch to the tab number {string}', async function switchToSpecificTab(numberOfTabs) {
@@ -439,7 +453,7 @@ When('Switch to the tab number {string}', async function switchToSpecificTab(num
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // TODO: delete this following step (also in DB), once every branch has the changes
@@ -454,7 +468,7 @@ When('I switch to the next tab', async function switchToNewTab() {
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 When('I want to upload the file from this path: {string} into this uploadfield: {string}',
@@ -473,7 +487,7 @@ When('I want to upload the file from this path: {string} into this uploadfield: 
 			});
 			throw Error(e);
 		})
-		await driver.sleep(currentParameters.waitTime);
+		await driver.sleep(100 + currentParameters.waitTime);
 	});
 
 // ################### THEN ##########################################
@@ -490,7 +504,7 @@ Then('So I will be navigated to the website: {string}', async function checkUrl(
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Search a textfield in the html code and assert it with a Text
@@ -517,7 +531,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Search if a is text in html code
@@ -539,7 +553,7 @@ Then('So I can see the text: {string}', async function (string) { // text is pre
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Search a textfield in the html code and assert if it's empty
@@ -564,7 +578,7 @@ Then('So I can\'t see text in the textbox: {string}', async function (label) {
 	await driver.takeScreenshot().then(async (buffer) => {
 		world.attach(buffer, 'image/png');
 	});
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Then('So a file with the name {string} is downloaded in this Directory {string}',
@@ -585,7 +599,7 @@ Then('So a file with the name {string} is downloaded in this Directory {string}'
 			});
 			throw Error(e);
 		}
-		await driver.sleep(currentParameters.waitTime);
+		await driver.sleep(100 + currentParameters.waitTime);
 	});
 
 // Search if a text isn't in html code
@@ -606,7 +620,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 		});
 		throw Error(e);
 	}
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Check if a checkbox is set (true) or not (false)
@@ -632,7 +646,7 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 		});
 		throw Error(e);
 	})
-	await driver.sleep(currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Closes the webdriver (Browser)
@@ -640,13 +654,13 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 After(async () => {
 	if (currentParameters.oneDriver) {
 		scenarioIndex += 1;
-		await driver.sleep(500);
+		await driver.sleep(1000);
 		if (scenarioIndex === testLength) {
 			await driver.quit();
 		}
 	} else {
 		scenarioIndex += 1;
-		await driver.sleep(500);
+		await driver.sleep(1000);
 		await driver.quit();
 	}
 });

@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  backend:
+    build: 
+      ./backend
+    ports:
+      - "${BACKENDPORT}:${BACKENDPORT}"
+    container_name: "Seed-backend"
+    
+  frontend:
+    build: 
+      ./frontend
+    ports:
+      - "${FRONTENDPORT}:${FRONTENDPORT}"
+    container_name: "Seed-frontend"
+    depends_on:
+      - backend

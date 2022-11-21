@@ -351,9 +351,14 @@
     text-align: center; margin: 0px auto;
     margin-right: 2px;
   }
-
+  
   .storyTitle > em {
     color: var(--ocean-blue);
+  }
+
+  .storyTitle > .mat-icons {
+    transform: translateY(-8px);
+    width: 25px;
   }
 
   /* Eventually not in use */

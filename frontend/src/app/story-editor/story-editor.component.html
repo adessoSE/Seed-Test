@@ -33,7 +33,7 @@
 
 <div *ngIf="stories && (showEditor === true)">
   <!--Story-->
-  <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story">
+  <div [class.darkTheme]="isDark" class="uk-card uk-card-default padding" id="story" cdkScrollable>
     <div class="storyHeaderContainer">
       <div>
           <span id="storyHeader" class="SmallCategory1" >Story</span>
@@ -107,10 +107,15 @@
             </button>
           </div>
           <div>
-            <button id="saveButton" class="storyTitle" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+            <button  *ngIf=" this.selectedStory.background.saved === false" id="saveButtonBackground" class="storyTitle" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
               title="Save Background" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
               (click)="updateBackground();$event.stopPropagation();">
-              <em class="material-icons">save</em>
+              <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
+            </button>
+            <button *ngIf=" this.selectedStory.background.saved!= false" id="saveButtonBackground" class="storyTitle" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
+            title="Without changes" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
+            (click)="updateBackground();$event.stopPropagation();">
+            <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
             </button>
             <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"
               class="storyTitle" data-uk-tooltip title="Delete Background"
