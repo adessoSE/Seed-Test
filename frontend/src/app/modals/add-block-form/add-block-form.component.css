@@ -106,5 +106,5 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
 } 
 ::ng-deep .modal-content{
     width: 140%;
-    transform: translate(-11%, 0);
+    transform: translate(-14%, 0);
 }
