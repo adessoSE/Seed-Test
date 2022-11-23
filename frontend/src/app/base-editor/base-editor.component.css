@@ -303,6 +303,10 @@ input[type="text"]{
 .darkTheme ::ng-deep .exampleList .mat-select-value {
   font-weight: 595 !important;
  }
+
+::ng-deep .darkTheme .exampleListOption {
+  font-weight: 595 !important;
+}
  
 .exampleList ::ng-deep .mat-form-field-infix {
   width: fit-content !important;
