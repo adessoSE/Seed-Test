@@ -760,8 +760,6 @@ export class ApiService {
         const chromium_emulators = localStorage.getItem('chromium_emulators')
         const edge_emulators = localStorage.getItem('edge_emulators')
 
-        console.log("GET BACKEND INFO");
-
         if (url && url !== 'undefined' &&
                 clientId && clientId !== 'undefined' &&
                 version && version !== 'undefined' &&
@@ -788,6 +786,7 @@ export class ApiService {
              localStorage.setItem('gecko_emulators', backendInfo.gecko_emulators)
              localStorage.setItem('chromium_emulators', backendInfo.chromium_emulators)
              localStorage.setItem('edge_emulators', backendInfo.edge_emulators)
+             this.urlReceived = true;
              this.getBackendUrlEvent.emit();
          });
         }

@@ -250,7 +250,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     ) {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
-        }
+        } else {
+          this.apiService.getBackendInfo();
+        }        
   
     if (this.selectedStory) {
       this.storiesLoaded = true;
