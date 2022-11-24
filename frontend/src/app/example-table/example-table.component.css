@@ -46,3 +46,8 @@ table {
   display: inline-block;
   vertical-align: middle;
 }
+
+#inputExample{
+  margin: 0 !important;
+  padding: 0 !important;
+}
