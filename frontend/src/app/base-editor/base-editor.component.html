@@ -191,10 +191,13 @@
             </div>
             <div *ngIf="sd == 'example'">
               <div *ngFor="let step of originalStepTypes; let j = index;" >
-                <button *ngIf="step.stepType===sd" id="{{name+'_add_step' + i}}" 
-                 (click)="openNewExample(step)" title="Add New Variable" uk-tooltip
-                 disabled >
-                  <em style="color:gray!important" class="material-icons">add_circle_outline</em>
+                <button *ngIf="step.stepType===sd && !(getExampleList()!=undefined)"  id="{{name+'_add_step' + i}}" 
+                 (click)="openNewExample(step)" title="Activate Multiple Scenarios" uk-tooltip >
+                 <div style="display:grid">
+                  <em style="grid-column: 1; grid-row: 1; font-size: 26px !important" class="material-icons">table_chart</em>
+                  <em style="grid-column: 1; grid-row: 1; font-size: 15px !important; margin-top: 12px; margin-left: 12px; background-color: white;
+                  border-radius: 30px;" class="material-icons">add_circle_outline</em>
+                </div>
                 </button>
               </div>
             </div>
