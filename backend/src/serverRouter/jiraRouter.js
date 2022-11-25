@@ -41,9 +41,8 @@ router.post('/user/create/', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		const re = new RegExp('^[.:a-zA-Z0-9]+$');//jiraHost must only consist of letters, numbes, '.' and ':' to represent URLs or IPs and ports
-		const jiraHost_forgeCheck = re.test(jiraHost);
-		if(jiraHost_forgeCheck){
+
+		if(RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)){//jiraHost must only consist of letters, numbers, '.' and ':' to represent URLs or IPs and ports
 			const jiraURL = `http://${jiraHost}/rest/auth/1/session`
 			fetch(jiraURL, options)
 			.then((response) => response.json())
@@ -83,7 +82,8 @@ router.post('/login', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		fetch(`http://${jiraServer}/rest/auth/1/session`, options)
+		if(RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)){
+			fetch(`http://${jiraServer}/rest/auth/1/session`, options)
 			.then((response, error) => {
 				if (error) {
 					res.status(500);
@@ -96,6 +96,11 @@ router.post('/login', (req, res) => {
 					console.log('Jira-Login failed');
 				}
 			});
+		}else {
+			console.error('Given JiraHost does not comply with URL structure.');
+			res.status(401)
+				.json('Given JiraHost does not comply with URL structure.');
+		}
 	} else {
 		res.status(500);
 		console.log('No Jira Account sent');
