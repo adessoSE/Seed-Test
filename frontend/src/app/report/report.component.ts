@@ -27,10 +27,6 @@ export class ReportComponent implements OnInit {
     reportId;
 
     reportIsSaved;
-
-    counter: number;
-
-    length: number;
     /**
      * html report of the result
      */
@@ -153,12 +149,11 @@ export class ReportComponent implements OnInit {
 
 		html2canvas(body).then(canvas => {
               
-            var imgData = canvas.toDataURL("image/jpeg", 1.0);
-            var margin = 2;
-            var imgWidth = 210 - 2*margin; 
-            var pageHeight = 295;  
-            var imgHeight = canvas.height * imgWidth / canvas.width-10;
-            var heightLeft = imgHeight;
+            const imgData = canvas.toDataURL("image/jpeg", 1.0);
+            let imgWidth = 206; 
+            let pageHeight = 295;  
+            let imgHeight = canvas.height * imgWidth / canvas.width-10;
+            let heightLeft = imgHeight;
               
             let doc = new jsPDF('p', 'mm', 'a4');
             let position = 0;
