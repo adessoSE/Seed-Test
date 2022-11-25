@@ -60,9 +60,9 @@ router.post('/user/create/', (req, res) => {
 		}
 		
 	} else {
-		console.error('User doesnt exist.');
+		console.error('User doesnt exist. 2');
 		res.status(401)
-			.json('User doesnt exist.');
+			.json('User doesnt exist. 3');
 	}
 });
 

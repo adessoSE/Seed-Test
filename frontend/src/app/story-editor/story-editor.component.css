@@ -68,6 +68,7 @@
 
 .select {
   width: 120px;
+  margin-right: 5px;
 }
 
 .waitTime {
@@ -79,7 +80,18 @@
   margin-right: 5px;
 }
 
+#emulatorCheck {
+  margin-right: 5px;
+}
+
 #oneDriverInfoIcon{
+  /* margin-right: 10px;
+  margin-bottom: 7px; */
+  width: 13px;
+  vertical-align: baseline;
+}
+
+#emulatorInfoIcon{
   /* margin-right: 10px;
   margin-bottom: 7px; */
   width: 13px;
@@ -511,4 +523,19 @@ button#background_up {
 
 .backgroundTitle {
   flex-grow: .58;
+}
+
+.def:hover span[rel=def] {
+  font-size: small;
+  color: white;
+  background-color: rgb(109, 109, 109);
+  position: absolute;
+  width: 28em;
+  padding: 0.5em;
+  display: block;
+  white-space: pre-line;
+  opacity: 96%;
+  z-index: 2;
+  left: -7em;
+  top:auto;
 }
