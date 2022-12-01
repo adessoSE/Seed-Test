@@ -89,6 +89,18 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
     }
 }
 
+@media screen and (min-width: 500px){
+
+    ::ng-deep body > ngb-modal-window > .addBlock.modal-dialog {
+        max-width: none !important;
+    }
+}
+
+::ng-deep body > ngb-modal-window > .addBlock.modal-dialog {
+    width: 80%;
+    min-width: 1000px;
+}
+
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
 }
@@ -104,7 +116,3 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
     align-items: center;
     
 } 
-::ng-deep .modal-content{
-    width: 140%;
-    transform: translate(-14%, 0);
-}
