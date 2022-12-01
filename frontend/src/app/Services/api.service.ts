@@ -37,7 +37,7 @@ export class ApiService {
     /**
      * If the backend url was received
      */
-    public urlReceived = false;
+    public urlReceived = localStorage.getItem('url_backend') && localStorage.getItem('url_backend') !== 'undefined';
 
     /**
      * Event Emitter if the stories could not be retrieved
@@ -786,6 +786,7 @@ export class ApiService {
              localStorage.setItem('gecko_emulators', backendInfo.gecko_emulators)
              localStorage.setItem('chromium_emulators', backendInfo.chromium_emulators)
              localStorage.setItem('edge_emulators', backendInfo.edge_emulators)
+             this.urlReceived = true;
              this.getBackendUrlEvent.emit();
          });
         }
