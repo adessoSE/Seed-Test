@@ -2,7 +2,7 @@ const os = require('os');
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
-const { expect } = require('chai');
+const { expect, AssertionError } = require('chai');
 const fs = require('fs');
 const webdriver = require('../../node_modules/selenium-webdriver');
 const { By, until, Key } = require('../../node_modules/selenium-webdriver');
@@ -514,8 +514,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 		if (resp == '') {
 			resp = await elem.getAttribute("outerHTML");
 		}
-		//expect(resp.toLowerCase()).to.include(expectedText.toLowerCase(), 'Textfield does not contain the string: ' + resp);
-		match(resp, RegExp(expectedText), 'Textfield does not contain the string: ' + resp)
+		match(resp, RegExp(expectedText.toString()), `Textfield does not contain the string/regex: ${expectedText} , actual: ${resp}` )
 	})
 	.catch(async (e) => {
 		await driver.takeScreenshot().then(async (buffer) => {
