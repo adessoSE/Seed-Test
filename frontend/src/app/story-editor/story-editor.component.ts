@@ -252,8 +252,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     ) {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
-        }
-
+        } else {
+          this.apiService.getBackendInfo();
+        }        
+  
     if (this.selectedStory) {
       this.storiesLoaded = true;
       this.storiesError = false;
@@ -343,13 +345,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             this.isDark = this.themeService.isDarkMode();
         });
 
-        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
-            this.loadStepTypes();
+        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {       
+          this.loadStepTypes();
         }); 
 
         this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
-      });
+      });     
   }
 
     ngOnDestroy() {

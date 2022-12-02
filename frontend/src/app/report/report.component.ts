@@ -27,7 +27,6 @@ export class ReportComponent implements OnInit {
     reportId;
 
     reportIsSaved;
-
     /**
      * html report of the result
      */
@@ -143,24 +142,34 @@ export class ReportComponent implements OnInit {
     public exportHtmlToPDF(){
         const iframe = this.iframe.nativeElement;
         const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
-
-        let divEl = iframe.contentWindow.document.getElementsByClassName('panel-collapse');
-        for (let element of divEl) {
+        let divEl =  iframe.contentWindow.document.querySelectorAll(`[id^="collapseFeature"]`);
+         for (let element of divEl) {
             element.classList.add("in");
         }
 
-        html2canvas(body).then(canvas => {
+		html2canvas(body).then(canvas => {
               
-            let docWidth = 208;
-            let docHeight = canvas.height * docWidth / canvas.width;
+            const imgData = canvas.toDataURL("image/jpeg", 1.0);
+            let imgWidth = 206; 
+            let pageHeight = 295;  
+            let imgHeight = canvas.height * imgWidth / canvas.width-10;
+            let heightLeft = imgHeight;
               
-            const contentDataURL = canvas.toDataURL('image/png')
             let doc = new jsPDF('p', 'mm', 'a4');
             let position = 0;
-            doc.addImage(contentDataURL, 'PNG', 0, position, docWidth, docHeight);
+            doc.addImage(imgData, 'PNG', 0, 12, imgWidth, imgHeight);
+          
+            heightLeft -= pageHeight;
+          
+            while (heightLeft >= 0) {
+              position = heightLeft - imgHeight;
+              doc.addPage();
+              doc.addImage(imgData, 'PNG', 0, position+12, imgWidth, imgHeight);
+              heightLeft -= pageHeight;
+            }
               
             doc.save(this.reportId+ '.pdf');
-        })
+        });
     }
       
 }
