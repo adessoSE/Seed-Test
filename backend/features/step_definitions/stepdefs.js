@@ -250,9 +250,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
 	if(value.includes('@@')){
-		console.log("KORBI" + value);
 		value = setValues(value);
-		console.log("KORBI" + value);
 	}
 	
 	const promises = []
@@ -274,20 +272,80 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 });
 
 function setValues(value) {
-    const date = new Date();
-    value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
-    value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
-    value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+	var date = new Date();
+
+	//@@Date +/- @@2,Month @@format:XXXXX€€
+
+	// const regexTestNeu = /(@@date)?(@@day(s)?)?(@@month(s)?)?(@@year(s)?)?(@@hour(s)?)?(@@minute(s)?)?(@@second(s)?)?(@@timestamp)?(\s*[+]\s*(@@([1-9][0-9]{0,2}|1000)\s*,\s*((day(s)?)?)((month(s)?)?)((year(s)?)?)((hour(s)?)?)((minute(s)?)?))((second(s)?)?))\s*@@format:[dae]€€/gi;
+	// const regexTestNeu2 = /(@@date)?(@@day(s)?)?(@@month(s)?)?(@@year(s)?)?(@@hour(s)?)?(@@minute(s)?)?(@@second(s)?)?(@@timestamp)?(\s*[-]\s*(@@([1-9][0-9]{0,2}|1000)\s*,\s*((day(s)?)?)((month(s)?)?)((year(s)?)?)((hour(s)?)?)((minute(s)?)?))((second(s)?)?))\s*@@format:[dae]€€/gi;
+
+	const regexDate1 = /@@date(\s*\+\s*(@@([1-9][0-9]{0,2}|1000)\s*,\s*day(s)?)?)/gi;
+	const regexDate2 = /@@date(\s*\-\s*(@@([1-9][0-9]{0,2}|1000)\s*,\s*day(s)?)?)/gi;
+
+    value = value.replace(/@@timestamp/gi, `${date.toISOString()}`);
+
+	// fall: 20.10.2022 + 365 Tage = 20.10.2023
+	if (value.match(regexDate1)) {
+		Date.prototype.addDays = function (days) {
+			const date = new Date(this.valueOf())
+			date.setDate(date.getDate() + days)
+			return date
+		}
+
+		var date1 = new Date();
+		var r = /\d+/;
+
+		// var checkDay = /(day(s)?)?/;
+		// var checkMonth = /month(s)?)?/;
+
+		// var checkYear = /(year(s)?)?/;
+		// var checkHour = /(hour(s)?)?/;
+		// var checkMinute = /(minute(s)?)?/;
+		// var checkSecond = /(second(s)?)?/;
+
+		// switch(value) {
+		// case value.match(checkDay):
+		//		break;
+		// 	case value.match(checkMonth):
+		//		break;
+		// }
+
+
+		var match = value.match(r);
+		var days = parseInt(match[0]);
+
+		value = value.replace(/@@date(\s*\+\s*(@@([1-9][0-9]{0,2}|1000)\s*,\s*day(s)?)?)/gi, `${("0" + date1.addDays(days).getDate()).slice(-2)}.${("0" + (date1.addDays(days).getMonth() + 1)).slice(-2)}.${date1.addDays(days).getFullYear()}`);
+
+	// fall: 20.10.2022 - 365 Tage = 20.10.2021
+	} else if (value.match(regexDate2)) {
+		Date.prototype.reduceDays = function (days) {
+			const date = new Date(this.valueOf())
+			date.setDate(date.getDate() - days)
+			return date
+		}
+
+		var date2 = new Date();
+		var r = /\d+/;
+		var match = value.match(r);
+		var days = parseInt(match[0]);
+
+		value = value.replace(/@@date(\s*\-\s*(@@([1-9][0-9]{0,2}|1000)\s*,\s*day(s)?)?)/gi, `${("0" + date2.reduceDays(days).getDate()).slice(-2)}.${("0" + (date2.reduceDays(days).getMonth() + 1)).slice(-2)}.${date2.reduceDays(days).getFullYear()}`);
+	} else {
+		value = value.replace(/@@date/gi, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
+	}
+
+    value = value.replace(/@@time/gi, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
 
     // @@Day @@Month @@Year @@Hour @@Minute @@Seconds
-    value = value.replace(/@@day/g, `${("0" + date.getDate()).slice(-2)}`);
-    value = value.replace(/@@month/g, `${("0" + (date.getMonth() + 1)).slice(-2)}`);
-    value = value.replace(/@@year/g, `${date.getFullYear()}`);
-    value = value.replace(/@@hour/g, `${("0" + date.getHours()).slice(-2)}`);
-    value = value.replace(/@@minute/g, `${("0" + date.getMinutes()).slice(-2)}`);
-    value = value.replace(/@@seconds/g, `${("0" + date.getSeconds()).slice(-2)}`);
+    value = value.replace(/@@day(s)?/gi, `${("0" + date.getDate()).slice(-2)}`);
+    value = value.replace(/@@month(s)?/gi, `${("0" + (date.getMonth() + 1)).slice(-2)}`);
+    value = value.replace(/@@year(s)?/gi, `${date.getFullYear()}`);
+    value = value.replace(/(@@hour(s)?)/gi, `${("0" + date.getHours()).slice(-2)}`);
+    value = value.replace(/(@@minute(s)?)/gi, `${("0" + date.getMinutes()).slice(-2)}`);
+    value = value.replace(/(@@second(s)?)/gi, `${("0" + date.getSeconds()).slice(-2)}`);
 	return value;
 }
+
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
