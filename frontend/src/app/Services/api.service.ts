@@ -37,7 +37,7 @@ export class ApiService {
     /**
      * If the backend url was received
      */
-    public urlReceived = false;
+    public urlReceived = localStorage.getItem('url_backend') && localStorage.getItem('url_backend') !== 'undefined';
 
     /**
      * Event Emitter if the stories could not be retrieved
@@ -786,6 +786,7 @@ export class ApiService {
              localStorage.setItem('gecko_emulators', backendInfo.gecko_emulators)
              localStorage.setItem('chromium_emulators', backendInfo.chromium_emulators)
              localStorage.setItem('edge_emulators', backendInfo.edge_emulators)
+             this.urlReceived = true;
              this.getBackendUrlEvent.emit();
          });
         }
@@ -1245,6 +1246,18 @@ export class ApiService {
              this.toastr.error('This Group Title is already in use. Please choose another Title'); 
            }
         }
+    }
+    public goToTicket(storyId: string, repository: RepositoryContainer) {
+        if (repository.source === 'github') {
+            const AUTHORIZE_URL = 'https://github.com/adessoSE/Seed-Test/issues/';
+            const s = `${AUTHORIZE_URL}${storyId}`;
+            return window.open(s);
+        } else if (repository.source === 'jira') {
+            const AUTHORIZE_URL = 'https://jira.adesso.de/browse/';
+            const s = `${AUTHORIZE_URL}${storyId}`;
+            return window.open(s);
+        }
+
     }
 }
     

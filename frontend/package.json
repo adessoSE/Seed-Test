@@ -1,6 +1,6 @@
 {
   "name": "seed-test-frontend",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "engines": {
     "node": "16.17.0"
   },

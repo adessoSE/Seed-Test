@@ -61,7 +61,7 @@ export class AddBlockFormComponent {
     openAddBlockFormModal(correspondingComponent: string, repoId: string) {
       this.getAllBlocks(repoId);
       this.correspondingComponent = correspondingComponent;
-      this.modalReference = this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+      this.modalReference = this.modalService.open(this.addBlockFormModal, {ariaLabelledBy: 'modal-basic-title',  modalDialogClass: 'addBlock'});
       if (this.correspondingComponent == 'background') {
         this.clipboardBlock = JSON.parse(sessionStorage.getItem('backgroundBlock'));
       } else if (this.correspondingComponent == 'scenario') {

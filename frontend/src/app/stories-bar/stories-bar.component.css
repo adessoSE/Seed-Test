@@ -86,19 +86,37 @@ li{
   height: 60px;
 }
 
-.close{
-  color: white;
-  outline: none;
-}
+  .close{
+    color: white;
+    outline: none;
+  }
+  .icon{
+    font-size: 14px;
+    vertical-align: text-bottom;
+    display: inline;
+  }
 
 .github-avatar{
   float: right;
 }
+.toTicket{
+  color: var(--ocean-blue);
+  font-size: 17px;
+  transform: translate(1px, 2px);
+  border: none;
+  background: transparent;
+  margin-left: 1px;
+}
+.toTicket > em{
+  background: transparent;
+  border: none;
+  margin-right: 2px;
 
+}
 a.storyListLink {
   transition: 0.2s;
   display: inline-block;
-  max-width: 77%;
+  max-width: 63%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

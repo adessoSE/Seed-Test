@@ -292,6 +292,7 @@ async function updateStory(updatedStory) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
+		updatedStory._id = ObjectId(updatedStory._id.toString())
 		return await collection.findOneAndReplace({_id: ObjectId(updatedStory._id.toString())}, updatedStory, {returnDocument: "after"})
 	} catch (e) {
 		console.log(`ERROR updateStory: ${e}`);
@@ -781,7 +782,7 @@ async function updateRepository(repoID, newName, user) {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		return collection.findOneAndUpdate(repoFilter, { $set: {"repo.repoName": newName} });
+		return collection.findOneAndUpdate(repoFilter, { $set: {"repoName": newName} }, { returnNewDocument: true });
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;

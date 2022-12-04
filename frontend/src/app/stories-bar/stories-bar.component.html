@@ -1,4 +1,4 @@
-<div [class.darkTheme]="isDark" class="grid">
+<div [class.darkTheme]="isDark" class="grid" cdkScrollable>
   <br>
   <mat-tab-group [dynamicHeight]='true'>
     <mat-tab label="Stories">
@@ -14,7 +14,7 @@
   <div class="searchBarWrapper">
   <!-- search bar here -->
 </div>
-<br>
+<hr>
 <div class="storyFilterWrapper">
   <span class="searchBar" id="searchStoriesBar">
     <em class="material-icons" id="searchBarIcons">search</em>
@@ -67,6 +67,9 @@
       <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" >
         <span class="github-avatar">
           <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
+          <button *ngIf="!isCustomStory" uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
+            <mat-icon class="toTicket">launch</mat-icon>
+          </button>
           <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
           <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
         </span>
@@ -82,6 +85,9 @@
             <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
               <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
               #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+              <mat-icon class="icon" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
+              <mat-icon class="icon" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
+              <mat-icon class="icon" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
             </a>
           </li>
         </ul>
@@ -97,6 +103,7 @@
     <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
   </div>
   <br>
+  <hr>
 </mat-tab>
 <mat-tab label="Groups">
   <ng-template mat-tab-label>
@@ -107,7 +114,7 @@
   </ng-template>
   <div class="searchBarWrapper"> 
   </div>
-  <br>
+  <hr>
     <div class="searchBar">
       <em class="material-icons" id="searchBarIcons">search</em>
       <input class="searchInput" [(ngModel)]="groupString" (ngModelChange)="groupTermChange()"/>
@@ -129,13 +136,13 @@
       </div>
 
       <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
-        <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
+          <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
           <a class="Largecaption scenarioListItem" cdkDrag>
-            <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-            {{stor.title | titlecase}}
-          </a>
-        </li>
-      </ul>
+              <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+              {{stor.title | titlecase}}
+            </a>
+          </li>
+        </ul>
     </li>
   </ul>
   <div id="createNewGroupDiv">

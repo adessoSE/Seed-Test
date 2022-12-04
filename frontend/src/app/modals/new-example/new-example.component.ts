@@ -74,9 +74,16 @@ export class NewExampleComponent{
       this.modalReference.close();
     }
   }
-
+  uniqueExample() {
+    const button = (document.getElementById('submitExample')) as HTMLButtonElement;
+    if(this.exampleNames != undefined) {
+      button.disabled = false;
+    } else {
+      this.uniqueExampleName();
+    }
+   }
   uniqueExampleName(){
-    this.apiService.uniqueExampleName('submitExample', this.newExampleForm.value.newName, this.exampleNames)
+       this.apiService.uniqueExampleName('submitExample', this.newExampleForm.value.newName, this.exampleNames)
   }
 
 }
