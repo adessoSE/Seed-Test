@@ -526,7 +526,7 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 });
 
 // Search if a is text in html code
-Then('So I can see the text: {string}', async function (string) { // text is present
+Then('So I can see the text: {string}', async function (expectedText) { // text is present
 	const world = this;
 	try {
 		await driver.sleep(500);
@@ -537,8 +537,7 @@ Then('So I can see the text: {string}', async function (string) { // text is pre
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			//expect(bodyAll.toLowerCase()).to.include(string.toString().toLowerCase(), 'Error');
-			match(bodyAll,RegExp(string),'Error')
+			match(bodyAll, RegExp(expectedText.toString()), `Page HTML does not contain the string/regex: ${expectedText}` )
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -606,8 +605,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			// expect(bodyAll.toLowerCase()).to.not.include(text.toString().toLowerCase(), 'Error');
-			doesNotMatch(bodyAll,RegExp(text),'Error')
+			doesNotMatch(bodyAll,RegExp(text.toString()), `Page HTML does contain the string/regex: ${expectedText}`)
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
