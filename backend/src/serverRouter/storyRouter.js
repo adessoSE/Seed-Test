@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
+const ki = require('./kiRouter');
 
 const router = express.Router();
 
@@ -61,6 +62,7 @@ router.post('/', async (req, res) => {
 router.put('/:_id', async (req, res) => {
   try {
     console.log(req.body);
+    ki.placeKiOrder(req.body)
     const story = await mongo.updateStory(req.body);
     await helper.updateFeatureFile(req.params._id, req.body.storySource);
     res.status(200).json(story);
