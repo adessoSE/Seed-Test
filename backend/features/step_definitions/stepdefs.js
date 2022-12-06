@@ -2,7 +2,7 @@ const os = require('os');
 const {
 	Given, When, Then, Before, After, setDefaultTimeout, setWorldConstructor, defineParameterType
 } = require('@cucumber/cucumber');
-const { expect, AssertionError } = require('chai');
+const { expect } = require('chai');
 const fs = require('fs');
 const webdriver = require('../../node_modules/selenium-webdriver');
 const { By, until, Key } = require('../../node_modules/selenium-webdriver');
