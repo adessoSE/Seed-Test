@@ -6,6 +6,10 @@ table {
 .deactivated{
   color: gray;
   font-style: italic;
+  text-decoration: line-through;
+}
+.deactivated .numbering{
+  text-decoration: line-through;
 }
 
 .valueRow{
