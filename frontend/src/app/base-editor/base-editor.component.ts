@@ -1409,4 +1409,18 @@ export class BaseEditorComponent  {
     this.markUnsaved();
   }
 
+  /**
+   * Add Value Row
+   */
+  addExampleValueRow(){
+    console.log("selected scenario: ", this.selectedScenario.stepDefinitions)
+    let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
+      row.values.forEach((value, index) => {
+        row.values[index] = 'value'
+      });
+      this.selectedScenario.stepDefinitions.example.push(row)
+    this.exampleChild.updateTable();
+    this.markUnsaved();
+  }
+
 }
