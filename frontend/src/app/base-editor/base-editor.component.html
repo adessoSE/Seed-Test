@@ -53,18 +53,6 @@
               <div *ngIf="sd == 'given'">{{i+1}}. Given (Precondition)</div>
               <div *ngIf="sd == 'when'">{{i+1}}. When (Action)</div>
               <div *ngIf="sd == 'then'">{{i+1}}. Then (Result)</div>
-              <button *ngIf="sd != 'example'" id="{{name+'_add_step' + i}}" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
-                title="Add New Step" uk-tooltip>
-                <em class="material-icons">add_circle_outline</em>
-              </button>
-              <div *ngIf="sd != 'example'" uk-dropdown="mode:hover">
-                <ul class="uk-nav uk-dropdown-nav">
-                  <li *ngFor="let step of sortedStepTypes(); let j = index;" >
-                    <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{name+'_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStep(step, this.selectedScenario, name, i);">
-                  {{step.type}}</span>
-                  </li>
-                </ul>
-              </div>
             </div>
             <div  class="uk-steps " *ngIf= "sd != 'example'">
               <div cdkDropList  class="cdkListStyle" (cdkDropListDropped)="onDrop($event,selectedScenario.stepDefinitions, i)">
@@ -166,7 +154,19 @@
                   </div>
                 </div>
               </div>  
-              <br>
+            </div>
+            <br>
+            <button *ngIf="sd != 'example'" id="{{name+'_add_step' + i}}" class="addStepButton" [class.disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')" [disabled]="(this.selectedScenario.stepDefinitions.example.length <= 0 && sd === 'example')"
+              title="Add New Step" uk-tooltip>
+              <em class="material-icons addStep">add_circle_outline</em>
+            </button>
+            <div *ngIf="sd != 'example'" uk-dropdown="mode:hover">
+              <ul class="uk-nav uk-dropdown-nav">
+                <li *ngFor="let step of sortedStepTypes(); let j = index;" >
+                  <span [ngClass]="(step.type !== this.newStepName)?'dropdownStep' : 'dropdownStepUndefined'" id="{{name+'_add_step_' + i + '_type_' + j}}" *ngIf="step.stepType===sd" (click)="addStep(step, this.selectedScenario, name, i);">
+                {{step.type}}</span>
+                </li>
+              </ul>
             </div>
           </div> 
         </ng-container>
@@ -210,20 +210,8 @@
           <div *ngFor="let sd of getKeysList(this.selectedStory.background.stepDefinitions);let i = index;" >
             <div class="stepsListContainer SmallHeadline5">
               <div *ngIf="sd == 'when'"> </div>
-              <button id="{{name+'_add_step_'+ i}}" [class.disabled]="testRunning" [disabled]="testRunning"
-              title="Add New Step" uk-tooltip>
-                <em class="material-icons">add_circle_outline</em>
-              </button>
-              <div uk-dropdown="mode:hover">
-                <ul class="uk-nav uk-dropdown-nav">
-                  <li *ngFor="let step of sortedStepTypes(); let j = index" >
-                    <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" (click)="addStep(step,this.selectedStory, name);">
-                    {{step.type}}</span>
-                  </li>
-                </ul>
-              </div>
             </div>
-            <div cdkDropList (cdkDropListDropped)="onDrop($event,selectedStory.background.stepDefinitions, 1)">
+            <div cdkDropList (cdkDropListDropped)="onDrop($event,selectedStory.background.stepDefinitions, 1)" style="padding-top: 10px;">
               <div  *ngFor="let currentStep of getStepsList(selectedStory.background.stepDefinitions, 1); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, selectedStory.background.stepDefinitions, 1)" (cdkDragEnded)="dragEnded()">
                 <div #backgroundContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(selectedStory.background.stepDefinitions, 1, j)">
                   <div #backgroundParentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
@@ -262,6 +250,19 @@
                 </div>
               </div>
             </div>
+            <br>
+              <button id="{{name+'_add_step_'+ i}}" class="addStepButton" [class.disabled]="testRunning" [disabled]="testRunning"
+              title="Add New Step" uk-tooltip>
+                <em class="material-icons addStep">add_circle_outline</em>
+              </button>
+              <div uk-dropdown="mode:hover">
+                <ul class="uk-nav uk-dropdown-nav">
+                  <li *ngFor="let step of sortedStepTypes(); let j = index" >
+                    <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep" *ngIf="step.stepType === 'when' && step.type !== this.newStepName" (click)="addStep(step,this.selectedStory, name);">
+                    {{step.type}}</span>
+                  </li>
+                </ul>
+              </div>
           </div>
         </ng-container>
       </ng-container>
