@@ -279,7 +279,7 @@ function analyzeGroupReport(grpName, stories, reportOptions) {
         reportResults.scenariosTested = scenariosTested;
 				return reportResults
       } catch (error) {
-        reportResults.overallTestStatus = false;
+        reportResults.status = false;
 				console.log('iterating through report Json failed in analyzeGroupReport.'
 				+ 'Setting testStatus of Report to false.', error);
       }
@@ -435,7 +435,7 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
 }
 
 async function failedReportPromise(reportName) {
-  return { reportName: `Failed-${reportName}`, overallTestStatus: false };
+  return { reportName: `Failed-${reportName}`, status: false };
 }
 
 function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
@@ -547,25 +547,25 @@ async function runReport(req, res, stories, mode, parameters) {
         console.log(reportResults);
         // upload report to DB
 			mongo.uploadReport(reportResults)
-          .then((uploadedReport) => {
-            // read html Report and add it top response
+      .then((uploadedReport) => {
+        // read html Report and add it top response
 				fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-                res.json({ htmlFile: data, reportId: uploadedReport._id });
+          res.json({ htmlFile: data, reportId: uploadedReport._id });
 				});
-            updateLatestTestStatus(uploadedReport, mode);
-            // delete Group folder
+        updateLatestTestStatus(uploadedReport, mode);
+        // delete Group folder
 				if (mode === 'group') setTimeout(deleteGroupDir, reportDeletionTime * 60000, `${reportResults.reportName}`);
-            else {
-              // delete reports in filesystem after a while
+        else {
+          // delete reports in filesystem after a while
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
 					setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
-            }
-          })
-          .catch((error) => {
-            console.log(`Could not UploadReport :  ./features/${reportName}.json
+        }
+      })
+      .catch((error) => {
+        console.log(`Could not UploadReport :  ./features/${reportName}.json
 				Rejection: ${error}`);
 				res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
-          });
+      });
 
         // if possible separate function
 			for(const story of stories){
@@ -948,7 +948,7 @@ function updateLatestTestStatus(uploadedReport, mode) {
 		case 'feature':
       updateStoryTestStatus(
         uploadedReport.storyId,
-        uploadedReport.overallTestStatus,
+        uploadedReport.status,
         uploadedReport.scenarioStatuses
       );
       break;
@@ -975,7 +975,7 @@ async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatu
 
 async function updateScenarioTestStatus(uploadedReport) {
   try {
-		await mongo.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.overallTestStatus);
+		await mongo.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.status);
   } catch (e) {
 		console.log('Could not Update Scenario LastTestPassed.');
   }
