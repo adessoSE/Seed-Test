@@ -53,7 +53,7 @@ EXPOSE 8080
 RUN service dbus start
 
 # starts the backend server
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm run database && npm run start"]
 
 # keeps container running without doing anything so you can bash into it
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
