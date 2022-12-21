@@ -96,7 +96,17 @@ em.dragIcon{
 
 .uk-card-title {
   font-size: medium;
-  font-weight: bold;
+}
+.addStepButton{
+  border: inherit;
+  background: inherit;
+  color: var(--ocean-blue);
+  float: right;
+  transform: translate(0, -45px);
+
+}
+em.addStep{
+  color: var(--ocean-blue);
 }
 
 .pencil_icon {
