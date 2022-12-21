@@ -4,7 +4,7 @@ const { exit } = require('process');
 const stepTypes = require('./stepTypes');
 require('dotenv').config();
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017";
 
 async function checkConnection() {
 	var fails = 1;
