@@ -32,20 +32,19 @@
           <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
           class="actionButton" uk-tooltip title="Add new Variable"
           (click)="openNewExample(step)">
-            <div style="display:grid;">
-            <em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
-            <em class="material-icons" id="tableAddButton">add_circle</em>
-            <em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
+            <div class="actionButton" style="display:grid;">
+              <em class="material-icons-outlined" style="transform: rotate(90deg); grid-column: 1; grid-row: 1">view_stream</em>
+              <em class="material-icons" id="tableAddButton">add_circle</em>
+              <em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
             </div>
           </button>
           <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
           class="actionButton" uk-tooltip title="Add Example"
           (click)="addExampleValueRow()">
-          <div style="display: grid;">
-            <em class="material-icons-outlined" style="transform: rotate(90deg); grid-column: 1; grid-row: 1">view_stream</em>
+          <div class="actionButton" style="display: grid;">
+            <em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
             <em class="material-icons" id="tableAddButton">add_circle</em>
             <em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
-            
           </div>
           </button>
           
