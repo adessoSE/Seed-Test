@@ -961,7 +961,7 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 						{ scenario_id: scenarioId }
 				}
 			}, {
-				$set: { lastTestPassed: scenarioLastTestStatus }
+				$set: { 'scenarios.$.lastTestPassed': scenarioLastTestStatus }
 			});
 	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);

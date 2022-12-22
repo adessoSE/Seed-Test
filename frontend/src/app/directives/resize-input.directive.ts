@@ -56,9 +56,10 @@ export class ResizeInputDirective {
     let input_width = this.el.nativeElement.offsetWidth;
     let coef = 10;
     let gap = (this.maxWidth - parentWidth);
+    
 
     //Check if maxWidth exceeded 
-    if((parentWidth - input_width + string_length*coef) < this.maxWidth) {
+    if((parentWidth - input_width + string_length*coef) <= this.maxWidth) {
       if (string_length <= 10 ){
         this.el.nativeElement.setAttribute('size', this.minWidth);
       } else {
@@ -66,17 +67,9 @@ export class ResizeInputDirective {
       }
     } 
     else {
-      if (gap >= 0){
-        if (mode_type == 'load') {
-          let width = (input_width + gap)/coef;
-          this.el.nativeElement.setAttribute('size', width);
-        } 
-      } 
-      else {
-        if (mode_type == 'load') {
-          let width = (input_width - gap)/coef;
-          this.el.nativeElement.setAttribute('size', width);
-        } 
+      if (mode_type == 'load') {
+        let width = (input_width + gap)/coef;
+        this.el.nativeElement.setAttribute('size', width);
       }
     } 
   }
