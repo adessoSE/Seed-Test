@@ -627,13 +627,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 									.subscribe((report: any) => {
             if (scenario_id) {
               // ScenarioReport
-              const val = report.scenarioStatuses.status;
-												this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
+              const val = report.status;
+              this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
             } else {
               // StoryReport
-											report.scenarioStatuses.forEach(scenario => {
-                this.apiService.scenarioStatusChangeEmit(
-															this.selectedStory._id, scenario.scenarioId, scenario.status);
+								report.scenarioStatuses.forEach(scenario => {
+                  this.apiService.scenarioStatusChangeEmit(
+                    this.selectedStory._id, scenario.scenarioId, scenario.status);
               });
             }
           });
