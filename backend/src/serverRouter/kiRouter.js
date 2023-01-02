@@ -14,11 +14,18 @@ const { signal } = ac;
 (async () => {
   try {
     const watcher = pfs.watch(path.join(KI_Exchange, 'output'), { signal });
-    for await (const fsEvent of watcher)
+    for await (const fsEvent of watcher){
+      const filename = fsEvent.filename
       console.log(fsEvent);
-      const file = await pfs.readFile(path.join(KI_Exchange, 'output', fsEvent.filename)).then(()=>console.log('read file'));
+      if(fsEvent.eventType == 'change') return;
+      const file = await pfs.readFile(path.join(KI_Exchange, 'output', fsEvent.filename))
+      .catch((err)=>{
+        if(err.code == 'ENOENT') return;//suppress file not found
+        console.error(err);
+      });
       console.log(file);
       consumeKiOutput(file)
+    }
   } catch (err) {
     console.error(err);
     if (err.name === 'AbortError')
