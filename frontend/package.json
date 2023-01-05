@@ -23,16 +23,16 @@
   "dependencies": {
     "@angular-devkit/build-angular": "^14.2.10",
     "@angular/animations": "^14.2.12",
-    "@angular/cdk": "^13.2.4",
+    "@angular/cdk": "^14.2.4",
     "@angular/common": "^14.2.12",
     "@angular/compiler": "^14.2.12",
     "@angular/core": "^14.2.12",
     "@angular/forms": "^14.2.12",
-    "@angular/material": "^13.2.4",
+    "@angular/material": "^14.2.4",
     "@angular/platform-browser": "^14.2.12",
     "@angular/platform-browser-dynamic": "^14.2.12",
     "@angular/router": "^14.2.12",
-    "@ng-bootstrap/ng-bootstrap": "^12.0.0",
+    "@ng-bootstrap/ng-bootstrap": "^13.0.0",
     "@ngneat/until-destroy": "^9.1.2",
     "canvg": "^4.0.0",
     "core-js": "^3.21.1",
@@ -41,12 +41,12 @@
     "file-saver": "^2.0.5",
     "hammerjs": "^2.0.8",
     "invert-kv": "^3.0.1",
-    "jest-preset-angular": "^12.2.2",
+    "jest-preset-angular": "^12.2.3",
     "jquery": "^3.6.0",
     "jspdf": "^2.5.1",
-    "ngx-cookie-service": "^13.1.2",
+    "ngx-cookie-service": "^14.0.0",
     "ngx-logger": "~4.3.3",
-    "ngx-owl-carousel-o": "^7.0.1",
+    "ngx-owl-carousel-o": "^14.0.0",
     "ngx-take-until-destroy": "^5.4.0",
     "ngx-toastr": "14.2.1",
     "node-fetch": "^2.6.1",
@@ -99,4 +99,4 @@
     },
     "globals": {}
   }
-}
+} 
