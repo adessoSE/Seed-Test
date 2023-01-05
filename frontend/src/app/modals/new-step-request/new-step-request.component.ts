@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from 'src/app/Services/api.service';
@@ -17,11 +17,11 @@ export class NewStepRequestComponent {
 
   @ViewChild('newStepRequestModal') newStepRequestModal: NewStepRequestComponent;
 
-  newStepReqForm = new FormGroup ({
-    title: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    type: new FormControl(''),
-    description: new FormControl(''),
-    email: new FormControl(''),
+  newStepReqForm = new UntypedFormGroup ({
+    title: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    type: new UntypedFormControl(''),
+    description: new UntypedFormControl(''),
+    email: new UntypedFormControl(''),
   },
   {updateOn: "blur"});
 

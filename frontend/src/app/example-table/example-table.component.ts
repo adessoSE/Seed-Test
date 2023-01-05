@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { DeleteExampleToast } from './../deleteExample-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { FormGroup, FormArray, FormControl } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormArray, UntypedFormControl } from '@angular/forms';
 import { Scenario } from '../model/Scenario';
 import { ToastrService } from 'ngx-toastr';
 import { Story } from '../model/Story';
@@ -78,7 +78,7 @@ export class ExampleTableComponent implements OnInit {
   /**
    * Controls of the table
    */
-  controls: FormArray;
+  controls: UntypedFormArray;
 
   /**
    * Last row to render add button
@@ -191,18 +191,18 @@ export class ExampleTableComponent implements OnInit {
     //});
     //this.selectedScenario.stepDefinitions.example[0].values = Array.from(seen);
     this.displayedColumns = [" "].concat(this.selectedScenario.stepDefinitions.example[0].values);
-    const formArray: FormGroup[] = [];
+    const formArray: UntypedFormGroup[] = [];
     for (let i = 1 ; i < this.selectedScenario.stepDefinitions.example.length; i++) {
-      let toGroups = new FormGroup({},{updateOn: 'blur'});
+      let toGroups = new UntypedFormGroup({},{updateOn: 'blur'});
       for (let j = 0; j < this.selectedScenario.stepDefinitions.example[i].values.length; j++ ) {
-        let cont1 = new FormControl(this.selectedScenario.stepDefinitions.example[i].values[j]);
+        let cont1 = new UntypedFormControl(this.selectedScenario.stepDefinitions.example[i].values[j]);
         toGroups.addControl(this.selectedScenario.stepDefinitions.example[0].values[j], cont1);
 
       }
       formArray.push(toGroups);
     }
 
-    this.controls = new FormArray(formArray);
+    this.controls = new UntypedFormArray(formArray);
   }
   
   /**
@@ -241,8 +241,8 @@ export class ExampleTableComponent implements OnInit {
     * @param fieldName name of the cell column
     * @returns FormControl of the cell
     */
-  getControl(rowIndex: number, fieldName: string): FormControl {
-    return this.controls.at(rowIndex).get(fieldName) as FormControl;
+  getControl(rowIndex: number, fieldName: string): UntypedFormControl {
+    return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
   }
 
   /**

@@ -5,7 +5,7 @@ import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
 import { ApiService } from 'src/app/Services/api.service';
-import { FormGroup, FormControl, Validators} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-create-new-story',
@@ -37,9 +37,9 @@ export class CreateNewStoryComponent {
 
   //storytitle: string;
 
-  storyForm = new FormGroup ({
-    storyTitle: new FormControl('',[Validators.required, Validators.pattern(/[\S]/)]),
-    storyDescription: new FormControl(''),
+  storyForm = new UntypedFormGroup ({
+    storyTitle: new UntypedFormControl('',[Validators.required, Validators.pattern(/[\S]/)]),
+    storyDescription: new UntypedFormControl(''),
   });
 
 

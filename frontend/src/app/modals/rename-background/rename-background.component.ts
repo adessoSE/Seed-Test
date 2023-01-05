@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
 
@@ -14,7 +14,7 @@ export class RenameBackgroundComponent{
 
   @ViewChild('renameBackground') renameBackground: RenameBackgroundComponent;
 
-  backgroundTitle = new FormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
+  backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
 
   constructor(private modalService: NgbModal, public apiService: ApiService) { }
 

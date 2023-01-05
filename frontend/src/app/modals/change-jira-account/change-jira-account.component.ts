@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ApiService } from 'src/app/Services/api.service';
 
@@ -30,10 +30,10 @@ export class ChangeJiraAccountComponent {
   */
   modalReference: NgbModalRef;
 
-  jiraForm = new FormGroup({
-    jiraAccountName: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    jiraPassword: new FormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)]),
-    jiraHost: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
+  jiraForm = new UntypedFormGroup({
+    jiraAccountName: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    jiraPassword: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)]),
+    jiraHost: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
   });
 
   get jiraAccountName() { return this.jiraForm.get('jiraAccountName'); }
