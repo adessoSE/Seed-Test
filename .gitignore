@@ -48,7 +48,6 @@ frontend/src/environments/environment.ts
 Thumbs.db
 
 # Lints
-.eslintrc.json
 tslint.json
 
 # Coerage & Code Analysis
