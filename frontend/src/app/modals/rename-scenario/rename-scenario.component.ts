@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ApiService } from 'src/app/Services/api.service';
+import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
   selector: 'app-rename-scenario',

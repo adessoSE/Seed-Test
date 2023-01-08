@@ -3,9 +3,9 @@ import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
-import { Block } from 'src/app/model/Block';
-import { StepType } from 'src/app/model/StepType';
-import { ApiService } from 'src/app/Services/api.service';
+import { Block } from '../../../app/model/Block';
+import { StepType } from '../../../app/model/StepType';
+import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
   selector: 'app-save-block-form',

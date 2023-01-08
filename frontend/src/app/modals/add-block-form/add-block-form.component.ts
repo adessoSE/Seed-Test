@@ -1,8 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import { Block } from 'src/app/model/Block';
-import { ApiService } from 'src/app/Services/api.service';
-import { StepType } from 'src/app/model/StepType';
+import { Block } from '../../../app/model/Block';
+import { ApiService } from '../../../app/Services/api.service';
+import { StepType } from '../../../app/model/StepType';
 
 @Component({
   selector: 'app-add-block-form',

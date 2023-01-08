@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { ApiService } from 'src/app/Services/api.service';
+import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
   selector: 'app-new-step-request',

@@ -2,8 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { ApiService } from 'src/app/Services/api.service';
-import {RepositoryContainer} from 'src/app/model/RepositoryContainer';
+import { ApiService } from '../../../app/Services/api.service';
+import {RepositoryContainer} from '../../../app/model/RepositoryContainer';
 
 @Component({
   selector: 'app-create-custom-project',

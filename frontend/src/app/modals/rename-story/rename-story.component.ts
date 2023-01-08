@@ -1,8 +1,8 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Story } from 'src/app/model/Story';
-import { ApiService } from 'src/app/Services/api.service';
+import { Story } from '../../../app/model/Story';
+import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
   selector: 'app-rename-story',

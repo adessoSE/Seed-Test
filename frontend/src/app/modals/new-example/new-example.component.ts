@@ -2,7 +2,7 @@ import { Scenario } from './../../model/Scenario';
 import { StepType } from './../../model/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Component, ViewChild} from '@angular/core';
-import { ApiService } from 'src/app/Services/api.service';
+import { ApiService } from '../../../app/Services/api.service';
 import { UntypedFormGroup, UntypedFormControl} from '@angular/forms';
 
 @Component({

@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
-import { ApiService } from 'src/app/Services/api.service';
+import { RepositoryContainer } from '../../../app/model/RepositoryContainer';
+import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
   selector: 'app-repo-swich',

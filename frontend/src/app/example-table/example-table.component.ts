@@ -1,4 +1,4 @@
-import { ApiService } from 'src/app/Services/api.service';
+import { ApiService } from '../../app/Services/api.service';
 import { Subscription } from 'rxjs';
 import { DeleteExampleToast } from './../deleteExample-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';

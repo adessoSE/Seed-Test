@@ -3,10 +3,10 @@ import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { Group } from 'src/app/model/Group';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
-import { Story } from 'src/app/model/Story';
-import { ApiService } from 'src/app/Services/api.service';
+import { Group } from '../../../app/model/Group';
+import { RepositoryContainer } from '../../../app/model/RepositoryContainer';
+import {Story} from '../../../app/model/Story';
+import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
   selector: 'app-update-group',

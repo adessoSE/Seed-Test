@@ -1,8 +1,8 @@
 import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Story } from 'src/app/model/Story';
-import { ApiService } from 'src/app/Services/api.service';
+import { Story } from '../../../app/model/Story';
+import { ApiService } from '../../../app/Services/api.service';
 
 @Component({
   selector: 'app-create-scenario',
