@@ -69,8 +69,6 @@ app
 app
 	.use(passport.initialize())
 	.use(passport.session())
-	.use(bodyParser.json({ limit: '100kb' }))
-	.use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
 	.use((_, __, next) => {
 		logging.httpLog(_, __, next)
 	})

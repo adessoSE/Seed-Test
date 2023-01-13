@@ -8,9 +8,9 @@ const router = express.Router();
 
 router
   .use(cors())
-	.use(bodyParser.json({ limit: '200kb' }))
+	.use(bodyParser.json({ limit: '500kb' }))
 	.use(bodyParser.urlencoded({
-		limit: '200kb',
+		limit: '500kb',
 		extended: true
 	}))
   .use((req, res, next) => {
