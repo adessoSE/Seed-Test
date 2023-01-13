@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
+const ki = require('./kiRouter')
 
 const router = express.Router();
 // This router is used for accessing Cucumber/Selenium Reports
@@ -92,6 +93,17 @@ router.get('/unsaveReport/:reportId', async (req, res) => {
 		console.log('error in unsaveReport', error);
 
 		res.sendStatus(401);
+	}
+});
+
+router.post('/runKI/:storyId', async (req, res) => {
+	try {
+		// TODO: Authenticate user
+		ki.placeKiOrder(req.params.storyId);
+		res.sendStatus(200);
+	} catch (error) {
+		console.log('error in RunKI endpoint', error);
+		res.sendStatus(500);
 	}
 });
 

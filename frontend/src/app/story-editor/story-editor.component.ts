@@ -660,6 +660,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 		}
   }
 
+  runKI() {
+    this.apiService.runKi(this.selectedStory._id)
+    .subscribe((resp: any) =>{ })
+  }
+
     /**
      * Download the test report
      */

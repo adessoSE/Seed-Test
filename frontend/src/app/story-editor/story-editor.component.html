@@ -282,6 +282,17 @@
           <em class="material-icons-outlined">cancel</em>
         </button>
         <button
+          id="run_ki"
+          class="button"
+          [class.disabledButton]="testRunning"
+          [disabled]="testRunning"
+          uk-tooltip="Runs the KI service, building the test from the Description"
+          type="button"
+          (click)="runKI(null)"
+        >
+        RunKI
+        </button>
+        <button
           id="run_story"
           class="button"
           [class.disabledButton]="testRunning"

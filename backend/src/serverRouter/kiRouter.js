@@ -40,7 +40,8 @@ const { signal } = ac;
 console.log('watch ki-exchange output');
 
 
-function placeKiOrder(story) {
+async function placeKiOrder(storyId) {
+    const story = await db.getOneStory(storyId, null);
     placeFile('input', story._id+'.json', JSON.stringify(story));
     console.log('place kI Order');
 }

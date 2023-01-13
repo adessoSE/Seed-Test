@@ -1112,6 +1112,13 @@ export class ApiService {
         .post(this.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })});
     }
 
+    runKi(storyID) {
+        this.apiServer = localStorage.getItem('url_backend');
+        const timeout = 6000000;
+        console.log('run ki call');
+        return this.http.post(this.apiServer + '/run/runKI/' + storyID, null, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })})
+    }
+
 
 
     /**
