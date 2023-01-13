@@ -18,13 +18,17 @@ const { signal } = ac;
       const filename = fsEvent.filename
       console.log(fsEvent);
       if(fsEvent.eventType == 'change') return;
-      const file = await pfs.readFile(path.join(KI_Exchange, 'output', fsEvent.filename))
+      const filePath = path.join(KI_Exchange, 'output', fsEvent.filename);
+      pfs.readFile(filePath)
+      .then((file)=> {
+        console.log(file);
+        consumeKiOutput(file.toString())
+        pfs.unlink(filePath) // delete after read
+      })
       .catch((err)=>{
         if(err.code == 'ENOENT') return;//suppress file not found
         console.error(err);
       });
-      console.log(file);
-      consumeKiOutput(file)
     }
   } catch (err) {
     console.error(err);
@@ -56,7 +60,7 @@ async function getFile(dir){
 
 function consumeKiOutput(story){
     console.log('consume KI Output: ' + JSON.stringify(story));
-    //db.updateStory(story);
+    //db.updateStory(story)
 }
 
 function placeFile(dir, filename, file){
