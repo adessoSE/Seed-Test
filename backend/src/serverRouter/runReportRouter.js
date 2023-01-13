@@ -11,6 +11,11 @@ router
 		console.log('Time of submitted Run:', Date.now());
 		next();
 	})
+	.use(bodyParser.json({ limit: '100kb' }))
+	.use(bodyParser.urlencoded({
+		limit: '100kb',
+		extended: true
+	}))
 	.use((req, res, next) => {
 		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
 		res.header('Access-Control-Allow-Credentials', 'true');
