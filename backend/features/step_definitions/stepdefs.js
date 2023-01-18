@@ -274,6 +274,22 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 function setValues(value) {
 	var date = new Date();
 
+	var format = value.match(/(?<=@@format:)(.*)(?=€€)/);
+	var adds = value.match(/(?<=\+@@)(\d*,\w*)(?=[\+|@|\-])/)
+	var subs = value.maczh(/(?<=\-@@)(\d*,\w*)(?=[\+|@|\-])/);
+	var date = "a";
+
+
+
+
+
+
+
+
+
+
+
+
 	//@@Date +/- @@2,Month @@format:XXXXX€€
 	// TODO neues Regex Statement mit Format und €€, muss aber noch implementiert werden, auch Unterscheidung nach + und -
 	const regexTestNeu = /(@@date)?(@@day(s)?)?(@@month(s)?)?(@@year(s)?)?(@@hour(s)?)?(@@minute(s)?)?(@@second(s)?)?(@@timestamp)?(\s*[+]\s*)(@@([1-9][0-9]{0,2}|1000))\s*,\s*(day(s)?)?(month(s)?)?(year(s)?)?(hour(s)?)?(minute(s)?)?(second(s)?)?\s*@@format\s*:\s*.+?(?=€€)/gi; // nimmt alles bis €€
