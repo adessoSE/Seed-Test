@@ -66,8 +66,6 @@ export class StoryService {
     * @return single Story object
   */
   public getStory(_id, source): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
-
     return this.http
       .get<Story>(this.apiService.apiServer + '/story/' + _id + '/' + source, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -83,7 +81,6 @@ export class StoryService {
     * @returns
   */
   public createStory(title: string, description: string, repository: string, _id: string): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const body = { 'title': title, 'description': description, 'repo': repository, '_id': _id };
     return this.http
       .post<Story>(this.apiService.apiServer + '/story/', body, ApiService.getOptions())
@@ -96,7 +93,6 @@ export class StoryService {
     * @param story updatedStory
   */
   public updateStory(story: Story): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .put<Story>(this.apiService.apiServer + '/story/' + story._id, story, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -109,7 +105,6 @@ export class StoryService {
     * @param _id StoryID
   */
   public deleteStory(repository, _id): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .delete<any>(this.apiService.apiServer + '/story/' + repository + '/' + _id, ApiService.getOptions())
       .pipe(tap());
@@ -120,7 +115,6 @@ export class StoryService {
     * @returns
   */
   getStories(repository: RepositoryContainer): Observable<Story[]> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     let params;
     if (repository.source === 'github') {
       const repo = repository.value.split('/');
@@ -144,7 +138,6 @@ export class StoryService {
    * @returns
   */
   updateStoryList(repo_id, storiesList) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .put(this.apiService.apiServer + '/user/stories/' + repo_id, storiesList, ApiService.getOptions())
       .pipe(tap());
@@ -158,7 +151,6 @@ export class StoryService {
    * @returns
   */
   runTests(storyID: any, storySource: string, scenarioID: number, params) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const timeout = 900000;
     if (scenarioID) {
       return this.http
@@ -185,8 +177,6 @@ export class StoryService {
     * @returns
   */
   public changeOneDriver(oneDriver: boolean, storyID: any) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
-
     return this.http
       .post(this.apiService.apiServer + '/mongo/oneDriver/' + storyID, { oneDriver });
   }
@@ -214,7 +204,6 @@ export class StoryService {
    * @returns
    */
   getStepTypes(): Observable<StepType[]> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<StepType[]>(this.apiService.apiServer + '/mongo/stepTypes', ApiService.getOptions())
       .pipe(tap(_ => {

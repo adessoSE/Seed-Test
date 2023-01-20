@@ -24,7 +24,6 @@ export class ManagementService {
    * @returns
   */
   createJiraAccount(request) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .post<any>(this.apiService.apiServer + '/jira/user/create/', request, ApiService.getOptions())
       .pipe(tap());
@@ -34,7 +33,6 @@ export class ManagementService {
    * @returns
   */
   getUserData(): Observable<User> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<User>(this.apiService.apiServer + '/mongo/user/', ApiService.getOptions())
       .pipe(tap(_ => {
@@ -46,7 +44,6 @@ export class ManagementService {
    * @returns
   */
   deleteUser() {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .delete<any>(this.apiService.apiServer + '/mongo/user/delete', ApiService.getOptions())
       .pipe(tap(_ => {

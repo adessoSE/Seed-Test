@@ -62,7 +62,6 @@ export class ScenarioService {
   }
   /* Updating scenario list */
   public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .patch(this.apiService.apiServer + '/story/' + story_id + '/' + source, scenario_list, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -77,7 +76,6 @@ export class ScenarioService {
     * @returns
   */
   addScenario(storyID: any, storySource: string, scenarioTitle: string): Observable<Scenario> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const body = { 'name': scenarioTitle };
     return this.http
       .post<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource, body, ApiService.getOptions())
@@ -92,8 +90,6 @@ export class ScenarioService {
     * @returns
   */
   public addFirstScenario(storyID, storySource: string): Observable<Scenario> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
-
     return this.http
       .get<any>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
       .pipe(tap(resp => {
@@ -107,7 +103,6 @@ export class ScenarioService {
    * @param scenarioID
   */
   getScenario(storyID: any, storySource, scenarioID): Observable<Scenario> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenarioID, ApiService.getOptions())
       .pipe(tap(resp => {
@@ -122,7 +117,6 @@ export class ScenarioService {
     * @returns
   */
   updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Scenario> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .put<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -137,7 +131,6 @@ export class ScenarioService {
     * @returns
   */
   deleteScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .delete<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id, ApiService.getOptions())
       .pipe(tap(() => {

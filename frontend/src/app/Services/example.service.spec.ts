@@ -1,16 +1,31 @@
 import { TestBed } from '@angular/core/testing';
-
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ToastrModule, ToastrService} from 'ngx-toastr';
+import { ApiService } from './api.service';
 import { ExampleService } from './example.service';
 
 describe('ExampleService', () => {
   let service: ExampleService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule, ToastrModule.forRoot()],
+    });
     service = TestBed.inject(ExampleService);
+    httpMock = TestBed.inject(HttpTestingController);
+    sessionStorage.setItem('url_backend', 'http://localhost:8080/api');
+  });
+  afterEach(() => {
+    sessionStorage.removeItem('url_backend');
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  describe('create', () => {
+    it('should be created', () => {
+      const apiService =TestBed.inject(ApiService);
+      const toast=TestBed.inject(ToastrService);
+      const service: ExampleService = new ExampleService(apiService,toast);
+      expect(service).toBeTruthy();
+    });
   });
 });
