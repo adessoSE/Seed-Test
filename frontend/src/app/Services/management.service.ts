@@ -60,7 +60,7 @@ export class ManagementService {
       .pipe(tap(_ => {
         //
       }),
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
   /**
    * Downloading custom project in a file

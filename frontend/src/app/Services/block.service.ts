@@ -54,7 +54,7 @@ export class BlockService {
     .pipe(tap(_ => {
       //
     }),
-    catchError(ApiService.handleError));
+    catchError(this.apiService.handleError));
   }
 
   /**
@@ -68,7 +68,7 @@ export class BlockService {
     .pipe(tap(_ => {
       //
     }),
-    catchError(ApiService.handleError));
+    catchError(this.apiService.handleError));
   }
   /**
   * Saves a new block

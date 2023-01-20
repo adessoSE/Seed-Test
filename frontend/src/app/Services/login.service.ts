@@ -40,7 +40,7 @@ export class LoginService {
       .pipe(tap(_ => {
         //
       }),
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
 
   /**
@@ -57,7 +57,7 @@ export class LoginService {
       .pipe(tap(_ => {
         //
       }),
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
   /**
     * Merges Seed-Test account and github account
@@ -74,7 +74,7 @@ export class LoginService {
     .pipe(tap(_ => {
       //
     }),
-    catchError(ApiService.handleError));
+    catchError(this.apiService.handleError));
   }
   /**
     * Loggs in a user
@@ -88,7 +88,7 @@ export class LoginService {
       .pipe(tap(_ => {
         //
       }),
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
   /**
    * Loggs in the user into jira
@@ -154,7 +154,7 @@ export class LoginService {
       .pipe(tap(_ => {
         //
       }),
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
   /**
    * Registers a user for a seed-test account
@@ -170,7 +170,7 @@ export class LoginService {
       .pipe(tap(_ => {
         //
       }), 
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
 
 }

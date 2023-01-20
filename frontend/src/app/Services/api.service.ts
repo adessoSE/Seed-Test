@@ -62,7 +62,7 @@ export class ApiService {
      * @param error
      * @returns
      */
-    static handleError(error: HttpErrorResponse) {
+    public handleError(error: HttpErrorResponse) {
         console.log(JSON.stringify(error));
         return throwError(() => error);
     }

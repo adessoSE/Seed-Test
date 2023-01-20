@@ -113,7 +113,7 @@ export class ProjectService {
         sessionStorage.setItem('repositories', JSON.stringify(resp));
         this.updateRepositoryEmitter();
       }),
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
 
   /**
@@ -128,7 +128,7 @@ export class ProjectService {
       .pipe(tap(() => {
         //
       }),
-      catchError(ApiService.handleError));
+      catchError(this.apiService.handleError));
   }
   /**
    * Adds a user to a workgroup

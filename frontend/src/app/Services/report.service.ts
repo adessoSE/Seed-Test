@@ -28,7 +28,7 @@ export class ReportService {
         .pipe(tap(resp => {
           console.log('Got single Report: ' + resp);
         }),
-        catchError(ApiService.handleError));
+        catchError(this.apiService.handleError));
     }
   }
   /**
@@ -43,7 +43,7 @@ export class ReportService {
         .pipe(tap(_ => {
           //
         }),
-        catchError(ApiService.handleError));
+        catchError(this.apiService.handleError));
     }
   }
   /**
