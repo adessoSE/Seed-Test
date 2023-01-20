@@ -79,7 +79,6 @@ export class ProjectService {
     * @returns
   */
   createRepository(name: string, _id: string): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     console.log( this.apiService.apiServer);
     const body = { 'name': name, '_id': _id };
     return this.http
@@ -96,7 +95,6 @@ export class ProjectService {
    * @returns
   */
   public updateRepository(repoID, newRepoName: string, user: any): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .put<RepositoryContainer>( this.apiService.apiServer + '/user/repository/' + repoID + '/' + user, { repoName: newRepoName }, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -108,8 +106,6 @@ export class ProjectService {
    * @returns
   */
   getRepositories(): Observable<RepositoryContainer[]> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
-
     const str =  this.apiService.apiServer + '/user/repositories';
 
     return this.http.get<RepositoryContainer[]>(str, ApiService.getOptions())
@@ -127,7 +123,6 @@ export class ProjectService {
    * @returns
   */
   deleteRepository(repo: RepositoryContainer, user) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const str =  this.apiService.apiServer + '/user/repositories/' + repo._id + '/' + user;
     return this.http.delete<any>(str, ApiService.getOptions())
       .pipe(tap(() => {

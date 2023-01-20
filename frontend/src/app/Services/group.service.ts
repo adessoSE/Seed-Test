@@ -131,7 +131,6 @@ export class GroupService {
     * @returns
   */
   runGroup(repoID, groupID, params) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const timeout = 6000000;
     return this.http
       .post(this.apiService.apiServer + '/run/Group/' + repoID + '/' + groupID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });

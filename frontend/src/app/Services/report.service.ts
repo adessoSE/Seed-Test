@@ -22,7 +22,6 @@ export class ReportService {
    * @returns
   */
   getReport(reportId: string) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     if (this.apiService.apiServer) {
       const str = this.apiService.apiServer + '/mongo/report/' + reportId;
       return this.http.get(str, { responseType: 'json', withCredentials: true })
@@ -38,7 +37,6 @@ export class ReportService {
     * @returns
   */
   getReportByName(reportName: string) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     if (this.apiService.apiServer) {
       const str = this.apiService.apiServer + '/run/report/' + reportName;
       return this.http.get(str, { responseType: 'json', withCredentials: true })
@@ -55,7 +53,6 @@ export class ReportService {
   */
   deleteReport(reportId): Observable<any> {
     console.log('delete reportId', reportId);
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .delete<any>(this.apiService.apiServer + '/run/report/' + reportId, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -68,7 +65,6 @@ export class ReportService {
     * @returns
   */
   saveReport(reportId): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<any>(this.apiService.apiServer + '/run/saveReport/' + reportId, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -81,7 +77,6 @@ export class ReportService {
     * @returns
   */
   unsaveReport(reportId): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .get<any>(this.apiService.apiServer + '/run/unsaveReport/' + reportId, ApiService.getOptions())
       .pipe(tap(_ => {

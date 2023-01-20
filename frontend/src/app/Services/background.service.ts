@@ -26,11 +26,15 @@ export class BackgroundService {
     * Event emitter to change a background
   */
   public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
-  /* Emits background changed event */
+  /* 
+  * Emits background changed event 
+  */
   public backgroundChangedEmitter() {
     this.backgroundChangedEvent.emit();
   }
-  /* Emits background rename event */
+  /* 
+  * Emits background rename event 
+  */
   renameBackgroundEmit(newBackgroundName) {
     const val = newBackgroundName;
     this.renameBackgroundEvent.emit(val);
@@ -43,7 +47,6 @@ export class BackgroundService {
    * @returns
   */
   public updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .post<Background>(this.apiService.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -57,7 +60,6 @@ export class BackgroundService {
     * @returns
   */
   deleteBackground(storyID: any, storySource: string): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     return this.http
       .delete<any>(this.apiService.apiServer + '/mongo/background/delete/' + storyID + '/' + storySource, ApiService.getOptions())
       .pipe(tap(() => {

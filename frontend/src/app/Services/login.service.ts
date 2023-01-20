@@ -35,7 +35,6 @@ export class LoginService {
     * @returns
   */
   githubCallback(code: string): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const url = this.apiService.apiServer + '/user/callback?code=' + code;
     return this.http.get(url, { withCredentials: true })
       .pipe(tap(_ => {
@@ -51,7 +50,6 @@ export class LoginService {
     * @returns
   */
   loginGithubToken(login: string, id): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const str = this.apiService.apiServer + '/user/githubLogin';
     const user = { login, id };
 
@@ -84,7 +82,6 @@ export class LoginService {
     * @returns
   */
   loginUser(user): Observable<any> {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const str = this.apiService.apiServer + '/user/login';
 
     return this.http.post<any>(str, user, ApiService.getOptions())
@@ -101,7 +98,6 @@ export class LoginService {
    * @returns
   */
   jiraLogin(jiraName: string, jiraPassword: string, jiraServer: string) {
-    this.apiService.apiServer = localStorage.getItem('url_backend');
     const body = {
       jiraAccountName: jiraName,
       jiraPassword: jiraPassword,
@@ -118,7 +114,6 @@ export class LoginService {
    * @returns
  */
   public requestReset(email: string): Observable<any> {
-    this.apiService.apiServer  = localStorage.getItem('url_backend');
     const body = { 'email': email };
     return this.http
       .post<any>(this.apiService.apiServer  + '/user/resetpassword/', body)
@@ -134,7 +129,6 @@ export class LoginService {
    * @returns
   */
   confirmReset(uuid: string, password: string): Observable<any> {
-    this.apiService.apiServer  = localStorage.getItem('url_backend');
     const body = { 'uuid': uuid, 'password': password };
     return this.http
       .patch<any>(this.apiService.apiServer  + '/user/reset', body)
@@ -171,7 +165,6 @@ export class LoginService {
   */
   registerUser(email: string, password: string, userId: any): Observable<any> {
     const user = { email, password, userId };
-    this.apiService.apiServer  = localStorage.getItem('url_backend');
     return this.http
       .post<any>(this.apiService.apiServer  + '/user/register', user)
       .pipe(tap(_ => {
