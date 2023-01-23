@@ -8,7 +8,7 @@ import {
   } from '@angular/animations';
 import { Component} from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
-import { ApiService } from './Services/api.service';
+import { StoryService } from './Services/story.service';
 
 /**
  * Component of the Delete Story toasts
@@ -108,13 +108,13 @@ import { ApiService } from './Services/api.service';
      * Constructor
      * @param toastrService
      * @param toastPackage
-     * @param apiService
+     * @param storyService
      * constructor is only necessary when not using AoT
      */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
-      public apiService: ApiService
+      public storyService: StoryService
     ) {
       super(toastrService, toastPackage);
     }
@@ -125,7 +125,7 @@ import { ApiService } from './Services/api.service';
      */
     deleteToast(event: Event) {
         event.stopPropagation();
-        this.apiService.deleteStoryEmitter();
+        this.storyService.deleteStoryEmitter();
         this.remove();
     }
   }

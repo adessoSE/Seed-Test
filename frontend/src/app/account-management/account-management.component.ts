@@ -13,6 +13,9 @@ import { DeleteAccountComponent } from '../modals/delete-account/delete-account.
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
 import { RepoSwichComponent } from '../modals/repo-swich/repo-swich.component';
 import { ToastrService } from 'ngx-toastr';
+import { ProjectService } from '../Services/project.service';
+import { LoginService } from '../Services/login.service';
+import { ManagementService } from '../Services/management.service';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -88,32 +91,40 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     /**
      * Constructor
      * @param apiService Connection to the api service
+     * @param projectService Connection to the project service
+     * @param loginService Connection to the login service
+     * @param managmentService Connection to the managment service
      * @param router router to handle url changes
      * @param themeService
      * @param toastr
      */
-    constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService,
-                private toastr: ToastrService, ) {
+    constructor(public apiService: ApiService,
+        public projectService: ProjectService,
+        public loginService: LoginService,
+        public managmentService: ManagementService,
+        public router: Router, 
+        public themeService: ThemingService,
+        private toastr: ToastrService) {
         this.routeSub = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
             }
         });
         if (!this.router.events) {
-            this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe((repositories) => {
+            this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe((repositories) => {
                 this.seperateRepos(repositories);
             });
         }
     }
 
     ngOnInit() {
-        this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepos());
+        this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepos());
 
         this.isDark = this.themeService.isDarkMode();
         this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
             this.isDark = this.themeService.isDarkMode();
         });
-        this.renamePrjectObservable = this.apiService.renameProjectEvent.subscribe(proj => {
+        this.renamePrjectObservable = this.projectService.renameProjectEvent.subscribe(proj => {
             this.updateRepository(proj);
         });
 
@@ -151,7 +162,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      */
     login() {
         localStorage.setItem('userId', this.id);
-        this.apiService.githubLogin();
+        this.loginService.githubLogin();
     }
 
     /**
@@ -210,7 +221,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      */
     updateSite(report: String) {
         if (report === 'Successful') {
-            this.apiService.getUserData().subscribe(user => {
+            this.managmentService.getUserData().subscribe(user => {
                 this.id = user._id;
                 if (typeof user['email'] !== 'undefined') {
                     this.email = user['email'];
@@ -231,7 +242,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Removes Github connection from Seed-Test Account
      */
     disconnectGithub() {
-        this.apiService.disconnectGithub().subscribe((resp) => {
+        this.managmentService.disconnectGithub().subscribe((resp) => {
             window.location.reload();
         });
     }
@@ -263,7 +274,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             console.log(userRepo);
             const source = userRepo.source;
             const id = userRepo._id;
-            this.apiService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
+            this.managmentService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
                 saveAs(ret, userRepo.value + '.zip');
             });
         }
@@ -294,8 +305,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     updateRepository(project: RepositoryContainer) {
-        this.apiService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {
-            this.apiService.getRepositories();
+        this.projectService.updateRepository(project._id, project.value, this.id).subscribe(_resp => {
+            this.projectService.getRepositories();
             this.toastr.success('successfully saved', 'Repository');
         });
     }

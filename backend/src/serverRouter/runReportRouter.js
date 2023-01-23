@@ -1,10 +1,12 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();
 // This router is used for accessing Cucumber/Selenium Reports
+
 router
 	.use(cors())
 	.use((_, __, next) => {
@@ -29,40 +31,41 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID/:storySource', (req, res) => {
-	helper.runReport(req, res, [], 'feature', req.body).catch( reason => res.send(reason).status(500));
+	helper.runReport(req, res, [], 'feature', req.body).catch((reason) => res.send(reason).status(500));
 });
 
 // run single Scenario of a Feature
 router.post('/Scenario/:issueID/:storySource/:scenarioId', (req, res) => {
-	helper.runReport(req, res, [], 'scenario', req.body).catch( reason => res.send(reason).status(500));
+	helper.runReport(req, res, [], 'scenario', req.body).catch((reason) => res.send(reason).status(500));
 });
 
 // run one Group and return report
 router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
-	console.log(group);
 	const mystories = [];
-	for (const ms of group.member_stories){
-		const id = typeof(ms) === 'object' ? ms._id : ms; // inconsistent in database
-		mystories.push(await mongo.getOneStory(id, 'db'))
+	for (const ms of group.member_stories) {
+		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
+		mystories.push(await mongo.getOneStory(id, 'db'));
 	}
-	let params = group
-	params.repository = req.body.repository
+	const params = group;
+	params.repository = req.body.repository;
 	req.body = group;
-	helper.runReport(req, res, mystories, 'group', req.body).catch( reason => res.send(reason).status(500));
+	helper.runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
 });
 
+// generate older Report
 router.get('/report/:reportName', (req, res) => {
 	helper.createReport(res, req.params.reportName);
 });
 
+// get Report Data for a Story
 router.get('/reportHistory/:storyId', async (req, res) => {
 	const { storyId } = req.params;
 	const reportContainer = await helper.getReportHistory(storyId);
 	res.status(200).json(reportContainer);
 });
 
-// delete a report
+// delete a Report
 router.delete('/report/:reportId', async (req, res) => {
 	try {
 		// TODO: Authenticate user
@@ -95,7 +98,6 @@ router.get('/unsaveReport/:reportId', async (req, res) => {
 		res.status(200).json(result);
 	} catch (error) {
 		console.log('error in unsaveReport', error);
-
 		res.sendStatus(401);
 	}
 });

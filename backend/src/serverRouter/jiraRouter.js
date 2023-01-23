@@ -42,23 +42,24 @@ router.post('/user/create/', (req, res) => {
 			}
 		};
 
-		if(RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)){//jiraHost must only consist of letters, numbers, '.' and ':' to represent URLs or IPs and ports
-			const jiraURL = `http://${jiraHost}/rest/auth/1/session`
+		// jiraHost must only consist of letters, numbers, '.' and ':' to represent URLs, IPs or ports
+		if (RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)) {
+			const jiraURL = `http://${jiraHost}/rest/auth/1/session`;
 			fetch(jiraURL, options)
-			.then((response) => response.json())
-			.then(() => {
-				helper.updateJira(req.user._id, req.body)
-				.then((result) => {
-					res.status(200).json(result);
-				});
-			}).catch((error)=>console.error(error));
-			res.status(401).json('User doesnt exist.');//in case of error
+				.then((response) => response.json())
+				.then(() => {
+					helper.updateJira(req.user._id, req.body)
+						.then((result) => {
+							res.status(200).json(result);
+						});
+				})
+				.catch((error) => console.error(error));
+			res.status(401).json('User doesnt exist.'); // in case of error
 		} else {
 			console.error('Given JiraHost does not comply with URL structure.');
 			res.status(401)
 				.json('Given JiraHost does not comply with URL structure.');
 		}
-		
 	} else {
 		console.error('User doesnt exist. 2');
 		res.status(401)
@@ -82,21 +83,19 @@ router.post('/login', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		if(RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)){
-			fetch(`http://${jiraServer}/rest/auth/1/session`, options)
+		if (RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)
 			.then((response, error) => {
 				if (error) {
 					res.status(500);
 					console.error('Cant connect to Jira Server');
 				}
-				if (response.headers['set-cookie'] !== undefined) {
-					res.status(200).json(response.headers['set-cookie'][0]);
-				} else {
+				if (response.headers['set-cookie'] !== undefined) res.status(200).json(response.headers['set-cookie'][0]);
+				else {
 					res.status(401);
 					console.log('Jira-Login failed');
 				}
 			});
-		}else {
+		else {
 			console.error('Given JiraHost does not comply with URL structure.');
 			res.status(401)
 				.json('Given JiraHost does not comply with URL structure.');

@@ -1,4 +1,3 @@
-import { ApiService } from 'src/app/Services/api.service';
 import { Subscription } from 'rxjs';
 import { DeleteExampleToast } from './../deleteExample-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
@@ -8,6 +7,8 @@ import { Scenario } from '../model/Scenario';
 import { ToastrService } from 'ngx-toastr';
 import { Story } from '../model/Story';
 import { StepType } from '../model/StepType';
+import { ExampleService } from '../Services/example.service';
+import { ScenarioService } from '../Services/scenario.service';
 
 
 @Component({
@@ -127,13 +128,13 @@ export class ExampleTableComponent implements OnInit {
     /**
    * @ignore
    */
-     constructor( public apiService: ApiService, private toastr: ToastrService) {}
+     constructor( public scenarioService: ScenarioService, private toastr: ToastrService, public exampleService: ExampleService) {}
 
      /**
     * @ignore
     */
   ngOnInit() {
-    this.deleteExampleObservable = this.apiService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
+    this.deleteExampleObservable = this.exampleService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
   }
  
@@ -254,7 +255,7 @@ export class ExampleTableComponent implements OnInit {
       this.initializeTable();
       this.initializeTableControls();
       this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
-      this.apiService.scenarioChangedEmitter();
+      this.scenarioService.scenarioChangedEmitter();
     } else {
       this.exampleThere = false;
     }

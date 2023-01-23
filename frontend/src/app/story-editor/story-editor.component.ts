@@ -15,6 +15,10 @@ import { RenameStoryComponent } from '../modals/rename-story/rename-story.compon
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { RenameBackgroundComponent } from '../modals/rename-background/rename-background.component';
+import { BackgroundService } from '../Services/background.service';
+import { StoryService } from '../Services/story.service';
+import { ScenarioService } from '../Services/scenario.service';
+import { ReportService } from '../Services/report.service';
 
 
 /**
@@ -248,6 +252,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         public apiService: ApiService,
         public toastr: ToastrService,
         public themeService: ThemingService,
+        public backgroundService: BackgroundService,
+        public storyService: StoryService,
+        public scenaroiService: ScenarioService,
+        public reportService: ReportService,
         public router: Router
     ) {
         if (this.apiService.urlReceived) {
@@ -302,7 +310,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.storiesLoaded = true;
     }
 
-        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
+        this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe((stories: Story[]) => {
         this.storiesLoaded = true;
         this.storiesError = false;
         this.showEditor = false;
@@ -310,7 +318,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             this.db = localStorage.getItem('source') === 'db' ;
         });
 
-        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+        this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(() => {
         this.showEditor = false;
         this.storyDeleted();
         });
@@ -323,7 +331,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.router.navigate(['/login']);  
         });
 
-        this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
+        this.deleteScenarioObservable = this.scenaroiService.deleteScenarioEvent.subscribe(() => {
         this.deleteScenario(this.selectedScenario);
       });
 
@@ -338,7 +346,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         }
           });
 
-        this.renameStoryObservable = this.apiService.renameStoryEvent.subscribe((changedValues) =>
+        this.renameStoryObservable = this.storyService.renameStoryEvent.subscribe((changedValues) =>
             this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
             this.isDark = this.themeService.isDarkMode();
         this.themeObservable = this.themeService.themeChanged.subscribe(() => {
@@ -349,7 +357,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           this.loadStepTypes();
         }); 
 
-        this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
+        this.renameBackgroundObservable = this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
       });     
   }
@@ -430,7 +438,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * load the step types
    */
   loadStepTypes() {
-        this.apiService
+        this.storyService
             .getStepTypes()
             .subscribe((resp: StepType[]) => {
       this.originalStepTypes = resp;
@@ -438,7 +446,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
   setOneDriver() {
-    this.apiService
+    this.storyService
       .changeOneDriver(this.selectedStory.oneDriver, this.selectedStory._id)
       .subscribe((resp: any) => {
         this.selectedStory = resp;
@@ -461,7 +469,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario
    */
   deleteScenario(scenario: Scenario) {
-    this.apiService
+    this.scenaroiService
             .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
             .subscribe(_ => {
         this.scenarioDeleted();
@@ -485,7 +493,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   addScenario(event) {
     const scenarioName = event;
-        this.apiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+        this.scenaroiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
       .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
         this.selectedStory.scenarios.push(resp);
@@ -509,10 +517,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             }
             });
         });
-    this.apiService
+    this.backgroundService
             .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
             .subscribe(_ => {
-                this.apiService.backgroundChangedEmitter();
+                this.backgroundService.backgroundChangedEmitter();
                 this.toastr.success('successfully saved', 'Background');
         if (this.saveBackgroundAndRun) {
                     this.apiService.runSaveOption('saveScenario');
@@ -525,7 +533,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * deletes the background
    */
   deleteBackground() {
-    this.apiService
+    this.backgroundService
       .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
           .subscribe(_ => {
         this.showBackground = false;
@@ -598,7 +606,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
       // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
       loadingScreen.scrollIntoView();
-      this.apiService
+      this.storyService
         .runTests(
           this.selectedStory._id,
           this.selectedStory.storySource,
@@ -623,16 +631,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
           }, 10);
 								this.toastr.info('', 'Test is done');
           this.runUnsaved = false;
-								this.apiService.getReport(this.reportId)
+								this.reportService.getReport(this.reportId)
 									.subscribe((report: any) => {
             if (scenario_id) {
               // ScenarioReport
               const val = report.scenarioStatuses.status;
-												this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
+												this.scenaroiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
             } else {
               // StoryReport
 											report.scenarioStatuses.forEach(scenario => {
-                this.apiService.scenarioStatusChangeEmit(
+                this.scenaroiService.scenarioStatusChangeEmit(
 															this.selectedStory._id, scenario.scenarioId, scenario.status);
               });
             }
@@ -772,7 +780,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   unsaveReport(reportId) {
     this.reportIsSaved = false;
-		return new Promise<void>((resolve, _reject) => {this.apiService
+		return new Promise<void>((resolve, _reject) => {this.reportService
 		.unsaveReport(reportId)
 		.subscribe(_resp => {
         resolve();
@@ -787,7 +795,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   saveReport(reportId) {
     this.reportIsSaved = true;
-		return new Promise<void>((resolve, _reject) => {this.apiService
+		return new Promise<void>((resolve, _reject) => {this.reportService
 		.saveReport(reportId)
 		.subscribe(_resp => {
         resolve();
@@ -827,7 +835,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
      *
      */
 	updateStory() {
-		{this.apiService
+		{this.storyService
 				.updateStory(this.selectedStory)
 				.subscribe(_resp => {
 						this.toastr.success('successfully saved', 'Story');
@@ -857,7 +865,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   downloadFeature() {
     const source = this.selectedStory.storySource;
     const id = this.selectedStory._id;
-		this.apiService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+		this.storyService.downloadStoryFeatureFile(source, id).subscribe(ret => {
 				saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
     });
   }
