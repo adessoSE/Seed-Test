@@ -16,6 +16,7 @@ const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const os = require('os');
+const { json } = require('body-parser');
 
 const featuresPath = path.normalize('features/');
 
@@ -762,29 +763,32 @@ async function jiraProjects(user) {
 				Authorization: `Basic ${auth}`
 			}
     };
-    fetch(`http://${Host}/rest/api/2/issue/createmeta`, reqoptions)
+    let projects = [];
+    // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
+    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
+    fetch(`http://${Host}/rest/api/2/project`, reqoptions)
       .then((response) => response.json())
-      .then(async (json) => {
-			const projects = 'projects' in json? json.projects : resolve([]);
+      .then( async (json) => {
+          for (const project of json) {
+            projects.push(project["name"])
+          }
+      
       let names = [];
       let jiraRepo;
 			const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
-        if (Object.keys(projects).length !== 0) {
-          for (const repo of projects) {
-					if (!jiraReposFromDb.some((entry) => entry.repoName === repo.name)) {
-              jiraRepo = await mongo.createJiraRepo(repo.name);
+        if (projects.length !== 0) {
+          for (const projectName of projects) {
+            if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
+                jiraRepo = await mongo.createJiraRepo(projectName.name);
             } else {
-						jiraRepo = jiraReposFromDb.find((element) => element.repoName === repo.name);
+              jiraRepo = jiraReposFromDb.find((element) => element.repoName === projectName);
             }
-            names.push({
-              name: repo.name,
-						_id: jiraRepo._id
-            });
+            names.push({name: projectName, _id: jiraRepo._id });
           }
           names = names.map((value) => ({
             _id: value._id,
             value: value.name,
-					source
+					  source
           }));
           resolve(names);
         }

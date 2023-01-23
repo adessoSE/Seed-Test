@@ -43,7 +43,8 @@ router.post('/user/create/', (req, res) => {
 		};
 
 		// jiraHost must only consist of letters, numbers, '.' and ':' to represent URLs, IPs or ports
-		if (RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)) {
+		if (/^[.:a-zA-Z0-9]+$/.test(jiraHost)) {
+			console.log(jiraHost);
 			const jiraURL = `http://${jiraHost}/rest/auth/1/session`;
 			fetch(jiraURL, options)
 				.then((response) => response.json())
@@ -54,7 +55,7 @@ router.post('/user/create/', (req, res) => {
 						});
 				})
 				.catch((error) => console.error(error));
-			res.status(401).json('User doesnt exist.'); // in case of error
+			// res.status(401).json('User doesnt exist.'); // in case of error
 		} else {
 			console.error('Given JiraHost does not comply with URL structure.');
 			res.status(401)
@@ -83,7 +84,7 @@ router.post('/login', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		if (RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)
+		if (/^[.:a-zA-Z0-9]+$/.test(jiraHost)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)
 			.then((response, error) => {
 				if (error) {
 					res.status(500);
