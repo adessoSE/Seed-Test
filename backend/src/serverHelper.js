@@ -766,8 +766,8 @@ async function jiraProjects(user) {
       .then((response) => response.json())
       .then(async (json) => {
 			const projects = 'projects' in json? json.projects : resolve([]);
-        let names = [];
-        let jiraRepo;
+      let names = [];
+      let jiraRepo;
 			const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
         if (Object.keys(projects).length !== 0) {
           for (const repo of projects) {
