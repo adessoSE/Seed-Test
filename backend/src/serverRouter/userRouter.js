@@ -11,6 +11,7 @@ const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const fs = require('fs');
+const hello = require('../../dist/github');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -87,6 +88,7 @@ router.patch('/reset', async (req, res) => {
 router.post('/login', (req, res, next) => {
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
 	req.body.email = req.body.email.toLowerCase();
+	hello.printHello(23);
 	try {
 		passport.authenticate('normal-local', {}, (error, user, info) => {
 			if (error) throw error;
