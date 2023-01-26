@@ -28,6 +28,10 @@ export class BlockService {
    */
   public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
   /**
+  * Delete emitter to add delete a block from blocks
+   */
+  public deleteBlockEvent = new EventEmitter();
+  /**
   * Emits the add block to scenario event
   * @param block
   * @param correspondingComponent
@@ -36,13 +40,17 @@ export class BlockService {
     this.addBlockToScenarioEvent.emit([correspondingComponent, block]);
   }
   /**
-  * Emits the update block in scenario event
-  * @param block
-  * @param correspondingComponent
+  * Emits the update block in blocks
   */
-  updateBlocksEventEmitter() {
+  updateBlocksEmitter() {
     this.updateBlocksEvent.emit();
   }
+  /**
+  * Emits the delete block in blocks
+  */
+  public deleteBlockEmitter() {
+    this.deleteBlockEvent.emit();
+  } 
   /**
   * Retrieves the blocks
   * @param repoId id of the project of the blocks
@@ -56,7 +64,20 @@ export class BlockService {
     }),
     catchError(this.apiService.handleError));
   }
-
+  /**
+  * Updates a block
+  * @param blockTitle
+  * @param block
+  * @returns
+  */
+  updateBlock(oldTitle: string, block: Block):Observable<Block>{
+    return this.http
+    .post<Block>(this.apiService.apiServer + '/mongo/updateBlock/' + oldTitle, block, ApiService.getOptions())
+    .pipe(tap(_ => {
+        //
+    }),
+    catchError(this.apiService.handleError));
+  }
   /**
   * Deletes a block
   * @param blockId
