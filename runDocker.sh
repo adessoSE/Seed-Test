@@ -21,5 +21,4 @@ echo "FRONTENDPORT=$PORT" >> .env
 docker-compose down
 docker rmi seed-test_backend
 docker rmi seed-test_frontend
-# docker system prune -a -f
 docker-compose up --build
