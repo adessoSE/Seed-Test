@@ -11,6 +11,7 @@ const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
 const { match, doesNotMatch } = require('assert');
+const moment = require('../../node_modules/moment');
 
 let driver;
 const firefoxOptions = new firefox.Options();
@@ -266,9 +267,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 
 	if(value.includes('@@')){
 		const date = new Date();
-		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
-		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
-		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+		value = calcDate(value);
 	}
 	
 	const promises = []
@@ -288,6 +287,80 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	})
 	await driver.sleep(100 + currentParameters.waitTime);
 });
+
+function calcDate(value) {
+	//Get the format e.g @@format:XXXXX€€
+	var format = value.match(/(@@format:.*€€)/g);
+	// If no format was found, check the given format e.g. @@Date, @@Day@@Month, @@Day ...
+	if(format == null) {
+		// Get the Substring until the first add,sub or format e.g @@Day@@Month+@@ ... -> @@Day@@Month
+		format = value.split(/[\+\-]|@@format/)[0];
+		// Replace the @@Day, @@Month, @@Year
+		format = format.replace("@@Day", "DD-").replace("@@Month", "MM-").replace("@@Year", "YYYY-").slice(0,-1);
+	} else {
+		// Remove @@format: tag and €€ at the end
+		format = format[0].slice(9,-2);
+	}
+
+	// Get all adds e.g +@@2,Month
+	var adds = value.match(/\+@@(\d+),(\w+)/g)
+	// Read values e.g. of +@@5,Day -> {number: 5, kind: "Day"}; or set to empty array if null (no match)
+	adds = adds ? adds.map(element => {
+		let match = element.match(/\+@@(\d+),(\w+)/);
+		return {number: parseInt(match[1]), kind: match[2]};
+	}) : [];
+	// Get all subs e.g -@@10,Year
+	var subs = value.match(/\-@@(\d+),(\w+)/g)
+	// Read values e.g. of -@@2,Month -> {number: 2, kind: "Month"}; or set to empty array if null (no match)
+	subs = subs ? subs.map(element => {
+		let match = element.match(/\-@@(\d+),(\w+)/);
+		return {number: parseInt(match[1]), kind: match[2]};;
+	}) : [];
+
+	let currDate = new Date();
+
+	// Add every add in the adds array
+	adds.forEach(add => {
+		console.log("add: " + add);
+		switch(add.kind) {
+			case "Day":
+				currDate.setDate(currDate.getDate() + add.number);
+				break;
+			case "Month":
+				currDate.setMonth(currDate.getMonth() + add.number);
+				break;
+			case "Year":
+				currDate.setFullYear(currDate.getFullYear() + add.number);
+				break;
+			default:
+				console.err("Not known type to add to the date: " + add.kind);
+		}
+	});
+
+	// Substract every sub in the subs array
+	subs.forEach(sub => {
+		console.log("sub: " + sub);
+		switch(sub.kind) {
+			case "Day":
+				currDate.setDate(currDate.getDate() - sub.number);
+				break;
+			case "Month":
+				currDate.setMonth(currDate.getMonth() - sub.number);
+				break;
+			case "Year":
+				currDate.setFullYear(currDate.getFullYear() - sub.number);
+				break;
+			default:
+				console.err("Not known type to substract of the date: " + sub.kind);
+		}
+	});
+	
+	// Format the date
+	let result = moment(currDate).format(format);
+	console.log("RESULT: ++++++++++++++++++++++");
+	console.log(result);
+	return result;
+}
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
