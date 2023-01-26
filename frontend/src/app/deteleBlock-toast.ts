@@ -6,7 +6,7 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-import { Component} from '@angular/core';
+import { Component, EventEmitter, Output} from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { BlockService } from 'src/app/Services/block.service';
 /**
@@ -96,6 +96,7 @@ import { BlockService } from 'src/app/Services/block.service';
    })
   export class DeleteBlockToast extends Toast {
 
+    @Output() deleteBlockEvent: EventEmitter<any> = new EventEmitter();
     /**
      * Name of the delete button
      */

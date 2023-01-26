@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
@@ -69,23 +69,17 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 
     modalReference: NgbModalRef;
     deleteBlockObservable: Subscription;
-    updateBlockObservable:Subscription;
-   
-    @Output() deleteBlockEvent: EventEmitter<any> = new EventEmitter();
    
     constructor(private modalService: NgbModal, public blockService: BlockService, public toastr: ToastrService) {}
      
     ngOnInit() {
        const id = localStorage.getItem('id');
-      // this.blockService.getBlocks(id).subscribe((resp) => {
-      //   this.blocks = resp;
-      // });
+      this.blockService.getBlocks(id).subscribe((resp) => {
+        this.blocks = resp;
+      });
       this.deleteBlockObservable = this.blockService.deleteBlockEvent.subscribe(_ => {
         this.blockDeleted(this.selectedBlock);
         });
-        // this.updateBlockObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
-        //   this.getAllBlocks(id);
-        // });
     }
     
     ngOnDestroy() {
@@ -148,7 +142,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
 
     /**
-     * Change block title. When user click, then user can edit.
+     * Change block title
      */
     changeBlockTitle() {
       this.newTitleLabel=document.getElementById("newTitle");
@@ -160,7 +154,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
 
     /**
-     * Check if new block name is valid
+     * Check if a new block name is valid
      */   
     checkName(){
       this.saveBlockButton = document.getElementById("saveBlockButton");
@@ -190,11 +184,13 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
               this.stepList.push(step);
           });
       });
+      //to avoid an error if the user select another block when the changes haven't been saved
       if(this.blockSaved==false){     
         this.newTitleLabel.setAttribute('contentEditable', 'false');
         this.newTitleLabel.style.border='none';
         this.blockSaved=true;
       }
+      //to avoid an error if the user selects another block when new name is undefined
       if(this.newTitleLabel!==undefined)
       {
         if(this.newTitleLabel.textContent.replace(/\s/g, '').trim().length===0)
@@ -223,25 +219,16 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Update block when title is changed
      */
     updateBlock(){
-      if(this.newblockName==undefined){
+      if(this.newblockName==undefined){//if user has not entered anything, name saves without changes
         this.newblockName=this.selectedBlock.name;
       } else{
         this.oldName=this.selectedBlock.name;
-        this.selectedBlock.name=this.newblockName;
-        console.log("selectedBlock.name",this.selectedBlock.name);
-        console.log("oldname", this.oldName);
-
-            // , repository:this.selectedBlock.repository, 
-        //   repositoryId: this.selectedBlock.repositoryId, owner: this.selectedBlock.owner, source: this.selectedBlock.source}
-        // console.log(this.selectedBlock._id, this.selectedBlock.repository, this.selectedBlock.repositoryId)
-        // console.log(block._id,block.repository, block.repositoryId)
-        
+        this.selectedBlock.name=this.newblockName;        
         this.blockService
         .updateBlock(this.oldName, this.selectedBlock)
         .subscribe((resp) => {
           this.updateBlocksEventEmitter();
           this.toastr.success('successfully saved', 'Block');
-          console.log(resp);
         });
       }
      this.newTitleLabel.setAttribute('contentEditable', 'false');
