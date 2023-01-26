@@ -1,8 +1,8 @@
 import { Component, ViewChild } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
-import { ApiService } from 'src/app/Services/api.service';
 import { StepType } from 'src/app/model/StepType';
+import { BlockService } from 'src/app/Services/block.service';
 
 @Component({
   selector: 'app-add-block-form',
@@ -51,7 +51,7 @@ export class AddBlockFormComponent {
 
      modalReference: NgbModalRef;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) {}
+  constructor(private modalService: NgbModal, public blockService: BlockService) {}
 
     /**
      * Opens the add block form modal
@@ -76,7 +76,7 @@ export class AddBlockFormComponent {
    * @param repoId id of the repository / project
    */
     getAllBlocks(repoId: string) {
-      this.apiService.getBlocks(repoId).subscribe((resp) => {
+      this.blockService.getBlocks(repoId).subscribe((resp) => {
           this.blocks = resp;
       });
     }
@@ -102,7 +102,7 @@ export class AddBlockFormComponent {
    */
     copiedBlock() {
       if (this.clipboardBlock) {
-          this.apiService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent);
+          this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent);
       }
     }
 
@@ -110,7 +110,7 @@ export class AddBlockFormComponent {
    * Adds a block to saved blocks
    */
     addBlockFormSubmit() {
-      this.apiService.addBlockToScenario(this.selectedBlock, this.correspondingComponent);
+      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent);
       this.modalReference.close();
     }
 
@@ -122,16 +122,12 @@ export class AddBlockFormComponent {
    */
     deleteBlock(event, rowIndex: number, block: Block) {
       event.stopPropagation();
-      this.apiService.deleteBlock(block._id).subscribe(resp => {
+      this.blockService.deleteBlock(block._id).subscribe(resp => {
           this.blocks.splice(rowIndex, 1);
           this.stepList = [];
           this.selectedBlock = null;
-          this.updateBlocksEventEmitter();
+          this.blockService.updateBlocksEventEmitter();
       });
-    }
-
-    updateBlocksEventEmitter() {
-      this.apiService.updateBlocksEvent.emit();
     }
 
     enterSubmit(event) {

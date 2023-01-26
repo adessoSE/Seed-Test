@@ -750,7 +750,7 @@ async function getAllSourceReposFromDb(source) {
 		return await db.collection(repositoriesCollection).find({ repoType: source })
 			.toArray();
 	} catch (e) {
-		console.log(`ERROR in getAllSourceReposFromDb${e}`);
+		console.log(`ERROR in getAllSourceReposFromDb ${e}`);
 	}
 }
 

@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 const assert = require('assert');
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017";
 
 let connection = [];
 // Create the database connection

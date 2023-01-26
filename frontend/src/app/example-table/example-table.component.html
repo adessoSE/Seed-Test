@@ -30,9 +30,6 @@
 							<input on-input="inputChange(rowIndex, columnIndex, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
 						</ng-template>
 				</editable> 
-				<button *ngIf="!first && this.lastRow == this.selectedScenario.stepDefinitions.example[rowIndex + 1]" id="example_add_step" class="scenarioTitle" uk-tooltip title="Add Example" (click)="addRowToExamples();">
-					<em class="material-icons">add</em>
-				</button>
 				
 			</td>
 	</ng-container>			
