@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs';
-import { DeleteExampleToast } from './../deleteExample-toast';
+import { DeleteToast } from './../delete-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormGroup, FormArray, FormControl } from '@angular/forms';
@@ -9,6 +9,7 @@ import { Story } from '../model/Story';
 import { StepType } from '../model/StepType';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
+import { ApiService } from '../Services/api.service';
 
 
 @Component({
@@ -128,7 +129,11 @@ export class ExampleTableComponent implements OnInit {
     /**
    * @ignore
    */
-     constructor( public scenarioService: ScenarioService, private toastr: ToastrService, public exampleService: ExampleService) {}
+     constructor( public scenarioService: ScenarioService,
+       private toastr: ToastrService,
+       public exampleService: ExampleService,
+       public apiService: ApiService
+       ) {}
 
      /**
     * @ignore
@@ -290,8 +295,9 @@ export class ExampleTableComponent implements OnInit {
    * @param scenario
    */
    showDeleteExampleToast(scenario: Scenario) {
+    this.apiService.nameOfComponent('example');
     this.toastr.warning('', 'Do you really want to delete this example?', {
-        toastComponent: DeleteExampleToast
+        toastComponent: DeleteToast
     });
   }
 

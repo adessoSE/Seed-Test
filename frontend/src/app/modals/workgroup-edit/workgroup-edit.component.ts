@@ -2,8 +2,9 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteRepositoryToast } from 'src/app/deleteRepository-toast';
+import { DeleteToast } from 'src/app/delete-toast'; 
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { ApiService } from 'src/app/Services/api.service';
 import { ProjectService } from 'src/app/Services/project.service';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 
@@ -56,7 +57,10 @@ export class WorkgroupEditComponent {
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
-  constructor(private modalService: NgbModal, public projectService: ProjectService, private toastr: ToastrService) {
+  constructor(private modalService: NgbModal, 
+    public projectService: ProjectService, 
+    private toastr: ToastrService,
+    public apiService: ApiService) {
     this.projectService.deleteRepositoryEvent.subscribe(() => {
       this.deleteCustomRepo();
     });
@@ -154,8 +158,9 @@ export class WorkgroupEditComponent {
  * Opens the delete repository toast
  */
   showDeleteRepositoryToast() {
+    this.apiService.nameOfComponent('repository');
     this.toastr.warning('', 'Do you really want to delete this repository?', {
-        toastComponent: DeleteRepositoryToast
+        toastComponent: DeleteToast
     });
   }
 
