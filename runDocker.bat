@@ -16,7 +16,6 @@ for /f "tokens=*" %%s in (./frontend/.env) do (
 echo FRONTENDPORT=%PORT%>>.env
 
 docker compose down
-docker rmi seed-test_backend
-docker rmi seed-test_frontend
-echo Y | docker system prune -a
+docker rmi seed-test-backend
+docker rmi seed-test-frontend
 docker-compose up --build
