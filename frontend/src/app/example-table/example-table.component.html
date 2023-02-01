@@ -26,11 +26,10 @@
 						<ng-template viewMode>
 							{{element[column]}}
 						</ng-template>
-						<ng-template editMode >
-							<input on-input="inputChange(rowIndex, columnIndex, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
+						<ng-template editMode>
+							<input id="value" on-input="inputChange($event,rowIndex, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter required>
 						</ng-template>
 				</editable> 
-				
 			</td>
 	</ng-container>			
 	
