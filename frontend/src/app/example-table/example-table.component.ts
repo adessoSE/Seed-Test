@@ -161,24 +161,14 @@ export class ExampleTableComponent implements OnInit {
   /**
    * Sets the status of the scenario to not saved and overrides value of example
    */
-   inputChange(rowIndex, columnIndex, column){
+   inputChange(event, rowIndex, column){
     this.selectedScenario.saved = false;
-    
-    const getCircularReplacer = () => {
-      const seen = new WeakSet;
-      return (key, value) => {
-        if (typeof value === "object" && value !== null) {
-          if (seen.has(value)) {
-            return;
-          }
-          seen.add(value);
-        }
-        return value;
-      };
-    };
-
-    let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
-    this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue
+    let inputValue = event.target.value;
+    if(inputValue.length==0)
+    {
+      return this.getControl(rowIndex,column).hasError('CONTROL NOT VALID');
+    }
+    return inputValue;
   }
 
   /**
@@ -224,12 +214,25 @@ export class ExampleTableComponent implements OnInit {
    * Updates a field of the table
    * @param columnIndex index of the column of the changed value
    * @param rowIndex index of the row of the changed value
-   * @param field name of the changed value column
+   * @param column name of the changed value column
    */
-  updateField(columnIndex: number, rowIndex: number, field: string) {
-    const control = this.getControl(rowIndex, field);
+  updateField(columnIndex, rowIndex, column) {
+    const control = this.getControl(rowIndex, column);
     if (control.valid) {
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = control.value;
+      const getCircularReplacer = () => {
+        const seen = new WeakSet;
+        return (key, value) => {
+          if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+              return;
+            }
+            seen.add(value);
+          }
+          return value;
+        };
+      };
+      let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue
       this.initializeTable();
     } else {
       console.log('CONTROL NOT VALID');
@@ -242,8 +245,8 @@ export class ExampleTableComponent implements OnInit {
     * @param fieldName name of the cell column
     * @returns FormControl of the cell
     */
-  getControl(rowIndex: number, fieldName: string): FormControl {
-    return this.controls.at(rowIndex).get(fieldName) as FormControl;
+  getControl(rowIndex, column): FormControl {
+    return this.controls.at(rowIndex).get(column) as FormControl;
   }
 
   /**
