@@ -1,3 +1,5 @@
+import { ApiService } from 'src/app/Services/api.service';
+import { CopyExampleToast } from '../copyExample-toast';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
@@ -139,13 +141,15 @@ export class BaseEditorComponent  {
   addBlocktoScenarioObservable: Subscription;
   scenarioChangedObservable: Subscription;
   backgroundChangedObservable: Subscription;
+  copyExampleOptionObservable: Subscription;
 
 
   constructor(public toastr: ToastrService, 
     public blockService: BlockService,
     public exampleService: ExampleService,
     public scenarioService: ScenarioService,
-    public backgroundService: BackgroundService) {}
+    public backgroundService: BackgroundService,
+    public apiService: ApiService) {}
 
   ngOnInit(): void {
     this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
@@ -185,6 +189,14 @@ export class BaseEditorComponent  {
     this.backgroundChangedObservable = this.backgroundService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
     });
+
+    this.copyExampleOptionObservable = this.apiService.copyStepWithExampleEvent.subscribe(option => {
+      if (option == 'copy') {
+        this.insertStepsWithExamples()
+      } else if (option == 'dontCopy'){
+        this.insertStepsWithoutExamples()
+      }
+  });
     
   }
 
@@ -203,6 +215,9 @@ export class BaseEditorComponent  {
     } 
     if(!this.backgroundChangedObservable.closed) {
       this.backgroundChangedObservable.unsubscribe();
+    }
+    if(!this.copyExampleOptionObservable.closed) {
+      this.copyExampleOptionObservable.unsubscribe();
     }
 
   }
@@ -1183,11 +1198,17 @@ export class BaseEditorComponent  {
   addStepsToBlockOnIteration(stepsList) {
     const copyBlock = {given: [], when: [], then: [], example: []};
     //Block for background and scenario handling except for example step
+    let examplesToBeCopied=[]
     for (const prop in stepsList) {
       if (this.templateName !== 'example' && prop !== 'example') {
         for (const s in stepsList[prop]) {
           if (stepsList[prop][s].checked) {
             copyBlock[prop].push(stepsList[prop][s]);
+            stepsList[prop][s].values.forEach((value, index) => {
+              if (stepsList[prop][s].isExample[index]) {
+                examplesToBeCopied.push(value.slice(1,-1))
+              }
+            });
           }
         }
       } else {
@@ -1197,6 +1218,22 @@ export class BaseEditorComponent  {
         }
       }
     }
+
+    if (examplesToBeCopied) {
+      let indexList = []
+      stepsList['example'][0].values.forEach((value, index) => {
+        if (examplesToBeCopied.includes(value)){
+          indexList.push(index)
+        }
+      });
+      stepsList['example'].forEach(element => {
+        const filteredExamples = element.values.filter((val, index) => indexList.includes(index))
+        element.values = filteredExamples
+        copyBlock['example'].push(element)
+      });
+    }
+
+    console.log('copied ', copyBlock)
     return copyBlock
   }
  
@@ -1204,7 +1241,6 @@ export class BaseEditorComponent  {
     * Insert block from clipboard
     * 
     */
-
   insertCopiedBlock(): void{
     switch (this.templateName) {
       case 'background':
@@ -1218,15 +1254,24 @@ export class BaseEditorComponent  {
         break;
 
       case 'scenario':
-        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
-          this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-            if (key != 'example') {
-              this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-            }
+        //this.insertStepsWithExamples()
+        if (this.clipboardBlock.stepDefinitions['example'].length != 0){
+
+          this.toastr.info('Do you want to copy the example(s)?', 'Block contains (a) example(s)', {
+            toastComponent: CopyExampleToast
           });
-        });
-        //this.selectedScenario.saved = false;
-        this.markUnsaved();
+
+        } else {
+          Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+            if (key != 'example') {
+              this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step))); 
+             });
+           } 
+          });
+          //this.selectedScenario.saved = false;
+          this.markUnsaved();
+        }
         break;
 
       case 'example':
@@ -1245,6 +1290,100 @@ export class BaseEditorComponent  {
       default:
         break;
     }
+  }
+
+  insertStepsWithExamples(){
+    Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+      if (key != 'example') {
+        this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+          this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step))); 
+       });
+     } else if (key == 'example') {
+        this.insertCopiedExamples()
+     }
+    });
+    //this.selectedScenario.saved = false;
+    this.markUnsaved();
+
+  }
+
+  insertStepsWithoutExamples() {
+    Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+      if (key != 'example') {
+        this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+          let stepCopy = JSON.parse(JSON.stringify(step))
+          step.isExample.forEach((isExample, index) =>{
+            if (isExample) {
+              stepCopy.isExample[index] = false
+              stepCopy.values[index] = ""
+            }
+          })
+          this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(stepCopy))); 
+       });
+      }
+    });
+  }
+
+  /**
+   * checks if example name of clipboard already in selected scenario and if sets toaster
+   * checks for number of values and adds 'value' in case of different lengths of clipboard and selected scenario
+   */
+  insertCopiedExamples() {
+    if (this.selectedScenario.stepDefinitions['example'].length==0) {
+      this.selectedScenario.stepDefinitions['example'] = this.clipboardBlock.stepDefinitions['example']
+    } else {
+      if (!this.selectedScenario.stepDefinitions['example'][0].values.some(r=> this.clipboardBlock.stepDefinitions['example'][0].values.indexOf(r) >= 0)){
+        
+        if (this.selectedScenario.stepDefinitions['example'].length==this.clipboardBlock.stepDefinitions['example'].length){
+        this.selectedScenario.stepDefinitions['example'].forEach((element, index) => {
+          this.clipboardBlock.stepDefinitions['example'][index].values.forEach(val => {
+            element.values.push(val)
+          })
+        });
+      } else if (this.selectedScenario.stepDefinitions['example'].length<this.clipboardBlock.stepDefinitions['example'].length) {
+        const selectedLength = this.selectedScenario.stepDefinitions['example'].length
+        this.clipboardBlock.stepDefinitions['example'].forEach((element, index) => {
+          if (index < selectedLength){
+            this.clipboardBlock.stepDefinitions['example'][index].values.forEach(val => {
+              this.selectedScenario.stepDefinitions['example'][index].values.push(val)
+            })
+          } else {
+            const clipboardValueLength = element.values.length
+            const selectedValueLength = this.selectedScenario.stepDefinitions['example'][index-1].values.length - clipboardValueLength
+            this.selectedScenario.stepDefinitions['example'].push(JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions['example'][index-1])))
+            for (let i = 0; i < selectedValueLength; i++) {
+              this.selectedScenario.stepDefinitions['example'][index].values[i] = 'value'
+              
+            }
+            for (let j = 0; j< clipboardValueLength; j++){
+              this.selectedScenario.stepDefinitions['example'][index].values[selectedValueLength+j] = this.clipboardBlock.stepDefinitions['example'][index].values[j]
+            }
+          }
+        });
+      } else {
+        const clipboardLength = this.clipboardBlock.stepDefinitions['example'].length
+        this.selectedScenario.stepDefinitions['example'].forEach((element, index) => {
+          if (index < clipboardLength){
+            this.clipboardBlock.stepDefinitions['example'][index].values.forEach(val => {
+              element.values.push(val)
+            })
+          } else {
+            const clipboardValueLength = this.clipboardBlock.stepDefinitions['example'][0].values.length
+            for (let i = 0; i < clipboardValueLength; i++) {
+              element.values.push('value')
+            }
+          }
+        });
+      } 
+    } else {
+      this.toastr.warning('Cannot copy example with same name')
+    }
+    
+    
+
+    }
+    //this.exampleChild.updateTable()
+    //console.log(this.selectedScenario.stepDefinitions['example'])
   }
  
   /**

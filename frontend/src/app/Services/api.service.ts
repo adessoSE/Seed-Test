@@ -50,6 +50,11 @@ export class ApiService {
     public runSaveOptionEvent = new EventEmitter();
 
     /**
+     * Event emitter for handling copy of steps with example
+     */
+    public copyStepWithExampleEvent = new EventEmitter();
+
+    /**
      * Gets api headers
      * @returns
      */
@@ -73,6 +78,14 @@ export class ApiService {
      */
     public runSaveOption(option: string) {
         this.runSaveOptionEvent.emit(option);
+    }
+
+    /**
+     * Emits the copy with example option
+     * @param option
+     */
+    public copyStepWithExampleOption(option: string) {
+        this.copyStepWithExampleEvent.emit(option);
     }
 
     /**
