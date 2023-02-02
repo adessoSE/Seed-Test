@@ -997,7 +997,7 @@ function renderComment(
 ) {
 	let comment = '';
 	const testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
-  const frontendUrl = process.env.FRONTEND_URL;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
   const reportUrl = `${frontendUrl}/report/${reportName}`;
 	if (mode === 'scenario') comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
 	else comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
@@ -1094,7 +1094,7 @@ const getGithubData = (res, req, accessToken) => {
             if (LoginError) {
 						res.json({ error: 'Login Error' });
             } else {
-						res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+						res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
 						res.header('Access-Control-Allow-Credentials', 'true');
 						res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
               res.json({
