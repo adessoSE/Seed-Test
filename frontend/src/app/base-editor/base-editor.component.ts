@@ -1257,7 +1257,7 @@ export class BaseEditorComponent  {
         //this.insertStepsWithExamples()
         if (this.clipboardBlock.stepDefinitions['example'].length != 0){
 
-          this.toastr.info('Do you want to copy the example(s)?', 'Block contains (a) example(s)', {
+          this.toastr.info('Do you want to copy it?', 'Block contains muliple scenario(s)', {
             toastComponent: CopyExampleToast
           });
 

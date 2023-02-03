@@ -1,3 +1,4 @@
+import { CopyExampleToast } from './copyExample-toast';
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RouterModule} from '@angular/router';
@@ -124,7 +125,8 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     BaseEditorComponent,
     NewExampleComponent,
     ExampleComponent,
-    DeleteBlockToast
+    DeleteBlockToast,
+    CopyExampleToast
   ],
   imports: [
     NgbModule,
@@ -157,7 +159,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     MatTabsModule,
     MatTooltipModule,
   ],
-  entryComponents: [RunTestToast],
+  entryComponents: [RunTestToast, CopyExampleToast],
   providers: [ApiService, AuthGuard, CookieService,
     [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],

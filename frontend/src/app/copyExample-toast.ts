@@ -112,9 +112,9 @@ import { ApiService } from './Services/api.service';
 
   export class CopyExampleToast extends Toast {
     
-    copyExampleString = 'Copy with examples';
+    copyExampleString = 'Copy with multiple scenario(s)';
 
-    dontCopyExampleString = 'Dont copy examples'
+    dontCopyExampleString = 'Copy without multiple scenario(s)'
     // constructor is only necessary when not using AoT
 
     /**
