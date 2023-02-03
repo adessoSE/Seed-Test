@@ -266,7 +266,6 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
 	if(value.includes('@@')){
-		const date = new Date();
 		value = calcDate(value);
 	}
 	
@@ -289,18 +288,41 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 });
 
 function calcDate(value) {
+
+	// check if Date Formatting String is valid
+	if(value.match(/(@@Date)|((@@Day(,\d{1,2}){0,1}){0,1}(@@Month(,\d{1,2}){0,1}){0,1}(@@Year(,{0,1}\d{4}){0,1}){0,1})((\+|\-)@@(\d+),(Day|Mont|Year))*(@@format:\w*€€)*/) == null) {
+		throw Error("String doesnt match the Date format.")
+	}
+
 	//Get the format e.g @@format:XXXXX€€
 	var format = value.match(/(@@format:.*€€)/g);
+
+	// Start Date
+	let currDate = new Date();
+	var day = value.match(/(@@Day,\d{1,2})/g);
+	if (day) {day = parseInt(day[0].match(/@@Day,(\d+)/)[1])}; 
+	var month = value.match(/(@@Month,\d{1,2})/g);
+	if (month) {month = parseInt(month[0].match(/@@Month,(\d+)/)[1]-1)}; 
+	var year = value.match(/(@@Year,\d\d\d\d)/g);
+	if (year) {year = parseInt(year[0].match(/@@Year,(\d+)/)[1])}; 
+
+	currDate.setFullYear(year == null ? currDate.getFullYear() : year, 
+		month == null ? currDate.getMonth() : month ,
+		day == null ? currDate.getDate(): day);
+
 	// If no format was found, check the given format e.g. @@Date, @@Day@@Month, @@Day ...
 	if(format == null) {
 		// Get the Substring until the first add,sub or format e.g @@Day@@Month+@@ ... -> @@Day@@Month
 		format = value.split(/[\+\-]|@@format/)[0];
 		// Replace the @@Day, @@Month, @@Year
-		format = format.replace("@@Day", "DD-").replace("@@Month", "MM-").replace("@@Year", "YYYY-").slice(0,-1);
+		format = format.replace(/@@Day(,(\d\d){1,2}){0,1}/, "DD.").replace(/@@Month(,(\d\d){1,2}){0,1}/, "MM.").replace(/@@Year(,(\d\d\d\d)){0,1}/, "YYYY.").replace("@@Date", "DD.MM.YYYY.").slice(0,-1);
 	} else {
 		// Remove @@format: tag and €€ at the end
 		format = format[0].slice(9,-2);
 	}
+
+	console.log("DAY, MONTH, YEAR, FORMAT, DATE +++++++++++++++");
+	console.log(day, month, year, format, currDate.toDateString());
 
 	// Get all adds e.g +@@2,Month
 	var adds = value.match(/\+@@(\d+),(\w+)/g)
@@ -317,11 +339,8 @@ function calcDate(value) {
 		return {number: parseInt(match[1]), kind: match[2]};;
 	}) : [];
 
-	let currDate = new Date();
-
 	// Add every add in the adds array
 	adds.forEach(add => {
-		console.log("add: " + add);
 		switch(add.kind) {
 			case "Day":
 				currDate.setDate(currDate.getDate() + add.number);
@@ -333,13 +352,12 @@ function calcDate(value) {
 				currDate.setFullYear(currDate.getFullYear() + add.number);
 				break;
 			default:
-				console.err("Not known type to add to the date: " + add.kind);
+				console.log("Unknown type to add to the date: " + add.kind);
 		}
 	});
 
 	// Substract every sub in the subs array
 	subs.forEach(sub => {
-		console.log("sub: " + sub);
 		switch(sub.kind) {
 			case "Day":
 				currDate.setDate(currDate.getDate() - sub.number);
@@ -351,13 +369,12 @@ function calcDate(value) {
 				currDate.setFullYear(currDate.getFullYear() - sub.number);
 				break;
 			default:
-				console.err("Not known type to substract of the date: " + sub.kind);
+				console.err("Unknown type to substract of the date: " + sub.kind);
 		}
 	});
 	
 	// Format the date
 	let result = moment(currDate).format(format);
-	console.log("RESULT: ++++++++++++++++++++++");
 	console.log(result);
 	return result;
 }
@@ -593,10 +610,9 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 	}
 	await Promise.any(promises)
 	.then(async (elem) => {
-		let resp = await elem.getText().then((text) => text);
-		if (resp == '') {
-			resp = await elem.getAttribute("outerHTML");
-		}
+		let resp = await elem.getText();
+		resp = resp == '' ? await elem.getAttribute("value") : resp;
+		resp = resp == '' ? await elem.getAttribute("outerHTML") : resp;
 		match(resp, RegExp(expectedText.toString()), `Textfield does not contain the string/regex: ${expectedText} , actual: ${resp}` )
 	})
 	.catch(async (e) => {
