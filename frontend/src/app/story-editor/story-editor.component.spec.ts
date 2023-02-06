@@ -191,12 +191,12 @@ describe('StoryEditorComponent', () => {
     it('should send delete request', waitForAsync((done) => {
       component.stories = stories;
       component.selectedStory = stories[0];
-      jest.spyOn(component.scenaroiService, 'deleteScenario');
+      jest.spyOn(component.scenarioService, 'deleteScenario');
       jest.spyOn(component, 'scenarioDeleted');
       //expect(component.stories).toContain(scenario);
       component.deleteScenario(component.selectedStory.scenarios[0]);
       fixture.detectChanges();
-      expect(component.scenaroiService.deleteScenario).toHaveBeenCalled();
+      expect(component.scenarioService.deleteScenario).toHaveBeenCalled();
     }));
   });
 
@@ -254,9 +254,9 @@ describe('StoryEditorComponent', () => {
       let scenarioName = "my new name";
       component.selectedStory = stories[0];
       let scenariosAmount = component.selectedStory.scenarios.length;
-      jest.spyOn(component.scenaroiService, 'addScenario');
-      component.scenaroiService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
-        expect(component.scenaroiService.addScenario).toHaveBeenCalled();
+      jest.spyOn(component.scenarioService, 'addScenario');
+      component.scenarioService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
+        expect(component.scenarioService.addScenario).toHaveBeenCalled();
         expect(component.selectedStory.scenarios.length).toBe(scenariosAmount + 1);
       });
     });
@@ -267,7 +267,7 @@ describe('StoryEditorComponent', () => {
       let scenariosAmount = component.selectedStory.scenarios.length;
       fixture.detectChanges();
       jest.spyOn(component, 'selectScenario');
-      component.scenaroiService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
+      component.scenarioService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
         expect(component.selectScenario).toHaveBeenCalled();
         expect(component.selectedStory.scenarios.length).toEqual(scenariosAmount +1);
       });
