@@ -6,9 +6,27 @@
     font-size: 16px;
     font-weight: bold;
 }
+.material-icons{
+    color: var(--ocean-blue);
+    font-size: 20px !important;
+}
+.previewEditBlock{
+    display: flex;
+    justify-content: center;
+}
 
-.disabled {
-    background: gray !important;
+.blockButton{
+    border: none;
+    background: inherit;
+}
+
+[contenteditable='true'] {
+    caret-color: red;
+    outline: 0px solid transparent;
+}
+
+.blockButton.disabled em{
+    color: gray !important;
 }
 
 table {
@@ -55,7 +73,15 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
     border-bottom: 0px;
     padding: 5px;
 }
+.previewContainer label{
+    padding: 3px;
+    cursor: text;
 
+}
+.previewContainer div{
+    cursor: default;
+
+}
 ::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteBlockButton{
     margin-right: 20px;
 }

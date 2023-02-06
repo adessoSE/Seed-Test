@@ -25,4 +25,11 @@ describe('AddBlockFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  describe('updateBlock', () => {
+    it('should update the block', () => {
+      jest.spyOn(component.blockService, 'updateBlock');
+      component.updateBlock();
+      expect(component.blockService.updateBlock).toHaveBeenCalled();
+    });
+  });
 });

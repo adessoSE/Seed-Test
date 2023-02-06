@@ -7,6 +7,9 @@ import {Group} from '../model/Group';
 import {ActivatedRoute} from '@angular/router';
 import { ThemingService } from '../Services/theming.service';
 import { Subscription } from 'rxjs';
+import { StoryService } from '../Services/story.service';
+import { GroupService } from '../Services/group.service';
+import { ProjectService } from '../Services/project.service';
 
 
 /**
@@ -62,9 +65,19 @@ export class ParentComponent implements OnInit, OnDestroy {
   /**
    * Constructor
    * @param apiService
+   * @param route
    * @param themeService
+   * @param storyService
+   * @param groupService
+   * @param projectService
    */
-  constructor(public apiService: ApiService, public route: ActivatedRoute, public themeService: ThemingService) {
+  constructor(public apiService: ApiService,
+    public route: ActivatedRoute,
+    public themeService: ThemingService,
+    public storyService: StoryService,
+    public groupService: GroupService,
+    public projectService: ProjectService,
+    ) {
   }
 
   /**
@@ -75,7 +88,7 @@ export class ParentComponent implements OnInit, OnDestroy {
       this.loadStories();
     });
     if (!sessionStorage.getItem('repositories')) {
-      this.getRepositoriesObservable = this.apiService.getRepositories().subscribe(() => {
+      this.getRepositoriesObservable = this.projectService.getRepositories().subscribe(() => {
         console.log('parent get Repos');
       });
     }
@@ -115,13 +128,13 @@ export class ParentComponent implements OnInit, OnDestroy {
     const source: string = localStorage.getItem('source');
     const _id: string = localStorage.getItem('id');
     const repository: RepositoryContainer = {value, source, _id};
-    this.apiService
+    this.storyService
       .getStories(repository)
       .subscribe((resp: Story[]) => {
         this.stories = resp;
         this.routing();
     });
-    this.apiService
+    this.groupService
         .getGroups(_id)
         .subscribe((resp: Group[]) => {
           this.groups = resp;

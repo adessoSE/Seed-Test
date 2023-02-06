@@ -40,6 +40,7 @@ import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-
 import { DeleteScenarioToast } from './deleteScenario-toast';
 import { DeleteExampleToast } from './deleteExample-toast';
 import { DeleteStoryToast } from './deleteStory-toast';
+import { DeleteBlockToast } from '../app/deteleBlock-toast';
 import { DeleteRepositoryToast } from './deleteRepository-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
@@ -122,7 +123,8 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     RenameBackgroundComponent,
     BaseEditorComponent,
     NewExampleComponent,
-    ExampleComponent
+    ExampleComponent,
+    DeleteBlockToast
   ],
   imports: [
     NgbModule,

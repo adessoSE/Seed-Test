@@ -5,7 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
-import { ApiService } from 'src/app/Services/api.service';
+import { BlockService } from 'src/app/Services/block.service';
 
 @Component({
   selector: 'app-save-block-form',
@@ -58,15 +58,15 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   updateObservable: Subscription;
 
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
+  constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService) {}
 
   ngOnInit() {
     const id = localStorage.getItem('id');
-    this.apiService.getBlocks(id).subscribe((resp) => {
+    this.blockService.getBlocks(id).subscribe((resp) => {
       this.blocks = resp;
     });
-    this.updateObservable = this.apiService.updateBlocksEvent.subscribe(_ => {
-      this.apiService.getBlocks(id).subscribe((resp) => {
+    this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
+      this.blockService.getBlocks(id).subscribe((resp) => {
         this.blocks = resp;
       });
     });
@@ -145,7 +145,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.block.repository = localStorage.getItem('repository');
     this.block.source = localStorage.getItem('source');
     this.block.repositoryId = localStorage.getItem('id');
-    this.apiService.saveBlock(this.block).subscribe((resp) => {
+    this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
     });
     this.modalReference.close();
