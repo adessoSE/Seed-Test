@@ -289,10 +289,42 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 
 function calcDate(value) {
 
-	// check if Date Formatting String is valid
-	if(value.match(/(@@Date)|((@@Day(,\d{1,2}){0,1}){0,1}(@@Month(,\d{1,2}){0,1}){0,1}(@@Year(,{0,1}\d{4}){0,1}){0,1})((\+|\-)@@(\d+),(Day|Mont|Year))*(@@format:\w*€€)*/) == null) {
-		throw Error("String doesnt match the Date format.")
+	// TODO: wenn @@Date dann kein weiteres @@Date mehr oder @@Day @@Moth @@Year
+	// (?!((@@Date|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))))
+
+	// Regex that matches the start: e.g @@Date
+	const start_regex = /^@@Date|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!.*\1)( ((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!.*\2))?( ((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!.*\3))?/gm
+	// Regex that matches the middle: e.g. +@@Day,2
+	const mid_regex = /^((\+|\-)@@(\d+),(Day|Mont|Year))*/
+	// Regex that matches the format end: e.g @@format:DDMMYY€€
+	const end_regex = /^(@@format:\w*€€)*/
+
+	value = value.replace(/ /g, '');
+
+	console.log("@@@@@@@@@@@@@ VALUE: ->" + value + "<-  @@@@@@@@@@@@@@@@@@@");
+
+	// Validate the beginning of the Input e.g @@Date, @@Day@@@Month@@Year, @@Day,23 ....
+
+	var start = value.match(start_regex)
+	if(start === null) {
+		console.log("@@@@@@@@@@@ START UNGUELTIG  @@@@@@@@@");
 	}
+	start = start[0]
+
+	var mid = start.match(mid_regex)
+	if(mid === null) {
+		console.log("@@@@@@@@@@@ MITTE UNGUELTIG  @@@@@@@@@");
+	}
+	mid = mid[0]
+
+	var end = mid.match(end_regex)
+	if(end === null) {
+		console.log("@@@@@@@@@@@ ENDE UNGUELTIG  @@@@@@@@@");
+	}
+	end = end[0]
+
+	console.log("START:             , MID:                   , END:");
+	console.log(start+ "      "+ mid, "       "+ end);
 
 	//Get the format e.g @@format:XXXXX€€
 	var format = value.match(/(@@format:.*€€)/g);
