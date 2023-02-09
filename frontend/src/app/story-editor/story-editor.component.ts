@@ -7,9 +7,8 @@ import { StepType } from '../model/StepType';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
-import { DeleteScenarioToast } from '../deleteScenario-toast';
+import { DeleteToast } from '../delete-toast';
 import { saveAs } from 'file-saver';
-import { DeleteStoryToast } from '../deleteStory-toast';
 import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { Subscription } from 'rxjs';
@@ -459,8 +458,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario
    */
   showDeleteScenarioToast() {
-        this.toastr.warning('', 'Do you really want to delete this scenario?', {
-            toastComponent: DeleteScenarioToast
+    this.apiService.nameOfComponent('scenario');
+    this.toastr.warning('', 'Do you really want to delete this scenario?', {
+      toastComponent: DeleteToast
     });
   }
 
@@ -843,10 +843,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
 
   showDeleteStoryToast() {
+    this.apiService.nameOfComponent('story');
 		this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
-				toastComponent: DeleteStoryToast
-		});
-      }
+				toastComponent: DeleteToast
+		 });
+    }
     
 
   downloadFeature() {

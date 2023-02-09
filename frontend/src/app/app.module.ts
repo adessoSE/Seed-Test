@@ -37,11 +37,7 @@ import { CarouselModule } from 'ngx-owl-carousel-o';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
-import { DeleteScenarioToast } from './deleteScenario-toast';
-import { DeleteExampleToast } from './deleteExample-toast';
-import { DeleteStoryToast } from './deleteStory-toast';
-import { DeleteBlockToast } from '../app/deteleBlock-toast';
-import { DeleteRepositoryToast } from './deleteRepository-toast';
+import { DeleteToast } from './delete-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
@@ -97,10 +93,6 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
-    DeleteScenarioToast,
-    DeleteExampleToast,
-    DeleteStoryToast,
-    DeleteRepositoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ReportHistoryComponent,
@@ -124,7 +116,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     BaseEditorComponent,
     NewExampleComponent,
     ExampleComponent,
-    DeleteBlockToast
+    DeleteToast
   ],
   imports: [
     NgbModule,
