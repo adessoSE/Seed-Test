@@ -2,8 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { ApiService } from '../../../app/Services/api.service';
-import {RepositoryContainer} from '../../../app/model/RepositoryContainer';
+import {RepositoryContainer} from 'src/app/model/RepositoryContainer';
+import { ProjectService } from 'src/app/Services/project.service';
 
 @Component({
   selector: 'app-create-custom-project',
@@ -17,7 +17,7 @@ export class CreateCustomProjectComponent {
   /**
   * Model Reference for closing
   */
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+  constructor(private modalService: NgbModal, public projectService: ProjectService, private toastr: ToastrService) { }
  
   modalReference: NgbModalRef;
   /**
@@ -46,10 +46,10 @@ export class CreateCustomProjectComponent {
     const title = form.value.title;
     const id=form.value._id
     if (!this.isEmptyOrSpaces(title)) {
-        this.apiService.createRepository(title, id).subscribe(resp => {
+        this.projectService.createRepository(title, id).subscribe(resp => {
          this.toastr.info('', 'Project created');
-         this.apiService.getRepositoriesEmitter();
-         this.apiService.updateRepositoryEmitter();
+         this.projectService.getRepositoriesEmitter();
+         this.projectService.updateRepositoryEmitter();
        });
     }
     this.modalReference.close();

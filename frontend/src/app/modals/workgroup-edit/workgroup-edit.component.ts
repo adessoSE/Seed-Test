@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteRepositoryToast } from '../../../app/deleteRepository-toast';
-import { RepositoryContainer } from '../../../app/model/RepositoryContainer';
-import { ApiService } from '../../../app/Services/api.service';
+import { DeleteToast } from 'src/app/delete-toast'; 
+import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { ApiService } from 'src/app/Services/api.service';
+import { ProjectService } from 'src/app/Services/project.service';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 
 @Component({
@@ -56,11 +57,14 @@ export class WorkgroupEditComponent {
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {
-    this.apiService.deleteRepositoryEvent.subscribe(() => {
+  constructor(private modalService: NgbModal, 
+    public projectService: ProjectService, 
+    private toastr: ToastrService,
+    public apiService: ApiService) {
+    this.projectService.deleteRepositoryEvent.subscribe(() => {
       this.deleteCustomRepo();
     });
-    this.apiService.getRepositories().subscribe(repos => {
+    this.projectService.getRepositories().subscribe(repos => {
       this.repos = repos;
     });
   }
@@ -78,7 +82,7 @@ export class WorkgroupEditComponent {
     header.textContent = 'Project: ' + project.value;
     this.projectName = project.value;
 
-    this.apiService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
+    this.projectService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
         this.workgroupList = res.member;
         this.workgroupOwner = res.owner.email;
     });
@@ -94,7 +98,7 @@ export class WorkgroupEditComponent {
     if (!canEdit) { canEdit = false; }
     const user = {email, canEdit};
     this.workgroupError = '';
-    this.apiService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
+    this.projectService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
       const originList = JSON.parse(JSON.stringify(this.workgroupList));
       originList.push(user);
       this.workgroupList = [];
@@ -111,7 +115,7 @@ export class WorkgroupEditComponent {
  * @param user
  */
   removeFromWorkgroup(user) {
-    this.apiService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
+    this.projectService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
         this.workgroupList = res.member;
     });
   }
@@ -123,7 +127,7 @@ export class WorkgroupEditComponent {
  */
   checkEditUser(event, user) {
     user.canEdit = !user.canEdit;
-    this.apiService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
+    this.projectService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
         this.workgroupList = res.member;
     });
   }
@@ -133,9 +137,9 @@ export class WorkgroupEditComponent {
  */
   deleteCustomRepo() {
     if (this.userEmail == this.workgroupOwner) {
-      this.apiService.deleteRepository(this.workgroupProject, this.userId).subscribe(() => {
-        this.apiService.getRepositoriesEmitter();
-        this.apiService.updateRepositoryEmitter();
+      this.projectService.deleteRepository(this.workgroupProject, this.userId).subscribe(() => {
+        this.projectService.getRepositoriesEmitter();
+        this.projectService.updateRepositoryEmitter();
       });
       this.modalReference.close();
     }
@@ -154,8 +158,9 @@ export class WorkgroupEditComponent {
  * Opens the delete repository toast
  */
   showDeleteRepositoryToast() {
+    this.apiService.nameOfComponent('repository');
     this.toastr.warning('', 'Do you really want to delete this repository?', {
-        toastComponent: DeleteRepositoryToast
+        toastComponent: DeleteToast
     });
   }
 
@@ -187,7 +192,7 @@ export class WorkgroupEditComponent {
       project.value = name;
    }
     // Emits rename event
-    this.apiService.renameProjectEmitter(project);
+    this.projectService.renameProjectEmitter(project);
   }
 
 }

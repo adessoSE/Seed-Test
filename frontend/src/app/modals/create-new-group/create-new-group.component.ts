@@ -2,10 +2,11 @@ import { Component, EventEmitter, ViewChild} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Group } from '../../../app/model/Group';
-import { RepositoryContainer } from '../../../app/model/RepositoryContainer';
-import { Story } from '../../../app/model/Story';
-import { ApiService } from '../../../app/Services/api.service';
+import { Group } from 'src/app/model/Group';
+import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { Story } from 'src/app/model/Story';
+import { GroupService } from 'src/app/Services/group.service';
+import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
   selector: 'app-create-new-group',
@@ -46,7 +47,7 @@ export class CreateNewGroupComponent {
   closeWindowEventEmitter = new EventEmitter();
 
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) {}
+  constructor(private modalService: NgbModal, public groupService: GroupService, public storyService: StoryService) {}
 
   /**
      * Opens the create new group modal
@@ -60,7 +61,7 @@ export class CreateNewGroupComponent {
     const _id = localStorage.getItem('id');
     const source = localStorage.getItem('source');
     const repositoryContainer: RepositoryContainer = {value, source, _id};
-    this.apiService.getStories(repositoryContainer).subscribe(res => {
+    this.storyService.getStories(repositoryContainer).subscribe(res => {
         this.stories = res;
         this.filteredStories = new MatTableDataSource(res);
     });
@@ -104,7 +105,7 @@ export class CreateNewGroupComponent {
   }
 
   groupUnique(form :NgForm) {
-    this.apiService.groupUnique('submitCreateNewGroup', form.value.title, this.groups, this.group);
+    this.groupService.groupUnique('submitCreateNewGroup', form.value.title, this.groups, this.group);
   }
 
   /**
@@ -120,7 +121,7 @@ export class CreateNewGroupComponent {
       const source = localStorage.getItem('source');
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const group = {title, member_stories, isSequential};
-      this.apiService.createGroupEvent({repositoryContainer, group});
+      this.groupService.createGroupEvent({repositoryContainer, group});
      
     }
     this.modalReference.close();

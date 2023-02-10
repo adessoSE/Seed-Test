@@ -6,16 +6,21 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-import { Component} from '@angular/core';
+import { Component, ViewChild} from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
+import { BlockService } from './Services/block.service';
+import { ExampleService } from './Services/example.service';
+import { ProjectService } from './Services/project.service';
+import { ScenarioService } from './Services/scenario.service';
+import { StoryService } from './Services/story.service';
 
 /**
- * Component of the Delete Story toasts
+ * Component of the Delete toasts
  */
   @Component({
     selector: '[pink-toast-component]',
-    styles: [`
+    styles:[`
         a {
             background: #388196;
             margin: 2px;
@@ -24,7 +29,7 @@ import { ApiService } from './Services/api.service';
         .deleteButton{
           background: darkred;
         }
-
+        
         a:hover {
             color: black;
         }
@@ -95,7 +100,7 @@ import { ApiService } from './Services/api.service';
     ],
     preserveWhitespaces: false,
   })
-  export class DeleteStoryToast extends Toast {
+  export class DeleteToast extends Toast {
     /**
      * Name of the delete button
      */
@@ -105,27 +110,49 @@ import { ApiService } from './Services/api.service';
      */
     cancelString = 'Cancel';
     /**
+     * Name of the component that the user wants to delete
+     */
+    nameComponent: string;
+    /**
      * Constructor
-     * @param toastrService
-     * @param toastPackage
-     * @param apiService
+     * @param toastrService 
+     * @param toastPackage 
+     * @param scenarioService 
      * constructor is only necessary when not using AoT
      */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
-      public apiService: ApiService
+      public scenarioService: ScenarioService,
+      public storyService: StoryService,
+      public apiService: ApiService,
+      public exampleService: ExampleService,
+      public projectService: ProjectService,
+      public blockService: BlockService
+
     ) {
       super(toastrService, toastPackage);
     }
-
+    
     /**
-     * Creates a toast and deltes the story
-     * @param event
+     * Creates a toast and delete the selected component
+     * @param event 
      */
-    deleteToast(event: Event) {
+    deleteToast(event: Event){
         event.stopPropagation();
-        this.apiService.deleteStoryEmitter();
+        this.nameComponent=this.apiService.getNameOfComponent();
+        switch(this.nameComponent){
+          case 'scenario': this.scenarioService.deleteScenarioEmitter();
+          break;
+          case 'story': this.storyService.deleteStoryEmitter();
+          break;
+          case 'example': this.exampleService.deleteExampleEmitter();
+          break;
+          case 'repository': this.projectService.deleteRepositoryEmitter();
+          break;
+          case 'block': this.blockService.deleteBlockEmitter();
+        }
+        console.log(this.nameComponent);
         this.remove();
     }
   }

@@ -1,11 +1,11 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Group } from '../../../app/model/Group';
-import { RepositoryContainer } from '../../../app/model/RepositoryContainer';
-import { Story } from '../../../app/model/Story';
-import { ApiService } from '../../../app/Services/api.service';
+import { Group } from 'src/app/model/Group';
+import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { Story } from 'src/app/model/Story';
 import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
+import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
   selector: 'app-create-new-story',
@@ -44,7 +44,7 @@ export class CreateNewStoryComponent {
 
 
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  constructor(private modalService: NgbModal, public storyService: StoryService) { }
 
     /**
      * Opens the create new story modal
@@ -66,13 +66,13 @@ export class CreateNewStoryComponent {
       const source = 'db';
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const story = {title, description};
-      this.apiService.createCustomStoryEvent({repositoryContainer, story});
+      this.storyService.createCustomStoryEvent({repositoryContainer, story});
     }
     this.modalReference.close();
   }
 
   storyUnique() {
-    this.apiService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
+    this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
   }
 }
 

@@ -15,7 +15,6 @@ const fs = require('fs');
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
 
-
 // Handling response errors
 function handleError(res, reason, statusMessage, code) {
 	console.error(`ERROR: ${reason}`);
@@ -25,7 +24,6 @@ function handleError(res, reason, statusMessage, code) {
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
 
-
 router
 	.use(cors())
 	.use(bodyParser.json({ limit: '100kb' }))
@@ -34,7 +32,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect');
 		next();
@@ -188,23 +186,23 @@ router.get('/repositories', (req, res) => {
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
-	.then((repos) => {
-		let merged = [].concat(...repos);
-		// remove duplicates
-		merged = helper.uniqueRepositories(merged);
-		res.status(200).json(merged);
-	})
-	.catch((reason) => {
-		res.status(401).json('Wrong Github name or Token');
-		console.error(`Get Repositories Error: ${reason}`);
-	});
+		.then((repos) => {
+			let merged = [].concat(...repos);
+			// remove duplicates
+			merged = helper.uniqueRepositories(merged);
+			res.status(200).json(merged);
+		})
+		.catch((reason) => {
+			res.status(401).json('Wrong Github name or Token');
+			console.error(`Get Repositories Error: ${reason}`);
+		});
 });
 
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.params.owner_id);
 	res.status(200).json(repo);
-	console.log('update repo: ',repo);
+	console.log('update repo: ', repo);
 });
 
 // delete repository
@@ -215,7 +213,7 @@ router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {
-		handleError(res, e, e, 500);
+		handleError(res, 'in delete Repository', 'Could not delete Project', 500);
 	}
 });
 
@@ -224,7 +222,7 @@ router.get('/stories', async (req, res) => {
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
-		if(!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log("Username or Reponame not valid");
+		if (!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
@@ -365,6 +363,15 @@ router.put('/stories/:_id', async (req, res) => {
 	res.status(200).json(result);
 });
 
+const mapper = (str) => { // maps Url endoded data to new object
+	const cleaned = decodeURIComponent(str);
+	const entities = cleaned.split('&').filter(Boolean).map((v) => {
+		const a = v.split('=').map((x) => x.toString());
+		return a;
+	});
+	return Object.fromEntries(entities);
+};
+
 router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
 	const params = new URLSearchParams();
@@ -378,34 +385,24 @@ router.get('/callback', (req, res) => {
 			body: params
 		}
 	)
-	.then((response) => response.text())
-	.then((text)=>mapper(text))
-	.then((data) => {
-		console.log(data);
-		if(data.error)throw Error("github user register failed")
-		else helper.getGithubData(res, req, data.access_token);
-	})
-	.catch((error)=>{
-		res.status(401).send(error.message)
-		console.error(error);
-	})
+		.then((response) => response.text())
+		.then((text) => mapper(text))
+		.then((data) => {
+			console.log(data);
+			if (data.error) throw Error('github user register failed');
+			else helper.getGithubData(res, req, data.access_token);
+		})
+		.catch((error) => {
+			res.status(401).send(error.message);
+			console.error(error);
+		});
 });
-const mapper = (str) => { // maps Url endoded data to new object
-	const cleaned = decodeURIComponent(str)
-	const entities = cleaned.split('&').filter(Boolean).map(v => {
-		let a = v.split('=').map((x)=>x.toString())
-		return a
-	})
-	return Object.fromEntries(entities)
-}
-
 
 router.post('/log', (req, res) => {
-	const stream = fs.createWriteStream('./logs/front.log', {flags: 'a'});
-	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n')
-	stream.close()
-	res.status(200).json('logged')
-})
-
+	const stream = fs.createWriteStream('./logs/front.log', { flags: 'a' });
+	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n');
+	stream.close();
+	res.status(200).json('logged');
+});
 
 module.exports = router;

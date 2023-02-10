@@ -10,10 +10,13 @@ import { StepDefinition } from '../model/StepDefinition';
 import { StepDefinitionBackground } from '../model/StepDefinitionBackground';
 import { StepType } from '../model/StepType';
 import { Story } from '../model/Story';
-import { ApiService } from '../Services/api.service';
+import { BlockService } from '../Services/block.service';
 import { Subscription } from 'rxjs';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
+import { ExampleService } from '../Services/example.service';
+import { ScenarioService } from '../Services/scenario.service';
+import { BackgroundService } from '../Services/background.service';
 
 @Component({
   selector: 'app-base-editor',
@@ -138,10 +141,14 @@ export class BaseEditorComponent  {
   backgroundChangedObservable: Subscription;
 
 
-  constructor(public toastr: ToastrService, public apiService: ApiService) {}
+  constructor(public toastr: ToastrService, 
+    public blockService: BlockService,
+    public exampleService: ExampleService,
+    public scenarioService: ScenarioService,
+    public backgroundService: BackgroundService) {}
 
   ngOnInit(): void {
-    this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
+    this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
       if (this.templateName == 'background' && block[0] == 'background') {
         block = block[1];
         Object.keys(block.stepDefinitions).forEach((key, _) => {
@@ -170,12 +177,12 @@ export class BaseEditorComponent  {
       }
     });
     
-    this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample', value.step)});
-    this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column);});
-    this.scenarioChangedObservable = this.apiService.scenarioChangedEvent.subscribe(() => {
+    this.newExampleObservable = this.exampleService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample', value.step)});
+    this.renameExampleObservable = this.exampleService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column);});
+    this.scenarioChangedObservable = this.scenarioService.scenarioChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
     });
-    this.backgroundChangedObservable = this.apiService.backgroundChangedEvent.subscribe(() => {
+    this.backgroundChangedObservable = this.backgroundService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
     });
     
@@ -1406,6 +1413,20 @@ export class BaseEditorComponent  {
     this.exampleChild.updateTable();
     //}
     //this.selectedScenario.saved = false;
+    this.markUnsaved();
+  }
+
+  /**
+   * Add Value Row
+   */
+  addExampleValueRow(){
+    console.log("selected scenario: ", this.selectedScenario.stepDefinitions)
+    let row = JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions.example[0]))
+      row.values.forEach((value, index) => {
+        row.values[index] = 'value'
+      });
+      this.selectedScenario.stepDefinitions.example.push(row)
+    this.exampleChild.updateTable();
     this.markUnsaved();
   }
 

@@ -750,7 +750,7 @@ async function getAllSourceReposFromDb(source) {
 		return await db.collection(repositoriesCollection).find({ repoType: source })
 			.toArray();
 	} catch (e) {
-		console.log(`ERROR in getAllSourceReposFromDb${e}`);
+		console.log(`ERROR in getAllSourceReposFromDb ${e}`);
 	}
 }
 
@@ -1140,6 +1140,9 @@ async function updateBlock(name, updatedBlock) { // delete by id but update by n
 	const oldBlock = { name };
 	try {
 		const db = dbConnection.getConnection();
+		updatedBlock._id = ObjectId(updatedBlock._id)
+		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
+		updatedBlock.owner = ObjectId(updatedBlock.owner);
 		await db.collection(CustomBlocksCollection).findOneAndReplace(oldBlock, updatedBlock);
 	} catch (e) {
 		console.log(`ERROR in updateBlock: ${e}`);

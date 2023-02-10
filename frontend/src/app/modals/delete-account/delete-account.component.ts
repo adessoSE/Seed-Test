@@ -2,7 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { ApiService } from '../../../app/Services/api.service';
+import { LoginService } from 'src/app/Services/login.service';
+import { ManagementService } from 'src/app/Services/management.service';
 
 @Component({
   selector: 'app-delete-account',
@@ -21,7 +22,7 @@ export class DeleteAccountComponent {
 
   modalReference: NgbModalRef;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) { }
+  constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private toastr: ToastrService) { }
 
   /**
      * Opens delete account modal
@@ -38,9 +39,9 @@ export class DeleteAccountComponent {
   deleteAccount(form: NgForm) {
     const insertedEmail = form.value.insertedEmail;
     if (insertedEmail !== undefined && insertedEmail === this.email) {
-        this.apiService.deleteUser().subscribe(resp => {
+        this.managmentService.deleteUser().subscribe(resp => {
             this.toastr.info('', 'User Deleted');
-            this.apiService.logoutEvent.emit();
+            this.loginService.logoutEvent.emit();
         });
       this.modalReference.close();
     } else {

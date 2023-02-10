@@ -40,8 +40,8 @@ describe('AccountManagementComponent', () => {
     location = TestBed.inject(Location);
     fixture = TestBed.createComponent(AccountManagementComponent);
     component = fixture.componentInstance;
-    jest.spyOn(component.apiService, 'isLoggedIn').mockReturnValue(true);
-    component.apiService.isLoggedIn();
+    jest.spyOn(component.loginService, 'isLoggedIn').mockReturnValue(true);
+    component.loginService.isLoggedIn();
     component.repositories = repositories;
     component.searchInput = '';
     component.github = '';

@@ -1,6 +1,5 @@
-import { ApiService } from '../../app/Services/api.service';
 import { Subscription } from 'rxjs';
-import { DeleteExampleToast } from './../deleteExample-toast';
+import { DeleteToast } from './../delete-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl } from '@angular/forms';
@@ -8,6 +7,9 @@ import { Scenario } from '../model/Scenario';
 import { ToastrService } from 'ngx-toastr';
 import { Story } from '../model/Story';
 import { StepType } from '../model/StepType';
+import { ExampleService } from '../Services/example.service';
+import { ScenarioService } from '../Services/scenario.service';
+import { ApiService } from '../Services/api.service';
 
 
 @Component({
@@ -127,13 +129,17 @@ export class ExampleTableComponent implements OnInit {
     /**
    * @ignore
    */
-     constructor( public apiService: ApiService, private toastr: ToastrService) {}
+     constructor( public scenarioService: ScenarioService,
+       private toastr: ToastrService,
+       public exampleService: ExampleService,
+       public apiService: ApiService
+       ) {}
 
      /**
     * @ignore
     */
   ngOnInit() {
-    this.deleteExampleObservable = this.apiService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
+    this.deleteExampleObservable = this.exampleService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
   }
  
@@ -254,7 +260,7 @@ export class ExampleTableComponent implements OnInit {
       this.initializeTable();
       this.initializeTableControls();
       this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
-      this.apiService.scenarioChangedEmitter();
+      this.scenarioService.scenarioChangedEmitter();
     } else {
       this.exampleThere = false;
     }
@@ -289,8 +295,9 @@ export class ExampleTableComponent implements OnInit {
    * @param scenario
    */
    showDeleteExampleToast(scenario: Scenario) {
+    this.apiService.nameOfComponent('example');
     this.toastr.warning('', 'Do you really want to delete this example?', {
-        toastComponent: DeleteExampleToast
+        toastComponent: DeleteToast
     });
   }
 
