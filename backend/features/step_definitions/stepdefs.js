@@ -289,42 +289,75 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 
 function calcDate(value) {
 
-	// TODO: wenn @@Date dann kein weiteres @@Date mehr oder @@Day @@Moth @@Year
-	// (?!((@@Date|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))))
-
-	// Regex that matches the start: e.g @@Date
-	const start_regex = /^@@Date|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!.*\1)( ((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!.*\2))?( ((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!.*\3))?/gm
+	// Regex that matches the start: e.g @@Date works only with PCRE2. JS uses EMCAScript
+	// const start_regex = /^((@@Date)|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!\1)(((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!\2))?(((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!\3))?)|(^\s*$)/
+	
 	// Regex that matches the middle: e.g. +@@Day,2
-	const mid_regex = /^((\+|\-)@@(\d+),(Day|Mont|Year))*/
+	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Mont|Year))*)|(^\s*$)/
 	// Regex that matches the format end: e.g @@format:DDMMYY€€
-	const end_regex = /^(@@format:\w*€€)*/
+	const end_regex = /(^(@@format:\w*€€)*)|(^\s*$)/
 
-	value = value.replace(/ /g, '');
+	function getStart(str) {
+		let endIndex = str.length;
+		const symbols = ["+", "-", "@@format"];
+	  
+		symbols.forEach(symbol => {
+		  const symbolIndex = str.indexOf(symbol);
+		  if (symbolIndex !== -1 && symbolIndex < endIndex) {
+			endIndex = symbolIndex;
+		  }
+		});
+		return str.substring(0, endIndex);
+	  }
 
-	console.log("@@@@@@@@@@@@@ VALUE: ->" + value + "<-  @@@@@@@@@@@@@@@@@@@");
+	function getMid(str) {
+		let endIndex = str.length;
+		const symbols = ["@@format"];
+	  
+		symbols.forEach(symbol => {
+		  const symbolIndex = str.indexOf(symbol);
+		  if (symbolIndex !== -1 && symbolIndex < endIndex) {
+			endIndex = symbolIndex;
+		  }
+		});
+		return str.substring(0, endIndex);
+	  }
+	var start = getStart(value).replace(' ', '');
+	var mid = getMid(value.replace(start, '')).replace(' ', '');
+	var end = mid.replace(mid, '').trim();
 
-	// Validate the beginning of the Input e.g @@Date, @@Day@@@Month@@Year, @@Day,23 ....
-
-	var start = value.match(start_regex)
-	if(start === null) {
-		console.log("@@@@@@@@@@@ START UNGUELTIG  @@@@@@@@@");
+	// check if the start part is written correctly
+	var dates = start.match(/@@Date/)
+	const substrings = ["@@Day", "@@Month", "@@Year"];
+	if(dates !== null) {
+		if(dates.length > 1) {
+			console.log("Error: Multiple Instances of @@Date.");
+		} else {
+			for (let i = 0; i < substrings.length; i++) {
+    			if (start.includes(substrings[i])) {
+        			console.log("Error: @@Date only be used by itself.");
+        			break;
+   				}
+			}
+		}
+	} else {
+		for (let i = 0; i < substrings.length; i++) {
+			if (start.split(substrings[i]).length-1 > 1) {
+				console.log("Error: " + substrings[i] + " may only 0 or 1 time.");
+				break;
+			   }
+		}
 	}
-	start = start[0]
 
-	var mid = start.match(mid_regex)
-	if(mid === null) {
-		console.log("@@@@@@@@@@@ MITTE UNGUELTIG  @@@@@@@@@");
+	// check if the calculation part is written correctly
+	if(!mid_regex.test(mid)) {
+		console.log("Error parsing the calculation section. Example: +@@23,Day-@@Month,1");
 	}
-	mid = mid[0]
 
-	var end = mid.match(end_regex)
-	if(end === null) {
-		console.log("@@@@@@@@@@@ ENDE UNGUELTIG  @@@@@@@@@");
+	// check if the format part is written correctly
+	if(!end_regex.test(end)) {
+		console.log("Error parsing the format section. Example: @@format:XXXXXX€€. Where XXXXX is the Format String. Example: @@format:DD-MM-YY");
 	}
-	end = end[0]
-
-	console.log("START:             , MID:                   , END:");
-	console.log(start+ "      "+ mid, "       "+ end);
 
 	//Get the format e.g @@format:XXXXX€€
 	var format = value.match(/(@@format:.*€€)/g);
@@ -345,16 +378,15 @@ function calcDate(value) {
 	// If no format was found, check the given format e.g. @@Date, @@Day@@Month, @@Day ...
 	if(format == null) {
 		// Get the Substring until the first add,sub or format e.g @@Day@@Month+@@ ... -> @@Day@@Month
-		format = value.split(/[\+\-]|@@format/)[0];
+		format = value.split(/[\+\-]/)[0];
 		// Replace the @@Day, @@Month, @@Year
 		format = format.replace(/@@Day(,(\d\d){1,2}){0,1}/, "DD.").replace(/@@Month(,(\d\d){1,2}){0,1}/, "MM.").replace(/@@Year(,(\d\d\d\d)){0,1}/, "YYYY.").replace("@@Date", "DD.MM.YYYY.").slice(0,-1);
 	} else {
-		// Remove @@format: tag and €€ at the end
+		// Get @@format: tag and €€ at the end
 		format = format[0].slice(9,-2);
 	}
 
-	console.log("DAY, MONTH, YEAR, FORMAT, DATE +++++++++++++++");
-	console.log(day, month, year, format, currDate.toDateString());
+	// console.log(`Day: ${day}\nMonth: ${month}\nYear: ${year}\nFormat: ${format}\nDate: ${currDate.toDateString()}`);
 
 	// Get all adds e.g +@@2,Month
 	var adds = value.match(/\+@@(\d+),(\w+)/g)
