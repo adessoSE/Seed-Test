@@ -17,7 +17,7 @@ import { StoriesBarComponent } from '../stories-bar/stories-bar.component';
 import { StepDefinition } from '../model/StepDefinition';
 import { Component, Injectable, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core';
 import { ApiService } from '../Services/api.service';
-import { findComponent } from 'src/test_helper';
+import { findComponent } from '../../test_helper';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { MAT_SELECT_SCROLL_STRATEGY_PROVIDER } from '@angular/material/select';
 

@@ -2,7 +2,7 @@
   "name": "seed-test-backend",
   "version": "1.6.2",
   "engines": {
-    "node": "16.17.0"
+    "node": "18.13.0"
   },
   "scripts": {
     "start": "node src/server.js",

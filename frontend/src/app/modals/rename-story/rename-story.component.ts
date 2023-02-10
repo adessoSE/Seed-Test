@@ -1,5 +1,5 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from 'src/app/model/Story';
 import { StoryService } from 'src/app/Services/story.service';
@@ -17,9 +17,9 @@ export class RenameStoryComponent {
 
   story: Story;
   stories: Story[];
-  storyForm = new FormGroup ({
-    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    storyDescription: new FormControl(''),
+  storyForm = new UntypedFormGroup ({
+    storyTitle: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    storyDescription: new UntypedFormControl(''),
   });
 
   get storyTitle() { return this.storyForm.get('storyTitle'); }
