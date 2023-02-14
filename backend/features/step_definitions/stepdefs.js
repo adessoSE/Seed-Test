@@ -289,10 +289,11 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 
 function calcDate(value) {
 
-	// Regex that matches the start: e.g @@Date works only with PCRE2. JS uses EMCAScript
+	// Regex that matches the start: e.g @@Date, @@Day @@Month, @@Day,23 
+	// works only with PCRE2. JS uses EMCAScript
 	// const start_regex = /^((@@Date)|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!\1)(((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!\2))?(((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!\3))?)|(^\s*$)/
 	
-	// Regex that matches the middle: e.g. +@@Day,2
+	// Regex that matches the middle: e.g. +@@Day,2-@@Month,4 ....
 	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Mont|Year))*)|(^\s*$)/
 	// Regex that matches the format end: e.g @@format:DDMMYY€€
 	const end_regex = /(^(@@format:\w*€€)*)|(^\s*$)/
@@ -327,36 +328,42 @@ function calcDate(value) {
 	var end = mid.replace(mid, '').trim();
 
 	// check if the start part is written correctly
-	var dates = start.match(/@@Date/)
-	const substrings = ["@@Day", "@@Month", "@@Year"];
-	if(dates !== null) {
-		if(dates.length > 1) {
-			console.log("Error: Multiple Instances of @@Date.");
+	var dates = start.split(/@@Date/)
+	const substrings = [/@@Day,\d{1,2}|@@Day/, /@@Month,\d{1,2}|@@Month/, /@@Year,\d{4}|@@Year/];
+	const substringsErr = ["@@Day", "@@Month", "@@Year"];
+	//check if @@Date has been used
+	if(dates.length > 1) {
+		if(dates.length-1 > 1) {
+			throw Error("@@Date should only be used once.");
 		} else {
 			for (let i = 0; i < substrings.length; i++) {
-    			if (start.includes(substrings[i])) {
-        			console.log("Error: @@Date only be used by itself.");
-        			break;
+    			if (substrings[i].test(start)) {
+					throw Error("@@Date should only be used by itself. Found: " + substringsErr[i])
    				}
 			}
 		}
+	//check the correct usage of @@Day, @@Month, @@Year
 	} else {
+		startcopy = start.slice();
 		for (let i = 0; i < substrings.length; i++) {
 			if (start.split(substrings[i]).length-1 > 1) {
-				console.log("Error: " + substrings[i] + " may only 0 or 1 time.");
-				break;
-			   }
+				throw Error(substringsErr[i] + " may only be used 0 or 1 time. Input: " + start); 
+			}
+			startcopy = startcopy.replace(substrings[i], '');
+		}
+		if (startcopy.length !== 0) {
+			throw Error("Unkown tokens in the start section: " + startcopy);
 		}
 	}
 
 	// check if the calculation part is written correctly
 	if(!mid_regex.test(mid)) {
-		console.log("Error parsing the calculation section. Example: +@@23,Day-@@Month,1");
+		throw Error("Error parsing the calculation section. Example: +@@23,Day-@@Month,1");
 	}
 
 	// check if the format part is written correctly
 	if(!end_regex.test(end)) {
-		console.log("Error parsing the format section. Example: @@format:XXXXXX€€. Where XXXXX is the Format String. Example: @@format:DD-MM-YY");
+		throw Error("Error parsing the format section. Example: @@format:XXXXXX€€. Where XXXXX is the Format String. Example: @@format:DD-MM-YY");
 	}
 
 	//Get the format e.g @@format:XXXXX€€
@@ -416,7 +423,7 @@ function calcDate(value) {
 				currDate.setFullYear(currDate.getFullYear() + add.number);
 				break;
 			default:
-				console.log("Unknown type to add to the date: " + add.kind);
+				new Error("Unknown type to add to the date: " + add.kind);
 		}
 	});
 
@@ -433,13 +440,12 @@ function calcDate(value) {
 				currDate.setFullYear(currDate.getFullYear() - sub.number);
 				break;
 			default:
-				console.err("Unknown type to substract of the date: " + sub.kind);
+				new Error("Unknown type to substract of the date: " + sub.kind);
 		}
 	});
 	
 	// Format the date
 	let result = moment(currDate).format(format);
-	console.log(result);
 	return result;
 }
 
