@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ApiService } from 'src/app/Services/api.service';
+import { BackgroundService } from 'src/app/Services/background.service';
 
 @Component({
   selector: 'app-rename-background',
@@ -14,9 +14,9 @@ export class RenameBackgroundComponent{
 
   @ViewChild('renameBackground') renameBackground: RenameBackgroundComponent;
 
-  backgroundTitle = new FormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
+  backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  constructor(private modalService: NgbModal, public backgroundService: BackgroundService) { }
 
   openRenameBackgroundModal(backgroundName) {
     this.modalReference = this.modalService.open(this.renameBackground, {ariaLabelledBy: 'modal-basic-title'});
@@ -25,7 +25,7 @@ export class RenameBackgroundComponent{
 
   submitRenameBackground() {
     const title = this.backgroundTitle.value;
-    this.apiService.renameBackgroundEmit(title);  
+    this.backgroundService.renameBackgroundEmit(title);  
     this.modalReference.close();
   }
 

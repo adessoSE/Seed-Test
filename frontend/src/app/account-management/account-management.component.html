@@ -41,7 +41,7 @@
                 </ul>
             </div>
         </div>
-        <div class="repositories" *ngIf="apiService.isLoggedIn()">
+        <div class="repositories" *ngIf="loginService.isLoggedIn()">
             <div>
                 <label>Download Project</label>
                 <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
@@ -65,7 +65,7 @@
         </div>
 
         <!-----------------Erase your Account-------------->
-        <div class="grid_eraseAccount repositories" *ngIf="apiService.isLoggedIn() && email">
+        <div class="grid_eraseAccount repositories" *ngIf="loginService.isLoggedIn() && email">
             <div class="uk-form-horizontal">
                 <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test Account</button>
             </div>

@@ -11,6 +11,7 @@ const firefox = require('../../node_modules/selenium-webdriver/firefox');
 const chrome = require('../../node_modules/selenium-webdriver/chrome');
 const edge = require('../../node_modules/selenium-webdriver/edge');
 const { match, doesNotMatch } = require('assert');
+const moment = require('../../node_modules/moment');
 
 let driver;
 const firefoxOptions = new firefox.Options();
@@ -265,10 +266,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	 `//label[contains(text(),'${label}')]/following::input[@type='text']`, `${label}`];
 
 	if(value.includes('@@')){
-		const date = new Date();
-		value = value.replace(/@@timestamp/g, `${date.toISOString()}`);
-		value = value.replace(/@@date/g, `${("0" + date.getDate()).slice(-2)}.${("0" + (date.getMonth() + 1)).slice(-2)}.${date.getFullYear()}`); // getMonth is zeroBased
-		value = value.replace(/@@time/g, `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`);
+		value = calcDate(value);
 	}
 	
 	const promises = []
@@ -288,6 +286,168 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 	})
 	await driver.sleep(100 + currentParameters.waitTime);
 });
+
+function calcDate(value) {
+
+	// Regex that matches the start: e.g @@Date, @@Day @@Month, @@Day,23 
+	// works only with PCRE2. JS uses EMCAScript
+	// const start_regex = /^((@@Date)|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!\1)(((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!\2))?(((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!\3))?)|(^\s*$)/
+	
+	// Regex that matches the middle: e.g. +@@Day,2-@@Month,4 ....
+	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Mont|Year))*)|(^\s*$)/
+	// Regex that matches the format end: e.g @@format:DDMMYY€€
+	const end_regex = /(^(@@format:\w*€€)*)|(^\s*$)/
+
+	function getStart(str) {
+		let endIndex = str.length;
+		const symbols = ["+", "-", "@@format"];
+	  
+		symbols.forEach(symbol => {
+		  const symbolIndex = str.indexOf(symbol);
+		  if (symbolIndex !== -1 && symbolIndex < endIndex) {
+			endIndex = symbolIndex;
+		  }
+		});
+		return str.substring(0, endIndex);
+	  }
+
+	function getMid(str) {
+		let endIndex = str.length;
+		const symbols = ["@@format"];
+	  
+		symbols.forEach(symbol => {
+		  const symbolIndex = str.indexOf(symbol);
+		  if (symbolIndex !== -1 && symbolIndex < endIndex) {
+			endIndex = symbolIndex;
+		  }
+		});
+		return str.substring(0, endIndex);
+	  }
+	var start = getStart(value).replace(' ', '');
+	var mid = getMid(value.replace(start, '')).replace(' ', '');
+	var end = mid.replace(mid, '').trim();
+
+	// check if the start part is written correctly
+	var dates = start.split(/@@Date/)
+	const substrings = [/@@Day,\d{1,2}|@@Day/, /@@Month,\d{1,2}|@@Month/, /@@Year,\d{4}|@@Year/];
+	const substringsErr = ["@@Day", "@@Month", "@@Year"];
+	//check if @@Date has been used
+	if(dates.length > 1) {
+		if(dates.length-1 > 1) {
+			throw Error("@@Date should only be used once.");
+		} else {
+			for (let i = 0; i < substrings.length; i++) {
+    			if (substrings[i].test(start)) {
+					throw Error("@@Date should only be used by itself. Found: " + substringsErr[i])
+   				}
+			}
+		}
+	//check the correct usage of @@Day, @@Month, @@Year
+	} else {
+		startcopy = start.slice();
+		for (let i = 0; i < substrings.length; i++) {
+			if (start.split(substrings[i]).length-1 > 1) {
+				throw Error(substringsErr[i] + " may only be used 0 or 1 time. Input: " + start); 
+			}
+			startcopy = startcopy.replace(substrings[i], '');
+		}
+		if (startcopy.length !== 0) {
+			throw Error("Unkown tokens in the start section: " + startcopy);
+		}
+	}
+
+	// check if the calculation part is written correctly
+	if(!mid_regex.test(mid)) {
+		throw Error("Error parsing the calculation section. Example: +@@23,Day-@@Month,1");
+	}
+
+	// check if the format part is written correctly
+	if(!end_regex.test(end)) {
+		throw Error("Error parsing the format section. Example: @@format:XXXXXX€€. Where XXXXX is the Format String. Example: @@format:DD-MM-YY");
+	}
+
+	//Get the format e.g @@format:XXXXX€€
+	var format = value.match(/(@@format:.*€€)/g);
+
+	// Start Date
+	let currDate = new Date();
+	var day = value.match(/(@@Day,\d{1,2})/g);
+	if (day) {day = parseInt(day[0].match(/@@Day,(\d+)/)[1])}; 
+	var month = value.match(/(@@Month,\d{1,2})/g);
+	if (month) {month = parseInt(month[0].match(/@@Month,(\d+)/)[1]-1)}; 
+	var year = value.match(/(@@Year,\d\d\d\d)/g);
+	if (year) {year = parseInt(year[0].match(/@@Year,(\d+)/)[1])}; 
+
+	currDate.setFullYear(year == null ? currDate.getFullYear() : year, 
+		month == null ? currDate.getMonth() : month ,
+		day == null ? currDate.getDate(): day);
+
+	// If no format was found, check the given format e.g. @@Date, @@Day@@Month, @@Day ...
+	if(format == null) {
+		// Get the Substring until the first add,sub or format e.g @@Day@@Month+@@ ... -> @@Day@@Month
+		format = value.split(/[\+\-]/)[0];
+		// Replace the @@Day, @@Month, @@Year
+		format = format.replace(/@@Day(,(\d\d){1,2}){0,1}/, "DD.").replace(/@@Month(,(\d\d){1,2}){0,1}/, "MM.").replace(/@@Year(,(\d\d\d\d)){0,1}/, "YYYY.").replace("@@Date", "DD.MM.YYYY.").slice(0,-1);
+	} else {
+		// Get @@format: tag and €€ at the end
+		format = format[0].slice(9,-2);
+	}
+
+	// console.log(`Day: ${day}\nMonth: ${month}\nYear: ${year}\nFormat: ${format}\nDate: ${currDate.toDateString()}`);
+
+	// Get all adds e.g +@@2,Month
+	var adds = value.match(/\+@@(\d+),(\w+)/g)
+	// Read values e.g. of +@@5,Day -> {number: 5, kind: "Day"}; or set to empty array if null (no match)
+	adds = adds ? adds.map(element => {
+		let match = element.match(/\+@@(\d+),(\w+)/);
+		return {number: parseInt(match[1]), kind: match[2]};
+	}) : [];
+	// Get all subs e.g -@@10,Year
+	var subs = value.match(/\-@@(\d+),(\w+)/g)
+	// Read values e.g. of -@@2,Month -> {number: 2, kind: "Month"}; or set to empty array if null (no match)
+	subs = subs ? subs.map(element => {
+		let match = element.match(/\-@@(\d+),(\w+)/);
+		return {number: parseInt(match[1]), kind: match[2]};;
+	}) : [];
+
+	// Add every add in the adds array
+	adds.forEach(add => {
+		switch(add.kind) {
+			case "Day":
+				currDate.setDate(currDate.getDate() + add.number);
+				break;
+			case "Month":
+				currDate.setMonth(currDate.getMonth() + add.number);
+				break;
+			case "Year":
+				currDate.setFullYear(currDate.getFullYear() + add.number);
+				break;
+			default:
+				new Error("Unknown type to add to the date: " + add.kind);
+		}
+	});
+
+	// Substract every sub in the subs array
+	subs.forEach(sub => {
+		switch(sub.kind) {
+			case "Day":
+				currDate.setDate(currDate.getDate() - sub.number);
+				break;
+			case "Month":
+				currDate.setMonth(currDate.getMonth() - sub.number);
+				break;
+			case "Year":
+				currDate.setFullYear(currDate.getFullYear() - sub.number);
+				break;
+			default:
+				new Error("Unknown type to substract of the date: " + sub.kind);
+		}
+	});
+	
+	// Format the date
+	let result = moment(currDate).format(format);
+	return result;
+}
 
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
@@ -520,10 +680,9 @@ Then('So I can see the text {string} in the textbox: {string}', async function c
 	}
 	await Promise.any(promises)
 	.then(async (elem) => {
-		let resp = await elem.getText().then((text) => text);
-		if (resp == '') {
-			resp = await elem.getAttribute("outerHTML");
-		}
+		let resp = await elem.getText();
+		resp = resp == '' ? await elem.getAttribute("value") : resp;
+		resp = resp == '' ? await elem.getAttribute("outerHTML") : resp;
 		match(resp, RegExp(expectedText.toString()), `Textfield does not contain the string/regex: ${expectedText} , actual: ${resp}` )
 	})
 	.catch(async (e) => {

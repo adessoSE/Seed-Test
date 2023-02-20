@@ -3,8 +3,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, NO_ERRORS_SCHEMA, Template
 import { ComponentFixture, fakeAsync, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
-import { Story } from 'src/app/model/Story';
-import { findComponent } from 'src/test_helper';
+import { Story } from '../../../app/model/Story';
+import { findComponent } from '../../../test_helper';
 import { RenameStoryComponent } from './rename-story.component';
 
 

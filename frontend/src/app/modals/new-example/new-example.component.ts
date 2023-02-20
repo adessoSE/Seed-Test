@@ -2,8 +2,8 @@ import { Scenario } from './../../model/Scenario';
 import { StepType } from './../../model/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Component, ViewChild} from '@angular/core';
-import { ApiService } from 'src/app/Services/api.service';
-import { FormGroup, FormControl} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl} from '@angular/forms';
+import { ExampleService } from 'src/app/Services/example.service';
 
 @Component({
   selector: 'app-new-example',
@@ -23,8 +23,8 @@ export class NewExampleComponent{
 
    modalReference: NgbModalRef;
 
-   newExampleForm = new FormGroup ({
-    newName: new FormControl('')
+   newExampleForm = new UntypedFormGroup ({
+    newName: new UntypedFormControl('')
   });
 
    @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
@@ -35,7 +35,7 @@ export class NewExampleComponent{
   //@Output() newExampleEvent: EventEmitter<any> = new EventEmitter();
 
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  constructor(private modalService: NgbModal, public exampleService: ExampleService) { }
 
   /**
     * Opens the new example Modal
@@ -64,13 +64,13 @@ export class NewExampleComponent{
   */
   createNewExample() {
     if (this.newExampleName){
-      this.apiService.renameExampleEvent.emit({name:this.newExampleForm.value.newName, column:this.columnIndex})
+      this.exampleService.renameExampleEvent.emit({name:this.newExampleForm.value.newName, column:this.columnIndex})
       this.modalReference.close();
     } else{
 
       let exampleName = this.newExampleForm.value.newName;
       //Create Scenario Emitter (argument scenario name) 
-      this.apiService.newExampleEvent.emit({step:this.step,name:exampleName});
+      this.exampleService.newExampleEvent.emit({step:this.step,name:exampleName});
       this.modalReference.close();
     }
   }
@@ -83,7 +83,7 @@ export class NewExampleComponent{
     }
    }
   uniqueExampleName(){
-       this.apiService.uniqueExampleName('submitExample', this.newExampleForm.value.newName, this.exampleNames)
+       this.exampleService.uniqueExampleName('submitExample', this.newExampleForm.value.newName, this.exampleNames)
   }
 
 }

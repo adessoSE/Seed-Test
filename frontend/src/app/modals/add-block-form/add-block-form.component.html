@@ -18,14 +18,26 @@
           <p class="subHeader">Saved Blocks</p>
           <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="changeBlockSelection($event)" name="folderss">
               <mat-list-option  *ngFor="let block of blocks, let rowIndex = index" [value]="block" >
-                <button a uk-icon="icon: minus-circle" class="deleteBlockButton uk-text-danger" uk-tooltip title="Delete Block" (click)="deleteBlock($event, rowIndex, block)"></button>
-                <h4 mat-line>{{block.name}}</h4>
+                <h4 mat-line>{{rowIndex+1}}. {{block.name}}</h4>
               </mat-list-option>
           </mat-selection-list>
         </div>
         <div class="previewContainer">
-          <p class="subHeader" *ngIf="selectedBlock == undefined">Preview</p>
-          <p class="subHeader" *ngIf="selectedBlock != undefined">Preview: {{selectedBlock.name}}</p>
+            <div class="previewEditBlock">
+              <p class="subHeader" *ngIf="selectedBlock == undefined">Preview</p>
+                <div class="subHeader" *ngIf="selectedBlock != undefined">Preview: 
+                  <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
+                </div>
+                <button *ngIf="this.blockSaved==true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
+                  <em class="material-icons">edit</em>
+                </button>   
+                <button *ngIf="this.blockSaved==false" id="saveBlockButton" class="blockButton" title="Save Block" (click)="updateBlock();">
+                  <em class="material-icons">save</em>
+                </button>
+                <button id="deleteBlock" class="blockButton" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined" title="Delete Block" (click)="deleteBlock($event)">
+                 <em class="material-icons">delete</em>
+                </button>
+            </div>
             <table id="savedStepTable" mat-table [dataSource]="stepList" class="mat-elevation-z8" aria-describedby="mydesc">
               <ng-container matColumnDef="stepType">
                 <td mat-cell *matCellDef="let element" style="text-transform: capitalize"> {{element.stepType}} </td>
