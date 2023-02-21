@@ -143,6 +143,7 @@ export class ExampleTableComponent implements OnInit {
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
   }
  
+  // eslint-disable-next-line @angular-eslint/use-lifecycle-interface
   ngOnDestroy() {
     if (!this.deleteExampleObservable.closed) {
       this.deleteExampleObservable.unsubscribe();
@@ -161,21 +162,6 @@ export class ExampleTableComponent implements OnInit {
       this.updateTable();
       this.selectedScenario.saved = false;
   }
-
-
-  /**
-   * Sets the status of the scenario to not saved and overrides value of example
-   */
-   inputChange(event, rowIndex, column){
-    this.selectedScenario.saved = false;
-    let inputValue = event.target.value;
-    if(inputValue.length==0)
-    {
-      return this.getControl(rowIndex,column).hasError('CONTROL NOT VALID');
-    }
-    return inputValue;
-  }
-
   /**
    * Initializes the controls of the table
    */
@@ -221,7 +207,7 @@ export class ExampleTableComponent implements OnInit {
    * @param rowIndex index of the row of the changed value
    * @param column name of the changed value column
    */
-  updateField(columnIndex, rowIndex, column) {
+  updateField(columnIndex: number, rowIndex: number, column) {
     const control = this.getControl(rowIndex, column);
     if (control.valid) {
       const getCircularReplacer = () => {
@@ -237,7 +223,7 @@ export class ExampleTableComponent implements OnInit {
         };
       };
       let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue;
       this.initializeTable();
     } else {
       console.log('CONTROL NOT VALID');
@@ -251,6 +237,7 @@ export class ExampleTableComponent implements OnInit {
     * @returns FormControl of the cell
     */
   getControl(rowIndex: number, fieldName: string): UntypedFormControl {
+    this.selectedScenario.saved = false;
     return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
   }
 
