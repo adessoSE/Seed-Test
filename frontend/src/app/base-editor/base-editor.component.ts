@@ -196,6 +196,7 @@ export class BaseEditorComponent  {
       } else if (option == 'dontCopy'){
         this.insertStepsWithoutExamples()
       }
+      console.log('end')
   });
     
   }
@@ -1293,6 +1294,26 @@ export class BaseEditorComponent  {
   }
 
   insertStepsWithExamples(){
+    if (this.selectedScenario.stepDefinitions['example'].length!=0) {
+    let indices = this.selectedScenario.stepDefinitions['example'][0].values.map(x => this.clipboardBlock.stepDefinitions['example'][0].values.indexOf(x)).filter(x => x!=-1)
+      if (indices.length>0){
+        indices.forEach(index => {
+          let oldName = this.clipboardBlock.stepDefinitions['example'][0].values[index]
+          let newName = oldName + ' - 2'
+          this.clipboardBlock.stepDefinitions['example'][0].values[index] = newName
+          Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+            if (key != 'example') {
+              this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+                step.values.forEach((value, index) => {
+                  if(value == '<'+oldName+'>'){
+                    this.clipboardBlock.stepDefinitions[key][index].values[index] = '<'+newName+'>'
+                  }
+                });
+              });
+            }
+          });
+        });
+      }}
     Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
       if (key != 'example') {
         this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
@@ -1302,7 +1323,6 @@ export class BaseEditorComponent  {
         this.insertCopiedExamples()
      }
     });
-    //this.selectedScenario.saved = false;
     this.markUnsaved();
 
   }
@@ -1322,19 +1342,19 @@ export class BaseEditorComponent  {
        });
       }
     });
+    this.markUnsaved();
   }
 
   /**
    * checks if example name of clipboard already in selected scenario and if sets toaster
    * checks for number of values and adds 'value' in case of different lengths of clipboard and selected scenario
+   * checks for example names and adds ' - Copy' in case of double names
    */
   insertCopiedExamples() {
     if (this.selectedScenario.stepDefinitions['example'].length==0) {
       this.selectedScenario.stepDefinitions['example'] = this.clipboardBlock.stepDefinitions['example']
     } else {
-      if (!this.selectedScenario.stepDefinitions['example'][0].values.some(r=> this.clipboardBlock.stepDefinitions['example'][0].values.indexOf(r) >= 0)){
-        
-        if (this.selectedScenario.stepDefinitions['example'].length==this.clipboardBlock.stepDefinitions['example'].length){
+      if (this.selectedScenario.stepDefinitions['example'].length==this.clipboardBlock.stepDefinitions['example'].length){
         this.selectedScenario.stepDefinitions['example'].forEach((element, index) => {
           this.clipboardBlock.stepDefinitions['example'][index].values.forEach(val => {
             element.values.push(val)
@@ -1374,16 +1394,9 @@ export class BaseEditorComponent  {
             }
           }
         });
-      } 
-    } else {
-      this.toastr.warning('Cannot copy example with same name')
+      }  
     }
-    
-    
-
-    }
-    //this.exampleChild.updateTable()
-    //console.log(this.selectedScenario.stepDefinitions['example'])
+    this.exampleChild.updateTable()
   }
  
   /**
