@@ -197,6 +197,8 @@ export class BaseEditorComponent  {
         } else if (option == 'dontCopy'){
           this.insertStepsWithoutExamples()
         }
+      } else{
+        this.exampleChild.updateTable()
       }
   });
     
@@ -1397,7 +1399,7 @@ export class BaseEditorComponent  {
         });
       }  
     }
-    this.exampleChild.updateTable()
+    //this.exampleChild.updateTable()
   }
  
   /**
