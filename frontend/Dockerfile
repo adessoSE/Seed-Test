@@ -18,7 +18,7 @@ COPY . .
 EXPOSE 4200
 
 # Aus frontend/package.json
-CMD ["node", "server.js"]
+CMD ["npm", "run", "start"]
 
 # keeps container running without doing anything so you can bash into it
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
