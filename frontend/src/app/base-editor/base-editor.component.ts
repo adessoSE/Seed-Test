@@ -191,12 +191,13 @@ export class BaseEditorComponent  {
     });
 
     this.copyExampleOptionObservable = this.apiService.copyStepWithExampleEvent.subscribe(option => {
-      if (option == 'copy') {
-        this.insertStepsWithExamples()
-      } else if (option == 'dontCopy'){
-        this.insertStepsWithoutExamples()
+      if(this.clipboardBlock){
+        if (option == 'copy') {
+          this.insertStepsWithExamples()
+        } else if (option == 'dontCopy'){
+          this.insertStepsWithoutExamples()
+        }
       }
-      console.log('end')
   });
     
   }
