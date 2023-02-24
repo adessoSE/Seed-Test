@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
-const bodyParser = require('body-parser');
 
 const router = express.Router();
 // This router is used for accessing Cucumber/Selenium Reports

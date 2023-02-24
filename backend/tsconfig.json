@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "module": "ES2022",
+      "module": "commonjs",
       "esModuleInterop": true,
       "declaration": true,
       "declarationMap": true,

@@ -1,5 +1,5 @@
 import { Cipher, Decipher, scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
-const mongo = require('./database/DbServices');
+const mongo = require('../src/database/DbServices');
 enum Sources {
     GITHUB = "github",
     JIRA = "jira",
@@ -58,6 +58,7 @@ function jiraDecryptPassword(ciphertext: Buffer, nonce: Buffer, tag: Buffer): st
  * @returns 
  */
 async function getJiraRepos(jiraUser: any) {
+    if(!jiraUser)return []
     let { Host, AccountName, Password, Password_Nonce, Password_Tag } = jiraUser;
     const jiraClearPassword = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
     const repos = await requestJiraRepos(Host, AccountName, jiraClearPassword);
@@ -68,11 +69,11 @@ async function getJiraRepos(jiraUser: any) {
  * Makes the Request to fetch jira repos
  * @param host 
  * @param username 
- * @param jiarClearPassword 
+ * @param jiraClearPassword 
  * @returns 
  */
-async function requestJiraRepos(host: string, username: string, jiarClearPassword: string) {
-    const auth = Buffer.from(`${username}:${jiarClearPassword}`).toString('base64');
+async function requestJiraRepos(host: string, username: string, jiraClearPassword: string) {
+    const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
     const reqoptions = {
         method: 'GET',
         qs: {
@@ -125,6 +126,20 @@ async function storeJiraRepos(projects:Array<any>){
     }
 }
 
+async function updateJiraCredential(UserID: string, username: string, jiraClearPassword: string, host: string) {
+    const [password, nonce, tag] = jiraEncryptPassword(jiraClearPassword);
+    const jira = {
+        AccountName: username,
+        Password: password,
+        Password_Nonce: nonce,
+        Password_Tag: tag,
+        Host: host
+    };
+    const user = await mongo.getUserData(UserID);
+    user.jira = jira;
+    await mongo.updateUser(UserID, user);
+}
+
 function fetchGithubRepos() {
 
 }
@@ -135,5 +150,7 @@ function fetchDbRepos() {
 
 module.exports = {
     jiraDecryptPassword,
-    jiraEncryptPassword
+    jiraEncryptPassword,
+    getJiraRepos,
+    updateJiraCredential
 };

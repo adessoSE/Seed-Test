@@ -11,7 +11,7 @@ const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const fs = require('fs');
-const hello = require('../../dist/github');
+const userHelper = require('../../dist/user');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -185,7 +185,7 @@ router.get('/repositories', (req, res) => {
 	Promise.all([
 		helper.starredRepositories(req.user._id, githubId, githubName, token),
 		helper.ownRepositories(req.user._id, githubId, githubName, token),
-		helper.jiraProjects(req.user),
+		userHelper.getJiraRepos(req.user.jira),
 		helper.dbProjects(req.user)
 	])
 		.then((repos) => {
@@ -282,7 +282,7 @@ router.get('/stories', async (req, res) => {
 		// prepare request
 		const { projectKey } = req.query;
 		let { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-		Password = helper.decryptPassword(Password, Password_Nonce, Password_Tag);
+		Password = userHelper.decryptPassword(Password, Password_Nonce, Password_Tag);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
 

@@ -16,12 +16,10 @@ const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
 const os = require('os');
+const userHelper = require('../dist/user')
 const { json } = require('body-parser');
 
 const featuresPath = path.normalize('features/');
-
-const cryptoAlgorithm = 'aes-256-ccm';
-const key = crypto.scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
 
 // this is needed for the html report
 const options = {
@@ -153,45 +151,6 @@ function writeFile(selectedStory) {
 	), getFeatureContent(selectedStory), (err) => {
       if (err) throw err;
 	});
-}
-
-function encryptPassword(text) {
-  const nonce = crypto.randomBytes(13);
-    const cipher = crypto.createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-    const ciphertext = cipher.update(text, 'utf8');
-  cipher.final();
-  const tag = cipher.getAuthTag();
-
-  return [ciphertext, nonce, tag];
-}
-
-function decryptPassword(ciphertext, nonce, tag) {
-	nonce = nonce? nonce.buffer: Buffer.alloc(13, 0);
-  try {
-		const decipher = crypto.createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-    decipher.setAuthTag(tag.buffer);
-    console.log("ciphertext", ciphertext);
-		const receivedPlaintext = decipher.update(ciphertext.buffer, null, 'utf8');
-    decipher.final();
-    return receivedPlaintext;
-  } catch (err) {
-		console.log("Authentication Failed");// leaf in or replace with proper logging
-        throw new Error('Authentication failed!', { cause: err });
-  }
-}
-
-async function updateJira(UserID, req) {
-  const [password, nonce, tag] = encryptPassword(req.jiraPassword);
-  const jira = {
-    AccountName: req.jiraAccountName,
-    Password: password,
-    Password_Nonce: nonce,
-    Password_Tag: tag,
-		Host: req.jiraHost
-  };
-  const user = await mongo.getUserData(UserID);
-  user.jira = jira;
-  await mongo.updateUser(UserID, user);
 }
 
 // Updates feature file based on _id
@@ -590,7 +549,7 @@ async function runReport(req, res, stories, mode, parameters) {
 				}
 				if (story.storySource === 'jira' && req.user && req.user.jira){
 					let { Host, AccountName, Password, Password_Nonce, Password_Tag} = req.user.jira;
-					Password = decryptPassword(Password, Password_Nonce, Password_Tag);
+					Password = userHelper.decryptPassword(Password, Password_Nonce, Password_Tag);
 					postCommentJira(story.issue_number, comment, Host, AccountName, Password)
 				}
 			}
@@ -741,60 +700,6 @@ function scenarioPrep(scenarios, driver) {
     }
   });
   return { scenarios, parameters };
-}
-
-async function jiraProjects(user) {
-  return new Promise((resolve) => {
-		if (typeof user === 'undefined' || typeof user.jira === 'undefined' || user.jira === null) resolve([])
-    // eslint-disable-next-line prefer-const
-		let { Host, AccountName, Password, Password_Nonce, Password_Tag} = user.jira;
-    Password = decryptPassword(Password, Password_Nonce, Password_Tag);
-		const auth = Buffer.from(`${AccountName}:${Password}`)
-			.toString('base64');
-		const source = 'jira';
-    const reqoptions = {
-			method: 'GET',
-      qs: {
-				type: 'page',
-				title: 'title'
-      },
-      headers: {
-				'cache-control': 'no-cache',
-				Authorization: `Basic ${auth}`
-			}
-    };
-    let projects = [];
-    // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
-    // https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/project-getAllProjects
-    fetch(`http://${Host}/rest/api/2/project`, reqoptions)
-      .then((response) => response.json())
-      .then( async (json) => {
-          for (const project of json) {
-            projects.push(project["name"])
-          }
-      
-      let names = [];
-      let jiraRepo;
-			const jiraReposFromDb = await mongo.getAllSourceReposFromDb('jira');
-        if (projects.length !== 0) {
-          for (const projectName of projects) {
-            if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
-                jiraRepo = await mongo.createJiraRepo(projectName.name);
-            } else {
-              jiraRepo = jiraReposFromDb.find((element) => element.repoName === projectName);
-            }
-            names.push({name: projectName, _id: jiraRepo._id });
-          }
-          names = names.map((value) => ({
-            _id: value._id,
-            value: value.name,
-					  source
-          }));
-          resolve(names);
-        }
-        resolve([]);
-		}).catch((error) => {console.error(error); resolve([])})
-	}).catch(()=> []);
 }
 
 function dbProjects(user) {
@@ -1153,10 +1058,8 @@ module.exports = {
   checkValidGithub,
   getReportHistory,
   uniqueRepositories,
-  jiraProjects,
   getGithubData,
   createReport,
-  decryptPassword,
   cleanFileName,
   options,
   deleteReport,
@@ -1169,7 +1072,6 @@ module.exports = {
   ownRepositories,
   fuseStoryWithDb,
   nameSchemeChange,
-  updateJira,
   getExamples,
   getSteps,
   jsUcfirst,

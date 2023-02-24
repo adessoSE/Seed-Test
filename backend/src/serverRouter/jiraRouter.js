@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
-const helper = require('../serverHelper');
+const userHelper = require('../../dist/user');
 
 const router = express.Router();
 
@@ -52,7 +52,7 @@ router.post('/user/create/', (req, res) => {
 			fetch(jiraURL, options)
 				.then((response) => response.json())
 				.then(() => {
-					helper.updateJira(req.user._id, req.body)
+					userHelper.updateJiraCredential(req.user._id, jiraAccountName, jiraPassword, jiraServer)
 						.then((result) => {
 							res.status(200).json(result);
 						});
