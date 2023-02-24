@@ -1296,27 +1296,52 @@ export class BaseEditorComponent  {
     }
   }
 
+  /**
+   * Changes the name of the example in the clipboard
+   * @param indices indices of names to change
+   * @param num number to append to the name
+   */
+  changeExampleName(indices, num){
+    if (indices.length>0){
+      indices.forEach(index => {
+        let oldName = this.clipboardBlock.stepDefinitions['example'][0].values[index]
+        let newName
+        if (num > 1){
+          newName = oldName.split(' - ')[0] + ' - ' + num
+          console.log(newName)
+        } else {
+          newName = oldName + ' - ' + num
+        }
+        this.clipboardBlock.stepDefinitions['example'][0].values[index] = newName
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+          if (key != 'example') {
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+              step.values.forEach((value, index) => {
+                if(value == '<'+oldName+'>'){
+                  this.clipboardBlock.stepDefinitions[key][index].values[index] = '<'+newName+'>'
+                }
+              });
+            });
+          }
+        });
+      });
+    }
+  }
+
+  /**
+   * Inserts copied steps with examples
+   * Checks for unique example names
+   */
   insertStepsWithExamples(){
     if (this.selectedScenario.stepDefinitions['example'].length!=0) {
-    let indices = this.selectedScenario.stepDefinitions['example'][0].values.map(x => this.clipboardBlock.stepDefinitions['example'][0].values.indexOf(x)).filter(x => x!=-1)
-      if (indices.length>0){
-        indices.forEach(index => {
-          let oldName = this.clipboardBlock.stepDefinitions['example'][0].values[index]
-          let newName = oldName + ' - 2'
-          this.clipboardBlock.stepDefinitions['example'][0].values[index] = newName
-          Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
-            if (key != 'example') {
-              this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
-                step.values.forEach((value, index) => {
-                  if(value == '<'+oldName+'>'){
-                    this.clipboardBlock.stepDefinitions[key][index].values[index] = '<'+newName+'>'
-                  }
-                });
-              });
-            }
-          });
-        });
-      }}
+      let indices = this.selectedScenario.stepDefinitions['example'][0].values.map(x => this.clipboardBlock.stepDefinitions['example'][0].values.indexOf(x)).filter(x => x!=-1);
+      let num = 1;
+      while (indices.length > 0) {
+        this.changeExampleName(indices, num);
+        num++;
+        indices = this.selectedScenario.stepDefinitions['example'][0].values.map(x => this.clipboardBlock.stepDefinitions['example'][0].values.indexOf(x)).filter(x => x!=-1)
+      }
+    }
     Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
       if (key != 'example') {
         this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
@@ -1330,6 +1355,10 @@ export class BaseEditorComponent  {
 
   }
 
+  /**
+   * Inserts copied steps without example
+   * Removes examplenames from steps values
+   */
   insertStepsWithoutExamples() {
     Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
       if (key != 'example') {
