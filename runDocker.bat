@@ -20,4 +20,4 @@ echo FRONTENDPORT=%PORT%>>.env
 docker compose down
 docker rmi seed-test-backend
 docker rmi seed-test-frontend
-docker compose up --build
+docker compose up -d --build
