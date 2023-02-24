@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -14,6 +14,8 @@ import { ApiService } from '../Services/api.service';
 import { Subscription } from 'rxjs';
 import { ExampleTableComponent } from '../example-table/example-table.component';
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
+import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
+import { UnpackBlockToast } from '../unpackBlock-toast';
 
 @Component({
   selector: 'app-base-editor',
@@ -38,6 +40,7 @@ export class BaseEditorComponent  {
   @ViewChild('addBlockModal')addBlockModal: AddBlockFormComponent;
   @ViewChild('newStepRequest') newStepRequest: NewStepRequestComponent;
   @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;
+  @ViewChild('editBlockModal') editBlockModal: EditBlockComponent;
 
 
 
@@ -51,6 +54,8 @@ export class BaseEditorComponent  {
     * If the test is running
     */
   @Input() testRunning: boolean;
+
+  @Input() selectedBlock: Block;
 
   /**
     * Sets a new selected scenaio
@@ -86,6 +91,13 @@ export class BaseEditorComponent  {
   checkRowIndex(index: number) {
     this.checkStep(this.selectedScenario.stepDefinitions.example[index]);
   }
+
+  @Output("blockSelectTriggerEvent") blockSelectTriggerEvent: EventEmitter<string> = new EventEmitter();
+
+  /**
+     * Subscribtions for all EventEmitter
+     */
+  expandStepBlock = false;
 
   /**
     * currently selected scenario
@@ -136,6 +148,8 @@ export class BaseEditorComponent  {
   addBlocktoScenarioObservable: Subscription;
   scenarioChangedObservable: Subscription;
   backgroundChangedObservable: Subscription;
+  deleteStoryObservable: Subscription;
+  deleteScenarioObservable: Subscription;
 
 
   constructor(public toastr: ToastrService, public apiService: ApiService) {}
@@ -143,10 +157,10 @@ export class BaseEditorComponent  {
   ngOnInit(): void {
     this.addBlocktoScenarioObservable = this.apiService.addBlockToScenarioEvent.subscribe(block => {
       if (this.templateName == 'background' && block[0] == 'background') {
-        block = block[1];
-        Object.keys(block.stepDefinitions).forEach((key, _) => {
+        //block = block[1];
+        Object.keys(block[1].stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
-            block.stepDefinitions[key].forEach((step: StepType) => {
+            block[1].stepDefinitions[key].forEach((step: StepType) => {
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }
@@ -155,21 +169,27 @@ export class BaseEditorComponent  {
       }
       
       if (this.templateName == 'scenario' && block[0] == 'scenario') {      
-        block = block[1];
-        Object.keys(block.stepDefinitions).forEach((key, index) => {
-          block.stepDefinitions[key].forEach((step: StepType, j) => {
-              if (key == 'example') {
-                this.fillExapleValues(key, j, step);
-                this.exampleChild.updateTable();
-              } else {
-                this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-              }
+        //block = block[1];
+        if (block[2]) {
+          const blockReference: StepType = { _id: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
+            pre: '', mid: '', post: '', values: [] };
+          this.selectedScenario.stepDefinitions.when.push(blockReference);  
+        } else {
+          Object.keys(block.stepDefinitions).forEach((key, index) => {
+            block[1].stepDefinitions[key].forEach((step: StepType, j) => {
+                if (key == 'example') {
+                  this.fillExapleValues(key, j, step);
+                  this.exampleChild.updateTable();
+                } else {
+                  this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+                }
+            });
           });
-        });
+        }
         this.markUnsaved();
       }
+      
     });
-    
     this.newExampleObservable = this.apiService.newExampleEvent.subscribe(value => {this.addToValues(value.name, 0,0, 'addingExample', value.step)});
     this.renameExampleObservable = this.apiService.renameExampleEvent.subscribe(value =>{this.renameExample(value.name, value.column);});
     this.scenarioChangedObservable = this.apiService.scenarioChangedEvent.subscribe(() => {
@@ -177,6 +197,13 @@ export class BaseEditorComponent  {
     });
     this.backgroundChangedObservable = this.apiService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
+    });
+    this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+      this.selectedStory = null;
+    });
+
+    this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
+      this.selectedScenario = null;
     });
     
   }
@@ -196,6 +223,12 @@ export class BaseEditorComponent  {
     } 
     if(!this.backgroundChangedObservable.closed) {
       this.backgroundChangedObservable.unsubscribe();
+    }
+    if (!this.deleteScenarioObservable.closed) {
+      this.deleteScenarioObservable.unsubscribe();
+    } 
+    if(!this.deleteStoryObservable.closed) {
+      this.deleteStoryObservable.unsubscribe();
     }
 
   }
@@ -308,8 +341,6 @@ export class BaseEditorComponent  {
     * @param stepType
     */
   updateScenarioValues(input: string, stepIndex: number, valueIndex: number, stepType: string) {
-    console.log(this.selectedScenario.stepDefinitions);
-    
     switch (stepType) { 
       case 'given': 
         if(this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex]){
@@ -399,7 +430,6 @@ export class BaseEditorComponent  {
   }
 
   openNewExample(step) {
-
     this.newExampleModal.openNewExampleModal(this.selectedScenario, step);
   } 
  
@@ -1250,6 +1280,45 @@ export class BaseEditorComponent  {
     this.addBlockModal.openAddBlockFormModal(this.templateName, id);
   }
 
+  /**
+   * Block methods 
+   */
+
+  editBlock() {
+    this.editBlockModal.openEditBlockModal();
+    const x = document.getElementsByClassName('stepBlockContainer')[0];
+    x.setAttribute('aria-expanded', 'false');
+  }
+
+  /**
+   * Methods for referenced Blocks (only implemented for scenarios)
+   */
+
+
+  /**
+   * Select Block by blockId to get Block Object
+   * @param blockId: _id of the Block
+   */
+  selectBlock(blockId: string) {
+    //this.selectedBlock = this.blocks.find(i => i._id == blockId);
+    this.blockSelectTriggerEvent.emit(blockId);
+    this.expandStepBlock = true;
+  }
+
+    /**
+     * Unselect Block and reset selected Block
+     */
+    unselectBlock() {
+      this.expandStepBlock = false;
+    }
+
+  showUnpackBlockToast() {
+    // Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?
+    this.toastr.warning(
+    '', 'Unpack Block', {
+      toastComponent: UnpackBlockToast
+    });
+  }
 
 
   /* Example case methods */

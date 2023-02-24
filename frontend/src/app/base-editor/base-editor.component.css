@@ -391,4 +391,48 @@ input.scenario, input.background {
   padding-right: 5px;
 }
 
+.stepBlockContainer{
+  margin-right: 24px;
+  margin-bottom: 8px;
+  padding-right: 10px;
+  white-space: normal;
+}
+
+.stepBlockHeader{
+  height: 29px;
+  display: flex;
+}
+
+.stepInBlock{
+  display: flex;
+}
+
+.unpackBlockButton {
+  margin-left: 10px;
+}
+
+div#blockContent{
+  padding-top: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+.blockButtonGroup > button{
+  border: none;
+  background: none;
+  transform: translateY(-3px);
+  height: 24px;
+  border-radius: 10%;
+  margin-top: 10px
+}
+
+.blockButtonGroup > button > em{
+  color: #0071b9;
+  font-size: 24px;
+}
+
+.mat-expansion-panel-body{
+  padding-bottom: 0;
+}
+
  

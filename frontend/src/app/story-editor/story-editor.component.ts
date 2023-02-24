@@ -298,34 +298,34 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     // in event that stories are already loaded
-        if(this.stories){
+    if(this.stories){
       this.storiesLoaded = true;
     }
 
-        this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
-        this.storiesLoaded = true;
-        this.storiesError = false;
-        this.showEditor = false;
-        this.setStories(stories);
-            this.db = localStorage.getItem('source') === 'db' ;
-        });
+    this.getStoriesObservable = this.apiService.getStoriesEvent.subscribe((stories: Story[]) => {
+      this.storiesLoaded = true;
+      this.storiesError = false;
+      this.showEditor = false;
+      this.setStories(stories);
+      this.db = localStorage.getItem('source') === 'db' ;
+    });
 
-        this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
-        this.showEditor = false;
-        this.storyDeleted();
-        });
+    this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+      this.showEditor = false;
+      this.storyDeleted();
+    });
 
-        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(_ => {
-        this.storiesError = true;
-        this.showEditor = false;
+    this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(_ => {
+      this.storiesError = true;
+      this.showEditor = false;
 
-        window.localStorage.removeItem('login')
-        this.router.navigate(['/login']);  
-        });
+      window.localStorage.removeItem('login')
+      this.router.navigate(['/login']);  
+    });
 
-        this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
-        this.deleteScenario(this.selectedScenario);
-      });
+    this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
+      this.deleteScenario(this.selectedScenario);
+    });
 
         this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option === 'run') {
@@ -345,11 +345,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             this.isDark = this.themeService.isDarkMode();
         });
 
-        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {       
-          this.loadStepTypes();
-        }); 
+      this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {       
+        this.loadStepTypes();
+      }); 
 
-        this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
+      this.renameBackgroundObservable = this.apiService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
       });     
   }
@@ -465,7 +465,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
             .subscribe(_ => {
         this.scenarioDeleted();
-                this.toastr.error('', 'Scenario deleted');
+        this.toastr.error('', 'Scenario deleted');
       });
   }
 
@@ -473,7 +473,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Removes scenario from the selected story
    */
   scenarioDeleted() {
-        const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
+    const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
     if (indexScenario !== -1) {
       this.selectedStory.scenarios.splice(indexScenario, 1);
     }

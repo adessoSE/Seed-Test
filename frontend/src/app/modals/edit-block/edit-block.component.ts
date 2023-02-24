@@ -22,11 +22,6 @@ export class EditBlockComponent {
   @Input() originalStepTypes: StepType[];
 
   /**
-   * Saved blocks
-   */
-  @Input() blocks: Block[];
-
-  /**
    * Currently selected block
    */
   @Input() selectedBlock: Block;
@@ -168,7 +163,8 @@ export class EditBlockComponent {
       post: obj.post,
       stepType: obj.stepType,
       type: obj.type,
-      values: obj.values
+      values: obj.values,
+      isExample: obj.stepType === 'example' ? [true] : [false]
     };
   }
 

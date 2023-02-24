@@ -69,6 +69,7 @@ import { ChangeJiraAccountComponent } from './modals/change-jira-account/change-
 import { RepoSwichComponent } from './modals/repo-swich/repo-swich.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { CreateScenarioComponent } from './modals/create-scenario/create-scenario.component';
+import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
@@ -120,6 +121,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
+    EditBlockComponent,
     ResizeInputDirective,
     RenameBackgroundComponent,
     BaseEditorComponent,

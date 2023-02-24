@@ -53,9 +53,9 @@ export interface StepType {
     values: string[];
 
     /**
-     * List of booleans defining if value is a example
+     * List of booleans defining if value is a example. Not defined in Blocks.
      */
-    isExample: boolean[];
+    isExample?: boolean[];
 
     /**
      * Outdated currently not used

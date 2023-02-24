@@ -52,8 +52,8 @@
     </div>
   </div> 
   <!-- Shared template: Scenario's action bar & steps -->
-  <app-base-editor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
-  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-base-editor>
+  <app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
+  [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"[selectedBlock]="selectedBlock" (blockSelectTriggerEvent)="blockSelectTrigger($event)"></app-base-editor>
   
   <app-example [testRunning]="testRunning" [newlySelectedScenario]="selectedScenario"
   [newlySelectedStory]="selectedStory" [originalStepTypes]="originalStepTypes"></app-example>

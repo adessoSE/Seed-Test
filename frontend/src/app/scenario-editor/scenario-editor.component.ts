@@ -9,7 +9,7 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import * as e from 'express';
-
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
 
 
 /**
@@ -56,7 +56,8 @@ export class ScenarioEditorComponent implements OnInit{
         if (this.selectedStory) {
            this.selectScenario(scenario);
         }
-
+        const repoId = localStorage.getItem('id');
+        this.getAllBlocks(repoId);
     }
 
     testRunning;
@@ -102,10 +103,6 @@ export class ScenarioEditorComponent implements OnInit{
     readonly TEMPLATE_NAME ='scenario';
 
     /**
-     * Subscribtions for all EventEmitter
-     */
-    expandStepBlock = false;
-    /**
      * Subscriptions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
@@ -119,11 +116,22 @@ export class ScenarioEditorComponent implements OnInit{
      */
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
     @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
+    @ViewChild('baseEditor') baseEditor: BaseEditorComponent;
 
     /**
      * Original step types not sorted or changed
      */
     @Input() originalStepTypes: StepType[];
+    
+    /**
+     * List of Blocks
+     */
+    blocks: Block [];
+
+    /**
+      * Currently selected block
+      */
+    selectedBlock: Block;
 
     /**
      * Event emitter to delete the scenario
@@ -163,6 +171,22 @@ export class ScenarioEditorComponent implements OnInit{
         });
 
         this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
+
+        this.unpackBlockObservable = this.apiService.unpackBlockEvent.subscribe(() => {
+            for (const stepType in this.selectedScenario.stepDefinitions) {
+                if (stepType !== 'example') {
+                    for (const step of this.selectedBlock.stepDefinitions[stepType]) {
+                        this.baseEditor.addStep(step, this.selectedScenario, this.TEMPLATE_NAME);
+                    }
+                }
+            }
+            // intentionally comparing with double equals only
+            const blockStep = this.selectedScenario.stepDefinitions.when.find(block => block._id === this.selectedBlock._id);
+            const blockIndex = this.selectedScenario.stepDefinitions.when.indexOf(blockStep);
+            this.selectedScenario.stepDefinitions.when.splice(blockIndex, 1);
+
+        });
+        
     }
 
     ngOnDestroy() {
@@ -171,6 +195,9 @@ export class ScenarioEditorComponent implements OnInit{
         }
         if (!this.renameScenarioObservable.closed) {
             this.renameScenarioObservable.unsubscribe();
+        }
+        if (!this.unpackBlockObservable.closed) {
+            this.unpackBlockObservable.unsubscribe();
         }
     }
 
@@ -376,5 +403,22 @@ export class ScenarioEditorComponent implements OnInit{
     openCreateScenario() {
         console.log(this.createScenarioModal)
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
+    }
+
+    /**
+     * Get all blocks from the backend
+     * @param repoId id of the repository / project
+     */
+    getAllBlocks(repoId: string) {
+        this.apiService.getBlocks(repoId).subscribe((resp) => {
+            this.blocks = resp;
+        });
+    }
+
+    blockSelectTrigger(blockId: string) {
+        this.selectedBlock = this.blocks.find(i => i._id == blockId);
+        //this.expandStepBlock = true;
+        console.log(this.selectedBlock);
+        
     }
 }

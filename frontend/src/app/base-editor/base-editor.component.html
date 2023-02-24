@@ -73,7 +73,13 @@
                           {{ selectedCount(selectedScenario.stepDefinitions,i) || 1 }}
                         </div>
                       </div>
-                      {{i+1}}.{{j+1}} {{currentStep.pre}}
+                      {{i+1}}.{{j+1}} 
+                      <div *ngIf="currentStep._id">
+                        <ng-template  *ngTemplateOutlet="stepBlockReference;
+                          context: {$implicit: currentStep}">
+                        </ng-template> 
+                      </div>
+                      {{currentStep.pre}}
                       <div style="display: flex;" *ngIf="currentStep.values.length > 0" >
                         <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=0" style="display: flex;">
                           <div *ngIf="currentStep.isExample[0] == false || (!currentStep.values[0] && currentStep.isExample[0] != true)">
@@ -268,6 +274,64 @@
       </ng-container>
     </div>
   </div>  
+  <ng-template #stepBlockReference let-block>
+    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(block._id)" (closed)="unselectBlock()">
+      <mat-expansion-panel-header class="stepBlockHeader">
+        <mat-panel-title>
+          <!-- <div class="dragIconContainer" cdkDragHandle >
+            <em class="material-icons dragIcon">drag_indicator</em>
+          </div>
+          <div *ngIf="(block.selectionValue === undefined || block.selectionValue === null)">
+            <input type="checkbox" class="checkbox" id="{{'block' + block.id + 'Checkbox'}}" (change)="this.checkStep($event, block, null)" [checked]="block.checked">
+          </div> -->
+          <div class="SmallHeadline5" style="margin-top: 2px">
+              {{block.type}}
+          </div>
+        </mat-panel-title>
+        <mat-panel-description class="stepBlockDescription" style="align-self: center;">
+          Expand Block to view its Steps
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <!--    Block Content-->
+      <div *ngIf="this.selectedBlock" id="blockContent">
+        <div *ngFor="let currentStep of getStepsList(selectedBlock.stepDefinitions,1); let j = index;">
+          <ng-template  *ngTemplateOutlet="blockstep;
+                context: {$implicit: currentStep, index:j}">
+          </ng-template>
+        </div>
+      </div>
+      <mat-action-row class="blockButtonGroup">
+        <button id="editBlock" uk-tooltip title="Edit Block"
+                (click)="editBlock();">
+          <em class="material-icons">edit</em>
+        </button>
+          <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block"
+                  (click)="showUnpackBlockToast();">
+            <em class="material-icons">link_off</em>
+          </button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </ng-template>
+  
+  <ng-template #blockstep let-currentStep let-j="index" class="text-inline SmallBody1regularLH">
+    <div class=stepInBlock>
+      {{currentStep.pre}}&nbsp;
+      <div *ngIf="currentStep.values[0]">
+        <p id="{{'blockStep_' + j + '_value1'}}">
+          {{currentStep.values[0]}}&nbsp;
+        </p>
+      </div>
+      {{currentStep.mid }}&nbsp;
+      <div *ngIf="currentStep.values[1]">
+        <p id="{{'blockStep_' + j + '_value2'}}">
+          {{currentStep.values[1] }}&nbsp;
+        </p>
+      </div>
+      {{currentStep.post}}
+    </div>
+  </ng-template>
+
+  <app-edit-block #editBlockModal [originalStepTypes]="originalStepTypes" [selectedBlock]="selectedBlock"></app-edit-block>
   <app-new-example #newExampleModal></app-new-example>
   <app-new-step-request #newStepRequest></app-new-step-request>
   <app-add-block-form #addBlockModal></app-add-block-form>
