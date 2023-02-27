@@ -1,4 +1,4 @@
-<table aria-describedby="mydesc" *ngIf="exampleThere" mat-table [dataSource]="data" class="mat-elevation-z8" >
+<table aria-describedby="mydesc" *ngIf="exampleThere" mat-table [dataSource]="data" class="mat-elevation-z8 mat-table" >
 
 	<!--- Note that these columns can be defined in any order.
         The actual rendered columns are set as a property on the row definition" -->
@@ -25,12 +25,12 @@
 				<editable *ngIf="!first" (update)="updateField(columnIndex, rowIndex, column)">
 						<ng-template viewMode>
 							{{element[column]}}
+							<label *ngIf="element[column]===''" id="nullValue">[--null--]</label>
 						</ng-template>
 						<ng-template editMode >
-							<input on-input="inputChange(rowIndex, columnIndex, column)" [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
+							<input [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
 						</ng-template>
 				</editable> 
-				
 			</td>
 	</ng-container>			
 	
