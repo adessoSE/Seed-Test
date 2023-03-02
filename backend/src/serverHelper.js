@@ -396,8 +396,8 @@ function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
   } catch (error) {
     console.log(`fs.readFile error for file ./features/${reportName}.json`);
   }
-	console.log('Report Results in analyzeScenarioReport: ');
   console.log(reportResults);
+	console.log('Report Results in analyzeScenarioReport: ');
   return reportResults;
 }
 
@@ -410,9 +410,10 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
 		scenarioStatuses: []
   };
 
+
   try {
     const reportPath = `./features/${reportName}.json`;
-		return pfs.readFile(reportPath, 'utf8').then((data)=>{
+    return pfs.readFile(reportPath, 'utf8').then((data)=>{
       const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
       try {
@@ -439,11 +440,88 @@ async function failedReportPromise(reportName) {
   return { reportName: `Failed-${reportName}`, status: false };
 }
 
+function getBrowserVersion(browser) {
+  var exec = require('child_process').exec;
+
+  var browser_version = 'unkown';
+
+  // switch(browser) {
+  //   case 'chrome':
+  //     browser = 'google-chrome'
+  //     break;
+  //   case 'MicrosoftEdge':
+  //     browser = 'msedge'
+  //     break;
+  //   case 'firefox':
+  //     browser = 'firefox'
+  //     break;
+  // }
+
+  // exec(browser + ' --version', function(err, stdout, stderr) {
+  //   if (err) {
+  //     console.log('Error getting Browser version:', err);
+  //     return;
+  //   }  
+  //   browser_version = stdout.split(' ')[2];
+  // });
+
+  return browser_version
+}
+
+function setBrowserMetaData(mode, stories, scenarioId, reportOptions) { 
+
+  switch (mode) {
+		case 'scenario':
+      // get scenario settings
+      let scenario = stories[0].scenarios.find((s) => {return s.scenario_id == scenarioId});
+      reportOptions.metadata.Emulator =  scenario?.emulator ?? '';
+      reportOptions.metadata.Browser = `${scenario.browser}(v.:${getBrowserVersion(scenario.browser)})`;
+      break;
+		case 'feature':
+      // apend all settings
+      reportOptions.metadata.Emulator =  [];
+      reportOptions.metadata.Browser = [];
+      var used = {};
+
+      stories[0].scenarios.forEach((scenario) => {
+        if(used[(scenario.emulator)] === undefined && scenario.emulator !== undefined) {
+          used[(scenario.emulator)] = true
+          reportOptions.metadata.Emulator.push(scenario?.emulator ?? '');
+        }
+        if(used[(scenario.browser)] === undefined && scenario.browser !== undefined) {
+          used[(scenario.browser)] = true
+          reportOptions.metadata.Browser.push(`${scenario.browser}(v.:${getBrowserVersion(scenario.browser)})`);
+        }
+      })
+      break;
+		case 'group':
+      // apend all settings
+      reportOptions.metadata.Emulator =  [];
+      reportOptions.metadata.Browser = [];
+      var used = {}
+      stories.forEach((story) => {
+        story.scenarios.forEach((scenario) => {
+          if(used[scenario.emulator] === undefined && scenario.emulator !== undefined) {
+            used[scenario.emulator] = true
+            reportOptions.metadata.Emulator.push(scenario?.emulator ?? '');
+          }
+          if(used[scenario.browser] === undefined && scenario.browser !== undefined) {
+            used[scenario.browser] = true
+            reportOptions.metadata.Browser.push(`${scenario.browser}(v.:${getBrowserVersion(scenario.browser)})`);
+          }
+        })
+      })
+      break;
+  } 
+  return reportOptions;
+}
+
 function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
   let reportOptions;
   switch (mode) {
 		case 'scenario':
       reportOptions = setOptions(reportName);
+      reportOptions = setBrowserMetaData(mode, stories, scenarioId, reportOptions);
       try {
         reporter.generate(reportOptions);
       } catch (e) {
@@ -454,6 +532,7 @@ function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 		case 'feature':
       try {
         reportOptions = setOptions(reportName);
+        reportOptions = setBrowserMetaData(mode, stories, scenarioId, reportOptions);
         reporter.generate(reportOptions);
       } catch (e) {
         console.log(`Could not generate the html Report for ${reportName} 
@@ -462,6 +541,7 @@ function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
       return analyzeStoryReport(stories, reportName, reportOptions);
 		case 'group':
       reportOptions = setOptions(grpName, `features/${grpName}/`);
+      reportOptions = setBrowserMetaData(mode, stories, scenarioId, reportOptions);
       try {
         /* after the last story in a group we need to generate the hmtl report
 				// which also generates the .json report for all stories (group report)
