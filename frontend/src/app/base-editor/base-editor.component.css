@@ -199,16 +199,16 @@ input[type="text"]{
   transform: translate(0px, 3px)
 }
 
-/*#inputExample{
+/* #inputExample{
   background: #f8f8f8;
   border-radius: 50%;
   height: 24px;
   width: 24px;
-}
-#inputExampleIcon{
+} */
+/* #inputExampleIcon{
   margin-top: -2px;
   margin-left: -3px;
-}*/
+} */
 
 .exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
@@ -276,7 +276,7 @@ input[type="text"]{
 }
 
 /* Eventually not in use */
-.mat-form-field + .mat-form-field {
+.mat-mdc-form-field + .mat-mdc-form-field {
   margin-left: 8px;
 }
 
@@ -290,27 +290,35 @@ input[type="text"]{
 }
 
 .exampleList{
-  min-width: 100px;
+  min-width: 120px;
 }
 
-.exampleList ::ng-deep .mat-form-field-wrapper{
+.exampleList ::ng-deep .mat-mdc-form-field-wrapper{
   padding-bottom: 0px !important;
 }
 
-.exampleList ::ng-deep .mat-form-field-underline{
+.exampleList ::ng-deep .mat-mdc-form-field-underline{
   bottom: 0px !important;
 }
-
-.exampleList ::ng-deep .mat-select-value{
+.exampleList ::ng-deep .mat-mdc-select-value{
   color: var(--ocean-blue) !important;
   font-weight: bold !important;
   max-width: max-content !important;
+}
+::ng-deep .mat-mdc-select-panel-above{
+  width: auto !important;
+
+}
+:host::ng-deep .mat-mdc-text-field-wrapper{
+  height: 26px;
+  background-color: transparent;
+  padding: 0;
 }
 .exampleListOption {
   font-weight: bold !important;
 }
 
-.darkTheme ::ng-deep .exampleList .mat-select-value {
+.darkTheme ::ng-deep .exampleList .mat-mdc-select-value {
   font-weight: 595 !important;
  }
 
@@ -318,7 +326,7 @@ input[type="text"]{
   font-weight: 595 !important;
 }
  
-.exampleList ::ng-deep .mat-form-field-infix {
+.exampleList ::ng-deep .mat-mdc-form-field-infix {
   width: fit-content !important;
 }
 

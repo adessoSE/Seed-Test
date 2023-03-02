@@ -306,27 +306,30 @@ a.storyListLink:hover{
   cursor: pointer;
 }
 
-::ng-deep .mat-focused .mat-form-field-label {
+::ng-deep .mat-mdc-focused .mat-mdc-form-field-label {
   /*change color of label*/
   color: var(--ocean-blue) !important;
  }
 
- ::ng-deep.mat-form-field-underline {
+ ::ng-deep.mat-mdc-form-field-underline {
   /*change color of underline*/
   background-color: var(--ocean-blue) !important;
 }
 
-::ng-deep.mat-form-field-ripple {
+::ng-deep.mat-mdc-form-field-ripple {
  /*change color of underline when focused*/
  background-color: var(--ocean-blue) !important;
 }
-::ng-deep .mat-option.mat-selected:not(.mat-option-disabled){
+::ng-deep .mat-mdc-option.mat-mdc-selected:not(.mat-mdc-option-disabled){
   color: var(--ocean-blue) !important;
 }
-::ng-deep.mat-form-field.mat-focused .mat-select-arrow{
+::ng-deep.mat-mdc-form-field.mat-mdc-focused .mat-mdc-select-arrow{
   color: var(--ocean-blue) !important;
+  width: 20px;
+  height: 10px;
+  position: relative;
 }
-/* ::ng-deep.mat-option-text:checked{
+/* ::ng-deep.mat-mdc-option-text:checked{
   color: green !important;
 } */
 
@@ -367,11 +370,11 @@ margin-bottom: 12px;
 margin-right: 2px;
 }
 
-::ng-deep .mat-tab-label {
+::ng-deep .mat-mdc-tab-label {
 font-size: 19px;
 }
 
-::ng-deep .mat-tooltip {
+::ng-deep .mat-mdc-tooltip {
 font-size: 13px  !important ;
 }
 

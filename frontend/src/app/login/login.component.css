@@ -99,14 +99,14 @@ h1{
     margin-bottom: 50px;
 }
 
-.mat-carousel{
+.mat-mdc-carousel{
     z-index: auto;
     position: absolute;
     width: 100%; 
     height: 100px;
 }
 
-.mat{
+.mat-mdc{
     width: 850px;
     margin-top: 70px;
     border: 12px solid #999;
@@ -269,7 +269,10 @@ a.repoLink:hover{
 :host ::ng-deep .loadingSpinner circle{
     stroke: var(--marine-blue);
 }
-
+:host ::ng-deep .mdc-circular-progress__spinner-layer> .mdc-circular-progress__circle-clipper{
+    display: revert !important;
+}
+  
 :host ::ng-deep .darkTheme .loadingSpinner circle{
     stroke: white;
 }
