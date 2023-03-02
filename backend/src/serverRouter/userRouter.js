@@ -6,12 +6,13 @@ const fetch = require('node-fetch');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
+const fs = require('fs');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
-const fs = require('fs');
-const userHelper = require('../../dist/user');
+const userMng = require('../../dist/userManagement');
+const projectMng = require('../../dist/projectManagement');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -86,7 +87,6 @@ router.patch('/reset', async (req, res) => {
 router.post('/login', (req, res, next) => {
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
 	req.body.email = req.body.email.toLowerCase();
-	hello.printHello(23);
 	try {
 		passport.authenticate('normal-local', {}, (error, user, info) => {
 			if (error) throw error;
@@ -160,7 +160,7 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout({},()=>{});
+	req.logout({}, () => {});
 	res.clearCookie('connect.sid', { path: '/' });
 	res.status(200).send({ status: 'success' });
 });
@@ -185,7 +185,7 @@ router.get('/repositories', (req, res) => {
 	Promise.all([
 		helper.starredRepositories(req.user._id, githubId, githubName, token),
 		helper.ownRepositories(req.user._id, githubId, githubName, token),
-		userHelper.getJiraRepos(req.user.jira),
+		projectMng.getJiraRepos(req.user.jira),
 		helper.dbProjects(req.user)
 	])
 		.then((repos) => {
@@ -220,7 +220,7 @@ router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 });
 
 // get stories
-router.get('/stories', async (req, res) => {
+router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
@@ -281,9 +281,9 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		let { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-		Password = userHelper.decryptPassword(Password, Password_Nonce, Password_Tag);
-		const auth = Buffer.from(`${AccountName}:${Password}`)
+		const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+		const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
+		const auth = Buffer.from(`${AccountName}:${clearPass}`)
 			.toString('base64');
 
 		const tmpStories = new Map();
@@ -367,10 +367,11 @@ router.put('/stories/:_id', async (req, res) => {
 
 const mapper = (str) => { // maps Url endoded data to new object
 	const cleaned = decodeURIComponent(str);
-	const entities = cleaned.split('&').filter(Boolean).map((v) => {
-		const a = v.split('=').map((x) => x.toString());
-		return a;
-	});
+	const entities = cleaned.split('&').filter(Boolean)
+		.map((v) => {
+			const a = v.split('=').map((x) => x.toString());
+			return a;
+		});
 	return Object.fromEntries(entities);
 };
 

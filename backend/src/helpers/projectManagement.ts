@@ -1,5 +1,5 @@
-import { Cipher, Decipher, scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 const mongo = require('../src/database/DbServices');
+const userMng = require('./userManagement')
 enum Sources {
     GITHUB = "github",
     JIRA = "jira",
@@ -23,35 +23,6 @@ class Repository {
     groups: Array<Group>
 }
 
-const cryptoAlgorithm = 'aes-256-ccm';
-const key = scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
-
-
-function jiraEncryptPassword(pass: string): Buffer[] {
-    const nonce = randomBytes(13);
-    const cipher = createCipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-    const ciphertext = cipher.update(pass, 'utf8');
-    cipher.final();
-    const tag = cipher.getAuthTag();
-
-    return [ciphertext, nonce, tag];
-}
-
-function jiraDecryptPassword(ciphertext: Buffer, nonce: Buffer, tag: Buffer): string {
-    nonce = nonce ? nonce : Buffer.alloc(13, 0);
-    try {
-        const decipher = createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-        decipher.setAuthTag(tag);
-        console.log("ciphertext", ciphertext);
-        const receivedPlaintext = decipher.update(ciphertext, null, 'utf8');
-        decipher.final();
-        return receivedPlaintext;
-    } catch (err) {
-        console.log("Authentication Failed");// leaf in or replace with proper logging
-        throw new Error('Authentication failed!');
-    }
-}
-
 /**
  * get repo names from jira
  * @param jiraUser only jira part of user
@@ -60,7 +31,7 @@ function jiraDecryptPassword(ciphertext: Buffer, nonce: Buffer, tag: Buffer): st
 async function getJiraRepos(jiraUser: any) {
     if(!jiraUser)return []
     let { Host, AccountName, Password, Password_Nonce, Password_Tag } = jiraUser;
-    const jiraClearPassword = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
+    const jiraClearPassword = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
     const repos = await requestJiraRepos(Host, AccountName, jiraClearPassword);
     return await storeJiraRepos(repos)
 }
@@ -126,20 +97,6 @@ async function storeJiraRepos(projects:Array<any>){
     }
 }
 
-async function updateJiraCredential(UserID: string, username: string, jiraClearPassword: string, host: string) {
-    const [password, nonce, tag] = jiraEncryptPassword(jiraClearPassword);
-    const jira = {
-        AccountName: username,
-        Password: password,
-        Password_Nonce: nonce,
-        Password_Tag: tag,
-        Host: host
-    };
-    const user = await mongo.getUserData(UserID);
-    user.jira = jira;
-    await mongo.updateUser(UserID, user);
-}
-
 function fetchGithubRepos() {
 
 }
@@ -149,8 +106,5 @@ function fetchDbRepos() {
 }
 
 module.exports = {
-    jiraDecryptPassword,
-    jiraEncryptPassword,
-    getJiraRepos,
-    updateJiraCredential
+    getJiraRepos
 };
