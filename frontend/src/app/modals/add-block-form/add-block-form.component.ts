@@ -5,7 +5,8 @@ import { StepType } from 'src/app/model/StepType';
 import { BlockService } from 'src/app/Services/block.service';
 import { Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteBlockToast } from 'src/app/deteleBlock-toast';
+import { DeleteToast } from 'src/app/delete-toast';
+import { ApiService } from 'src/app/Services/api.service';
 
 @Component({
   selector: 'app-add-block-form',
@@ -70,7 +71,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     modalReference: NgbModalRef;
     deleteBlockObservable: Subscription;
    
-    constructor(private modalService: NgbModal, public blockService: BlockService, public toastr: ToastrService) {}
+    constructor(private modalService: NgbModal, 
+      public blockService: BlockService, 
+      public toastr: ToastrService,
+      public apiService: ApiService) {}
      
     ngOnInit() {
        const id = localStorage.getItem('id');
@@ -119,8 +123,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Deletes a block(call a toaster)
      */
     deleteBlock() {
+      this.apiService.nameOfComponent('block');
       this.toastr.warning('', 'Do you really want to delete this block? It cannot be restored.', {
-				toastComponent: DeleteBlockToast
+				toastComponent: DeleteToast
 		  });
     }  
 
@@ -137,7 +142,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.stepList = [];
           this.selectedBlock = null;
           console.log(resp);
-          this.toastr.error('', 'Story deleted');
+          this.toastr.error('', 'Block deleted');
         }); 
       }
     }

@@ -3,7 +3,7 @@ import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { LoginService } from './Services/login.service';
 import { ProjectService } from './Services/project.service';
@@ -49,7 +49,7 @@ export class AppComponent implements OnInit{
 
   isDark : boolean;
 
-  toggleControl = new FormControl(false);
+  toggleControl = new UntypedFormControl(false);
 
   /**
   * Subscribtions for all EventEmitter

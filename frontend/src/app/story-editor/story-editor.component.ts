@@ -7,9 +7,8 @@ import { StepType } from '../model/StepType';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
 import { RunTestToast } from '../runSave-toast';
-import { DeleteScenarioToast } from '../deleteScenario-toast';
+import { DeleteToast } from '../delete-toast';
 import { saveAs } from 'file-saver';
-import { DeleteStoryToast } from '../deleteStory-toast';
 import { ThemingService } from '../Services/theming.service';
 import { RenameStoryComponent } from '../modals/rename-story/rename-story.component';
 import { Subscription } from 'rxjs';
@@ -254,7 +253,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         public themeService: ThemingService,
         public backgroundService: BackgroundService,
         public storyService: StoryService,
-        public scenaroiService: ScenarioService,
+        public scenarioService: ScenarioService,
         public reportService: ReportService,
         public router: Router
     ) {
@@ -331,7 +330,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.router.navigate(['/login']);  
         });
 
-        this.deleteScenarioObservable = this.scenaroiService.deleteScenarioEvent.subscribe(() => {
+        this.deleteScenarioObservable = this.scenarioService.deleteScenarioEvent.subscribe(() => {
         this.deleteScenario(this.selectedScenario);
       });
 
@@ -459,8 +458,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario
    */
   showDeleteScenarioToast() {
-        this.toastr.warning('', 'Do you really want to delete this scenario?', {
-            toastComponent: DeleteScenarioToast
+    this.apiService.nameOfComponent('scenario');
+    this.toastr.warning('', 'Do you really want to delete this scenario?', {
+      toastComponent: DeleteToast
     });
   }
 
@@ -469,7 +469,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @param scenario
    */
   deleteScenario(scenario: Scenario) {
-    this.scenaroiService
+    this.scenarioService
             .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
             .subscribe(_ => {
         this.scenarioDeleted();
@@ -493,7 +493,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   addScenario(event) {
     const scenarioName = event;
-        this.scenaroiService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+        this.scenarioService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
       .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
         this.selectedStory.scenarios.push(resp);
@@ -635,29 +635,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 									.subscribe((report: any) => {
             if (scenario_id) {
               // ScenarioReport
-              const val = report.scenarioStatuses.status;
-												this.scenaroiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
+              const val = report.status;
+              this.scenarioService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
             } else {
               // StoryReport
-											report.scenarioStatuses.forEach(scenario => {
-                this.scenaroiService.scenarioStatusChangeEmit(
-															this.selectedStory._id, scenario.scenarioId, scenario.status);
+								report.scenarioStatuses.forEach(scenario => {
+                  this.scenarioService.scenarioStatusChangeEmit(
+                    this.selectedStory._id, scenario.scenarioId, scenario.status);
               });
             }
           });
-          // OLD VERSION:
-          // this.apiService.getStory(this.selectedStory._id, this.selectedStory.storySource)
-          // .subscribe((story) => {
-          //     if (scenario_id) {
-          //         const val = story.scenarios.filter(scenario => scenario.scenario_id === scenario_id);
-          //         this.apiService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val[0].lastTestPassed);
-          //     } else {
-          //       story.scenarios.forEach(scenario => {
-          //             this.apiService.scenarioStatusChangeEmit(
-          //               this.selectedStory._id, scenario.scenario_id, scenario.lastTestPassed);
-          //         });
-          //     }
-          // });
         });
     } else {
       this.currentTestScenarioId = scenario_id;
@@ -856,10 +843,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
 
   showDeleteStoryToast() {
+    this.apiService.nameOfComponent('story');
 		this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
-				toastComponent: DeleteStoryToast
-		});
-      }
+				toastComponent: DeleteToast
+		 });
+    }
     
 
   downloadFeature() {

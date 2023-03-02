@@ -2,7 +2,7 @@ import { Scenario } from './../../model/Scenario';
 import { StepType } from './../../model/StepType';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Component, ViewChild} from '@angular/core';
-import { FormGroup, FormControl} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl} from '@angular/forms';
 import { ExampleService } from 'src/app/Services/example.service';
 
 @Component({
@@ -23,8 +23,8 @@ export class NewExampleComponent{
 
    modalReference: NgbModalRef;
 
-   newExampleForm = new FormGroup ({
-    newName: new FormControl('')
+   newExampleForm = new UntypedFormGroup ({
+    newName: new UntypedFormControl('')
   });
 
    @ViewChild('newExampleModal') newExampleModal: NewExampleComponent;

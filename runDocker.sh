@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 rm .env || echo ""
 
@@ -23,4 +23,4 @@ echo "FRONTENDPORT=$PORT" >> .env
 docker compose down
 docker rmi seed-test_backend
 docker rmi seed-test_frontend
-docker compose up --build
+docker compose up -d --build

@@ -28,6 +28,24 @@ export class ApiService {
     public apiServer: string = localStorage.getItem('url_backend');
 
     /**
+     * name of component
+     */
+    public nameComponent: string
+    /**
+     * set name of component
+     * @param nameComponent
+     */
+    nameOfComponent(nameComponent:string){
+        this.nameComponent=nameComponent;
+    }
+    /**
+     * get name of component that user wants to delete
+     * @returns
+     */
+    getNameOfComponent(){
+        return this.nameComponent;
+    }
+    /**
      * If the backend url was received
      */
     public urlReceived = localStorage.getItem('url_backend') && localStorage.getItem('url_backend') !== 'undefined';
