@@ -117,7 +117,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     BaseEditorComponent,
     NewExampleComponent,
     ExampleComponent,
-    CopyExampleToast
+    CopyExampleToast,
     DeleteToast
   ],
   imports: [
