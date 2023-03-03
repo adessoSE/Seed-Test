@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -17,7 +17,6 @@ import { NewExampleComponent } from '../modals/new-example/new-example.component
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { BackgroundService } from '../Services/background.service';
-import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
 
 @Component({
   selector: 'app-base-editor',
@@ -1007,7 +1006,7 @@ export class BaseEditorComponent  {
 
   }
   /**
-    * Store previous boolean values of Steps before they'll be
+    * Store previous boolean values of Steps before they'll be deactivate
     * 
     */
  previousValuesBack(){
@@ -1042,6 +1041,36 @@ export class BaseEditorComponent  {
       })
     });
  }
+  /**
+    * Return previous boolean values of each type of Steps
+    * 
+    */
+   returnStoredSteps(){
+    this.selectedScenario.stepDefinitions.given.forEach((givenStep, index) => {
+      givenStep.values.forEach((val, i) => {
+        const j = index * givenStep.values.length + i; 
+        if (j < this.previousValuesGiven.length) {
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] = this.previousValuesGiven[j];
+        }
+      });
+    });
+    this.selectedScenario.stepDefinitions.when.forEach((whenStep, index) => {
+      whenStep.values.forEach((val, i) => {
+        const j = index * whenStep.values.length + i; 
+        if (j < this.previousValuesWhen.length) {
+          this.selectedScenario.stepDefinitions.when[index].isExample[i] = this.previousValuesWhen[j];
+        }
+      });
+    });
+    this.selectedScenario.stepDefinitions.then.forEach((thenStep, index) => {
+      thenStep.values.forEach((val, i) => {
+        const j = index * thenStep.values.length + i; 
+        if (j < this.previousValuesThen.length) {
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] = this.previousValuesThen[j];
+        }
+      });
+    });
+   }
    /**
     * Deactivates all checked step
     * 
@@ -1080,32 +1109,9 @@ export class BaseEditorComponent  {
         { 
           this.allDeactivated = false;
           if(this.onceUndefined){
-            this.selectedScenario.stepDefinitions.given.forEach((givenStep, index) => {
-              givenStep.values.forEach((val, i) => {
-                const j = index * givenStep.values.length + i; 
-                if (j < this.previousValuesGiven.length) {
-                  this.selectedScenario.stepDefinitions.given[index].isExample[i] = this.previousValuesGiven[j];
-                }
-              });
-            });
-            this.selectedScenario.stepDefinitions.when.forEach((whenStep, index) => {
-              whenStep.values.forEach((val, i) => {
-                const j = index * whenStep.values.length + i; 
-                if (j < this.previousValuesWhen.length) {
-                  this.selectedScenario.stepDefinitions.when[index].isExample[i] = this.previousValuesWhen[j];
-                }
-              });
-            });
-            this.selectedScenario.stepDefinitions.then.forEach((thenStep, index) => {
-              thenStep.values.forEach((val, i) => {
-                const j = index * thenStep.values.length + i; 
-                if (j < this.previousValuesThen.length) {
-                  this.selectedScenario.stepDefinitions.then[index].isExample[i] = this.previousValuesThen[j];
-                }
-              });
-            });
+            this.returnStoredSteps();
           }
-          else if(this.onceUndefined == undefined || this.onceUndefined == false) {
+          else if(this.onceUndefined == undefined || !this.onceUndefined ) {
             this.previousValuesGiven = [];
             this.previousValuesWhen = [];
             this.previousValuesThen = [];
@@ -1114,21 +1120,20 @@ export class BaseEditorComponent  {
           const example = this.selectedScenario.stepDefinitions.example;
           const totalSteps = Object.keys(example).length;
           this.onceUndefined = false;
-          for (const s in example) {
-            if (example[s].checked) {
-             
-              example[s].deactivated = !example[s].deactivated;
-              if (example[s].deactivated) {
+          example.forEach(step => {
+            if (step.checked) {
+              step.deactivated = !step.deactivated;
+              if (step.deactivated) {
                 this.activatedSteps++;
-                if (this.activatedSteps > totalSteps-1){
+                if (this.activatedSteps > totalSteps - 1) {
                   this.activatedSteps = 0;
                 }
               }
             }
-          }
-          if (this.activatedSteps === totalSteps-1) {
-            this.activatedSteps = 0;
+          });
+          if (this.activatedSteps == totalSteps-1) {
             console.log("All steps are deactivated");
+            this.activatedSteps = 0;
             this.allDeactivated = true;   
             this.onceUndefined = true; 
             this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
