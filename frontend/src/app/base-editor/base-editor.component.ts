@@ -1154,14 +1154,9 @@ export class BaseEditorComponent  {
           const totalSteps = Object.keys(example).length;
           this.onceUndefined = false;
           example.forEach(step => {
-            if (step.checked) {
+            if (step.checked && this.activatedSteps < totalSteps - 1) {
               step.deactivated = !step.deactivated;
-              if (step.deactivated) {
-                this.activatedSteps++;
-                if (this.activatedSteps > totalSteps - 1) {
-                  this.activatedSteps = 0;
-                }
-              }
+              this.activatedSteps++;
             }
           });
           if (this.activatedSteps === totalSteps - 1) {
