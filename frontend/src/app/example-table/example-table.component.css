@@ -13,6 +13,11 @@ table {
   padding: 0px 10px 0px 10px;
 
 }
+#nullValue{
+  font-style: italic;
+  color: gray;
+
+}
 span, .checkboxWrapper{
   position: -webkit-sticky; /* Safari */
   position: sticky;
