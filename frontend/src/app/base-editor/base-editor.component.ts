@@ -1308,7 +1308,6 @@ export class BaseEditorComponent  {
         let newName
         if (num > 1){
           newName = oldName.split(' - ')[0] + ' - ' + num
-          console.log(newName)
         } else {
           newName = oldName + ' - ' + num
         }
