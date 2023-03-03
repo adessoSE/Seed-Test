@@ -441,44 +441,84 @@ async function failedReportPromise(reportName) {
 }
 
 function getBrowserVersion(browser) {
-  var exec = require('child_process').exec;
-
-  var browser_version = 'unkown';
-
-  // switch(browser) {
-  //   case 'chrome':
-  //     browser = 'google-chrome'
-  //     break;
-  //   case 'MicrosoftEdge':
-  //     browser = 'msedge'
-  //     break;
-  //   case 'firefox':
-  //     browser = 'firefox'
-  //     break;
-  // }
-
-  // exec(browser + ' --version', function(err, stdout, stderr) {
-  //   if (err) {
-  //     console.log('Error getting Browser version:', err);
-  //     return;
-  //   }  
-  //   browser_version = stdout.split(' ')[2];
-  // });
-
-  return browser_version
+  const { execSync } = require('child_process');
+  const versionRegex = /\d+(\.\d+)*/;
+  // Windows
+  if (os.platform().includes('win')) {
+    switch(browser) {
+      case 'chrome':
+        try {
+          const stdout = execSync('reg query "HKEY_CURRENT_USER\\Software\\Google\\Chrome\\BLBeacon" /v version', { encoding: 'utf8' });
+          return stdout.match(versionRegex)[0] || 'unknown';
+        } catch (err) {
+          console.error(err);
+          return 'unknown';
+        }
+      case 'MicrosoftEdge':
+        try {
+          const stdout = execSync('reg query HKCU\\Software\\Microsoft\\Edge\\BLBeacon /v version', { encoding: 'utf8' });
+          return stdout.match(versionRegex)[0] || 'unknown';
+        } catch (err) {
+          console.error(err);
+          return 'unknown';
+        }
+      case 'firefox':
+        try {
+          const stdout = execSync('reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox" /v CurrentVersion', { encoding: 'utf8' });
+          return stdout.match(versionRegex)[0] || 'unknown';
+        } catch (err) {
+          console.error(err);
+          return 'unknown';
+        }
+      default:
+        console.error(`Unknown browser: ${browser}`);
+        return 'unknown';
+    }
+  } else if (os.platform().includes('linux')) {
+    switch(browser) {
+      case 'chrome':
+        try {
+          const stdout = execSync('google-chrome-stable --version', { encoding: 'utf8' });
+          return stdout.match(versionRegex)[0] || 'unknown';
+        } catch (err) {
+          console.error(err);
+          return 'unknown';
+        }
+      case 'MicrosoftEdge':
+        try {
+          const stdout = execSync('microsoft-edge-dev --version', { encoding: 'utf8' });
+          return stdout.match(versionRegex)[0] || 'unknown';
+        } catch (err) {
+          console.error(err);
+          return 'unknown';
+        }
+      case 'firefox':
+        try {
+          const stdout = execSync('firefox --version', { encoding: 'utf8' });
+          return stdout.match(versionRegex)[0] || 'unknown';
+        } catch (err) {
+          console.error(err);
+          return 'unknown';
+        }
+      default:
+        console.error(`Unknown browser: ${browser}`);
+        return 'unknown';
+    } 
+  } else {
+    console.error(`Unsupported platform: ${os.platform()}`);
+    return 'unknown';
+  }
 }
 
 function setBrowserMetaData(mode, stories, scenarioId, reportOptions) { 
 
   switch (mode) {
 		case 'scenario':
-      // get scenario settings
       let scenario = stories[0].scenarios.find((s) => {return s.scenario_id == scenarioId});
       reportOptions.metadata.Emulator =  scenario?.emulator ?? '';
-      reportOptions.metadata.Browser = `${scenario.browser}(v.:${getBrowserVersion(scenario.browser)})`;
+      reportOptions.metadata.Browser = `${scenario.browser}(v${getBrowserVersion(scenario.browser)})`;
       break;
 		case 'feature':
-      // apend all settings
       reportOptions.metadata.Emulator =  [];
       reportOptions.metadata.Browser = [];
       var used = {};
@@ -490,12 +530,11 @@ function setBrowserMetaData(mode, stories, scenarioId, reportOptions) {
         }
         if(used[(scenario.browser)] === undefined && scenario.browser !== undefined) {
           used[(scenario.browser)] = true
-          reportOptions.metadata.Browser.push(`${scenario.browser}(v.:${getBrowserVersion(scenario.browser)})`);
+          reportOptions.metadata.Browser.push(`${scenario.browser}(v${getBrowserVersion(scenario.browser)})`);
         }
       })
       break;
 		case 'group':
-      // apend all settings
       reportOptions.metadata.Emulator =  [];
       reportOptions.metadata.Browser = [];
       var used = {}
@@ -507,7 +546,7 @@ function setBrowserMetaData(mode, stories, scenarioId, reportOptions) {
           }
           if(used[scenario.browser] === undefined && scenario.browser !== undefined) {
             used[scenario.browser] = true
-            reportOptions.metadata.Browser.push(`${scenario.browser}(v.:${getBrowserVersion(scenario.browser)})`);
+            reportOptions.metadata.Browser.push(`${scenario.browser}(v${getBrowserVersion(scenario.browser)})`);
           }
         })
       })
