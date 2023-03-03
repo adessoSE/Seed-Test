@@ -1071,6 +1071,42 @@ export class BaseEditorComponent  {
       });
     });
    }
+   resetPreviousValues() {
+    this.previousValuesGiven = [];
+    this.previousValuesWhen = [];
+    this.previousValuesThen = [];
+    this.previousValuesBack();
+  }
+  AllDeactivated(){
+    this.activatedSteps = 0;
+    this.allDeactivated = true;   
+    this.onceUndefined = true; 
+    this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+       { 
+          this.selectedScenario.stepDefinitions.given[index].values[i] = ""
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
+        }
+      })
+    })
+    this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+       {
+          this.selectedScenario.stepDefinitions.when[index].values[i] = ""
+          this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
+        }
+      })
+    })
+    this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
+      value.values.forEach((val, i) => {
+        {
+          this.selectedScenario.stepDefinitions.then[index].values[i] = ""
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined
+        }
+      })
+    })
+    
+  }
    /**
     * Deactivates all checked step
     * 
@@ -1108,14 +1144,11 @@ export class BaseEditorComponent  {
       case 'example':
         { 
           this.allDeactivated = false;
-          if(this.onceUndefined){
+          if (this.onceUndefined) {
             this.returnStoredSteps();
           }
-          else if(this.onceUndefined == undefined || !this.onceUndefined ) {
-            this.previousValuesGiven = [];
-            this.previousValuesWhen = [];
-            this.previousValuesThen = [];
-            this.previousValuesBack();
+          if(this.onceUndefined === undefined) {
+            this.resetPreviousValues();
           }
           const example = this.selectedScenario.stepDefinitions.example;
           const totalSteps = Object.keys(example).length;
@@ -1131,35 +1164,9 @@ export class BaseEditorComponent  {
               }
             }
           });
-          if (this.activatedSteps == totalSteps-1) {
+          if (this.activatedSteps === totalSteps - 1) {
             console.log("All steps are deactivated");
-            this.activatedSteps = 0;
-            this.allDeactivated = true;   
-            this.onceUndefined = true; 
-            this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
-              value.values.forEach((val, i) => {
-               { 
-                  this.selectedScenario.stepDefinitions.given[index].values[i] = ""
-                  this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
-                }
-              })
-            })
-            this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
-              value.values.forEach((val, i) => {
-               {
-                  this.selectedScenario.stepDefinitions.when[index].values[i] = ""
-                  this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
-                }
-              })
-            })
-            this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
-              value.values.forEach((val, i) => {
-                {
-                  this.selectedScenario.stepDefinitions.then[index].values[i] = ""
-                  this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined
-                }
-              })
-            })
+            this.AllDeactivated();
           }
         }
         this.markUnsaved();
