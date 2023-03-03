@@ -1,3 +1,4 @@
+import { _getTextWithExcludedElements } from '@angular/cdk/testing';
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -6,7 +7,9 @@ import { DeleteToast } from 'src/app/delete-toast';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { ApiService } from 'src/app/Services/api.service';
 import { ProjectService } from 'src/app/Services/project.service';
+import { TransferOwnershipToast } from 'src/app/transferOwnership-toastr';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-workgroup-edit',
@@ -39,6 +42,11 @@ export class WorkgroupEditComponent {
     * Repository container of the workgroup
     */
   workgroupProject: RepositoryContainer;
+  
+  /**
+    * Current selected block list
+    */
+  isTransefered: boolean;
 
    /**
     * Email and id of the active user
@@ -56,9 +64,9 @@ export class WorkgroupEditComponent {
 
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
-
+  transferOwnershipObservable: Subscription;
   constructor(private modalService: NgbModal, 
-    public projectService: ProjectService, 
+    public projectService: ProjectService,
     private toastr: ToastrService,
     public apiService: ApiService) {
     this.projectService.deleteRepositoryEvent.subscribe(() => {
@@ -68,7 +76,12 @@ export class WorkgroupEditComponent {
       this.repos = repos;
     });
   }
-
+  ngOnInit() {
+   this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
+     this.transferedOwnership(this.workgroupOwner);
+     });
+ }
+ 
   /**
      * Opens the workgroup edit modal
      */
@@ -77,6 +90,7 @@ export class WorkgroupEditComponent {
     this.userId = userId;
     this.workgroupList = [];
     this.workgroupProject = project;
+    this.isTransefered = true;
     this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-titles'});
     const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
     header.textContent = 'Project: ' + project.value;
@@ -87,7 +101,32 @@ export class WorkgroupEditComponent {
         this.workgroupOwner = res.owner.email;
     });
   }
+  transferedOwnership(newOwner){
+   
+    document.getElementById('changeOwner').setAttribute('style', 'display: none');
+    console.log(newOwner)
+    const repo_id = localStorage.getItem('id');
+    this.projectService
+    .changeOwner(repo_id, newOwner)
+    .subscribe(_ => {
+        this.isTransefered = true;
+        this.toastr.success('successfully changed', 'New owner');
+    }); 
+  }
 
+  changeMemberSelection(element) {
+   console.log(element.email);
+   this.workgroupProject.selectedToTransfer = true;
+   this.isTransefered = false;
+   this.workgroupOwner = element.email;
+   
+   // this.workgroupOwner;
+ }
+ transferOwnership(){
+  this.toastr.warning('', 'Do you really want to transfer your ownership? You will lose your administrator rights.', {
+    toastComponent: TransferOwnershipToast
+  });
+ }
 /**
  * Invites a user to the workgroup
  * @param form
@@ -141,6 +180,7 @@ export class WorkgroupEditComponent {
         this.projectService.getRepositoriesEmitter();
         this.projectService.updateRepositoryEmitter();
       });
+      this.isTransefered = false;
       this.modalReference.close();
     }
   }

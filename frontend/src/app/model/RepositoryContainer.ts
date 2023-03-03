@@ -21,4 +21,8 @@ export interface RepositoryContainer {
      * If the user can edit the repository
      */
     canEdit?: boolean;
+    /**
+     * If the user can edit the repository
+     */
+    selectedToTransfer?: boolean;
 }

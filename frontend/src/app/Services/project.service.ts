@@ -58,6 +58,24 @@ export class ProjectService {
   createRepositoryEvent(repository) {
     this.createRepositoryEmitter.emit(repository);
   }
+  
+  public transferOwnershipEvent = new EventEmitter();
+  
+  transferOwnershipEmitter(){
+    this.transferOwnershipEvent.emit();
+  }
+  changeOwner(repoId, email): Observable<RepositoryContainer>{
+    const str = this.apiService.apiServer + '/repository' + repoId;
+    return this.http
+    .put<any>(str,email, ApiService.getOptions())
+    .pipe(tap(_ => {
+      //
+    }),
+    catchError(this.apiService.handleError));
+
+  }
+
+  
   /**
     * Emits if repositories changed
   */
@@ -79,7 +97,6 @@ export class ProjectService {
     * @returns
   */
   createRepository(name: string, _id: string): Observable<any> {
-    console.log( this.apiService.apiServer);
     const body = { 'name': name, '_id': _id };
     return this.http
       .post<RepositoryContainer>( this.apiService.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())

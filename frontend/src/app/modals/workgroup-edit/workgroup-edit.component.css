@@ -76,7 +76,6 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type, th.mat-mdc-
     padding-left: 0px;
 }
 
-
 @media screen and (max-height: 800px) {
     .tableContainer{
         max-height: 300px;
