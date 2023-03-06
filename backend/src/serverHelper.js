@@ -474,6 +474,7 @@ function getBrowserVersion(browser) {
         console.error(`Unknown browser: ${browser}`);
         return 'unknown';
     }
+  // Linux
   } else if (os.platform().includes('linux')) {
     switch(browser) {
       case 'chrome':
@@ -486,7 +487,7 @@ function getBrowserVersion(browser) {
         }
       case 'MicrosoftEdge':
         try {
-          const stdout = execSync('microsoft-edge-dev --version', { encoding: 'utf8' });
+          const stdout = execSync('msedge --version', { encoding: 'utf8' });
           return stdout.match(versionRegex)[0] || 'unknown';
         } catch (err) {
           console.error(err);
@@ -510,43 +511,45 @@ function getBrowserVersion(browser) {
   }
 }
 
-function setBrowserMetaData(mode, stories, scenarioId, reportOptions) { 
+function makeUpper(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
+function setBrowserMetaData(mode, stories, scenarioId, reportOptions) { 
   switch (mode) {
 		case 'scenario':
       let scenario = stories[0].scenarios.find((s) => {return s.scenario_id == scenarioId});
       reportOptions.metadata.Emulator =  scenario?.emulator ?? '';
-      reportOptions.metadata.Browser = `${scenario.browser}(v${getBrowserVersion(scenario.browser)})`;
+      reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`;
       break;
 		case 'feature':
-      reportOptions.metadata.Emulator =  [];
-      reportOptions.metadata.Browser = [];
-      var used = {};
-
       stories[0].scenarios.forEach((scenario) => {
-        if(used[(scenario.emulator)] === undefined && scenario.emulator !== undefined) {
-          used[(scenario.emulator)] = true
-          reportOptions.metadata.Emulator.push(scenario?.emulator ?? '');
+        if(scenario.emulator !== undefined) {
+          if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] === undefined) {
+            reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] = []
+          }
+          if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].find((e) => e === scenario.emulator) === undefined) {
+            reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].push(scenario.emulator);
+          }
         }
-        if(used[(scenario.browser)] === undefined && scenario.browser !== undefined) {
-          used[(scenario.browser)] = true
-          reportOptions.metadata.Browser.push(`${scenario.browser}(v${getBrowserVersion(scenario.browser)})`);
+        if(reportOptions.metadata[makeUpper(scenario.browser)] === undefined && scenario.browser !== undefined) {
+          reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`
         }
       })
       break;
 		case 'group':
-      reportOptions.metadata.Emulator =  [];
-      reportOptions.metadata.Browser = [];
-      var used = {}
       stories.forEach((story) => {
         story.scenarios.forEach((scenario) => {
-          if(used[scenario.emulator] === undefined && scenario.emulator !== undefined) {
-            used[scenario.emulator] = true
-            reportOptions.metadata.Emulator.push(scenario?.emulator ?? '');
+          if(scenario.emulator !== undefined) {
+            if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] === undefined) {
+              reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] = []
+            }
+            if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].find((e) => e === scenario.emulator) === undefined) {
+              reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].push(scenario.emulator);
+            }
           }
-          if(used[scenario.browser] === undefined && scenario.browser !== undefined) {
-            used[scenario.browser] = true
-            reportOptions.metadata.Browser.push(`${scenario.browser}(v${getBrowserVersion(scenario.browser)})`);
+          if(reportOptions.metadata[makeUpper(scenario.browser)] === undefined && scenario.browser !== undefined) {
+            reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`
           }
         })
       })
