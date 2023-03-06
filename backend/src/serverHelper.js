@@ -519,7 +519,9 @@ function setBrowserMetaData(mode, stories, scenarioId, reportOptions) {
   switch (mode) {
 		case 'scenario':
       let scenario = stories[0].scenarios.find((s) => {return s.scenario_id == scenarioId});
-      reportOptions.metadata.Emulator =  scenario?.emulator ?? '';
+      if (scenario.emulator !== undefined) {
+        reportOptions.metadata.Emulator = scenario.emulator;
+      }
       reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`;
       break;
 		case 'feature':
