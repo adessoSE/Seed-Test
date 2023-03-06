@@ -396,8 +396,8 @@ function analyzeScenarioReport(stories, reportName, scenarioId, reportOptions) {
   } catch (error) {
     console.log(`fs.readFile error for file ./features/${reportName}.json`);
   }
-  console.log(reportResults);
 	console.log('Report Results in analyzeScenarioReport: ');
+  console.log(reportResults);
   return reportResults;
 }
 
@@ -409,7 +409,6 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
     status: false,
 		scenarioStatuses: []
   };
-
 
   try {
     const reportPath = `./features/${reportName}.json`;
