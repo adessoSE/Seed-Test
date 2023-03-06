@@ -1,5 +1,3 @@
-#!/bin/bash
-
 del .env
 @echo off
 for /f "tokens=*" %%s in (./backend/.env) do (
