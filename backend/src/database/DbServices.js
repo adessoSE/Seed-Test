@@ -777,12 +777,24 @@ async function createRepo(ownerId, name) {
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) { 
+async function updateRepository(repoID, newName, user) { //
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		return collection.findOneAndUpdate(repoFilter, { $set: {"repoName": newName} }, { returnNewDocument: true });
+		return collection.findOneAndUpdate(repoFilter, { $set: { repoName: newName } }, { returnNewDocument: true });
+	} catch (e) {
+		console.log(`ERROR updateRepository: ${e}`);
+		throw e;
+	}
+}
+
+async function updateRepositoryOwner(repoID, newOwner, currentOwner) { //
+	try {
+		const repoFilter = { owner: ObjectId(currentOwner), _id: ObjectId(repoID) };
+		const db = dbConnection.getConnection();
+		const collection = await db.collection(repositoriesCollection);
+		return collection.findOneAndUpdate(repoFilter, { $set: { owner: ObjectId(newOwner) } }, { returnNewDocument: true });
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;
@@ -1377,5 +1389,6 @@ module.exports = {
 	getAllSourceReposFromDb,
 	createGitRepo,
 	updateOwnerInRepo,
-	updateRepository
+	updateRepository,
+	updateRepositoryOwner
 };

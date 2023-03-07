@@ -200,16 +200,24 @@ router.get('/repositories', (req, res) => {
 
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
-	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.params.owner_id);
+	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);
 	res.status(200).json(repo);
 	console.log('update repo: ', repo);
+});
+// update repository
+router.put('/repository/:repo_id', async (req, res) => {
+	console.log(req.body);
+	const newOwner = await mongo.getUserByEmail(req.body.email);
+	const repo = await mongo.updateRepositoryOwner(req.params.repo_id, newOwner._id, req.user._id);
+	res.status(200).json(repo);
+	console.log('update repo owner: ', repo);
 });
 
 // delete repository
 router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
 		await mongo
-			.deleteRepository(req.params.repo_id, req.params.owner_id, req.params.source, parseInt(req.params._id, 10));
+			.deleteRepository(req.params.repo_id, req.user._id, req.params.source, parseInt(req.params._id, 10));
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {

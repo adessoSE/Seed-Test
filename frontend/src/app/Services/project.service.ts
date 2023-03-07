@@ -65,9 +65,9 @@ export class ProjectService {
     this.transferOwnershipEvent.emit();
   }
   changeOwner(repoId, email): Observable<RepositoryContainer>{
-    const str = this.apiService.apiServer + '/repository' + repoId;
+    const url = this.apiService.apiServer + '/user/repository/' + repoId;
     return this.http
-    .put<any>(str,email, ApiService.getOptions())
+    .put<any>(url, {email: email}, ApiService.getOptions())
     .pipe(tap(_ => {
       //
     }),

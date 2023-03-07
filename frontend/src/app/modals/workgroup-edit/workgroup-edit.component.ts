@@ -77,9 +77,9 @@ export class WorkgroupEditComponent {
     });
   }
   ngOnInit() {
-   this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
-     this.transferedOwnership(this.workgroupOwner);
-     });
+    this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
+      this.transferedOwnership(this.workgroupOwner);
+    });
  }
  
   /**
@@ -101,10 +101,10 @@ export class WorkgroupEditComponent {
         this.workgroupOwner = res.owner.email;
     });
   }
+
   transferedOwnership(newOwner){
-   
     document.getElementById('changeOwner').setAttribute('style', 'display: none');
-    console.log(newOwner)
+    console.log('new owner: ',newOwner)
     const repo_id = localStorage.getItem('id');
     this.projectService
     .changeOwner(repo_id, newOwner)
