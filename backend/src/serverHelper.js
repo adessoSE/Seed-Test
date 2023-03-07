@@ -443,49 +443,48 @@ function getBrowserVersion(browser) {
   const { execSync } = require('child_process');
   const versionRegex = /\d+(\.\d+)*/;
   let stdout;
+  
   try {
     // Windows
     if (os.platform().includes('win')) {
       switch(browser) {
         case 'chrome':
-            stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_CURRENT_USER\\Software\\Google\\Chrome\\BLBeacon" /v version', { encoding: 'utf8', shell: false });
-            return stdout.match(versionRegex)[0] || 'unknown';
+          stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_CURRENT_USER\\Software\\Google\\Chrome\\BLBeacon" /v version', { encoding: 'utf8', shell: false });
+          break;
         case 'MicrosoftEdge':
-            stdout = execSync('C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Edge\\BLBeacon /v version', { encoding: 'utf8', shell: false });
-            return stdout.match(versionRegex)[0] || 'unknown';
+          stdout = execSync('C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Edge\\BLBeacon /v version', { encoding: 'utf8', shell: false });
+          break;
         case 'firefox': 
-            stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox" /v CurrentVersion', { encoding: 'utf8', shell: false });
-            return stdout.match(versionRegex)[0] || 'unknown';
+          stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox" /v CurrentVersion', { encoding: 'utf8', shell: false });        
+          break;
         default:
           console.error(`Unknown browser: ${browser}. Browser only supported 
           via Docker. (PATHS could be wrong)`);
-          return 'unknown';
       }
     // Linux
     } else if (os.platform().includes('linux')) {
       switch(browser) {
         case 'chrome':
             stdout = execSync('/usr/bin/google-chrome-stable --version', { encoding: 'utf8', shell: false });
-            return stdout.match(versionRegex)[0] || 'unknown';
+            break;
         case 'MicrosoftEdge':
             stdout = execSync('/opt/microsoft/msedge//msedge --version', { encoding: 'utf8', shell: false });
-            return stdout.match(versionRegex)[0] || 'unknown';
+            break;
         case 'firefox':
-            stdout = execSync('/usr/bin/firefox --version', { encoding: 'utf8', shell: false });
-            return stdout.match(versionRegex)[0] || 'unknown';
+            stdout = execSync('/usr/local/bin/firefox --version', { encoding: 'utf8', shell: false });
+            break;
         default:
           console.error(`Unknown browser: ${browser}. Browser only supported 
           via Docker. (PATHS could be wrong)`);
-          return 'unknown';
       } 
     } else {
       console.error(`Unsupported platform: ${os.platform()}`);
-      return 'unknown';
     }
   } catch (err) {
     console.error(err);
     return 'unknown';
   }
+  return stdout.match(versionRegex)[0] || 'unknown';
 }
 
 function makeUpper(str) {
