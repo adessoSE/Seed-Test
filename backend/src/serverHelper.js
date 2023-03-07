@@ -494,38 +494,53 @@ function makeUpper(str) {
 function setBrowserMetaData(mode, stories, scenarioId, reportOptions) { 
   switch (mode) {
     case 'scenario':
-      let scenario = stories[0].scenarios.find((s) => {return s.scenario_id == scenarioId});
-      if (scenario.emulator !== undefined) {
-        reportOptions.metadata.Emulator = scenario.emulator;
-      }
-      reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`;
+      setScenarioBrowserMetaData(stories, scenarioId, reportOptions);
       break;
     case 'feature':
     case 'group':
-      stories.forEach(story => {
-        story.scenarios.forEach(scenario => {
-          if (scenario.emulator !== undefined) {
-            const browser = scenario.browser;
-            const key = makeUpper(browser) + '-Emulator';
-            if (reportOptions.metadata[key] === undefined) {
-              reportOptions.metadata[key] = [];
-            }
-            const emulators = reportOptions.metadata[key];
-            if (!emulators.includes(scenario.emulator)) {
-              emulators.push(scenario.emulator);
-            }
-          }
-          const browser = scenario.browser;
-          if (browser !== undefined && reportOptions.metadata[makeUpper(browser)] === undefined) {
-            reportOptions.metadata[makeUpper(browser)] = `v${getBrowserVersion(browser)}`;
-          }
-        });
-      });
+      setFeatureBrowserMetaData(stories, reportOptions);
       break;
     default:
       console.log('Unkown mode: ' + mode);
   }
   return reportOptions;
+}
+
+function setScenarioBrowserMetaData(stories, scenarioId, reportOptions) {
+  const scenario = stories[0].scenarios.find((s) => { return s.scenario_id == scenarioId });
+  if (scenario.emulator !== undefined) {
+    reportOptions.metadata.Emulator = scenario.emulator;
+  }
+  const browser = scenario.browser;
+  if (browser !== undefined) {
+    const browserVersionKey = makeUpper(browser);
+    const browserVersionValue = `v${getBrowserVersion(browser)}`;
+    reportOptions.metadata[browserVersionKey] = browserVersionValue;
+  }
+}
+
+function setFeatureBrowserMetaData(stories, reportOptions) {
+  stories.forEach(story => {
+    story.scenarios.forEach(scenario => {
+      if (scenario.emulator !== undefined) {
+        const browser = scenario.browser;
+        const emulatorKey = makeUpper(browser) + '-Emulator';
+        const emulators = reportOptions.metadata[emulatorKey] || [];
+        if (!emulators.includes(scenario.emulator)) {
+          emulators.push(scenario.emulator);
+          reportOptions.metadata[emulatorKey] = emulators;
+        }
+      }
+      const browser = scenario.browser;
+      if (browser !== undefined) {
+        const browserVersionKey = makeUpper(browser);
+        if (!reportOptions.metadata[browserVersionKey]) {
+          const browserVersionValue = `v${getBrowserVersion(browser)}`;
+          reportOptions.metadata[browserVersionKey] = browserVersionValue;
+        }
+      }
+    });
+  });
 }
 
 function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
