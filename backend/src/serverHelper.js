@@ -457,23 +457,25 @@ function getBrowserVersion(browser) {
             stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox" /v CurrentVersion', { encoding: 'utf8', shell: false });
             return stdout.match(versionRegex)[0] || 'unknown';
         default:
-          console.error(`Unknown browser: ${browser}`);
+          console.error(`Unknown browser: ${browser}. Browser only supported 
+          via Docker. (PATHS could be wrong)`);
           return 'unknown';
       }
     // Linux
     } else if (os.platform().includes('linux')) {
       switch(browser) {
         case 'chrome':
-            stdout = execSync('google-chrome-stable --version', { encoding: 'utf8', shell: false });
+            stdout = execSync('/usr/bin/google-chrome-stable --version', { encoding: 'utf8', shell: false });
             return stdout.match(versionRegex)[0] || 'unknown';
         case 'MicrosoftEdge':
-            stdout = execSync('msedge --version', { encoding: 'utf8', shell: false });
+            stdout = execSync('/opt/microsoft/msedge//msedge --version', { encoding: 'utf8', shell: false });
             return stdout.match(versionRegex)[0] || 'unknown';
         case 'firefox':
-            stdout = execSync('firefox --version', { encoding: 'utf8', shell: false });
+            stdout = execSync('/usr/bin/firefox --version', { encoding: 'utf8', shell: false });
             return stdout.match(versionRegex)[0] || 'unknown';
         default:
-          console.error(`Unknown browser: ${browser}`);
+          console.error(`Unknown browser: ${browser}. Browser only supported 
+          via Docker. (PATHS could be wrong)`);
           return 'unknown';
       } 
     } else {
