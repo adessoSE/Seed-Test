@@ -442,70 +442,46 @@ async function failedReportPromise(reportName) {
 function getBrowserVersion(browser) {
   const { execSync } = require('child_process');
   const versionRegex = /\d+(\.\d+)*/;
-  // Windows
-  if (os.platform().includes('win')) {
-    switch(browser) {
-      case 'chrome':
-        try {
-          const stdout = execSync('reg query "HKEY_CURRENT_USER\\Software\\Google\\Chrome\\BLBeacon" /v version', { encoding: 'utf8' });
-          return stdout.match(versionRegex)[0] || 'unknown';
-        } catch (err) {
-          console.error(err);
+  let stdout;
+  try {
+    // Windows
+    if (os.platform().includes('win')) {
+      switch(browser) {
+        case 'chrome':
+            stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_CURRENT_USER\\Software\\Google\\Chrome\\BLBeacon" /v version', { encoding: 'utf8', shell: false });
+            return stdout.match(versionRegex)[0] || 'unknown';
+        case 'MicrosoftEdge':
+            stdout = execSync('C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Edge\\BLBeacon /v version', { encoding: 'utf8', shell: false });
+            return stdout.match(versionRegex)[0] || 'unknown';
+        case 'firefox': 
+            stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox" /v CurrentVersion', { encoding: 'utf8', shell: false });
+            return stdout.match(versionRegex)[0] || 'unknown';
+        default:
+          console.error(`Unknown browser: ${browser}`);
           return 'unknown';
-        }
-      case 'MicrosoftEdge':
-        try {
-          const stdout = execSync('reg query HKCU\\Software\\Microsoft\\Edge\\BLBeacon /v version', { encoding: 'utf8' });
-          return stdout.match(versionRegex)[0] || 'unknown';
-        } catch (err) {
-          console.error(err);
+      }
+    // Linux
+    } else if (os.platform().includes('linux')) {
+      switch(browser) {
+        case 'chrome':
+            stdout = execSync('google-chrome-stable --version', { encoding: 'utf8', shell: false });
+            return stdout.match(versionRegex)[0] || 'unknown';
+        case 'MicrosoftEdge':
+            stdout = execSync('msedge --version', { encoding: 'utf8', shell: false });
+            return stdout.match(versionRegex)[0] || 'unknown';
+        case 'firefox':
+            stdout = execSync('firefox --version', { encoding: 'utf8', shell: false });
+            return stdout.match(versionRegex)[0] || 'unknown';
+        default:
+          console.error(`Unknown browser: ${browser}`);
           return 'unknown';
-        }
-      case 'firefox':
-        try {
-          const stdout = execSync('reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox" /v CurrentVersion', { encoding: 'utf8' });
-          return stdout.match(versionRegex)[0] || 'unknown';
-        } catch (err) {
-          console.error(err);
-          return 'unknown';
-        }
-      default:
-        console.error(`Unknown browser: ${browser}`);
-        return 'unknown';
+      } 
+    } else {
+      console.error(`Unsupported platform: ${os.platform()}`);
+      return 'unknown';
     }
-  // Linux
-  } else if (os.platform().includes('linux')) {
-    switch(browser) {
-      case 'chrome':
-        try {
-          const stdout = execSync('google-chrome-stable --version', { encoding: 'utf8' });
-          return stdout.match(versionRegex)[0] || 'unknown';
-        } catch (err) {
-          console.error(err);
-          return 'unknown';
-        }
-      case 'MicrosoftEdge':
-        try {
-          const stdout = execSync('msedge --version', { encoding: 'utf8' });
-          return stdout.match(versionRegex)[0] || 'unknown';
-        } catch (err) {
-          console.error(err);
-          return 'unknown';
-        }
-      case 'firefox':
-        try {
-          const stdout = execSync('firefox --version', { encoding: 'utf8' });
-          return stdout.match(versionRegex)[0] || 'unknown';
-        } catch (err) {
-          console.error(err);
-          return 'unknown';
-        }
-      default:
-        console.error(`Unknown browser: ${browser}`);
-        return 'unknown';
-    } 
-  } else {
-    console.error(`Unsupported platform: ${os.platform()}`);
+  } catch (err) {
+    console.error(err);
     return 'unknown';
   }
 }
@@ -516,46 +492,38 @@ function makeUpper(str) {
 
 function setBrowserMetaData(mode, stories, scenarioId, reportOptions) { 
   switch (mode) {
-		case 'scenario':
+    case 'scenario':
       let scenario = stories[0].scenarios.find((s) => {return s.scenario_id == scenarioId});
       if (scenario.emulator !== undefined) {
         reportOptions.metadata.Emulator = scenario.emulator;
       }
       reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`;
       break;
-		case 'feature':
-      stories[0].scenarios.forEach((scenario) => {
-        if(scenario.emulator !== undefined) {
-          if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] === undefined) {
-            reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] = []
-          }
-          if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].find((e) => e === scenario.emulator) === undefined) {
-            reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].push(scenario.emulator);
-          }
-        }
-        if(reportOptions.metadata[makeUpper(scenario.browser)] === undefined && scenario.browser !== undefined) {
-          reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`
-        }
-      })
-      break;
-		case 'group':
-      stories.forEach((story) => {
-        story.scenarios.forEach((scenario) => {
-          if(scenario.emulator !== undefined) {
-            if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] === undefined) {
-              reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'] = []
+    case 'feature':
+    case 'group':
+      stories.forEach(story => {
+        story.scenarios.forEach(scenario => {
+          if (scenario.emulator !== undefined) {
+            const browser = scenario.browser;
+            const key = makeUpper(browser) + '-Emulator';
+            if (reportOptions.metadata[key] === undefined) {
+              reportOptions.metadata[key] = [];
             }
-            if (reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].find((e) => e === scenario.emulator) === undefined) {
-              reportOptions.metadata[makeUpper(scenario.browser) + '-Emulator'].push(scenario.emulator);
+            const emulators = reportOptions.metadata[key];
+            if (!emulators.includes(scenario.emulator)) {
+              emulators.push(scenario.emulator);
             }
           }
-          if(reportOptions.metadata[makeUpper(scenario.browser)] === undefined && scenario.browser !== undefined) {
-            reportOptions.metadata[makeUpper(scenario.browser)] = `v${getBrowserVersion(scenario.browser)}`
+          const browser = scenario.browser;
+          if (browser !== undefined && reportOptions.metadata[makeUpper(browser)] === undefined) {
+            reportOptions.metadata[makeUpper(browser)] = `v${getBrowserVersion(browser)}`;
           }
-        })
-      })
+        });
+      });
       break;
-  } 
+    default:
+      console.log('Unkown mode: ' + mode);
+  }
   return reportOptions;
 }
 
