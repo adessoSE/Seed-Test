@@ -194,6 +194,12 @@ async function updateJira(UserID, req) {
   await mongo.updateUser(UserID, user);
 }
 
+async function disconnectJira(UserID) {
+  const user = await mongo.getUserData(UserID);
+  delete user.jira;
+  await mongo.updateUser(UserID, user);
+}
+
 // Updates feature file based on _id
 async function updateFeatureFile(issueID, storySource) {
   const result = await mongo.getOneStory(issueID, storySource);
@@ -1182,5 +1188,6 @@ module.exports = {
   exportProjectFeatureFiles,
   runReport,
   starredRepositories,
-	dbProjects
+	dbProjects,
+  disconnectJira
 };
