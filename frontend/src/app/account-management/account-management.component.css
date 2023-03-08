@@ -176,6 +176,10 @@ label{
     margin-top: 30px;
 }
 
+#disconnect-jira{
+    margin-top: 30px;
+}
+
 .uk-card{
     border: 1px solid grey;
 }
