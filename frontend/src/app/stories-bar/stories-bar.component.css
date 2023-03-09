@@ -311,6 +311,13 @@ a.storyListLink:hover{
   color: var(--ocean-blue) !important;
  }
 
+::ng-deep .mdc-floating-label--float-above {
+  color: var(--ocean-blue) !important;
+}
+::ng-deep .mat-mdc-option-active .mdc-list-item__primary-text {
+  color: var(--ocean-blue) !important;
+}
+
  ::ng-deep.mat-mdc-form-field-underline {
   /*change color of underline*/
   background-color: var(--ocean-blue) !important;
@@ -332,6 +339,15 @@ a.storyListLink:hover{
 /* ::ng-deep.mat-mdc-option-text:checked{
   color: green !important;
 } */
+::ng-deep .mat-mdc-form-field-infix{
+  padding-bottom: 0 !important;
+  min-height: fit-content;
+}
+
+:host::ng-deep .mat-mdc-text-field-wrapper{
+  background-color: transparent;
+  padding: 0 !important;
+}
 
 #searchStoriesBar {
   justify-content: flex-start;
