@@ -16,8 +16,6 @@ const emptyBackground = require('./models/emptyBackground');
 const userMng = require('../dist/userManagement');
 const reporting = require('../dist/reporting');
 
-const featuresPath = path.normalize('features/');
-
 // adds content of each values to output
 function getValues(values) {
 	let data = '';
@@ -156,36 +154,36 @@ async function runReport(req, res, stories, mode, parameters) {
 		}
 	} catch (error) {
 		res.status(404).send(error);
+		return;
 	}
 
-	const { reportResults, reportName } = await reporting.resolveReport(reportObj, mode, stories, req, res);
+	const { reportResults, reportName } = await reporting.resolveReport(reportObj, mode, stories, req);
 	// generate HTML Report
 	console.log('reportName in callback of resolveReport:');
 	console.log(reportName);
 	console.log('reportResults in callback of resolveReport:');
 	console.log(reportResults);
 	// upload report to DB
-	mongo.uploadReport(reportResults)
-		.then((uploadedReport) => {
-			// read html Report and add it top response
-			fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-				res.json({ htmlFile: data, reportId: uploadedReport._id });
-			});
-			updateLatestTestStatus(uploadedReport, mode);
-			// delete Group folder
-			const deletionTime = reporting.reportDeletionTime * 60000;
-			if (mode === 'group') setTimeout(reporting.deleteReport, deletionTime, `${reportResults.reportName}`);
-			else {
-				// delete reports in filesystem after a while
-				setTimeout(reporting.deleteReport, deletionTime, `${reportName}.json`);
-				setTimeout(reporting.deleteReport, deletionTime, `${reportName}.html`);
-			}
-		})
+	const uploadedReport = await mongo.uploadReport(reportResults)
 		.catch((error) => {
 			console.log(`Could not UploadReport :  ./features/${reportName}.json
 				Rejection: ${error}`);
 			res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
 		});
+	// read html Report and add it top response
+	fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+		res.json({ htmlFile: data, reportId: uploadedReport._id });
+	});
+	updateLatestTestStatus(uploadedReport, mode);
+
+	// delete Group folder
+	const deletionTime = reporting.reportDeletionTime * 60000;
+	if (mode === 'group') setTimeout(reporting.deleteReport, deletionTime, `${reportResults.reportName}`);
+	else {
+		// delete reports in filesystem after a while
+		setTimeout(reporting.deleteReport, deletionTime, `${reportName}.json`);
+		setTimeout(reporting.deleteReport, deletionTime, `${reportName}.html`);
+	}
 
 	// if possible separate function
 	for (const story of stories) {

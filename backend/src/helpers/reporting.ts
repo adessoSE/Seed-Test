@@ -26,7 +26,7 @@ const reportDeletionTime: number = parseInt(process.env.REPORT_DELETION_TIME) ||
 
 const reportPath = path.normalize('features/');
 
-function setOptions(reportName, reportPath = 'features/') {
+function setOptions(reportName: string, reportPath = 'features/') {
     const myOptions = JSON.parse(JSON.stringify(options));
     myOptions.metadata.Platform = process.platform;
     myOptions.name = `Seed-Test Report: ${reportName}`;
@@ -38,18 +38,17 @@ function setOptions(reportName, reportPath = 'features/') {
     return myOptions;
 }
 
-async function resolveReport(reportObj, mode, stories, req, _res) {
+async function resolveReport(reportObj: any, mode: executionMode, stories: any[], req: any) {
     if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
     let scenarioId;
     if (req.params.scenarioId !== undefined) {
         scenarioId = req.params.scenarioId;
     }
-    const { reportTime } = reportObj;
     let { reportName } = reportObj;
 
     // analyze Report:
     const reportResults = await analyzeReport(req.body.name, stories, mode, reportName, scenarioId)
-    reportResults.reportTime = reportTime;
+    reportResults.reportTime = reportObj.reportTime;
     reportResults.mode = mode;
 
     // Group needs an adjusted Path to Report
