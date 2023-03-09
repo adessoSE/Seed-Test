@@ -137,108 +137,83 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile(result);
 }
 
-async function execReport(req, res, stories, mode, parameters, callback) {
+async function runReport(req, res, stories, mode, parameters) {
+	let reportObj;
 	try {
 		if (mode === 'group') {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
-			for (const story of stories) {
-				await nameSchemeChange(story);
-				// if mit execution mode "parallel" or "sequential"
-				if (parameters.isSequential !== undefined && parameters.isSequential) {
-					await executeTest(req, res, mode, story).then((values) => callback(values));
-				} else {
-					executeTest(req, res, mode, story).then((values) => callback(values));
+			if (parameters.isSequential == undefined || !parameters.isSequential)
+				reportObj = await Promise.all(stories.map((story) => executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());
+			else {
+				for (const story of stories) {
+					reportObj = await executeTest(req, mode, story);
 				}
 			}
 		} else {
 			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
-			await nameSchemeChange(story);
-			executeTest(req, res, mode, story)
-				.then((values) => callback(values))
-				.catch((reason) => res.send(reason).status(500));
+			reportObj = await executeTest(req, mode, story).catch((reason) => res.send(reason).status(500));
 		}
 	} catch (error) {
 		res.status(404).send(error);
 	}
-}
 
-async function runReport(req, res, stories, mode, parameters) {
-	// only used when executing multiple stories:
-	let cumulate = 1;
-	execReport(req, res, stories, mode, parameters, async (reportObj) => {
-		// for Group Reports: go to next Story, when it was not the last one
-		if (mode === 'group' && cumulate < stories.length) {
-			console.log(`CUMULATE Counter = Story Number: ${cumulate}`);
-			cumulate++;
-			return;
-		}
-
-		const { reportResults, reportName } = await reporting.resolveReport(reportObj, mode, stories, req, res);
-		// generate HTML Report
-		console.log('reportName in callback of resolveReport:');
-		console.log(reportName);
-		console.log('reportResults in callback of resolveReport:');
-		console.log(reportResults);
-		// upload report to DB
-		mongo.uploadReport(reportResults)
-			.then((uploadedReport) => {
-				// read html Report and add it top response
-				fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-					res.json({ htmlFile: data, reportId: uploadedReport._id });
-				});
-				updateLatestTestStatus(uploadedReport, mode);
-				// delete Group folder
-				const deletionTime = reporting.reportDeletionTime * 60000;
-				if (mode === 'group') setTimeout(reporting.deleteReport, deletionTime, `${reportResults.reportName}`);
-				else {
-					// delete reports in filesystem after a while
-					setTimeout(reporting.deleteReport, deletionTime, `${reportName}.json`);
-					setTimeout(reporting.deleteReport, deletionTime, `${reportName}.html`);
-				}
-			})
-			.catch((error) => {
-				console.log(`Could not UploadReport :  ./features/${reportName}.json
-				Rejection: ${error}`);
-				res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+	const { reportResults, reportName } = await reporting.resolveReport(reportObj, mode, stories, req, res);
+	// generate HTML Report
+	console.log('reportName in callback of resolveReport:');
+	console.log(reportName);
+	console.log('reportResults in callback of resolveReport:');
+	console.log(reportResults);
+	// upload report to DB
+	mongo.uploadReport(reportResults)
+		.then((uploadedReport) => {
+			// read html Report and add it top response
+			fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+				res.json({ htmlFile: data, reportId: uploadedReport._id });
 			});
+			updateLatestTestStatus(uploadedReport, mode);
+			// delete Group folder
+			const deletionTime = reporting.reportDeletionTime * 60000;
+			if (mode === 'group') setTimeout(reporting.deleteReport, deletionTime, `${reportResults.reportName}`);
+			else {
+				// delete reports in filesystem after a while
+				setTimeout(reporting.deleteReport, deletionTime, `${reportName}.json`);
+				setTimeout(reporting.deleteReport, deletionTime, `${reportName}.html`);
+			}
+		})
+		.catch((error) => {
+			console.log(`Could not UploadReport :  ./features/${reportName}.json
+				Rejection: ${error}`);
+			res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+		});
 
-		// if possible separate function
-		for (const story of stories) {
-			let comment;
-			if (mode === 'group') {
-				comment = `This Execution ist part of group execution ${parameters.name}\n`;
-				comment += renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-					reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
-			} else {
-				comment += renderComment(reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-					reportResults.reportTime, story, story.scenarios[0], mode, reportName);
-			}
-			if (story.storySource === 'github' && req.user && req.user.github) {
-				const githubValue = parameters.repository.split('/');
-				// eslint-disable-next-line no-continue
-				if (githubValue == null) { continue; }
-				const githubName = githubValue[0];
-				const githubRepo = githubValue[1];
-
-				postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
-				if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-			}
-			if (story.storySource === 'jira' && req.user && req.user.jira) {
-				const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-				const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-				postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
-			}
+	// if possible separate function
+	for (const story of stories) {
+		let comment;
+		if (mode === 'group') {
+			comment = `This Execution ist part of group execution ${parameters.name}\n`;
+			comment += renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+				reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
+		} else {
+			comment += renderComment(reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+				reportResults.reportTime, story, story.scenarios[0], mode, reportName);
 		}
-	});
-}
+		if (story.storySource === 'github' && req.user && req.user.github) {
+			const githubValue = parameters.repository.split('/');
+			// eslint-disable-next-line no-continue
+			if (githubValue == null) { continue; }
+			const githubName = githubValue[0];
+			const githubRepo = githubValue[1];
 
-async function nameSchemeChange(story) {
-	// if new scheme doesn't exist
-	if (!(await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title + story._id.toString())}.feature`).catch(() => null))) await updateFeatureFile(story._id, story.storySource);
-
-	// if old scheme still exists
-	if (await fs.promises.stat(`./${featuresPath}/${cleanFileName(story.title)}.feature`).catch(() => null)) fs.unlink(`./${featuresPath}/${cleanFileName(story.title)}.feature`, (err) => console.log('failed to remove file', err));
+			postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
+			if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+		}
+		if (story.storySource === 'jira' && req.user && req.user.jira) {
+			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+			const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
+			postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
+		}
+	}
 }
 
 async function deleteFeatureFile(storyTitle, storyId) {
@@ -253,7 +228,7 @@ async function deleteFeatureFile(storyTitle, storyId) {
 	}
 }
 
-async function executeTest(req, _res, mode, story) {
+async function executeTest(req, mode, story) {
 	return new Promise((resolve, reject) => {
 		let parameters = {};
 		if (mode === 'scenario') {
@@ -681,7 +656,6 @@ const getGithubData = (res, req, accessToken) => {
 async function exportSingleFeatureFile(_id, source) {
 	const dbStory = mongo.getOneStory(_id, source);
 	return dbStory.then(async (story) => {
-		await this.nameSchemeChange(story);
 		return pfs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8')
 			.catch((err) => console.log('couldn`t read File'));
 	});
@@ -693,7 +667,6 @@ async function exportProjectFeatureFiles(repoId) {
 		console.log(stories);
 		const zip = new AdmZip();
 		return Promise.all(stories.map(async (story) => {
-			await this.nameSchemeChange(story);
 			try {
 				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
 				console.log('add FF');
@@ -720,13 +693,11 @@ module.exports = {
 	uniqueRepositories,
 	getGithubData,
 	cleanFileName,
-	execReport,
 	getFeatureContent,
 	getScenarioContent,
 	writeFile,
 	ownRepositories,
 	fuseStoryWithDb,
-	nameSchemeChange,
 	getExamples,
 	getSteps,
 	jsUcfirst,
