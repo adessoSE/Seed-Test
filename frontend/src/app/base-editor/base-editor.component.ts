@@ -1314,10 +1314,10 @@ export class BaseEditorComponent  {
         this.clipboardBlock.stepDefinitions['example'][0].values[index] = newName
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
           if (key != 'example') {
-            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
-              step.values.forEach((value, index) => {
-                if(value == '<'+oldName+'>'){
-                  this.clipboardBlock.stepDefinitions[key][index].values[index] = '<'+newName+'>'
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, i) => {
+              step.values.forEach((value, j) => {
+                if(value === '<'+oldName+'>'){
+                  this.clipboardBlock.stepDefinitions[key][i].values[j] = '<'+newName+'>'
                 }
               });
             });
