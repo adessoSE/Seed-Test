@@ -38,7 +38,7 @@ function setOptions(reportName, reportPath = 'features/') {
     return myOptions;
 }
 
-async function resolveReport(reportObj, mode, stories, req, _res, callback) {
+async function resolveReport(reportObj, mode, stories, req, _res) {
     if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
     let scenarioId;
     if (req.params.scenarioId !== undefined) {
@@ -54,7 +54,7 @@ async function resolveReport(reportObj, mode, stories, req, _res, callback) {
 
     // Group needs an adjusted Path to Report
     if (mode === 'group') reportName = `${reportResults.reportName}/${reportResults.reportName}`;
-    callback(reportResults, reportName);
+    return {reportResults, reportName};
 }
 
 function analyzeReport(grpName: string, stories: any[], mode: executionMode, reportName: string, scenarioId: number) {

@@ -173,63 +173,63 @@ async function runReport(req, res, stories, mode, parameters) {
 			cumulate++;
 			return;
 		}
-		reporting.resolveReport(reportObj, mode, stories, req, res, (reportResults, reportName) => {
-			// generate HTML Report
-			console.log('reportName in callback of resolveReport:');
-			console.log(reportName);
-			console.log('reportResults in callback of resolveReport:');
-			console.log(reportResults);
-			// upload report to DB
-			mongo.uploadReport(reportResults)
-				.then((uploadedReport) => {
-					// read html Report and add it top response
-					fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-						res.json({ htmlFile: data, reportId: uploadedReport._id });
-					});
-					updateLatestTestStatus(uploadedReport, mode);
-					// delete Group folder
-					const deletionTime = reporting.reportDeletionTime * 60000;
-					if (mode === 'group') setTimeout(reporting.deleteReport, deletionTime, `${reportResults.reportName}`);
-					else {
-						// delete reports in filesystem after a while
-						setTimeout(reporting.deleteReport, deletionTime, `${reportName}.json`);
-						setTimeout(reporting.deleteReport, deletionTime, `${reportName}.html`);
-					}
-				})
-				.catch((error) => {
-					console.log(`Could not UploadReport :  ./features/${reportName}.json
-				Rejection: ${error}`);
-					res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+
+		const { reportResults, reportName } = await reporting.resolveReport(reportObj, mode, stories, req, res);
+		// generate HTML Report
+		console.log('reportName in callback of resolveReport:');
+		console.log(reportName);
+		console.log('reportResults in callback of resolveReport:');
+		console.log(reportResults);
+		// upload report to DB
+		mongo.uploadReport(reportResults)
+			.then((uploadedReport) => {
+				// read html Report and add it top response
+				fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+					res.json({ htmlFile: data, reportId: uploadedReport._id });
 				});
+				updateLatestTestStatus(uploadedReport, mode);
+				// delete Group folder
+				const deletionTime = reporting.reportDeletionTime * 60000;
+				if (mode === 'group') setTimeout(reporting.deleteReport, deletionTime, `${reportResults.reportName}`);
+				else {
+					// delete reports in filesystem after a while
+					setTimeout(reporting.deleteReport, deletionTime, `${reportName}.json`);
+					setTimeout(reporting.deleteReport, deletionTime, `${reportName}.html`);
+				}
+			})
+			.catch((error) => {
+				console.log(`Could not UploadReport :  ./features/${reportName}.json
+				Rejection: ${error}`);
+				res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+			});
 
-			// if possible separate function
-			for (const story of stories) {
-				let comment;
-				if (mode === 'group') {
-					comment = `This Execution ist part of group execution ${parameters.name}\n`;
-					comment += renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-						reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
-				} else {
-					comment += renderComment(reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-						reportResults.reportTime, story, story.scenarios[0], mode, reportName);
-				}
-				if (story.storySource === 'github' && req.user && req.user.github) {
-					const githubValue = parameters.repository.split('/');
-					// eslint-disable-next-line no-continue
-					if (githubValue == null) { continue; }
-					const githubName = githubValue[0];
-					const githubRepo = githubValue[1];
-
-					postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
-					if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-				}
-				if (story.storySource === 'jira' && req.user && req.user.jira) {
-					const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-					const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-					postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
-				}
+		// if possible separate function
+		for (const story of stories) {
+			let comment;
+			if (mode === 'group') {
+				comment = `This Execution ist part of group execution ${parameters.name}\n`;
+				comment += renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+					reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
+			} else {
+				comment += renderComment(reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+					reportResults.reportTime, story, story.scenarios[0], mode, reportName);
 			}
-		});
+			if (story.storySource === 'github' && req.user && req.user.github) {
+				const githubValue = parameters.repository.split('/');
+				// eslint-disable-next-line no-continue
+				if (githubValue == null) { continue; }
+				const githubName = githubValue[0];
+				const githubRepo = githubValue[1];
+
+				postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
+				if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			}
+			if (story.storySource === 'jira' && req.user && req.user.jira) {
+				const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+				const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
+				postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
+			}
+		}
 	});
 }
 
