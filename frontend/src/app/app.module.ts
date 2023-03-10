@@ -52,6 +52,7 @@ import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
 import { CreateCustomProjectComponent } from './modals/create-custom-project/create-custom-project.component';
+import { DisconnectJiraAccountComponent} from './modals/disconnect-jira-account/disconnect-jira-account.component';
 import { DeleteAccountComponent } from './modals/delete-account/delete-account.component';
 import { AddBlockFormComponent } from './modals/add-block-form/add-block-form.component';
 import { SaveBlockFormComponent } from './modals/save-block-form/save-block-form.component';
@@ -99,6 +100,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     LayoutModalComponent,
     CreateNewGroupComponent,
     CreateCustomProjectComponent,
+    DisconnectJiraAccountComponent,
     DeleteAccountComponent,
     AddBlockFormComponent,
     SaveBlockFormComponent,
