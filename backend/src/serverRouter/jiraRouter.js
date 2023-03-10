@@ -67,7 +67,7 @@ router.post('/user/create/', (req, res) => {
 	}
 });
 
-router.post('/user/disconnect/', (req, res) => {
+router.delete('/user/disconnect/', (req, res) => {
 	if (typeof req.user === 'undefined' && typeof req.user._id === 'undefined') {
 		console.error('No Jira User sent. (Got undefinded)');
 		res.status(401).json('No Jira User sent. (Got undefinded)');

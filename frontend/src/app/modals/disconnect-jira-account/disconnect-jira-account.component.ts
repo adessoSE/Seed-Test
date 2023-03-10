@@ -22,15 +22,13 @@ export class DisconnectJiraAccountComponent {
 
   modalReference: NgbModalRef;
 
-  constructor(private modalService: NgbModal, public loginService: LoginService, public managmentService: ManagementService, private toastr: ToastrService) { }
+  constructor(private modalService: NgbModal, public managmentService: ManagementService) { }
 
   /**
    * Opens the disconnect Jira Account Modal
    *
   */
   openDisconnectJiraAccountModal() {
-    console.log("OPENING");
-    
     this.modalReference = this.modalReference = this.modalService.open(this.disconnectJiraModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
@@ -38,6 +36,10 @@ export class DisconnectJiraAccountComponent {
    * Create or change Jira Account
    */
   disconnectJiraAccount() {
-    console.log("DISCONNECTING");
+    this.managmentService.disconnectJiraAccount().subscribe(response => {
+      this.jiraAccountResponse.emit(response);
+      window.location.reload();
+    });
+    this.modalReference.close();
   }
 }
