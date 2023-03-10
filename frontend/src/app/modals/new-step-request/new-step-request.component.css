@@ -36,22 +36,22 @@ table {
     margin-top:5px;
 }
 
-.mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
+.mat-mdc-table .mat-mdc-cell:first-child, .mat-mdc-table .mat-mdc-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
   }
 
-.mat-cell, .mat-header-cell {
+.mat-mdc-cell, .mat-mdc-header-cell {
     text-align: center;
 }
 .normalButton:disabled{
     opacity: 20%;
 }
 
-td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type, th.mat-mdc-header-cell:last-of-type{
     padding-right: 0px;
 }
 
-td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:first-of-type{
+td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type, th.mat-mdc-header-cell:first-of-type{
     padding-left: 0px;
 }
 
@@ -88,15 +88,15 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     overflow-y: auto;
 }
 
-::ng-deep.mat-pseudo-checkbox{
+::ng-deep.mat-mdc-pseudo-checkbox{
     display: none !important;
 }
 
-::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteBlockButton{
+::ng-deep div.mat-mdc-list-item-content.mat-mdc-list-item-content-reverse .deleteBlockButton{
     margin-right: 20px;
 }
 
-::ng-deep div.mat-list-item-content.mat-list-item-content-reverse div.mat-list-text{
+::ng-deep div.mat-mdc-list-item-content.mat-mdc-list-item-content-reverse div.mat-mdc-list-text{
     display: flex;
     flex-direction: row;
 }
@@ -117,7 +117,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     overflow-y: auto;
 }
 
-.mat-table{
+.mat-mdc-table{
     font-family: Klavika, sans-serif;
   }
 
@@ -210,7 +210,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
     }
 }
 
-.mat-column-checkStory {
+.mat-mdc-column-checkStory {
     width: 10% !important;
 }
 

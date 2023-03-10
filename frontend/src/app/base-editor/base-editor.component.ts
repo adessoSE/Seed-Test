@@ -1043,7 +1043,7 @@ export class BaseEditorComponent  {
       case 'example':
         for (const s in this.selectedScenario.stepDefinitions.example) {
           if (this.selectedScenario.stepDefinitions.example[s].checked) {
-            this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated;
+           // this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated;
           }
         }
         //this.selectedScenario.saved = false;
@@ -1576,8 +1576,8 @@ export class BaseEditorComponent  {
       this.selectedScenario.stepDefinitions.example.push(newStep);
     }
     this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
-    const table = document.getElementsByClassName('mat-table')[0];
-    if (table) { table.classList.add('mat-elevation-z8'); }
+    const table = document.getElementsByClassName('mat-mdc-table')[0];
+    if (table) { table.classList.add('mat-mdc-elevation-z8'); }
 
   } 
 
