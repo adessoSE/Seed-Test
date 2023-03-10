@@ -1,8 +1,5 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
-import { LoginService } from 'src/app/Services/login.service';
 import { ManagementService } from 'src/app/Services/management.service';
 
 @Component({
