@@ -10,7 +10,7 @@ import { ManagementService } from 'src/app/Services/management.service';
 export class DisconnectJiraAccountComponent {
 
    /**
-     * Emits a response after the jira account got created
+     * Emits a response after the jira account has been disconnected
      */
    @Output()
    jiraAccountResponse: EventEmitter<any> = new EventEmitter();
@@ -30,7 +30,7 @@ export class DisconnectJiraAccountComponent {
   }
 
   /**
-   * Create or change Jira Account
+   * Disconnect Jira Account
    */
   disconnectJiraAccount() {
     this.managmentService.disconnectJiraAccount().subscribe(response => {
