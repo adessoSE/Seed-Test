@@ -269,7 +269,10 @@ a.repoLink:hover{
 :host ::ng-deep .loadingSpinner circle{
     stroke: var(--marine-blue);
 }
-
+:host ::ng-deep .mdc-circular-progress__spinner-layer> .mdc-circular-progress__circle-clipper{
+    display: revert !important;
+}
+  
 :host ::ng-deep .darkTheme .loadingSpinner circle{
     stroke: white;
 }

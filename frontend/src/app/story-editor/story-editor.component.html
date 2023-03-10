@@ -39,7 +39,7 @@
           <span id="storyHeader" class="SmallCategory1" >Story</span>
         <dfn class="def">
           <span class="infoIcon uk-icon" uk-icon="info"></span>
-              <span rel="def" id="storyInfoTextVerticalPosition">A user story describes requirements for a software system.
+              <span rel="def" style="left: 20px; position: absolute;">A user story describes requirements for a software system.
                 It is consciously kept in short sentences and simple words.
                 A story includes several scenarios.
                 The following template is recommended:
@@ -339,9 +339,9 @@
     </div>
 
     <div id="loading" [class.darkTheme]="isDark">
-      <div class="loading" [hidden]="!testRunning && !testRunningGroup">
+      <div class="loading mat-mdc-progress-spinner" [hidden]="!testRunning && !testRunningGroup">
         <!-- Loading . . . -->
-        <mat-spinner></mat-spinner>
+        <mat-spinner id="loadingSpinnerRun"></mat-spinner>
       </div>
     </div>
 
