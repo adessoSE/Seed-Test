@@ -99,14 +99,14 @@ h1{
     margin-bottom: 50px;
 }
 
-.mat-mdc-carousel{
+.mat-carousel{
     z-index: auto;
     position: absolute;
     width: 100%; 
     height: 100px;
 }
 
-.mat-mdc{
+.mat{
     width: 850px;
     margin-top: 70px;
     border: 12px solid #999;
