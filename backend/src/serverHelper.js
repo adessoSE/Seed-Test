@@ -412,7 +412,7 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
 
   try {
     const reportPath = `./features/${reportName}.json`;
-		return pfs.readFile(reportPath, 'utf8').then((data)=>{
+    return pfs.readFile(reportPath, 'utf8').then((data)=>{
       const cucumberReport = JSON.parse(data);
 			console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
       try {
@@ -439,11 +439,116 @@ async function failedReportPromise(reportName) {
   return { reportName: `Failed-${reportName}`, status: false };
 }
 
+function getBrowserVersion(browser) {
+  const { execSync } = require('child_process');
+  const versionRegex = /\d+(\.\d+)*/;
+  let stdout;
+  
+  try {
+    // Windows
+    if (os.platform().includes('win')) {
+      switch(browser) {
+        case 'chrome':
+          stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_CURRENT_USER\\Software\\Google\\Chrome\\BLBeacon" /v version', { encoding: 'utf8', shell: false });
+          break;
+        case 'MicrosoftEdge':
+          stdout = execSync('C:\\Windows\\System32\\reg.exe query HKCU\\Software\\Microsoft\\Edge\\BLBeacon /v version', { encoding: 'utf8', shell: false });
+          break;
+        case 'firefox': 
+          stdout = execSync('C:\\Windows\\System32\\reg.exe query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Mozilla\\Mozilla Firefox" /v CurrentVersion', { encoding: 'utf8', shell: false });        
+          break;
+        default:
+          console.error(`Unknown browser: ${browser}. Browser only supported 
+          via Docker. (PATHS could be wrong)`);
+      }
+    // Linux
+    } else if (os.platform().includes('linux')) {
+      switch(browser) {
+        case 'chrome':
+            stdout = execSync('/usr/bin/google-chrome-stable --version', { encoding: 'utf8', shell: false });
+            break;
+        case 'MicrosoftEdge':
+            stdout = execSync('/opt/microsoft/msedge//msedge --version', { encoding: 'utf8', shell: false });
+            break;
+        case 'firefox':
+            stdout = execSync('/usr/local/bin/firefox --version', { encoding: 'utf8', shell: false });
+            break;
+        default:
+          console.error(`Unknown browser: ${browser}. Browser only supported 
+          via Docker. (PATHS could be wrong)`);
+      } 
+    } else {
+      console.error(`Unsupported platform: ${os.platform()}`);
+    }
+  } catch (err) {
+    console.error(err);
+    return 'unknown';
+  }
+  return stdout.match(versionRegex)[0] || 'unknown';
+}
+
+function makeUpper(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+function setBrowserMetaData(mode, stories, scenarioId, reportOptions) { 
+  switch (mode) {
+    case 'scenario':
+      setScenarioBrowserMetaData(stories, scenarioId, reportOptions);
+      break;
+    case 'feature':
+    case 'group':
+      setFeatureBrowserMetaData(stories, reportOptions);
+      break;
+    default:
+      console.log('Unkown mode: ' + mode);
+  }
+  return reportOptions;
+}
+
+function setScenarioBrowserMetaData(stories, scenarioId, reportOptions) {
+  const scenario = stories[0].scenarios.find((s) => { return s.scenario_id == scenarioId });
+  if (scenario.emulator !== undefined) {
+    reportOptions.metadata.Emulator = scenario.emulator;
+  }
+  const browser = scenario.browser;
+  if (browser !== undefined) {
+    const browserVersionKey = makeUpper(browser);
+    const browserVersionValue = `v${getBrowserVersion(browser)}`;
+    reportOptions.metadata[browserVersionKey] = browserVersionValue;
+  }
+}
+
+function setFeatureBrowserMetaData(stories, reportOptions) {
+  stories.forEach(story => {
+    story.scenarios.forEach(scenario => {
+      if (scenario.emulator !== undefined) {
+        const browser = scenario.browser;
+        const emulatorKey = makeUpper(browser) + '-Emulator';
+        const emulators = reportOptions.metadata[emulatorKey] || [];
+        if (!emulators.includes(scenario.emulator)) {
+          emulators.push(scenario.emulator);
+          reportOptions.metadata[emulatorKey] = emulators;
+        }
+      }
+      const browser = scenario.browser;
+      if (browser !== undefined) {
+        const browserVersionKey = makeUpper(browser);
+        if (!reportOptions.metadata[browserVersionKey]) {
+          const browserVersionValue = `v${getBrowserVersion(browser)}`;
+          reportOptions.metadata[browserVersionKey] = browserVersionValue;
+        }
+      }
+    });
+  });
+}
+
 function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
   let reportOptions;
   switch (mode) {
 		case 'scenario':
       reportOptions = setOptions(reportName);
+      reportOptions = setBrowserMetaData(mode, stories, scenarioId, reportOptions);
       try {
         reporter.generate(reportOptions);
       } catch (e) {
@@ -454,6 +559,7 @@ function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
 		case 'feature':
       try {
         reportOptions = setOptions(reportName);
+        reportOptions = setBrowserMetaData(mode, stories, scenarioId, reportOptions);
         reporter.generate(reportOptions);
       } catch (e) {
         console.log(`Could not generate the html Report for ${reportName} 
@@ -462,6 +568,7 @@ function analyzeReport(grpName, stories, mode, reportName, scenarioId) {
       return analyzeStoryReport(stories, reportName, reportOptions);
 		case 'group':
       reportOptions = setOptions(grpName, `features/${grpName}/`);
+      reportOptions = setBrowserMetaData(mode, stories, scenarioId, reportOptions);
       try {
         /* after the last story in a group we need to generate the hmtl report
 				// which also generates the .json report for all stories (group report)
