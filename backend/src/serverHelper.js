@@ -785,7 +785,7 @@ async function jiraProjects(user) {
         if (projects.length !== 0) {
           for (const projectName of projects) {
             if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
-                jiraRepo = await mongo.createJiraRepo(projectName.name);
+                jiraRepo = await mongo.createJiraRepo(projectName);
             } else {
               jiraRepo = jiraReposFromDb.find((element) => element.repoName === projectName);
             }

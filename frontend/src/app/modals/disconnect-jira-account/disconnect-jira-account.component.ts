@@ -26,7 +26,7 @@ export class DisconnectJiraAccountComponent {
    *
   */
   openDisconnectJiraAccountModal() {
-    this.modalReference = this.modalReference = this.modalService.open(this.disconnectJiraModal, {ariaLabelledBy: 'modal-basic-title'});
+    this.modalReference = this.modalService.open(this.disconnectJiraModal, {ariaLabelledBy: 'modal-basic-title'});
   }
 
   /**
