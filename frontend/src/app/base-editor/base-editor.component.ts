@@ -204,7 +204,7 @@ export class BaseEditorComponent  {
     this.backgroundChangedObservable = this.backgroundService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
     });
-    this.exampleChild.deleteExampleObservable;
+
   }
 
   ngOnDestroy(): void {
