@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -148,7 +148,7 @@ export class BaseEditorComponent  {
 
   dragging: DragRef = null;
 
-  exampleChild: ExampleTableComponent;
+  @Output() exampleChild: ExampleTableComponent;
 
   /**
     * Subscribtions for all EventEmitter
@@ -204,7 +204,7 @@ export class BaseEditorComponent  {
     this.backgroundChangedObservable = this.backgroundService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
     });
-    
+    this.exampleChild.deleteExampleObservable;
   }
 
   ngOnDestroy(): void {
@@ -1077,35 +1077,36 @@ export class BaseEditorComponent  {
     this.previousValuesThen = [];
     this.previousValuesBack();
   }
-  AllDeactivated(){
-    this.activatedSteps = 0;
-    this.allDeactivated = true;   
-    this.onceUndefined = true; 
+  /**
+    * Delete rows or deactivate examples
+    * 
+    */
+  deleteRows(){
     this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
-      value.values.forEach((val, i) => {
-       { 
-          this.selectedScenario.stepDefinitions.given[index].values[i] = ""
+      value.values.forEach((val, i) => {{ 
           this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
         }
       })
     })
     this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
-      value.values.forEach((val, i) => {
-       {
-          this.selectedScenario.stepDefinitions.when[index].values[i] = ""
-          this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
+      value.values.forEach((val, i) => {{
+        this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
         }
       })
     })
     this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
-      value.values.forEach((val, i) => {
-        {
-          this.selectedScenario.stepDefinitions.then[index].values[i] = ""
+      value.values.forEach((val, i) => {{
           this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined
         }
       })
     })
-    
+  }
+
+  deactivateAllSteps(){
+    this.activatedSteps = 0;
+    this.allDeactivated = true;   
+    this.onceUndefined = true; 
+    this.deleteRows();
   }
    /**
     * Deactivates all checked step
@@ -1150,18 +1151,21 @@ export class BaseEditorComponent  {
           if(this.onceUndefined === undefined) {
             this.resetPreviousValues();
           }
-          const example = this.selectedScenario.stepDefinitions.example;
+          let example = this.selectedScenario.stepDefinitions.example;
           const totalSteps = Object.keys(example).length;
           this.onceUndefined = false;
           example.forEach(step => {
             if (step.checked && this.activatedSteps < totalSteps - 1) {
               step.deactivated = !step.deactivated;
-              this.activatedSteps++;
+              if(step.deactivated)
+                this.activatedSteps++;
             }
           });
           if (this.activatedSteps === totalSteps - 1) {
             console.log("All steps are deactivated");
-            this.AllDeactivated();
+            this.deactivateAllSteps();
+            this.markUnsaved();
+            return 
           }
         }
         this.markUnsaved();
@@ -1171,9 +1175,6 @@ export class BaseEditorComponent  {
     }
   }
 
-  allDeactivatedValue() {
-    return this.allDeactivated;
-  }
   deactivateOnIteration(stepsList) {
     //background & scenario
     for (const prop in stepsList) {
@@ -1223,7 +1224,14 @@ export class BaseEditorComponent  {
       case 'example':
         for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i > 0; i--) {
           if (this.selectedScenario.stepDefinitions.example[i].checked) {
-            this.selectedScenario.stepDefinitions.example.splice(i,1);
+            if(i - 1 == 0 && this.selectedScenario.stepDefinitions.example.length - 2 == 0)
+            {
+              this.deleteRows();
+              this.selectedScenario.stepDefinitions.example = []
+              this.markUnsaved();
+              return 
+            }
+            this.selectedScenario.stepDefinitions.example.splice(i,1); 
           }
         }
         this.exampleChild.updateTable();
