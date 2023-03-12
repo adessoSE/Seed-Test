@@ -121,6 +121,11 @@ export class BaseEditorComponent  {
   lastCheckedCheckboxIDx;
 
   /**
+  * Flag to check how much enable steps left
+  */
+  activatedSteps = 0;
+
+  /**
     * Block saved to clipboard
     */
   clipboardBlock: Block = null;
@@ -986,8 +991,59 @@ export class BaseEditorComponent  {
     this.saveBlockModal.openSaveBlockFormModal(block, this);
 
   }
- 
+
   /**
+    * Return examples to steps
+    * 
+    */
+  reactivateExampleSteps(){
+    this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
+      value.values.forEach((val, i) => {{ 
+          this.selectedScenario.stepDefinitions.example[index].isExample[i] = true
+        }
+      })
+    })
+   }
+
+  /**
+    * Delete rows or deactivate examples
+    * 
+    */
+  deleteRows(){
+    this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+      value.values.forEach((val, i) => {{ 
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
+        }
+      })
+    })
+    this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+      value.values.forEach((val, i) => {{
+        this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
+        }
+      })
+    })
+    this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
+      value.values.forEach((val, i) => {{
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined
+        }
+      })
+    })
+  }
+  /**
+    * Deactivates all example steps
+    * 
+    */
+  deactivateAllExampleSteps(){
+    this.activatedSteps = 0;
+    this.allDeactivated = true;   
+    this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
+      value.values.forEach((val, i) => {{ 
+          this.selectedScenario.stepDefinitions.example[index].isExample[i] = false
+        }
+      })
+    })
+  }
+   /**
     * Deactivates all checked step
     * 
     */
@@ -1022,9 +1078,25 @@ export class BaseEditorComponent  {
         this.markUnsaved();
         break;
       case 'example':
-        for (const s in this.selectedScenario.stepDefinitions.example) {
-          if (this.selectedScenario.stepDefinitions.example[s].checked) {
-           // this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated;
+        {
+          this.allDeactivated = false;
+          if ( this.allDeactivated == false ) {
+            this.reactivateExampleSteps();
+          }
+          let example = this.selectedScenario.stepDefinitions.example;
+          const totalSteps = Object.keys(example).length;
+          example.forEach(step => {
+            if (step.checked && this.activatedSteps < totalSteps - 1) {
+              step.deactivated = !step.deactivated;
+              if(step.deactivated)
+                this.activatedSteps++;
+            }
+          });
+          if (this.activatedSteps === totalSteps - 1) {
+            console.log("All steps are deactivated");
+            this.deactivateAllExampleSteps();
+            this.markUnsaved();
+            return
           }
         }
         //this.selectedScenario.saved = false;
