@@ -124,7 +124,10 @@ export class BaseEditorComponent  {
   * Flag to check how much enable steps left
   */
   activatedSteps = 0;
-
+   /**
+  * If all examples steps are deactivated
+  */
+   allDeactivated: boolean;
   /**
     * Block saved to clipboard
     */
@@ -1156,7 +1159,14 @@ export class BaseEditorComponent  {
       case 'example':
         for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i > 0; i--) {
           if (this.selectedScenario.stepDefinitions.example[i].checked) {
-            this.selectedScenario.stepDefinitions.example.splice(i,1);
+            if(i - 1 == 0 && this.selectedScenario.stepDefinitions.example.length - 2 == 0)
+            {
+              this.deleteRows();
+              this.selectedScenario.stepDefinitions.example = []
+              this.markUnsaved();
+              return 
+            }
+            this.selectedScenario.stepDefinitions.example.splice(i,1); 
           }
         }
         this.exampleChild.updateTable();
