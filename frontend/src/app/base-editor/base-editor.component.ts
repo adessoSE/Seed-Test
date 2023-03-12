@@ -1083,7 +1083,7 @@ export class BaseEditorComponent  {
       case 'example':
         {
           this.allDeactivated = false;
-          if ( this.allDeactivated == false ) {
+          if ( !this.allDeactivated ) {
             this.reactivateExampleSteps();
           }
           let example = this.selectedScenario.stepDefinitions.example;
