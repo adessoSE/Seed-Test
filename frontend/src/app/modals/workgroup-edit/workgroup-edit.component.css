@@ -5,6 +5,12 @@
 .submitForm{
     width: 100%
 }
+::ng-deep .d-block{
+    z-index: 1!important;
+}
+#changeOwner{
+    margin-left: 7px; 
+}
 
 .modal-body.modal-xl{
     padding: 10px;

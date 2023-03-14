@@ -4,7 +4,7 @@
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <span id="workgroupHeader"class="MediumSubline1H4 modal-title">Project:</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click'); onModalClosed();">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -15,8 +15,17 @@
                 (ngSubmit)="workgroupInvite(workgroupInviteForm);">
                     <div class="divWrapper">
                         <label style="margin-right: 10px;">Project Owner:</label>
-                        <label>{{this.workgroupOwner}}</label>
-                        <button *ngIf="this.workgroupProject.selectedToTransfer && !this.isTransefered" id="changeOwner" type="button" class="normalButton" style="margin-left: 7px;" (click)="transferOwnership();">Transfer Ownership</button>
+                        <mat-form-field *ngIf="this.isTransefered == undefined && !this.workgroupList.length == 0" style="margin-right: 10px; position: inherit;" appearance="fill"  [ngStyle]="{'width': workgroupOwner.length + 6 +'ch'}">
+                            <mat-label>{{this.workgroupOwner}}</mat-label>
+                            <mat-select #ownerSelect [(ngModel)]="selectedOwner">
+                              <mat-option *ngFor="let element of workgroupList" [value]="element.email">
+                                {{element.email}}
+                              </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <label *ngIf="this.isTransefered || this.workgroupList.length == 0" id="nullValue">{{this.workgroupOwner}}</label>
+                        <button *ngIf="this.isTransefered == undefined" id="changeOwner" type="button" class="normalButton"
+                        [ngStyle]="{'opacity': this.workgroupList.length == 0 || selectedOwner == undefined  ?  '50%' : '100%'}" [disabled]="this.workgroupList.length == 0 || selectedOwner == undefined " (click)="transferOwnership(selectedOwner);">Transfer Ownership</button>
                     </div>
                     <div class="divWrapper"> 
                         <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">

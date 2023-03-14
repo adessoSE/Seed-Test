@@ -10,6 +10,7 @@ import { ProjectService } from 'src/app/Services/project.service';
 import { TransferOwnershipToast } from 'src/app/transferOwnership-toastr';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 import { Subscription } from 'rxjs';
+import { MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'app-workgroup-edit',
@@ -44,7 +45,7 @@ export class WorkgroupEditComponent {
   workgroupProject: RepositoryContainer;
   
   /**
-    * Current selected block list
+    * Check if Ownership was transfered
     */
   isTransefered: boolean;
 
@@ -61,7 +62,12 @@ export class WorkgroupEditComponent {
   modalReference: NgbModalRef;
 
   projectName: string;
-
+  @ViewChild('ownerSelect') ownerSelect: MatSelect;
+    /**
+    * Selected member to transfer Ownership
+    */
+    selectedOwner: string;
+  
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
   transferOwnershipObservable: Subscription;
@@ -78,9 +84,18 @@ export class WorkgroupEditComponent {
   }
   ngOnInit() {
     this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
-      this.transferedOwnership(this.workgroupOwner);
+      this.transferedOwnership(this.selectedOwner);
     });
  }
+  ngOnDestroy() {
+    if (!this.transferOwnershipObservable.closed) {
+      this.transferOwnershipObservable.unsubscribe();
+    }
+  }
+  onModalClosed() {
+    this.selectedOwner = undefined;
+    this.ownerSelect = null;
+  }
  
   /**
      * Opens the workgroup edit modal
@@ -90,7 +105,6 @@ export class WorkgroupEditComponent {
     this.userId = userId;
     this.workgroupList = [];
     this.workgroupProject = project;
-    this.isTransefered = true;
     this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-titles'});
     const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
     header.textContent = 'Project: ' + project.value;
@@ -112,17 +126,11 @@ export class WorkgroupEditComponent {
         this.isTransefered = true;
         this.toastr.success('successfully changed', 'New owner');
     }); 
+    this.modalReference.close();
   }
 
-  changeMemberSelection(element) {
-   console.log(element.email);
-   this.workgroupProject.selectedToTransfer = true;
-   this.isTransefered = false;
-   this.workgroupOwner = element.email;
-   
-   // this.workgroupOwner;
- }
- transferOwnership(){
+ transferOwnership(selectedMember: string){
+  this.selectedOwner = selectedMember;
   this.toastr.warning('', 'Do you really want to transfer your ownership? You will lose your administrator rights.', {
     toastComponent: TransferOwnershipToast
   });
