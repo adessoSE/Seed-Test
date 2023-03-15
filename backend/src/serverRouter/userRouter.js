@@ -6,11 +6,11 @@ const fetch = require('node-fetch');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
+const fs = require('fs');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
-const fs = require('fs');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -158,7 +158,7 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout({},()=>{});
+	req.logout({}, () => {});
 	res.clearCookie('connect.sid', { path: '/' });
 	res.status(200).send({ status: 'success' });
 });
@@ -279,7 +279,9 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		let { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+		let {
+			Host, AccountName, Password, Password_Nonce, Password_Tag
+		} = req.user.jira;
 		Password = helper.decryptPassword(Password, Password_Nonce, Password_Tag);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
