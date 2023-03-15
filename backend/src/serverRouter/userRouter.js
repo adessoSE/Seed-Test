@@ -6,15 +6,14 @@ const fetch = require('node-fetch');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
+const fs = require('fs');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
-const fs = require('fs');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
-
 
 // Handling response errors
 function handleError(res, reason, statusMessage, code) {
@@ -24,7 +23,6 @@ function handleError(res, reason, statusMessage, code) {
 }
 
 initializePassport(passport, mongo.getUserByEmail, mongo.getUserById, mongo.getUserByGithub);
-
 
 router
 	.use(cors())
@@ -160,7 +158,7 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout({},()=>{});
+	req.logout({}, () => {});
 	res.clearCookie('connect.sid', { path: '/' });
 	res.status(200).send({ status: 'success' });
 });
@@ -188,23 +186,23 @@ router.get('/repositories', (req, res) => {
 		helper.jiraProjects(req.user),
 		helper.dbProjects(req.user)
 	])
-	.then((repos) => {
-		let merged = [].concat(...repos);
-		// remove duplicates
-		merged = helper.uniqueRepositories(merged);
-		res.status(200).json(merged);
-	})
-	.catch((reason) => {
-		res.status(401).json('Wrong Github name or Token');
-		console.error(`Get Repositories Error: ${reason}`);
-	});
+		.then((repos) => {
+			let merged = [].concat(...repos);
+			// remove duplicates
+			merged = helper.uniqueRepositories(merged);
+			res.status(200).json(merged);
+		})
+		.catch((reason) => {
+			res.status(401).json('Wrong Github name or Token');
+			console.error(`Get Repositories Error: ${reason}`);
+		});
 });
 
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.params.owner_id);
 	res.status(200).json(repo);
-	console.log('update repo: ',repo);
+	console.log('update repo: ', repo);
 });
 
 // delete repository
@@ -224,7 +222,7 @@ router.get('/stories', async (req, res) => {
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
-		if(!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log("Username or Reponame not valid");
+		if (!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
@@ -281,7 +279,9 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		let { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+		let {
+			Host, AccountName, Password, Password_Nonce, Password_Tag
+		} = req.user.jira;
 		Password = helper.decryptPassword(Password, Password_Nonce, Password_Tag);
 		const auth = Buffer.from(`${AccountName}:${Password}`)
 			.toString('base64');
@@ -378,34 +378,33 @@ router.get('/callback', (req, res) => {
 			body: params
 		}
 	)
-	.then((response) => response.text())
-	.then((text)=>mapper(text))
-	.then((data) => {
-		console.log(data);
-		if(data.error)throw Error("github user register failed")
-		else helper.getGithubData(res, req, data.access_token);
-	})
-	.catch((error)=>{
-		res.status(401).send(error.message)
-		console.error(error);
-	})
+		.then((response) => response.text())
+		.then((text) => mapper(text))
+		.then((data) => {
+			console.log(data);
+			if (data.error) throw Error('github user register failed');
+			else helper.getGithubData(res, req, data.access_token);
+		})
+		.catch((error) => {
+			res.status(401).send(error.message);
+			console.error(error);
+		});
 });
 const mapper = (str) => { // maps Url endoded data to new object
-	const cleaned = decodeURIComponent(str)
-	const entities = cleaned.split('&').filter(Boolean).map(v => {
-		let a = v.split('=').map((x)=>x.toString())
-		return a
-	})
-	return Object.fromEntries(entities)
-}
-
+	const cleaned = decodeURIComponent(str);
+	const entities = cleaned.split('&').filter(Boolean)
+		.map((v) => {
+			const a = v.split('=').map((x) => x.toString());
+			return a;
+		});
+	return Object.fromEntries(entities);
+};
 
 router.post('/log', (req, res) => {
-	const stream = fs.createWriteStream('./logs/front.log', {flags: 'a'});
-	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n')
-	stream.close()
-	res.status(200).json('logged')
-})
-
+	const stream = fs.createWriteStream('./logs/front.log', { flags: 'a' });
+	stream.write(`${req.body.message + JSON.stringify(req.body.additional)}\n`);
+	stream.close();
+	res.status(200).json('logged');
+});
 
 module.exports = router;

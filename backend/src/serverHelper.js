@@ -630,14 +630,12 @@ function executeTest(req, _res, mode, story) {
 
       if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
       if (!scenario.browser) scenario.browser = "chrome";
-      if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
       if (scenario.stepDefinitions.example.length <= 0) {
         parameters = {
           scenarios: [
             {
               browser: scenario.browser,
               waitTime: scenario.stepWaitTime,
-              daisyAutoLogout: scenario.daisyAutoLogout,
               emulator: scenario.emulator,
             },
           ],
@@ -649,7 +647,6 @@ function executeTest(req, _res, mode, story) {
             parameters.scenarios.push({
               browser: scenario.browser,
               waitTime: scenario.stepWaitTime,
-              daisyAutoLogout: scenario.daisyAutoLogout,
               emulator: scenario.emulator,
             });
           }
@@ -716,12 +713,10 @@ function scenarioPrep(scenarios, driver) {
   scenarios.forEach((scenario) => {
     if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
     if (!scenario.browser) scenario.browser = "chrome";
-    if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
     if (scenario.stepDefinitions.example.length <= 0) {
       parameters.scenarios.push({
         browser: scenario.browser,
         waitTime: scenario.stepWaitTime,
-        daisyAutoLogout: scenario.daisyAutoLogout,
         oneDriver: driver,
         emulator: scenario.emulator,
       });
@@ -731,7 +726,6 @@ function scenarioPrep(scenarios, driver) {
           parameters.scenarios.push({
             browser: scenario.browser,
             waitTime: scenario.stepWaitTime,
-            daisyAutoLogout: scenario.daisyAutoLogout,
             oneDriver: driver,
             emulator: scenario.emulator,
           });
