@@ -1,5 +1,5 @@
 import { Cipher, Decipher, scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
-const mongo = require('../src/database/DbServices');
+const mongo = require('../../src/database/DbServices');
 const cryptoAlgorithm = 'aes-256-ccm';
 const key = scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
 
@@ -43,8 +43,21 @@ async function updateJiraCredential(UserID: string, username: string, jiraClearP
     await mongo.updateUser(UserID, user);
 }
 
-module.exports = {
+/*
+* validates Github username and reponame
+* @param {string} userName
+* @param {string} repoName
+* @returns boolean, true if they are valid
+*/
+function checkValidGithub(userName, repoName) {
+    const githubUsernameCheck = new RegExp(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i); // https://github.com/shinnn/github-username-regex
+    const githubReponameCheck = new RegExp(/^([a-z\d._-]){0,100}$/i);
+    return !!(githubUsernameCheck.test(userName.toString()) && githubReponameCheck.test(repoName.toString()));
+}
+
+export {
     jiraDecryptPassword,
     jiraEncryptPassword,
-    updateJiraCredential
+    updateJiraCredential,
+    checkValidGithub
 };

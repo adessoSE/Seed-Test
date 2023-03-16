@@ -13,8 +13,7 @@ const os = require('os');
 const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-const userMng = require('../dist/userManagement');
-const reporting = require('../dist/reporting');
+const userMng = require('../dist/helpers/userManagement');
 
 // adds content of each values to output
 function getValues(values) {
@@ -135,84 +134,7 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile(result);
 }
 
-async function runReport(req, res, stories, mode, parameters) {
-	let reportObj;
-	try {
-		if (mode === 'group') {
-			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
-			fs.mkdirSync(`./features/${req.body.name}`);
-			if (parameters.isSequential == undefined || !parameters.isSequential)
-				reportObj = await Promise.all(stories.map((story) => executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());
-			else {
-				for (const story of stories) {
-					reportObj = await executeTest(req, mode, story);
-				}
-			}
-		} else {
-			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
-			reportObj = await executeTest(req, mode, story).catch((reason) => res.send(reason).status(500));
-		}
-	} catch (error) {
-		res.status(404).send(error);
-		return;
-	}
 
-	const { reportResults, reportName } = await reporting.resolveReport(reportObj, mode, stories, req);
-	// generate HTML Report
-	console.log('reportName in callback of resolveReport:');
-	console.log(reportName);
-	console.log('reportResults in callback of resolveReport:');
-	console.log(reportResults);
-	// upload report to DB
-	const uploadedReport = await mongo.uploadReport(reportResults)
-		.catch((error) => {
-			console.log(`Could not UploadReport :  ./features/${reportName}.json
-				Rejection: ${error}`);
-			res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
-		});
-	// read html Report and add it top response
-	fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-		res.json({ htmlFile: data, reportId: uploadedReport._id });
-	});
-	updateLatestTestStatus(uploadedReport, mode);
-
-	// delete Group folder
-	const deletionTime = reporting.reportDeletionTime * 60000;
-	if (mode === 'group') setTimeout(reporting.deleteReport, deletionTime, `${reportResults.reportName}`);
-	else {
-		// delete reports in filesystem after a while
-		setTimeout(reporting.deleteReport, deletionTime, `${reportName}.json`);
-		setTimeout(reporting.deleteReport, deletionTime, `${reportName}.html`);
-	}
-
-	// if possible separate function
-	for (const story of stories) {
-		let comment;
-		if (mode === 'group') {
-			comment = `This Execution ist part of group execution ${parameters.name}\n`;
-			comment += renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-				reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
-		} else {
-			comment += renderComment(reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-				reportResults.reportTime, story, story.scenarios[0], mode, reportName);
-		}
-		if (story.storySource === 'github' && req.user && req.user.github) {
-			const githubValue = parameters.repository.split('/');
-			// eslint-disable-next-line no-continue
-			if (githubValue == null) { continue; }
-			const githubName = githubValue[0];
-			const githubRepo = githubValue[1];
-
-			postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
-			if (mode === 'feature') updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
-		}
-		if (story.storySource === 'jira' && req.user && req.user.jira) {
-			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-			const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-			postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
-		}
-	}
-}
 
 async function deleteFeatureFile(storyTitle, storyId) {
 	try {
@@ -526,98 +448,17 @@ async function updateScenarioTestStatus(uploadedReport) {
 	}
 }
 
-function renderComment(
-	stepsPassed, stepsFailed, stepsSkipped,
-	testStatus,
-	scenariosTested,
-	reportTime,
-	story,
-	scenario,
-	mode,
-	reportName
-) {
-	let comment = '';
-	const testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
-	const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
-	const reportUrl = `${frontendUrl}/report/${reportName}`;
-	if (mode === 'scenario') comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
-	else comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
-	return comment;
-}
-
-async function postCommentGitHub(issueNumber, comment, githubName, githubRepo, password) {
-	if (!checkValidGithub(githubName, githubRepo)) return;
-	if (!(new RegExp(/^\d+$/)).test(issueNumber)) return;
-	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/comments`;
-	const auth = `Basic ${Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')}`;
-	/** @type {Response} */
-	const response = await fetch(link, {
-		method: 'post',
-		body: JSON.stringify({ body: comment }),
-		headers: { Authorization: auth }
-	}).then((resp) => {
-		if (resp.status === 200) {
-			console.log(JSON.parse(resp));
-		}
-		return resp;
-	});
-	console.log(await response.json());
-}
-
-async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword) {
-	const link = `https://${host}/rest/api/2/issue/${issueId}/comment/`;
-	const auth = `Basic ${Buffer.from(`${jiraUser}:${jiraPassword}`, 'binary').toString('base64')}`;
-	const body = { body: comment };
-	/** @type {Response} */
-	const response = await fetch(link, {
-		method: 'post',
-		body: JSON.stringify(body),
-		headers: { Authorization: auth, 'Content-Type': 'application/json' }
-	});
-	const data = await response.json();
-
-	console.log(data);
-}
-
-function addLabelToIssue(githubName, githubRepo, password, issueNumber, label) {
-	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`;
-	const body = { labels: [label] };
-	const request = new XMLHttpRequest();
-	request.open('POST', link, true, githubName, password);
-	request.send(JSON.stringify(body));
-}
-
-function removeLabelOfIssue(githubName, githubRepo, password, issueNumber, label) {
-	const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels/${label}`;
-	const req = new XMLHttpRequest();
-	req.open('DELETE', link, true, githubName, password);
-	req.send();
-}
-
-function updateLabel(testStatus, githubName, githubRepo, githubToken, issueNumber) {
-	let removeLabel;
-	let addedLabel;
-	if (testStatus) {
-		removeLabel = 'Seed-Test Test Fail :x:';
-		addedLabel = 'Seed-Test Test Success :white_check_mark:';
-	} else {
-		removeLabel = 'Seed-Test Test Success :white_check_mark:';
-		addedLabel = 'Seed-Test Test Fail :x:';
-	}
-	removeLabelOfIssue(githubName, githubRepo, githubToken, issueNumber, removeLabel);
-	addLabelToIssue(githubName, githubRepo, githubToken, issueNumber, addedLabel);
-}
-
 const getGithubData = (res, req, accessToken) => {
-	fetch(`https://api.github.com/user?access_token=${accessToken}`,
+	fetch(
+		`https://api.github.com/user?access_token=${accessToken}`,
 		{
 			uri: `https://api.github.com/user?access_token=${accessToken}`,
 			method: 'GET',
 			headers:
-      {
-      	'User-Agent': 'SampleOAuth',
-      	Authorization: `Token ${accessToken}`
-      }
+			{
+				'User-Agent': 'SampleOAuth',
+				Authorization: `Token ${accessToken}`
+			}
 		}
 	)
 		.then((response) => response.json())
@@ -673,20 +514,9 @@ async function exportProjectFeatureFiles(repoId) {
 	});
 }
 
-/**
- * validates Github username and reponame
- * @param {string} userName
- * @param {string} repoName
- * @returns boolean, true if they are valid
- */
-function checkValidGithub(userName, repoName) {
-	const githubUsernameCheck = new RegExp(/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i); // https://github.com/shinnn/github-username-regex
-	const githubReponameCheck = new RegExp(/^([a-z\d._-]){0,100}$/i);
-	return !!(githubUsernameCheck.test(userName.toString()) && githubReponameCheck.test(repoName.toString()));
-}
-
 module.exports = {
-	checkValidGithub,
+	executeTest,
+	updateLatestTestStatus,
 	getReportHistory,
 	uniqueRepositories,
 	getGithubData,
@@ -706,7 +536,6 @@ module.exports = {
 	deleteFeatureFile,
 	exportSingleFeatureFile,
 	exportProjectFeatureFiles,
-	runReport,
 	starredRepositories,
 	dbProjects
 };

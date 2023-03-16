@@ -2,6 +2,10 @@ const reporter = require('cucumber-html-reporter');
 const pfs = require('fs/promises')
 const fs = require('fs')
 const path = require('path');
+const ticketMng = require('./ticketManagement')
+const mongo = require('../../src/database/DbServices');
+const testExecutor = require('../../src/serverHelper')
+import {executionMode, storyReport, scenarioReport, groupReport, passedCount, stepStatus} from '../models/models';
 
 // this is needed for the html report
 const options = {
@@ -39,7 +43,7 @@ function setOptions(reportName: string, reportPath = 'features/') {
 }
 
 async function resolveReport(reportObj: any, mode: executionMode, stories: any[], req: any) {
-    if ((mode === 'feature' || mode === 'scenario') && stories.length === 0) stories.push(reportObj.story);
+    if (mode !== executionMode.GROUP && stories.length === 0) stories.push(reportObj.story);
     let scenarioId;
     if (req.params.scenarioId !== undefined) {
         scenarioId = req.params.scenarioId;
@@ -52,14 +56,14 @@ async function resolveReport(reportObj: any, mode: executionMode, stories: any[]
     reportResults.mode = mode;
 
     // Group needs an adjusted Path to Report
-    if (mode === 'group') reportName = `${reportResults.reportName}/${reportResults.reportName}`;
+    if (mode === executionMode.GROUP) reportName = `${reportResults.reportName}/${reportResults.reportName}`;
     return {reportResults, reportName};
 }
 
 function analyzeReport(grpName: string, stories: any[], mode: executionMode, reportName: string, scenarioId: number) {
     let reportOptions;
     switch (mode) {
-        case 'scenario':
+        case executionMode.SCENARIO:
             reportOptions = setOptions(reportName);
             try {
                 reporter.generate(reportOptions);
@@ -68,7 +72,7 @@ function analyzeReport(grpName: string, stories: any[], mode: executionMode, rep
                     inside analyzeReport. Error${e}`);
             }
             return analyzeScenarioReport(stories, reportName, scenarioId, reportOptions);
-        case 'feature':
+        case executionMode.STORY:
             try {
                 reportOptions = setOptions(reportName);
                 reporter.generate(reportOptions);
@@ -77,7 +81,7 @@ function analyzeReport(grpName: string, stories: any[], mode: executionMode, rep
                     inside analyzeReport. Error${e}`);
             }
             return analyzeStoryReport(stories, reportName, reportOptions);
-        case 'group':
+        case executionMode.GROUP:
             reportOptions = setOptions(grpName, `features/${grpName}/`);
             try {
                 /* after the last story in a group we need to generate the hmtl report
@@ -129,97 +133,7 @@ function failedReportPromise(reportName) {
     return { reportName: `Failed-${reportName}`, status: false };
 }
 
-enum executionMode{
-    SCENARIO = 'scenario',
-    STORY = 'feature',
-    GROUP = 'group'
-}
-class passedCount{
-    passed: number
-    failed: number
-    constructor(){
-        this.passed = 0
-        this.failed = 0
-    }
-}
 
-class groupReport{
-    reportName: string
-    reportOptions: any
-    status: boolean // different
-    storyStatuses: Array<{storyId: string, status: boolean, scenarioStatuses: Array<scenarioStatus>, featureTestResults: stepStatus, scenariosTested: passedCount}> // different
-    // different no feature/storyId
-    // featureTestResults: stepStatus
-    scenariosTested: { passed: number, failed: number }
-    groupTestResults: stepStatus
-    reportTime: number
-    mode: executionMode.GROUP
-    smallReport: string
-    constructor(){
-        this.status = false
-        this.storyStatuses = []
-        this.scenariosTested = new passedCount()
-        this.groupTestResults = new stepStatus() 
-    }
-}
-
-class storyReport{
-    reportName: string
-    reportOptions: any
-    status: boolean
-    scenarioStatuses: scenarioStatus[]
-    featureId: string // different
-    featureTestResults: stepStatus
-    scenariosTested: passedCount
-    reportTime: number
-    mode: executionMode.STORY
-    smallReport: string
-    constructor(){
-        this.status = false
-        this.scenarioStatuses = []
-        this.featureTestResults = new stepStatus()
-        this.scenariosTested = new passedCount()
-    }
-}
-
-class scenarioReport {
-    reportName: string
-    reportOptions: any
-    status: boolean
-    scenarioStatuses: scenarioStatus[]
-    storyId: string // different
-    scenarioId: string // different
-    featureTestResults: stepStatus
-    scenariosTested: passedCount
-    reportTime: number
-    mode: executionMode.SCENARIO
-    smallReport: string
-    constructor(){
-        this.status = false
-        this.scenarioStatuses = []
-        this.featureTestResults = new stepStatus()
-        this.scenariosTested = new passedCount()
-    }
-}
-
-class scenarioStatus{
-    scenarioId: number
-    status: boolean
-    stepResults: stepStatus
-    constructor() {
-        this.status = false
-        this.stepResults = new stepStatus() // why nested?
-    }
-}
-
-class stepStatus {
-    passedSteps: number
-    failedSteps: number
-    skippedSteps: number
-    constructor() {
-        this.passedSteps = this.failedSteps = this.skippedSteps = 0
-    }
-}
 
 function analyzeScenarioReport(stories: Array<any>, reportName: string, scenarioId: number, reportOptions: any) {
     const reportResults = new scenarioReport();
@@ -275,7 +189,6 @@ function analyzeGroupReport(grpName: string, stories: any[], reportOptions: any)
                 let overallPassedSteps = 0;
                 let overallFailedSteps = 0;
                 let overallSkippedSteps = 0;
-
                 // for each story
                 for (const storyReport of cucumberReport) {
                     const story = stories[cucumberReport.indexOf(storyReport)];
@@ -375,7 +288,6 @@ function featureResult(featureReport: any, feature: any) {
         featurePassedSteps += result.stepResults.passedSteps
         featureFailedSteps += result.stepResults.failedSteps
         featureSkippedSteps += result.stepResults.skippedSteps
-
         featureStatus.scenarioStatuses.push(result)
 
         // count number of passed and failed Scenarios:
@@ -432,10 +344,89 @@ function deleteReport(jsonReport: string) {
     });
 }
 
-module.exports = {
+async function runReport(req, res, stories: any[], mode: executionMode, parameters) {
+	let reportObj;
+	try {
+		if (mode === executionMode.GROUP) {
+			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
+			fs.mkdirSync(`./features/${req.body.name}`);
+			if (parameters.isSequential == undefined || !parameters.isSequential)
+				reportObj = await Promise.all(stories.map((story) => testExecutor.executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());
+			else {
+				for (const story of stories) {
+					reportObj = await testExecutor.executeTest(req, mode, story);
+				}
+			}
+		} else {
+			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
+		}
+	} catch (error) {
+		res.status(404).send(error);
+		return;
+	}
+
+	const { reportResults, reportName } = await resolveReport(reportObj, mode, stories, req);
+	// generate HTML Report
+	console.log(`reportName in callback of resolveReport: ${reportName}`);
+	console.log(`reportResults in callback of resolveReport: ${reportResults}`);
+	// upload report to DB
+	const uploadedReport = await mongo.uploadReport(reportResults)
+		.catch((error) => {
+			console.log(`Could not UploadReport :  ./features/${reportName}.json
+				Rejection: ${error}`);
+			res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+		});
+	// read html Report and add it top response
+	fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+		res.json({ htmlFile: data, reportId: uploadedReport._id });
+	});
+	testExecutor.updateLatestTestStatus(uploadedReport, mode);
+
+	// delete Group folder
+	const deletionTime = reportDeletionTime * 60000;
+	if (mode === executionMode.GROUP) setTimeout(deleteReport, deletionTime, `${reportResults.reportName}`);
+	else {
+		// delete reports in filesystem after a while
+		setTimeout(deleteReport, deletionTime, `${reportName}.json`);
+		setTimeout(deleteReport, deletionTime, `${reportName}.html`);
+	}
+
+	// if possible separate function
+	for (const story of stories) {
+		let comment;
+		if (mode === executionMode.GROUP) {
+			comment = `This Execution ist part of group execution ${parameters.name}\n`;
+			comment += ticketMng.renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+				reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
+		} else {
+			comment += ticketMng.renderComment(reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
+				reportResults.reportTime, story, story.scenarios[0], mode, reportName);
+		}
+		if (story.storySource === 'github' && req.user && req.user.github) {
+			const githubValue = parameters.repository.split('/');
+			// eslint-disable-next-line no-continue
+			if (githubValue == null) { continue; }
+			const githubName = githubValue[0];
+			const githubRepo = githubValue[1];
+
+			ticketMng.postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
+			if (mode === executionMode.STORY) ticketMng.updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+		}
+		if (story.storySource === 'jira' && req.user && req.user.jira) {
+			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+			const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
+			ticketMng.postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
+		}
+	}
+}
+
+
+export {
     createReport,
     resolveReport,
     deleteGroupDir,
     reportDeletionTime, // Delete when not used
     deleteReport,
+    runReport,
 };

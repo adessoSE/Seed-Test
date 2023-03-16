@@ -11,8 +11,8 @@ const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
-const userMng = require('../../dist/userManagement');
-const projectMng = require('../../dist/projectManagement');
+const userMng = require('../../dist/helpers/userManagement');
+const projectMng = require('../../dist/helpers/projectManagement');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -224,7 +224,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
-		if (!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
+		if (!userMng.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;

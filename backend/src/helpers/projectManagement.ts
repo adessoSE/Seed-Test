@@ -1,4 +1,4 @@
-const mongo = require('../src/database/DbServices');
+const mongo = require('../../src/database/DbServices');
 const userMng = require('./userManagement')
 enum Sources {
     GITHUB = "github",
