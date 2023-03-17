@@ -134,8 +134,6 @@ async function updateFeatureFile(issueID, storySource) {
 	if (result != null) writeFile(result);
 }
 
-
-
 async function deleteFeatureFile(storyTitle, storyId) {
 	try {
 		fs.unlink(`features/${cleanFileName(storyTitle + storyId)}.feature`, (err) => {
