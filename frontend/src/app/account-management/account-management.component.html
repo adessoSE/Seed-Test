@@ -126,6 +126,9 @@
             <div id="ChangeJiraDiv">
                 <button class="normalButton" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
             </div>
+            <div id="ChangeJiraDiv">
+                <button class="normalButton" style="display:none;" id="disconnect-jira" (click)="jiraDisconnect()">Disconnect Jira-Account</button>
+            </div>
         </div>
         <!------------------Repositories JIRA------------------->
         <div class="grid_jiraRepos repositories" *ngIf="repositories">
@@ -145,6 +148,7 @@
     </div>
 </div>
 <app-change-jira-account #changeJiraModal (jiraAccountResponse)="updateSite($event)"></app-change-jira-account>
+<app-disconnect-jira-account #disconnectJiraModal (jiraAccountResponse)="updateSite($event)"></app-disconnect-jira-account>
 <app-create-custom-project #createCustomProject></app-create-custom-project>
 <app-delete-account #deleteAccountModal></app-delete-account>
 <app-workgroup-edit #workgroupEditModal></app-workgroup-edit>

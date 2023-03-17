@@ -16,6 +16,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ProjectService } from '../Services/project.service';
 import { LoginService } from '../Services/login.service';
 import { ManagementService } from '../Services/management.service';
+import { DisconnectJiraAccountComponent } from '../modals/disconnect-jira-account/disconnect-jira-account.component';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -32,6 +33,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * Viewchild to create the modals
      */
     @ViewChild('changeJiraModal') changeJiraModal: ChangeJiraAccountComponent;
+    @ViewChild('disconnectJiraModal') disconnectJiraModal: DisconnectJiraAccountComponent;
     @ViewChild('createCustomProject') createCustomProject: CreateCustomProjectComponent;
     @ViewChild('deleteAccountModal') deleteAccountModal: DeleteAccountComponent;
     @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
@@ -180,6 +182,13 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Disconnects the user from Jira
+     */
+    jiraDisconnect() {
+        this.disconnectJiraModal.openDisconnectJiraAccountModal();
+    }
+
+    /**
      * Opens Modal to delete the Seed-Test account
      */
     deleteAccount() {
@@ -232,6 +241,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                 if (typeof user['jira'] !== 'undefined') {
                     this.jira = user['jira'];
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
+                    (document.getElementById("disconnect-jira") as HTMLButtonElement).style.removeProperty('display');
                 }
             });
             this.getSessionStorage();

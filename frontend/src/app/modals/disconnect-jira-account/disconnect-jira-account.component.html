@@ -1,0 +1,19 @@
+<!---Modal for disconnect Jira------>
+<ng-template #disconnectJiraModal let-modal>
+    <app-layout-modal></app-layout-modal>
+    <div class="modal-header">
+        <span class="MediumSubline1H4 modal-title">Disconnect My Jira-Account</span>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <span>Are you sure that you want to disconnect your Jira-Account from your Seed-Test Account?</span>
+        <br>
+        <span>You can reconnect it it afterwards.</span>
+    </div>
+    <div class="modal-footer">
+        <button class="normalButton" (click)="disconnectJiraAccount()">Yes</button>
+        <button class="normalButton deleteButton" (click)="modal.dismiss('Cross click')">No</button>
+    </div>
+</ng-template>
