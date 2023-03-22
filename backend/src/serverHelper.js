@@ -123,7 +123,9 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
-    if (scenario.comment !== null) data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, "\n#  ")}\n\n`
+    if (scenario.comment !== null) {
+      data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, "\n#  ")}\n\n`;
+    }
   }
   return data;
 }
@@ -1222,7 +1224,7 @@ const getGithubData = (res, req, accessToken) => {
 async function exportSingleFeatureFile(_id, source) {
   const dbStory = mongo.getOneStory(_id, source);
   return dbStory.then(async (story) => {
-    await writeFile(story);
+    writeFile(story);
     await this.nameSchemeChange(story);
 		return pfs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8')
 		.catch((err)=>console.log('couldn`t read File'))
@@ -1235,10 +1237,10 @@ async function exportProjectFeatureFiles(repoId) {
   return dbStories.then(async (stories) => {
     const zip = new AdmZip();
 		return Promise.all(stories.map(async (story) => {
-        await writeFile(story);
+        writeFile(story);
         await this.nameSchemeChange(story);
         try {
-				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
+				zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
 			} catch (e) { console.log('file not found'); }
 		})).then(() => zip.toBuffer());
   });
