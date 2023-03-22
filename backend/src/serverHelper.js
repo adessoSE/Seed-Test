@@ -123,13 +123,16 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.stepDefinitions.when !== undefined) data += `${getSteps(scenario.stepDefinitions.when, Object.keys(scenario.stepDefinitions)[1])}\n`;
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
+    if (scenario.comment !== null) {
+      data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, "\n#  ")}\n\n`;
+    }
   }
   return data;
 }
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
-  let data = `Feature: ${story.title}\n\n`;
+  let data = `Feature: ${story.title}\n\n${story.body}\n\n`;
 
   // Get background
   if (story.background != null) data += getBackgroundContent(story.background);
@@ -144,13 +147,13 @@ function cleanFileName(filename) {
 }
 
 // Creates feature file
-function writeFile(selectedStory) {
-  const filename = selectedStory.title + selectedStory._id;
+function writeFile(story) {
+  const filename = story.title + story._id;
 	fs.writeFile(path.join(
 		__dirname,
 		'../features',
 		`${cleanFileName(filename)}.feature`
-	), getFeatureContent(selectedStory), (err) => {
+	), getFeatureContent(story), (err) => {
       if (err) throw err;
 	});
 }
@@ -1221,6 +1224,7 @@ const getGithubData = (res, req, accessToken) => {
 async function exportSingleFeatureFile(_id, source) {
   const dbStory = mongo.getOneStory(_id, source);
   return dbStory.then(async (story) => {
+    writeFile(story);
     await this.nameSchemeChange(story);
 		return pfs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8')
 		.catch((err)=>console.log('couldn`t read File'))
@@ -1231,13 +1235,12 @@ async function exportSingleFeatureFile(_id, source) {
 async function exportProjectFeatureFiles(repoId) {
   const dbStories = mongo.getAllStoriesOfRepo(repoId);
   return dbStories.then(async (stories) => {
-    console.log(stories);
     const zip = new AdmZip();
 		return Promise.all(stories.map(async (story) => {
+        writeFile(story);
         await this.nameSchemeChange(story);
         try {
-				await zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
-				console.log('add FF');
+				zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
 			} catch (e) { console.log('file not found'); }
 		})).then(() => zip.toBuffer());
   });
