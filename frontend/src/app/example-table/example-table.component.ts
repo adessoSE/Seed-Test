@@ -10,6 +10,9 @@ import { StepType } from '../model/StepType';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ApiService } from '../Services/api.service';
+import { CdkDragDrop, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
+import { MatTable } from '@angular/material/table';
+import { StepDefinition } from '../model/StepDefinition';
 
 
 @Component({
@@ -78,6 +81,10 @@ export class ExampleTableComponent implements OnInit {
   data = [];
 
   /**
+   * Control if dragging
+   */
+  dragDisabled = true;
+  /**
    * Controls of the table
    */
   controls: UntypedFormArray;
@@ -100,6 +107,7 @@ export class ExampleTableComponent implements OnInit {
   deleteExampleObservable: Subscription;
 
   indexOfExampleToDelete;
+  @ViewChild('table') table: MatTable<StepDefinition>;
 
   /**
    * Event emitter to check if ththe example table should be removed or added to
@@ -331,5 +339,32 @@ export class ExampleTableComponent implements OnInit {
     this.updateTable()
     this.selectedScenario.saved = false;
   }
-
+  /**
+   * Drag and drop an examples value
+   * @param event
+   */
+  dropExample(event: CdkDragDrop<any>) {
+    this.dragDisabled = true;
+    const previousIndex = this.data.findIndex((d) => d === event.item.data);
+    moveItemInArray(this.data, previousIndex, event.currentIndex);
+    this.table.renderRows();
+    this.replaceDragedValue();
+    this.selectedScenario.saved = false;
+  }
+  /**
+   * Change the order of rows
+   */
+  replaceDragedValue(){
+    const newData = [];
+    this.data.forEach((row) => {
+      const newRow = [];
+      Object.keys(row).forEach((key) => {
+        newRow.push(row[key]);
+      });
+      newData.push(newRow);
+    });
+    for (let i = 1; i < this.selectedScenario.stepDefinitions.example.length; i++) {
+      this.selectedScenario.stepDefinitions.example[i].values = newData[i-1]
+    }
+  }
 }
