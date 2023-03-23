@@ -393,7 +393,7 @@ router.get('/callback', (req, res) => {
 		.then((data) => {
 			console.log(data);
 			if (data.error) throw Error('github user register failed');
-			else helper.getGithubData(res, req, data.access_token);
+			else userMng.getGithubData(res, req, data.access_token);
 		})
 		.catch((error) => {
 			res.status(401).send(error.message);

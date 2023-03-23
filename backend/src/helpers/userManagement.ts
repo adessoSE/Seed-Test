@@ -1,4 +1,6 @@
 import { Cipher, Decipher, scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
+const passport = require('passport');
+
 const mongo = require('../../src/database/DbServices');
 const cryptoAlgorithm = 'aes-256-ccm';
 const key = scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
@@ -43,6 +45,49 @@ async function updateJiraCredential(UserID: string, username: string, jiraClearP
     await mongo.updateUser(UserID, user);
 }
 
+const getGithubData = (res, req, accessToken) => {
+	fetch(
+		`https://api.github.com/user?access_token=${accessToken}`,
+		{
+			method: 'GET',
+			headers:
+			{
+				'User-Agent': 'SampleOAuth',
+				Authorization: `Token ${accessToken}`
+			}
+		}
+	)
+		.then((response) => response.json())
+		.then(async (json) => {
+			console.log('JSON in GetGitHubData');
+			console.log(json);
+			req.body = json;
+			req.body.githubToken = accessToken;
+			try {
+				await mongo.findOrRegisterGithub(req.body);
+				passport.authenticate('github-local', (error, user) => {
+					if (error || !user) res.json({ error: 'Authentication Error' });
+					req.logIn(user, (LoginError) => {
+						if (LoginError) {
+							res.json({ error: 'Login Error' });
+						} else {
+							res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
+							res.header('Access-Control-Allow-Credentials', 'true');
+							res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
+							res.json({
+								login: user.github.login,
+								id: user.github.id
+							});
+						}
+					});
+				})(req, res);
+			} catch (error) {
+				console.log('getGithubData error:', error);
+				res.sendStatus(400);
+			}
+		});
+};
+
 /*
 * validates Github username and reponame
 * @param {string} userName
@@ -59,5 +104,6 @@ export {
     jiraDecryptPassword,
     jiraEncryptPassword,
     updateJiraCredential,
-    checkValidGithub
+    checkValidGithub,
+    getGithubData
 };
