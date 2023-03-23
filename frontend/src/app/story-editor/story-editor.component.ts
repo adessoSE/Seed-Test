@@ -586,6 +586,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   runTests(scenario_id) {
     if (this.storySaved()) {
+      this.reportIsSaved = false;
       this.testRunning = true;
       this.report.emit(false);
       const iframe: HTMLIFrameElement = document.getElementById(
@@ -630,7 +631,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             iframe.scrollIntoView();
           }, 10);
 								this.toastr.info('', 'Test is done');
-          this.runUnsaved = false;
+                this.runUnsaved = false;
 								this.reportService.getReport(this.reportId)
 									.subscribe((report: any) => {
             if (scenario_id) {
