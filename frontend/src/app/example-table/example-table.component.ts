@@ -10,7 +10,7 @@ import { StepType } from '../model/StepType';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ApiService } from '../Services/api.service';
-import { CdkDragDrop, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatTable } from '@angular/material/table';
 import { StepDefinition } from '../model/StepDefinition';
 
