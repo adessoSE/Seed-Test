@@ -84,7 +84,7 @@ function jsUcfirst(string) {
 function getSteps(steps, stepType) {
 	let data = '';
   for (const step of steps) {
-    if (step.deactivated) continue;
+    if (step.deactivated) data += '# '
     data += `${jsUcfirst(stepType)} `;
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
 			data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)}`;
