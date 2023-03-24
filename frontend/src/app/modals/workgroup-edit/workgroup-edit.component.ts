@@ -159,7 +159,7 @@ export class WorkgroupEditComponent {
  */
   showDeleteRepositoryToast() {
     this.apiService.nameOfComponent('repository');
-    this.toastr.warning('', 'Do you really want to delete this repository?', {
+    this.toastr.warning('Are your sure you want to delete this Project? It cannot be restored.', 'Delete Project?', {
         toastComponent: DeleteToast
     });
   }

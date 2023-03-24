@@ -294,7 +294,7 @@ export class ExampleTableComponent implements OnInit {
    */
    showDeleteExampleToast(scenario: Scenario) {
     this.apiService.nameOfComponent('example');
-    this.toastr.warning('', 'Do you really want to delete this example?', {
+    this.toastr.warning('Are your sure you want to delete this variable?', 'Delete variable?', {
         toastComponent: DeleteToast
     });
   }

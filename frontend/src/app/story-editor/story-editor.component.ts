@@ -459,7 +459,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   showDeleteScenarioToast() {
     this.apiService.nameOfComponent('scenario');
-    this.toastr.warning('', 'Do you really want to delete this scenario?', {
+    this.toastr.warning('Are your sure you want to delete this scenario?  It cannot be restored.', 'Delete Scenario?', {
       toastComponent: DeleteToast
     });
   }
@@ -845,7 +845,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
 
   showDeleteStoryToast() {
     this.apiService.nameOfComponent('story');
-		this.toastr.warning('', 'Do you really want to delete this story? It cannot be restored.', {
+		this.toastr.warning('Are your sure you want to delete this story? It cannot be restored.', 'Delete Story?', {
 				toastComponent: DeleteToast
 		 });
     }
