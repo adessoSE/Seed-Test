@@ -96,26 +96,6 @@ describe('ServerHelper', () => {
 		});
 	});
 
-	describe('jsUcfirst', () => {
-		it('should return empty string', () => {
-			const string = '';
-			const returnValue = helper.jsUcfirst(string);
-			expect(returnValue).toBe('');
-		});
-
-		it('should return Testing', () => {
-			const string = 'testing';
-			const returnValue = helper.jsUcfirst(string);
-			const testResultString = string.charAt(0).toUpperCase() + string.slice(1);
-			expect(returnValue).toBe(testResultString);
-		});
-
-		it('should return Done', () => {
-			const string = 'Done';
-			const returnValue = helper.jsUcfirst(string);
-			expect(returnValue).toBe(string);
-		});
-	});
 
 	describe('getSteps', () => {
 		it('should return empty string', () => {

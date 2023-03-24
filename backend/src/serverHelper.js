@@ -12,7 +12,6 @@ const os = require('os');
 const mongo = require('./database/DbServices');
 const emptyScenario = require('./models/emptyScenario');
 const emptyBackground = require('./models/emptyBackground');
-const userMng = require('../dist/helpers/userManagement');
 
 // adds content of each values to output
 function getValues(values) {
@@ -275,30 +274,6 @@ function scenarioPrep(scenarios, driver) {
 	return { scenarios, parameters };
 }
 
-function dbProjects(user) {
-	return new Promise((resolve) => {
-		if (typeof user !== 'undefined') {
-			const userId = user._id;
-			mongo.getRepository(userId).then((json) => {
-				const projects = [];
-				if (Object.keys(json).length !== 0) {
-					for (const repo of json) if (repo.repoType === 'db') {
-						const proj = {
-							_id: repo._id,
-							value: repo.repoName,
-							source: repo.repoType,
-							canEdit: repo.canEdit
-						};
-						projects.push(proj);
-					}
-					resolve(projects);
-				}
-				resolve([]);
-			});
-		} else resolve([]);
-	});
-}
-
 function uniqueRepositories(repositories) {
 	const uniqueIds = [];
 	const unique = [];
@@ -485,7 +460,6 @@ module.exports = {
 	fuseStoryWithDb,
 	getExamples,
 	getSteps,
-	jsUcfirst,
 	getBackgroundContent,
 	getBackgroundSteps,
 	getValues,
@@ -493,6 +467,5 @@ module.exports = {
 	deleteFeatureFile,
 	exportSingleFeatureFile,
 	exportProjectFeatureFiles,
-	starredRepositories,
-	dbProjects
+	starredRepositories
 };

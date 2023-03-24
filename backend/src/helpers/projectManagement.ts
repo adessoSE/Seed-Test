@@ -96,6 +96,25 @@ async function storeJiraRepos(projects:Array<any>){
         }));
     }
 }
+function dbProjects(userId: string) {
+	return new Promise((resolve) => {
+		if (typeof userId === undefined || userId === '') resolve([]);
+		mongo.getRepository(userId).then((json) => {
+			const projects = [];
+			if (Object.keys(json).length === 0) resolve([]);
+			for (const repo of json) if (repo.repoType === 'db') {
+				const proj = {
+					_id: repo._id,
+					value: repo.repoName,
+					source: repo.repoType,
+					canEdit: repo.canEdit
+				};
+				projects.push(proj);
+			}
+			resolve(projects);
+		});
+	});
+}
 
 function fetchGithubRepos() {
 
@@ -106,5 +125,6 @@ function fetchDbRepos() {
 }
 
 module.exports = {
-    getJiraRepos
+    getJiraRepos,
+    dbProjects
 };

@@ -170,12 +170,10 @@ router.get('/repositories', (req, res) => {
 	let githubName;
 	let token;
 	let githubId;
-	if (req.user) {
-		if (req.user.github) {
-			githubName = req.user.github.login;
-			token = req.user.github.githubToken;
-			githubId = req.user.github.id;
-		}
+	if (req.user && req.user.github) {// note order
+		githubName = req.user.github.login;
+		token = req.user.github.githubToken;
+		githubId = req.user.github.id;
 	} else {
 		githubName = process.env.TESTACCOUNT_NAME;
 		token = process.env.TESTACCOUNT_TOKEN;
@@ -186,7 +184,7 @@ router.get('/repositories', (req, res) => {
 		helper.starredRepositories(req.user._id, githubId, githubName, token),
 		helper.ownRepositories(req.user._id, githubId, githubName, token),
 		projectMng.getJiraRepos(req.user.jira),
-		helper.dbProjects(req.user)
+		projectMng.dbProjects(req.user._id)
 	])
 		.then((repos) => {
 			let merged = [].concat(...repos);
