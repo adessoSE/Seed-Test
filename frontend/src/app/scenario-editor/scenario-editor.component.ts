@@ -8,8 +8,7 @@ import { Block } from '../model/Block';
 import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenario.component';
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
-import * as e from 'express';
-import { BaseEditorComponent } from '../base-editor/base-editor.component';
+import { ScenarioService } from '../Services/scenario.service';
 
 
 /**
@@ -26,10 +25,12 @@ export class ScenarioEditorComponent implements OnInit{
 	/**
      * Constructor
      * @param apiService
+     * @param scenarioService
      * @param toastr
      */
 	 constructor(
         public apiService: ApiService,
+        public scenarioService: ScenarioService,
         public toastr: ToastrService
     ) {
         if (localStorage.getItem('version') == 'DAISY') {
@@ -170,23 +171,7 @@ export class ScenarioEditorComponent implements OnInit{
             }
         });
 
-        this.renameScenarioObservable = this.apiService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
-
-        this.unpackBlockObservable = this.apiService.unpackBlockEvent.subscribe(() => {
-            for (const stepType in this.selectedScenario.stepDefinitions) {
-                if (stepType !== 'example') {
-                    for (const step of this.selectedBlock.stepDefinitions[stepType]) {
-                        this.baseEditor.addStep(step, this.selectedScenario, this.TEMPLATE_NAME);
-                    }
-                }
-            }
-            // intentionally comparing with double equals only
-            const blockStep = this.selectedScenario.stepDefinitions.when.find(block => block._id === this.selectedBlock._id);
-            const blockIndex = this.selectedScenario.stepDefinitions.when.indexOf(blockStep);
-            this.selectedScenario.stepDefinitions.when.splice(blockIndex, 1);
-
-        });
-        
+        this.renameScenarioObservable = this.scenarioService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
     }
 
     ngOnDestroy() {
@@ -242,10 +227,10 @@ export class ScenarioEditorComponent implements OnInit{
             console.log('There are undefined steps here');
         }
         this.selectedScenario.lastTestPassed = null;
-        return new Promise<void>((resolve, _reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.scenarioService
             .updateScenario(this.selectedStory._id, this.selectedStory.storySource, this.selectedScenario)
             .subscribe(_resp => {
-                this.apiService.scenarioChangedEmitter();
+                this.scenarioService.scenarioChangedEmitter();
                 this.toastr.success('successfully saved', 'Scenario');
                 resolve();
             });

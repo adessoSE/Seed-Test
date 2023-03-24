@@ -391,48 +391,27 @@ input.scenario, input.background {
   padding-right: 5px;
 }
 
-.stepBlockContainer{
-  margin-right: 24px;
-  margin-bottom: 8px;
-  padding-right: 10px;
-  white-space: normal;
+#tableAddButton{
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 15px !important;
+  margin-top: 12px;
+  margin-left: 12px;
+  border-radius: 30px;
+  z-index: 100;
 }
 
-.stepBlockHeader{
-  height: 29px;
-  display: flex;
-}
+#tableAddButtonBackground{
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 10px !important;
+  margin-top: 14px;
+  margin-left: 14px;
+  background-color: #f8f8f8;
+  border-radius: 30px;
+  z-index: 50;
+  color: #f8f8f8 !important;
+  width: 11px !important;
+  height: 11px !important;
 
-.stepInBlock{
-  display: flex;
-}
-
-.unpackBlockButton {
-  margin-left: 10px;
-}
-
-div#blockContent{
-  padding-top: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-}
-
-.blockButtonGroup > button{
-  border: none;
-  background: none;
-  transform: translateY(-3px);
-  height: 24px;
-  border-radius: 10%;
-  margin-top: 10px
-}
-
-.blockButtonGroup > button > em{
-  color: #0071b9;
-  font-size: 24px;
-}
-
-.mat-expansion-panel-body{
-  padding-bottom: 0;
-}
-
- 
+ }

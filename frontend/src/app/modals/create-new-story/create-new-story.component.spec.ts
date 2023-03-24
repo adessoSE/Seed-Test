@@ -5,9 +5,9 @@ import {findComponent} from '../../../test_helper'
 import { CreateNewStoryComponent } from './create-new-story.component';
 import { ToastrModule } from 'ngx-toastr';
 import { By } from '@angular/platform-browser';
-import { Story } from 'src/app/model/Story';
+import { Story } from '../../../app/model/Story';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ApiService } from 'src/app/Services/api.service';
+import { ApiService } from '../../../app/Services/api.service';
 import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
 
 const stories:Story[] = [{_id: 1, issue_number: 36523, story_id: 37727, storySource: 'github', 

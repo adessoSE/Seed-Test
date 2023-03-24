@@ -2,7 +2,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ToastrModule } from 'ngx-toastr';
-import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
+import { RepositoryContainer } from '../../../app/model/RepositoryContainer';
 import { RepoSwichComponent } from './repo-swich.component';
 import { LayoutModalComponent } from '../layout-modal/layout-modal.component';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
