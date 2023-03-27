@@ -789,18 +789,6 @@ async function updateRepository(repoID, newName, user) { //
 	}
 }
 
-async function updateRepositoryOwner(repoID, newOwner, currentOwner) { //
-	try {
-		const repoFilter = { owner: ObjectId(currentOwner), _id: ObjectId(repoID) };
-		const db = dbConnection.getConnection();
-		const collection = await db.collection(repositoriesCollection);
-		return collection.findOneAndUpdate(repoFilter, { $set: { owner: ObjectId(newOwner) } }, { returnNewDocument: true });
-	} catch (e) {
-		console.log(`ERROR updateRepository: ${e}`);
-		throw e;
-	}
-}
-
 async function createJiraRepo(repoName) {
 	try {
 		const db = dbConnection.getConnection();
@@ -829,10 +817,14 @@ async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
 	}
 }
 
-async function updateOwnerInRepo(repoName, ownerId, source) {
+async function updateOwnerInRepo(repoId, ownerId) {
 	try {
 		const db = dbConnection.getConnection();
-		await db.collection(repositoriesCollection).findOneAndUpdate({ repoName, repoType: source }, { $set: { owner: ownerId } });
+		const repoChange = await db.collection(repositoriesCollection).findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { owner: ownerId } });// returns previous
+		console.log(repoChange);
+		const user = await getUserById(ownerId);
+		const wgMember = { email: user.email, canEdit: Boolean(false) };
+		await db.collection(WorkgroupsCollection).findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { owner: user.email }, $push: { Members: wgMember } });
 		return 'done';
 	} catch (e) {
 		console.log(`ERROR in updateOwnerInRepo${e}`);
@@ -1389,6 +1381,5 @@ module.exports = {
 	getAllSourceReposFromDb,
 	createGitRepo,
 	updateOwnerInRepo,
-	updateRepository,
-	updateRepositoryOwner
+	updateRepository
 };

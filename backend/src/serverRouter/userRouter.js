@@ -204,11 +204,13 @@ router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	res.status(200).json(repo);
 	console.log('update repo: ', repo);
 });
-// update repository
+
+// update repository owner
 router.put('/repository/:repo_id', async (req, res) => {
 	console.log(req.body);
 	const newOwner = await mongo.getUserByEmail(req.body.email);
-	const repo = await mongo.updateRepositoryOwner(req.params.repo_id, newOwner._id, req.user._id);
+	const repo = await mongo.updateOwnerInRepo(req.params.repo_id, newOwner._id);
+	console.log(repo);
 	res.status(200).json(repo);
 	console.log('update repo owner: ', repo);
 });
