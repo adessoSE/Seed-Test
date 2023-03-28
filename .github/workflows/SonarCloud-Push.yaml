@@ -27,7 +27,7 @@ jobs:
       with:
         github-token: ${{ github.token }} # this will use the runner's token.
         ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-        notification-summary: <div>God damn it. Sonar Cloud failed big time! ❌ <a href='https://github.com/${{ github.repository }}/tree/${{ github.ref#refs/heads/ }}'>${{ github.ref#refs/heads/ }}</a></div>
+        notification-summary: God damn it. Sonar Cloud failed big time! ❌
         notification-color: ffa500
     - name: Send Teams notification on success
       if: ${{ success() }}

@@ -7,10 +7,12 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: toko-bifrost/ms-teams-deploy-card@master
-        if: always()
+      - name: Send simple notification
+        uses: mikesprague/teams-incoming-webhook-action@v1
         with:
           github-token: ${{ github.token }}
-          webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-          show-on-start: false
-          card-layout-exit: complete
+          webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URL }}
+          title: 'Push Notification'
+          message: ''
+          timestamp: Europe/Berlin
+          color: 'info'
