@@ -21,19 +21,23 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    - name: Send Teams notification on failure
+    - name: Send simple notification
       if: ${{ failure() }}
-      uses: jdcargile/ms-teams-notification@v1.3
+      uses: mikesprague/teams-incoming-webhook-action@v1
       with:
-        github-token: ${{ github.token }} # this will use the runner's token.
-        ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-        notification-summary: God damn it. Sonar Cloud failed big time! ❌
-        notification-color: ffa500
-    - name: Send Teams notification on success
+        github-token: ${{ github.token }}
+        webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        title: 'SonarCloud Scan failed'
+        deploy-card: true
+        timestamp: Europe/Berlin
+        color: 'failure'
+    - name: Send simple notification
       if: ${{ success() }}
-      uses: jdcargile/ms-teams-notification@v1.3
+      uses: mikesprague/teams-incoming-webhook-action@v1
       with:
-        github-token: ${{ github.token }} # this will use the runner's token.
-        ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-        notification-summary: Yay! Sonar Cloud passed! ✔️
-        notification-color: ffa500
+        github-token: ${{ github.token }}
+        webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        title: 'SonarCloud Scan succesfull'
+        deploy-card: true
+        timestamp: Europe/Berlin
+        color: 'success'

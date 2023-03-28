@@ -14,6 +14,5 @@ jobs:
           webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
           title: 'Push Notification'
           deploy-card: true
-          message: Test?
           timestamp: Europe/Berlin
           color: 'info'
