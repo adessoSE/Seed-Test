@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - "**"
+      - CUC-384-Github-Actions
 name: SonarCloud
 jobs:
   test:
