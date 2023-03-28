@@ -23,11 +23,10 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     - name: Send Teams notification on failure
       if: ${{ failure() }}
-      uses: toko-bifrost/ms-teams-deploy-card@master
+      uses: jdcargile/ms-teams-notification@v1.3
       with:
-        github-token: ${{ github.token }}
-        webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-        show-on-start: false
-        card-layout-exit: complete
-        title: "SonarCloud analysis failed"
-        summary: "The SonarCloud analysis failed. Please check the build logs for more details."
+        github-token: ${{ github.token }} # this will use the runner's token.
+        ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        notification-summary: God damn it. Sonar Cloud failed big time! 
+        notification-color: 17a2b8
+        timezone: Germany/Berlin
