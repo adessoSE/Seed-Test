@@ -12,3 +12,5 @@ jobs:
         with:
           github-token: ${{ github.token }}
           webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          show-on-start: false
+          card-layout-exit: complete
