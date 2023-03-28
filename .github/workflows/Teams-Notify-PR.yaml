@@ -1,6 +1,7 @@
 name: MS Teams Push Notification
 on:
-  push:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
     branches:
       - "**"
 jobs:

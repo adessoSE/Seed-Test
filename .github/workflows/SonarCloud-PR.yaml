@@ -1,11 +1,10 @@
 on:
   # Trigger analysis when pushing in master or pull requests, and when creating
   # a pull request.
-  push:
-    branches:
-      - CUC-384-Github-Actions
   pull_request:
       types: [opened, synchronize, reopened]
+      branches:
+        - "**"
 name: SonarCloud
 jobs:
   sonarcloud:
