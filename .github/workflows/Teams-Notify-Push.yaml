@@ -13,6 +13,6 @@ jobs:
           github-token: ${{ github.token }}
           webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
           title: 'Push Notification'
-          message: ''
+          deploy-card: true
           timestamp: Europe/Berlin
           color: 'info'
