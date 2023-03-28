@@ -2,7 +2,7 @@ name: MS Teams Deploy Card
 
 on:
   push:
-    branches: [ cuc-384-github-actions ]
+    branches: [CUC-384-Github-Actions]
 
 jobs:
   build:
