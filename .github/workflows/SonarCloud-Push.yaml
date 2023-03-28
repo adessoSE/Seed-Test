@@ -16,17 +16,18 @@ jobs:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
     - name: SonarCloud Scan
+      id: sonarcloud-scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: toko-bifrost/ms-teams-deploy-card@master
-        if: always()
-        with:
-          github-token: ${{ github.token }}
-          webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
-          show-on-start: false
-          card-layout-exit: complete
+    - name: Send Teams notification on failure
+      if: ${{ failure() }}
+      uses: toko-bifrost/ms-teams-deploy-card@master
+      with:
+        github-token: ${{ github.token }}
+        webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        show-on-start: false
+        card-layout-exit: complete
+        title: "SonarCloud analysis failed"
+        summary: "The SonarCloud analysis failed. Please check the build logs for more details."
