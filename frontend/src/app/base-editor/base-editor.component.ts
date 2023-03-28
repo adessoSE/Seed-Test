@@ -1235,7 +1235,6 @@ export class BaseEditorComponent  {
           }
         }*/
         const scenarioBlock: Block = {stepDefinitions: block}; 
-        backgroundBlock = {stepDefinitions: block}; 
         sessionStorage.setItem('scenarioBlock', JSON.stringify(scenarioBlock));
         this.toastr.success('successfully copied', 'Step(s)');
         break;
