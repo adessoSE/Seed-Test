@@ -3,7 +3,7 @@ name: MS Teams Push Notification
 on:
   push:
     branches:
-      - '*'
+      - '**'
 
 jobs:
   build:
