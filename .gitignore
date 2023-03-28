@@ -80,3 +80,6 @@ backend/logs/
 
 # local testing for step-definition development
 backend/features/step_definitions/testing.js
+
+# for sonar cloud action
+!sonar-project.properties
