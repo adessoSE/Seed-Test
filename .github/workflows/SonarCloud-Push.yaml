@@ -20,3 +20,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: toko-bifrost/ms-teams-deploy-card@master
+        if: always()
+        with:
+          github-token: ${{ github.token }}
+          webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          show-on-start: false
+          card-layout-exit: complete
