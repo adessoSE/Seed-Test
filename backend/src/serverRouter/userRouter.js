@@ -202,17 +202,17 @@ router.get('/repositories', (req, res) => {
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);
 	res.status(200).json(repo);
-	console.log('update repo: ', repo);
 });
 
 // update repository owner
 router.put('/repository/:repo_id', async (req, res) => {
-	console.log(req.body);
-	const newOwner = await mongo.getUserByEmail(req.body.email);
-	const repo = await mongo.updateOwnerInRepo(req.params.repo_id, newOwner._id);
-	console.log(repo);
-	res.status(200).json(repo);
-	console.log('update repo owner: ', repo);
+	try {
+		const newOwner = await mongo.getUserByEmail(req.body.email);
+		const repo = await mongo.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
+		res.status(200).json(repo);
+	} catch (error) {
+		handleError(res, 'in update Repository Owner', 'Could not set new Owner', 500);
+	}
 });
 
 // delete repository
