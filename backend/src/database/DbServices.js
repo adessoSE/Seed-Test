@@ -840,15 +840,15 @@ async function removeFromWorkgroup(repoId, user) {
 async function updateOwnerInRepo(repoId, newOwnerId, oldOwnerId) {
 	try {
 		const db = dbConnection.getConnection();
+		const oldOwner = await getUserById(oldOwnerId);
 		// set new Owner for the given Repo
 		const newOwner = await getUserById(newOwnerId);
-		const repo = db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
+		await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
 		await db.collection(repositoriesCollection).findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { owner: newOwnerId } });
 		// remove the new Owner from Workgroup
 		await removeFromWorkgroup(repoId, newOwner);
 
 		// add old Owner as Member and update Email in Workgroup
-		const oldOwner = await getUserById(oldOwnerId);
 		const wgMember = { email: oldOwner.email, canEdit: Boolean(true) };
 		await db.collection(WorkgroupsCollection).findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { owner: newOwner.email }, $push: { Members: wgMember } });
 		return 'Success';

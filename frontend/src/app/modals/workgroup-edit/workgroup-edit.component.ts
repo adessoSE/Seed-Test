@@ -1,4 +1,3 @@
-import { _getTextWithExcludedElements } from '@angular/cdk/testing';
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -43,11 +42,6 @@ export class WorkgroupEditComponent {
     * Repository container of the workgroup
     */
   workgroupProject: RepositoryContainer;
-  
-  /**
-    * Check if Ownership was transfered
-    */
-  isTransefered: boolean;
 
    /**
     * Email and id of the active user
@@ -118,12 +112,10 @@ export class WorkgroupEditComponent {
 
   transferedOwnership(newOwner){
     document.getElementById('changeOwner').setAttribute('style', 'display: none');
-    console.log('new owner: ',newOwner)
     const repo_id = localStorage.getItem('id');
     this.projectService
     .changeOwner(repo_id, newOwner)
     .subscribe(_ => {
-        this.isTransefered = true;
         this.toastr.success('successfully changed', 'New owner');
     }); 
     this.modalReference.close();
@@ -188,7 +180,6 @@ export class WorkgroupEditComponent {
         this.projectService.getRepositoriesEmitter();
         this.projectService.updateRepositoryEmitter();
       });
-      this.isTransefered = false;
       this.modalReference.close();
     }
   }

@@ -12,12 +12,11 @@
         <div class="uk-card-title submitForm">
             <!-- Part: Workgroup Owner -->
             <div class="divWrapper" id="Workgroup_Owner">
-                
                 <!-- Only for WG-Owner -->
                 <div *ngIf="userEmail===workgroupOwner">
                     <label style="margin-right: 10px;">Project Owner:</label>
                     <mat-form-field *ngIf="!this.workgroupList.length == 0" style="margin-right: 10px; position: inherit;" appearance="fill"  [ngStyle]="{'width': workgroupOwner.length + 6 +'ch'}">
-                        <mat-label>{{this.workgroupOwner}}</mat-label>
+                        <mat-label>Project Owner</mat-label>
                         <mat-select  #ownerSelect [(ngModel)]="selectedOwner">
                             <mat-option *ngFor="let element of workgroupList" [value]="element.email">
                             {{element.email}}
@@ -33,7 +32,6 @@
                         <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">
                         <button id="renameProject" type="button" class="normalButton" (click)="renameProject(workgroupInviteForm)">Rename project</button>
                     </div>
-                    
                 </div>
                 <!-- If User is not the WG-Owner -->
                 <div *ngIf="userEmail!==workgroupOwner" >
@@ -57,21 +55,16 @@
                     </div>
                 </form>
             </div>
-
             <!-- Part: Member List -->
             <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8" aria-describedby="mydesc">
                 <ng-container matColumnDef="email">
                   <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
                   <td mat-cell *matCellDef="let element">
-                    <mat-selection-list [(ngModel)]="selectedMember" (selectionChange)="changeMemberSelection(element)" name="folderss">
-                        <mat-list-option id="selectedMember" >
-                            <div class="emailTableContainer">
-                                <label>{{element.email}} </label>
-                                <button class="normalButton deleteButton"(click)="removeFromWorkgroup(element);">Remove</button> 
-                            </div>                          
-                        </mat-list-option>      
-                    </mat-selection-list>                 
-                    </td>
+                    <div class="emailTableContainer">
+                        <label>{{element.email}} </label>
+                        <button class="normalButton deleteButton"(click)="removeFromWorkgroup(element);">Remove</button>
+                    </div>             
+                  </td>
                 </ng-container>
 
                 <ng-container  matColumnDef="can_edit_workgroup">
@@ -86,7 +79,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button *ngIf="userEmail===workgroupOwner" type="button" class="normalButton deleteButton" (click)="isCurrentRepoToDelete()" >Delete Project
+        <button *ngIf="userEmail===workgroupOwner" type="button" class="normalButton deleteButton" (click)="isCurrentRepoToDelete()">Delete Project
         </button>
         <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
         </button>
