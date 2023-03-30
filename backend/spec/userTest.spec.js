@@ -1,5 +1,5 @@
 const path = require('path');
-const userHelper = require('../dist/user');
+const userHelper = require('../dist/helpers/userManagement');
 
 const config = path.resolve(__dirname, './support/.env');
 console.log(config);
