@@ -479,7 +479,7 @@
   margin-left: 8px;
 }
 
-.mat-mdc-expansion-panel{
+.mat-expansion-panel{
   /* width: 96% !important; */
   left: 30px;
   border: 0 !important;
@@ -531,7 +531,7 @@ button#background_up {
 }
 
 .backgroundTitle {
-  flex-grow: .58;
+  flex-grow: .93;
 }
 
 .def:hover span[rel=def] {

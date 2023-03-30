@@ -6,7 +6,10 @@ import { DeleteToast } from 'src/app/delete-toast';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { ApiService } from 'src/app/Services/api.service';
 import { ProjectService } from 'src/app/Services/project.service';
+import { TransferOwnershipToast } from 'src/app/transferOwnership-toastr';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
+import { Subscription } from 'rxjs';
+import { MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'app-workgroup-edit',
@@ -53,12 +56,17 @@ export class WorkgroupEditComponent {
   modalReference: NgbModalRef;
 
   projectName: string;
-
+  @ViewChild('ownerSelect') ownerSelect: MatSelect;
+    /**
+    * Selected member to transfer Ownership
+    */
+    selectedOwner: string;
+  
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
-
+  transferOwnershipObservable: Subscription;
   constructor(private modalService: NgbModal, 
-    public projectService: ProjectService, 
+    public projectService: ProjectService,
     private toastr: ToastrService,
     public apiService: ApiService) {
     this.projectService.deleteRepositoryEvent.subscribe(() => {
@@ -68,7 +76,21 @@ export class WorkgroupEditComponent {
       this.repos = repos;
     });
   }
-
+  ngOnInit() {
+    this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
+      this.transferedOwnership(this.selectedOwner);
+    });
+ }
+  ngOnDestroy() {
+    if (!this.transferOwnershipObservable.closed) {
+      this.transferOwnershipObservable.unsubscribe();
+    }
+  }
+  onModalClosed() {
+    this.selectedOwner = undefined;
+    this.ownerSelect = null;
+  }
+ 
   /**
      * Opens the workgroup edit modal
      */
@@ -88,6 +110,23 @@ export class WorkgroupEditComponent {
     });
   }
 
+  transferedOwnership(newOwner){
+    document.getElementById('changeOwner').setAttribute('style', 'display: none');
+    const repo_id = localStorage.getItem('id');
+    this.projectService
+    .changeOwner(repo_id, newOwner)
+    .subscribe(_ => {
+        this.toastr.success('successfully changed', 'New owner');
+    }); 
+    this.modalReference.close();
+  }
+
+ transferOwnership(selectedMember: string){
+  this.selectedOwner = selectedMember;
+  this.toastr.warning('', 'Do you really want to transfer your ownership? You will lose your administrator rights.', {
+    toastComponent: TransferOwnershipToast
+  });
+ }
 /**
  * Invites a user to the workgroup
  * @param form
@@ -159,7 +198,7 @@ export class WorkgroupEditComponent {
  */
   showDeleteRepositoryToast() {
     this.apiService.nameOfComponent('repository');
-    this.toastr.warning('', 'Do you really want to delete this repository?', {
+    this.toastr.warning('Are your sure you want to delete this Project? It cannot be restored.', 'Delete Project?', {
         toastComponent: DeleteToast
     });
   }

@@ -1,4 +1,8 @@
-<table aria-describedby="mydesc" *ngIf="exampleThere" mat-table [dataSource]="data" class="mat-elevation-z8 mat-table" >
+<table aria-describedby="mydesc" #table *ngIf="exampleThere" mat-table [dataSource]="data" class="mat-elevation-z8 mat-table"
+cdkDropList
+(cdkDropListDropped)="dropExample($event)"
+cdkDropListData="data"
+[cdkDropListDisabled]="dragDisabled" >
 
 	<!--- Note that these columns can be defined in any order.
         The actual rendered columns are set as a property on the row definition" -->
@@ -19,6 +23,9 @@
 			</th>
 			<td [class.deactivated]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].deactivated" class="valueRow" mat-cell *matCellDef="let element;let rowIndex = index;">
 				<div *ngIf="first" class="checkboxWrapper">
+					<div class="dragIconContainer" cdkDragHandle (mousedown)="dragDisabled = false;">
+                        <em class="material-icons dragIcon">drag_indicator</em>
+                      </div>
 					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
 					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
 				</div>
@@ -35,7 +42,7 @@
 	</ng-container>			
 	
 	<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-	<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+	<tr mat-row *matRowDef="let row; columns: displayedColumns;" cdkDragBoundary=".mdc-data-table__content" cdkDrag [cdkDragData]="row"></tr>
 
 </table>
 
