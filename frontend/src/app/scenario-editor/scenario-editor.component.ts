@@ -9,6 +9,8 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { ScenarioService } from '../Services/scenario.service';
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
+import { BlockService } from '../Services/block.service';
 
 
 /**
@@ -30,6 +32,7 @@ export class ScenarioEditorComponent implements OnInit{
      */
 	 constructor(
         public apiService: ApiService,
+        public blockService: BlockService,
         public scenarioService: ScenarioService,
         public toastr: ToastrService
     ) {
@@ -395,7 +398,7 @@ export class ScenarioEditorComponent implements OnInit{
      * @param repoId id of the repository / project
      */
     getAllBlocks(repoId: string) {
-        this.apiService.getBlocks(repoId).subscribe((resp) => {
+        this.blockService.getBlocks(repoId).subscribe((resp) => {
             this.blocks = resp;
         });
     }

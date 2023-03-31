@@ -31,13 +31,20 @@ export class BlockService {
   * Delete emitter to add delete a block from blocks
    */
   public deleteBlockEvent = new EventEmitter();
+
+  /**
+     * Event emitter to unpack Block
+     */
+  public unpackBlockEvent = new EventEmitter();
+ 
+
   /**
   * Emits the add block to scenario event
   * @param block
   * @param correspondingComponent
   */
-  addBlockToScenario(block: Block, correspondingComponent: string) {
-    this.addBlockToScenarioEvent.emit([correspondingComponent, block]);
+  addBlockToScenario(block: Block, correspondingComponent: string, addAsReference: boolean) {
+    this.addBlockToScenarioEvent.emit([correspondingComponent, block, addAsReference]);
   }
   /**
   * Emits the update block in blocks
@@ -103,4 +110,24 @@ export class BlockService {
       //
     }));
   }
+
+  /**
+     * Update a Block
+     * @param block
+     * @returns
+     */
+  editBlock(block: Block) {
+    return this.http
+      .put<Block>(this.apiService.apiServer + '/mongo/block', block, ApiService.getOptions())
+      .pipe(tap(),
+        catchError(this.apiService.handleError)
+      );
+  }
+
+  /**
+     * Emits the unpack block event
+     */
+  public unpackBlockEmitter() {
+    this.unpackBlockEvent.emit();
+}
 }

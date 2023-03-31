@@ -1,7 +1,7 @@
 import { animate, keyframes, state, style, transition, trigger} from '@angular/animations';
 import { Component} from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
-import { ApiService } from './Services/api.service';
+import { BlockService } from './Services/block.service';
 
 /**
  * Component of the Delete Scenario toasts
@@ -93,13 +93,13 @@ import { ApiService } from './Services/api.service';
    * Constructor
    * @param toastrService
    * @param toastPackage
-   * @param apiService
+   * @param blockService
    * constructor is only necessary when not using AoT
    */
   constructor(
     protected toastrService: ToastrService,
     public toastPackage: ToastPackage,
-    public apiService: ApiService
+    public blockService: BlockService
   ) {
     super(toastrService, toastPackage);
   }
@@ -110,7 +110,7 @@ import { ApiService } from './Services/api.service';
    */
   unpackBlock(event: Event) {
     event.stopPropagation();
-    this.apiService.unpackBlockEmitter();
+    this.blockService.unpackBlockEmitter();
     this.remove();
   }
 }

@@ -16,7 +16,10 @@ import { ExampleTableComponent } from '../example-table/example-table.component'
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
+import { StoryService } from '../Services/story.service';
 import { BackgroundService } from '../Services/background.service';
+import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
+import { UnpackBlockToast } from '../unpackBlock-toast';
 
 @Component({
   selector: 'app-base-editor',
@@ -157,6 +160,7 @@ export class BaseEditorComponent  {
     public blockService: BlockService,
     public exampleService: ExampleService,
     public scenarioService: ScenarioService,
+    public storyService: StoryService,
     public backgroundService: BackgroundService) {}
 
   ngOnInit(): void {
@@ -204,11 +208,11 @@ export class BaseEditorComponent  {
     this.backgroundChangedObservable = this.backgroundService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
     });
-    this.deleteStoryObservable = this.apiService.deleteStoryEvent.subscribe(() => {
+    this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(() => {
       this.selectedStory = null;
     });
 
-    this.deleteScenarioObservable = this.apiService.deleteScenarioEvent.subscribe(() => {
+    this.deleteScenarioObservable = this.scenarioService.deleteScenarioEvent.subscribe(() => {
       this.selectedScenario = null;
     });
     

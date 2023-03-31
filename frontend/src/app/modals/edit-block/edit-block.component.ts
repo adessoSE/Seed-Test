@@ -1,7 +1,7 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import {Block} from 'src/app/model/Block';
-import {ApiService} from 'src/app/Services/api.service';
+import {BlockService} from 'src/app/Services/block.service';
 import {StepType} from 'src/app/model/StepType';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {StepDefinition} from '../../model/StepDefinition';
@@ -41,7 +41,7 @@ export class EditBlockComponent {
    * Subscriptions for all EventEmitter
    */
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) {
+  constructor(private modalService: NgbModal, public blockService: BlockService) {
 
   }
 
@@ -294,7 +294,7 @@ export class EditBlockComponent {
   }
 
   editBlockSubmit() {
-    this.apiService.editBlock(this.selectedBlock).subscribe();
+    this.blockService.editBlock(this.selectedBlock).subscribe();
     this.modalReference.close();
   }
 

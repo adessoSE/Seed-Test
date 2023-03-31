@@ -68,6 +68,11 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       */
     clipboardBlock: Block;
 
+    /**
+     * Boolean, wether Block should be added as reference
+     */
+    addAsReference: boolean;
+
     modalReference: NgbModalRef;
     deleteBlockObservable: Subscription;
    
@@ -209,7 +214,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     copiedBlock() {
       if (this.clipboardBlock) {
-          this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent);
+          this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, false);
       }
     }
 
@@ -217,7 +222,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Adds a block to saved blocks
      */
     addBlockFormSubmit() {
-      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent);
+      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
       this.modalReference.close();
     }
     
