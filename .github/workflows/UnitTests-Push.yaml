@@ -4,7 +4,7 @@ on:
       - CUC-384-Github-Actions
 name: SonarCloud
 jobs:
-  test:
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,12 +15,14 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: Build and test
+      - name: Build and test frontend
         run: |
           cd frontend
           npm install
-          npm test
+          npm test > frontend_testresult.txt
 
+      - name: Build and test backend
+        run: |
           cd ../backend
           npm install
-          npm test
+          npm test > backend_testresult.txt
