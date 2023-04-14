@@ -4,14 +4,10 @@
 const ch = require('child_process');
 const fs = require('fs');
 const pfs = require('fs/promises');
-const { XMLHttpRequest } = require('xmlhttprequest');
 const path = require('path');
-const fetch = require('node-fetch');
 const AdmZip = require('adm-zip');
 const os = require('os');
 const mongo = require('./database/DbServices');
-const emptyScenario = require('./models/emptyScenario');
-const emptyBackground = require('./models/emptyBackground');
 
 // adds content of each values to output
 function getValues(values) {
@@ -274,82 +270,6 @@ function scenarioPrep(scenarios, driver) {
 	return { scenarios, parameters };
 }
 
-function uniqueRepositories(repositories) {
-	const uniqueIds = [];
-	const unique = [];
-	for (const i in repositories) {
-		if (uniqueIds.indexOf(repositories[i]._id.toString()) <= -1) {
-			uniqueIds.push(repositories[i]._id.toString());
-			unique.push(repositories[i]);
-		}
-	}
-	return unique;
-}
-
-function execRepositoryRequests(link, user, password, ownerId, githubId) {
-	return new Promise((resolve, reject) => {
-		const request = new XMLHttpRequest(); // use fetch
-		// get Issues from GitHub
-		request.open('GET', link, true, user, password);
-		request.send();
-		request.onreadystatechange = async () => {
-			if (request.readyState !== 4) return;
-			if (request.status !== 200) { reject(this.status); return; }
-			const data = JSON.parse(request.responseText);
-			const projects = [];
-			const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');
-			let mongoRepo;
-			for (const repo of data) {
-				// if this Repository is not in the DB create one in DB
-				if (!gitReposFromDb.some((entry) => entry.repoName === repo.full_name)) {
-					mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
-				} else {
-					mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name); // await mongo.getOneGitRepository(repo.full_name)
-					if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(repo._id, ownerId, mongoRepo.owner);
-				}
-				const repoName = repo.full_name;
-				const proj = {
-					_id: mongoRepo._id,
-					value: repoName,
-					source: 'github'
-				};
-				projects.push(proj);
-			}
-			resolve(projects);
-		};
-	});
-}
-
-function ownRepositories(ownerId, githubId, githubName, token) {
-	if (!githubName && !token) return Promise.resolve([]);
-	return execRepositoryRequests('https://api.github.com/user/repos?per_page=100', githubName, token, ownerId, githubId);
-}
-
-function starredRepositories(ownerId, githubId, githubName, token) {
-	if (!githubName && !token) return Promise.resolve([]);
-	return execRepositoryRequests(`https://api.github.com/users/${githubName}/starred`, githubName, token, ownerId, githubId);
-}
-
-async function fuseStoryWithDb(story) {
-	const result = await mongo.getOneStory(parseInt(story.story_id, 10), story.storySource);
-	if (result !== null) {
-		story.scenarios = result.scenarios;
-		story.background = result.background;
-		story.lastTestPassed = result.lastTestPassed;
-	} else {
-		story.scenarios = [emptyScenario()];
-		story.background = emptyBackground();
-	}
-	story.story_id = parseInt(story.story_id, 10);
-	if (story.storySource !== 'jira') story.issue_number = parseInt(story.issue_number, 10);
-
-	const finalStory = await mongo.upsertEntry(story.story_id, story, story.storySource);
-	story._id = finalStory._id;
-	// Create & Update Feature Files
-	writeFile(story);
-	return story;
-}
-
 async function deleteOldReports(reports) {
 	const keepReportAmount = parseInt(process.env.MAX_SAVED_REPORTS, 10);
 	// sort Reports by timestamp
@@ -451,13 +371,10 @@ module.exports = {
 	executeTest,
 	updateLatestTestStatus,
 	getReportHistory,
-	uniqueRepositories,
 	cleanFileName,
 	getFeatureContent,
 	getScenarioContent,
 	writeFile,
-	ownRepositories,
-	fuseStoryWithDb,
 	getExamples,
 	getSteps,
 	getBackgroundContent,
@@ -466,6 +383,5 @@ module.exports = {
 	updateFeatureFile,
 	deleteFeatureFile,
 	exportSingleFeatureFile,
-	exportProjectFeatureFiles,
-	starredRepositories
+	exportProjectFeatureFiles
 };

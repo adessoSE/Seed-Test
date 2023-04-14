@@ -2,7 +2,8 @@ const reporter = require('cucumber-html-reporter');
 const pfs = require('fs/promises')
 const fs = require('fs')
 const path = require('path');
-const ticketMng = require('./ticketManagement')
+const ticketMng = require('./ticketManagement');
+const userMng = require('./userManagement')
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
 import {executionMode, storyReport, scenarioReport, groupReport, passedCount, stepStatus} from '../models/models';

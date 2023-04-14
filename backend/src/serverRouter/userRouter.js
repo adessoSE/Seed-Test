@@ -181,15 +181,15 @@ router.get('/repositories', (req, res) => {
 	}
 	// get repositories from individual sources
 	Promise.all([
-		helper.starredRepositories(req.user._id, githubId, githubName, token),
-		helper.ownRepositories(req.user._id, githubId, githubName, token),
+		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
+		projectMng.ownRepositories(req.user._id, githubId, githubName, token),
 		projectMng.getJiraRepos(req.user.jira),
 		projectMng.dbProjects(req.user._id)
 	])
 		.then((repos) => {
 			let merged = [].concat(...repos);
 			// remove duplicates
-			merged = helper.uniqueRepositories(merged);
+			merged = projectMng.uniqueRepositories(merged);
 			res.status(200).json(merged);
 		})
 		.catch((reason) => {
@@ -269,7 +269,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-				const entry = await helper.fuseStoryWithDb(story);
+				const entry = await projectMng.fuseStoryWithDb(story);
 				tmpStories.set(entry._id.toString(), entry);
 				tmpStoriesArray.push(entry._id);
 			}
@@ -331,7 +331,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 								story.assignee = 'unassigned';
 								story.assignee_avatar_url = null;
 							}
-							const entry = await helper.fuseStoryWithDb(story, issue.id);
+							const entry = await projectMng.fuseStoryWithDb(story, issue.id);
 							tmpStories.set(entry._id.toString(), entry);
 							storiesArray.push(entry._id);
 						}
