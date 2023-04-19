@@ -360,47 +360,47 @@ export class BaseEditorComponent  {
   /**
     * Adds step
     * @param step 
-    * @param storyOrScenario 
+    * @param selectedScenario 
     * @param templateName
     * @param step_idx Optional argument
     */
-  addStep(step: StepType, storyOrScenario:any, templateName, step_idx?: any) {
+  addStep(step: StepType, selectedScenario:any, templateName, step_idx?: any) {
     let lastEl;
     let newStep;
     if (templateName == 'background') {
-      newStep = this.createNewStep(step, storyOrScenario.background.stepDefinitions);
+      newStep = this.createNewStep(step, selectedScenario.background.stepDefinitions);
     } 
     else {
-      newStep = this.createNewStep(step, storyOrScenario.stepDefinitions);
+      newStep = this.createNewStep(step, selectedScenario.stepDefinitions);
     }
     if (newStep['type'] === this.newStepName) {
       this.newStepRequest.openNewStepRequestModal(newStep['stepType']);
     } else {
       switch (newStep.stepType) {
         case 'given':
-          storyOrScenario.stepDefinitions.given.push(newStep);
-          lastEl = storyOrScenario.stepDefinitions.given.length-1;
+          selectedScenario.stepDefinitions.given.push(newStep);
+          lastEl = selectedScenario.stepDefinitions.given.length-1;
           this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
           break;
         case 'when':
           switch (templateName) {
             case 'scenario':
-              storyOrScenario.stepDefinitions.when.push(newStep);
-              lastEl = storyOrScenario.stepDefinitions.when.length-1;
+              selectedScenario.stepDefinitions.when.push(newStep);
+              lastEl = selectedScenario.stepDefinitions.when.length-1;
               this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
               break;
                
             case 'background':
-              storyOrScenario.background.stepDefinitions.when.push(newStep);
-              lastEl = storyOrScenario.background.stepDefinitions.when.length-1;
+              selectedScenario.background.stepDefinitions.when.push(newStep);
+              lastEl = selectedScenario.background.stepDefinitions.when.length-1;
               this.lastToFocus = templateName+'_step_input_pre_'+ lastEl;
               break;
           }
           break;
        
         case 'then':
-          storyOrScenario.stepDefinitions.then.push(newStep);
-          lastEl = storyOrScenario.stepDefinitions.then.length-1;
+          selectedScenario.stepDefinitions.then.push(newStep);
+          lastEl = selectedScenario.stepDefinitions.then.length-1;
           this.lastToFocus = templateName+'_'+step_idx+'_input_pre_'+ lastEl;
           break;
         case 'example':

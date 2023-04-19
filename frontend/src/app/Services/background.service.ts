@@ -26,6 +26,14 @@ export class BackgroundService {
     * Event emitter to change a background
   */
   public backgroundChangedEvent: EventEmitter<Scenario> = new EventEmitter();
+ /**
+    * Track if background was replaced
+  */
+  public backgroundReplaced = false;
+  /**
+    * Track current background before saving changes
+  */
+  public currentBackground: Background;
   /* 
   * Emits background changed event 
   */
