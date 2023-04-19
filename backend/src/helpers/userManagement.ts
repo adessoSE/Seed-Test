@@ -17,16 +17,16 @@ function jiraEncryptPassword(pass: string): Buffer[] {
 }
 
 function jiraDecryptPassword(ciphertext: Buffer, nonce: Buffer, tag: Buffer): string {
-    nonce = nonce ? nonce : Buffer.alloc(13, 0);
+    nonce = nonce ? Buffer.from(nonce.buffer) : Buffer.alloc(13, 0);
     try {
         const decipher = createDecipheriv(cryptoAlgorithm, key, nonce, { authTagLength: 16 });
-        decipher.setAuthTag(tag);
+        decipher.setAuthTag(Buffer.from(tag.buffer));
         console.log("ciphertext", ciphertext);
-        const receivedPlaintext = decipher.update(ciphertext, null, 'utf8');
+        const receivedPlaintext = decipher.update(Buffer.from(ciphertext.buffer), null, 'utf8');
         decipher.final();
         return receivedPlaintext;
     } catch (err) {
-        console.log("Authentication Failed");// leaf in or replace with proper logging
+        console.log(`Authentication Failed: ${err}`);// leaf in or replace with proper logging
         throw new Error('Authentication failed!');
     }
 }

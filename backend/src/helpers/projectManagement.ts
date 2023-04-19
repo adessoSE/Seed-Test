@@ -152,7 +152,7 @@ function execRepositoryRequests(link, user, password, ownerId, githubId) {
 					mongoRepo = await mongo.createGitRepo(repo.owner.id, repo.full_name, githubId, ownerId);
 				} else {
 					mongoRepo = gitReposFromDb.find((element) => element.repoName === repo.full_name); // await mongo.getOneGitRepository(repo.full_name)
-					if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(repo._id, ownerId, mongoRepo.owner);
+					if (mongoRepo.gitOwner === githubId) mongo.updateOwnerInRepo(mongoRepo._id, ownerId, mongoRepo.owner);
 				}
 				const repoName = repo.full_name;
 				const proj = {
