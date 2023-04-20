@@ -1,12 +1,12 @@
-const winston = require('winston')
+const winston = require('winston');
 
-function getLogger(){
-	//Winston config
+function getLogger() {
+	// Winston config
 	const myformat = winston.format.combine(
 		winston.format.colorize(),
 		winston.format.timestamp(),
 		winston.format.align(),
-		winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+		winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
 	);
 	const logConfiguration = {
 		transports: [
@@ -31,34 +31,31 @@ function getLogger(){
 const logger = getLogger();
 
 function httpLog(req, res, next) {
-    if (req.url.endsWith('log')) {next()}
-	else{
-		const requestStart = Date.now()
+	if (req.url.endsWith('log')) next();
+	else {
+		const requestStart = Date.now();
 
 		let errorMessage = null;
 
-		req.on("error", error => {
+		req.on('error', (error) => {
 			errorMessage = error.message;
 		});
 
-		res.on("finish", () => {
+		res.on('finish', () => {
 			const { method, socket, url } = req;
-    		const { remoteAddress } = socket;
+			const { remoteAddress } = socket;
 
-			
-			let processingTime = Date.now() - requestStart
-			let status = res.statusCode;
+			const processingTime = Date.now() - requestStart;
+			const status = res.statusCode;
 			let log = `[${requestStart}, duration: ${processingTime}] ${method}:${url}, reqOrigin: ${remoteAddress}, resCode: ${status}`;
-			log += errorMessage? `\n error: ${errorMessage}`: ''
-			logger.debug(log)
-		})
-		next()
+			log += errorMessage ? `\n error: ${errorMessage}` : '';
+			logger.debug(log);
+		});
+		next();
 	}
-    
 }
-
 
 module.exports = {
 	httpLog,
-    getLogger
+	getLogger
 };

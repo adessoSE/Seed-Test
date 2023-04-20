@@ -3,9 +3,11 @@ import {ApiService} from './Services/api.service';
 import { Router } from '@angular/router';
 import { RepositoryContainer } from './model/RepositoryContainer';
 import { ThemingService } from './Services/theming.service';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { NGXLogger, NgxLoggerLevel } from 'ngx-logger';
+import { LoginService } from './Services/login.service';
+import { ProjectService } from './Services/project.service';
+import { StoryService } from './Services/story.service';
 
 
 /**
@@ -47,7 +49,7 @@ export class AppComponent implements OnInit{
 
   isDark : boolean;
 
-  toggleControl = new FormControl(false);
+  toggleControl = new UntypedFormControl(false);
 
   /**
   * Subscribtions for all EventEmitter
@@ -64,35 +66,37 @@ export class AppComponent implements OnInit{
    * @param apiService
    * @param router
    * @param themeService
+   * @param loginService
+   * @param projectService
+   * @param storyService
    */
 
-  constructor(public apiService: ApiService, public router: Router, public themeService: ThemingService, public logger: NGXLogger) {
+  constructor(public apiService: ApiService, 
+    public router: Router, 
+    public themeService: ThemingService,
+    public loginService: LoginService,
+    public projectService: ProjectService,
+    public storyService: StoryService,
+    ) {
   }
 
   /**
    * Retrieves Repositories
    */
   ngOnInit() {
-    this.logoutObservable = this.apiService.logoutEvent.subscribe(_ => {
+    this.logoutObservable = this.loginService.logoutEvent.subscribe(_ => {
       this.logout();
     });
-    this.getRepositoriesObservable = this.apiService.getRepositoriesEvent.subscribe(() => this.getRepositories())
-    this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
+    this.getRepositoriesObservable = this.projectService.getRepositoriesEvent.subscribe(() => this.getRepositories())
+    this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => this.updateRepositories())
     
-    this.createRepositoryEmitter = this.apiService.createCustomStoryEmitter.subscribe(custom => {
-      this.apiService.createRepository(custom.repository.value, custom.repository._id).subscribe(_ => {
+    this.createRepositoryEmitter = this.storyService.createCustomStoryEmitter.subscribe(custom => {
+      this.projectService.createRepository(custom.repository.value, custom.repository._id).subscribe(_ => {
           this.getRepositories()
         });
     });
     if (!this.apiService.urlReceived) {
-      this.apiService.getBackendInfo()
-      .then(()=>{ //Logger config
-        this.logger.updateConfig({
-          serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
-          level: NgxLoggerLevel.DEBUG,
-          serverLogLevel: NgxLoggerLevel.DEBUG
-        })
-      })
+      this.apiService.getBackendInfo();
     }
     this.themeService.loadTheme();
     this.isDark = this.themeService.isDarkMode();
@@ -165,8 +169,8 @@ export class AppComponent implements OnInit{
    * Gets the repositories
    */
   getRepositories() {
-    if (this.apiService.isLoggedIn()) {
-      this.apiService.getRepositories().subscribe((resp) => {
+    if (this.loginService.isLoggedIn()) {
+      this.projectService.getRepositories().subscribe((resp) => {
         this.repositories = resp;
       }, (err) => {
         this.error = err.error;
@@ -206,7 +210,7 @@ export class AppComponent implements OnInit{
    */
   logout() {
     this.repositories = undefined;
-    this.apiService.logoutUser().subscribe(_ => {
+    this.loginService.logoutUser().subscribe(_ => {
       //
     });
     this.router.navigate(['/login']);

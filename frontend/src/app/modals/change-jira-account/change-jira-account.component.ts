@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ApiService } from 'src/app/Services/api.service';
+import { ManagementService } from 'src/app/Services/management.service';
 
 
 @Component({
@@ -30,15 +30,15 @@ export class ChangeJiraAccountComponent {
   */
   modalReference: NgbModalRef;
 
-  jiraForm = new FormGroup({
-    jiraAccountName: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
-    jiraPassword: new FormControl('', [Validators.required, Validators.pattern(/[\S]/), Validators.minLength(6)]),
-    jiraHost: new FormControl('', [Validators.required, Validators.pattern(/[\S]/)]),
+  jiraForm = new UntypedFormGroup({
+    jiraAccountName: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    jiraPassword: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)]),
+    jiraHost: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
   });
 
   get jiraAccountName() { return this.jiraForm.get('jiraAccountName'); }
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) {}
+  constructor(private modalService: NgbModal, public managmentService: ManagementService) {}
     /**
      * Opens the change Jira Account Modal
      * @param type type of the changed account
@@ -61,8 +61,9 @@ export class ChangeJiraAccountComponent {
               'jiraPassword': jira_password,
               'jiraHost': jiraHost,
       };  
-      this.apiService.createJiraAccount(request).subscribe(response => {
+      this.managmentService.createJiraAccount(request).subscribe(response => {
         this.jiraAccountResponse.emit(response);
+        window.location.reload();
       });
       this.modalReference.close();
     }

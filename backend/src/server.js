@@ -15,7 +15,7 @@ const userRouter = require('./serverRouter/userRouter');
 const groupRouter = require('./serverRouter/groupRouter');
 const workgroupsRouter = require('./serverRouter/workgroups');
 const storyRouter = require('./serverRouter/storyRouter');
-const logging = require('./logging')
+const logging = require('./logging');
 require('./database/DbServices');
 
 const app = express();
@@ -66,12 +66,9 @@ app
 		credentials: true
 	}));
 
-
 app
 	.use(passport.initialize())
 	.use(passport.session())
-	.use(bodyParser.json({ limit: '100kb' }))
-	.use(bodyParser.urlencoded({ limit: '100kb', extended: true }))
 	.use((_, __, next) => {
 		logging.httpLog(_, __, next)
 	})
@@ -87,6 +84,5 @@ app
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
-	
 
 module.exports = { app };

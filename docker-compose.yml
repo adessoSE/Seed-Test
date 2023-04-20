@@ -1,22 +1,50 @@
-version: "3.9"
+version: "2.12"
 
 services:
-  backend:
-    build: 
-      ./backend
-    env_file:
-      - ./backend/.env
+
+  seedmongodb:
+    container_name: "Seed-MongoDB"
+    image: mongo
+    volumes:
+      - seedDB:/data/db
+      - seedDB:/data/configdb
     ports:
-      - "8080:8080"
+      - "27017-27019:27017-27019"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=SeedAdmin
+      - MONGO_INITDB_ROOT_PASSWORD=SeedTest
+      - MONGO_INITDB_DATABASE=Seed
+    restart: always
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - BUILD_DATE=${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        - VCS_REF=${VCS_REF:-$(git rev-parse --short HEAD)}
+        - IMAGE_NAME=seed-test-backend:latest
+    image: seed-test-backend:latest
+    ports:
+      - "${BACKENDPORT}:${BACKENDPORT}"
     container_name: "Seed-backend"
+    depends_on:
+      - seedmongodb
+    restart: always
     
   frontend:
     build: 
-      ./frontend
-    env_file:
-      - ./frontend/.env
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - BUILD_DATE=${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        - VCS_REF=${VCS_REF:-$(git rev-parse --short HEAD)}
+        - IMAGE_NAME=seed-test-frontend:latest
+    image: seed-test-frontend:latest
     ports:
-      - "4200:4200"
+      - "${FRONTENDPORT}:${FRONTENDPORT}"
     container_name: "Seed-frontend"
     depends_on:
       - backend
+    restart: always
+volumes:
+  seedDB:

@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ApiService } from 'src/app/Services/api.service';
+import { ScenarioService } from 'src/app/Services/scenario.service';
 
 @Component({
   selector: 'app-rename-scenario',
@@ -16,7 +16,7 @@ export class RenameScenarioComponent {
 
   @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  constructor(private modalService: NgbModal, public scenarioService: ScenarioService) { }
 
 /**
  * Opens the rename scenario Modal
@@ -32,7 +32,7 @@ export class RenameScenarioComponent {
 */
   submitRenameScenario(form: NgForm) {
     const name = form.value.newTitle;
-    this.apiService.renameScenarioEmit(name);
+    this.scenarioService.renameScenarioEmit(name);
     this.modalReference.close();
   }
 

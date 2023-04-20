@@ -2,24 +2,29 @@
   padding: 0px;
   margin: 0px;
 }
+.scenarioTitle > .mat-icons{
+  transform: translateY(-5px);
+  width: 25px;
 
+}
 .scenarioHeaderContainer{
   display: grid;
   grid-template-columns: 1fr auto 1fr auto;
   margin: 0 20px;
   padding: 12px 0 12px 0;
+  position: relative; 
 }
 
-:host ::ng-deep .mat-form-field-appearance-standard .mat-form-field-flex {
+:host ::ng-deep .mat-mdc-form-field-appearance-standard .mat-mdc-form-field-flex {
   padding-top: 0 !important;
  }
 
-:host ::ng-deep.mat-form-field-infix {
+:host ::ng-deep.mat-mdc-form-field-infix {
   padding: 0 0 0.5em .1em !important;
   border-top: 0 !important;
 }
 
-:host ::ng-deep.mat-form-field-underline {
+:host ::ng-deep.mat-mdc-form-field-underline {
   background-color: black !important;
 }
 
@@ -98,7 +103,19 @@ table {
 /* .scenario_unsaved {
   color: red !important;
 } */
-
+.saveDone{
+  display: block;
+  position: absolute; 
+  bottom:0; 
+  left:0; 
+  background: transparent;
+  border: none;
+  margin-right: 2px;
+}
+.material-icons-merged{
+  height: 71%;
+  width: 194%;
+}
 
 .title span[rel="def"] {
   font-weight: normal;

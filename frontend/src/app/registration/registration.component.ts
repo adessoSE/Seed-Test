@@ -1,9 +1,9 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {ApiService} from '../Services/api.service';
-import {NavigationEnd, Router} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ThemingService } from '../Services/theming.service';
+import { LoginService } from '../Services/login.service';
 
 /**
  * Component to register a new user
@@ -26,7 +26,7 @@ export class RegistrationComponent implements OnInit {
     /**
      * @ignore
      */
-    constructor(public apiService: ApiService, private router: Router, private toastr: ToastrService,
+    constructor(public loginService: LoginService, private router: Router, private toastr: ToastrService,
         private themeService:ThemingService) {}
 
     /**
@@ -44,11 +44,11 @@ export class RegistrationComponent implements OnInit {
             let userId = localStorage.getItem('userId');
             localStorage.removeItem('userId')
             this.error = undefined;
-            let response = await this.apiService.registerUser(form.value.email, form.value.password, userId).toPromise()
+            let response = await this.loginService.registerUser(form.value.email, form.value.password, userId).toPromise()
             localStorage.setItem('login', 'true');
             this.toastr.success('successfully registered', 'Registration')
             const user = {email: form.value.email, password: form.value.password}
-            this.apiService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']))
+            this.loginService.loginUser(user).subscribe(() => this.router.navigate(['/accountManagement']))
         }  catch(err) {
            
             this.toastr.error('User with this email alredy exist. Please enter another email', 'Email alredy exist')

@@ -5,6 +5,7 @@ import {saveAs} from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { ReportService } from '../Services/report.service';
 
 
 /**
@@ -27,7 +28,6 @@ export class ReportComponent implements OnInit {
     reportId;
 
     reportIsSaved;
-
     /**
      * html report of the result
      */
@@ -48,7 +48,7 @@ export class ReportComponent implements OnInit {
      * @param apiService
      * @param route
      */
-    constructor(public apiService: ApiService, public route: ActivatedRoute,
+    constructor(public apiService: ApiService, public route: ActivatedRoute, public reportService: ReportService,
         private themeService: ThemingService) {
         this.route.params.subscribe(params => {
             if (params.reportName) {
@@ -101,7 +101,7 @@ export class ReportComponent implements OnInit {
      */
     unsaveReport(reportId) {
         this.reportIsSaved = false;
-        return new Promise<void>((resolve, _reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.reportService
             .unsaveReport(reportId)
             .subscribe(_resp => {
                 resolve();
@@ -115,7 +115,7 @@ export class ReportComponent implements OnInit {
      */
     saveReport(reportId) {
         this.reportIsSaved = true;
-        return new Promise<void>((resolve, _reject) => {this.apiService
+        return new Promise<void>((resolve, _reject) => {this.reportService
             .saveReport(reportId)
             .subscribe(_resp => {
                 resolve();
@@ -131,7 +131,7 @@ export class ReportComponent implements OnInit {
     }
 
     getReport(reportName: string) {
-        this.apiService.getReportByName(reportName).subscribe(resp => {
+        this.reportService.getReportByName(reportName).subscribe(resp => {
             console.log('report', resp);
             this.report = resp;
             this.ngOnChanges();
@@ -143,24 +143,34 @@ export class ReportComponent implements OnInit {
     public exportHtmlToPDF(){
         const iframe = this.iframe.nativeElement;
         const body = iframe.contentWindow.document.getElementsByTagName('body')[0];
-
-        let divEl = iframe.contentWindow.document.getElementsByClassName('panel-collapse');
-        for (let element of divEl) {
+        let divEl =  iframe.contentWindow.document.querySelectorAll(`[id^="collapseFeature"]`);
+         for (let element of divEl) {
             element.classList.add("in");
         }
 
-        html2canvas(body).then(canvas => {
+		html2canvas(body).then(canvas => {
               
-            let docWidth = 208;
-            let docHeight = canvas.height * docWidth / canvas.width;
+            const imgData = canvas.toDataURL("image/jpeg", 1.0);
+            let imgWidth = 206; 
+            let pageHeight = 295;  
+            let imgHeight = canvas.height * imgWidth / canvas.width-10;
+            let heightLeft = imgHeight;
               
-            const contentDataURL = canvas.toDataURL('image/png')
             let doc = new jsPDF('p', 'mm', 'a4');
             let position = 0;
-            doc.addImage(contentDataURL, 'PNG', 0, position, docWidth, docHeight);
+            doc.addImage(imgData, 'PNG', 0, 12, imgWidth, imgHeight);
+          
+            heightLeft -= pageHeight;
+          
+            while (heightLeft >= 0) {
+              position = heightLeft - imgHeight;
+              doc.addPage();
+              doc.addImage(imgData, 'PNG', 0, position+12, imgWidth, imgHeight);
+              heightLeft -= pageHeight;
+            }
               
             doc.save(this.reportId+ '.pdf');
-        })
+        });
     }
       
 }

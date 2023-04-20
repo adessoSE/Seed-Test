@@ -1,8 +1,8 @@
-import { Component, ViewChild } from '@angular/core';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
+import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from 'src/app/model/Story';
-import { ApiService } from 'src/app/Services/api.service';
+import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
   selector: 'app-rename-story',
@@ -13,16 +13,18 @@ export class RenameStoryComponent {
 
   modalReference: NgbModalRef;
 
-  @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
+  @ViewChild('renameStoryModal') renameStoryModal: TemplateRef<RenameStoryComponent>;
 
   story: Story;
   stories: Story[];
-  storyForm = new FormGroup ({
-    storyTitle: new FormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    storyDescription: new FormControl(''),
+  storyForm = new UntypedFormGroup ({
+    storyTitle: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    storyDescription: new UntypedFormControl(''),
   });
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  get storyTitle() { return this.storyForm.get('storyTitle'); }
+
+  constructor(private modalService: NgbModal, public storyService: StoryService) { }
 
   /**
    * Opens the rename story Modal
@@ -33,6 +35,8 @@ export class RenameStoryComponent {
     this.stories = stories;
     this.story = story;
     this.modalReference = this.modalService.open(this.renameStoryModal, {ariaLabelledBy: 'modal-basic-title'});
+    const title = document.getElementById('newStoryTitle') as HTMLInputElement;
+    title.placeholder = story.title;
     this.storyForm.setValue({
       storyTitle: story.title,
       storyDescription: story.body
@@ -45,11 +49,11 @@ export class RenameStoryComponent {
   submitRenameStory() {
     const title = this.storyForm.value.storyTitle;
     const description = this.storyForm.value.storyDescription;
-    this.apiService.renameStoryEmit(title, description);
+    this.storyService.renameStoryEmit(title, description);
     this.modalReference.close();
   }
 
   storyUnique() {
-    this.apiService.storyUnique('submitRenameStory', this.storyForm.value.storyTitle, this.stories, this.story);
+    this.storyService.storyUnique('submitRenameStory', this.storyForm.value.storyTitle, this.stories, this.story);
   }
 }

@@ -1,19 +1,55 @@
 table {
-    margin-top: 5px;
-    width: 100%;
+  width: 100%;
+  margin-top: 5px;
 }
 
+.mat-cell {
+  width: max-content;
+  padding: 0px 10px 0px 10px;
+}
+.dragIconContainer{
+  text-align: center;
+  cursor: move;
+}
+
+.mat-header-cell {
+  width: max-content;
+  padding: 0px 10px 0px 10px;
+
+}
+#nullValue{
+  font-style: italic;
+  color: gray;
+
+}
+span, .checkboxWrapper{
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
 .deactivated{
   color: gray;
   font-style: italic;
+  text-decoration: line-through;
 }
-
+.deactivated .numbering{
+  text-decoration: line-through;
+}
+.boundary{
+  max-width: 100%;
+}
 .valueRow{
   font-weight: normal;
 }
 
 .mat-table{
   font-family: Klavika, sans-serif;
+  display: block;
+  overflow-x: scroll;
+  white-space: nowrap;
+  width: 100% !important;
+  position: sticky;
+
 }
 
 .scenarioTitle{
@@ -32,17 +68,51 @@ table {
 .scenarioTitle > em{
   color:  var(--ocean-blue);
   font-size: 20px;
-  transform: translate(0px, 3px)
+  transform: translate(0px, 3px);
+  position: relative;
+  z-index: 5;
 }
 
 .checkboxWrapper{
-  display: inline-block;
+  display: inline-flex;
 }
-
+.material-icons.dragIcon{
+  font-size: 18px;
+  color: #000;
+  margin-top: 2px;
+}
 .numbering{
   font-weight: 500;
   font-size: 17px;
   margin-bottom: 0px !important;
   display: inline-block;
   vertical-align: middle;
+}
+
+#inputExample{
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.columnMaxWidth {
+
+  word-wrap: break-word !important;
+  max-width: 150px;
+  overflow: auto;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+
+}
+.columnMaxWidth::-webkit-scrollbar-thumb,
+.columnMaxWidth::-webkit-scrollbar-thumb {
+  background: none !important;
+  box-shadow: none !important;
+
+}
+th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
+  position: sticky;
+  z-index:999;
+  left:0;
+  background: inherit;
 }

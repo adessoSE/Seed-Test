@@ -8,13 +8,13 @@ const router = express.Router();
 
 router
 	.use(cors())
-	.use(bodyParser.json({ limit: '100kb' }))
+	.use(bodyParser.json({ limit: '500kb' }))
 	.use(bodyParser.urlencoded({
-		limit: '100kb',
+		limit: '500kb',
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect');
 		next();

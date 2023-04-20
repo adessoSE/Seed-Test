@@ -23,7 +23,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials');
 		next();
@@ -120,19 +120,17 @@ router.get('/user', async (req, res) => {
 router.post('/saveBlock', async (req, res) => {
 	try {
 		const { body } = req;
-		if (!req.user) res.sendStatus(401);
-		else {
+		if (!req.user){res.sendStatus(401);return;}
 			body.owner = ObjectID(req.user._id);
 			const result = await mongo.saveBlock(body);
 			res.status(200).json(result);
-		}
 	} catch (error) {
 		handleError(res, error, error, 500);
 	}
 });
 
 // update custom Blocks
-router.post('/updateBlock/:name', async (req, res) => {
+router.post('/updateBlock/:name', async (req, res) => { // isn't used in frontend, bug risk update by name. better blockId & owner like delete
 	try {
 		const result = await mongo.updateBlock(req.params.name, req.body);
 		res.status(200).json(result);

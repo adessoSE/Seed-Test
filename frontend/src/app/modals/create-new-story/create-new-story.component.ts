@@ -1,11 +1,11 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/model/Group';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { Story } from 'src/app/model/Story';
-import { ApiService } from 'src/app/Services/api.service';
-import { FormGroup, FormControl} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
+import { StoryService } from 'src/app/Services/story.service';
 
 @Component({
   selector: 'app-create-new-story',
@@ -14,7 +14,7 @@ import { FormGroup, FormControl} from '@angular/forms';
 })
 export class CreateNewStoryComponent {
 
-  @ViewChild('createNewStoryModal') createNewStoryModal: CreateNewStoryComponent;
+  @ViewChild('createNewStoryModal') createNewStoryModal: TemplateRef<CreateNewStoryComponent>;
 
   /**
      * selectable Stories when create Group
@@ -35,16 +35,16 @@ export class CreateNewStoryComponent {
 
   story: Story;
 
-  storytitle: string;
+  //storytitle: string;
 
-  storyForm = new FormGroup ({
-    storyTitle: new FormControl(''),
-    storyDescription: new FormControl(''),
+  storyForm = new UntypedFormGroup ({
+    storyTitle: new UntypedFormControl('',[Validators.required, Validators.pattern(/[\S]/)]),
+    storyDescription: new UntypedFormControl(''),
   });
 
 
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  constructor(private modalService: NgbModal, public storyService: StoryService) { }
 
     /**
      * Opens the create new story modal
@@ -66,13 +66,13 @@ export class CreateNewStoryComponent {
       const source = 'db';
       const repositoryContainer: RepositoryContainer = {value, source, _id};
       const story = {title, description};
-      this.apiService.createCustomStoryEvent({repositoryContainer, story});
+      this.storyService.createCustomStoryEvent({repositoryContainer, story});
     }
     this.modalReference.close();
   }
 
   storyUnique() {
-    this.apiService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
+    this.storyService.storyUnique('submitCreateNewStory', this.storyForm.value.storyTitle, this.stories, this.story);
   }
 }
 

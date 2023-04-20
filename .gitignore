@@ -27,7 +27,6 @@ frontend/.idea
 backend/.idea
 .vscode/*
 
-
 # misc
 /.sass-cache
 /connect.lock
@@ -48,29 +47,17 @@ frontend/src/environments/environment.ts
 .DS_Store
 Thumbs.db
 
-frontend/documentation
-frontend/coverage
-frontend/\.editorconfig
-frontend/.angular
-
-frontend/dist/cucumber-frontend/3rdpartylicenses\.txt
-frontend/dist/cucumber-frontend/assets/adesso-logo\.jpg
-frontend/dist/cucumber-frontend/favicon\.ico
-frontend/dist/cucumber-frontend/index\.html
-frontend/dist/cucumber-frontend/main\.e9313b2cc4f34e15a426\.js
-frontend/dist/cucumber-frontend/polyfills\.f6ae3e8b63939c618130\.js
-frontend/dist/cucumber-frontend/runtime\.06daa30a2963fa413676\.js
-frontend/dist/cucumber-frontend/scripts\.1783ec7bceeab4026a81\.js
-frontend/dist/cucumber-frontend/styles\.929c34a151987d4e0622\.css
-
 # Lints
-.eslintrc.json
 tslint.json
 
 # Coerage & Code Analysis
 frontend/src/coverage/
 sonar-project.properties
 .scannerwork
+frontend/documentation
+frontend/coverage
+frontend/\.editorconfig
+frontend/.angular
 
 # Cucumber & Reports
 **/*.feature
@@ -81,13 +68,15 @@ backend/features/reporting_html*.html
 *.bat
 *.sh
 *.ps1
-
-# local testing for step-definition development
-backend/features/step_definitions/testing.js
+!runDocker.bat
+!runDocker.sh
 
 # Website Deployment with IIS
 **/web.config
 /website
 
 #logs
-/backend/logs/
+backend/logs/
+
+# local testing for step-definition development
+backend/features/step_definitions/testing.js

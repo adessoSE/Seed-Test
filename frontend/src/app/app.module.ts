@@ -37,10 +37,7 @@ import { CarouselModule } from 'ngx-owl-carousel-o';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
-import { DeleteScenarioToast } from './deleteScenario-toast';
-import { DeleteExampleToast } from './deleteExample-toast';
-import { DeleteStoryToast } from './deleteStory-toast';
-import { DeleteRepositoryToast } from './deleteRepository-toast';
+import { DeleteToast } from './delete-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
@@ -55,6 +52,7 @@ import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
 import { CreateCustomProjectComponent } from './modals/create-custom-project/create-custom-project.component';
+import { DisconnectJiraAccountComponent} from './modals/disconnect-jira-account/disconnect-jira-account.component';
 import { DeleteAccountComponent } from './modals/delete-account/delete-account.component';
 import { AddBlockFormComponent } from './modals/add-block-form/add-block-form.component';
 import { SaveBlockFormComponent } from './modals/save-block-form/save-block-form.component';
@@ -72,6 +70,7 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
+import { TransferOwnershipToast } from './transferOwnership-toastr';
 
 @NgModule({
   declarations: [
@@ -96,16 +95,13 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
-    DeleteScenarioToast,
-    DeleteExampleToast,
-    DeleteStoryToast,
-    DeleteRepositoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ReportHistoryComponent,
     LayoutModalComponent,
     CreateNewGroupComponent,
     CreateCustomProjectComponent,
+    DisconnectJiraAccountComponent,
     DeleteAccountComponent,
     AddBlockFormComponent,
     SaveBlockFormComponent,
@@ -122,7 +118,9 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     RenameBackgroundComponent,
     BaseEditorComponent,
     NewExampleComponent,
-    ExampleComponent
+    ExampleComponent,
+    DeleteToast,
+    TransferOwnershipToast
   ],
   imports: [
     NgbModule,
@@ -142,8 +140,9 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     CarouselModule,
     HttpClientModule,
     LoggerModule.forRoot({
+      serverLoggingUrl:  localStorage.getItem('url_backend') + '/user/log',
       level: NgxLoggerLevel.DEBUG,
-      serverLogLevel: NgxLoggerLevel.OFF
+      serverLogLevel: NgxLoggerLevel.DEBUG
     }),
     ToastrModule.forRoot({
       timeOut: 3000

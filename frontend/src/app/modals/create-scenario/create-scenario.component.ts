@@ -2,7 +2,6 @@ import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/cor
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Story } from 'src/app/model/Story';
-import { ApiService } from 'src/app/Services/api.service';
 
 @Component({
   selector: 'app-create-scenario',
@@ -25,7 +24,7 @@ export class CreateScenarioComponent {
      */
   @Output() createScenarioEvent: EventEmitter<any> = new EventEmitter();
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) { }
+  constructor(private modalService: NgbModal) { }
 
    /**
  * Opens the rename scenario Modal

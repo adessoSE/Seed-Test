@@ -2,9 +2,9 @@
   <div class="topnav">
     <!--left-->
     <div class="uk-inline dropdown">
-      <button *ngIf="this.apiService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
+      <button *ngIf="this.loginService.isLoggedIn()" class="menuButton material-icons" title="menu">menu</button>
       <div #dropdownMenu [class.closedMenu] = "closed">
-        <ul uk-dropdown="mode: hover" *ngIf="this.apiService.isLoggedIn()" class="dropdown-list">
+        <ul uk-dropdown="mode: hover" *ngIf="this.loginService.isLoggedIn()" class="dropdown-list">
           <li>
             <div *ngIf="this.repositories" class="dropdown">
               <button class="menuSelection" title="Select Project">Projects</button>
@@ -29,7 +29,7 @@
           </li>
         </ul>
       </div>
-      <p id="version" class="Largecaption">Version 1.6.0</p>
+      <p id="version" class="Largecaption">Version 1.6.2</p>
     </div>
 
 
