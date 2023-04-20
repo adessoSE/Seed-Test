@@ -824,15 +824,16 @@ async function removeFromWorkgroup(repoId, user) {
 		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
 		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
 		const workGroup = await wGcollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $pull: { Members: { email: user.email } } });
-		if (workGroup) {
+		if (workGroup.value) {
 			const wG = await wGcollection.findOne({ Repo: ObjectId(repoId) });
 			const result = { owner: {}, member: [] };
 			result.owner = { email: owner.email, canEdit: true };
 			result.member = wG.Members;
 			return result;
 		}
+		return;
 	} catch (e) {
-		console.log(`ERROR in removeFromWorkgroup: ${e}`);
+		console.log(`ERROR in removeFromWorkgroup: ${e }`);
 		throw e;
 	}
 }
@@ -1314,8 +1315,6 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	}
 	return v;
 };
-
-
 
 module.exports = {
 	setIsSavedTestReport,
