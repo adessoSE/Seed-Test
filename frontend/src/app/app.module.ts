@@ -71,6 +71,7 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
+import { TransferOwnershipToast } from './transferOwnership-toastr';
 
 @NgModule({
   declarations: [
@@ -120,7 +121,8 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     NewExampleComponent,
     ExampleComponent,
     CopyExampleToast,
-    DeleteToast
+    DeleteToast,
+    TransferOwnershipToast
   ],
   imports: [
     NgbModule,

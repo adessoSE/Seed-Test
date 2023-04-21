@@ -1,5 +1,5 @@
 <!-- Message if no stories avaliable -->
-<div [class.darkTheme] ="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
+<div [class.darkTheme] ="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError && !showEditor">
   <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
     <div class="tutorialDiv uk-card uk-card-default">
@@ -47,8 +47,7 @@
           </span>
         </dfn>
       </div>
-      <span *ngIf="!this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase }}</span>
-      <div *ngIf="db" style="flex-grow: .5;">
+      <div style="flex-grow: .5;">
         <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
         <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" data-uk-tooltip

@@ -240,7 +240,7 @@ export class BaseEditorComponent  {
   ngDoCheck(): void {
     switch(this.templateName) {
       case 'background':
-        this.clipboardBlock = JSON.parse(sessionStorage.getItem('backgroundBlock'));
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('scenarioBlock'));
         break;
 
       case 'scenario':
@@ -1224,6 +1224,7 @@ export class BaseEditorComponent  {
  
     //const copyBlock = {given: [], when: [], then: [], example: []};
     let block;
+    let backgroundBlock: Block;
     switch (this.templateName) {
       case 'background':
         block = this.addStepsToBlockOnIteration(this.selectedStory.background.stepDefinitions);
@@ -1235,8 +1236,8 @@ export class BaseEditorComponent  {
             }
           }
         }*/
-        const backgroundBlock: Block = {stepDefinitions: block}; 
-        sessionStorage.setItem('backgroundBlock', JSON.stringify(backgroundBlock));
+        backgroundBlock = {stepDefinitions: block}; 
+        sessionStorage.setItem('scenarioBlock', JSON.stringify(backgroundBlock));
         this.toastr.success('successfully copied', 'Step(s)');
         break;
 
@@ -1330,10 +1331,12 @@ export class BaseEditorComponent  {
   insertCopiedBlock(): void{
     switch (this.templateName) {
       case 'background':
-        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
-          this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-            this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-          });
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+          if (key === 'when') {
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+              this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+            });
+          }
         });
         //this.selectedStory.background.saved = false;
         this.markUnsaved();
