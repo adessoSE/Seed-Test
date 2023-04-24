@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy, AfterContentInit} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -33,7 +33,7 @@ const emptyBackground: Background = {name: 'New Background',stepDefinitions: {wh
   templateUrl: './story-editor.component.html',
   styleUrls: ['../base-editor/base-editor.component.css','./story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit, OnDestroy {
+export class StoryEditorComponent implements OnInit, OnDestroy{
 
   /**
    * set new currently selected scenario
@@ -144,10 +144,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * if the stories are loaded
    */
   storiesLoaded = false;
-  /**
-   * Show selected background from list 
-   */
-  selectedBackground: Background;
   /**
    * If there is a error in the stories request
    */
@@ -309,9 +305,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         const loadingScreen = document.getElementById('loading');
         loadingScreen.scrollIntoView();
     }
-    if(this.selectedStory !== undefined){
+    if (this.selectedStory !== undefined){
       this.storeCurrentBackground(this.selectedStory.background);
+      console.log("this.selectedStory.background.name", this.selectedStory.background)
+      this.backgrounds = this.stories.map((s)=> s.background)
+      this.backgrounds.forEach((s)=> console.log("ss", s))
     }
+  
+    // if(this.selectedStory !== undefined){
+    //   
+    // }
   }
 
   /**
@@ -374,6 +377,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         this.renameBackgroundObservable = this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
       });     
+     
   }
 
     ngOnDestroy() {
@@ -519,6 +523,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     * updates the background
     */
   updateBackground() {
+    let selectedStorySaved = this.selectedStory.background.saved;
     delete this.selectedStory.background.saved;
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
       this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
@@ -528,20 +533,33 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         }
       });
     });
-    if(this.backgroundService.backgroundReplaced){
-      this.selectedStory.background.name = this.selectedBackground.name + ' -1';
-      this.backgroundService.backgroundReplaced = false;
+    // this.backgrounds = this.stories.map((s)=> s.background)
+    // this.backgrounds.forEach((s)=> console.log("ss", s))
+    const targetObject = this.selectedStory.background.name
+    const count = this.backgrounds.reduce((acc, curr) => {
+    if (JSON.stringify(curr.name) === JSON.stringify(targetObject)) {
+      return acc + 1;
+    } else {
+      return acc;
     }
-    this.backgroundService
-    .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
-    .subscribe(_ => {
-      this.backgroundService.backgroundChangedEmitter();
-      this.toastr.success('successfully saved', 'Background');
-      if (this.saveBackgroundAndRun) {
-        this.apiService.runSaveOption('saveScenario');
-        this.saveBackgroundAndRun = false;
-      }
-    });
+    }, 0);
+    if (count > 1 && this.backgroundService.backgroundReplaced == undefined){
+      this.changeBackgroundTitle();      
+    }else {
+      console.log("u are into me")
+      this.backgroundService
+      .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
+      .subscribe(_ => {
+        this.backgroundService.backgroundChangedEmitter();
+        if (this.backgroundService.backgroundReplaced == true || selectedStorySaved == false)
+        this.toastr.success('successfully saved', 'Background');
+        if (this.saveBackgroundAndRun) {
+          this.apiService.runSaveOption('saveScenario');
+          this.saveBackgroundAndRun = false;
+        }
+      });
+
+    } 
   }
 
   /**
@@ -579,11 +597,23 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * @returns 
    */
     sortedBackgrounds() {
-      this.backgrounds = [];
-      this.backgrounds = this.stories
-        .filter((s) => s.background.name !== 'New Background' && s.background.stepDefinitions.when.length !== 0)
+      let backgrounds = [];
+      backgrounds = this.stories
+        .filter((s) => this.selectedStory.background.name !== s.background.name && s.background.name !== 'New Background' && s.background.stepDefinitions.when.length !== 0)
         .map((s) => s.background)
-      return this.backgrounds;
+        const index = backgrounds.findIndex((element) => element === this.backgroundService.currentBackground);
+        if (index === -1  && this.backgroundService.currentBackground !== undefined && this.backgroundService.currentBackground.name !== 'New Background') {
+          backgrounds.push(this.backgroundService.currentBackground);
+        }
+        let uniqueChars = [];
+        backgrounds.forEach((e) => {
+          if (!uniqueChars.some((x) => x.name === e.name)) {
+            uniqueChars.push(e);
+          }
+        });
+        if (uniqueChars.length == 0 || (uniqueChars.length == 1 && uniqueChars[0] == this.backgroundService.currentBackground)){
+          return undefined
+        }else return uniqueChars;
     }
     /**
      * Retrive current background before saving changes
@@ -598,15 +628,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
      * Select another background to replace
      */
     replaceBackground(background: Background){
-      this.selectedBackground = {name: background.name, stepDefinitions: background.stepDefinitions, saved: background.saved}
+
+      console.log ( this.selectedStory.background.name, background.name, this.backgroundService.currentBackground.name )
+
         this.selectedStory.background.stepDefinitions.when = background.stepDefinitions.when;
-        if (this.selectedBackground.name === this.backgroundService.currentBackground.name) {
+        this.selectedStory.background.name = background.name;
+        if (this.backgroundService.currentBackground.name && this.selectedStory.background.name === this.backgroundService.currentBackground.name) {
           this.selectedStory.background.stepDefinitions.when = this.backgroundService.currentBackground.stepDefinitions.when;
+          this.selectedStory.background.name = this.backgroundService.currentBackground.name;
           this.backgroundService.backgroundReplaced = false;
-          this.selectedStory.background.saved = true;
+          this.updateBackground();
         } else {
         this.backgroundService.backgroundReplaced = true;
-        this.selectedStory.background.saved = false;
+        this.updateBackground();
       }
     }
 
@@ -858,8 +892,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   }
 
 	renameBackground(newBackgroundName) {
+    
 		this.selectedStory.background.name = newBackgroundName;
-        this.selectedStory.background.saved = false;
+        this.selectedStory.background.saved = true;
+        // this.sortedBackgrounds();
 	}
   
 	/**
@@ -927,8 +963,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    * Opens modal to rename background
    */
   changeBackgroundTitle() {
-    const background_name = this.selectedStory.background.name;
-    this.renameBackgroundModal.openRenameBackgroundModal(background_name);
+    const background = this.selectedStory.background;
+    this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun, this.selectedStory.background.saved);
   }
 
   setShowDaisy(event) {

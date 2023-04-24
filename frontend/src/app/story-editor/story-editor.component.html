@@ -99,17 +99,16 @@
             </div>
           </mat-panel-title>
           <div class="backgroundTitle">
-            <span *ngIf="this.backgroundService.backgroundReplaced == false" class="MediumHeadline5 scenarioTitle"> {{selectedStory.background.name | titlecase}}</span>
-            <span *ngIf="this.backgroundService.backgroundReplaced == true" class="MediumHeadline5 scenarioTitle">{{selectedBackground.name | titlecase }}</span>
+            <span class="MediumHeadline5 scenarioTitle"> {{selectedStory.background.name | titlecase}}</span>
             <button class="storyTitle pencil_icon" (click)="changeBackgroundTitle();$event.stopPropagation();" data-uk-tooltip
             title="Change Background Title">
               <em class="material-icons">edit</em>
             </button>
             <!-- change className -->
-            <button class="storyTitle pencil_icon"  data-uk-tooltip title="Replace Background">
+            <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon"  data-uk-tooltip title="Replace Background">
               <em class="material-icons">swap_horiz</em>
             </button>
-            <div *ngIf="showBackground == true" uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;" >
+            <div *ngIf="showBackground && sortedBackgrounds()" uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;" >
               <ul class="uk-nav uk-dropdown-nav">
                 <li *ngFor="let background of sortedBackgrounds(); let j = index">
                   <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep" (click)="replaceBackground(background);$event.stopPropagation();"
