@@ -73,6 +73,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     searchInput: string;
 
+    versionInput: string;
+
     searchList: RepositoryContainer[];
 
     downloadRepoID: string;
@@ -285,7 +287,11 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             const source = userRepo.source;
             const id = userRepo._id;
             this.managmentService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
-                saveAs(ret, userRepo.value + '.zip');
+                if(this.versionInput){
+                    saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip');
+                }else{
+                    saveAs(ret, userRepo.value + '.zip');
+                } 
             });
         }
     }
