@@ -8,6 +8,7 @@ const path = require('path');
 const AdmZip = require('adm-zip');
 const os = require('os');
 const mongo = require('./database/DbServices');
+const { log } = require('console');
 
 // adds content of each values to output
 function getValues(values) {
@@ -53,8 +54,8 @@ function getSteps(steps, stepType) {
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-			data += `${step.pre} '${step.values[0]}' ${step.mid}${getValues(step.values)}`;
-			if (step.post !== undefined) data += ` ${step.post}`;
+			data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] ? ` '${step.values[1]}'` : ''}`;
+			if (step.post !== undefined) data += ' ' + step.post + (step.values[2] ? ` '${step.values[2]}'` : '');
 		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
 		else {
 			data += `${step.pre} ${step.mid}${getValues(step.values)} ${step.post}`;
@@ -93,7 +94,8 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.comment !== null) {
 			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, "\n#  ")}\n\n`;
 		}
-  	}
+	}
+	log("scenario steps: ", data);
 	return data;
 }
 
