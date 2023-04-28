@@ -18,6 +18,9 @@ import { BackgroundService } from '../Services/background.service';
 import { StoryService } from '../Services/story.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ReportService } from '../Services/report.service';
+import { ProjectService } from '../Services/project.service';
+import { LoginService } from '../Services/login.service';
+import { RepositoryContainer } from '../model/RepositoryContainer';
 
 
 /**
@@ -89,6 +92,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * List of backgrounds
    */
   backgrounds: Background[];
+   /**
+   * List of filtered backgrounds
+   */
+   filteredBackgrounds: Background[];
 
   /**
    * Currently selected story
@@ -104,7 +111,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * If the story editor should be shown
    */
   showEditor = false;
-
+  /**
+   * Currently retrieved projects
+   */
+  repositories: RepositoryContainer[];
+  
   /**
    * If the results should be shown
    */
@@ -120,10 +131,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   showBackground = false;
 
-  /**
-   * Save background this story
-   */
-  currentStoryBackground: Background;; 
   /**
    * if the test is done
    */
@@ -169,10 +176,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   currentTestScenarioId: number;
 
-    /**
-     * if the background should be saved and then the test run
-     */
-    saveBackgroundAndRun = false;
+  /**
+    * if the background should be saved and then the test run
+    */
+  saveBackgroundAndRun = false;
 
   /**
    * if the daisy version is currently used
@@ -183,7 +190,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * if the report is saved
    */
   reportIsSaved = false;
-
+  error: string;
   /**
    * Object id of the current report
    */
@@ -263,7 +270,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         public storyService: StoryService,
         public scenarioService: ScenarioService,
         public reportService: ReportService,
-        public router: Router
+        public router: Router,    
+        public projectService: ProjectService,
+        public loginService: LoginService
     ) {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -301,32 +310,35 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     /**
      * when loading for group is displayed scroll to it
      */
-      if (this.testRunningGroup === true){
-        const loadingScreen = document.getElementById('loading');
-        loadingScreen.scrollIntoView();
+    if (this.testRunningGroup === true){
+      const loadingScreen = document.getElementById('loading');
+      loadingScreen.scrollIntoView();
     }
     if (this.selectedStory !== undefined){
       this.storeCurrentBackground(this.selectedStory.background);
-      console.log("this.selectedStory.background.name", this.selectedStory.background)
-      this.backgrounds = this.stories.map((s)=> s.background)
-      this.backgrounds.forEach((s)=> console.log("ss", s))
+      this.backgrounds = this.stories.map((s) => s.background);
     }
-  
-    // if(this.selectedStory !== undefined){
-    //   
-    // }
   }
 
+  onBackgroundChange(newBackground: Background) {
+    this.selectedStory.background = newBackground;
+  }
   /**
    * Subscribes to all necessary events
    */
   ngOnInit() {
 
     // in event that stories are already loaded
-        if(this.stories){
+    if(this.stories){
       this.storiesLoaded = true;
     }
-
+    if (this.loginService.isLoggedIn()) {
+      this.projectService.getRepositories().subscribe((resp) => {
+        this.repositories = resp;
+      }, (err) => {
+        this.error = err.error;
+      });
+    }
         this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe((stories: Story[]) => {
         this.storiesLoaded = true;
         this.storiesError = false;
@@ -366,7 +378,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         this.renameStoryObservable = this.storyService.renameStoryEvent.subscribe((changedValues) =>
             this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
             this.isDark = this.themeService.isDarkMode();
-        this.themeObservable = this.themeService.themeChanged.subscribe(() => {
+            this.themeObservable = this.themeService.themeChanged.subscribe(() => {
             this.isDark = this.themeService.isDarkMode();
         });
 
@@ -377,9 +389,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         this.renameBackgroundObservable = this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
         this.renameBackground(newName);
       });     
-     
   }
-
     ngOnDestroy() {
         if (!this.deleteStoryObservable.closed) {
             this.deleteStoryObservable.unsubscribe();
@@ -523,7 +533,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     * updates the background
     */
   updateBackground() {
-    let selectedStorySaved = this.selectedStory.background.saved;
     delete this.selectedStory.background.saved;
     Object.keys(this.selectedStory.background.stepDefinitions).forEach((key, _) => {
       this.selectedStory.background.stepDefinitions[key].forEach((step: StepType) => {
@@ -533,25 +542,22 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
       });
     });
-    // this.backgrounds = this.stories.map((s)=> s.background)
-    // this.backgrounds.forEach((s)=> console.log("ss", s))
-    const targetObject = this.selectedStory.background.name
     const count = this.backgrounds.reduce((acc, curr) => {
-    if (JSON.stringify(curr.name) === JSON.stringify(targetObject)) {
+    if (JSON.stringify(curr.name) === JSON.stringify(this.selectedStory.background.name)) {
       return acc + 1;
     } else {
       return acc;
     }
     }, 0);
-    if (count > 1 && this.backgroundService.backgroundReplaced == undefined){
-      this.changeBackgroundTitle();      
+    if (count > 1  && this.backgroundService.backgroundReplaced == undefined){
+      this.backgroundService.backgroundReplaced = true; 
+      this.changeBackgroundTitle();     
+      this.toastr.info('Please enter a new Background name to save your changes');
     }else {
-      console.log("u are into me")
       this.backgroundService
       .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
       .subscribe(_ => {
         this.backgroundService.backgroundChangedEmitter();
-        if (this.backgroundService.backgroundReplaced == true || selectedStorySaved == false)
         this.toastr.success('successfully saved', 'Background');
         if (this.saveBackgroundAndRun) {
           this.apiService.runSaveOption('saveScenario');
@@ -597,51 +603,37 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * @returns 
    */
     sortedBackgrounds() {
-      let backgrounds = [];
-      backgrounds = this.stories
-        .filter((s) => this.selectedStory.background.name !== s.background.name && s.background.name !== 'New Background' && s.background.stepDefinitions.when.length !== 0)
-        .map((s) => s.background)
-        const index = backgrounds.findIndex((element) => element === this.backgroundService.currentBackground);
-        if (index === -1  && this.backgroundService.currentBackground !== undefined && this.backgroundService.currentBackground.name !== 'New Background') {
-          backgrounds.push(this.backgroundService.currentBackground);
-        }
+      if (this.backgrounds !== undefined){
+        this.filteredBackgrounds = [];
+        this.filteredBackgrounds = this.backgrounds
+        .filter((s) => s.name !== this.selectedStory.background.name && s.name !== 'New Background' && s.stepDefinitions.when.length !== 0)
+        .map((s) => s)
         let uniqueChars = [];
-        backgrounds.forEach((e) => {
+        this.filteredBackgrounds.forEach((e) => {
           if (!uniqueChars.some((x) => x.name === e.name)) {
             uniqueChars.push(e);
           }
         });
         if (uniqueChars.length == 0 || (uniqueChars.length == 1 && uniqueChars[0] == this.backgroundService.currentBackground)){
           return undefined
-        }else return uniqueChars;
+        }else 
+        return uniqueChars;
+     }
     }
     /**
-     * Retrive current background before saving changes
+     * Retrive current background
      */
-    storeCurrentBackground(originalBackground: Background)
-    {
-      if(this.backgroundService.backgroundReplaced == false){
-        this.backgroundService.currentBackground = JSON.parse(JSON.stringify(originalBackground));
-      }
+    storeCurrentBackground(originalBackground: Background){
+      this.backgroundService.currentBackground = JSON.parse(JSON.stringify(originalBackground));
     }
      /**
      * Select another background to replace
      */
     replaceBackground(background: Background){
-
-      console.log ( this.selectedStory.background.name, background.name, this.backgroundService.currentBackground.name )
-
-        this.selectedStory.background.stepDefinitions.when = background.stepDefinitions.when;
-        this.selectedStory.background.name = background.name;
-        if (this.backgroundService.currentBackground.name && this.selectedStory.background.name === this.backgroundService.currentBackground.name) {
-          this.selectedStory.background.stepDefinitions.when = this.backgroundService.currentBackground.stepDefinitions.when;
-          this.selectedStory.background.name = this.backgroundService.currentBackground.name;
-          this.backgroundService.backgroundReplaced = false;
-          this.updateBackground();
-        } else {
-        this.backgroundService.backgroundReplaced = true;
-        this.updateBackground();
-      }
+      this.selectedStory.background.stepDefinitions.when = background.stepDefinitions.when;
+      this.selectedStory.background.name = background.name;
+      this.backgroundService.backgroundReplaced = true;
+      this.updateBackground();
     }
 
   /**
@@ -892,10 +884,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   }
 
 	renameBackground(newBackgroundName) {
-    
 		this.selectedStory.background.name = newBackgroundName;
-        this.selectedStory.background.saved = true;
-        // this.sortedBackgrounds();
 	}
   
 	/**
@@ -903,12 +892,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
      *
      */
 	updateStory() {
-		{this.storyService
-				.updateStory(this.selectedStory)
-				.subscribe(_resp => {
-						this.toastr.success('successfully saved', 'Story');
-				}); }
-  }
+    this.storyService
+			.updateStory(this.selectedStory)
+			.subscribe(_resp => {
+				this.toastr.success('successfully saved', 'Story');
+			}); 
+    }
 
     storyLink() {
         return 'https://'+ window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
@@ -964,7 +953,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   changeBackgroundTitle() {
     const background = this.selectedStory.background;
-    this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun, this.selectedStory.background.saved);
+    this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun);
   }
 
   setShowDaisy(event) {

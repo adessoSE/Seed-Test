@@ -4,7 +4,7 @@
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Change Background Title</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <button *ngIf="this.backgroundService.backgroundReplaced !== true" type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -18,7 +18,7 @@
             </div>
             
             <div class="modal-footer">
-                <button   id="submitRenameBackground" (click)="onClickSubmit()"  class="normalButton" [disabled]="!backgroundTitle.valid"
+                <button id="submitRenameBackground" (click)="onClickSubmit()"  class="normalButton" [disabled]="!backgroundTitle.valid || backgroundTitle.value == this.background.name"
                 [ngStyle]="{'opacity': !backgroundTitle.valid ?  '50%' : '100%'}">Submit
                 </button>
             </div>

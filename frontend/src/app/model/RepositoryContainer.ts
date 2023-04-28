@@ -1,3 +1,5 @@
+import { Background } from "./Background";
+
 /**
  * Interface of the repository container
  */
@@ -21,4 +23,9 @@ export interface RepositoryContainer {
      * If the user can edit the repository
      */
     canEdit?: boolean;
+
+     /**
+     * Store all project backgrounds
+     */
+     backgrounds?: Background[];
 }

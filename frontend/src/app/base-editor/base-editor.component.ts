@@ -574,6 +574,7 @@ export class BaseEditorComponent  {
     switch(this.templateName) {
       case 'background':
         this.selectedStory.background.saved = false;
+        this.backgroundService.backgroundReplaced = undefined;
         break;
       case 'scenario':
         this.selectedScenario.saved = false;
