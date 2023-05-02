@@ -1366,7 +1366,7 @@ export class BaseEditorComponent  {
     * @param stepIndex
     * @param valueIndex
     */
-  addIsExample(input, stepIndex: number, valueIndex: number, stepType: string, step?: StepType) {
+  addIsExample(input, stepIndex: number, valueIndex: number, stepType: string) {
     switch (stepType) {
       case 'given':
         this.selectedScenario.stepDefinitions.given[stepIndex].isExample[valueIndex] = (input == 'example') ? true : false;
