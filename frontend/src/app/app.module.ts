@@ -27,7 +27,6 @@ import { TermsComponent } from './terms/terms.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
 import {CookieService } from 'ngx-cookie-service';
-import { TestAccountComponent } from './test-account/test-account.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
@@ -89,7 +88,6 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     FeedbackComponent,
     TermsComponent,
     AccountManagementComponent,
-    TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
     RegistrationComponent,

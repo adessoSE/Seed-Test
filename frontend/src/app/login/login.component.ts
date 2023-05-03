@@ -201,17 +201,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
         //     this.getRepositories();
         // }
     }
-
-
-    /**
-     * Redirects the user to the Test account
-     */
-    async loginTestAccount() {
-        localStorage.setItem('repository', 'adessoCucumber/Cucumber');
-        localStorage.setItem('source', 'github');
-        this.router.navigate(['/testaccount']);
-    }
-
     /**
      * Retrieves the repositories / projects of the user
      */

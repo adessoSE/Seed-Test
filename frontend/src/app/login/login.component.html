@@ -33,7 +33,7 @@
       <!-- Button Login -->
       <button class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
       <div id="loadingSpinner" *ngIf="this.isLoadingRepositories">
-        <mat-spinner style="margin:10px" [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner"></mat-spinner>
+        <mat-spinner [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
     <div>
@@ -55,12 +55,7 @@
    <div class="uk-card default" id="noAccountDiv">
     <span class="noAccount">No account yet? <br>
     <button class="linkButton" routerLink="/register">Register</button>
-    or
-    <button class="linkButton" name="loginTest" type="button" (click)="loginTestAccount();">Try Our Demo</button>
-       (no account required)
     </span>
-    <br>
-
    </div>
   </div>
   <!-- Repositories -->
