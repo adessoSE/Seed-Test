@@ -91,9 +91,9 @@ router.patch('/:story_id', async (req, res) => {
 });
 
 // get one scenario
-router.get('/:story_id/:source/:_id', async (req, res) => {
+router.get('/:story_id/:_id', async (req, res) => {
 	try {
-		const scenario = await mongo.getOneScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10));
+		const scenario = await mongo.getOneScenario(req.params.story_id, parseInt(req.params._id, 10));
 		res.status(200).json(scenario);
 	} catch (e) {
 		handleError(res, e, e, 500);
@@ -101,9 +101,9 @@ router.get('/:story_id/:source/:_id', async (req, res) => {
 });
 
 // create scenario
-router.post('/:story_id/:source', async (req, res) => {
+router.post('/:story_id', async (req, res) => {
 	try {
-		const scenario = await mongo.createScenario(req.params.story_id, req.params.source, req.body.name);
+		const scenario = await mongo.createScenario(req.params.story_id, req.body.name);
 		await helper.updateFeatureFile(req.params.story_id);
 		res.status(200)
 			.json(scenario);
@@ -113,11 +113,11 @@ router.post('/:story_id/:source', async (req, res) => {
 });
 
 // update scenario
-router.put('/:story_id/:source/:_id', async (req, res) => {
+router.put('/:story_id/:_id', async (req, res) => {
 	console.log(req.body);
 	try {
 		const scenario = req.body;
-		const updatedStory = await mongo.updateScenario(req.params.story_id, req.params.source, scenario);
+		const updatedStory = await mongo.updateScenario(req.params.story_id, scenario);
 		await helper.updateFeatureFile(req.params.story_id);
 		res.status(200)
 			.json(updatedStory);
@@ -127,10 +127,10 @@ router.put('/:story_id/:source/:_id', async (req, res) => {
 });
 
 // delete scenario
-router.delete('/:story_id/:source/:_id', async (req, res) => {
+router.delete('/scenario/:story_id/:_id', async (req, res) => {
 	try {
 		await mongo
-			.deleteScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10));
+			.deleteScenario(req.params.story_id, parseInt(req.params._id, 10));
 		await helper.updateFeatureFile(req.params.story_id);
 		res.status(200)
 			.json({ text: 'success' });
@@ -139,10 +139,10 @@ router.delete('/:story_id/:source/:_id', async (req, res) => {
 	}
 });
 
-router.get('/download/story/:source/:_id', async (req, res) => {
+router.get('/download/story/:_id', async (req, res) => {
 	try {
-		console.log('download feature-file', req.params.source, req.params._id);
-		const file = await helper.exportSingleFeatureFile(req.params._id, req.params.source);
+		console.log('download feature-file', req.params._id);
+		const file = await helper.exportSingleFeatureFile(req.params._id);
 		console.log(file);
 		res.send(file);
 	} catch (error) {
@@ -150,7 +150,7 @@ router.get('/download/story/:source/:_id', async (req, res) => {
 	}
 });
 
-router.get('/download/project/:source/:repo_id', async (req, res) => {
+router.get('/download/project/:repo_id', async (req, res) => {
 	try {
 		console.log('download project feature-files', req.params.repo_id);
 		const file = await helper.exportProjectFeatureFiles(req.params.repo_id);

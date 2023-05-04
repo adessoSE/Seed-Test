@@ -63,7 +63,7 @@ router.post('/Group', (req, res, next) => {
 	}
 });
 
-router.post('/Feature/:issueID/:storySource', (req, res, next) => {
+router.post('/Feature/:issueID', (req, res, next) => {
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
 	req.body.email = req.body.email.toLowerCase();
 	try {

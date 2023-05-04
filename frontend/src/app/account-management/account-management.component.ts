@@ -282,9 +282,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         if (repo_id) {
             const userRepo = this.searchList.find(repo => repo._id == repo_id);
             console.log(userRepo);
-            const source = userRepo.source;
             const id = userRepo._id;
-            this.managmentService.downloadProjectFeatureFiles(source, id).subscribe(ret => {
+            this.managmentService.downloadProjectFeatureFiles(id).subscribe(ret => {
                 saveAs(ret, userRepo.value + '.zip');
             });
         }

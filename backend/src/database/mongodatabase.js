@@ -250,10 +250,10 @@ function selectUsersCollection(db) {
 	});
 }
 
-function findStory(storyId, storySource, collection) {
+function findStory(storyId, collection) {
 	const id = ObjectId(storyId);
 	return new Promise((resolve, reject) => {
-		collection.findOne({ _id: id, storySource }, (err, result) => {
+		collection.findOne({ _id: id }, (err, result) => {
 			if (err) reject(err);
 			else resolve(result);
 		});
@@ -594,7 +594,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 	}
 }
 
-async function updateScenarioList(storyId, source, scenarioList) {
+async function updateScenarioList(storyId, scenarioList) {
 	let db;
 	try {
 		db = await connectDb();
@@ -649,12 +649,12 @@ async function getOneScenario(storyId, storySource, scenarioId) {
 }
 
 // CREATE Scenario
-async function createScenario(storyId, storySource) {
+async function createScenario(storyId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) story.scenarios.push(tmpScenario);
 		else {
@@ -678,12 +678,12 @@ async function createScenario(storyId, storySource) {
 }
 
 // PUT Scenario
-async function updateScenario(storyId, storySource, updatedScenario) {
+async function updateScenario(storyId, updatedScenario) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		for (const scenario of story.scenarios) {
 			if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
 				story.scenarios.push(scenario);
@@ -707,12 +707,12 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioId) {
+async function deleteScenario(storyId, scenarioId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		for (let i = 0; i < story.scenarios.length; i++) {
 			if (story.scenarios[i].scenario_id === scenarioId) story.scenarios.splice(i, 1);
 		}

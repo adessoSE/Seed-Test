@@ -347,8 +347,8 @@ async function updateScenarioTestStatus(uploadedReport) {
 
 
 
-async function exportSingleFeatureFile(_id, source) {
-	const dbStory = mongo.getOneStory(_id, source);
+async function exportSingleFeatureFile(_id) {
+	const dbStory = mongo.getOneStory(_id);
 	return dbStory.then(async (story) => {
 		writeFile(story);
 		return pfs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8')

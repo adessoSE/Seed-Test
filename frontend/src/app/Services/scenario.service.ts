@@ -61,7 +61,7 @@ export class ScenarioService {
     this.scenarioStatusChangeEvent.emit(val);
   }
   /* Updating scenario list */
-  public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any> {
+  public updateScenarioList(story_id, scenario_list: Scenario[]): Observable<any> {
     return this.http
       .patch(this.apiService.apiServer + '/story/' + story_id , scenario_list, ApiService.getOptions())
       .pipe(tap(_ => {
@@ -71,14 +71,13 @@ export class ScenarioService {
   /**
     * Adds a Scenario
     * @param storyID
-    * @param storySource
     * @param scenarioTitle
     * @returns
   */
-  addScenario(storyID: any, storySource: string, scenarioTitle: string): Observable<Scenario> {
+  addScenario(storyID: any, scenarioTitle: string): Observable<Scenario> {
     const body = { 'name': scenarioTitle };
     return this.http
-      .post<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource, body, ApiService.getOptions())
+      .post<any>(this.apiService.apiServer + '/story/' + storyID, body, ApiService.getOptions())
       .pipe(tap(resp => {
         console.log('Add new scenario in story ' + storyID + '!', resp);
       }));
@@ -86,12 +85,11 @@ export class ScenarioService {
     /**
     * Add the First Scenario
     * @param storyID
-    * @param storySource
     * @returns
   */
-  public addFirstScenario(storyID, storySource: string): Observable<Scenario> {
+  public addFirstScenario(storyID): Observable<Scenario> {// not used ?
     return this.http
-      .get<any>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID + '/' + storySource, ApiService.getOptions())
+      .get<any>(this.apiService.apiServer + '/mongo/scenario/add/' + storyID , ApiService.getOptions())// route doesn't exist
       .pipe(tap(resp => {
         console.log('Add new scenario in story ' + storyID + '!', resp);
       }));
@@ -99,12 +97,11 @@ export class ScenarioService {
   /**
    * get's single Scenario
    * @param storyID
-   * @param storySource
    * @param scenarioID
   */
-  getScenario(storyID: any, storySource, scenarioID): Observable<Scenario> {
+  getScenario(storyID: any, scenarioID): Observable<Scenario> {
     return this.http
-      .get<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenarioID, ApiService.getOptions())
+      .get<any>(this.apiService.apiServer + '/story/' + storyID + '/' + scenarioID, ApiService.getOptions())
       .pipe(tap(resp => {
         console.log('Get scenario in story ' + storyID + '!', resp);
       }));
@@ -112,13 +109,12 @@ export class ScenarioService {
   /**
     * Updates the scenario
     * @param storyID
-    * @param storySource
     * @param scenario updatedScenario
     * @returns
   */
-  updateScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Scenario> {
+  updateScenario(storyID: any, scenario: Scenario): Observable<Scenario> {
     return this.http
-      .put<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
+      .put<any>(this.apiService.apiServer + '/story/' + storyID + '/' + scenario.scenario_id, scenario, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -126,13 +122,12 @@ export class ScenarioService {
   /**
     * Deletes a scenario
     * @param storyID
-    * @param storySource
     * @param scenario
     * @returns
   */
-  deleteScenario(storyID: any, storySource: string, scenario: Scenario): Observable<Story> {
+  deleteScenario(storyID: any, scenario: Scenario): Observable<Story> {
     return this.http
-      .delete<any>(this.apiService.apiServer + '/story/' + storyID + '/' + storySource + '/' + scenario.scenario_id, ApiService.getOptions())
+      .delete<any>(this.apiService.apiServer + '/story/scenario/' + storyID + '/' + scenario.scenario_id, ApiService.getOptions())
       .pipe(tap(() => {
         //
       }));

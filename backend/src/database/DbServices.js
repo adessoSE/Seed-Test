@@ -248,7 +248,7 @@ async function mergeGithub(userId, login, id) {
  * @param collection
  */
 // TODO: storySource wont be needed anymore
-function findStory(storyId, storySource, collection) {
+function findStory(storyId, collection) {
 	const id = ObjectId(storyId);
 	return new Promise((resolve, reject) => {
 		collection.findOne({ _id: id }, (err, result) => {
@@ -561,7 +561,7 @@ async function getAllStoriesOfRepo( repoId) {
 }
 
 // GET ONE Scenario
-async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remove storySource
+async function getOneScenario(storyId, scenarioId) { // TODO: remove storySource
 	try {
 		const db = dbConnection.getConnection();
 		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
@@ -573,11 +573,11 @@ async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remov
 }
 
 // CREATE Scenario
-async function createScenario(storyId, storySource, scenarioTitle) { // TODO: remove storySource
+async function createScenario(storyId, scenarioTitle) { // TODO: remove storySource
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, null, collection);
+		const story = await findStory(storyId, collection);
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
@@ -605,11 +605,10 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 /**
  *
  * @param {*} storyId
- * @param {*} storySource
  * @param {*} updatedScenario
  * @returns updated Scenario
  */
-async function updateScenario(storyId, storySource, updatedScenario) {
+async function updateScenario(storyId, updatedScenario) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -624,7 +623,7 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioId) {
+async function deleteScenario(storyId, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);

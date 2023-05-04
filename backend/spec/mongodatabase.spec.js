@@ -9,7 +9,7 @@ describe('DbServices', () => {
 	});
 	describe('getOneStory', () => {
 		it('return null', (done) => {
-			mongo.getOneStory(-1, null).then((result) => {
+			mongo.getOneStory(-1).then((result) => {
 				expect(result).toBe(null);
 				done();
 			});
@@ -59,7 +59,7 @@ describe('DbServices', () => {
 			};
 			// "_id":"62b337b27f37a55f60836b0a",
 
-			mongo.getOneStory('62b337b27f37a55f60836b0a', null).then((result) => {
+			mongo.getOneStory('62b337b27f37a55f60836b0a').then((result) => {
 				result._id = null;
 				expect(result).toEqual(story);
 				done();
@@ -71,7 +71,7 @@ describe('DbServices', () => {
 		const story_id = '62b337b27f37a55f60836b0a';
 		let backgroundBefore = { name: 'New Background', stepDefinitions: { when: [] } };
 		beforeEach((done) => {
-			mongo.getOneStory(story_id, null)
+			mongo.getOneStory(story_id)
 				.then((result) => {
 					backgroundBefore = result.background;
 					done();
@@ -115,7 +115,7 @@ describe('DbServices', () => {
 		const story_id = '62b337b27f37a55f60836b0a';
 		let scenarioId;
 		afterEach((done) => {
-			mongo.deleteScenario(story_id, null, scenarioId)
+			mongo.deleteScenario(story_id, scenarioId)
 				.then((result) => {
 					done();
 				});
@@ -130,7 +130,7 @@ describe('DbServices', () => {
 				}
 			};
 
-			mongo.createScenario(story_id, null, 'New Scenario')
+			mongo.createScenario(story_id, 'New Scenario')
 				.then((result) => {
 					scenarioId = result.scenario_id;
 					result.scenario_id = null;
@@ -146,7 +146,7 @@ describe('DbServices', () => {
 		const story_id = '62b337b27f37a55f60836b0a';
 
 		beforeEach((done) => {
-			mongo.createScenario(story_id, null, 'New Scenario')
+			mongo.createScenario(story_id, 'New Scenario')
 				.then((result) => {
 					oldScenario = result;
 					scenarioId = result.scenario_id;
@@ -155,7 +155,7 @@ describe('DbServices', () => {
 		});
 
 		afterEach((done) => {
-			mongo.deleteScenario(story_id, null, scenarioId)
+			mongo.deleteScenario(story_id, scenarioId)
 				.then((result) => {
 					done();
 				});
@@ -165,7 +165,7 @@ describe('DbServices', () => {
 			const updateScenario = oldScenario;
 			const newName = 'test';
 			updateScenario.name = newName;
-			mongo.updateScenario(story_id, null, updateScenario)
+			mongo.updateScenario(story_id, updateScenario)
 				.then((result) => {
 					expect(result.name).toEqual(newName);
 					done();
@@ -174,7 +174,7 @@ describe('DbServices', () => {
 
 		it('deletes a scenario', async () => {
 			const scenario = `{"scenario_id":${scenarioId}`;
-			return mongo.deleteScenario(story_id, null, scenarioId)
+			return mongo.deleteScenario(story_id, scenarioId)
 				.then((result) => {
 					expect(JSON.stringify(result)).not.toContain(scenario);
 				});
@@ -185,7 +185,7 @@ describe('DbServices', () => {
 		let orgStory;
 		const story_id = '62b337b27f37a55f60836b0a';
 		beforeEach(async () => {
-			orgStory = { ...await mongo.getOneStory(story_id, null) };// deep copy
+			orgStory = { ...await mongo.getOneStory(story_id) };// deep copy
 		});
 		afterEach(async () => mongo.updateStory(orgStory));
 		it('updates Story', async () => {

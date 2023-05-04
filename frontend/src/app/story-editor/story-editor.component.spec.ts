@@ -24,7 +24,7 @@ import { MAT_SELECT_SCROLL_STRATEGY_PROVIDER } from '@angular/material/select';
 @Injectable()
 class FakeService {
   constructor() {}
-  deleteScenario(storyId, storySource, scenarios) {};
+  deleteScenario(storyId, scenarios) {};
 }
 
 @Component({
@@ -255,7 +255,7 @@ describe('StoryEditorComponent', () => {
       component.selectedStory = stories[0];
       let scenariosAmount = component.selectedStory.scenarios.length;
       jest.spyOn(component.scenarioService, 'addScenario');
-      component.scenarioService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
+      component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((resp)=> {
         expect(component.scenarioService.addScenario).toHaveBeenCalled();
         expect(component.selectedStory.scenarios.length).toBe(scenariosAmount + 1);
       });
@@ -267,7 +267,7 @@ describe('StoryEditorComponent', () => {
       let scenariosAmount = component.selectedStory.scenarios.length;
       fixture.detectChanges();
       jest.spyOn(component, 'selectScenario');
-      component.scenarioService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
+      component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((resp)=> {
         expect(component.selectScenario).toHaveBeenCalled();
         expect(component.selectedStory.scenarios.length).toEqual(scenariosAmount +1);
       });

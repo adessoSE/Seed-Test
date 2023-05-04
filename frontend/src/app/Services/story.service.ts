@@ -159,13 +159,12 @@ export class StoryService {
   }
   /**
     * Download a file with story feature
-    * @param source
     * @param _id
     * @returns
   */
-  downloadStoryFeatureFile(source, _id): Observable<Blob> {
+  downloadStoryFeatureFile(_id): Observable<Blob> {
     return this.http
-      .get<Blob>(this.apiService.apiServer + '/story/download/story/' + source + '/' + _id, { withCredentials: true, responseType: 'blob' as 'json' });
+      .get<Blob>(this.apiService.apiServer + '/story/download/story/' + _id, { withCredentials: true, responseType: 'blob' as 'json' });
   }
 
   /**

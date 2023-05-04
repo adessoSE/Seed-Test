@@ -408,7 +408,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     addScenario(scenarioName) {
-        this.scenarioService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+        this.scenarioService.addScenario(this.selectedStory._id, scenarioName)
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
                 this.selectedStory.scenarios.push(resp);
@@ -449,10 +449,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     dropScenario(event: CdkDragDrop<string[]>, s) {
-        const source = localStorage.getItem('source');
         const index = this.stories.findIndex(o => o._id === s._id);
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-        this.scenarioService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(_ => {
+        this.scenarioService.updateScenarioList(this.stories[index]._id, this.stories[index].scenarios).subscribe(_ => {
             // console.log(ret)
         });
     }

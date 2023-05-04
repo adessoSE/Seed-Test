@@ -470,7 +470,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   deleteScenario(scenario: Scenario) {
     this.scenarioService
-            .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
+            .deleteScenario(this.selectedStory._id, scenario)
             .subscribe(_ => {
         this.scenarioDeleted();
                 this.toastr.error('', 'Scenario deleted');
@@ -493,7 +493,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   addScenario(event) {
     const scenarioName = event;
-        this.scenarioService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+        this.scenarioService.addScenario(this.selectedStory._id, scenarioName)
       .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
         this.selectedStory.scenarios.push(resp);
@@ -851,9 +851,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     
 
   downloadFeature() {
-    const source = this.selectedStory.storySource;
     const id = this.selectedStory._id;
-		this.storyService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+		this.storyService.downloadStoryFeatureFile(id).subscribe(ret => {
 				saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
     });
   }
