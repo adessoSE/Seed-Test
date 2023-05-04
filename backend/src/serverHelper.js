@@ -128,8 +128,8 @@ function writeFile(story) {
 }
 
 // Updates feature file based on _id
-async function updateFeatureFile(issueID, storySource) {
-	const result = await mongo.getOneStory(issueID, storySource);
+async function updateFeatureFile(issueID) {
+	const result = await mongo.getOneStory(issueID);
 	if (result != null) writeFile(result);
 }
 

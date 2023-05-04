@@ -36,7 +36,7 @@ function handleError(res, reason, statusMessage, code) {
 }
 
 // get one Story
-router.get('/:_id/:source', async (req, res) => {
+router.get('/:_id', async (req, res) => {
 	try {
 		const story = await mongo.getOneStory(req.params._id);
 		res.status(200).json(story);
@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
 	try {
 		const db_id = await mongo.createStory(req.body.title, req.body.description, req.body._id);
 		await mongo.insertStoryIdIntoRepo(db_id, req.body._id);
-		helper.updateFeatureFile(db_id, req.body.repo);
+		helper.updateFeatureFile(db_id);
 		res.status(200).json(db_id);
 	} catch (e) {
 		handleError(res, e, e, 500);
@@ -62,7 +62,7 @@ router.put('/:_id', async (req, res) => {
 	try {
 		console.log(req.body);
 		const story = await mongo.updateStory(req.body);
-		await helper.updateFeatureFile(req.params._id, req.body.storySource);
+		await helper.updateFeatureFile(req.params._id);
 		res.status(200).json(story);
 	} catch (e) {
 		handleError(res, e, e, 500);
@@ -81,10 +81,10 @@ router.delete('/:repo_id/:_id', async (req, res) => {
 });
 
 // update only Scenariolist
-router.patch('/:story_id/:source', async (req, res) => {
+router.patch('/:story_id', async (req, res) => {
 	try {
 		await mongo.updateScenarioList(req.params.story_id, req.body);
-		await helper.updateFeatureFile(req.params.story_id, req.params.source);
+		await helper.updateFeatureFile(req.params.story_id);
 	} catch (e) {
 		handleError(res, e, e, 500);
 	}
@@ -104,7 +104,7 @@ router.get('/:story_id/:source/:_id', async (req, res) => {
 router.post('/:story_id/:source', async (req, res) => {
 	try {
 		const scenario = await mongo.createScenario(req.params.story_id, req.params.source, req.body.name);
-		await helper.updateFeatureFile(req.params.story_id, req.params.source);
+		await helper.updateFeatureFile(req.params.story_id);
 		res.status(200)
 			.json(scenario);
 	} catch (error) {
@@ -118,7 +118,7 @@ router.put('/:story_id/:source/:_id', async (req, res) => {
 	try {
 		const scenario = req.body;
 		const updatedStory = await mongo.updateScenario(req.params.story_id, req.params.source, scenario);
-		await helper.updateFeatureFile(req.params.story_id, req.params.source);
+		await helper.updateFeatureFile(req.params.story_id);
 		res.status(200)
 			.json(updatedStory);
 	} catch (error) {
@@ -131,7 +131,7 @@ router.delete('/:story_id/:source/:_id', async (req, res) => {
 	try {
 		await mongo
 			.deleteScenario(req.params.story_id, req.params.source, parseInt(req.params._id, 10));
-		await helper.updateFeatureFile(req.params.story_id, req.params.source);
+		await helper.updateFeatureFile(req.params.story_id);
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {

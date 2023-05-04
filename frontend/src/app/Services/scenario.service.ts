@@ -63,7 +63,7 @@ export class ScenarioService {
   /* Updating scenario list */
   public updateScenarioList(story_id, source, scenario_list: Scenario[]): Observable<any> {
     return this.http
-      .patch(this.apiService.apiServer + '/story/' + story_id + '/' + source, scenario_list, ApiService.getOptions())
+      .patch(this.apiService.apiServer + '/story/' + story_id , scenario_list, ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));

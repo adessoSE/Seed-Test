@@ -62,12 +62,11 @@ export class StoryService {
   /**
     * Get's single Story by ID
     * @param _id storyID
-    * @param source repoSource
     * @return single Story object
   */
-  public getStory(_id, source): Observable<any> {
+  public getStory(_id): Observable<any> {
     return this.http
-      .get<Story>(this.apiService.apiServer + '/story/' + _id + '/' + source, ApiService.getOptions())
+      .get<Story>(this.apiService.apiServer + '/story/' + _id , ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));
@@ -145,7 +144,6 @@ export class StoryService {
   /**
    * Runs a test of a scenario or story
    * @param storyID
-   * @param storySource
    * @param scenarioID
    * @param params
    * @returns

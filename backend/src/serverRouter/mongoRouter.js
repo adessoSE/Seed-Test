@@ -63,7 +63,7 @@ router.post('/background/update/:storyID', async (req, res) => {
 	try {
 		const background = req.body;
 		const result = await mongo.updateBackground(req.params.storyID, background);
-		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
+		helper.updateFeatureFile(req.params.storyID);
 		res.status(200)
 			.json(result);
 	} catch (error) {
@@ -76,7 +76,7 @@ router.post('/background/update/:storyID', async (req, res) => {
 router.delete('/background/delete/:storyID', async (req, res) => {
 	try {
 		await mongo.deleteBackground(req.params.storyID);
-		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
+		helper.updateFeatureFile(req.params.storyID);
 		res.status(200)
 			.json({});
 	} catch (error) {
