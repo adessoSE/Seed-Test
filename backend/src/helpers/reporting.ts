@@ -359,7 +359,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 				}
 			}
 		} else {
-			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			const story = await mongo.getOneStory(req.params.issueID);
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {

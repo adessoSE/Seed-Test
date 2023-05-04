@@ -150,14 +150,14 @@ export class StoryService {
    * @param params
    * @returns
   */
-  runTests(storyID: any, storySource: string, scenarioID: number, params) {
+  runTests(storyID: any, scenarioID: number, params) {
     const timeout = 900000;
     if (scenarioID) {
       return this.http
-        .post(this.apiService.apiServer + '/run/Scenario/' + storyID + '/' + storySource + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+        .post(this.apiService.apiServer + '/run/Scenario/' + storyID + '/' + scenarioID, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
     }
     return this.http
-      .post(this.apiService.apiServer + '/run/Feature/' + storyID + '/' + storySource, params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
+      .post(this.apiService.apiServer + '/run/Feature/' + storyID , params, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` }) });
   }
   /**
     * Download a file with story feature

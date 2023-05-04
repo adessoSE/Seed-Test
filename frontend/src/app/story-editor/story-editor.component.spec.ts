@@ -237,7 +237,7 @@ describe('StoryEditorComponent', () => {
       component.scenarioChild = findComponent(fixture, '#scenarioChild');
       let html = '<h1 #testFrame>Hi</h1>';
       jest.spyOn(component.storyService, 'runTests');
-      component.storyService.runTests(component.selectedStory._id, component.selectedStory.storySource, scenarioId, {}).subscribe((resp)=> {
+      component.storyService.runTests(component.selectedStory._id, scenarioId, {}).subscribe((resp)=> {
         expect(component.htmlReport).toBe(html);
         expect(component.testDone).toBeTruthy();
         expect(component.showResults).toBeTruthy();

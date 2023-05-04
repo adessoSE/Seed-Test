@@ -51,7 +51,7 @@ router.post('/Group', (req, res, next) => {
 				} else {
 					const group = await mongo.getOneStoryGroup(req.body.repoID, req.body.groupID);
 					const mystories = [];
-					for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id, 'db'));
+					for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id));
 					req.body = group;
 					reporter.runReport(req, res, mystories, 'group', req.body);
 					// res.json(user);

@@ -302,16 +302,15 @@ async function updateStory(updatedStory) {
 
 // get One Story
 // searches the story either by mongoDB _id:ObjectId() or by story_id (from GitHub or Jira)
-async function getOneStory(storyId, storySource) {
+async function getOneStory(storyId) {
 	let query;
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
 		console.log(storyId);
-		if (typeof storyId === 'number' && (storySource === 'github' || storySource === 'jira')) {
+		if (typeof storyId === 'number') {
 			query = {
-				story_id: storyId,
-				storySource: storySource.toString()
+				story_id: storyId
 			};
 		} else {
 			query = {

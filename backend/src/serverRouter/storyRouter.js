@@ -38,7 +38,7 @@ function handleError(res, reason, statusMessage, code) {
 // get one Story
 router.get('/:_id/:source', async (req, res) => {
 	try {
-		const story = await mongo.getOneStory(req.params._id, req.params.source);
+		const story = await mongo.getOneStory(req.params._id);
 		res.status(200).json(story);
 	} catch (e) {
 		handleError(res, e, e, 500);

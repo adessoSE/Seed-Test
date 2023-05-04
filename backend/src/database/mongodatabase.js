@@ -307,14 +307,14 @@ async function updateStory(updatedStuff) {
 }
 
 // get One Story
-async function getOneStory(storyId, storySource) {
+async function getOneStory(storyId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		let story = await collection.findOne({ _id: ObjectId(storyId), storySource });
+		let story = await collection.findOne({ _id: ObjectId(storyId) });
 		// TODO remove later when all used stories have the tag storySource
-		if (!story) story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined });
+		if (!story) story = await collection.findOne({ _id: ObjectId(storyId) });
 		return story;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneStory: ${e}`);

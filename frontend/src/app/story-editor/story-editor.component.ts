@@ -610,7 +610,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
       this.storyService
         .runTests(
           this.selectedStory._id,
-          this.selectedStory.storySource,
           scenario_id,
           {
             browser: browserSelect,
