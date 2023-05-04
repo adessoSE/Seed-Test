@@ -175,16 +175,6 @@ export class BaseEditorComponent  {
       
       if (this.templateName == 'scenario' && block[0] == 'scenario') {      
         block = block[1];
-        /*Object.keys(block.stepDefinitions).forEach((key, index) => {
-          block.stepDefinitions[key].forEach((step: StepType, j) => {
-              if (key == 'example') {
-                this.fillExapleValues(key, j, step);
-                this.exampleChild.updateTable();
-              } else {
-                this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-              }
-          });
-        });*/
         this.insertStepsWithExamples(block)
         this.markUnsaved();
       }
@@ -1379,29 +1369,27 @@ export class BaseEditorComponent  {
    * @param num number to append to the name
    */
   changeExampleName(block, indices, num){
-    if (indices.length>0){
-      indices.forEach(index => {
-        let oldName = block.stepDefinitions['example'][0].values[index]
-        let newName
-        if (num > 1){
-          newName = oldName.split(' - ')[0] + ' - ' + num
-        } else {
-          newName = oldName + ' - ' + num
-        }
-        block.stepDefinitions['example'][0].values[index] = newName
-        Object.keys(block.stepDefinitions).forEach((key, _) => {
-          if (key != 'example') {
-            block.stepDefinitions[key].forEach((step: StepType, i) => {
-              step.values.forEach((value, j) => {
-                if(value === '<'+oldName+'>'){
-                  block.stepDefinitions[key][i].values[j] = '<'+newName+'>'
-                }
-              });
+    indices.forEach(index => {
+      let oldName = block.stepDefinitions['example'][0].values[index]
+      let newName
+      if (num > 1){
+        newName = oldName.split(' - ')[0] + ' - ' + num
+      } else {
+        newName = oldName + ' - ' + num
+      }
+      block.stepDefinitions['example'][0].values[index] = newName
+      Object.keys(block.stepDefinitions).forEach((key, _) => {
+        if (key != 'example') {
+          block.stepDefinitions[key].forEach((step: StepType, i) => {
+            step.values.forEach((value, j) => {
+              if(value === '<'+oldName+'>'){
+                block.stepDefinitions[key][i].values[j] = '<'+newName+'>'
+              }
             });
-          }
-        });
+          });
+        }
       });
-    }
+    });
   }
 
   /**
@@ -1459,53 +1447,60 @@ export class BaseEditorComponent  {
    * checks for example names and adds ' - Copy' in case of double names
    */
   insertCopiedExamples(block) {
-    if (this.selectedScenario.stepDefinitions['example'].length==0) {
-      this.selectedScenario.stepDefinitions['example'] = block.stepDefinitions['example']
-    } else {
-      if (this.selectedScenario.stepDefinitions['example'].length==block.stepDefinitions['example'].length){
-        this.selectedScenario.stepDefinitions['example'].forEach((element, index) => {
-          block.stepDefinitions['example'][index].values.forEach(val => {
-            element.values.push(val)
-          })
-        });
-      } else if (this.selectedScenario.stepDefinitions['example'].length<block.stepDefinitions['example'].length) {
-        const selectedLength = this.selectedScenario.stepDefinitions['example'].length
-        block.stepDefinitions['example'].forEach((element, index) => {
-          if (index < selectedLength){
-            block.stepDefinitions['example'][index].values.forEach(val => {
-              this.selectedScenario.stepDefinitions['example'][index].values.push(val)
-            })
-          } else {
-            const clipboardValueLength = element.values.length
-            const selectedValueLength = this.selectedScenario.stepDefinitions['example'][index-1].values.length - clipboardValueLength
-            this.selectedScenario.stepDefinitions['example'].push(JSON.parse(JSON.stringify(this.selectedScenario.stepDefinitions['example'][index-1])))
-            for (let i = 0; i < selectedValueLength; i++) {
-              this.selectedScenario.stepDefinitions['example'][index].values[i] = 'value'
-              
-            }
-            for (let j = 0; j< clipboardValueLength; j++){
-              this.selectedScenario.stepDefinitions['example'][index].values[selectedValueLength+j] = block.stepDefinitions['example'][index].values[j]
-            }
-          }
-        });
-      } else {
-        const clipboardLength = block.stepDefinitions['example'].length
-        this.selectedScenario.stepDefinitions['example'].forEach((element, index) => {
-          if (index < clipboardLength){
-            block.stepDefinitions['example'][index].values.forEach(val => {
-              element.values.push(val)
-            })
-          } else {
-            const clipboardValueLength = block.stepDefinitions['example'][0].values.length
-            for (let i = 0; i < clipboardValueLength; i++) {
-              element.values.push('value')
-            }
-          }
-        });
-      }  
+    const selectedExampleDefs = this.selectedScenario.stepDefinitions['example'];
+    const blockExampleDefs = block.stepDefinitions['example'];
+  
+    if (selectedExampleDefs.length === 0) {
+      this.selectedScenario.stepDefinitions['example'] = blockExampleDefs;
+      return;
     }
+  
+    if (selectedExampleDefs.length === blockExampleDefs.length) {
+      this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs);
+    } else if (selectedExampleDefs.length < blockExampleDefs.length) {
+      this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs, true);
+      this.insertNewExamples(selectedExampleDefs, blockExampleDefs);
+    } else {
+      this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs);
+      this.insertPlaceholderValues(selectedExampleDefs, blockExampleDefs[0].values.length);
+    }
+  
     //this.exampleChild.updateTable()
   }
+  
+  insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs, useSelectedLength = false) {
+    const length = useSelectedLength ? selectedExampleDefs.length : blockExampleDefs.length;
+    for (let i = 0; i < length; i++) {
+      blockExampleDefs[i].values.forEach(val => {
+        selectedExampleDefs[i].values.push(val);
+      });
+    }
+  }
+  
+  insertNewExamples(selectedExampleDefs, blockExampleDefs) {
+    const selectedLength = selectedExampleDefs.length;
+    for (let i = selectedLength; i < blockExampleDefs.length; i++) {
+      const clipboardValueLength = blockExampleDefs[i].values.length;
+      const selectedValueLength = selectedExampleDefs[i - 1].values.length - clipboardValueLength;
+      selectedExampleDefs.push(JSON.parse(JSON.stringify(selectedExampleDefs[i - 1])));
+      for (let j = 0; j < selectedValueLength; j++) {
+        selectedExampleDefs[i].values[j] = 'value';
+      }
+      for (let k = 0; k < clipboardValueLength; k++) {
+        selectedExampleDefs[i].values[selectedValueLength + k] = blockExampleDefs[i].values[k];
+      }
+    }
+  }
+  
+  insertPlaceholderValues(selectedExampleDefs, length) {
+    selectedExampleDefs.forEach(element => {
+      for (let i = 0; i < length; i++) {
+        element.values.push('value');
+      }
+    });
+  }
+  
+  
  
   /**
     * Opens add block modal
