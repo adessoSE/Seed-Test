@@ -86,7 +86,7 @@ describe('DbServices', () => {
 		});
 		it('return empty background', (done) => {
 			const background = { name: 'New Background', stepDefinitions: { when: [] } };
-			mongo.deleteBackground(story_id, null)
+			mongo.deleteBackground(story_id)
 				.then((result) => {
 					expect(result.background).toEqual(background);
 					done();

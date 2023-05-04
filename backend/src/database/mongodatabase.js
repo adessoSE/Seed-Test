@@ -502,12 +502,12 @@ async function updateBackground(storyId, updatedBackground) {
 }
 
 // DELETE Background
-async function deleteBackground(storyId, storySource) {
+async function deleteBackground(storyId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		story.background = emptyBackground();
 		return await replace(story, collection);
 	} catch (e) {

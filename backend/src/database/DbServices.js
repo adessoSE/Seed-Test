@@ -456,7 +456,7 @@ async function updateBackground(storyId, updatedBackground) {
 }
 
 // DELETE Background
-async function deleteBackground(storyId, storySource) {
+async function deleteBackground(storyId) {
 	return updateBackground(storyId, emptyBackground());
 }
 

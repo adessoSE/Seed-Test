@@ -73,9 +73,9 @@ router.post('/background/update/:storyID', async (req, res) => {
 
 // delete background
 // TODO storySource aus dem Frontend mitsenden
-router.delete('/background/delete/:storyID/:storySource', async (req, res) => {
+router.delete('/background/delete/:storyID', async (req, res) => {
 	try {
-		await mongo.deleteBackground(req.params.storyID, req.params.storySource);
+		await mongo.deleteBackground(req.params.storyID);
 		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)
 			.json({});

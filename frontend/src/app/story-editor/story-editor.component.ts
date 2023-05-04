@@ -534,7 +534,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    */
   deleteBackground() {
     this.backgroundService
-      .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
+      .deleteBackground(this.selectedStory._id)
           .subscribe(_ => {
         this.showBackground = false;
         this.selectedStory.background = emptyBackground;
