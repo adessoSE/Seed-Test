@@ -484,12 +484,12 @@ async function showSteptypes() {
 }
 
 // UPDATE Background
-async function updateBackground(storyId, storySource, updatedBackground) {
+async function updateBackground(storyId, updatedBackground) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		story.background = updatedBackground;
 		return await replace(story, collection);
 	} catch (e) {

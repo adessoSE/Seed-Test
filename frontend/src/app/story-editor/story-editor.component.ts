@@ -518,7 +518,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
             });
         });
     this.backgroundService
-            .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
+            .updateBackground(this.selectedStory._id, this.selectedStory.background)
             .subscribe(_ => {
                 this.backgroundService.backgroundChangedEmitter();
                 this.toastr.success('successfully saved', 'Background');

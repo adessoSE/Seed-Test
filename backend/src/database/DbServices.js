@@ -444,7 +444,7 @@ async function showSteptypes() {
 }
 
 // UPDATE Background
-async function updateBackground(storyId, storySource, updatedBackground) {
+async function updateBackground(storyId, updatedBackground) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -457,7 +457,7 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 
 // DELETE Background
 async function deleteBackground(storyId, storySource) {
-	return updateBackground(storyId, null, emptyBackground());
+	return updateBackground(storyId, emptyBackground());
 }
 
 async function createStory(storyTitle, storyDescription, repoId) {

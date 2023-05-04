@@ -59,10 +59,10 @@ router.post('/createStory', async (req, res) => {
 });
 
 // update background
-router.post('/background/update/:storyID/:storySource', async (req, res) => {
+router.post('/background/update/:storyID', async (req, res) => {
 	try {
 		const background = req.body;
-		const result = await mongo.updateBackground(req.params.storyID, req.params.storySource, background);
+		const result = await mongo.updateBackground(req.params.storyID, background);
 		helper.updateFeatureFile(req.params.storyID, req.params.storySource);
 		res.status(200)
 			.json(result);

@@ -79,7 +79,7 @@ describe('DbServices', () => {
 		});
 
 		afterEach((done) => {
-			mongo.updateBackground(story_id, null, backgroundBefore)
+			mongo.updateBackground(story_id, backgroundBefore)
 				.then((result) => {
 					done();
 				});
@@ -103,7 +103,7 @@ describe('DbServices', () => {
 				}
 			};
 			const backgroundString = (JSON.stringify(background));
-			mongo.updateBackground(story_id, null, background)
+			mongo.updateBackground(story_id, background)
 				.then((result) => {
 					expect(JSON.stringify(result)).toContain(backgroundString);
 					done();

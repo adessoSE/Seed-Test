@@ -42,13 +42,12 @@ export class BackgroundService {
   /**
    * Updates the background
    * @param storyID
-   * @param storySource
    * @param background
    * @returns
   */
-  public updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
+  public updateBackground(storyID: any, background: Background): Observable<Background> {
     return this.http
-      .post<Background>(this.apiService.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
+      .post<Background>(this.apiService.apiServer + '/mongo/background/update/' + storyID , background, ApiService.getOptions())
       .pipe(tap(_ => {
         console.log('Update background for story ' + storyID);
       }));
