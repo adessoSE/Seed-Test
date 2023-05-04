@@ -777,12 +777,12 @@ async function createRepo(ownerId, name) {
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) { 
+async function updateRepository(repoID, newName, user) { //
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		return collection.findOneAndUpdate(repoFilter, { $set: {"repoName": newName} }, { returnNewDocument: true });
+		return collection.findOneAndUpdate(repoFilter, { $set: { repoName: newName } }, { returnNewDocument: true });
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;
@@ -817,13 +817,44 @@ async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
 	}
 }
 
-async function updateOwnerInRepo(repoName, ownerId, source) {
+async function removeFromWorkgroup(repoId, user) {
 	try {
 		const db = dbConnection.getConnection();
-		await db.collection(repositoriesCollection).findOneAndUpdate({ repoName, repoType: source }, { $set: { owner: ownerId } });
-		return 'done';
+		const wGcollection = await db.collection(WorkgroupsCollection);
+		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
+		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
+		const workGroup = await wGcollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $pull: { Members: { email: user.email } } });
+		if (workGroup.value) {
+			const wG = await wGcollection.findOne({ Repo: ObjectId(repoId) });
+			const result = { owner: {}, member: [] };
+			result.owner = { email: owner.email, canEdit: true };
+			result.member = wG.Members;
+			return result;
+		}
+		return;
 	} catch (e) {
-		console.log(`ERROR in updateOwnerInRepo${e}`);
+		console.log(`ERROR in removeFromWorkgroup: ${e }`);
+		throw e;
+	}
+}
+
+async function updateOwnerInRepo(repoId, newOwnerId, oldOwnerId) {
+	try {
+		const db = dbConnection.getConnection();
+		const oldOwner = await getUserById(oldOwnerId);
+		// set new Owner for the given Repo
+		const newOwner = await getUserById(newOwnerId);
+		await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
+		await db.collection(repositoriesCollection).findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { owner: newOwnerId } });
+		// remove the new Owner from Workgroup
+		await removeFromWorkgroup(repoId, newOwner);
+
+		// add old Owner as Member and update Email in Workgroup
+		const wgMember = { email: oldOwner.email, canEdit: Boolean(true) };
+		await db.collection(WorkgroupsCollection).findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { owner: newOwner.email }, $push: { Members: wgMember } });
+		return 'Success';
+	} catch (e) {
+		console.log(`ERROR in updateOwnerInRepo ${e}`);
 		throw e;
 	}
 }
@@ -1273,26 +1304,6 @@ async function getMembers(id) {
 	}
 }
 
-async function removeFromWorkgroup(id, user) {
-	try {
-		const db = dbConnection.getConnection();
-		const wGcollection = await db.collection(WorkgroupsCollection);
-		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(id) });
-		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
-		const workGroup = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } });
-		if (workGroup) {
-			const wG = await wGcollection.findOne({ Repo: ObjectId(id) });
-			const result = { owner: {}, member: [] };
-			result.owner = { email: owner.email, canEdit: true };
-			result.member = wG.Members;
-			return result;
-		}
-	} catch (e) {
-		console.log(`ERROR in removeFromWorkgroup: ${e}`);
-		throw e;
-	}
-}
-
 async function updateOneDriver(id, driver) {
 	try {
 		const oneDriver = !driver.oneDriver;
@@ -1319,8 +1330,6 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	}
 	return v;
 };
-
-
 
 module.exports = {
 	setIsSavedTestReport,

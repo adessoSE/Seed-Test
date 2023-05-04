@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const helper = require('../serverHelper');
+const reporter = require('../../dist/helpers/reporting');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();
@@ -31,12 +32,12 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID/:storySource', (req, res) => {
-	helper.runReport(req, res, [], 'feature', req.body).catch((reason) => res.send(reason).status(500));
+	reporter.runReport(req, res, [], 'feature', req.body).catch((reason) => { console.log('failed in runreport', reason); res.send(reason).status(500) });
 });
 
 // run single Scenario of a Feature
 router.post('/Scenario/:issueID/:storySource/:scenarioId', (req, res) => {
-	helper.runReport(req, res, [], 'scenario', req.body).catch((reason) => res.send(reason).status(500));
+	reporter.runReport(req, res, [], 'scenario', req.body).catch((reason) => res.send(reason).status(500));
 });
 
 // run one Group and return report
@@ -50,12 +51,12 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const params = group;
 	params.repository = req.body.repository;
 	req.body = group;
-	helper.runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
+	reporter.runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
 });
 
 // generate older Report
 router.get('/report/:reportName', (req, res) => {
-	helper.createReport(res, req.params.reportName);
+	reporter.createReport(res, req.params.reportName);
 });
 
 // get Report Data for a Story

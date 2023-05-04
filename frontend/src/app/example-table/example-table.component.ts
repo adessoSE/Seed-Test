@@ -10,6 +10,9 @@ import { StepType } from '../model/StepType';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ApiService } from '../Services/api.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { MatTable } from '@angular/material/table';
+import { StepDefinition } from '../model/StepDefinition';
 
 
 @Component({
@@ -78,6 +81,10 @@ export class ExampleTableComponent implements OnInit {
   data = [];
 
   /**
+   * Control if dragging
+   */
+  dragDisabled = true;
+  /**
    * Controls of the table
    */
   controls: UntypedFormArray;
@@ -100,6 +107,7 @@ export class ExampleTableComponent implements OnInit {
   deleteExampleObservable: Subscription;
 
   indexOfExampleToDelete;
+  @ViewChild('table') table: MatTable<StepDefinition>;
 
   /**
    * Event emitter to check if ththe example table should be removed or added to
@@ -143,6 +151,7 @@ export class ExampleTableComponent implements OnInit {
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
   }
  
+  // eslint-disable-next-line @angular-eslint/use-lifecycle-interface
   ngOnDestroy() {
     if (!this.deleteExampleObservable.closed) {
       this.deleteExampleObservable.unsubscribe();
@@ -161,31 +170,6 @@ export class ExampleTableComponent implements OnInit {
       this.updateTable();
       this.selectedScenario.saved = false;
   }
-
-
-  /**
-   * Sets the status of the scenario to not saved and overrides value of example
-   */
-   inputChange(rowIndex, columnIndex, column){
-    this.selectedScenario.saved = false;
-    
-    const getCircularReplacer = () => {
-      const seen = new WeakSet;
-      return (key, value) => {
-        if (typeof value === "object" && value !== null) {
-          if (seen.has(value)) {
-            return;
-          }
-          seen.add(value);
-        }
-        return value;
-      };
-    };
-
-    let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
-    this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue
-  }
-
   /**
    * Initializes the controls of the table
    */
@@ -229,12 +213,25 @@ export class ExampleTableComponent implements OnInit {
    * Updates a field of the table
    * @param columnIndex index of the column of the changed value
    * @param rowIndex index of the row of the changed value
-   * @param field name of the changed value column
+   * @param column name of the changed value column
    */
-  updateField(columnIndex: number, rowIndex: number, field: string) {
-    const control = this.getControl(rowIndex, field);
+  updateField(columnIndex: number, rowIndex: number, column) {
+    const control = this.getControl(rowIndex, column);
     if (control.valid) {
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = control.value;
+      const getCircularReplacer = () => {
+        const seen = new WeakSet;
+        return (key, value) => {
+          if (typeof value === "object" && value !== null) {
+            if (seen.has(value)) {
+              return;
+            }
+            seen.add(value);
+          }
+          return value;
+        };
+      };
+      let reference = JSON.parse(JSON.stringify(this.controls.at(rowIndex).get(column), getCircularReplacer()));
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = reference._pendingValue;
       this.initializeTable();
     } else {
       console.log('CONTROL NOT VALID');
@@ -248,6 +245,7 @@ export class ExampleTableComponent implements OnInit {
     * @returns FormControl of the cell
     */
   getControl(rowIndex: number, fieldName: string): UntypedFormControl {
+    this.selectedScenario.saved = false;
     return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
   }
 
@@ -296,7 +294,7 @@ export class ExampleTableComponent implements OnInit {
    */
    showDeleteExampleToast(scenario: Scenario) {
     this.apiService.nameOfComponent('example');
-    this.toastr.warning('', 'Do you really want to delete this example?', {
+    this.toastr.warning('Are your sure you want to delete this variable?', 'Delete variable?', {
         toastComponent: DeleteToast
     });
   }
@@ -341,5 +339,32 @@ export class ExampleTableComponent implements OnInit {
     this.updateTable()
     this.selectedScenario.saved = false;
   }
-
+  /**
+   * Drag and drop an examples value
+   * @param event
+   */
+  dropExample(event: CdkDragDrop<any>) {
+    this.dragDisabled = true;
+    const previousIndex = this.data.findIndex((d) => d === event.item.data);
+    moveItemInArray(this.data, previousIndex, event.currentIndex);
+    this.table.renderRows();
+    this.replaceDragedValue();
+    this.selectedScenario.saved = false;
+  }
+  /**
+   * Change the order of rows
+   */
+  replaceDragedValue(){
+    const newData = [];
+    this.data.forEach((row) => {
+      const newRow = [];
+      Object.keys(row).forEach((key) => {
+        newRow.push(row[key]);
+      });
+      newData.push(newRow);
+    });
+    for (let i = 1; i < this.selectedScenario.stepDefinitions.example.length; i++) {
+      this.selectedScenario.stepDefinitions.example[i].values = newData[i-1]
+    }
+  }
 }

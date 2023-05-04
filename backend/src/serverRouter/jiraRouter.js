@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
-const helper = require('../serverHelper');
+const userHelper = require('../../dist/helpers/userManagement');
 
 const router = express.Router();
 
@@ -52,18 +52,30 @@ router.post('/user/create/', (req, res) => {
 			fetch(jiraURL, options)
 				.then((response) => response.json())
 				.then(() => {
-					helper.updateJira(req.user._id, req.body)
+					userHelper.updateJiraCredential(req.user._id, jiraAccountName, jiraPassword, jiraServer)
 						.then((result) => {
 							res.status(200).json(result);
 						});
 				})
-				.catch((error) => console.error(error));
-			// in case of error
-			res.status(401).json('User doesnt exist.');
+				.catch((error) => {
+					console.error(error);
+					res.status(401).json('User doesnt exist.');
+				});
 		} else {
 			console.error('Given Jira-Server does not comply with URL structure.');
 			res.status(401).json('Given Jira-Server does not comply with URL structure.');
 		}
+	}
+});
+
+router.delete('/user/disconnect/', (req, res) => {
+	if (typeof req.user === 'undefined' && typeof req.user._id === 'undefined') {
+		console.error('No Jira User sent. (Got undefinded)');
+		res.status(401).json('No Jira User sent. (Got undefinded)');
+	} else {
+		helper.disconnectJira(req.user._id).then((result) => {
+			res.status(200).json(result);
+		}).catch((error) => console.error(error));
 	}
 });
 

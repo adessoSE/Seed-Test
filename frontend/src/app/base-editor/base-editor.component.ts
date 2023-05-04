@@ -134,6 +134,14 @@ export class BaseEditorComponent  {
   lastCheckedCheckboxIDx;
 
   /**
+  * Flag to check how much enable steps left
+  */
+  activatedSteps = 0;
+   /**
+  * If all examples steps are deactivated
+  */
+   allDeactivated: boolean;
+  /**
     * Block saved to clipboard
     */
   clipboardBlock: Block = null;
@@ -249,7 +257,7 @@ export class BaseEditorComponent  {
   ngDoCheck(): void {
     switch(this.templateName) {
       case 'background':
-        this.clipboardBlock = JSON.parse(sessionStorage.getItem('backgroundBlock'));
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('scenarioBlock'));
         break;
 
       case 'scenario':
@@ -1019,8 +1027,59 @@ export class BaseEditorComponent  {
     this.saveBlockModal.openSaveBlockFormModal(block, this);
 
   }
- 
+
   /**
+    * Return examples to steps
+    * 
+    */
+  reactivateExampleSteps(){
+    this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
+      value.values.forEach((val, i) => {{ 
+          this.selectedScenario.stepDefinitions.example[index].isExample[i] = true
+        }
+      })
+    })
+   }
+
+  /**
+    * Delete rows or deactivate examples
+    * 
+    */
+  deleteRows(){
+    this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
+      value.values.forEach((val, i) => {{ 
+          this.selectedScenario.stepDefinitions.given[index].isExample[i] = undefined
+        }
+      })
+    })
+    this.selectedScenario.stepDefinitions.when.forEach((value, index) => {
+      value.values.forEach((val, i) => {{
+        this.selectedScenario.stepDefinitions.when[index].isExample[i] = undefined
+        }
+      })
+    })
+    this.selectedScenario.stepDefinitions.then.forEach((value, index) => {
+      value.values.forEach((val, i) => {{
+          this.selectedScenario.stepDefinitions.then[index].isExample[i] = undefined
+        }
+      })
+    })
+  }
+  /**
+    * Deactivates all example steps
+    * 
+    */
+  deactivateAllExampleSteps(){
+    this.activatedSteps = 0;
+    this.allDeactivated = true;   
+    this.selectedScenario.stepDefinitions.example.forEach((value, index) => {
+      value.values.forEach((val, i) => {{ 
+          this.selectedScenario.stepDefinitions.example[index].isExample[i] = false
+        }
+      })
+    })
+  }
+   /**
     * Deactivates all checked step
     * 
     */
@@ -1055,9 +1114,25 @@ export class BaseEditorComponent  {
         this.markUnsaved();
         break;
       case 'example':
-        for (const s in this.selectedScenario.stepDefinitions.example) {
-          if (this.selectedScenario.stepDefinitions.example[s].checked) {
-            this.selectedScenario.stepDefinitions.example[s].deactivated = !this.selectedScenario.stepDefinitions.example[s].deactivated;
+        {
+          this.allDeactivated = false;
+          if ( !this.allDeactivated ) {
+            this.reactivateExampleSteps();
+          }
+          let example = this.selectedScenario.stepDefinitions.example;
+          const totalSteps = Object.keys(example).length;
+          example.forEach(step => {
+            if (step.checked && this.activatedSteps < totalSteps - 1) {
+              step.deactivated = !step.deactivated;
+              if(step.deactivated)
+                this.activatedSteps++;
+            }
+          });
+          if (this.activatedSteps === totalSteps - 1) {
+            console.log("All steps are deactivated");
+            this.deactivateAllExampleSteps();
+            this.markUnsaved();
+            return
           }
         }
         //this.selectedScenario.saved = false;
@@ -1117,7 +1192,14 @@ export class BaseEditorComponent  {
       case 'example':
         for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i > 0; i--) {
           if (this.selectedScenario.stepDefinitions.example[i].checked) {
-            this.selectedScenario.stepDefinitions.example.splice(i,1);
+            if(i - 1 == 0 && this.selectedScenario.stepDefinitions.example.length - 2 == 0)
+            {
+              this.deleteRows();
+              this.selectedScenario.stepDefinitions.example = []
+              this.markUnsaved();
+              return 
+            }
+            this.selectedScenario.stepDefinitions.example.splice(i,1); 
           }
         }
         this.exampleChild.updateTable();
@@ -1156,6 +1238,7 @@ export class BaseEditorComponent  {
  
     //const copyBlock = {given: [], when: [], then: [], example: []};
     let block;
+    let backgroundBlock: Block;
     switch (this.templateName) {
       case 'background':
         block = this.addStepsToBlockOnIteration(this.selectedStory.background.stepDefinitions);
@@ -1167,8 +1250,8 @@ export class BaseEditorComponent  {
             }
           }
         }*/
-        const backgroundBlock: Block = {stepDefinitions: block}; 
-        sessionStorage.setItem('backgroundBlock', JSON.stringify(backgroundBlock));
+        backgroundBlock = {stepDefinitions: block}; 
+        sessionStorage.setItem('scenarioBlock', JSON.stringify(backgroundBlock));
         this.toastr.success('successfully copied', 'Step(s)');
         break;
 
@@ -1241,10 +1324,12 @@ export class BaseEditorComponent  {
   insertCopiedBlock(): void{
     switch (this.templateName) {
       case 'background':
-        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, index) => {
-          this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
-            this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
-          });
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+          if (key === 'when') {
+            this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+              this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+            });
+          }
         });
         //this.selectedStory.background.saved = false;
         this.markUnsaved();
@@ -1465,8 +1550,8 @@ export class BaseEditorComponent  {
       this.selectedScenario.stepDefinitions.example.push(newStep);
     }
     this.selectedScenario.stepDefinitions.example[0].values[0] = (cutInput);
-    const table = document.getElementsByClassName('mat-table')[0];
-    if (table) { table.classList.add('mat-elevation-z8'); }
+    const table = document.getElementsByClassName('mat-mdc-table')[0];
+    if (table) { table.classList.add('mat-mdc-elevation-z8'); }
 
   } 
 

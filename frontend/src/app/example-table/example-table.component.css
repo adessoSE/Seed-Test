@@ -7,10 +7,19 @@ table {
   width: max-content;
   padding: 0px 10px 0px 10px;
 }
+.dragIconContainer{
+  text-align: center;
+  cursor: move;
+}
 
 .mat-header-cell {
   width: max-content;
   padding: 0px 10px 0px 10px;
+
+}
+#nullValue{
+  font-style: italic;
+  color: gray;
 
 }
 span, .checkboxWrapper{
@@ -26,7 +35,9 @@ span, .checkboxWrapper{
 .deactivated .numbering{
   text-decoration: line-through;
 }
-
+.boundary{
+  max-width: 100%;
+}
 .valueRow{
   font-weight: normal;
 }
@@ -63,9 +74,13 @@ span, .checkboxWrapper{
 }
 
 .checkboxWrapper{
-  display: inline-block;
+  display: inline-flex;
 }
-
+.material-icons.dragIcon{
+  font-size: 18px;
+  color: #000;
+  margin-top: 2px;
+}
 .numbering{
   font-weight: 500;
   font-size: 17px;

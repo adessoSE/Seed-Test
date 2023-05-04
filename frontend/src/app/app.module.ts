@@ -26,7 +26,6 @@ import { TermsComponent } from './terms/terms.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
 import {CookieService } from 'ngx-cookie-service';
-import { TestAccountComponent } from './test-account/test-account.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
@@ -52,6 +51,7 @@ import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
 import { CreateCustomProjectComponent } from './modals/create-custom-project/create-custom-project.component';
+import { DisconnectJiraAccountComponent} from './modals/disconnect-jira-account/disconnect-jira-account.component';
 import { DeleteAccountComponent } from './modals/delete-account/delete-account.component';
 import { AddBlockFormComponent } from './modals/add-block-form/add-block-form.component';
 import { SaveBlockFormComponent } from './modals/save-block-form/save-block-form.component';
@@ -70,6 +70,7 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
+import { TransferOwnershipToast } from './transferOwnership-toastr';
 
 @NgModule({
   declarations: [
@@ -87,7 +88,6 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     FeedbackComponent,
     TermsComponent,
     AccountManagementComponent,
-    TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
     RegistrationComponent,
@@ -100,6 +100,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     LayoutModalComponent,
     CreateNewGroupComponent,
     CreateCustomProjectComponent,
+    DisconnectJiraAccountComponent,
     DeleteAccountComponent,
     AddBlockFormComponent,
     SaveBlockFormComponent,
@@ -118,7 +119,8 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     BaseEditorComponent,
     NewExampleComponent,
     ExampleComponent,
-    DeleteToast
+    DeleteToast,
+    TransferOwnershipToast
   ],
   imports: [
     NgbModule,

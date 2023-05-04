@@ -129,7 +129,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     deleteBlock() {
       this.apiService.nameOfComponent('block');
-      this.toastr.warning('', 'Do you really want to delete this block? It cannot be restored.', {
+      this.toastr.warning('Are your sure you want to delete this block? It cannot be restored.', 'Delete Block?', {
 				toastComponent: DeleteToast
 		  });
     }  

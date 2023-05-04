@@ -6,11 +6,13 @@ const fetch = require('node-fetch');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
+const fs = require('fs');
 const initializePassport = require('../passport-config');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
-const fs = require('fs');
+const userMng = require('../../dist/helpers/userManagement');
+const projectMng = require('../../dist/helpers/projectManagement');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -158,7 +160,7 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout({},()=>{});
+	req.logout({}, () => {});
 	res.clearCookie('connect.sid', { path: '/' });
 	res.status(200).send({ status: 'success' });
 });
@@ -168,12 +170,10 @@ router.get('/repositories', (req, res) => {
 	let githubName;
 	let token;
 	let githubId;
-	if (req.user) {
-		if (req.user.github) {
-			githubName = req.user.github.login;
-			token = req.user.github.githubToken;
-			githubId = req.user.github.id;
-		}
+	if (req.user && req.user.github) {// note order
+		githubName = req.user.github.login;
+		token = req.user.github.githubToken;
+		githubId = req.user.github.id;
 	} else {
 		githubName = process.env.TESTACCOUNT_NAME;
 		token = process.env.TESTACCOUNT_TOKEN;
@@ -181,15 +181,15 @@ router.get('/repositories', (req, res) => {
 	}
 	// get repositories from individual sources
 	Promise.all([
-		helper.starredRepositories(req.user._id, githubId, githubName, token),
-		helper.ownRepositories(req.user._id, githubId, githubName, token),
-		helper.jiraProjects(req.user),
-		helper.dbProjects(req.user)
+		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
+		projectMng.ownRepositories(req.user._id, githubId, githubName, token),
+		projectMng.getJiraRepos(req.user.jira),
+		projectMng.dbProjects(req.user._id)
 	])
 		.then((repos) => {
 			let merged = [].concat(...repos);
 			// remove duplicates
-			merged = helper.uniqueRepositories(merged);
+			merged = projectMng.uniqueRepositories(merged);
 			res.status(200).json(merged);
 		})
 		.catch((reason) => {
@@ -200,16 +200,26 @@ router.get('/repositories', (req, res) => {
 
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
-	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.params.owner_id);
+	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);
 	res.status(200).json(repo);
-	console.log('update repo: ', repo);
+});
+
+// update repository owner
+router.put('/repository/:repo_id', async (req, res) => {
+	try {
+		const newOwner = await mongo.getUserByEmail(req.body.email);
+		const repo = await mongo.updateOwnerInRepo(req.params.repo_id, newOwner._id, req.user._id);
+		res.status(200).json(repo);
+	} catch (error) {
+		handleError(res, 'in update Repository Owner', 'Could not set new Owner', 500);
+	}
 });
 
 // delete repository
 router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
 		await mongo
-			.deleteRepository(req.params.repo_id, req.params.owner_id, req.params.source, parseInt(req.params._id, 10));
+			.deleteRepository(req.params.repo_id, req.user._id, req.params.source, parseInt(req.params._id, 10));
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {
@@ -218,11 +228,11 @@ router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 });
 
 // get stories
-router.get('/stories', async (req, res) => {
+router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
-		if (!helper.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
+		if (!userMng.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
@@ -259,7 +269,7 @@ router.get('/stories', async (req, res) => {
 					story.assignee = 'unassigned';
 					story.assignee_avatar_url = null;
 				}
-				const entry = await helper.fuseStoryWithDb(story);
+				const entry = await projectMng.fuseStoryWithDb(story);
 				tmpStories.set(entry._id.toString(), entry);
 				tmpStoriesArray.push(entry._id);
 			}
@@ -279,9 +289,9 @@ router.get('/stories', async (req, res) => {
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		let { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-		Password = helper.decryptPassword(Password, Password_Nonce, Password_Tag);
-		const auth = Buffer.from(`${AccountName}:${Password}`)
+		const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+		const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
+		const auth = Buffer.from(`${AccountName}:${clearPass}`)
 			.toString('base64');
 
 		const tmpStories = new Map();
@@ -321,7 +331,7 @@ router.get('/stories', async (req, res) => {
 								story.assignee = 'unassigned';
 								story.assignee_avatar_url = null;
 							}
-							const entry = await helper.fuseStoryWithDb(story, issue.id);
+							const entry = await projectMng.fuseStoryWithDb(story, issue.id);
 							tmpStories.set(entry._id.toString(), entry);
 							storiesArray.push(entry._id);
 						}
@@ -365,10 +375,11 @@ router.put('/stories/:_id', async (req, res) => {
 
 const mapper = (str) => { // maps Url endoded data to new object
 	const cleaned = decodeURIComponent(str);
-	const entities = cleaned.split('&').filter(Boolean).map((v) => {
-		const a = v.split('=').map((x) => x.toString());
-		return a;
-	});
+	const entities = cleaned.split('&').filter(Boolean)
+		.map((v) => {
+			const a = v.split('=').map((x) => x.toString());
+			return a;
+		});
 	return Object.fromEntries(entities);
 };
 
@@ -390,7 +401,7 @@ router.get('/callback', (req, res) => {
 		.then((data) => {
 			console.log(data);
 			if (data.error) throw Error('github user register failed');
-			else helper.getGithubData(res, req, data.access_token);
+			else userMng.getGithubData(res, req, data.access_token);
 		})
 		.catch((error) => {
 			res.status(401).send(error.message);

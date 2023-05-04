@@ -28,6 +28,17 @@ export class ManagementService {
       .post<any>(this.apiService.apiServer + '/jira/user/create/', request, ApiService.getOptions())
       .pipe(tap());
   }
+
+  /**
+   * Disconnects the Jira account
+   * @returns
+   */
+  disconnectJiraAccount() {
+    return this.http
+      .delete<any>(this.apiService.apiServer + '/jira/user/disconnect/', ApiService.getOptions())
+      .pipe(tap());
+  }
+
   /**
    * Retrieves data of the user
    * @returns
