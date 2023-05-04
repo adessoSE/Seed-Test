@@ -153,7 +153,8 @@ router.get('/download/story/:source/:_id', async (req, res) => {
 router.get('/download/project/:source/:repo_id', async (req, res) => {
 	try {
 		console.log('download project feature-files', req.params.repo_id);
-		const file = await helper.exportProjectFeatureFiles(req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
 		console.log(file);
 		res.send(file);
 	} catch (error) {
