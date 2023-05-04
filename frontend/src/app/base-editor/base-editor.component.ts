@@ -1285,27 +1285,20 @@ export class BaseEditorComponent  {
    */
   addStepsToBlockOnIteration(stepsList) {
     const copyBlock = {given: [], when: [], then: [], example: []};
-    //Block for background and scenario handling except for example step
+    const stepsListIterate = {given: [], when: [], then: []};
     let examplesToBeCopied=[]
-    for (const prop in stepsList) {
-      if (this.templateName !== 'example' && prop !== 'example') {
-        for (const s in stepsList[prop]) {
-          if (stepsList[prop][s].checked) {
-            copyBlock[prop].push(stepsList[prop][s]);
-            stepsList[prop][s].values.forEach((value, index) => {
-              if (stepsList[prop][s].isExample[index]) {
+    Object.keys(stepsListIterate).forEach((key, _) => {
+        for (const s in stepsList[key]) {
+          if (stepsList[key][s].checked) {
+            copyBlock[key].push(stepsList[key][s]);
+            stepsList[key][s].values.forEach((value, index) => {
+              if (stepsList[key][s].isExample[index]) {
                 examplesToBeCopied.push(value.slice(1,-1))
               }
             });
           }
         }
-      } else {
-        //Block for example handling
-        if (stepsList[prop].checked) {
-          copyBlock['example'].push(stepsList[prop]);
-        }
-      }
-    }
+    });
     if (examplesToBeCopied.length > 0) {
       let indexList = []
       stepsList['example'][0].values.forEach((value, index) => {
@@ -1320,7 +1313,6 @@ export class BaseEditorComponent  {
       });
     }
 
-    console.log('copied ', copyBlock)
     return copyBlock
   }
  
