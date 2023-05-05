@@ -356,15 +356,18 @@ async function exportSingleFeatureFile(_id, source) {
 	});
 }
 
-async function exportProjectFeatureFiles(repoId) {
+async function exportProjectFeatureFiles(repoId, versionId) {
 	const dbStories = mongo.getAllStoriesOfRepo(repoId);
 	return dbStories.then(async (stories) => {
 		const zip = new AdmZip();
 		return Promise.all(stories.map(async (story) => {
 			writeFile(story);
-			try {
-				zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
-			} catch (e) { console.log('file not found'); }
+			const postfix = versionId ? `-v${versionId}` : '';
+			const filename = this.cleanFileName(story.title + story._id.toString());
+			const file = await pfs.readFile(`./features/${filename}.feature`, 'utf8').catch((err) => { console.log('Couldn\'t read file'); });
+			if (file != null) {
+				zip.addFile(`${filename + postfix}.feature`, file);
+			}
 		})).then(() => zip.toBuffer());
 	});
 }
