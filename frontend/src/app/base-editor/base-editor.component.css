@@ -199,17 +199,6 @@ input[type="text"]{
   transform: translate(0px, 3px)
 }
 
-/* #inputExample{
-  background: #f8f8f8;
-  border-radius: 50%;
-  height: 24px;
-  width: 24px;
-} */
-/* #inputExampleIcon{
-  margin-top: -2px;
-  margin-left: -3px;
-} */
-
 .exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
