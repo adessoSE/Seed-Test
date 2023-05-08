@@ -1,0 +1,28 @@
+name: Start Docker Stack
+
+on:
+  push:
+    branches:
+      - CUC-384-Github-Actions
+
+jobs:
+  start-docker-stack:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker
+      uses: docker/setup-docker@v1
+
+    - name: Build and start Docker stack
+      run: |
+        chmod +x runDocker.sh
+        ./runDocker.sh
+
+    # wait like 1 min for containers to start
+
+    # execute npm test in the frontend container
+
+    # execute npm test in the backend container
