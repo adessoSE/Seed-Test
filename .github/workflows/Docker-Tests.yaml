@@ -16,9 +16,24 @@ jobs:
     - name: Set up Docker
       uses: docker/setup-docker@v1
     
-    - name: Create .env file
+    - name: Create .env file backend
       run: |
         echo "DATABASE_URI=${{DB_URI}}" > backend/.env
+        echo "EMAIL_AUTH=${{EMAIL_AUTH}}" >> backend/.env
+        echo "EMAIL_PW=${{EMAIL_PW}}" >> backend/.env
+        echo "EMAIL_PORT=${{EMAIL_PORT}}" >> backend/.env
+        echo "EMAIL_HOST=${{EMAIL_HOST}}" >> backend/.env
+        echo "FRONTEND_URL=${{FRONTEND_URL}}" >> backend/.env
+        echo "GITHUB_CLIENT_SECRET=${{G_CLIENT_SECRET}}" >> backend/.env
+        echo "GITHUB_CLIENT_ID=${{G_CLIENT_ID}}" >> backend/.env
+        echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
+
+    - name: Create .env file fronted
+      run: |
+        echo "API_SERVER=${{API_SERVER}}" > frontend/.env
+        echo "GITHUB_CLIENT_ID=${{G_CLIENT_ID}}" >> frontend/.env
+        echo "EMAIL_PW=${{EMAIL_PW}}" >> frontend/.env
+        echo "VERSION=SET" >> frontend/.env
 
     - name: Build and start Docker stack
       run: |
@@ -37,7 +52,7 @@ jobs:
           tail -n +$line_number testResultsBackend.txt > cleanResultsBackend.txt
         fi
 
-    - name: Read message from file
+    - name: Read message from cleanResults
       run: |
         message=$(cat cleanResultsBackend.txt)
         echo "::set-output name=message::$message"
