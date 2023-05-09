@@ -40,6 +40,9 @@ jobs:
         chmod +x runDocker.sh
         ./runDocker.sh
 
+    - name: Wait for 2 minute
+      run: sleep 120
+
     # execute npm test in the backend container
     - name: Run npm test backend
       run: |
