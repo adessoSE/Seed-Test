@@ -15,24 +15,41 @@ jobs:
 
     - name: Set up Docker
       uses: docker/setup-docker@v1
+    
+    - name: Create .env file
+      run: |
+        echo "DATABASE_URI=${{DB_URI}}" > backend/.env
 
     - name: Build and start Docker stack
       run: |
         chmod +x runDocker.sh
         ./runDocker.sh
 
-    # wait like 1 min for containers to start
-    - name: Create .env file
-      run: |
-        echo "DATABASE_URI=${{DB_URI}}" > .env
-        docker cp .env Seed-backend:/app/.env
-
-    # execute npm test in the frontend container
-    - name: Run npm test backend
-      run: |
-        docker exec Seed-backend npm test > testResults.txt
-
     # execute npm test in the backend container
     - name: Run npm test backend
       run: |
-        docker exec Seed-frontend npm test > testResults.txt
+        docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
+    
+    - name: Clean up the result
+      run: |
+        line_number=$(grep -n "Test Suites:" testResultsBackend.txt | cut -d ":" -f 1)
+        if [ -n "$line_number" ]; then
+          tail -n +$line_number testResultsBackend.txt > cleanResultsBackend.txt
+        fi
+
+    - name: Read message from file
+      run: |
+        message=$(cat cleanResultsBackend.txt)
+        echo "::set-output name=message::$message"
+      id: read_message
+
+    - name: Send simple notification
+      uses: mikesprague/teams-incoming-webhook-action@v1
+      with:
+        github-token: ${{ github.token }}
+        webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        title: 'Push Notification'
+        deploy-card: true
+        timestamp: Europe/Berlin
+        color: 'info'
+        text: ${{ steps.read_message.outputs.message }}
