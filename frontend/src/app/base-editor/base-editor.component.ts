@@ -1,5 +1,5 @@
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -24,7 +24,8 @@ import { UnpackBlockToast } from '../unpackBlock-toast';
 @Component({
   selector: 'app-base-editor',
   templateUrl: './base-editor.component.html',
-  styleUrls: ['./base-editor.component.css']
+  styleUrls: ['./base-editor.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class BaseEditorComponent  {
 
@@ -192,7 +193,7 @@ export class BaseEditorComponent  {
             pre: '', mid: '', post: '', values: [] };
           this.selectedScenario.stepDefinitions.when.push(blockReference);  
         } else {
-          Object.keys(block.stepDefinitions).forEach((key, index) => {
+          Object.keys(block[1].stepDefinitions).forEach((key, index) => {
             block[1].stepDefinitions[key].forEach((step: StepType, j) => {
                 if (key == 'example') {
                   this.fillExapleValues(key, j, step);

@@ -17,7 +17,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
   @ViewChild('newTitle') newTitleLabel: HTMLElement;
-  @ViewChild('saveBlockButton') saveBlockButton: HTMLElement;
+ 
 
     /**
      * Saved blocks
@@ -37,6 +37,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       * If blocks are saved 
       */
     blockSaved: boolean;
+    /**
+      * If save button is disable
+      */
+    saveBlockButtonDisable: boolean;
 
     /**
       * Steps of the current block
@@ -168,17 +172,21 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Check if a new block name is valid
      */   
     checkName(){
-      this.saveBlockButton = document.getElementById("saveBlockButton");
-      this.newblockName = this.newTitleLabel.textContent.replace(/\s/g, '');
-      if(this.newblockName.trim().length === 0){
-        this.saveBlockButton.setAttribute('disabled', 'true');
+      this.newblockName = this.newTitleLabel.textContent;
+      if (this.newTitleLabel.getAttribute('contentEditable') === 'true') {
+        const pattern = /^\S(.*\S)?$/;
+        if (!pattern.test(this.newblockName)) {
+          this.saveBlockButtonDisable = true;
+          return;
+        }
+      }
+      if (this.newblockName.trim().length === 0) {
+        this.saveBlockButtonDisable = true;
         this.toastr.warning('', 'The field can not be empty. Enter the name.', {});
-      }
-      else if((this.newblockName && !this.blocks.find(i => i.name === this.newblockName)) || (this.selectedBlock ? this.blocks.find(g => g._id === this.selectedBlock._id && g.name === this.newblockName) : false)) {
-        this.saveBlockButton.removeAttribute('disabled');
-      }
-      else  {
-        this.saveBlockButton.setAttribute('disabled', 'true');
+      } else if ((!this.blocks.find(i => i.name === this.newblockName)) || (this.selectedBlock ? this.blocks.find(g => g._id === this.selectedBlock._id && g.name === this.newblockName) : false)) {
+        this.saveBlockButtonDisable = false;
+      } else {
+        this.saveBlockButtonDisable = true;
         this.toastr.warning('', 'This name exists already. Enter unique name.', {});
       }
     }
@@ -204,7 +212,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       //to avoid an error if the user selects another block when new name is undefined
       if(this.newTitleLabel !== undefined)
       {
-        if(this.newTitleLabel.textContent.replace(/\s/g, '').trim().length === 0)
+        if(this.newTitleLabel.textContent.trim().length === 0)
         this.newTitleLabel.textContent = this.selectedBlock.name;
       }
     }
@@ -214,7 +222,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     copiedBlock() {
       if (this.clipboardBlock) {
-          this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, false);
+        this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, false);
       }
     }
 
@@ -230,21 +238,25 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Update block when title is changed
      */
     updateBlock(){
-      if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
-        this.newblockName = this.selectedBlock.name;
-      } else{
-        this.oldName = this.selectedBlock.name;
-        this.selectedBlock.name = this.newblockName;        
-        this.blockService
-        .updateBlock(this.oldName, this.selectedBlock)
-        .subscribe(_ => {
-          this.updateBlocksEventEmitter();
-          this.toastr.success('successfully saved', 'Block');
-        });
+      if(this.saveBlockButtonDisable == false){
+        if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
+          this.newblockName = this.selectedBlock.name;
+        } else{
+          this.oldName = this.selectedBlock.name;
+          this.selectedBlock.name = this.newblockName;
+          console.log(" this.selectedBlock",  this.selectedBlock)
+          this.blockService
+          .updateBlock(this.oldName, this.selectedBlock)
+          .subscribe(_ => {
+            this.updateBlocksEventEmitter();
+            this.toastr.success('successfully saved', 'Block');
+          });
+        }
+       this.newTitleLabel.setAttribute('contentEditable', 'false');
+       this.newTitleLabel.style.border = 'none';
+       this.blockSaved = true;
       }
-     this.newTitleLabel.setAttribute('contentEditable', 'false');
-     this.newTitleLabel.style.border = 'none';
-     this.blockSaved = true;
+ 
     }
 
     updateBlocksEventEmitter() {

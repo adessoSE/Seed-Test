@@ -17,8 +17,8 @@
         <div class="savedBlocksContainer">
           <p class="subHeader">Saved Blocks</p>
           <mat-selection-list [(ngModel)]="selectedBlockList" (selectionChange)="changeBlockSelection($event)" name="folderss">
-              <mat-list-option  *ngFor="let block of blocks, let rowIndex = index" [value]="block" >
-                <h4 mat-line>{{rowIndex+1}}. {{block.name}}</h4>
+              <mat-list-option  *ngFor="let block of blocks, let rowIndex = index" [value]="block" style="height: 100%; margin-bottom: 10px;">
+                <label mat-line style="white-space: pre-wrap; word-break: break-all;">{{rowIndex+1}}. {{block.name}}</label>
               </mat-list-option>
           </mat-selection-list>
         </div>
@@ -28,10 +28,10 @@
                 <div class="subHeader" *ngIf="selectedBlock != undefined">Preview: 
                   <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
                 </div>
-                <button *ngIf="this.blockSaved==true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
+                <button *ngIf="this.blockSaved == true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
                   <em class="material-icons">edit</em>
                 </button>   
-                <button *ngIf="this.blockSaved==false" id="saveBlockButton" class="blockButton" title="Save Block" (click)="updateBlock();">
+                <button *ngIf="this.blockSaved == false" id="saveBlockButton" class="blockButton" title="Save Block" [class.disabled]="saveBlockButtonDisable == true" [disabled]="saveBlockButtonDisable == true" (click)="updateBlock();">
                   <em class="material-icons">save</em>
                 </button>
                 <button id="deleteBlock" class="blockButton" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined" title="Delete Block" (click)="deleteBlock($event)">

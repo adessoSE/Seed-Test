@@ -14,6 +14,9 @@
     display: flex;
     justify-content: center;
 }
+.disabled {
+    color: gray !important;
+}
 
 .blockButton{
     border: none;
@@ -77,9 +80,8 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     padding: 5px;
 }
 .previewContainer label{
-    padding: 3px;
     cursor: text;
-
+    word-break: break-word;
 }
 .previewContainer div{
     cursor: default;
