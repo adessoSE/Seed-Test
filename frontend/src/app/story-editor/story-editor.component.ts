@@ -21,6 +21,9 @@ import { ReportService } from '../Services/report.service';
 import { ProjectService } from '../Services/project.service';
 import { LoginService } from '../Services/login.service';
 import { RepositoryContainer } from '../model/RepositoryContainer';
+import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
+import { Block } from '../model/Block';
+import { StepDefinition } from '../model/StepDefinition';
 
 
 /**
@@ -630,11 +633,27 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
      * Select another background to replace
      */
     replaceBackground(background: Background){
+      this.checkBackgroundLost()
       this.selectedStory.background.stepDefinitions.when = background.stepDefinitions.when;
       this.selectedStory.background.name = background.name;
       this.backgroundService.backgroundReplaced = true;
       this.updateBackground();
     }
+
+    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+    checkAllSteps(checkValue?: boolean){
+      //needed by saveBlockModal
+    }
+
+    checkBackgroundLost(){
+      const unsavedBackground = this.selectedStory.background
+      if(this.backgrounds.filter((b)=>b===unsavedBackground).length < 2){
+        const stepDefs: StepDefinition = {given:[], then:[], example:[], when:unsavedBackground.stepDefinitions.when}
+        const block: Block = {name: unsavedBackground.name ,stepDefinitions: stepDefs}
+        this.saveBlockModal.openSaveBlockFormModal(block, this);
+      }
+    }
+
 
   /**
    * Selects a story and scenario
