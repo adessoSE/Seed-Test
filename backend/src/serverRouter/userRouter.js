@@ -368,6 +368,28 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	}
 });
 
+// delete user
+router.delete('/', async (req, res) => {
+	try {
+		if (req.user) await mongo.deleteUser(req.user._id);
+		else res.sendStatus(401);
+		res.sendStatus(200);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+// get userObject
+router.get('/', async (req, res) => {
+	if (req.user) try {
+		const result = await mongo.getUserData(req.user._id);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+	else res.sendStatus(400);
+});
+
 router.put('/stories/:_id', async (req, res) => {
 	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body);
 	res.status(200).json(result);

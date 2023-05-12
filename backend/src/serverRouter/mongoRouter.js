@@ -94,27 +94,6 @@ router.post('/user/update/:userID', async (req, res) => {
 		handleError(res, error, error, 500);
 	}
 });
-// delete user
-router.delete('/user/delete', async (req, res) => {
-	try {
-		if (req.user) await mongo.deleteUser(req.user._id);
-		else res.sendStatus(401);
-		res.sendStatus(200);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-// get userObject
-router.get('/user', async (req, res) => {
-	if (req.user) try {
-		const result = await mongo.getUserData(req.user._id);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-	 else res.sendStatus(400);
-});
 
 // save custom Blocks
 router.post('/saveBlock', async (req, res) => {

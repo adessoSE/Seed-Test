@@ -141,7 +141,7 @@ function execRepositoryRequests(link, user, password, ownerId, githubId) {
 		request.send();
 		request.onreadystatechange = async () => {
 			if (request.readyState !== 4) return;
-			if (request.status !== 200) { reject(this.status); return; }
+			if (request.status !== 200) { resolve([]); return; }
 			const data = JSON.parse(request.responseText);
 			const projects = [];
 			const gitReposFromDb = await mongo.getAllSourceReposFromDb('github');

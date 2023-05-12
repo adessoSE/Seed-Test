@@ -45,7 +45,7 @@ export class ManagementService {
   */
   getUserData(): Observable<User> {
     return this.http
-      .get<User>(this.apiService.apiServer + '/mongo/user/', ApiService.getOptions())
+      .get<User>(this.apiService.apiServer + '/user/', ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }), catchError(this.apiService.handleStoryError));
@@ -56,7 +56,7 @@ export class ManagementService {
   */
   deleteUser() {
     return this.http
-      .delete<any>(this.apiService.apiServer + '/mongo/user/delete', ApiService.getOptions())
+      .delete<any>(this.apiService.apiServer + '/user/', ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }), catchError(this.apiService.handleStoryError));
