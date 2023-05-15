@@ -1,6 +1,6 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {catchError, tap} from 'rxjs/operators';
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {Observable, of, throwError} from 'rxjs';
 import {User} from '../model/User';
 import {RepositoryContainer} from '../model/RepositoryContainer';
@@ -188,6 +188,14 @@ export class ApiService {
         return this.http
             .post<any>(this.apiServer + '/github/submitIssue/', obj, ApiService.getOptions());
     }
+
+    runKi(storyID) {
+        this.apiServer = localStorage.getItem('url_backend');
+        const timeout = 6000000;
+        console.log('run ki call');
+        return this.http.post(this.apiServer + '/run/runKI/' + storyID, null, { withCredentials: true, headers: new HttpHeaders({ timeout: `${timeout}` })})
+    }
+
     /**
      * If the repo is github repo
      * @param repo
