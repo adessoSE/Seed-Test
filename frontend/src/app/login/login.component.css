@@ -10,10 +10,6 @@ h1{
 
 .loginGrid{
     display: grid;
-    grid-template:
-    "howToStart formular"
-    "howToStart repositories"
-    / 1fr 1fr;
     background-color: var(--white);
     place-items: center;
 }
@@ -167,11 +163,6 @@ h1{
     max-height: 18px;
 }
 
-/*
-#info{
-    color: #0099CC;
-    font-weight: bold;
-}*/
 .repositoryList{
     list-style: none;
 }
@@ -252,10 +243,8 @@ a.repoLink:hover{
 }
 
 #noAccountDiv{
-    margin-top: 30px;
     border: 0.25px solid #999;
     padding: 10px;
-    /* background-color: rgb(247, 247, 247); */
   }
 
 .darkTheme #noAccountDiv {
@@ -269,7 +258,10 @@ a.repoLink:hover{
 :host ::ng-deep .loadingSpinner circle{
     stroke: var(--marine-blue);
 }
-
+:host ::ng-deep .mdc-circular-progress__spinner-layer> .mdc-circular-progress__circle-clipper{
+    display: revert !important;
+}
+  
 :host ::ng-deep .darkTheme .loadingSpinner circle{
     stroke: white;
 }
@@ -319,6 +311,7 @@ a.repoLink:hover{
         text-align: center;
         margin-right: 100px;
         margin-bottom: 80px;
+        margin-top: -30px;
         padding: 15px;
         background-color:rgb(224, 224, 224);
         border: 1px solid #999;

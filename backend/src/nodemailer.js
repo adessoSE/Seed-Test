@@ -22,7 +22,7 @@ async function sendResetLink(email, id) {
                 Sie haben kürzlich versucht das Passwort Ihres Seed-Test-Account zu ändern.<br>
                 Falls das nicht Sie waren, oder Sie keine Änderung der Passworts wünschen, ignorieren Sie diese Mail.<br><br>
                 Klicken Sie auf folgenden Link, um jetzt Ihr Passwort zu ändern: 
-                <a href='${process.env.FRONTEND_URL}/resetpasswordconfirm?uuid=${id}'>Click here</a><br><br>
+                <a href='${process.env.FRONTEND_URL||'http://localhost:4200'}/resetpasswordconfirm?uuid=${id}'>Click here</a><br><br>
                 Dieser Link  und die Anfrage verfallen in 60 Minuten.<br>
                 Dies ist eine automatische E-Mail, bitte antworten Sie nicht darauf.<br><br><br>
                 Mit freundlichen Grüßen<br>

@@ -4,22 +4,47 @@
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
         <span id="workgroupHeader"class="MediumSubline1H4 modal-title">Project:</span>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click'); onModalClosed();">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
+            <!-- Part: Workgroup Owner -->
+            <div class="divWrapper" id="Workgroup_Owner">
+                <!-- Only for WG-Owner -->
+                <div *ngIf="userEmail===workgroupOwner">
+                    <label style="margin-right: 10px;">Project Owner:</label>
+                    <mat-form-field *ngIf="!this.workgroupList.length == 0" style="margin-right: 10px; position: inherit;" appearance="fill"  [ngStyle]="{'width': workgroupOwner.length + 6 +'ch'}">
+                        <mat-label>Project Owner</mat-label>
+                        <mat-select  #ownerSelect [(ngModel)]="selectedOwner">
+                            <mat-option *ngFor="let element of workgroupList" [value]="element.email">
+                            {{element.email}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button id="changeOwner" type="button" class="normalButton"
+                        [ngStyle]="{'opacity': this.workgroupList.length == 0 || selectedOwner == undefined  ?  '50%' : '100%'}" 
+                        [disabled]="this.workgroupList.length == 0 || selectedOwner == undefined "
+                        (click)="transferOwnership(selectedOwner);">Transfer Ownership
+                    </button>
+                    <div>
+                        <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">
+                        <button id="renameProject" type="button" class="normalButton" (click)="renameProject(workgroupInviteForm)">Rename project</button>
+                    </div>
+                </div>
+                <!-- If User is not the WG-Owner -->
+                <div *ngIf="userEmail!==workgroupOwner" >
+                    <label style="margin-right: 10px;">Project Owner:</label>
+                    <label id="projectOwner">{{this.workgroupOwner}}</label>
+                </div>
+            </div>
+            <hr>
+            <!-- Part: Invite Member -->
             <div>
                 <form #workgroupInviteForm="ngForm" novalidate [disabled]="workgroupInviteForm.invalid"
                 (ngSubmit)="workgroupInvite(workgroupInviteForm);">
-                    <label style="margin-right: 10px;">Project Owner:</label>
-                    <label>{{this.workgroupOwner}}</label>
-                    
-                    <div class="divWrapper">
-                        <input class="workGroupEmail leftMargin" type="text" id="newTitle" name="newTitle" [(ngModel)]="projectName">
-                        <button type="button" class="normalButton" (click)="renameProject(workgroupInviteForm)">Rename project</button>
-                        <hr>
+                    <div class="divWrapper"> 
                         <input class="workGroupEmail leftMargin" type="email" id="emailField" ngModel name="email" placeholder="Email*" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
                         <button class="normalButton">Invite to Team</button>
                     </div>
@@ -30,8 +55,7 @@
                     </div>
                 </form>
             </div>
-        </div>
-        <div>
+            <!-- Part: Member List -->
             <table id="workgroupTable" mat-table [dataSource]="workgroupList" class="mat-elevation-z8" aria-describedby="mydesc">
                 <ng-container matColumnDef="email">
                   <th id="workgroupEmailCell" mat-header-cell *matHeaderCellDef> Email </th>
@@ -39,7 +63,7 @@
                     <div class="emailTableContainer">
                         <label>{{element.email}} </label>
                         <button class="normalButton deleteButton"(click)="removeFromWorkgroup(element);">Remove</button>
-                    </div>
+                    </div>             
                   </td>
                 </ng-container>
 
@@ -55,7 +79,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button *ngIf="userEmail==workgroupOwner" type="button" class="normalButton deleteButton" (click)="isCurrentRepoToDelete()" >Delete Project
+        <button *ngIf="userEmail===workgroupOwner" type="button" class="normalButton deleteButton" (click)="isCurrentRepoToDelete()">Delete Project
         </button>
         <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
         </button>

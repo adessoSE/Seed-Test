@@ -96,7 +96,17 @@ em.dragIcon{
 
 .uk-card-title {
   font-size: medium;
-  font-weight: bold;
+}
+.addStepButton{
+  border: inherit;
+  background: inherit;
+  color: var(--ocean-blue);
+  float: right;
+  transform: translate(0, -45px);
+
+}
+em.addStep{
+  color: var(--ocean-blue);
 }
 
 .pencil_icon {
@@ -189,17 +199,6 @@ input[type="text"]{
   transform: translate(0px, 3px)
 }
 
-/*#inputExample{
-  background: #f8f8f8;
-  border-radius: 50%;
-  height: 24px;
-  width: 24px;
-}
-#inputExampleIcon{
-  margin-top: -2px;
-  margin-left: -3px;
-}*/
-
 .exampleBarContainer{
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
@@ -266,7 +265,7 @@ input[type="text"]{
 }
 
 /* Eventually not in use */
-.mat-form-field + .mat-form-field {
+.mat-mdc-form-field + .mat-mdc-form-field {
   margin-left: 8px;
 }
 
@@ -281,26 +280,41 @@ input[type="text"]{
 
 .exampleList{
   min-width: 100px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
-.exampleList ::ng-deep .mat-form-field-wrapper{
+.exampleList ::ng-deep .mat-mdc-form-field-wrapper{
   padding-bottom: 0px !important;
 }
 
-.exampleList ::ng-deep .mat-form-field-underline{
+.exampleList ::ng-deep .mat-mdc-form-field-underline{
   bottom: 0px !important;
 }
-
-.exampleList ::ng-deep .mat-select-value{
+.exampleList ::ng-deep .mat-mdc-select-value{
   color: var(--ocean-blue) !important;
   font-weight: bold !important;
   max-width: max-content !important;
 }
+::ng-deep .mat-mdc-select-panel-above{
+  width: auto !important;
+
+}
+:host::ng-deep .mat-mdc-text-field-wrapper{
+  height: 26px;
+  background-color: transparent;
+  padding: 0;
+}
+
+::ng-deep .mat-mdc-form-field-subscript-wrapper{
+  height: 5px;
+}
+
 .exampleListOption {
   font-weight: bold !important;
 }
 
-.darkTheme ::ng-deep .exampleList .mat-select-value {
+.darkTheme ::ng-deep .exampleList .mat-mdc-select-value {
   font-weight: 595 !important;
  }
 
@@ -308,7 +322,7 @@ input[type="text"]{
   font-weight: 595 !important;
 }
  
-.exampleList ::ng-deep .mat-form-field-infix {
+.exampleList ::ng-deep .mat-mdc-form-field-infix {
   width: fit-content !important;
 }
 
@@ -381,4 +395,27 @@ input.scenario, input.background {
   padding-right: 5px;
 }
 
- 
+#tableAddButton{
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 15px !important;
+  margin-top: 12px;
+  margin-left: 12px;
+  border-radius: 30px;
+  z-index: 100;
+}
+
+#tableAddButtonBackground{
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 10px !important;
+  margin-top: 14px;
+  margin-left: 14px;
+  background-color: #f8f8f8;
+  border-radius: 30px;
+  z-index: 50;
+  color: #f8f8f8 !important;
+  width: 11px !important;
+  height: 11px !important;
+
+ }

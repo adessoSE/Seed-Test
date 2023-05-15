@@ -89,11 +89,11 @@
     color: white;
 }
 
-::ng-deep .darkTheme .mat-table .mat-cell:first-child, .darkTheme .mat-table .mat-header-cell:first-child{
+::ng-deep .darkTheme .mat-mdc-table .mat-mdc-cell:first-child, .darkTheme .mat-mdc-table .mat-mdc-header-cell:first-child{
     border-right: 1px solid #60767b;
 }
 
-::ng-deep .darkTheme .mat-table{
+::ng-deep .darkTheme .mat-mdc-table{
     background: #455A64;
 }
 

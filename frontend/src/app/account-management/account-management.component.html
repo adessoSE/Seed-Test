@@ -41,7 +41,7 @@
                 </ul>
             </div>
         </div>
-        <div class="repositories" *ngIf="apiService.isLoggedIn()">
+        <div class="repositories" *ngIf="loginService.isLoggedIn()">
             <div>
                 <label>Download Project</label>
                 <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
@@ -51,6 +51,7 @@
             <div class="uk-flex uk-flex-row uk-search downloadWrapper">
                 <em class="material-icons" id="searchBarIcons">search</em>
                 <input class="searchInput" type="text" #searchbar (keyup)="searchRepos()"  [(ngModel)]="searchInput" placeholder="Search"/>
+                <input class="versionInput" type="text" #versionbar [(ngModel)]="versionInput" placeholder="Optional: Version"/>
                 <div style="width: 10%;"></div>
                 <mat-form-field appearance="standard" class="filterFormField">
                     <mat-label>Project</mat-label>
@@ -65,7 +66,7 @@
         </div>
 
         <!-----------------Erase your Account-------------->
-        <div class="grid_eraseAccount repositories" *ngIf="apiService.isLoggedIn() && email">
+        <div class="grid_eraseAccount repositories" *ngIf="loginService.isLoggedIn() && email">
             <div class="uk-form-horizontal">
                 <button class="normalButton deleteButton" id="erase_Account" (click)="deleteAccount()">Delete Seed-Test Account</button>
             </div>
@@ -126,6 +127,9 @@
             <div id="ChangeJiraDiv">
                 <button class="normalButton" id="change-jira" (click)="jiraLogin()">Login to Jira</button>
             </div>
+            <div id="ChangeJiraDiv">
+                <button class="normalButton" style="display:none;" id="disconnect-jira" (click)="jiraDisconnect()">Disconnect Jira-Account</button>
+            </div>
         </div>
         <!------------------Repositories JIRA------------------->
         <div class="grid_jiraRepos repositories" *ngIf="repositories">
@@ -145,6 +149,7 @@
     </div>
 </div>
 <app-change-jira-account #changeJiraModal (jiraAccountResponse)="updateSite($event)"></app-change-jira-account>
+<app-disconnect-jira-account #disconnectJiraModal (jiraAccountResponse)="updateSite($event)"></app-disconnect-jira-account>
 <app-create-custom-project #createCustomProject></app-create-custom-project>
 <app-delete-account #deleteAccountModal></app-delete-account>
 <app-workgroup-edit #workgroupEditModal></app-workgroup-edit>

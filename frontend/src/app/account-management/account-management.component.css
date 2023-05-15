@@ -176,6 +176,10 @@ label{
     margin-top: 30px;
 }
 
+#disconnect-jira{
+    margin-top: 30px;
+}
+
 .uk-card{
     border: 1px solid grey;
 }
@@ -256,7 +260,7 @@ h2, h1{
     margin-bottom: 7px;
     margin-top: 4px;
 }
-.searchInput{
+.searchInput, .versionInput{
     border: none;
     border-bottom: 1px solid var(--brown-grey);
     font-weight: normal;
@@ -264,11 +268,14 @@ h2, h1{
     max-height: 2em;
     margin-top: 1.75em;
   }
+  .versionInput{
+    margin-left: 7px;
+  }
 
-  .darkTheme .searchInput {
+  .darkTheme .searchInput .versionInput{
     border-bottom: 1px solid #60767b;
   }
-  .searchInput:focus{
+  .searchInput:focus, .versionInput:focus{
     outline: none;
   }
   #searchBarIcons{
@@ -301,4 +308,48 @@ h2, h1{
 
   .flex-end-item {
     margin-left: auto;
+  }
+
+  ::ng-deep .mat-mdc-focused .mat-mdc-form-field-label {
+    /*change color of label*/
+    color: var(--ocean-blue) !important;
+   }
+  
+  ::ng-deep .mdc-floating-label--float-above {
+    color: var(--ocean-blue) !important;
+  }
+  ::ng-deep .mat-mdc-option-active .mdc-list-item__primary-text {
+    color: var(--ocean-blue) !important;
+  }
+  
+   ::ng-deep.mat-mdc-form-field-underline {
+    /*change color of underline*/
+    background-color: var(--ocean-blue) !important;
+  }
+  
+  ::ng-deep.mat-mdc-form-field-ripple {
+   /*change color of underline when focused*/
+   background-color: var(--ocean-blue) !important;
+  }
+  ::ng-deep .mat-mdc-option.mat-mdc-selected:not(.mat-mdc-option-disabled){
+    color: var(--ocean-blue) !important;
+  }
+  ::ng-deep.mat-mdc-form-field.mat-mdc-focused .mat-mdc-select-arrow{
+    color: var(--ocean-blue) !important;
+    width: 20px;
+    height: 10px;
+    position: relative;
+  }
+  /* ::ng-deep.mat-mdc-option-text:checked{
+    color: green !important;
+  } */
+  ::ng-deep .mat-mdc-form-field-infix{
+    padding-bottom: 0 !important;
+    min-height: fit-content;
+  }
+  
+  :host::ng-deep .mat-mdc-text-field-wrapper{
+    margin-top: 5px;
+    background-color: transparent;
+    padding: 0 !important;
   }

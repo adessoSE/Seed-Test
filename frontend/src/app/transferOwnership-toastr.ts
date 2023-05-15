@@ -6,43 +6,24 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-import { Component} from '@angular/core';
+import { Component, EventEmitter, Output} from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
-import { ApiService } from './Services/api.service';
-  
+import { ProjectService } from './Services/project.service';
 /**
- * Component of the Delete Scenario toasts
+ * Component of the Transfer Ownership toasts
  */
   @Component({
     selector: '[pink-toast-component]',
-    //styles: [`
-    //  :host {
-    //    background-color: #FF69B4;
-    //    position: relative;
-    //    overflow: hidden;
-    //    margin: 0 0 6px;
-    //    padding: 10px 10px 10px 10px;
-    //    width: 300px;
-    //    border-radius: 3px 3px 3px 3px;
-    //    color: #FFFFFF;
-    //    pointer-events: all;
-    //    cursor: pointer;
-    //  }
-    //  .btn-pink {
-    //    -webkit-backface-visibility: hidden;
-    //    -webkit-transform: translateZ(0);
-    //  }
-    //`],
-    styles:[`
+    styles: [`
         a {
             background: #388196;
             margin: 2px;
         }
 
-        .deleteButton{
+        .confirmButton{
           background: darkred;
         }
-        
+
         a:hover {
             color: black;
         }
@@ -62,8 +43,8 @@ import { ApiService } from './Services/api.service';
         </div>
       </div>
       <div class="col-9">
-        <a *ngIf="!options.closeButton" class="deleteButton btn btn-pink btn-sm" (click)="deleteToast($event)">
-            {{ deleteString }}
+        <a *ngIf="!options.closeButton" class="confirmButton btn btn-pink btn-sm" (click)="confirmToast($event)">
+            {{ confirmString }}
         </a>
         <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="remove()">
         {{ cancelString }}
@@ -73,7 +54,7 @@ import { ApiService } from './Services/api.service';
         </a>
       </div>
     </div>
-    <div *ngIf="options.progressBar">
+    <div >
       <div class="toast-progress" [style.width]="width + '%'"></div>
     </div>
     `,
@@ -112,40 +93,40 @@ import { ApiService } from './Services/api.service';
       ]),
     ],
     preserveWhitespaces: false,
-  })
-  export class DeleteExampleToast extends Toast {
-    
+   })
+  export class TransferOwnershipToast extends Toast {
+
+    @Output() transferOwnershipEvent: EventEmitter<any> = new EventEmitter();
     /**
-     * Name of the delete button
+     * Name of the confirm button
      */
-    deleteString = 'Delete';
+    confirmString = 'Confirm';
     /**
      * Name of the cancel button
      */
     cancelString = 'Cancel';
-
     /**
      * Constructor
-     * @param toastrService 
-     * @param toastPackage 
-     * @param apiService 
+     * @param toastrService
+     * @param toastPackage
+     * @param blockService
      * constructor is only necessary when not using AoT
      */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
-      public apiService: ApiService
+      public projectService: ProjectService,
     ) {
       super(toastrService, toastPackage);
     }
-    
+
     /**
-     * Creates a toast and deletes the example
-     * @param event 
+     * Creates a toast and deltes the story
+     * @param event
      */
-    deleteToast(event: Event){
+    confirmToast(event: Event) {
         event.stopPropagation();
-        this.apiService.deleteExampleEmitter()
+        this.projectService.transferOwnershipEmitter();
         this.remove();
     }
   }

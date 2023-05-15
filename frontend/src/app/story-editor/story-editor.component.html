@@ -1,5 +1,5 @@
 <!-- Message if no stories avaliable -->
-<div [class.darkTheme] ="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError">
+<div [class.darkTheme] ="isDark" class="emptyStories" *ngIf="(!stories || stories.length <= 0) && storiesLoaded && !storiesError && !showEditor">
   <h1 id="noStoriesHeader" class="LargeHeadline2">No Stories Yet In This Project</h1>
   <div *ngIf="!db">
     <div class="tutorialDiv uk-card uk-card-default">
@@ -39,7 +39,7 @@
           <span id="storyHeader" class="SmallCategory1" >Story</span>
         <dfn class="def">
           <span class="infoIcon uk-icon" uk-icon="info"></span>
-              <span rel="def" id="storyInfoTextVerticalPosition">A user story describes requirements for a software system.
+              <span rel="def" style="left: 20px; position: absolute;">A user story describes requirements for a software system.
                 It is consciously kept in short sentences and simple words.
                 A story includes several scenarios.
                 The following template is recommended:
@@ -47,8 +47,7 @@
           </span>
         </dfn>
       </div>
-      <span *ngIf="!this.db" class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title  | titlecase }}</span>
-      <div *ngIf="db" style="flex-grow: .5;">
+      <div style="flex-grow: .5;">
         <span class="MediumSubline1H4 storyTitle" #storyTitle>{{selectedStory.issue_number}}. {{ selectedStory.title }}</span>
         <span *ngIf="this.selectedStory" id="storytitle" class="MediumHeadline5"></span>
         <button class="storyTitle pencil_icon" (click)="changeStoryTitle();" data-uk-tooltip
@@ -350,9 +349,9 @@
     </div>
 
     <div id="loading" [class.darkTheme]="isDark">
-      <div class="loading" [hidden]="!testRunning && !testRunningGroup">
+      <div class="loading mat-mdc-progress-spinner" [hidden]="!testRunning && !testRunningGroup">
         <!-- Loading . . . -->
-        <mat-spinner></mat-spinner>
+        <mat-spinner id="loadingSpinnerRun"></mat-spinner>
       </div>
     </div>
 

@@ -17,6 +17,8 @@ COPY . .
 
 EXPOSE 4200
 
+RUN npm run build
+
 # Aus frontend/package.json
 CMD ["node", "server.js"]
 

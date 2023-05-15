@@ -3,11 +3,11 @@ import { StoryReport } from '../model/StoryReport';
 import { ReportContainer } from '../model/ReportContainer';
 import { Scenario } from '../model/Scenario';
 import { Story } from '../model/Story';
-import { ApiService } from '../Services/api.service';
 import { ThemingService } from '../Services/theming.service';
 import {Group} from '../model/Group';
 import {ScenarioReport} from '../model/ScenarioReport';
 import {GroupReport} from '../model/GroupReport';
+import { ReportService } from '../Services/report.service';
 
 
 type Report = ScenarioReport | StoryReport | GroupReport;
@@ -49,7 +49,7 @@ export class ReportHistoryComponent implements OnInit {
   /**
    * @ignore
    */
-  constructor(public apiService: ApiService, private themeService: ThemingService) { }
+  constructor(private themeService: ThemingService, public reportService: ReportService) { }
 
   /**
    * @ignore
@@ -72,7 +72,7 @@ export class ReportHistoryComponent implements OnInit {
    */
   getReports() {
     this.reports = null;
-    this.apiService.getReportHistory(this.selectedStory._id).subscribe(resp => {
+    this.reportService.getReportHistory(this.selectedStory._id).subscribe(resp => {
         this.reports = resp;
     });
   }
@@ -118,7 +118,7 @@ export class ReportHistoryComponent implements OnInit {
    * @param report: StoryReport | ScenarioReport | GroupReport report to be deleted
    */
   deleteReport(report: Report) {
-    this.apiService
+    this.reportService
       .deleteReport(report._id)
       .subscribe(_resp => {
           const newReports = JSON.parse(JSON.stringify(this.reports));
@@ -135,7 +135,7 @@ export class ReportHistoryComponent implements OnInit {
    */
   unsaveReport(report: Report) {
     report.isSaved = false;
-    this.apiService
+    this.reportService
       .unsaveReport(report._id)
       .subscribe(_resp => {
       });
@@ -147,7 +147,7 @@ export class ReportHistoryComponent implements OnInit {
    */
   saveReport(report: StoryReport | ScenarioReport | GroupReport) {
     report.isSaved = true;
-    this.apiService
+    this.reportService
       .saveReport(report._id)
       .subscribe(_resp => {
       });

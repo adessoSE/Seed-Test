@@ -4,7 +4,6 @@ import { ParentComponent } from '../parent/parent.component';
 import { AuthGuard } from '../guards/auth.guard';
 import { FeedbackComponent } from '../feedback/feedback.component';
 import { TermsComponent } from '../terms/terms.component';
-import { TestAccountComponent } from '../test-account/test-account.component';
 import { RegistrationComponent } from '../registration/registration.component';
 import { ReportComponent } from '../report/report.component';
 import { ResetPasswordComponent } from '../reset-password/reset-password.component';
@@ -45,14 +44,6 @@ export const ROUTES = [
     {
         path: 'report/:reportName',
         component: ReportComponent
-    },
-
-    /**
-     * Testaccount
-     */
-    {
-        path: 'testaccount',
-        component: TestAccountComponent
     },
 
     /**
