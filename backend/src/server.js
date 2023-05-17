@@ -15,6 +15,7 @@ const userRouter = require('./serverRouter/userRouter');
 const groupRouter = require('./serverRouter/groupRouter');
 const workgroupsRouter = require('./serverRouter/workgroups');
 const storyRouter = require('./serverRouter/storyRouter');
+const sanityTest = require('./serverRouter/sanityTest');
 const logging = require('./logging');
 require('./database/DbServices');
 
@@ -36,11 +37,11 @@ if (process.env.NODE_ENV) app
 	.use(flash())
 	.use(session({
 		store: new MongoStore({
-			url: process.env.DATABASE_URI,
+			url: process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017",
 			dbName: 'Seed',
 			collection: 'Sessions'
 		}),
-		secret: process.env.SESSION_SECRET,
+		secret: process.env.SESSION_SECRET || "unsaveSecret",
 		resave: false,
 		saveUninitialized: false,
 		proxy: true,
@@ -52,7 +53,7 @@ if (process.env.NODE_ENV) app
 else app
 	.use(flash())
 	.use(session({
-		secret: process.env.SESSION_SECRET,
+		secret: process.env.SESSION_SECRET || "unsaveSecret",
 		resave: false,
 		saveUninitialized: false,
 		proxy: true
@@ -81,6 +82,7 @@ app
 	.use('/api/group', groupRouter)
 	.use('/api/workgroups', workgroupsRouter)
 	.use('/api/story', storyRouter)
+	.use('/api/sanity', sanityTest)
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
