@@ -1,0 +1,172 @@
+name: Start Docker Stack
+
+on:
+  push:
+    branches:
+      - '**' 
+
+jobs:
+  start-docker-stack:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: npm install node-fetch
+
+    - name: Use Docker
+      uses: actions-hub/docker/cli@master
+      env:
+        SKIP_LOGIN: true
+    
+    - name: Create .env file backend
+      run: |
+        echo "DATABASE_URI=${{secrets.DB_URI}}" > backend/.env
+        echo "EMAIL_AUTH=${{secrets.EMAIL_AUTH}}" >> backend/.env
+        echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> backend/.env
+        echo "EMAIL_PORT=${{secrets.EMAIL_PORT}}" >> backend/.env
+        echo "EMAIL_HOST=${{secrets.EMAIL_HOST}}" >> backend/.env
+        echo "FRONTEND_URL=${{secrets.FRONTEND_URL}}" >> backend/.env
+        echo "GITHUB_CLIENT_SECRET=${{secrets.G_CLIENT_SECRET}}" >> backend/.env
+        echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> backend/.env
+        echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
+    - name: Create .env file fronted
+      run: |
+        echo "API_SERVER=${{secrets.API_SERVER}}" > frontend/.env
+        echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
+        echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
+        echo "VERSION=SET" >> frontend/.env
+    - name: Build and start Docker stack
+      run: |
+        chmod +x runDocker.sh
+        ./runDocker.sh
+    
+    - name: Send failure notification
+      if: ${{ failure() }}
+      uses: ./actions/notifyTeams
+      with:
+        title: "🐳 Docker Setup Failure ❌"
+        text: "Docker stack could't be build. Check the workflow for more information."
+        buttons: '[{"title": "Workflow 📄", "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}]'
+        style: accent
+        webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+    - name: Send success notification
+      uses: ./actions/notifyTeams
+      with:
+        title: 🐳 Docker Setup Success ✅
+        text: 'Docker stack has been successfully build.'
+        style: accent
+        webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+    - name: Wait for 1/2 minute
+      run: sleep 30
+
+    # execute npm test in the backend container
+    - name: Run npm test backend
+      run: |
+        docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
+      continue-on-error: true
+    
+    - name: Clean up the result backend
+      run: |
+        awk '/Test Suites:/{flag=1; print; next} /Ran all test suites\./{flag=0} flag' testResultsBackend.txt > cleanResultsBackend.txt
+        echo "" >> cleanResultsBackend.txt
+        echo "To see the full logs click on the button bellow." >> cleanResultsBackend.txt
+        printf "$(cat cleanResultsBackend.txt)" > cleanResultsBackend.txt
+    - name: Get passed and total backend
+      run: |
+        passed=$(awk '/Tests:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsBackend.txt)
+        total=$(awk '/Tests:/ { match($0, /[0-9]+ total/); print substr($0, RSTART, RLENGTH-6) }' cleanResultsBackend.txt)
+        if [ "${passed}" = "${total}" ]; then
+          status="✅"  # Tick emoji
+        else
+          pass_percentage=$(awk -v passed="${passed}" -v total="${total}" 'BEGIN { printf "%.2f\n", (passed / total) * 100 }')
+          if (( $(awk -v pass_percentage="${pass_percentage}" 'BEGIN { print (pass_percentage > 50) }') )); then
+            status="⚠️"
+          else
+            status="❌"
+          fi
+        fi
+        echo "passed=${passed}" >> "${GITHUB_OUTPUT}"
+        echo "total=${total}" >> "${GITHUB_OUTPUT}"
+        echo "status=${status}" >> "${GITHUB_OUTPUT}"
+      id: passed-total-backend
+
+    - name: Read message from cleanResults backend
+      run: |
+        delimiter="$(openssl rand -hex 8)"
+        echo "message<<${delimiter}" >> "${GITHUB_OUTPUT}"
+        echo "$(cat cleanResultsBackend.txt)" >> "${GITHUB_OUTPUT}"
+        echo "${delimiter}" >> "${GITHUB_OUTPUT}"
+      id: backend-clean-results
+
+    - name: Upload Artifact Backend
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results-backend
+        path: |
+          testResultsBackend.txt
+    - name: Send test result notification
+      uses: ./actions/notifyTeams
+      with:
+        title: '🔬💻 Test Resulsts Backend (${{ steps.passed-total-backend.outputs.passed }}/${{ steps.passed-total-backend.outputs.total }} passed)  ${{ steps.passed-total-backend.outputs.status }}'
+        text: ${{ steps.backend-clean-results.outputs.message }}
+        style: accent
+        webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        buttons: '[{"title": "Workflow 📄", "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}]'
+
+    # execute npm test in the frontend container
+    - name: Run npm test frontend
+      run: |
+        docker exec Seed-frontend npm test > testResultsFrontend.txt 2>&1
+      continue-on-error: true
+    
+    - name: Clean up the result frontend
+      run: |
+        awk '/Test Suites:/{flag=1; print; next} /Ran all test suites\./{flag=0} flag' testResultsFrontend.txt > cleanResultsFrontend.txt
+        echo "" >> cleanResultsFrontend.txt
+        echo "To see the full logs click on the button bellow." >> cleanResultsFrontend.txt
+        printf "$(cat cleanResultsFrontend.txt)" > cleanResultsFrontend.txt
+    - name: Get passed and total frontend
+      run: |
+        passed=$(awk '/Tests:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsFrontend.txt)
+        total=$(awk '/Tests:/ { match($0, /[0-9]+ total/); print substr($0, RSTART, RLENGTH-6) }' cleanResultsFrontend.txt)
+        if [ "${passed}" = "${total}" ]; then
+          status="✅"  # Tick emoji
+        else
+          pass_percentage=$(awk -v passed="${passed}" -v total="${total}" 'BEGIN { printf "%.2f\n", (passed / total) * 100 }')
+          if (( $(awk -v pass_percentage="${pass_percentage}" 'BEGIN { print (pass_percentage > 50) }') )); then
+            status="⚠️"
+          else
+            status="❌"
+          fi
+        fi
+        echo "passed=${passed}" >> "${GITHUB_OUTPUT}"
+        echo "total=${total}" >> "${GITHUB_OUTPUT}"
+        echo "status=${status}" >> "${GITHUB_OUTPUT}"
+      id: passed-total-frontend
+
+    - name: Read message from cleanResults frontend
+      run: |
+        delimiter="$(openssl rand -hex 8)"
+        echo "message<<${delimiter}" >> "${GITHUB_OUTPUT}"
+        echo "$(cat cleanResultsFrontend.txt)" >> "${GITHUB_OUTPUT}"
+        echo "${delimiter}" >> "${GITHUB_OUTPUT}"
+      id: frontend-clean-results
+
+    - name: Upload Artifact Frontend
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results-frontend
+        path: |
+          testResultsFrontend.txt
+    - name: Send success notification
+      uses: ./actions/notifyTeams
+      with:
+        title: '🔬🖼️ Test Resulsts Frontend (${{ steps.passed-total-frontend.outputs.passed }}/${{ steps.passed-total-frontend.outputs.total }} passed)  ${{ steps.passed-total-frontend.outputs.status }}'
+        text: ${{ steps.frontend-clean-results.outputs.message }}
+        style: accent
+        webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        buttons: '[{"title": "Workflow 📄", "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}]'
