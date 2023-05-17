@@ -3,25 +3,18 @@ del .env
 for /f "tokens=*" %%s in (./backend/.env) do (
   set %%s
 )
-
-set "PORT=%PORT%"
 IF "%PORT%"=="" (
   SET "PORT=8080"
-) ELSE (
-  SET "PORT=%PORT%"
 )
 echo BACKENDPORT=%PORT%>.env
 
+SET "PORT="
 @echo off
 for /f "tokens=*" %%s in (./frontend/.env) do (
   set %%s
 )
-
-set "PORT=%PORT%"
 IF "%PORT%"=="" (
-  SET "PORT=8080"
-) ELSE (
-  SET "PORT=%PORT%"
+  SET "PORT=4200"
 )
 echo FRONTENDPORT=%PORT%>>.env
 
