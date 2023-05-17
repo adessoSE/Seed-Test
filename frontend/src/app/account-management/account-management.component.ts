@@ -83,6 +83,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     isActualRepoToDelete: boolean;
 
+    clientId: string;
+
     /**
      * Subscribtions for all EventEmitter
      */
@@ -245,6 +247,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                     (document.getElementById("disconnect-jira") as HTMLButtonElement).style.removeProperty('display');
                 }
+                this.clientId = localStorage.getItem('clientId')
             });
             this.getSessionStorage();
         }

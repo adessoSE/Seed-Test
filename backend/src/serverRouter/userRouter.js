@@ -13,6 +13,7 @@ const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
+const { log } = require('console');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -60,13 +61,20 @@ router.post('/resetpassword', async (req, res) => {
 			uuid: id,
 			email: thisUser.email
 		});
-		await nodeMail.sendResetLink(thisUser.email, id);
-		res.status(200)
+		try {
+			await nodeMail.sendResetLink(thisUser.email, id);
+			res.status(200)
 			.json();
+		} catch(err) {
+			res.status(500).send(err.message);
+		}
 	} catch (error) {
 		res.status(401)
 			.json(error);
-	} else console.log('UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!');
+	} else {
+		console.log('UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!');
+		res.status(404).send("No user found with the given email adress!");
+	}
 });
 
 // checks if requests exist if true, gets the according Account and changes the password
@@ -386,6 +394,12 @@ const mapper = (str) => { // maps Url endoded data to new object
 router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
 	const params = new URLSearchParams();
+	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+		log("To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.");
+		res.status(501).send("No GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET provided.")
+		return
+	}
+
 	params.append('client_id', process.env.GITHUB_CLIENT_ID);
 	params.append('client_secret', process.env.GITHUB_CLIENT_SECRET);
 	params.append('code', req.query.code);

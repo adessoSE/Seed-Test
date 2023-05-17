@@ -33,16 +33,12 @@ RUN export PATH=$PATH:/opt/microsoft/msedge/
 ENV PATH="${PATH}:/opt/microsoft/msedge/"
 
 # install msedgedriver
-# Download the HTML of the driver download page
-RUN curl https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/ > driver-page.html
+# # Extract the latest stable version of edge
+RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 
-# Extract the latest stable version of the driver
-RUN grep -oP 'version \K[0-9.]+\">Linux' driver-page.html | sed -n 1p | sed -r 's/^(.*)">Linux$/\1/' > latest_stable.txt
-
-# Remove the driver-pagehtml
+# # Remove the driver-pagehtml
 RUN wget -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip
 RUN unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/
-RUN rm -f driver-page.html
 RUN rm -f latest_stable.txt
 
 # Bundle app source

@@ -3,7 +3,7 @@ const passport = require('passport');
 
 const mongo = require('../../src/database/DbServices');
 const cryptoAlgorithm = 'aes-256-ccm';
-const key = scryptSync(process.env.JIRA_SECRET, process.env.JIRA_SALT, 32);
+const key = scryptSync(process.env.JIRA_SECRET || "anotherUnsaveSecret", process.env.JIRA_SALT || "9bNyV23AbaC7", 32);
 
 
 function jiraEncryptPassword(pass: string): Buffer[] {

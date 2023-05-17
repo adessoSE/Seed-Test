@@ -7,7 +7,7 @@ const mongo = require('./DbServices');
 const stepTypes = require('./stepTypes');
 require('dotenv').config();
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017";
 const dbName = 'Seed';
 
 // ///////////////////////////////////////////    ADMIN  METHODS  ////////////////////////////////////////////
