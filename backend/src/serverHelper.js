@@ -165,7 +165,7 @@ async function executeTest(req, mode, story) {
 							browser: scenario.browser,
 							waitTime: scenario.stepWaitTime,
 							daisyAutoLogout: scenario.daisyAutoLogout,
-							emulator: scenario.emulator
+							...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 						}
 					]
 				};
@@ -177,7 +177,7 @@ async function executeTest(req, mode, story) {
 							browser: scenario.browser,
 							waitTime: scenario.stepWaitTime,
 							daisyAutoLogout: scenario.daisyAutoLogout,
-							emulator: scenario.emulator
+							...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 						});
 					}
 				});
@@ -253,7 +253,7 @@ function scenarioPrep(scenarios, driver) {
 				waitTime: scenario.stepWaitTime,
 				daisyAutoLogout: scenario.daisyAutoLogout,
 				oneDriver: driver,
-				emulator: scenario.emulator
+				...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 			});
 		} else {
 			scenario.stepDefinitions.example.forEach((examples, index) => {
@@ -263,7 +263,7 @@ function scenarioPrep(scenarios, driver) {
 						waitTime: scenario.stepWaitTime,
 						daisyAutoLogout: scenario.daisyAutoLogout,
 						oneDriver: driver,
-						emulator: scenario.emulator
+						...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 					});
 				}
 			});
