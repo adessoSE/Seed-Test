@@ -159,8 +159,42 @@
                         </div>
                         {{currentStep.post}}
                       </div>
-                      <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
-                      type="text" value="{{value}}" on-input="addToValues(step_type_input3.value, j , m + 2, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                      <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=2" style="display:flex">
+                        <div *ngIf="currentStep.values[2] != null" style="display: flex;">
+                          <div *ngIf="currentStep.isExample[2] == false || ((!currentStep.values[2] || currentStep.values[2]) && currentStep.isExample[2] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false">
+                            <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2
+                            type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/-->
+                            <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_post_' + j}}" #step_type_input3
+                      type="text" value="{{currentStep.values[2]}}" on-input="addToValues(step_type_input3.value, j , 2, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                          </div>
+                          <div *ngIf="currentStep.isExample[2] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
+                            <mat-form-field appearance="standard" class="exampleList">
+                              <mat-select [ngModel]="currentStep.values[2] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 2, currentStep.stepType,currentStep)" class="exampleMatSelect">
+                                <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" class="exampleListOption">
+                                  {{exampleList}}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>&nbsp;
+                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[2] !== true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('example', j, 2, currentStep.stepType)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                            &nbsp;<p class="exampleButton">1+</p>&nbsp;
+                          </button>
+                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[2] === true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('text input', j, 2,currentStep.stepType)" uk-tooltip="title: Use Textfield; pos: right">
+                            &nbsp;<p class="exampleButton">1</p>&nbsp;
+                          </button>&nbsp;
+                        </div>
+                      </div>
+                      <div *ngIf="currentStep.selectionValue==2">
+                        <mat-form-field appearance="standard">
+                            <mat-select [(ngModel)]="currentStep.values[2]" (selectionChange)="addToValues(currentStep.values[2], j, 2, currentStep.stepType)">
+                              <mat-option *ngFor="let dropdownValue of currentStep.selection" [value]="dropdownValue">
+                                {{dropdownValue}}
+                              </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
+                      type="text" value="{{value}}" on-input="addToValues(step_type_input3.value, j , m + 2, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/-->
                       <div *ngIf="currentStep.outdated">
                         <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                           <span rel="def">
