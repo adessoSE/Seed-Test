@@ -26,6 +26,11 @@ export class ExampleService {
   */
   public renameExampleEvent = new EventEmitter();
   /**
+     * Event emitter to update mutliple scenario table
+     */
+  public updateExampleTableEvent = new EventEmitter();
+
+  /**
   * Emits the delete example event
   */
   public deleteExampleEmitter() {
@@ -44,6 +49,12 @@ export class ExampleService {
   */
   renameExampleEmit(name) {
     this.renameExampleEvent.emit(name);
+  }
+  /**
+   * Emits the update example table event
+   */
+  updateExampleTableEmit() {
+    this.updateExampleTableEvent.emit();
   }
   /**
     * Checking the same name of the example
