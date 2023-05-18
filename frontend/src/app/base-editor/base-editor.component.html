@@ -29,8 +29,9 @@
           (click)="copyBlock();">
             <em class="material-icons">content_copy</em>
           </button>
-          <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
-          class="actionButton" uk-tooltip title="Add new Variable"
+        </div>
+        <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
+          uk-tooltip title="Add new Variable"
           (click)="openNewExample(step)">
             <div class="actionButton" style="display:grid;">
               <em class="material-icons-outlined" style="transform: rotate(90deg); grid-column: 1; grid-row: 1">view_stream</em>
@@ -39,7 +40,7 @@
             </div>
           </button>
           <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
-          class="actionButton" uk-tooltip title="Add Example"
+          uk-tooltip title="Add Example"
           (click)="addExampleValueRow()">
           <div class="actionButton" style="display: grid;">
             <em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
@@ -47,8 +48,6 @@
             <em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
           </div>
           </button>
-          
-        </div>
       </div>
       <div class="scenarioButtonGroup SmallHeadline5">
         <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
