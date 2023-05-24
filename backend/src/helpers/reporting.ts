@@ -422,7 +422,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 	}
 }
 
-async function runSelfReport(req, res, stories: any[], mode: executionMode, parameters) {
+async function runSanityReport(req, res, stories: any[], mode: executionMode, parameters) {
 	let reportObj;
 	try {
 		if (mode === executionMode.GROUP) {
@@ -470,5 +470,5 @@ export {
     reportDeletionTime, // Delete when not used
     deleteReport,
     runReport,
-    runSelfReport
+    runSanityReport
 };
