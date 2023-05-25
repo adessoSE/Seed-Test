@@ -192,50 +192,62 @@ async function executeTest(req, mode, story) {
 		const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
 		const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
-		let jsonPath = `../../features/${reportName}.json`;
-		if (mode === 'group') {
-			const grpDir = req.body.name;
-			jsonPath = `../../features/${grpDir}/${reportName}.json`;
-		}
+		// avoid making this function async
+		let promise = Promise.resolve();
 
-		const jsParam = JSON.stringify(parameters);
-		const cucumberArgs = [];
-		// specify location of feature to execute
-		cucumberArgs.push(path.normalize(featurePath));
-		if (mode === 'scenario') {
-		// run single Scenario by using '--tags @ScenarioName'
-			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
-		}
-		// specify desired location of JSON Report and pass world parameters for cucumber execution
-		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
-
-		// no cmd for non windows
-		const cmd = os.platform().includes('win') ? '.cmd' : '';
-		const cucumberCommand = `cucumber-js${cmd}`;
-		const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
-
-		console.log('\nExecuting:');
-		console.log(`Working Dir: "${cucumberPath}"`);
-		console.log(`Command: "${cucumberCommand}"`);
-		console.log(`Args: [${cucumberArgs}]\n`);
-
-		// spawn the process in the given directory (cwd)
-		const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
-
-		runner.stdout.on('data', (data) => {
-			console.log(`stdout: ${data}`);
+		// Check if the file exists
+		fs.access(featurePath, fs.constants.F_OK, (err) => {
+			if (err) {
+			  promise = updateFeatureFile(story._id, req.params.storySource);
+			}
 		});
-		runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
-		runner.on('error', (error) => {
-			console.error(`exec error: ${error}`);
-			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+
+		promise.then(() => {
+			let jsonPath = `../../features/${reportName}.json`;
+			if (mode === 'group') {
+				const grpDir = req.body.name;
+				jsonPath = `../../features/${grpDir}/${reportName}.json`;
+			}
+
+			const jsParam = JSON.stringify(parameters);
+			const cucumberArgs = [];
+			// specify location of feature to execute
+			cucumberArgs.push(path.normalize(featurePath));
+			if (mode === 'scenario') {
+			// run single Scenario by using '--tags @ScenarioName'
+				cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
+			}
+			// specify desired location of JSON Report and pass world parameters for cucumber execution
+			cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
+
+			// no cmd for non windows
+			const cmd = os.platform().includes('win') ? '.cmd' : '';
+			const cucumberCommand = `cucumber-js${cmd}`;
+			const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
+
+			console.log('\nExecuting:');
+			console.log(`Working Dir: "${cucumberPath}"`);
+			console.log(`Command: "${cucumberCommand}"`);
+			console.log(`Args: [${cucumberArgs}]\n`);
+
+			// spawn the process in the given directory (cwd)
+			const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
+
+			runner.stdout.on('data', (data) => {
+				console.log(`stdout: ${data}`);
+			});
+			runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
+			runner.on('error', (error) => {
+				console.error(`exec error: ${error}`);
+				resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+			});
+			// if more than one child use "close" https://nodejs.org/api/child_process.html#event-close
+			runner.on('exit', () => {
+				console.log('test finished');
+				resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+			});
 		});
-		// if more than one child use "close" https://nodejs.org/api/child_process.html#event-close
-		runner.on('exit', () => {
-			console.log('test finished');
-			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
-		});
-	});
+	})
 }
 
 function scenarioPrep(scenarios, driver) {
