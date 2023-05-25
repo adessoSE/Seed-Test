@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
 import { BlockService } from 'src/app/Services/block.service';
+import { BackgroundService } from '../../Services/background.service';
 
 @Component({
   selector: 'app-save-block-form',
@@ -57,8 +58,10 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
   updateObservable: Subscription;
 
+  isBackground: boolean;
 
-  constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService) {}
+
+  constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService, public backgroundService: BackgroundService) {}
 
   ngOnInit() {
     const id = localStorage.getItem('id');
@@ -83,16 +86,20 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
      * @param block
      * @param comp
      */
-  openSaveBlockFormModal(block: Block, comp) {
+  openSaveBlockFormModal(block: Block, comp, isBackground?: boolean) {
     this.exampleBlock = false;
     this.exampleChecked = false;
     this.block = block;
     this.parentComponent = comp;
+    this.isBackground = isBackground;
     if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
-        this.exampleBlock = true;
+      this.exampleBlock = true;
     }
     this.createStepList();
     this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
+    if(isBackground && isBackground !== undefined){
+      (document.getElementById('modalHeader') as HTMLElement).innerHTML = 'Save background as a block';
+    }
   }
 
 /**
@@ -145,8 +152,13 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.block.repository = localStorage.getItem('repository');
     this.block.source = localStorage.getItem('source');
     this.block.repositoryId = localStorage.getItem('id');
+    if (this.backgroundService.backgroundReplaced == true){
+      this.block.isBackground = true;
+    }
     this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
+        this.updateBlocksBackEventEmitter();
+        this.toastr.success('successfully saved', 'Background');
     });
     this.modalReference.close();
   }
@@ -166,9 +178,13 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     });
     return bool;
   }
-
+  updateBlocksBackEventEmitter() {
+    this.blockService.updateBlocksBackgroundsEvent.emit();
+  }
   onSubmit(form: NgForm) {
     this.submitSaveBlock(form);
   }
-
+  closeModal(){
+    this.modalReference.close();
+  }
 }
