@@ -31,12 +31,14 @@ jobs:
         echo "GITHUB_CLIENT_SECRET=${{secrets.G_CLIENT_SECRET}}" >> backend/.env
         echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> backend/.env
         echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
+
     - name: Create .env file fronted
       run: |
         echo "API_SERVER=${{secrets.API_SERVER}}" > frontend/.env
         echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
         echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
         echo "VERSION=SET" >> frontend/.env
+
     - name: Build and start Docker stack
       run: |
         chmod +x runDocker.sh
@@ -75,6 +77,7 @@ jobs:
         echo "" >> cleanResultsBackend.txt
         echo "To see the full logs click on the button bellow." >> cleanResultsBackend.txt
         printf "$(cat cleanResultsBackend.txt)" > cleanResultsBackend.txt
+
     - name: Get passed and total backend
       run: |
         passed=$(awk '/Tests:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsBackend.txt)
@@ -108,6 +111,7 @@ jobs:
         name: test-results-backend
         path: |
           testResultsBackend.txt
+
     - name: Send test result notification
       uses: ./actions/notifyTeams
       with:
@@ -129,6 +133,7 @@ jobs:
         echo "" >> cleanResultsFrontend.txt
         echo "To see the full logs click on the button bellow." >> cleanResultsFrontend.txt
         printf "$(cat cleanResultsFrontend.txt)" > cleanResultsFrontend.txt
+        
     - name: Get passed and total frontend
       run: |
         passed=$(awk '/Tests:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsFrontend.txt)
