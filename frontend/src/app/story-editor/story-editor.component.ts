@@ -21,10 +21,9 @@ import { ReportService } from '../Services/report.service';
 import { ProjectService } from '../Services/project.service';
 import { LoginService } from '../Services/login.service';
 import { RepositoryContainer } from '../model/RepositoryContainer';
-import { BlockService } from '../Services/block.service';
+import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-form.component';
 import { Block } from '../model/Block';
 import { StepDefinition } from '../model/StepDefinition';
-import { LostBackgroundToast } from '../lostBackground-toast';
 
 
 /**
@@ -134,12 +133,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * If the background should be shown
    */
   showBackground = false;
-
-  blocks = [];
-
-  lostBackgroundBlock: Block;
-
-  lostBackgroundObservable: Subscription;
 
   /**
    * if the test is done
@@ -277,7 +270,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         public toastr: ToastrService,
         public themeService: ThemingService,
         public backgroundService: BackgroundService,
-        public blockService: BlockService,
         public storyService: StoryService,
         public scenarioService: ScenarioService,
         public reportService: ReportService,
@@ -350,97 +342,87 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         this.error = err.error;
       });
     }
-    this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe((stories: Story[]) => {
-      this.storiesLoaded = true;
-      this.storiesError = false;
-      this.showEditor = false;
-      this.setStories(stories);
-      this.db = localStorage.getItem('source') === 'db' ;
-    });
+        this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe((stories: Story[]) => {
+        this.storiesLoaded = true;
+        this.storiesError = false;
+        this.showEditor = false;
+        this.setStories(stories);
+            this.db = localStorage.getItem('source') === 'db' ;
+        });
 
-    this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(() => {
-      this.showEditor = false;
-      this.storyDeleted();
-    });
+        this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(() => {
+        this.showEditor = false;
+        this.storyDeleted();
+        });
 
-    this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(_ => {
-      this.storiesError = true;
-      this.showEditor = false;
+        this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(_ => {
+        this.storiesError = true;
+        this.showEditor = false;
 
-      window.localStorage.removeItem('login')
-      this.router.navigate(['/login']);  
-    });
+        window.localStorage.removeItem('login')
+        this.router.navigate(['/login']);  
+        });
 
-    this.deleteScenarioObservable = this.scenarioService.deleteScenarioEvent.subscribe(() => {
-      this.deleteScenario(this.selectedScenario);
-    });
+        this.deleteScenarioObservable = this.scenarioService.deleteScenarioEvent.subscribe(() => {
+        this.deleteScenario(this.selectedScenario);
+      });
 
-    this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
-      if (option === 'run') {
-        this.runUnsaved = true;
-        this.runOption();
-      }
-      if (option === 'saveRun') {
-        this.saveBackgroundAndRun = true;
-        this.updateBackground();
-      }
-    });
+        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
+            if (option === 'run') {
+          this.runUnsaved = true;
+          this.runOption();
+        }
+            if (option === 'saveRun') {
+          this.saveBackgroundAndRun = true;
+          this.updateBackground();
+        }
+          });
 
-    this.renameStoryObservable = this.storyService.renameStoryEvent.subscribe((changedValues) =>
-      this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
-      this.isDark = this.themeService.isDarkMode();
-      this.themeObservable = this.themeService.themeChanged.subscribe(() => {
-      this.isDark = this.themeService.isDarkMode();
-    });
+        this.renameStoryObservable = this.storyService.renameStoryEvent.subscribe((changedValues) =>
+            this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
+            this.isDark = this.themeService.isDarkMode();
+            this.themeObservable = this.themeService.themeChanged.subscribe(() => {
+            this.isDark = this.themeService.isDarkMode();
+        });
 
-    this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {       
-      this.loadStepTypes();
-    }); 
+        this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {       
+          this.loadStepTypes();
+        }); 
 
-    this.renameBackgroundObservable = this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
-      this.renameBackground(newName);
-    });
-
-    const repo_id = localStorage.getItem('id') 
-    this.blockService.getBlocks(repo_id).subscribe((blocks: Array<Block>) => {
-      this.blocks=blocks
-    });
-
-    this.lostBackgroundObservable = this.blockService.lostBackgroundEvent.subscribe((option) => {
-      if (option === 'save') this.saveLostBackground();
-    });
-    
+        this.renameBackgroundObservable = this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
+        this.renameBackground(newName);
+      });     
   }
-  ngOnDestroy() {
-    if (!this.deleteStoryObservable.closed) {
-      this.deleteStoryObservable.unsubscribe();
-    }
-    if (!this.storiesErrorObservable.closed) {
-      this.storiesErrorObservable.unsubscribe();
-    }
-    if (!this.deleteScenarioObservable.closed) {
-      this.deleteScenarioObservable.unsubscribe();
-    }
-    if (!this.runSaveOptionObservable.closed) {
-      this.runSaveOptionObservable.unsubscribe();
-    }
+    ngOnDestroy() {
+        if (!this.deleteStoryObservable.closed) {
+            this.deleteStoryObservable.unsubscribe();
+        }
+        if (!this.storiesErrorObservable.closed) {
+            this.storiesErrorObservable.unsubscribe();
+        }
+        if (!this.deleteScenarioObservable.closed) {
+            this.deleteScenarioObservable.unsubscribe();
+        }
+        if (!this.runSaveOptionObservable.closed) {
+            this.runSaveOptionObservable.unsubscribe();
+        }
 
-    if (!this.renameStoryObservable.closed) {
-      this.renameStoryObservable.unsubscribe();
+        if (!this.renameStoryObservable.closed) {
+            this.renameStoryObservable.unsubscribe();
+        }
+        if (!this.themeObservable.closed) {
+            this.themeObservable.unsubscribe();
+        }
+        if (!this.getBackendUrlObservable.closed) {
+            this.getBackendUrlObservable.unsubscribe();
+        }
+        if (!this.getStoriesObservable.closed) {
+            this.getStoriesObservable.unsubscribe();
+        }
+        if (!this.renameBackgroundObservable.closed) {
+            this.renameBackgroundObservable.unsubscribe();
+        }
     }
-    if (!this.themeObservable.closed) {
-      this.themeObservable.unsubscribe();
-    }
-    if (!this.getBackendUrlObservable.closed) {
-      this.getBackendUrlObservable.unsubscribe();
-    }
-    if (!this.getStoriesObservable.closed) {
-      this.getStoriesObservable.unsubscribe();
-    }
-    if (!this.renameBackgroundObservable.closed) {
-      this.renameBackgroundObservable.unsubscribe();
-    }
-  }
   
 
   /**
@@ -465,16 +447,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   }
 
 
-  /**
-   * Select a new currently used scenario
-   * @param scenario
-   */
-  selectNewScenario(scenario: Scenario) {
-    this.selectedScenario = scenario;
-    if (this.selectedStory) {
-        this.selectScenario(scenario);
+    /**
+     * Select a new currently used scenario
+     * @param scenario
+     */
+    selectNewScenario(scenario: Scenario) {
+      this.selectedScenario = scenario;
+      if (this.selectedStory) {
+          this.selectScenario(scenario);
+      }
     }
-  }
 
   /**
    * Change to the report history component
@@ -487,10 +469,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * load the step types
    */
   loadStepTypes() {
-    this.storyService
-      .getStepTypes()
-      .subscribe((resp: StepType[]) => {
-        this.originalStepTypes = resp;
+        this.storyService
+            .getStepTypes()
+            .subscribe((resp: StepType[]) => {
+      this.originalStepTypes = resp;
     });
   }
 
@@ -658,24 +640,18 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.updateBackground();
     }
 
+    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+    checkAllSteps(checkValue?: boolean){
+      //needed by saveBlockModal
+    }
+
     checkBackgroundLost(){
       const unsavedBackground = this.selectedStory.background
       if(this.backgrounds.filter((b)=>b===unsavedBackground).length < 2){
         const stepDefs: StepDefinition = {given:[], then:[], example:[], when:unsavedBackground.stepDefinitions.when}
-        const block: Block = {name: unsavedBackground.name ,stepDefinitions: stepDefs, isBackground: true}
-        this.lostBackgroundBlock = block
-        this.showLostBackgroundToast()
+        const block: Block = {name: unsavedBackground.name ,stepDefinitions: stepDefs}
+        this.saveBlockModal.openSaveBlockFormModal(block, this);
       }
-    }
-    showLostBackgroundToast() {
-      this.apiService.nameOfComponent('story');
-      this.toastr.warning(`This action Removes ${this.selectedStory.background.name} from the Backgrounds, do you want to save it?`, 'Save Background?', {
-          toastComponent: LostBackgroundToast
-       });
-    }
-    saveLostBackground() {
-      this.blockService.saveBlock(this.lostBackgroundBlock).subscribe(()=>this.toastr.success('saved Background'))
-      this.lostBackgroundBlock = undefined
     }
 
 
@@ -960,7 +936,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
 		this.toastr.warning('Are your sure you want to delete this story? It cannot be restored.', 'Delete Story?', {
 				toastComponent: DeleteToast
 		 });
-  }
+    }
     
 
   downloadFeature() {
