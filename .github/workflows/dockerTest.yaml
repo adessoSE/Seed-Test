@@ -179,7 +179,7 @@ jobs:
         REPO_ID: 123
         GROUP_ID: 123
       run: |
-        curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{SEED_EMAIL}}", "password": "${{SEED_PW}}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "localhost:8080/api/sanity/test/$REPO_ID/$GROUP_ID" > sanityReport.txt
+        curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "localhost:8080/api/sanity/test/$REPO_ID/$GROUP_ID" > sanityReport.txt
 
     - name: Read sanityReport
       run: |
