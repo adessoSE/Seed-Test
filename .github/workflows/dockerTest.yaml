@@ -63,7 +63,7 @@ jobs:
     - name: Wait for 1/2 minute
       run: sleep 30
 
-    # execute npm test in the backend container
+  # execute npm test in the backend container ---------------------------------------------------------------
     - name: Run npm test backend
       run: |
         docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
@@ -117,7 +117,7 @@ jobs:
         webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
         buttons: '[{"title": "Workflow 📄", "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}]'
 
-    # execute npm test in the frontend container
+  # execute npm test in the frontend container --------------------------------------------------------------
     - name: Run npm test frontend
       run: |
         docker exec Seed-frontend npm test > testResultsFrontend.txt 2>&1
@@ -162,11 +162,45 @@ jobs:
         name: test-results-frontend
         path: |
           testResultsFrontend.txt
+
     - name: Send success notification
       uses: ./actions/notifyTeams
       with:
         title: '🔬🖼️ Test Resulsts Frontend (${{ steps.passed-total-frontend.outputs.passed }}/${{ steps.passed-total-frontend.outputs.total }} passed)  ${{ steps.passed-total-frontend.outputs.status }}'
         text: ${{ steps.frontend-clean-results.outputs.message }}
+        style: accent
+        webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        buttons: '[{"title": "Workflow 📄", "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}]'
+
+  # SANITY CHECK --------------------------------------------------------------------------------------------
+    - name: Send sanity POST request and store response
+      env:
+        API_URL: localhost:8080/api/sanity/test/
+        REPO_ID: 123
+        GROUP_ID: 123
+      run: |
+        curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{SEED_EMAIL}}", "password": "${{SEED_PW}}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "localhost:8080/api/sanity/test/$REPO_ID/$GROUP_ID" > sanityReport.txt
+
+    - name: Read sanityReport
+      run: |
+        delimiter="$(openssl rand -hex 8)"
+        echo "message<<${delimiter}" >> "${GITHUB_OUTPUT}"
+        echo "$(cat sanityReport.txt)" >> "${GITHUB_OUTPUT}"
+        echo "${delimiter}" >> "${GITHUB_OUTPUT}"
+      id: sanity-results
+
+    - name: Upload Artifact Sanity
+      uses: actions/upload-artifact@v2
+      with:
+        name: sanity-report
+        path: |
+          sanityReport.txt
+
+    - name: Send sanity notification
+      uses: ./actions/notifyTeams
+      with:
+        title: '🔬😊 Sanity Test'
+        text: ${{ steps.sanity-results.outputs.message }}
         style: accent
         webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
         buttons: '[{"title": "Workflow 📄", "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}]'
