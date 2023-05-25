@@ -4,6 +4,9 @@ import { StepDefinitionBackground } from './StepDefinitionBackground';
  * Interface of the Background 
  */
 export interface Background {
+
+    _id?: any;
+    
     /**
      * Given name of the background
      */

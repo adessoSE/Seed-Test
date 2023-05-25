@@ -38,6 +38,7 @@ import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { DeleteToast } from './delete-toast';
+import { LostBackgroundToast } from './lostBackground-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
@@ -119,6 +120,7 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     BaseEditorComponent,
     NewExampleComponent,
     ExampleComponent,
+    LostBackgroundToast,
     DeleteToast,
     TransferOwnershipToast
   ],

@@ -31,6 +31,14 @@ export class BlockService {
   * Delete emitter to add delete a block from blocks
    */
   public deleteBlockEvent = new EventEmitter();
+
+
+  public lostBackgroundEvent = new EventEmitter();
+  
+  lostBackgroundSave(option){
+    this.lostBackgroundEvent.emit(option);
+  }
+
   /**
   * Emits the add block to scenario event
   * @param block

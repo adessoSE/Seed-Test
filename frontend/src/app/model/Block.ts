@@ -12,7 +12,7 @@ export interface Block {
     /**
      * Creator of the block
      */
-    owner?: any;
+    owner?: any;//Note is this needed in the frontend?
 
     /**
      * Name of the block
@@ -32,10 +32,12 @@ export interface Block {
     /**
      * Name of the repository which the block belongs to
      */
-    repository?: string;
+    repository?: string;//Note is this needed in the frontend?
 
     /**
      * Source of the repository the block belongs to
      */
-    source?: string;
+    source?: string;// Note: Is this needed?
+
+    isBackground?: Boolean
 }
