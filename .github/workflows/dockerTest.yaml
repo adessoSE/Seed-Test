@@ -175,11 +175,10 @@ jobs:
   # SANITY CHECK --------------------------------------------------------------------------------------------
     - name: Send sanity POST request and store response
       env:
-        API_URL: localhost:8080/api/sanity/test/
-        REPO_ID: 123
-        GROUP_ID: 123
+               # <-- api url for sanity tes -->/<---- repository_id --->/<------ group_id ------>
+        API_URL: localhost:8080/api/sanity/test/632893aad3bd45536c41b684/6400a70f5eda22409c4d2ed9
       run: |
-        curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "localhost:8080/api/sanity/test/$REPO_ID/$GROUP_ID" > sanityReport.txt
+        curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
 
     - name: Read sanityReport
       run: |
