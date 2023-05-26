@@ -89,7 +89,7 @@ em.dragIcon{
 }
 .mat-expansion-panel-header.stepBlockHeader{
   height: 100%;
-  padding: 5px
+  padding: 3.4px
 }
 .text-inline.SmallBody1regularLH.stepLine{
   width: 100%;
@@ -115,6 +115,9 @@ em.dragIcon{
 }
 .blockButtonGroup .material-icons{
   color: var(--ocean-blue);
+}
+.mat-action-row.blockButtonGroup{
+  padding: 5px 8px 0px 24px !important;
 }
 .text-inline > p > input{
   margin: 0 5px;
@@ -333,6 +336,7 @@ input[type="text"]{
 mat-expansion-panel.stepBlockContainer  .mat-expansion-panel-body{
   padding: 0 4px 0px 10px;
 }
+
 .exampleList ::ng-deep .mat-mdc-form-field-underline{
   bottom: 0px !important;
 }
@@ -469,5 +473,5 @@ input.scenario, input.background {
  }
  .scrollable {
   overflow: auto;
-  max-height: 300px;
+  max-height: 200px;
 }

@@ -313,10 +313,10 @@
         <span class="mat-expansion-indicator" matTooltip="Expand Block to view its Steps" style="mix-blend-mode: color; width: 15px; transform: translate(9px, 0px);"></span>
       </mat-expansion-panel-header>
       <!--Block Content-->
-      <div *ngIf="this.selectedBlock" id="blockContent" [class.scrollable]="getStepsList(selectedBlock.stepDefinitions,1).length > 15">
-        <div *ngFor="let currentStep of getStepsList(selectedBlock.stepDefinitions,1); let j = index;">
+      <div *ngIf="this.selectedBlock" id="blockContent" [class.scrollable]="getStepsListBlockPreview(selectedBlock.stepDefinitions, j).length > 7" >
+        <div *ngFor="let currentStep of getStepsListBlockPreview(selectedBlock.stepDefinitions); let j = index;">
           <ng-template  *ngTemplateOutlet="blockstep;
-                context: {$implicit: currentStep , index:j}">
+            context: {$implicit: currentStep , index:j}">
           </ng-template>
         </div>
       </div>

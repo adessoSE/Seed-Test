@@ -547,8 +547,16 @@ export class BaseEditorComponent  {
     }
     return stepDefs.example;
   }
- 
-  /** Dragging element methods */
+    /**
+    * Gets the steps list (For BlockPreview)
+    * @param stepDefs 
+    * @returns 
+    */
+    getStepsListBlockPreview(stepDefs: StepDefinition) {
+      const { given, when, then } = stepDefs;
+      const allStepValues = [...given, ...when, ...then];
+      return allStepValues;
+    }
 
    
    /**
