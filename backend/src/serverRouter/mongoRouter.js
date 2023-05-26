@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { ObjectID } = require('mongodb');
-const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();
@@ -56,31 +54,6 @@ router.post('/createStory', async (req, res) => {
 	const resultStoryId = await mongo.createStory(req.body.title, req.body.description, req.body._id);
 	await mongo.insertStoryIdIntoRepo(resultStoryId, req.body._id);
 	res.status(200).json('');
-});
-
-// update background
-router.post('/background/update/:storyID', async (req, res) => {
-	try {
-		const background = req.body;
-		const result = await mongo.updateBackground(req.params.storyID, background);
-		helper.updateFeatureFile(req.params.storyID);
-		res.status(200)
-			.json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-// delete background
-router.delete('/background/delete/:storyID', async (req, res) => {
-	try {
-		await mongo.deleteBackground(req.params.storyID);
-		helper.updateFeatureFile(req.params.storyID);
-		res.status(200)
-			.json({});
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
 });
 
 // update user

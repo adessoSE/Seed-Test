@@ -17,6 +17,7 @@ const workgroupsRouter = require('./serverRouter/workgroups');
 const storyRouter = require('./serverRouter/storyRouter');
 const blockRouter = require('./serverRouter/blockRouter');
 const reportRouter = require('./serverRouter/reportRouter');
+const backgroundRouter = require('./serverRouter/backgroundRouter');
 const logging = require('./logging');
 require('./database/DbServices');
 
@@ -85,6 +86,7 @@ app
 	.use('/api/story', storyRouter)
 	.use('/api/block', blockRouter)
 	.use('/api/report', reportRouter)
+	.use('/api/background', backgroundRouter)
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
