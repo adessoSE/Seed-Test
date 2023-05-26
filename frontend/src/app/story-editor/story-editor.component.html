@@ -104,11 +104,11 @@
             title="Change Background Title">
               <em class="material-icons">edit</em>
             </button>
-            <!-- change className -->
+            <!-- replace Background -->
             <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon"  data-uk-tooltip title="Replace Background">
               <em class="material-icons">swap_horiz</em>
             </button>
-            <div *ngIf="showBackground && sortedBackgrounds()" uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;" >
+            <div *ngIf="showBackground && sortedBackgrounds() && this.openBlockModal == undefined" uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;" >
               <ul class="uk-nav uk-dropdown-nav">
                 <li *ngFor="let background of sortedBackgrounds(); let j = index">
                   <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep" (click)="replaceBackground(background);$event.stopPropagation();"

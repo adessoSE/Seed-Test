@@ -1,4 +1,3 @@
-import { Background } from "./Background";
 
 /**
  * Interface of the repository container

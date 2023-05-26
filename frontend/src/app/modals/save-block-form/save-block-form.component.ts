@@ -98,7 +98,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.createStepList();
     this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
     if(isBackground && isBackground !== undefined){
-      (document.getElementById('modalHeader') as HTMLElement).innerHTML = 'Save background as a block';
+      document.getElementById('modalHeader').innerHTML = 'Save background as a block';
     }
   }
 
@@ -155,7 +155,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     if(this.exampleChecked){
       this.block.stepDefinitions = {given: [], when: [], then: [], example: this.stepListSaveBlock}
     }
-    if (this.backgroundService.backgroundReplaced == true){
+    if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
       this.block.isBackground = true;
     }
     this.blockService.saveBlock(this.block).subscribe((resp) => {

@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy, AfterContentInit} from '@angular/core';
+import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -196,6 +196,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
    findBackground;
   /**
+   *If the modal Save background as a block open
+   */
+   openBlockModal;
+  /**
     * if the background should be saved and then the test run
     */
   saveBackgroundAndRun = false;
@@ -328,6 +332,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   }
 
     ngAfterViewChecked(){
+      this.openBlockModal = undefined
     /**
      * when loading for group is displayed scroll to it
      */
@@ -339,7 +344,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.storeCurrentBackground(this.selectedStory.background);
       this.backgrounds = this.stories.map((s) => s.background);
       this.blockAsBackground = [];
-      this.blocks = this.blocks.filter((b) => b.isBackground == true);
+      this.blocks = this.blocks.filter((b) => b.isBackground);
       for (const b of this.blocks) {
         const newBlock = {
           name: b.name,
@@ -592,12 +597,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
       });
     });
-    const count = this.backgrounds.reduce((acc, curr) => {
-    if (JSON.stringify(curr.name) === JSON.stringify(this.selectedStory.background.name)) {
-      return acc + 1;
-    } else {
-      return acc;
-    }}, 0);
+    let count = 0;
+    for (const background of this.backgrounds) {
+      if (JSON.stringify(background.name) === JSON.stringify(this.selectedStory.background.name)) {
+       count++;
+      }
+    }
+    this.backgroundChecks(count);
+  }
+  //Checking bagckrounds, setting toasters
+  backgroundChecks(count){
     if (count > 1  && this.backgroundService.backgroundReplaced == undefined){
       this.backgroundService.backgroundReplaced = true; 
       this.changeBackgroundTitle();     
@@ -610,7 +619,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
       .subscribe(_ => {
         this.backgroundService.backgroundChangedEmitter();
-        if (this.findBackground){
+        if (this.findBackground || this.findBackground == undefined){
           this.toastr.success('successfully saved', 'Background');
         }
         if (this.saveBackgroundAndRun) {
@@ -620,7 +629,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       });
     } 
   }
-
   /**
    * deletes the background
    */
@@ -691,6 +699,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.findBackground = found;
       if (!found && this.backgroundService.currentBackground.stepDefinitions.when.length > 0) {
         this.checkBackgroundLost();
+        this.openBlockModal = true
       } 
     }
 
