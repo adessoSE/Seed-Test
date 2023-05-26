@@ -204,6 +204,17 @@ router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	res.status(200).json(repo);
 });
 
+// update user
+router.post('/update/:userID', async (req, res) => {
+	try {
+		const user = req.body;
+		const updatedUser = await mongo.updateUser(req.params.userID.toString(), user);
+		res.status(200).json(updatedUser);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 // update repository owner
 router.put('/repository/:repo_id', async (req, res) => {
 	try {

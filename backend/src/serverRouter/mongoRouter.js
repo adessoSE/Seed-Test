@@ -56,17 +56,6 @@ router.post('/createStory', async (req, res) => {
 	res.status(200).json('');
 });
 
-// update user
-router.post('/user/update/:userID', async (req, res) => {
-	try {
-		const user = req.body;
-		const updatedUser = await mongo.updateUser(req.params.userID.toString(), user);
-		res.status(200).json(updatedUser);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
 router.get('/getBlocks/:repoId', async (req, res) => {
 	try {
 		const result = await mongo.getBlocks(req.params.repoId);

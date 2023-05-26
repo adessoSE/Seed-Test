@@ -157,10 +157,10 @@ export class ApiService {
      * @param user
      * @returns
      */
-    updateUser(userID: string, user: User): Observable<User> {
+    updateUser(userID: string, user: User): Observable<User> {//not used
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<User>(this.apiServer + '/mongo/user/update/' + userID, user)
+            .post<User>(this.apiServer + '/user/update/' + userID, user)
             .pipe(tap(_ => {
                 //
             }), catchError(this.handleStoryError));
