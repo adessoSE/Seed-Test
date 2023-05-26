@@ -305,7 +305,9 @@ a.storyListLink:hover{
 #clickableIcon:hover{
   cursor: pointer;
 }
-
+::ng-deep .mat-icon{
+  height: unset;
+}
 ::ng-deep .mat-mdc-focused .mat-mdc-form-field-label {
   /*change color of label*/
   color: var(--ocean-blue) !important;

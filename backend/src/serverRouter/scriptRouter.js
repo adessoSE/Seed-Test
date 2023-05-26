@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const process = require('process');
 const passport = require('passport');
 const initializePassport = require('../passport-config');
-const helper = require('../serverHelper');
+const reporter = require('../../dist/helpers/reporting');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();
@@ -53,7 +53,7 @@ router.post('/Group', (req, res, next) => {
 					const mystories = [];
 					for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id, 'db'));
 					req.body = group;
-					helper.runReport(req, res, mystories, 'group', req.body);
+					reporter.runReport(req, res, mystories, 'group', req.body);
 					// res.json(user);
 				}
 			});
@@ -79,7 +79,7 @@ router.post('/Feature/:issueID/:storySource', (req, res, next) => {
 					throw new UserError(err);
 				} else {
 					const stories = [];
-					helper.runReport(req, res, stories, 'feature', req.body);
+					reporter.runReport(req, res, stories, 'feature', req.body);
 					// res.json(user);
 				}
 			});

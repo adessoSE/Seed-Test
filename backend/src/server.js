@@ -36,11 +36,11 @@ if (process.env.NODE_ENV) app
 	.use(flash())
 	.use(session({
 		store: new MongoStore({
-			url: process.env.DATABASE_URI,
+			url: process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017",
 			dbName: 'Seed',
 			collection: 'Sessions'
 		}),
-		secret: process.env.SESSION_SECRET,
+		secret: process.env.SESSION_SECRET || "unsaveSecret",
 		resave: false,
 		saveUninitialized: false,
 		proxy: true,
@@ -52,7 +52,7 @@ if (process.env.NODE_ENV) app
 else app
 	.use(flash())
 	.use(session({
-		secret: process.env.SESSION_SECRET,
+		secret: process.env.SESSION_SECRET || "unsaveSecret",
 		resave: false,
 		saveUninitialized: false,
 		proxy: true

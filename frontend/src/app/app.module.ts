@@ -1,3 +1,4 @@
+import { CopyExampleToast } from './copyExample-toast';
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RouterModule} from '@angular/router';
@@ -26,7 +27,6 @@ import { TermsComponent } from './terms/terms.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
 import {CookieService } from 'ngx-cookie-service';
-import { TestAccountComponent } from './test-account/test-account.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
@@ -88,7 +88,6 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     FeedbackComponent,
     TermsComponent,
     AccountManagementComponent,
-    TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
     RegistrationComponent,
@@ -119,6 +118,7 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     BaseEditorComponent,
     NewExampleComponent,
     ExampleComponent,
+    CopyExampleToast,
     DeleteToast,
     TransferOwnershipToast
   ],
@@ -153,7 +153,7 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     MatTabsModule,
     MatTooltipModule,
   ],
-  entryComponents: [RunTestToast],
+  entryComponents: [RunTestToast, CopyExampleToast],
   providers: [ApiService, AuthGuard, CookieService,
     [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],

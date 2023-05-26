@@ -55,23 +55,6 @@ describe('LoginComponent', () => {
       expect(component).toBeTruthy();
     });
 
-    it('should navigate to /testaccount on loginTestAccount', fakeAsync(() => {
-      jest.spyOn(component, 'loginTestAccount');
-      component.loginTestAccount();
-      tick();
-      expect(location.path()).toBe('/testaccount');
-    }));
-
-    it('should trigger loginTestAccount() on button click', fakeAsync(() => {
-      jest.spyOn(component, 'loginTestAccount');
-      const buttons = fixture.debugElement.queryAll(By.css('.linkButton'));
-      const button = buttons[buttons.length-1];
-      button.nativeElement.click();
-      tick();
-      fixture.detectChanges();
-      expect(component.loginTestAccount).toHaveBeenCalled();
-    }));
-
     it('should call githubLogin() on click', fakeAsync(()=> {
       jest.spyOn(component, 'githubLogin');
       const gitHubLink = findComponent(fixture, '.githubLoginContainer');

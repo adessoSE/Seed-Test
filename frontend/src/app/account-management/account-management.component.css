@@ -260,7 +260,7 @@ h2, h1{
     margin-bottom: 7px;
     margin-top: 4px;
 }
-.searchInput{
+.searchInput, .versionInput{
     border: none;
     border-bottom: 1px solid var(--brown-grey);
     font-weight: normal;
@@ -268,11 +268,14 @@ h2, h1{
     max-height: 2em;
     margin-top: 1.75em;
   }
+  .versionInput{
+    margin-left: 7px;
+  }
 
-  .darkTheme .searchInput {
+  .darkTheme .searchInput .versionInput{
     border-bottom: 1px solid #60767b;
   }
-  .searchInput:focus{
+  .searchInput:focus, .versionInput:focus{
     outline: none;
   }
   #searchBarIcons{
@@ -350,3 +353,10 @@ h2, h1{
     background-color: transparent;
     padding: 0 !important;
   }
+
+  .wrongLogin{
+    background-color: var(--grape);
+    text-align: center;
+    color:white;
+    opacity: 1;
+}
