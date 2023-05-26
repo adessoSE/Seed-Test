@@ -78,7 +78,6 @@ app
 	.use('/api/script', scriptRouter)
 	.use('/api/run', runReportRouter)
 	.use('/api/github', githubRouter)
-	.use('/api/mongo', mongoRouter)
 	.use('/api/jira', jiraRouter)
 	.use('/api/user', userRouter)
 	.use('/api/group', groupRouter)
@@ -87,6 +86,7 @@ app
 	.use('/api/block', blockRouter)
 	.use('/api/report', reportRouter)
 	.use('/api/background', backgroundRouter)
+	.use('/api', mongoRouter)
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});

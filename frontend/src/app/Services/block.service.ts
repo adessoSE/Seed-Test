@@ -57,7 +57,7 @@ export class BlockService {
   * @returns
   */
   getBlocks(repoId: string): Observable<Block[]> {
-    const str = this.apiService.apiServer + '/mongo/getBlocks/' + repoId;
+    const str = this.apiService.apiServer + '/block/getBlocks/' + repoId;
     return this.http.get<Block[]>(str,  ApiService.getOptions())
     .pipe(tap(_ => {
       //

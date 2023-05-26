@@ -42,29 +42,5 @@ router.get('/stepTypes', async (_, res) => {
 	}
 });
 
-// create Repository in Database
-router.post('/createRepository', async (req, res) => {
-	mongo.createRepo(req.user._id, req.body.name);
-	res.status(200).json('');
-});
-
-router.get('/getBlocks/:repoId', async (req, res) => {
-	try {
-		const result = await mongo.getBlocks(req.params.repoId);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-
-router.post('/oneDriver/:storyID', async (req, res) => {
-	try {
-		const result = await mongo.updateOneDriver(req.params.storyID, req.body);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
 
 module.exports = router;

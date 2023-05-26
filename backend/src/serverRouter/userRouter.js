@@ -198,6 +198,12 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
+// create Repository in Database
+router.post('/createRepository', async (req, res) => {
+	mongo.createRepo(req.user._id, req.body.name);
+	res.status(200).json('');
+});
+
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);

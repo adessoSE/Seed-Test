@@ -12,7 +12,7 @@ describe('Server', () => {
 				});
 		});
 	});
-	describe('GET /api/mongo/stepTypes', () => {
+	describe('GET /api/stepTypes', () => {
 		it('StepTypes match expected output', (done) => {
 			const result = [
 				{
@@ -541,7 +541,7 @@ describe('Server', () => {
 				}
 			];
 
-			fetch(`${base_url}/mongo/stepTypes`)
+			fetch(`${base_url}/stepTypes`)
 				.then((response) => {
 					expect(response.status).toBe(200);
 					return response.json();

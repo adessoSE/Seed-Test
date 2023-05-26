@@ -175,7 +175,7 @@ export class StoryService {
   */
   public changeOneDriver(oneDriver: boolean, storyID: any) {
     return this.http
-      .post(this.apiService.apiServer + '/mongo/oneDriver/' + storyID, { oneDriver });
+      .post(this.apiService.apiServer + '/story/oneDriver/' + storyID, { oneDriver });
   }
   /**
     * Checking the same name of the story
@@ -202,7 +202,7 @@ export class StoryService {
    */
   getStepTypes(): Observable<StepType[]> {
     return this.http
-      .get<StepType[]>(this.apiService.apiServer + '/mongo/stepTypes', ApiService.getOptions())
+      .get<StepType[]>(this.apiService.apiServer + '/stepTypes', ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }));

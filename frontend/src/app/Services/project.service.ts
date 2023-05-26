@@ -99,7 +99,7 @@ export class ProjectService {
   createRepository(name: string, _id: string): Observable<any> {
     const body = { 'name': name, '_id': _id };
     return this.http
-      .post<RepositoryContainer>( this.apiService.apiServer + '/mongo/createRepository/', body, ApiService.getOptions())
+      .post<RepositoryContainer>( this.apiService.apiServer + '/user/createRepository/', body, ApiService.getOptions())
       .pipe(tap(_ => {
         //
     }));
