@@ -72,7 +72,6 @@ router.post('/background/update/:storyID', async (req, res) => {
 });
 
 // delete background
-// TODO storySource aus dem Frontend mitsenden
 router.delete('/background/delete/:storyID', async (req, res) => {
 	try {
 		await mongo.deleteBackground(req.params.storyID);
@@ -95,29 +94,6 @@ router.post('/user/update/:userID', async (req, res) => {
 	}
 });
 
-// save custom Blocks
-router.post('/saveBlock', async (req, res) => {
-	try {
-		const { body } = req;
-		if (!req.user){res.sendStatus(401);return;}
-			body.owner = ObjectID(req.user._id);
-			const result = await mongo.saveBlock(body);
-			res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-// update custom Blocks
-router.post('/updateBlock/:name', async (req, res) => { // isn't used in frontend, bug risk update by name. better blockId & owner like delete
-	try {
-		const result = await mongo.updateBlock(req.params.name, req.body);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
 router.get('/getBlocks/:repoId', async (req, res) => {
 	try {
 		const result = await mongo.getBlocks(req.params.repoId);
@@ -127,15 +103,6 @@ router.get('/getBlocks/:repoId', async (req, res) => {
 	}
 });
 
-// delete a CustomBlock needs the name of the block
-router.delete('/deleteBlock/:blockId', async (req, res) => {
-	try {
-		const result = await mongo.deleteBlock(req.params.blockId, req.user._id);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 404);
-	}
-});
 
 router.post('/oneDriver/:storyID', async (req, res) => {
 	try {

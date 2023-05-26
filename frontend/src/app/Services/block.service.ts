@@ -72,7 +72,7 @@ export class BlockService {
   */
   updateBlock(oldTitle: string, block: Block):Observable<Block>{
     return this.http
-    .post<Block>(this.apiService.apiServer + '/mongo/updateBlock/' + oldTitle, block, ApiService.getOptions())
+    .put<Block>(this.apiService.apiServer + '/block/' + oldTitle, block, ApiService.getOptions())
     .pipe(tap(_ => {
         //
     }),
@@ -84,7 +84,7 @@ export class BlockService {
   * @returns
   */
   deleteBlock(blockId: string) {
-    const str = this.apiService.apiServer + '/mongo/deleteBlock/' + blockId;
+    const str = this.apiService.apiServer + '/block/' + blockId;
     return this.http.delete<any>(str, ApiService.getOptions())
     .pipe(tap(_ => {
       //
@@ -98,7 +98,7 @@ export class BlockService {
   */
   saveBlock(block: Block) {
     return this.http
-    .post<any>(this.apiService.apiServer + '/mongo/saveBlock', block, ApiService.getOptions())
+    .post<any>(this.apiService.apiServer + '/block', block, ApiService.getOptions())
     .pipe(tap(_ => {
       //
     }));
