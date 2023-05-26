@@ -455,9 +455,33 @@ async function runSanityReport(req, res, stories: any[], mode: executionMode, pa
 				Rejection: ${error}`);
 			res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
 		});
+
 	// read html Report and add it top response
+    function getPercentage(numerator, denominator) {
+        const percentage = (numerator / denominator) * 100;
+        const formattedPercentage = percentage.toFixed(1) + '%';
+        return formattedPercentage;
+    }
+
+    function formatNotification(json) {
+        const { scenarios, steps } = json;
+      
+        const notificationText = `
+          Scenarios:
+          ✅ Passed: ${scenarios.passed}      [${getPercentage(scenarios.passed, scenarios.failed+scenarios.passed)}]
+          ❌ Failed: ${scenarios.failed}      [${getPercentage(scenarios.failed, scenarios.failed+scenarios.passed)}]
+          
+          Steps:
+          ✅ Passed Steps: ${steps.passedSteps}     [${getPercentage(scenarios.passed, steps.passedSteps+steps.failedSteps+steps.skippedSteps)}]
+          ❌ Failed Steps: ${steps.failedSteps}     [${getPercentage(steps.failedSteps, steps.passedSteps+steps.failedSteps+steps.skippedSteps)}]
+          ⏭️ Skipped Steps: ${steps.skippedSteps}   [${getPercentage(steps.skippedSteps, steps.passedSteps+steps.failedSteps+steps.skippedSteps)}]
+        `;
+      
+        return notificationText;
+      }
+
 	fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-		res.status(200).send({"scenarios": reportResults.scenariosTested, "steps": reportResults.groupTestResults});
+		res.status(200).send(formatNotification({"scenarios": reportResults.scenariosTested, "steps": reportResults.groupTestResults}));
 	});
 	testExecutor.updateLatestTestStatus(uploadedReport, mode);
 }
