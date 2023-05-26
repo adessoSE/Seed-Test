@@ -113,22 +113,4 @@ router.post('/oneDriver/:storyID', async (req, res) => {
 	}
 });
 
-router.get('/reportJSON/:reportId', async (req, res) => {
-	try {
-		const result = await mongo.getReportById(req.params.reportId);
-		res.status(200).json(JSON.parse(result.jsonReport));
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
-router.get('/report/:reportId', async (req, res) => {
-	try {
-		const result = await mongo.getReportDataById(req.params.reportId);
-		res.status(200).json(result);
-	} catch (error) {
-		handleError(res, error, error, 500);
-	}
-});
-
 module.exports = router;
