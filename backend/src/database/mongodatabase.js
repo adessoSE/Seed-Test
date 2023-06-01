@@ -16,7 +16,7 @@ if (!process.env.NODE_ENV) {
 	const dotenv = require('dotenv').config();
 }
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017";
 const dbName = 'Seed';
 const userCollection = 'User';
 const storiesCollection = 'Stories';

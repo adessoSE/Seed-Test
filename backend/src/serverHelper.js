@@ -54,8 +54,8 @@ function getSteps(steps, stepType) {
 		if (step.deactivated) continue;
 		data += `${jsUcfirst(stepType)} `;
 		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-			data += `${step.pre} '${step.values[0]}' ${step.mid} ${step.values[1] ? `'${step.values[1]}'` : ''}`;
-			if (step.post !== undefined) data += ` ${step.post} ${step.values[2] ? `'${step.values[2]}'` : ''}`;
+			data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] ? `'${step.values[1]}'` : ''}`;
+			if (step.post !== undefined) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
 		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
 		else {
 			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
@@ -165,7 +165,7 @@ async function executeTest(req, mode, story) {
 							browser: scenario.browser,
 							waitTime: scenario.stepWaitTime,
 							daisyAutoLogout: scenario.daisyAutoLogout,
-							emulator: scenario.emulator
+							...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 						}
 					]
 				};
@@ -177,7 +177,7 @@ async function executeTest(req, mode, story) {
 							browser: scenario.browser,
 							waitTime: scenario.stepWaitTime,
 							daisyAutoLogout: scenario.daisyAutoLogout,
-							emulator: scenario.emulator
+							...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 						});
 					}
 				});
@@ -253,7 +253,7 @@ function scenarioPrep(scenarios, driver) {
 				waitTime: scenario.stepWaitTime,
 				daisyAutoLogout: scenario.daisyAutoLogout,
 				oneDriver: driver,
-				emulator: scenario.emulator
+				...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 			});
 		} else {
 			scenario.stepDefinitions.example.forEach((examples, index) => {
@@ -263,7 +263,7 @@ function scenarioPrep(scenarios, driver) {
 						waitTime: scenario.stepWaitTime,
 						daisyAutoLogout: scenario.daisyAutoLogout,
 						oneDriver: driver,
-						emulator: scenario.emulator
+						...(scenario.emulator !== undefined && { emulator: scenario.emulator })
 					});
 				}
 			});
@@ -356,15 +356,18 @@ async function exportSingleFeatureFile(_id) {
 	});
 }
 
-async function exportProjectFeatureFiles(repoId) {
+async function exportProjectFeatureFiles(repoId, versionId) {
 	const dbStories = mongo.getAllStoriesOfRepo(repoId);
 	return dbStories.then(async (stories) => {
 		const zip = new AdmZip();
 		return Promise.all(stories.map(async (story) => {
 			writeFile(story);
-			try {
-				zip.addLocalFile(`features/${this.cleanFileName(story.title + story._id.toString())}.feature`);
-			} catch (e) { console.log('file not found'); }
+			const postfix = versionId ? `-v${versionId}` : '';
+			const filename = this.cleanFileName(story.title + story._id.toString());
+			const file = await pfs.readFile(`./features/${filename}.feature`, 'utf8').catch((err) => { console.log('Couldn\'t read file'); });
+			if (file != null) {
+				zip.addFile(`${filename + postfix}.feature`, file);
+			}
 		})).then(() => zip.toBuffer());
 	});
 }

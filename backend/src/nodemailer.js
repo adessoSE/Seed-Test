@@ -1,9 +1,19 @@
+const { log } = require('console');
 const nodemailer = require('nodemailer');
 
 async function sendResetLink(email, id) {
+	if (process.env.EMAIL_HOST === undefined || process.env.EMAIL_PORT === undefined) {
+		log("To send emails please provide a email server and port. You can see how to do it in the README.");
+		throw new Error("Bad email config")
+	}
+	if (process.env.EMAIL_AUTH === undefined || process.env.EMAIL_PW === undefined) {
+		log("To send emails please provide a valid email account. You can see how to do it in the README.");
+		throw new Error("Bad email config")
+	}
+
 	const transporter = nodemailer.createTransport({
-		host: 'smtp.mail.de',
-		port: 587,
+		host: process.env.EMAIL_HOST,
+		port: process.env.EMAIL_PORT,
 		secureConnection: false,
 		auth: {
 			user: process.env.EMAIL_AUTH,

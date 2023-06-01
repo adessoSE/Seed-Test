@@ -36,6 +36,11 @@ export class AppComponent implements OnInit{
   showTerms: boolean = false;
 
   /**
+   * Version 
+   */
+  version : string;
+
+  /**
    * Error during retrieving the projects
    */
   error: string;
@@ -78,6 +83,7 @@ export class AppComponent implements OnInit{
     public projectService: ProjectService,
     public storyService: StoryService,
     ) {
+      this.version = localStorage.getItem('version')
   }
 
   /**

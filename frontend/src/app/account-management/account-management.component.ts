@@ -1,13 +1,13 @@
-import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
-import {ApiService} from '../Services/api.service';
-import {NavigationEnd, Router} from '@angular/router';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { ApiService } from '../Services/api.service';
+import { NavigationEnd, Router } from '@angular/router';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ChangeJiraAccountComponent } from '../modals/change-jira-account/change-jira-account.component';
-import {Subscription} from 'rxjs/internal/Subscription';
+import { Subscription } from 'rxjs/internal/Subscription';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
-import {interval} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { interval } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { CreateCustomProjectComponent } from '../modals/create-custom-project/create-custom-project.component';
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
@@ -73,6 +73,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
 
     searchInput: string;
 
+    versionInput: string;
+
     searchList: RepositoryContainer[];
 
     downloadRepoID: string;
@@ -80,6 +82,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     isDark: boolean;
 
     isActualRepoToDelete: boolean;
+
+    clientId: string;
 
     /**
      * Subscribtions for all EventEmitter
@@ -104,7 +108,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         public projectService: ProjectService,
         public loginService: LoginService,
         public managmentService: ManagementService,
-        public router: Router, 
+        public router: Router,
         public themeService: ThemingService,
         private toastr: ToastrService) {
         this.routeSub = this.router.events.subscribe(event => {
@@ -170,7 +174,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     /**
      * Opens Modal to create a new custom project
      */
-     newRepository() {
+    newRepository() {
         this.createCustomProject.openCreateCustomProjectModal(this.repositories);
     }
 
@@ -212,13 +216,13 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         const seSto = sessionStorage.getItem('repositories');
         if (!seSto) {
             const repositories = interval(500)
-              .pipe(map(() => sessionStorage.getItem('repositories')))
-              .subscribe(data => {
-                  if (data) {
-                      this.repositories = JSON.parse(data);
-                      repositories.unsubscribe();
-                  }
-              });
+                .pipe(map(() => sessionStorage.getItem('repositories')))
+                .subscribe(data => {
+                    if (data) {
+                        this.repositories = JSON.parse(data);
+                        repositories.unsubscribe();
+                    }
+                });
         } else {
             this.repositories = JSON.parse(seSto);
         }
@@ -243,6 +247,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
                     (document.getElementById('change-jira') as HTMLButtonElement).innerHTML = 'Change Jira-Account';
                     (document.getElementById("disconnect-jira") as HTMLButtonElement).style.removeProperty('display');
                 }
+                this.clientId = localStorage.getItem('clientId')
             });
             this.getSessionStorage();
         }
@@ -283,8 +288,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             const userRepo = this.searchList.find(repo => repo._id == repo_id);
             console.log(userRepo);
             const id = userRepo._id;
-            this.managmentService.downloadProjectFeatureFiles(id).subscribe(ret => {
-                saveAs(ret, userRepo.value + '.zip');
+            this.managmentService.downloadProjectFeatureFiles(id, this.versionInput).subscribe(ret => {
+                this.versionInput ? saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '.zip');
             });
         }
     }

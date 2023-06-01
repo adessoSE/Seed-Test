@@ -78,9 +78,10 @@ export class ManagementService {
    * @param repo_id
    * @returns
   */
-  downloadProjectFeatureFiles(repo_id): Observable<Blob> {
+  downloadProjectFeatureFiles(repo_id, version_id=''): Observable<Blob> {
     return this.http
-      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json' });
+      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
+    
   }
 
 }
