@@ -561,7 +561,7 @@ async function getAllStoriesOfRepo( repoId) {
 }
 
 // GET ONE Scenario
-async function getOneScenario(storyId, scenarioId) { // TODO: remove storySource
+async function getOneScenario(storyId, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
@@ -573,7 +573,7 @@ async function getOneScenario(storyId, scenarioId) { // TODO: remove storySource
 }
 
 // CREATE Scenario
-async function createScenario(storyId, scenarioTitle) { // TODO: remove storySource
+async function createScenario(storyId, scenarioTitle) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -752,7 +752,7 @@ async function getAllSourceReposFromDb(source) {
 	}
 }
 
-async function createRepo(ownerId, name) { 
+async function createRepo(ownerId, name) {
 	try {
 		const emptyRepo = {
 			owner: ObjectId(ownerId), repoName: name.toString(), stories: [], repoType: 'db', customBlocks: [], groups: []
@@ -775,7 +775,7 @@ async function createRepo(ownerId, name) {
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) { //
+async function updateRepository(repoID, newName, user) {
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
@@ -868,11 +868,10 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) { // TODO: vllt in
 	}
 }
 
-async function upsertEntry(storyId, updatedContent, storySource) { // TODO: remove storySource?
+async function upsertEntry(storyId, updatedContent) {
 	try {
 		const myObjt = {
-			story_id: storyId,
-			storySource
+			story_id: storyId
 		};
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
