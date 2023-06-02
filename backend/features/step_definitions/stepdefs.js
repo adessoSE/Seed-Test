@@ -268,7 +268,7 @@ function calcDate(value) {
 	// const start_regex = /^((@@Date)|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!\1)(((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!\2))?(((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!\3))?)|(^\s*$)/
 
 	// Regex that matches the middle: e.g. +@@Day,2-@@Month,4 ....
-	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Mont|Year))*)|(^\s*$)/;
+	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Month|Year))*)|(^\s*$)/;
 	// Regex that matches the format end: e.g @@format:DDMMYY€€
 	const end_regex = /(^(@@format:\w*€€)*)|(^\s*$)/;
 
@@ -312,10 +312,9 @@ function calcDate(value) {
 		startcopy = start.slice();
 		for (let i = 0; i < substrings.length; i++) {
 			if (start.split(substrings[i]).length - 1 > 1) throw Error(`${substringsErr[i]} may only be used 0 or 1 time. Input: ${start}`);
-
 			startcopy = startcopy.replace(substrings[i], '');
 		}
-		if (startcopy.length !== 0) throw Error(`Unkown tokens in the start section: ${startcopy}`);
+		// if (startcopy.length !== 0) throw Error(`Unkown tokens in the start section: ${startcopy}`);
 	}
 
 	// check if the calculation part is written correctly

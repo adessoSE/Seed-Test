@@ -98,7 +98,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.createStepList();
     this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
     if(isBackground && isBackground !== undefined){
-      document.getElementById('modalHeader').innerHTML = 'Save background as a block';
+      document.getElementById('modalHeader').innerHTML = 'Save Background';
     }
   }
 
