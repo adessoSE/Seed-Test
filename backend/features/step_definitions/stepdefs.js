@@ -722,7 +722,7 @@ Then(
 );
 
 // Search if a text isn't in html code
-Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(text) {
+Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -731,7 +731,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			doesNotMatch(bodyAll, RegExp(text.toString()), `Page HTML does contain the string/regex: ${expectedText}`);
+			doesNotMatch(bodyAll, RegExp(expectedText.toString()), `Page HTML does contain the string/regex: ${expectedText}`);
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
