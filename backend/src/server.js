@@ -9,7 +9,7 @@ const MongoStore = require('connect-mongo')(session);
 const scriptRouter = require('./serverRouter/scriptRouter');
 const runReportRouter = require('./serverRouter/runReportRouter');
 const githubRouter = require('./serverRouter/githubRouter');
-const mongoRouter = require('./serverRouter/mongoRouter');
+const mongo = require('./database/DbServices');
 const jiraRouter = require('./serverRouter/jiraRouter');
 const userRouter = require('./serverRouter/userRouter');
 const groupRouter = require('./serverRouter/groupRouter');
@@ -86,7 +86,17 @@ app
 	.use('/api/block', blockRouter)
 	.use('/api/report', reportRouter)
 	.use('/api/background', backgroundRouter)
-	.use('/api', mongoRouter)
+	.get('/api/stepTypes', async (_, res) => {
+		try {
+			const result = await mongo.showSteptypes();
+			res.status(200)
+				.json(result);
+		} catch (error) {
+			console.error(`ERROR: ${error}`);
+			res.status(500)
+				.json({ error });
+		}
+	})
 	.get('/api', (_, res) => {
 		res.sendFile('htmlresponse/apistandartresponse.html', { root: __dirname });
 	});
