@@ -50,13 +50,12 @@ export class BackgroundService {
   /**
    * Updates the background
    * @param storyID
-   * @param storySource
    * @param background
    * @returns
   */
-  public updateBackground(storyID: any, storySource: string, background: Background): Observable<Background> {
+  public updateBackground(storyID: any, background: Background): Observable<Background> {
     return this.http
-      .post<Background>(this.apiService.apiServer + '/mongo/background/update/' + storyID + '/' + storySource, background, ApiService.getOptions())
+      .put<Background>(this.apiService.apiServer + '/background/' + storyID , background, ApiService.getOptions())
       .pipe(tap(_ => {
         console.log('Update background for story ' + storyID);
       }));
@@ -86,9 +85,9 @@ export class BackgroundService {
     * @param storySource
     * @returns
   */
-  deleteBackground(storyID: any, storySource: string): Observable<any> {
+  deleteBackground(storyID: any): Observable<any> {
     return this.http
-      .delete<any>(this.apiService.apiServer + '/mongo/background/delete/' + storyID + '/' + storySource, ApiService.getOptions())
+      .delete<any>(this.apiService.apiServer + '/background/' + storyID , ApiService.getOptions())
       .pipe(tap(() => {
         //
       }));

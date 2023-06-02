@@ -43,7 +43,7 @@ export class RenameBackgroundComponent{
     this.story.background.saved = undefined;
     this.backgroundService.renameBackgroundEmit(title);  
     this.backgroundService
-    .updateBackground(this.story._id, this.story.storySource, this.story.background)
+    .updateBackground(this.story._id, this.story.background)
     .subscribe(_ => {
       this.backgroundService.backgroundChangedEmitter();
       this.toastr.success('successfully saved', 'Background');

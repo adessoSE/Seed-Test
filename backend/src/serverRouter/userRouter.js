@@ -206,10 +206,27 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
+// create Repository in Database
+router.post('/createRepository', async (req, res) => {
+	mongo.createRepo(req.user._id, req.body.name);
+	res.status(200).json('');
+});
+
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);
 	res.status(200).json(repo);
+});
+
+// update user
+router.post('/update/:userID', async (req, res) => {
+	try {
+		const user = req.body;
+		const updatedUser = await mongo.updateUser(req.params.userID.toString(), user);
+		res.status(200).json(updatedUser);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
 });
 
 // update repository owner
@@ -227,7 +244,7 @@ router.put('/repository/:repo_id', async (req, res) => {
 router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
 		await mongo
-			.deleteRepository(req.params.repo_id, req.user._id, req.params.source, parseInt(req.params._id, 10));
+			.deleteRepository(req.params.repo_id, req.user._id, parseInt(req.params._id, 10));
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {
@@ -374,6 +391,28 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		if (repo) mongo.updateStoriesArrayInRepo(repo._id, storyList);
 		return storyList.map((i) => storiesArray.get(i.toString()));
 	}
+});
+
+// delete user
+router.delete('/', async (req, res) => {
+	try {
+		if (req.user) await mongo.deleteUser(req.user._id);
+		else res.sendStatus(401);
+		res.sendStatus(200);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+// get userObject
+router.get('/', async (req, res) => {
+	if (req.user) try {
+		const result = await mongo.getUserData(req.user._id);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+	else res.sendStatus(400);
 });
 
 router.put('/stories/:_id', async (req, res) => {

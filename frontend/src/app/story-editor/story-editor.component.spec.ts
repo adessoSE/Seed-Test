@@ -24,7 +24,7 @@ import { MAT_SELECT_SCROLL_STRATEGY_PROVIDER } from '@angular/material/select';
 @Injectable()
 class FakeService {
   constructor() {}
-  deleteScenario(storyId, storySource, scenarios) {};
+  deleteScenario(storyId, scenarios) {};
 }
 
 @Component({
@@ -237,7 +237,7 @@ describe('StoryEditorComponent', () => {
       component.scenarioChild = findComponent(fixture, '#scenarioChild');
       let html = '<h1 #testFrame>Hi</h1>';
       jest.spyOn(component.storyService, 'runTests');
-      component.storyService.runTests(component.selectedStory._id, component.selectedStory.storySource, scenarioId, {}).subscribe((resp)=> {
+      component.storyService.runTests(component.selectedStory._id, scenarioId, {}).subscribe((resp)=> {
         expect(component.htmlReport).toBe(html);
         expect(component.testDone).toBeTruthy();
         expect(component.showResults).toBeTruthy();
@@ -255,7 +255,7 @@ describe('StoryEditorComponent', () => {
       component.selectedStory = stories[0];
       let scenariosAmount = component.selectedStory.scenarios.length;
       jest.spyOn(component.scenarioService, 'addScenario');
-      component.scenarioService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
+      component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((resp)=> {
         expect(component.scenarioService.addScenario).toHaveBeenCalled();
         expect(component.selectedStory.scenarios.length).toBe(scenariosAmount + 1);
       });
@@ -267,7 +267,7 @@ describe('StoryEditorComponent', () => {
       let scenariosAmount = component.selectedStory.scenarios.length;
       fixture.detectChanges();
       jest.spyOn(component, 'selectScenario');
-      component.scenarioService.addScenario(component.selectedStory._id, component.selectedStory.storySource, scenarioName).subscribe((resp)=> {
+      component.scenarioService.addScenario(component.selectedStory._id, scenarioName).subscribe((resp)=> {
         expect(component.selectScenario).toHaveBeenCalled();
         expect(component.selectedStory.scenarios.length).toEqual(scenariosAmount +1);
       });

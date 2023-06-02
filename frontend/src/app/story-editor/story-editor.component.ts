@@ -554,7 +554,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   deleteScenario(scenario: Scenario) {
     this.scenarioService
-            .deleteScenario(this.selectedStory._id, this.selectedStory.storySource, scenario)
+            .deleteScenario(this.selectedStory._id, scenario)
             .subscribe(_ => {
         this.scenarioDeleted();
                 this.toastr.error('', 'Scenario deleted');
@@ -577,7 +577,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   addScenario(event) {
     const scenarioName = event;
-    this.scenarioService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+    this.scenarioService.addScenario(this.selectedStory._id, scenarioName)
       .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
         this.selectedStory.scenarios.push(resp);
@@ -616,7 +616,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         this.toastr.success('successfully saved', 'Background');
       }
       this.backgroundService
-      .updateBackground(this.selectedStory._id, this.selectedStory.storySource, this.selectedStory.background)
+      .updateBackground(this.selectedStory._id, this.selectedStory.background)
       .subscribe(_ => {
         this.backgroundService.backgroundChangedEmitter();
         if (this.findBackground || this.findBackground == undefined){
@@ -634,7 +634,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   deleteBackground() {
     this.backgroundService
-    .deleteBackground(this.selectedStory._id, this.selectedStory.storySource)
+    .deleteBackground(this.selectedStory._id)
     .subscribe(_ => {
       this.showBackground = false;
       this.selectedStory.background = emptyBackground;
@@ -762,7 +762,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.storyService
         .runTests(
           this.selectedStory._id,
-          this.selectedStory.storySource,
           scenario_id,
           {
             browser: browserSelect,
@@ -1003,9 +1002,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     
 
   downloadFeature() {
-    const source = this.selectedStory.storySource;
     const id = this.selectedStory._id;
-		this.storyService.downloadStoryFeatureFile(source, id).subscribe(ret => {
+		this.storyService.downloadStoryFeatureFile(id).subscribe(ret => {
 				saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
     });
   }

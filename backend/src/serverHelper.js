@@ -128,8 +128,8 @@ function writeFile(story) {
 }
 
 // Updates feature file based on _id
-async function updateFeatureFile(issueID, storySource) {
-	const result = await mongo.getOneStory(issueID, storySource);
+async function updateFeatureFile(issueID) {
+	const result = await mongo.getOneStory(issueID);
 	if (result != null) writeFile(result);
 }
 
@@ -347,8 +347,8 @@ async function updateScenarioTestStatus(uploadedReport) {
 
 
 
-async function exportSingleFeatureFile(_id, source) {
-	const dbStory = mongo.getOneStory(_id, source);
+async function exportSingleFeatureFile(_id) {
+	const dbStory = mongo.getOneStory(_id);
 	return dbStory.then(async (story) => {
 		writeFile(story);
 		return pfs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8')
