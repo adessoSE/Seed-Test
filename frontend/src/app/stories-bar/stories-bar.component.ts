@@ -16,6 +16,7 @@ import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ReportService } from '../Services/report.service';
+import { BackgroundService } from '../Services/background.service';
 
 /**
  * Component of the Stories bar
@@ -187,7 +188,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         public storyService: StoryService,
         public groupService: GroupService,
         public scenarioService: ScenarioService,
-        public reportService: ReportService) {
+        public reportService: ReportService,
+        public backgroundService: BackgroundService) {
         this.groupService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
             this.liGroupList = new Array(this.groups.length).fill("")
@@ -385,6 +387,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.selectScenario(this.stories[storyIndex].scenarios[0]);
         }
         this.toggleShows();
+        this.backgroundService.backgroundReplaced = false;
     }
 
     /**

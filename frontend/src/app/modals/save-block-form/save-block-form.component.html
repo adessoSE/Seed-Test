@@ -46,6 +46,7 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button *ngIf="isBackground == true" class="normalButton" type="button" (click)="closeModal()">Discard saving</button>
         <button class="normalButton" type="submit" [disabled]="!saveBlockForm.valid"
         [ngStyle]="{'opacity': !saveBlockForm.valid ?  '50%' : '100%'}">Submit
         </button>
