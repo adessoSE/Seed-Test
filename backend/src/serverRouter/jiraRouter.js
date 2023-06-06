@@ -41,7 +41,8 @@ router.post('/user/create/', (req, res) => {
 			},
 			headers: {
 				'cache-control': 'no-cache',
-				Authorization: `Basic ${auth}`
+				// Authorization: `Basic ${auth}`
+				Authorization: `Bearer ${process.env.JIRA_PAT}`
 			}
 		};
 
@@ -82,8 +83,7 @@ router.delete('/user/disconnect/', (req, res) => {
 router.post('/login', (req, res) => {
 	if (typeof req.body.jiraAccountName !== 'undefined') {
 		const { jiraAccountName, jiraPassword, jiraServer } = req.body;
-		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
-			.toString('base64');
+		/// const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
 		const options = {
 			method: 'GET',
 			qs: {
@@ -92,7 +92,8 @@ router.post('/login', (req, res) => {
 			},
 			headers: {
 				'cache-control': 'no-cache',
-				Authorization: `Basic ${auth}`
+				// Authorization: `Basic ${auth}`
+				Authorization: `Bearer ${process.env.JIRA_PAT}`
 			}
 		};
 		if (/^[.:a-zA-Z0-9]+$/.test(jiraServer)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)

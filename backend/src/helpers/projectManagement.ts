@@ -58,7 +58,8 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
         },
         headers: {
             'cache-control': 'no-cache',
-            Authorization: `Basic ${auth}`
+            //Authorization: `Basic ${auth}`
+			'Authorization': `Bearer ${process.env.JIRA_PAT}`
         }
     };
     // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
@@ -87,7 +88,7 @@ async function storeJiraRepos(projects:Array<any>){
     if (projects.length !== 0) {
         for (const projectName of projects) {
             if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
-                jiraRepo = await mongo.createJiraRepo(projectName.name);
+                jiraRepo = await mongo.createJiraRepo(projectName);
             } else {
                 jiraRepo = jiraReposFromDb.find((element) => element.repoName === projectName);
             }
@@ -95,7 +96,7 @@ async function storeJiraRepos(projects:Array<any>){
         }
         return repos.map<{_id:string, value:string, source:string}>
         ((value) => ({
-            _id: value._id.to,
+            _id: value._id,
             value: value.name,
             source
         }));

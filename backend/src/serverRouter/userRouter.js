@@ -178,7 +178,7 @@ router.get('/repositories', (req, res) => {
 	let githubName;
 	let token;
 	let githubId;
-	if (req.user && req.user.github) {// note order
+	if (req.user && req.user.github) { // note order
 		githubName = req.user.github.login;
 		token = req.user.github.githubToken;
 		githubId = req.user.github.id;
@@ -200,8 +200,9 @@ router.get('/repositories', (req, res) => {
 			merged = projectMng.uniqueRepositories(merged);
 			res.status(200).json(merged);
 		})
-		.catch((reason) => {
-			res.status(401).json('Wrong Github name or Token');
+		.catch((reason) => { // TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
+			// bei Jira behandeln, falls der Token abgelaufen ist
+			res.status(401).json('Wrong Username or Password');
 			console.error(`Get Repositories Error: ${reason}`);
 		});
 });
@@ -315,9 +316,9 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		// prepare request
 		const { projectKey } = req.query;
 		const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-		const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
-		const auth = Buffer.from(`${AccountName}:${clearPass}`)
-			.toString('base64');
+		// const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
+		// const auth = Buffer.from(`${AccountName}:${clearPass}`)
+		//	.toString('base64');
 
 		const tmpStories = new Map();
 		const storiesArray = [];
@@ -325,7 +326,8 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			method: 'GET',
 			headers: {
 				'cache-control': 'no-cache',
-				Authorization: `Basic ${auth}`
+				// Authorization: `Basic ${auth}`
+				Authorization: `Bearer ${process.env.JIRA_PAT}`
 			}
 		};
 		let repo;
