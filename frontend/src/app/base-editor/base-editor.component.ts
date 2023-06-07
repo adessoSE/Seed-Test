@@ -1251,14 +1251,13 @@ export class BaseEditorComponent  {
         break;
 
       case 'example':
-        block = this.addStepsToBlockOnIteration(this.selectedScenario.stepDefinitions.example);
-        /* for (const s in this.selectedScenario.stepDefinitions.example) {
-          if (this.selectedScenario.stepDefinitions.example[s].checked) {
-            this.selectedScenario.stepDefinitions.example[s].checked = false;
-            copyBlock['example'].push(this.selectedScenario.stepDefinitions.example[s]);
+        block =[];
+        for (let i = this.selectedScenario.stepDefinitions.example.length - 1; i > 0; i--) {
+          if (this.selectedScenario.stepDefinitions.example[i].checked) {
+            block.push(this.selectedScenario.stepDefinitions.example[i])
           }
-        }*/
-        const exampleBlock: Block = {stepDefinitions: block}; 
+        }
+        const exampleBlock: Block = {stepDefinitions: {given: [], when: [], then: [], example: block}}; 
         sessionStorage.setItem('copiedExampleBlock', JSON.stringify(exampleBlock));
         this.toastr.success('successfully copied', 'Examples');
         break;  
