@@ -19,6 +19,13 @@ export class ResetPasswordComponent{
    * Error during reset password
    */
   error: string;
+  defaultErrorMessage = 'Reset password email faild';
+
+  /**
+   * Successfully sent email
+   */
+  success: string;
+  defaultSuccessMessage = "Email with password reset link has been send!"
 
   isDark :boolean = this.themeService.isDarkMode();
 
@@ -33,10 +40,16 @@ export class ResetPasswordComponent{
    * @param form 
    */
   requestReset(form : NgForm) {
-    this.loginService.requestReset(form.value.email).subscribe(res => {
-      //console.log('test')
+    this.loginService.requestReset(form.value.email).subscribe({
+      next: value => {
+        this.error = undefined;
+        this.success = this.defaultSuccessMessage;
+      },
+      error: error => {
+        this.success = undefined;
+        this.error = this.defaultErrorMessage + ": " + error.error;      
+      },
     })
-    this.router.navigate(['/login']);
   }
 
   /**

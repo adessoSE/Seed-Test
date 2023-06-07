@@ -353,3 +353,10 @@ h2, h1{
     background-color: transparent;
     padding: 0 !important;
   }
+
+  .wrongLogin{
+    background-color: var(--grape);
+    text-align: center;
+    color:white;
+    opacity: 1;
+}

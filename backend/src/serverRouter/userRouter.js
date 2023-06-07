@@ -13,6 +13,7 @@ const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
+const { log } = require('console');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -60,13 +61,20 @@ router.post('/resetpassword', async (req, res) => {
 			uuid: id,
 			email: thisUser.email
 		});
-		await nodeMail.sendResetLink(thisUser.email, id);
-		res.status(200)
+		try {
+			await nodeMail.sendResetLink(thisUser.email, id);
+			res.status(200)
 			.json();
+		} catch(err) {
+			res.status(500).send(err.message);
+		}
 	} catch (error) {
 		res.status(401)
 			.json(error);
-	} else console.log('UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!');
+	} else {
+		console.log('UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!');
+		res.status(404).send("No user found with the given email adress!");
+	}
 });
 
 // checks if requests exist if true, gets the according Account and changes the password
@@ -198,10 +206,27 @@ router.get('/repositories', (req, res) => {
 		});
 });
 
+// create Repository in Database
+router.post('/createRepository', async (req, res) => {
+	mongo.createRepo(req.user._id, req.body.name);
+	res.status(200).json('');
+});
+
 // update repository
 router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	const repo = await mongo.updateRepository(req.params.repo_id, req.body.repoName, req.user._id);
 	res.status(200).json(repo);
+});
+
+// update user
+router.post('/update/:userID', async (req, res) => {
+	try {
+		const user = req.body;
+		const updatedUser = await mongo.updateUser(req.params.userID.toString(), user);
+		res.status(200).json(updatedUser);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
 });
 
 // update repository owner
@@ -219,7 +244,7 @@ router.put('/repository/:repo_id', async (req, res) => {
 router.delete('/repositories/:repo_id/:owner_id', async (req, res) => {
 	try {
 		await mongo
-			.deleteRepository(req.params.repo_id, req.user._id, req.params.source, parseInt(req.params._id, 10));
+			.deleteRepository(req.params.repo_id, req.user._id, parseInt(req.params._id, 10));
 		res.status(200)
 			.json({ text: 'success' });
 	} catch (error) {
@@ -368,6 +393,28 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	}
 });
 
+// delete user
+router.delete('/', async (req, res) => {
+	try {
+		if (req.user) await mongo.deleteUser(req.user._id);
+		else res.sendStatus(401);
+		res.sendStatus(200);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+// get userObject
+router.get('/', async (req, res) => {
+	if (req.user) try {
+		const result = await mongo.getUserData(req.user._id);
+		res.status(200).json(result);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+	else res.sendStatus(400);
+});
+
 router.put('/stories/:_id', async (req, res) => {
 	const result = await mongo.updateStoriesArrayInRepo(req.params._id, req.body);
 	res.status(200).json(result);
@@ -386,6 +433,12 @@ const mapper = (str) => { // maps Url endoded data to new object
 router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
 	const params = new URLSearchParams();
+	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+		log("To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.");
+		res.status(501).send("No GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET provided.")
+		return
+	}
+
 	params.append('client_id', process.env.GITHUB_CLIENT_ID);
 	params.append('client_secret', process.env.GITHUB_CLIENT_SECRET);
 	params.append('code', req.query.code);

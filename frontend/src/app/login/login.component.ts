@@ -101,7 +101,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
            if (params.code) {
                 this.loginService.githubCallback(params.code).subscribe((resp) => {
                     if (resp.error) {
-                        this.error = this.defaultErrorMessage; // resp.error
+                        if (resp.status === 501) {
+                            this.error = "GitHub Integration has not been set up yet."
+                        } else {
+                            this.error = this.defaultErrorMessage; // resp.error
+                        }
                     } else {
                         localStorage.setItem('login', 'true');
                         this.getRepositories();
@@ -114,7 +118,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
                         }
                     }
                 }, 
-                (error) => {this.error = this.defaultErrorMessage;}
+                (error) => {
+                    if (error.status === 501) {
+                        this.error = "GitHub Integration has not been set up yet."
+                    } else {
+                        this.error = this.defaultErrorMessage; // resp.error
+                }}
                 )
             }
         });
@@ -256,6 +265,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     githubLogin() {
         this.error = undefined;
+        if (localStorage.getItem('clientId') === 'undefined') {
+            this.error = "GitHub Integration has not been set up yet."
+            return
+        }
         this.isLoadingRepositories = true;
         this.loginService.githubLogin();
     }

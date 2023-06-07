@@ -4,7 +4,7 @@
     <!-- If no block name given submits placeholder title -->
     <app-layout-modal></app-layout-modal>
     <div class="modal-header">
-      <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as block</span>
+      <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
         <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
           Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
@@ -19,8 +19,9 @@
         <div class="uk-card-title submitForm">
           <div class="blockNameContainer modalsContent">
               <div class="uk-form-label" id="inputLabels">
-                <label>Enter block name*</label>
-                <input type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New block" class="blockNameInput leftMargin" required>
+                <label>Enter name*</label>
+                <input *ngIf="isBackground === true" type="text" id="backgroundNameInput" ngModel pattern="\S(.*\S)?" name="backgroundNameInput" class="blockNameInput leftMargin" required placeholder="Background">
+                <input *ngIf="isBackground === false" type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
               </div>
           </div>
           <div *ngIf="!this.exampleChecked" class="tableContainer">
@@ -59,9 +60,9 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button *ngIf="isBackground === true" class="normalButton deleteButton" type="button" (click)="closeModal()">Discard Background</button>
         <button class="normalButton" type="submit" [disabled]="!saveBlockForm.valid"
-        [ngStyle]="{'opacity': !saveBlockForm.valid ?  '50%' : '100%'}">Submit
-        </button>
+        [ngStyle]="{'opacity': !saveBlockForm.valid ?  '50%' : '100%'}">Submit</button>
       </div>
     </form>
   </ng-template>

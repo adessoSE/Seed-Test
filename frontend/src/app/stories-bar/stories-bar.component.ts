@@ -16,6 +16,7 @@ import { StoryService } from '../Services/story.service';
 import { GroupService } from '../Services/group.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { ReportService } from '../Services/report.service';
+import { BackgroundService } from '../Services/background.service';
 
 /**
  * Component of the Stories bar
@@ -187,7 +188,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         public storyService: StoryService,
         public groupService: GroupService,
         public scenarioService: ScenarioService,
-        public reportService: ReportService) {
+        public reportService: ReportService,
+        public backgroundService: BackgroundService) {
         this.groupService.getGroups(localStorage.getItem('id')).subscribe(groups => {
             this.groups = groups;
             this.liGroupList = new Array(this.groups.length).fill("")
@@ -385,6 +387,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.selectScenario(this.stories[storyIndex].scenarios[0]);
         }
         this.toggleShows();
+        this.backgroundService.backgroundReplaced = false;
     }
 
     /**
@@ -408,7 +411,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     addScenario(scenarioName) {
-        this.scenarioService.addScenario(this.selectedStory._id, this.selectedStory.storySource, scenarioName)
+        this.scenarioService.addScenario(this.selectedStory._id, scenarioName)
             .subscribe((resp: Scenario) => {
                 this.selectScenario(resp);
                 this.selectedStory.scenarios.push(resp);
@@ -449,10 +452,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     }
 
     dropScenario(event: CdkDragDrop<string[]>, s) {
-        const source = localStorage.getItem('source');
         const index = this.stories.findIndex(o => o._id === s._id);
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-        this.scenarioService.updateScenarioList(this.stories[index]._id, source, this.stories[index].scenarios).subscribe(_ => {
+        this.scenarioService.updateScenarioList(this.stories[index]._id, this.stories[index].scenarios).subscribe(_ => {
             // console.log(ret)
         });
     }

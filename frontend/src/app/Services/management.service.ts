@@ -45,7 +45,7 @@ export class ManagementService {
   */
   getUserData(): Observable<User> {
     return this.http
-      .get<User>(this.apiService.apiServer + '/mongo/user/', ApiService.getOptions())
+      .get<User>(this.apiService.apiServer + '/user/', ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }), catchError(this.apiService.handleStoryError));
@@ -56,7 +56,7 @@ export class ManagementService {
   */
   deleteUser() {
     return this.http
-      .delete<any>(this.apiService.apiServer + '/mongo/user/delete', ApiService.getOptions())
+      .delete<any>(this.apiService.apiServer + '/user/', ApiService.getOptions())
       .pipe(tap(_ => {
         //
       }), catchError(this.apiService.handleStoryError));
@@ -75,13 +75,12 @@ export class ManagementService {
   }
   /**
    * Downloading custom project in a file
-   * @param source
    * @param repo_id
    * @returns
   */
-  downloadProjectFeatureFiles(source, repo_id, version_id=''): Observable<Blob> {
+  downloadProjectFeatureFiles(repo_id, version_id=''): Observable<Blob> {
     return this.http
-      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + source + '/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
+      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
     
   }
 
