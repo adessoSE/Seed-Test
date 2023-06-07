@@ -93,14 +93,18 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
 }
+.exampleCheckboxContainer{
+    display: table;
+}
 
 label {
-    float: left;
+    margin-right: 10px;
+    /*float: left;
     margin-left: -145px;
     padding: 5px 0 0;
     position: relative;
     text-align: right;
-    width: 130px;
+    width: 130px;*/
 }
 
 .modalsContent {
