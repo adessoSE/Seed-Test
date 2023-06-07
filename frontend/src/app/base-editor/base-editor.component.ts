@@ -1274,7 +1274,8 @@ export class BaseEditorComponent  {
    * @param stepsList Step Definitions or examples
    * @returns 
    */
-  addStepsToBlockOnIteration(stepsList) {
+  addStepsToBlockOnIteration(stepList) {
+    let stepsList = JSON.parse(JSON.stringify(stepList))
     const copyBlock = {given: [], when: [], then: [], example: []};
     const stepsListIterate = {given: [], when: [], then: []};
     let examplesToBeCopied=[]
