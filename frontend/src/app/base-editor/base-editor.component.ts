@@ -196,9 +196,7 @@ export class BaseEditorComponent  {
         } else if (option == 'dontCopy'){
           this.insertStepsWithoutExamples()
         }
-      } //else{
-        //this.exampleChild.updateTable()
-      //}
+      }
   });
     
   }
@@ -1180,9 +1178,7 @@ export class BaseEditorComponent  {
             this.selectedScenario.stepDefinitions.example.splice(i,1); 
           }
         }
-        //this.exampleChild.updateTable();
         this.exampleService.updateExampleTableEmit();
-        //this.selectedScenario.saved = false;
         this.markUnsaved();
         break;
       default:
@@ -1342,7 +1338,6 @@ export class BaseEditorComponent  {
              });
            } 
           });
-          //this.selectedScenario.saved = false;
           this.markUnsaved();
         }
         break;
@@ -1352,11 +1347,9 @@ export class BaseEditorComponent  {
           this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
             if (key == 'example') {
               this.fillExapleValues(key, j, step);
-              //this.exampleChild.updateTable();
             }
           });
         });
-        //this.selectedScenario.saved = false;
         this.exampleService.updateExampleTableEmit();
         this.markUnsaved();
         break;
@@ -1467,9 +1460,8 @@ export class BaseEditorComponent  {
       this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs);
       this.insertPlaceholderValues(selectedExampleDefs, blockExampleDefs[0].values.length);
     }
-  
-    //this.exampleChild.updateTable()
     this.exampleService.updateExampleTableEmit();
+    this.markUnsaved()
   }
   
   insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs, useSelectedLength = false) {
@@ -1564,7 +1556,6 @@ export class BaseEditorComponent  {
       let oldName = this.selectedScenario.stepDefinitions.example[0].values[index]
 		  this.selectedScenario.stepDefinitions.example[0].values[index] = newName
 		  this.uncutInputs[this.uncutInputs.indexOf('<'+oldName+'>')] = '<'+newName+'>';
-		  //this.exampleChild.updateTable();
 
       this.selectedScenario.stepDefinitions.given.forEach((value, index) => {
         value.values.forEach((val, i) => {
@@ -1589,7 +1580,6 @@ export class BaseEditorComponent  {
           }
         })
       });
-      //this.selectedScenario.saved = false
       this.exampleService.updateExampleTableEmit();
       this.markUnsaved();
     }
@@ -1637,7 +1627,6 @@ export class BaseEditorComponent  {
           this.selectedScenario.stepDefinitions.example[j].values.push('value');
         }
       }
-      //this.exampleChild.updateTable()
       this.exampleService.updateExampleTableEmit();
     }
   }
@@ -1664,16 +1653,12 @@ export class BaseEditorComponent  {
     * @param step
     */
   addExampleStep(step: StepType) {
-    //if (this.selectedScenario.stepDefinitions.example.length > 0) {
     const newStep = this.createNewStep(step, this.selectedScenario.stepDefinitions, 'example');
     this.selectedScenario.stepDefinitions.example.push(newStep);
     const len = this.selectedScenario.stepDefinitions.example[0].values.length;
     for (let j = 1; j < len; j++) {
       this.selectedScenario.stepDefinitions.example[this.selectedScenario.stepDefinitions.example.length - 1].values.push('value');
     }
-    //this.exampleChild.updateTable();
-    //}
-    //this.selectedScenario.saved = false;
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved();
   }
@@ -1688,7 +1673,6 @@ export class BaseEditorComponent  {
         row.values[index] = 'value'
       });
       this.selectedScenario.stepDefinitions.example.push(row)
-    //this.exampleChild.updateTable();
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved();
   }
