@@ -21,7 +21,7 @@
               <div class="uk-form-label" id="inputLabels">
                 <label>Enter name*</label>
                 <input *ngIf="isBackground === true" type="text" id="backgroundNameInput" ngModel pattern="\S(.*\S)?" name="backgroundNameInput" class="blockNameInput leftMargin" required placeholder="Background">
-                <input *ngIf="isBackground === false" type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
+                <input *ngIf="isBackground === false || isBackground === undefined" type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
               </div>
           </div>
           <div *ngIf="!this.exampleChecked" class="tableContainer">
