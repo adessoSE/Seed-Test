@@ -26,11 +26,19 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     * Columns of the save block table
     */
   displayedColumnsSaveBlock: string[] = ['stepType', 'pre'];
+  /**
+    * Columns of the second save block table
+    */
+  displayedColumnsSaveBlockExample: string[];
 
    /**
     * List with the steps to be saved to the block
     */
   stepListSaveBlock = [];
+  /**
+    * List with the multiple scenarios to be saved to the block
+    */
+  stepListSaveBlockExample = [];
 
    /**
     * If the block is an example
@@ -107,11 +115,24 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
  */
   createStepList() {
     this.stepListSaveBlock = [];
+    this.stepListSaveBlockExample = [];
+    this.displayedColumnsSaveBlockExample = [];
     Object.keys(this.block.stepDefinitions).forEach((key, _) => {
         this.block.stepDefinitions[key].forEach((step: StepType) => {
+          if(step.stepType != 'example'){
             this.stepListSaveBlock.push(step);
+          } else {
+            this.stepListSaveBlockExample.push(step);
+          }
         });
     });
+    if(this.stepListSaveBlockExample.length > 0) {
+      const valueLength = this.stepListSaveBlockExample[0].values.length
+      this.displayedColumnsSaveBlockExample.push('stepType')
+      for (let index = 0; index < valueLength; index++) {
+        this.displayedColumnsSaveBlockExample.push(index.toString())
+      }
+    }
   }
 
 /**
@@ -153,7 +174,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.block.source = localStorage.getItem('source');
     this.block.repositoryId = localStorage.getItem('id');
     if(this.exampleChecked){
-      this.block.stepDefinitions = {given: [], when: [], then: [], example: this.stepListSaveBlock}
+      this.block.stepDefinitions = {given: [], when: [], then: [], example: this.stepListSaveBlockExample}
     }
     if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
       this.block.isBackground = true;

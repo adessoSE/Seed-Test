@@ -106,6 +106,8 @@ export class ExampleTableComponent implements OnInit {
 
   deleteExampleObservable: Subscription;
 
+  updateExampleTableObservable: Subscription;
+
   indexOfExampleToDelete;
   @ViewChild('table') table: MatTable<StepDefinition>;
 
@@ -149,12 +151,16 @@ export class ExampleTableComponent implements OnInit {
   ngOnInit() {
     this.deleteExampleObservable = this.exampleService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
+    this.updateExampleTableObservable = this.exampleService.updateExampleTableEvent.subscribe(() =>{this.updateTable();});
   }
  
   // eslint-disable-next-line @angular-eslint/use-lifecycle-interface
   ngOnDestroy() {
     if (!this.deleteExampleObservable.closed) {
       this.deleteExampleObservable.unsubscribe();
+    }
+    if (!this.updateExampleTableObservable.closed) {
+      this.updateExampleTableObservable.unsubscribe();
     }
   }
 
