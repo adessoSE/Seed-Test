@@ -59,8 +59,6 @@ const getGithubData = (res, req, accessToken) => {
 	)
 		.then((response) => response.json())
 		.then(async (json) => {
-			console.log('JSON in GetGitHubData');
-			console.log(json);
 			req.body = json;
 			req.body.githubToken = accessToken;
 			try {

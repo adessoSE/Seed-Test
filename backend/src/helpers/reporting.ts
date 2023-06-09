@@ -150,7 +150,6 @@ function analyzeScenarioReport(stories: Array<any>, reportName: string, scenario
                 console.log(`NUMBER OF SCENARIOS IN THE REPORT (must be 1): ${storyReport.elements.length}`);
                 const story = stories[0];
                 console.log(`Story ID: ${story._id}`);
-                console.log(story);
                 reportResults.storyId = story._id;
                 const scenarioReport = storyReport.elements[0]
 
@@ -395,9 +394,9 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 
 	// if possible separate function
 	for (const story of stories) {
-		let comment;
+		let comment = '';
 		if (mode === executionMode.GROUP) {
-			comment = `This Execution ist part of group execution ${parameters.name}\n`;
+			comment += `This Execution ist part of group execution ${parameters.name}\n`;
 			comment += ticketMng.renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
 				reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
 		} else {

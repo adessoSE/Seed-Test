@@ -16,8 +16,8 @@ function renderComment(
 	const testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
 	const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
 	const reportUrl = `${frontendUrl}/report/${reportName}`;
-	if (mode === executionMode.SCENARIO) comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
-	else comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
+	if (mode === executionMode.SCENARIO) comment = `# Seed-Test Execution ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
+	else comment = `# Seed-Test Execution from ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
 	return comment;
 }
 
@@ -36,8 +36,20 @@ async function postCommentGitHub(issueNumber, comment, githubName, githubRepo, p
 }
 
 async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword) {
+	console.log(comment)
+	comment = comment.replace('#','')
+	comment = comment.replace('##','#')
+	comment = comment.replace('###','##')
+	comment = comment.replaceAll(':white_check_mark:','(/)')
+	comment = comment.replaceAll(':x:','(x)')
+	comment = comment.replaceAll(':warning:','(!)')
+	comment = comment.replace('undefined','')
+	comment = comment.replace('Steps passed:','(+) Passed Steps:')
+	comment = comment.replace('Steps failed:','(-) Failed Steps:')
+	comment = comment.replace('Steps skipped:','(!) Skipped Steps:')
 	const link = `https://${host}/rest/api/2/issue/${issueId}/comment/`;
-	const auth = `Basic ${Buffer.from(`${jiraUser}:${jiraPassword}`, 'binary').toString('base64')}`;
+	// const auth = `Basic ${Buffer.from(`${jiraUser}:${jiraPassword}`, 'binary').toString('base64')}`;
+	const auth =  `Bearer ${process.env.JIRA_PAT}`
 	const body = { body: comment };
 	/** @type {Response} */
 	const response = await fetch(link, {
@@ -46,8 +58,6 @@ async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword) {
 		headers: { Authorization: auth, 'Content-Type': 'application/json' }
 	});
 	const data = await response.json();
-
-	console.log(data);
 }
 
 function addLabelToIssue(githubName, githubRepo, password, issueNumber, label) {

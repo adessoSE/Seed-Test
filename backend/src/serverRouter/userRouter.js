@@ -454,7 +454,6 @@ router.get('/callback', (req, res) => {
 		.then((response) => response.text())
 		.then((text) => mapper(text))
 		.then((data) => {
-			console.log(data);
 			if (data.error) throw Error('github user register failed');
 			else userMng.getGithubData(res, req, data.access_token);
 		})
