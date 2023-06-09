@@ -77,12 +77,25 @@ export class ManagementService {
    * Downloading custom project in a file
    * @param source
    * @param repo_id
+   * @param version_id
    * @returns
   */
-  downloadProjectFeatureFiles(source, repo_id, version_id=''): Observable<Blob> {
+  downloadProjectFeatureFiles(source, repo_id, version_id='',): Observable<Blob> {
     return this.http
-      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + source + '/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
-    
+      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + source + '/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} })
   }
+
+    /**
+   * Downloading importable custom project in a file
+   * @param source
+   * @param repo_id
+   * @param version_id
+   * @returns
+  */
+  exportProject(source, repo_id, version_id='',): Observable<Blob> {
+    return this.http
+      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + source + '/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} })
+  }
+  
 
 }
