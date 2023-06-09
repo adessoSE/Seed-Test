@@ -21,28 +21,41 @@
               <div class="uk-form-label" id="inputLabels">
                 <label>Enter name*</label>
                 <input *ngIf="isBackground === true" type="text" id="backgroundNameInput" ngModel pattern="\S(.*\S)?" name="backgroundNameInput" class="blockNameInput leftMargin" required placeholder="Background">
-                <input *ngIf="isBackground === false" type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
+                <input *ngIf="isBackground === false || isBackground === undefined" type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
               </div>
           </div>
-          <div class="tableContainer">
+          <div *ngIf="!this.exampleChecked" class="tableContainer">
             <span class="blockNameHeader blockNameHeader">Selected Steps</span>
             <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlock" class="mat-elevation-z8" aria-describedby="mydesc2">
               <ng-container matColumnDef="stepType">
                 <td mat-cell *matCellDef="let element" style="text-transform: capitalize"> 
-                  <ng-container *ngIf="element.stepType !== 'example'">{{element.stepType}}</ng-container>
-                  <ng-container *ngIf="element.stepType === 'example'">Multiple Scenario</ng-container></td>
+                  <ng-container *ngIf="element.stepType!='example'">{{element.stepType}}</ng-container>
+                  </td>
               </ng-container>
               <ng-container matColumnDef="pre">
                 <td mat-cell *matCellDef="let element"> 
-                  <ng-container *ngIf="element.stepType !=='example'">{{element.pre}} {{element.values[0]}} {{element.mid}} {{element.values[1]}} {{element.values[2]}} {{element.values[3]}}</ng-container>
-                  <ng-container *ngIf="element.stepType ==='example'"><ng-container *ngFor="let el of element.values">{{el}} | </ng-container></ng-container></td>
+                  <ng-container *ngIf="element.stepType!='example'">{{element.pre}} {{element.values[0]}} {{element.mid}} {{element.values[1]}} {{element.values[2]}} {{element.values[3]}}</ng-container>
+                  </td>
               </ng-container>
               <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlock;"></tr>
             </table>
           </div>
+          <div class="tableContainer">
+            <span class="blockNameHeader blockNameHeader">Selected Multiple Scenarios</span>
+            <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlockExample" class="mat-elevation-z8" aria-describedby="mydesc2">
+              <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumnsSaveBlockExample">
+                <td mat-cell *matCellDef="let element; let i=index"> 
+                  <ng-container *ngIf="column=='stepType' && i==0">Variable</ng-container>
+                  <ng-container *ngIf="column=='stepType' && i!=0">Value</ng-container>
+                  <ng-container *ngIf="column!='stepType'">{{element.values[column]}}</ng-container>
+                   </td>
+              </ng-container>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlockExample;"></tr>
+            </table>
+          </div>
           <div class="exampleCheckboxContainer" *ngIf="exampleBlock">
-              <input class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck()">
-              <label class="exampleCheckboxLabel" (click)="exampleCheck()">Examples only?</label>
+            <label class="uk-form-label">Save only Mutliple Scenario</label>
+            <input class="exampleCheckbox" type="checkbox" [checked]="this.exampleChecked" (click)="exampleCheck()">
           </div>
         </div>
       </div>
