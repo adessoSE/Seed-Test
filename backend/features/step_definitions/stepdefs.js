@@ -772,7 +772,12 @@ Then('So on element {string} the css property {string} is {string}', async funct
 	await Promise.any(promises)
 		.then(async (elem) => {
 			const actual = await elem.getCssValue(property);
-			expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`);
+			if (actual.startsWith('rgba')) {// in selenium colors are always rgba. support.Color is not implemented in javascript
+				const colorNumbers = actual.replace('rgba(', '').replace(')', '').split(',');
+				const [r, g, b] = colorNumbers.map((v) => Number(v).toString(16));
+				const hex = `#${r}${g}${b}`;
+				expect(value.toString()).to.equal(hex.toString(), `actual ${hex} does not match ${value}`);
+			} else expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`);
 		});
 });
 
