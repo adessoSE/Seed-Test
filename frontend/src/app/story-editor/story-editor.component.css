@@ -264,7 +264,10 @@
   :host ::ng-deep .uk-nav > li > .dropdownStep {
     color: var(--ocean-blue);
   }
-
+.uk-drop.uk-dropdown.uk-open{
+  top: 40px !important;
+  left: 400px !important;
+}
   /* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
   }
@@ -531,7 +534,7 @@ button#background_up {
 }
 
 .backgroundTitle {
-  flex-grow: .93;
+  flex-grow: .53;
 }
 
 .def:hover span[rel=def] {

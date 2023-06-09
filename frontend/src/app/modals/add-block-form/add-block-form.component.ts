@@ -77,7 +77,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       public apiService: ApiService) {}
      
     ngOnInit() {
-       const id = localStorage.getItem('id');
+      const id = localStorage.getItem('id');
       this.blockService.getBlocks(id).subscribe((resp) => {
         this.blocks = resp;
       });
@@ -142,11 +142,14 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.stepList = [];
           this.selectedBlock = null;
           console.log(resp);
+          this.updateBlocksBackEventEmitter();
           this.toastr.error('', 'Block deleted');
         }); 
       }
     }
-
+    updateBlocksBackEventEmitter() {
+      this.blockService.updateBlocksBackgroundsEvent.emit();
+    }
     /**
      * Change block title
      */

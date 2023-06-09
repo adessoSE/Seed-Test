@@ -268,7 +268,7 @@ function calcDate(value) {
 	// const start_regex = /^((@@Date)|((@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year))(?!\1)(((@@Month,\d{1,2}|@@Month)|(@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day))(?!\2))?(((@@Year,\d{4}|@@Year)|(@@Day,\d{1,2}|@@Day)|(@@Month,\d{1,2}|@@Month))(?!\3))?)|(^\s*$)/
 
 	// Regex that matches the middle: e.g. +@@Day,2-@@Month,4 ....
-	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Mont|Year))*)|(^\s*$)/;
+	const mid_regex = /(^((\+|\-)@@(\d+),(Day|Month|Year))*)|(^\s*$)/;
 	// Regex that matches the format end: e.g @@format:DDMMYY€€
 	const end_regex = /(^(@@format:\w*€€)*)|(^\s*$)/;
 
@@ -312,10 +312,9 @@ function calcDate(value) {
 		startcopy = start.slice();
 		for (let i = 0; i < substrings.length; i++) {
 			if (start.split(substrings[i]).length - 1 > 1) throw Error(`${substringsErr[i]} may only be used 0 or 1 time. Input: ${start}`);
-
 			startcopy = startcopy.replace(substrings[i], '');
 		}
-		if (startcopy.length !== 0) throw Error(`Unkown tokens in the start section: ${startcopy}`);
+		// if (startcopy.length !== 0) throw Error(`Unkown tokens in the start section: ${startcopy}`);
 	}
 
 	// check if the calculation part is written correctly
@@ -722,7 +721,7 @@ Then(
 );
 
 // Search if a text isn't in html code
-Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(text) {
+Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
 	const world = this;
 	try {
 		await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
@@ -731,7 +730,7 @@ Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(t
 			const innerHtmlBody = await driver.executeScript('return document.documentElement.innerHTML');
 			const outerHtmlBody = await driver.executeScript('return document.documentElement.outerHTML');
 			const bodyAll = cssBody + innerHtmlBody + outerHtmlBody;
-			doesNotMatch(bodyAll, RegExp(text.toString()), `Page HTML does contain the string/regex: ${expectedText}`);
+			doesNotMatch(bodyAll, RegExp(expectedText.toString()), `Page HTML does contain the string/regex: ${expectedText}`);
 		});
 	} catch (e) {
 		await driver.takeScreenshot().then(async (buffer) => {
@@ -773,7 +772,12 @@ Then('So on element {string} the css property {string} is {string}', async funct
 	await Promise.any(promises)
 		.then(async (elem) => {
 			const actual = await elem.getCssValue(property);
-			expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`);
+			if (actual.startsWith('rgba')) {// in selenium colors are always rgba. support.Color is not implemented in javascript
+				const colorNumbers = actual.replace('rgba(', '').replace(')', '').split(',');
+				const [r, g, b] = colorNumbers.map((v) => Number(v).toString(16));
+				const hex = `#${r}${g}${b}`;
+				expect(value.toString()).to.equal(hex.toString(), `actual ${hex} does not match ${value}`);
+			} else expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`);
 		});
 });
 

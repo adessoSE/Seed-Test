@@ -23,7 +23,7 @@ export class ReportService {
   */
   getReport(reportId: string) {
     if (this.apiService.apiServer) {
-      const str = this.apiService.apiServer + '/mongo/report/' + reportId;
+      const str = this.apiService.apiServer + '/report/' + reportId;
       return this.http.get(str, { responseType: 'json', withCredentials: true })
         .pipe(tap(resp => {
           console.log('Got single Report: ' + resp);

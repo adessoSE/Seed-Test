@@ -352,6 +352,11 @@ a:hover{
   z-index: 99999 !important;
 }
 
+#defaultVersionWarning {
+  color: var(--pumpkin-orange);
+}
 
-
-
+.vertical-container {
+  display: flex;
+  align-items: center;
+}
