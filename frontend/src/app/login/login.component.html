@@ -51,13 +51,21 @@
           Login via GitHub
       </button>
     </div>
-    <div style="opacity:0.5" *ngIf="this.clientId === '' || this.clientId === undefined">GitHub Integration not set up.</div>
-   <br>
-   <div class="uk-card default" id="noAccountDiv">
-    <span class="noAccount">No account yet? <br>
-    <button class="linkButton" routerLink="/register">Register</button>
+    <div class="vertical-container" *ngIf="this.clientId === '' || this.clientId === undefined">
+      <div style="opacity:0.5">GitHub Integration not set up.</div>
+      <dfn id="defaultVersionWarning" class="def">
+        <span uk-icon="question" style="width:65%"></span>
+        <span rel="def" class="smallToolTip">
+          Refer to the README for configuration instructions.
+        </span>
+      </dfn>
+    </div>
+    <br>
+    <div class="uk-card default" id="noAccountDiv">
+      <span class="noAccount">No account yet? <br>
+      <button class="linkButton" routerLink="/register">Register</button>
     </span>
-   </div>
+    </div>
   </div>
   <!-- Repositories -->
   <div class="repositories" *ngIf="repositories">

@@ -339,3 +339,16 @@ a.repoLink:hover{
 .darkTheme .howToStart{
     background-color: transparent;
 }
+
+.vertical-container {
+    display: flex;
+    align-items: center;
+}
+
+.smallToolTip {
+    font-weight: normal !important;
+    translate: -65% !important;
+    font-size:smaller !important;
+    width: max-content !important;
+}
+  
