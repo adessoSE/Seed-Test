@@ -37,21 +37,21 @@
       </div>
     </form>
     <div>
-      <button class="linkButton" routerLink='/resetpassword'>Forgot Password?</button>
+      <button class="linkButton" routerLink='/resetpassword' style="margin: 10px;">Forgot Password?</button>
     </div>
-    <p>or</p>
-    <hr>
+    <p style="margin: 0px">or</p>
+    <hr style="margin-bottom: 10px;">
     <!--<p class="noAccount">No account?
       <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
     </p>-->
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
     <div class="githubLoginContainer">
-      <button class="githubLogin" (click)="githubLogin();" [disabled]="this.clientId === '' || this.clientId === undefined">
+      <button class="githubLogin" (click)="githubLogin();" [disabled]="this.clientId === '' || this.clientId === 'undefined'">
           <img src ="../assets/github-logo.png" alt="github">
           Login via GitHub
       </button>
     </div>
-    <div class="vertical-container" *ngIf="this.clientId === '' || this.clientId === undefined">
+    <div class="vertical-container" *ngIf="this.clientId === '' || this.clientId === 'undefined'">
       <div style="opacity:0.5">GitHub Integration not set up.</div>
       <dfn id="defaultVersionWarning" class="def">
         <span uk-icon="question" style="width:65%"></span>

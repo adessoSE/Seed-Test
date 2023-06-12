@@ -347,7 +347,7 @@ a.repoLink:hover{
 
 .smallToolTip {
     font-weight: normal !important;
-    translate: -65% !important;
+    translate: -75% !important;
     font-size:smaller !important;
     width: max-content !important;
 }
