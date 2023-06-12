@@ -209,6 +209,10 @@ a.repoLink:hover{
     align-items: center;
 }
 
+.githubLogin:disabled {
+    opacity: 0.5;
+}
+
 .githubLoginContainer{
     margin: 10px;
     display:inline-block;
