@@ -151,16 +151,12 @@ async function executeTest(req, mode, story) {
     if (mode === 'scenario') {
         const scenario = story.scenarios.find(elem => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 
-        if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
-        if (!scenario.browser) scenario.browser = 'chrome';
-        if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
-
         const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
         parameters = {
-            scenarios: Array.from({ length: scenarioCount }, () => ({
-                browser: scenario.browser,
-                waitTime: scenario.stepWaitTime,
-                daisyAutoLogout: scenario.daisyAutoLogout,
+            scenarios: Array.from({ length: scenarioCount }).map(() => ({
+                browser: scenario.browser || 'chrome',
+                waitTime: scenario.stepWaitTime || 0,
+                daisyAutoLogout: scenario.daisyAutoLogout || false,
                 ...(scenario.emulator !== undefined && { emulator: scenario.emulator })
             }))
         };
