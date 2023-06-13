@@ -115,7 +115,8 @@ jobs:
     - name: Send test result notification
       uses: ./actions/notifyTeams
       with:
-        title: '🔬💻 Test Resulsts Backend (${{ steps.passed-total-backend.outputs.passed }}/${{ steps.passed-total-backend.outputs.total }} passed)  ${{ steps.passed-total-backend.outputs.status }}'
+        title: '🔬💻 Test Resulsts Backend (${{ steps.passed-total-backend.outputs.passed }}/${{ steps.passed-total-backend.outputs.total }} passed)  ${{ steps.passed-total-backend.outputs.status }}
+          Pull Request #$PR_NUMBER from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}'
         text: ${{ steps.backend-clean-results.outputs.message }}
         style: accent
         webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
@@ -171,7 +172,8 @@ jobs:
     - name: Send success notification
       uses: ./actions/notifyTeams
       with:
-        title: '🔬🖼️ Test Resulsts Frontend (${{ steps.passed-total-frontend.outputs.passed }}/${{ steps.passed-total-frontend.outputs.total }} passed)  ${{ steps.passed-total-frontend.outputs.status }}'
+        title: '🔬🖼️ Test Resulsts Frontend (${{ steps.passed-total-frontend.outputs.passed }}/${{ steps.passed-total-frontend.outputs.total }} passed)  ${{ steps.passed-total-frontend.outputs.status }}
+          Pull Request #$PR_NUMBER from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}'
         text: ${{ steps.frontend-clean-results.outputs.message }}
         style: accent
         webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
@@ -203,7 +205,8 @@ jobs:
     - name: Send sanity notification
       uses: ./actions/notifyTeams
       with:
-        title: '🔬😊 Sanity Test'
+        title: '🔬😊 Sanity Test
+          Pull Request #$PR_NUMBER from ${{ github.event.pull_request.head.ref }} to ${{ github.event.pull_request.base.ref }}'
         text: ${{ steps.sanity-results.outputs.message }}
         style: accent
         webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
