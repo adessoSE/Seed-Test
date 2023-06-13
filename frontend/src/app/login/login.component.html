@@ -31,20 +31,22 @@
       <br>
       <br>
       <!-- Button Login -->
-      <button class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
+      <button id="Login" class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
       <div id="loadingSpinner" *ngIf="this.isLoadingRepositories">
         <mat-spinner [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
+    <br>
     <div>
       <button class="linkButton" routerLink='/resetpassword'>Forgot Password?</button>
     </div>
-    <p>or</p>
+    <!-- <p>or</p> -->
     <hr>
     <!--<p class="noAccount">No account?
       <button id="register" title="register" (click)="navToRegistration();">Register here.</button>
     </p>-->
     <!--<button class="githubLogin" (click)="githubLogin();">Login via Github</button>-->
+    <br>
     <a class="githubLoginContainer" (click)="githubLogin();">
       <div class="githubLogin" >
          <img src ="../assets/github-logo.png" alt="github">
