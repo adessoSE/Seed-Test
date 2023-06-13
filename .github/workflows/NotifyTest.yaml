@@ -1,0 +1,33 @@
+name: MS Teams Deploy Card
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get Branch Names
+      id: branch-names
+      run: |
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        FROM_BRANCH="${{ github.event.pull_request.head.ref }}"
+        TO_BRANCH="${{ github.event.pull_request.base.ref }}"
+        echo "Standalone-Docker #${PR_NUMBER} ${FROM_BRANCH}"
+        echo "←"
+        echo "${FROM_BRANCH}"
+    
+    - name: Write to File
+      run: |
+        echo "${{ steps.branch-names.outputs.stdout }}" > test.txt
+    - name: Send sanity notification
+      uses: ./actions/notifyTeams
+      with:
+        title: '🔬😊 Sanity Test
+            Pull Request ${{ steps.branch-names.outputs.stdout }}'
+        text: TEST
+        style: accent
+        webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}

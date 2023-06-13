@@ -3,7 +3,7 @@ name: Start Docker Stack
 on:
   push:
     branches:
-      - '**' 
+      - 'nie' 
 
 jobs:
   start-docker-stack:
