@@ -39,6 +39,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     isDark: boolean;
 
+    clientId: string;
+
     /**
      * Subscribtions for all EventEmitter
      */
@@ -97,6 +99,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         public projectServise: ProjectService
         ) {
         this.error = undefined;
+        this.clientId = localStorage.getItem('clientId');
         this.routeObservable = this.route.queryParams.subscribe((params) => {
            if (params.code) {
                 this.loginService.githubCallback(params.code).subscribe((resp) => {
