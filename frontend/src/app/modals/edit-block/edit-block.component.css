@@ -1,3 +1,8 @@
+:host ::ng-deep .modal-dialog .modal-content {
+    width: 150% !important;
+}
+
+
 .stepsListContainer {
     display: flex;
     justify-content: space-between;
@@ -12,13 +17,13 @@
 .BlockHeaderContainer {
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
+    padding: 0 10px;
 }
 
 .BlockHeaderWarning{
     display: flex;
     justify-content: space-evenly;
     text-align: center;
-    border: 2px solid #E65100;
     background-color: #FFE0B2;
     margin: 1% 5%;
     align-items: center;
@@ -154,4 +159,9 @@ em.dragIcon{
     color: var(--ocean-blue);
 }
 
+.disabled {
+    color: gray !important;
+    font-style: italic;
+    text-decoration: line-through;
+  }
 
