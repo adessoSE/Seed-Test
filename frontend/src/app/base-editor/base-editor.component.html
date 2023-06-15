@@ -297,7 +297,7 @@
     </div>
   </div>  
   <ng-template #stepBlockReference let-block>
-    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(block._id)" (closed)="unselectBlock()">
+    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(block)" (closed)="unselectBlock()">
       <mat-expansion-panel-header class="stepBlockHeader">
         <mat-panel-title class="stepBlockTitle">
           <!-- <div class="dragIconContainer" cdkDragHandle >
@@ -313,8 +313,8 @@
         <span class="mat-expansion-indicator" matTooltip="Expand Block to view its Steps" style="mix-blend-mode: color; width: 15px; transform: translate(9px, 0px);"></span>
       </mat-expansion-panel-header>
       <!--Block Content-->
-      <div *ngIf="this.selectedBlock" id="blockContent" [class.scrollable]="getStepsListBlockPreview(selectedBlock.stepDefinitions, j).length > 7" >
-        <div *ngFor="let currentStep of getStepsListBlockPreview(selectedBlock.stepDefinitions); let j = index;">
+      <div *ngIf="this.selectedBlock" id="blockContent" [class.scrollable]="getStepsListBlockPreview(block.stepDefinitions, j).length > 7" >
+        <div *ngFor="let currentStep of getStepsListBlockPreview(block.stepDefinitions); let j = index;">
           <ng-template  *ngTemplateOutlet="blockstep;
             context: {$implicit: currentStep , index:j}">
           </ng-template>

@@ -553,9 +553,10 @@ export class BaseEditorComponent  {
     * @returns 
     */
     getStepsListBlockPreview(stepDefs: StepDefinition) {
-      const { given, when, then } = stepDefs;
+      const { given = [], when = [], then = [] } = stepDefs || {};
       const allStepValues = [...given, ...when, ...then];
       return allStepValues;
+
     }
 
    
@@ -1403,9 +1404,9 @@ export class BaseEditorComponent  {
    * Select Block by blockId to get Block Object
    * @param blockId: _id of the Block
    */
-  selectBlock(blockId: string) {
+  selectBlock(block) {
     //this.selectedBlock = this.blocks.find(i => i._id == blockId);
-    this.blockSelectTriggerEvent.emit(blockId);
+    this.blockSelectTriggerEvent.emit(block);
     this.expandStepBlock = true;
   }
 

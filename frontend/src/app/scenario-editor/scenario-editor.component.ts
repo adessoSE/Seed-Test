@@ -403,8 +403,9 @@ export class ScenarioEditorComponent implements OnInit{
         });
     }
 
-    blockSelectTrigger(blockId: string) {
-        this.selectedBlock = this.blocks.find(i => i._id == blockId);
+    blockSelectTrigger(block) {
+        this.selectedBlock = this.blocks.find(i => i._id == block._id);
+        block.stepDefinitions = this.selectedBlock.stepDefinitions;
         //this.expandStepBlock = true;
         console.log(this.selectedBlock);
         
