@@ -29,7 +29,7 @@ export class EditBlockComponent {
   /**
    * Action Bar Logic
    */
-  activeActionBar = false;
+  activeActionBar = true;
   allChecked = false;
   clipboardBlock: Block = null;
   newStepName: boolean;
