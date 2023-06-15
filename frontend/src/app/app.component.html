@@ -33,7 +33,7 @@
         <div id="version" class="Largecaption">
           Version 1.6.2 {{version === '' ? " (demo)" : ""}}
         </div>
-        <dfn *ngIf="version === ''" id="defaultVersionWarning" class="def">
+        <dfn *ngIf="this.version === ''" id="defaultVersionWarning" class="def">
           <span uk-icon="warning"></span>
           <span rel="def" style="font-weight: normal">
             This is a demo version of Seed-Test. 
