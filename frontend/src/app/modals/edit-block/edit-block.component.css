@@ -20,25 +20,30 @@
     padding: 0 10px;
 }
 
-.BlockHeaderWarning{
+.BlockHeaderWarning {
     display: flex;
     justify-content: space-evenly;
     text-align: center;
-    background-color: #FFE0B2;
-    margin: 1% 5%;
+    background-color: #ff9800;
+    color: white;
+    margin: 5% 5%;
     align-items: center;
+    font-size: 14px;
+    border-radius: 15px;
+    padding: 10px 0;
 }
 
-.BlockHeaderWarning>p{
-    margin:0;
-}
-
-.BlockHeaderWarning.material-icons{
+.BlockHeaderWarning .material-icons {
+    color: white;
     font-size: 20px;
-    color: #E65100;
+  }
+  
+
+.BlockHeaderWarning>p {
+    margin: 0;
 }
 
-.scenarioButtonGroup{
+.scenarioButtonGroup {
     margin-top: 5px;
     margin-bottom: 5px;
     padding: 10px 15px;
@@ -46,45 +51,45 @@
     height: 40px;
 }
 
-.dragIconContainer{
+.dragIconContainer {
     text-align: center;
     cursor: move;
 }
 
-em.dragIcon{
+em.dragIcon {
     font-size: 18px;
     color: black;
     background-color: var(--white);
-    margin-top:3px
+    margin-top: 3px
 }
 
-.text-inline{
+.text-inline {
     display: flex;
 }
 
-.text-inline > button{
+.text-inline>button {
     margin: 0 5px;
 }
 
-.text-inline > p > input{
+.text-inline>p>input {
     margin: 0 5px;
 }
 
-.checkbox{
+.checkbox {
     margin: 5px 5px 10px 3px;
 }
 
-.checkbox:hover{
+.checkbox:hover {
     cursor: pointer;
 }
 
-#checkbox_all{
+#checkbox_all {
     margin-top: 2px;
     margin-bottom: 2px;
     margin-left: 6px;
 }
 
-.blockBarContainer{
+.blockBarContainer {
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #e5e5e5;
@@ -93,12 +98,12 @@ em.dragIcon{
     padding: 0;
 }
 
-.darkTheme .blockBarContainer{
+.darkTheme .blockBarContainer {
     background-color: #546E7A !important;
     border-bottom: 1px solid #B0BEC5 !important;
 }
 
-.BlockBarContainer button{
+.BlockBarContainer button {
     border: none;
     background: none;
     transform: translateY(-3px);
@@ -113,7 +118,7 @@ em.dragIcon{
     cursor: pointer;
 }
 
-.actionBarButtonGroup{
+.actionBarButtonGroup {
     margin-top: 5px;
     margin-bottom: 5px;
     padding: 10px 15px;
@@ -121,7 +126,7 @@ em.dragIcon{
     height: 40px;
 }
 
-.actionBarButtonGroup button{
+.actionBarButtonGroup button {
     border: none;
     background: none;
     transform: translateY(-3px);
@@ -129,25 +134,25 @@ em.dragIcon{
     border-radius: 10%;
 }
 
-.actionButton{
+.actionButton {
     margin-left: 10px;
 }
 
-.actionButton > em{
+.actionButton>em {
     color: #333;
     font-size: 22px;
 }
 
-.darkTheme .actionButton > em {
-    color:#000000 !important;
+.darkTheme .actionButton>em {
+    color: #000000 !important;
 }
 
-.scenarioButton em{
-    color:  var(--ocean-blue);
+.scenarioButton em {
+    color: var(--ocean-blue);
 }
 
-.darkTheme.scenarioButton em{
-    color:  var(--ocean-blue);
+.darkTheme.scenarioButton em {
+    color: var(--ocean-blue);
 }
 
 .scenarioButton em:active {
@@ -163,5 +168,4 @@ em.dragIcon{
     color: gray !important;
     font-style: italic;
     text-decoration: line-through;
-  }
-
+}
