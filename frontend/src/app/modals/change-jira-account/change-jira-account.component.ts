@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
-import { UntypedFormGroup, UntypedFormControl, Validators} from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators, FormControl, RadioControlValueAccessor} from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ManagementService } from 'src/app/Services/management.service';
 
@@ -34,6 +34,7 @@ export class ChangeJiraAccountComponent {
     jiraAccountName: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
     jiraPassword: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)]),
     jiraHost: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    jiraAuthMethod: new UntypedFormControl('',[])
   });
 
   get jiraAccountName() { return this.jiraForm.get('jiraAccountName'); }
@@ -56,10 +57,12 @@ export class ChangeJiraAccountComponent {
       const jiraAccountName = this.jiraForm.value.jiraAccountName;
       const jira_password = this.jiraForm.value.jiraPassword;
       const jiraHost = this.jiraForm.value.jiraHost;
+      const jiraAuthMethod = this.jiraForm.value.jiraAuthMethod;
       const request = {
               'jiraAccountName': jiraAccountName,
               'jiraPassword': jira_password,
               'jiraHost': jiraHost,
+              'jiraAuthMethod': jiraAuthMethod
       };  
       this.managmentService.createJiraAccount(request).subscribe(response => {
         this.jiraAccountResponse.emit(response);

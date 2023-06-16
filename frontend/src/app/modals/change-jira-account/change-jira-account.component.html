@@ -27,7 +27,13 @@
                         <div>
                             <label class="uk-form-label">Enter server URL*</label>
                             <input name="jiraHost" formControlName="jiraHost" required>
-                        </div>                
+                        </div>
+                        <div>
+                            <ul class="">
+                                <li><input class="uk-radio" type="radio" formControlName="jiraAuthMethod" value="basic" checked>Basic (password)</li>
+                                <li><input class="uk-radio" type="radio" formControlName="jiraAuthMethod" value="bearer">Bearer Token</li>
+                            </ul>
+                        </div>
                     </div>
                     <div id="githubForm" *ngIf="type==='Github'">
                         <div class="padding_top uk-form-horizontal">
