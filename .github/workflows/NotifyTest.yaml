@@ -23,6 +23,9 @@ jobs:
         echo "Standalone-Docker #${PR_NUMBER} ${FROM_BRANCH}"
         echo "←"
         echo "${FROM_BRANCH}"
+
+        echo "${{ github.event.pull_request.head.ref }} #${{ github.event.pull_request.number }}
+        ${{ github.event.pull_request.base.ref }} ← ${{ github.event.pull_request.head.ref }}"
     
     - name: Write to File
       run: |
