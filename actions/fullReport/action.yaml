@@ -71,6 +71,9 @@ inputs:
   workflowLink:
     description: 'The link to the workflow'
     required: true
+  webhook:
+    description: 'MS_TEMS_WEBHOOK'
+    required: true
 
 runs:
   using: 'node16'

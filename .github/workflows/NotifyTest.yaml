@@ -14,27 +14,16 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Dependencies
       run: npm install node-fetch
-    - name: Get Branch Names
-      id: branch-names
-      run: |
-        PR_NUMBER="${{ github.event.pull_request.number }}"
-        FROM_BRANCH="${{ github.event.pull_request.head.ref }}"
-        TO_BRANCH="${{ github.event.pull_request.base.ref }}"
-        echo "Standalone-Docker #${PR_NUMBER} ${FROM_BRANCH}"
-        echo "←"
-        echo "${FROM_BRANCH}"
-
-        echo "${{ github.event.pull_request.head.ref }} #${{ github.event.pull_request.number }}
-        ${{ github.event.pull_request.base.ref }} ← ${{ github.event.pull_request.head.ref }}"
-    
-    - name: Write to File
-      run: |
-        echo "${{ steps.branch-names.outputs.stdout }}" > test.txt
-    - name: Send sanity notification
-      uses: ./actions/notifyTeams
+    - name: Send failure notification
+      if: ${{ failure() }}
+      uses: ./actions/fullReport
       with:
-        title: '🔬😊 Sanity Test
-            Pull Request ${{ steps.branch-names.outputs.stdout }}'
-        text: TEST
-        style: accent
-        webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          prnumber: ${{ github.event.pull_request.number }}
+          originBranch: ${{ github.event.pull_request.head.ref }}
+          destinationBranch: ${{ github.event.pull_request.base.ref }}
+          requestor: ${{ github.event.pull_request.user.login }}
+          date: ${{ github.event.pull_request.created_at }}
+          description: ${{ github.event.pull_request.body }}
+          dockerStatus: "failed"
+          workflowLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
