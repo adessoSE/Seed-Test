@@ -15,7 +15,6 @@ jobs:
     - name: Install Dependencies
       run: npm install node-fetch
     - name: Send failure notification
-      if: ${{ failure() }}
       uses: ./actions/fullReport
       with:
           prnumber: ${{ github.event.pull_request.number }}
