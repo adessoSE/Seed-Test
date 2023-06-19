@@ -204,7 +204,7 @@ async function postMessage() {
             "version": "1.4"
         }
     }
-    console.log(webhook)
+    console.log(message)
 
     try {
         response = await fetch(webhook, {
