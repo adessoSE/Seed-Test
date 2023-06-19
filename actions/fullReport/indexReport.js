@@ -204,7 +204,18 @@ async function postMessage() {
     try {
         response = await fetch(webhook, {
                 method: "POST",
-                body: JSON.stringify(message),
+                body: JSON.stringify({
+                    "type": "AdaptiveCard",
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "version": "1.4",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": "New TextBlock",
+                            "wrap": true
+                        }
+                    ]
+                }),
                 headers: {
                   "Content-type": "application/json; charset=UTF-8"
                 }
