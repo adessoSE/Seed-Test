@@ -6,7 +6,6 @@ async function postMessage() {
     const destinationBranch = process.env.INPUT_DESTINATIONBRANCH;
     const requestor = process.env.INPUT_REQUESTOR;
     const date = process.env.INPUT_DATE;
-    console.log(date);
     const description = process.env.INPUT_DESCRIPTION || "-";
     const dockerStatus = (process.env.INPUT_DOCKERSTATUS === "success");
     const workflowLink = process.env.INPUT_WORKFLOWLINK || "";
@@ -139,7 +138,7 @@ async function postMessage() {
                                     {
                                         "type": "TextBlock",
                                         "spacing": "None",
-                                        "text": "Created " + date,
+                                        "text": "Created {{DATE(" + date + ", SHORT)}}",
                                         "isSubtle": true,
                                         "wrap": true
                                     }
