@@ -120,7 +120,7 @@ async function postMessage() {
                                     {
                                         "type": "Image",
                                         "style": "Person",
-                                        "url": "https://pbs.twimg.com/profile_images/3647943215/d7f12830b3c17a5a9e4afcc370e3a37e_400x400.jpeg",
+                                        "url": "https://github.com/"+ requestor +".png?size=200",
                                         "size": "Small"
                                     }
                                 ],
