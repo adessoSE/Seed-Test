@@ -131,7 +131,7 @@ async function postMessage() {
                                     {
                                         "type": "TextBlock",
                                         "spacing": "None",
-                                        "text": "Created {{DATE(" + date + ",SHORT)}}",
+                                        "text": "Created " + date,
                                         "isSubtle": true,
                                         "wrap": true
                                     }
@@ -189,7 +189,7 @@ async function postMessage() {
                     },
                     {
                         "type": "TextBlock",
-                        "text": "To see the full logs click on the buttonbellow.",
+                        "text": "To see the full logs click on the button  bellow.",
                         "wrap": true,
                         "separator": true,
                         "spacing": "ExtraLarge"

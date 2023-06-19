@@ -17,12 +17,27 @@ jobs:
     - name: Send failure notification
       uses: ./actions/fullReport
       with:
-          prnumber: ${{ github.event.pull_request.number }}
-          originBranch: ${{ github.event.pull_request.head.ref }}
-          destinationBranch: ${{ github.event.pull_request.base.ref }}
-          requestor: ${{ github.event.pull_request.user.login }}
+          prnumber: 123
+          originBranch: origin
+          destinationBranch: dev
+          requestor: i3rotlher
           date: ${{ github.event.pull_request.created_at }}
-          description: ${{ github.event.pull_request.body }}
-          dockerStatus: "failed"
-          workflowLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          description: Kurzer Test
+          dockerStatus: "success"
+          frontendSuitsPassed: 2
+          frontendSuitsFailed: 0
+          frontendTestsPassed: 10
+          frontendTestsFailed: 0
+          frontendBottomText: Nix
+          backendSuitsPassed: 7
+          backendSuitsFailed: 3
+          backendTestsPassed: 12
+          backendTestsFailed: 45
+          backendBottomText: Test Suit finished in 10 sec.
+          sanityScenariosPassed: 10
+          sanityScenariosFailed: 2
+          sanityStepsPassed: 2
+          sanityStepsFailed: 3
+          sanityStepsSkipped: 5
+          workflowLink: ${{ github.event.workflow_run.url }}
           webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
