@@ -88,6 +88,7 @@ async function postMessage() {
             "contentType": "application/vnd.microsoft.card.adaptive",
             "content": {
                 "type": "AdaptiveCard",
+                "msteams": { "width": "full" },
                 "body": [
                     {
                         "type": "ColumnSet",
