@@ -209,7 +209,7 @@ async function postMessage() {
         ],
       };
 
-    JSON.stringify(message, null, 2)
+    console.log(JSON.stringify(message, null, 2))
 
     try {
         response = await fetch(webhook, message)
