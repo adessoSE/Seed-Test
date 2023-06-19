@@ -57,7 +57,7 @@ async function postMessage() {
     function calculatePercentage(num1, num2) {
         // Check if either number is zero to avoid division by zero error
         if (num2 === 0) {
-        return "-";
+            return "-";
         }
     
         // Calculate the percentage with two decimal places

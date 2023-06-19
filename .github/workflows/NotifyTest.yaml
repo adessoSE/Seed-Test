@@ -27,7 +27,7 @@ jobs:
           frontendSuitsPassed: 2
           frontendSuitsFailed: 0
           frontendTestsPassed: 10
-          frontendTestsFailed: 0
+          frontendTestsFailed: 1
           frontendBottomText: Nix
           backendSuitsPassed: 7
           backendSuitsFailed: 3
