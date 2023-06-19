@@ -10,10 +10,10 @@ async function postMessage() {
     const dockerStatus = (process.env.INPUT_DOCKERSTATUS === "success");
 
     // Frontend block
-    const frontendSuitsPassed = parseInt(process.env.INPUT_FRONTENDSUITSPASSED) || "";
-    const frontendSuitsFailed = parseInt(process.env.INPUT_FRONTENDSUITSFAILED) || "";
-    const frontendTestsPassed = parseInt(process.env.INPUT_FRONTENDTESTSPASSED) || "";
-    const frontendTestsFailed = parseInt(process.env.INPUT_FRONTENDTESTSFAILED )|| "";
+    const frontendSuitsPassed = parseInt(process.env.INPUT_FRONTENDSUITSPASSED) || "-";
+    const frontendSuitsFailed = parseInt(process.env.INPUT_FRONTENDSUITSFAILED) || "-";
+    const frontendTestsPassed = parseInt(process.env.INPUT_FRONTENDTESTSPASSED) || "-";
+    const frontendTestsFailed = parseInt(process.env.INPUT_FRONTENDTESTSFAILED )|| "-";
     const frontendSuitsTotal = dockerStatus ? frontendSuitsPassed + frontendSuitsFailed : "-";
     const frontendTestsTotal = dockerStatus ? frontendTestsPassed + frontendTestsFailed : "-";
     const frontendSuitsPassedPercentage = dockerStatus ? calculatePercentage(frontendSuitsPassed, frontendSuitsTotal) : "-";
@@ -212,8 +212,13 @@ async function postMessage() {
     console.log(JSON.stringify(message, null, 2))
 
     try {
-        response = await fetch(webhook, message)
-
+        response = await fetch(webhook, {
+                method: "POST",
+                body: JSON.stringify(message),
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8"
+                }
+              })
         if (response.ok) {
           console.log('Data fetched successfully');
           process.exit(0);
@@ -224,8 +229,7 @@ async function postMessage() {
       } catch (error) {
         console.error('Error occurred:', error);
         process.exit(-1);
-      }    
-
-}
+      }      
+    }
 
 postMessage();
