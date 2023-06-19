@@ -200,6 +200,7 @@ async function postMessage() {
         "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
         "version": "1.4"
     }
+    console.log(webhook)
 
     try {
         response = await fetch(webhook, {
