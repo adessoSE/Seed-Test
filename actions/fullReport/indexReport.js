@@ -55,6 +55,13 @@ async function postMessage() {
     const workflowLink = process.env.INPUT_WORKFLOWLINK || "";
 
     function calculatePercentage(num1, num2) {
+        if (isNaN(num1) || isNaN(num2)) {
+            console.log(num1);
+            console.log(num2)
+            return "-";
+        }
+
+
         // Check if either number is zero to avoid division by zero error
         if (num2 === 0) {
             return "-";
