@@ -8,26 +8,27 @@ async function postMessage() {
     const date = process.env.INPUT_DATE;
     const description = process.env.INPUT_DESCRIPTION || "-";
     const dockerStatus = (process.env.INPUT_DOCKERSTATUS === "success");
+    const workflowLink = process.env.INPUT_WORKFLOWLINK || "";
 
     // Frontend block
-    const frontendSuitsPassed = parseInt(process.env.INPUT_FRONTENDSUITSPASSED) || "-";
-    const frontendSuitsFailed = parseInt(process.env.INPUT_FRONTENDSUITSFAILED) || "-";
-    const frontendTestsPassed = parseInt(process.env.INPUT_FRONTENDTESTSPASSED) || "-";
-    const frontendTestsFailed = parseInt(process.env.INPUT_FRONTENDTESTSFAILED )|| "-";
-    const frontendSuitsTotal = dockerStatus ? (frontendSuitsPassed + frontendSuitsFailed) : "-";
-    const frontendTestsTotal = dockerStatus ? (frontendTestsPassed + frontendTestsFailed) : "-";
+    const frontendSuitsPassed = process.env.INPUT_FRONTENDSUITSPASSED ? parseInt(process.env.INPUT_FRONTENDSUITSPASSED) : "-";
+    const frontendSuitsFailed = process.env.INPUT_FRONTENDSUITSFAILED ? parseInt(process.env.INPUT_FRONTENDSUITSFAILED) : "-";
+    const frontendTestsPassed = process.env.INPUT_FRONTENDTESTSPASSED ? parseInt(process.env.INPUT_FRONTENDTESTSPASSED) : "-";
+    const frontendTestsFailed = process.env.INPUT_FRONTENDTESTSFAILED ? parseInt(process.env.INPUT_FRONTENDTESTSFAILED) : "-";
+    const frontendSuitsTotal = dockerStatus ? frontendSuitsPassed + frontendSuitsFailed : "-";
+    const frontendTestsTotal = dockerStatus ? frontendTestsPassed + frontendTestsFailed : "-";
     const frontendSuitsPassedPercentage = dockerStatus ? calculatePercentage(frontendSuitsPassed, frontendSuitsTotal) : "-";
     const frontendSuitsFailedPercentage = dockerStatus ? calculatePercentage(frontendSuitsFailed, frontendSuitsTotal) : "-";
     const frontendTestsPassedPercentage = dockerStatus ? calculatePercentage(frontendTestsPassed, frontendTestsTotal) : "-";
     const frontendTestsFailedPercentage = dockerStatus ? calculatePercentage(frontendTestsFailed, frontendTestsTotal) : "-";
     const frontendBottomText = process.env.INPUT_FRONTENDBOTTOMTEXT || "";
-    const frontendStatus = dockerStatus ? getStatus(frontendTestsPassed, frontendTestsTotal) : ""
+    const frontendStatus = dockerStatus ? getStatus(frontendTestsPassed, frontendTestsTotal) : "";
 
     // Backend block
-    const backendSuitsPassed = parseInt(process.env.INPUT_BACKENDSUITSPASSED) || "-";
-    const backendSuitsFailed = parseInt(process.env.INPUT_BACKENDSUITSFAILED) || "-";
-    const backendTestsPassed = parseInt(process.env.INPUT_BACKENDTESTSPASSED) || "-";
-    const backendTestsFailed = parseInt(process.env.INPUT_BACKENDTESTSFAILED) || "-";
+    const backendSuitsPassed = process.env.INPUT_BACKENDSUITSPASSED ? parseInt(process.env.INPUT_BACKENDSUITSPASSED) : "-";
+    const backendSuitsFailed = process.env.INPUT_BACKENDSUITSFAILED ? parseInt(process.env.INPUT_BACKENDSUITSFAILED) : "-";
+    const backendTestsPassed = process.env.INPUT_BACKENDTESTSPASSED ? parseInt(process.env.INPUT_BACKENDTESTSPASSED) : "-";
+    const backendTestsFailed = process.env.INPUT_BACKENDTESTSFAILED ? parseInt(process.env.INPUT_BACKENDTESTSFAILED) : "-";
     const backendSuitsTotal = dockerStatus ? backendSuitsPassed + backendSuitsFailed : "-";
     const backendTestsTotal = dockerStatus ? backendTestsPassed + backendTestsFailed : "-";
     const backendSuitsPassedPercentage = dockerStatus ? calculatePercentage(backendSuitsPassed, backendSuitsTotal) : "-";
@@ -35,14 +36,14 @@ async function postMessage() {
     const backendTestsPassedPercentage = dockerStatus ? calculatePercentage(backendTestsPassed, backendTestsTotal) : "-";
     const backendTestsFailedPercentage = dockerStatus ? calculatePercentage(backendTestsFailed, backendTestsTotal) : "-";
     const backendBottomText = process.env.INPUT_BACKENDBOTTOMTEXT || "";
-    const backendStatus = dockerStatus ? getStatus(backendTestsPassed, backendTestsTotal) : "-"
+    const backendStatus = dockerStatus ? getStatus(backendTestsPassed, backendTestsTotal) : "-";
 
     // Sanity block
-    const sanityScenariosPassed = parseInt(process.env.INPUT_SANITYSCENARIOSPASSED) || "-";
-    const sanityScenariosFailed = parseInt(process.env.INPUT_SANITYSCENARIOSFAILED) || "-";
-    const sanityStepsPassed = parseInt(process.env.INPUT_SANITYSTEPSPASSED) || "-";
-    const sanityStepsFailed = parseInt(process.env.INPUT_SANITYSTEPSFAILED) || "-";
-    const sanityStepsSkipped = parseInt(process.env.INPUT_SANITYSTEPSSKIPPED) || "-";
+    const sanityScenariosPassed = process.env.INPUT_SANITYSCENARIOSPASSED ? parseInt(process.env.INPUT_SANITYSCENARIOSPASSED) : "-";
+    const sanityScenariosFailed = process.env.INPUT_SANITYSCENARIOSFAILED ? parseInt(process.env.INPUT_SANITYSCENARIOSFAILED) : "-";
+    const sanityStepsPassed = process.env.INPUT_SANITYSTEPSPASSED ? parseInt(process.env.INPUT_SANITYSTEPSPASSED) : "-";
+    const sanityStepsFailed = process.env.INPUT_SANITYSTEPSFAILED ? parseInt(process.env.INPUT_SANITYSTEPSFAILED) : "-";
+    const sanityStepsSkipped = process.env.INPUT_SANITYSTEPSSKIPPED ? parseInt(process.env.INPUT_SANITYSTEPSSKIPPED) : "-";
     const sanityScenariosTotal = dockerStatus ? sanityScenariosPassed + sanityScenariosFailed : "-";
     const sanityStepsTotal = dockerStatus ? sanityStepsPassed + sanityStepsFailed + sanityStepsSkipped : "-";
     const sanityScenariosPassedPercentage = dockerStatus ? calculatePercentage(sanityScenariosPassed, sanityScenariosTotal) : "-";
@@ -51,8 +52,6 @@ async function postMessage() {
     const sanityStepsFailedPercentage = dockerStatus ? calculatePercentage(sanityStepsFailed, sanityStepsTotal) : "-";
     const sanityStepsSkippedPercentage = dockerStatus ? calculatePercentage(sanityStepsSkipped, sanityStepsTotal) : "-";
     const sanityStatus = dockerStatus ? getStatus(sanityStepsPassed, sanityStepsTotal) : "-";
-
-    const workflowLink = process.env.INPUT_WORKFLOWLINK || "";
 
     function calculatePercentage(num1, num2) {
         if (isNaN(num1) || isNaN(num2)) {
