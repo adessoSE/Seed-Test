@@ -247,11 +247,6 @@ async function postMessage() {
                     }
                   ],
                   "width": "stretch",
-                  "actions": buttons.map((button) => ({
-                    type: 'Action.OpenUrl',
-                    title: button.title,
-                    url: button.url,
-                  }))
                 }
               }
             ],
