@@ -211,46 +211,7 @@ async function postMessage() {
 
 
     try {
-        response = await fetch(webhook, {
-            type: 'message',
-            attachments: [
-              { 
-                "contentType": "application/vnd.microsoft.card.adaptive",
-                "content": {
-                  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                  "type": "AdaptiveCard",
-                  "version": "1.4",
-                  "body": [
-                    {
-                      "type": "Container",
-                      "width": "stretch",
-                      "items": [
-                        {
-                          "type": "TextBlock",
-                          "text": "title",
-                          "size": "large",
-                          "weight": "bolder",
-                          "wrap": true
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Container",
-                      "style": "default",
-                      "items": [
-                        {
-                          "type": "TextBlock",
-                          "text": "text",
-                          "wrap": true
-                        }
-                      ]
-                    }
-                  ],
-                  "width": "stretch",
-                }
-              }
-            ],
-          })
+        response = await fetch(webhook, message)
 
         if (response.ok) {
           console.log('Data fetched successfully');
