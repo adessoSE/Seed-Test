@@ -21,7 +21,7 @@ jobs:
           originBranch: origin
           destinationBranch: dev
           requestor: i3rotlher
-          date: ${{ github.event.pull_request.created_at }}
+          date: ${{ github.event.head_commit.timestamp }}
           description: Kurzer Test
           dockerStatus: "success"
           frontendSuitsPassed: 2
