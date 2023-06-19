@@ -72,7 +72,7 @@ inputs:
     description: 'The link to the workflow'
     required: true
   webhook:
-    description: 'MS_TEMS_WEBHOOK'
+    description: 'The webhook URL for posting the message'
     required: true
 
 runs:
