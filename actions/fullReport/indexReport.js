@@ -209,29 +209,54 @@ async function postMessage() {
         ],
       };
 
-    console.log(message)
 
     try {
         response = await fetch(webhook, {
-                method: "POST",
-                body: JSON.stringify({ 
-                    "contentType": "application/vnd.microsoft.card.adaptive",
-                    "content": {
-                    "type": "AdaptiveCard",
-                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                    "version": "1.4",
-                    "body": [
+            type: 'message',
+            attachments: [
+              { 
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                  "type": "AdaptiveCard",
+                  "version": "1.4",
+                  "body": [
+                    {
+                      "type": "Container",
+                      "width": "stretch",
+                      "items": [
                         {
-                            "type": "TextBlock",
-                            "text": "New TextBlock",
-                            "wrap": true
+                          "type": "TextBlock",
+                          "text": "title",
+                          "size": "large",
+                          "weight": "bolder",
+                          "wrap": true
                         }
-                    ]
-                }}),
-                headers: {
-                  "Content-type": "application/json; charset=UTF-8"
+                      ]
+                    },
+                    {
+                      "type": "Container",
+                      "style": "default",
+                      "items": [
+                        {
+                          "type": "TextBlock",
+                          "text": "text",
+                          "wrap": true
+                        }
+                      ]
+                    }
+                  ],
+                  "width": "stretch",
+                  "actions": buttons.map((button) => ({
+                    type: 'Action.OpenUrl',
+                    title: button.title,
+                    url: button.url,
+                  }))
                 }
-              })
+              }
+            ],
+          })
+
         if (response.ok) {
           console.log('Data fetched successfully');
           process.exit(0);
