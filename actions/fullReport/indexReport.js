@@ -14,8 +14,8 @@ async function postMessage() {
     const frontendSuitsFailed = parseInt(process.env.INPUT_FRONTENDSUITSFAILED) || "-";
     const frontendTestsPassed = parseInt(process.env.INPUT_FRONTENDTESTSPASSED) || "-";
     const frontendTestsFailed = parseInt(process.env.INPUT_FRONTENDTESTSFAILED )|| "-";
-    const frontendSuitsTotal = dockerStatus ? frontendSuitsPassed + frontendSuitsFailed : "-";
-    const frontendTestsTotal = dockerStatus ? frontendTestsPassed + frontendTestsFailed : "-";
+    const frontendSuitsTotal = dockerStatus ? (frontendSuitsPassed + frontendSuitsFailed) : "-";
+    const frontendTestsTotal = dockerStatus ? (frontendTestsPassed + frontendTestsFailed) : "-";
     const frontendSuitsPassedPercentage = dockerStatus ? calculatePercentage(frontendSuitsPassed, frontendSuitsTotal) : "-";
     const frontendSuitsFailedPercentage = dockerStatus ? calculatePercentage(frontendSuitsFailed, frontendSuitsTotal) : "-";
     const frontendTestsPassedPercentage = dockerStatus ? calculatePercentage(frontendTestsPassed, frontendTestsTotal) : "-";
@@ -57,12 +57,12 @@ async function postMessage() {
     function calculatePercentage(num1, num2) {
         // Check if either number is zero to avoid division by zero error
         if (num2 === 0) {
-        return "Cannot divide by zero";
+        return "-";
         }
     
         // Calculate the percentage with two decimal places
         const percentage = (num1 / num2) * 100;
-        const formattedPercentage = percentage.toFixed(2);
+        const formattedPercentage = percentage.toFixed(0);
     
         return formattedPercentage + "%";
     }
@@ -163,14 +163,14 @@ async function postMessage() {
                             },
                             {
                                 "type": "TextBlock",
-                                "text": "🖼️ **Frontend**:\n\n \t\tStatus: " + frontendTestsPassed + "/" + frontendTestsTotal + " passed " + frontendStatus + "\n\n \t\tTest Suites:\n\n\t\t ✔️ Passed: " + frontendSuitsPassed + "[" + frontendSuitsPassedPercentage + "]\n\t\t ❌ Failed: " + frontendSuitsFailed + " [" + frontendSuitsFailedPercentage + "]\n\n\t\tTests:\n\n\t\t ✔️ Passed: " + frontendTestsPassed + " [" + frontendTestsPassedPercentage + "]\n\t\t ❌ Failed: " + frontendTestsFailed + " [" + frontendTestsFailedPercentage + "]\n\n\t\t" + frontendBottomText,
+                                "text": "🖼️ **Frontend**:\n\n \t\tStatus: " + frontendTestsPassed + "/" + frontendTestsTotal + " passed " + frontendStatus + "\n\n \t\tTest Suites:\n\n\t\t ✔️ Passed: " + frontendSuitsPassed + " [" + frontendSuitsPassedPercentage + "]\n\t\t ❌ Failed: " + frontendSuitsFailed + " [" + frontendSuitsFailedPercentage + "]\n\n\t\tTests:\n\n\t\t ✔️ Passed: " + frontendTestsPassed + " [" + frontendTestsPassedPercentage + "]\n\t\t ❌ Failed: " + frontendTestsFailed + " [" + frontendTestsFailedPercentage + "]\n\n\t\t" + frontendBottomText,
                                 "wrap": true,
                                 "horizontalAlignment": "Left",
                                 "isSubtle": false
                             },
                             {
                                 "type": "TextBlock",
-                                "text": "💻 **Backend**:\n\n \t\tStatus: " + backendTestsPassed + "/" + backendTestsTotal + " passed " + backendStatus + "\n\n \t\tTest Suites:\n\n\t\t ✔️ Passed: " + backendSuitsPassed + "[" + backendSuitsPassedPercentage + "]\n\t\t ❌ Failed: " + backendSuitsFailed + " [" + backendSuitsFailedPercentage + "]\n\n\t\tTests:\n\n\t\t ✔️ Passed: " + backendTestsPassed + " [" + backendTestsPassedPercentage + "]\n\t\t ❌ Failed: " + backendTestsFailed + " [" + backendTestsFailedPercentage + "]\n\n\t\t" + backendBottomText,
+                                "text": "💻 **Backend**:\n\n \t\tStatus: " + backendTestsPassed + "/" + backendTestsTotal + " passed " + backendStatus + "\n\n \t\tTest Suites:\n\n\t\t ✔️ Passed: " + backendSuitsPassed + " [" + backendSuitsPassedPercentage + "]\n\t\t ❌ Failed: " + backendSuitsFailed + " [" + backendSuitsFailedPercentage + "]\n\n\t\tTests:\n\n\t\t ✔️ Passed: " + backendTestsPassed + " [" + backendTestsPassedPercentage + "]\n\t\t ❌ Failed: " + backendTestsFailed + " [" + backendTestsFailedPercentage + "]\n\n\t\t" + backendBottomText,
                                 "wrap": true,
                                 "horizontalAlignment": "Left",
                                 "isSubtle": false
