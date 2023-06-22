@@ -1,5 +1,5 @@
-:host ::ng-deep .modal-dialog .modal-content {
-    width: 150% !important;
+.uk-steps {
+    margin: 1% 30px;
 }
 
 
@@ -17,7 +17,7 @@
 .BlockHeaderContainer {
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
-    padding: 0 10px;
+    padding: 0 20px;
 }
 
 .BlockHeaderWarning {
@@ -26,7 +26,7 @@
     text-align: center;
     background-color: #ff9800;
     color: white;
-    margin: 5% 5%;
+    margin: 2.5% 20%;
     align-items: center;
     font-size: 14px;
     border-radius: 15px;
@@ -168,4 +168,30 @@ em.dragIcon {
     color: gray !important;
     font-style: italic;
     text-decoration: line-through;
+}
+
+@media screen and (min-width: 500px){
+
+
+    ::ng-deep body > ngb-modal-window > .edit-block.modal-dialog {
+
+        max-width: none !important;
+
+    }
+
+}
+
+
+::ng-deep body > ngb-modal-window > .edit-block.modal-dialog {
+
+    width: 50%;
+
+    min-width: 1000px;
+
+}
+
+::ng-deep body > ngb-modal-window.modal{
+
+    z-index: 1;
+
 }

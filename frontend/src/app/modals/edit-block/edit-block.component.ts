@@ -49,7 +49,7 @@ export class EditBlockComponent {
    * Opens the edit block form modal
    */
   openEditBlockModal() {
-    this.modalReference = this.modalService.open(this.editBlockModal, {ariaLabelledBy: 'modal-basic-title', size: 'sm'});
+    this.modalReference = this.modalService.open(this.editBlockModal, {ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block'});
     this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
   }
 
