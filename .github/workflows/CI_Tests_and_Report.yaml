@@ -161,7 +161,7 @@ jobs:
       # SEND FULL REPORT ---------------------------------------------------------------------------------------
 
       - name: Send Teams Message
-        uses: your-org/post-teams-message-action@v1
+        uses: ./actions/fullReport
         with:
           prnumber: ${{ github.event.pull_request.number }}
           originBranch: ${{ github.event.pull_request.head.ref }}
