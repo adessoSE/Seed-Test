@@ -83,7 +83,7 @@ jobs:
           failedSuites=$(awk '/Suites:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsBackend.txt)
           echo "passedSuites=${passedSuites}" >> ${GITHUB_OUTPUT}
           echo "failedSuites=${failedSuites}" >> ${GITHUB_OUTPUT}
-          bottomText=$(awk '/Snapshots:/{flag=1;print}/^$/{flag=0}flag' cleanResultsBackend.txt)
+          bottomText=$(awk '/Snapshots:/{flag=1;print}/^$/{flag=0}flag' cleanResultsBackend.txt | tr -d '\n')
           echo "bottomText=${bottomText}" >> ${GITHUB_OUTPUT}
         id: passed-total-backend
 
@@ -116,7 +116,7 @@ jobs:
           failedSuites=$(awk '/Suites:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsFrontend.txt)
           echo "passedSuites=${passedSuites}" >> ${GITHUB_OUTPUT}
           echo "failedSuites=${failedSuites}" >> ${GITHUB_OUTPUT}
-          bottomText=$(awk '/Snapshots:/{flag=1;print}/^$/{flag=0}flag' cleanResultsFrontend.txt)
+          bottomText=$(awk '/Snapshots:/{flag=1;print}/^$/{flag=0}flag' cleanResultsFrontend.txt | tr -d '\n')
           echo "bottomText=${bottomText}" >> ${GITHUB_OUTPUT}
         id: passed-total-frontend
 
@@ -147,7 +147,7 @@ jobs:
           failedScenarios=$(awk '/Scenarios:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' sanityReport.txt)
           echo "passedScenarios=${passedScenarios}" >> ${GITHUB_OUTPUT}
           echo "failedScenarios=${failedScenarios}" >> ${GITHUB_OUTPUT}
-          bottomText=bottomText=$(awk '/Snapshots:/{flag=1;next}/^$/{flag=0}flag' sanityReport.txt)
+          bottomText=bottomText=$(awk '/Snapshots:/{flag=1;next}/^$/{flag=0}flag' sanityReport.txt | tr -d '\n')
           echo "bottomText=${bottomText}" >> ${GITHUB_OUTPUT}
         id: passed-total-sanity
 
