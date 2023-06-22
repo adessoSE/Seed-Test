@@ -1,0 +1,28 @@
+name: MS Teams Deploy Card
+
+on:
+  push:
+    branches:
+      - 'nie'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Install Dependencies
+      run: npm install node-fetch
+    - name: Send failure notification
+      uses: ./actions/fullReport
+      with:
+          prnumber: 123
+          originBranch: origin
+          destinationBranch: dev
+          requestor: ${{ github.actor }}
+          date: ${{ github.event.head_commit.timestamp }}
+          description: ${{ github.event.pull_request.body }}
+          dockerStatus: "failure"
+          workflowLink: ${{ github.event.workflow_run.url }}
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}

@@ -456,25 +456,12 @@ async function runSanityReport(req, res, stories: any[], mode: executionMode, pa
 			res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
 		});
 
-	// read html Report and add it top response
-    function getPercentage(numerator, denominator) {
-        const percentage = (numerator / denominator) * 100;
-        const formattedPercentage = percentage.toFixed(1) + '%';
-        return formattedPercentage;
-    }
-
     function formatNotification(json) {
         const { scenarios, steps } = json;
       
         const notificationText = `
-          Scenarios:
-          ✅ Passed: ${scenarios.passed}      [${getPercentage(scenarios.passed, scenarios.failed+scenarios.passed)}]
-          ❌ Failed: ${scenarios.failed}      [${getPercentage(scenarios.failed, scenarios.failed+scenarios.passed)}]
-          
-          Steps:
-          ✅ Passed Steps: ${steps.passedSteps}     [${getPercentage(scenarios.passed, steps.passedSteps+steps.failedSteps+steps.skippedSteps)}]
-          ❌ Failed Steps: ${steps.failedSteps}     [${getPercentage(steps.failedSteps, steps.passedSteps+steps.failedSteps+steps.skippedSteps)}]
-          ⏭️ Skipped Steps: ${steps.skippedSteps}   [${getPercentage(steps.skippedSteps, steps.passedSteps+steps.failedSteps+steps.skippedSteps)}]
+          Scenarios: ${scenarios.failed} failed, ${scenarios.passed} passed, ${scenarios.passed+scenarios.failed} total
+          Steps: ${steps.failedSteps} failed, ${steps.passedSteps} passed, ${steps.skippedSteps} skipped, ${steps.passedSteps+steps.failedSteps+steps.skippedSteps} total    
         `;
       
         return notificationText;
