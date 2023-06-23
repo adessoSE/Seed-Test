@@ -135,6 +135,10 @@ jobs:
         run: |
           curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
 
+      - name: print answer
+        run : |
+          echo $(cat sanityReport.txt)
+
       - name: Get passed and total sanity
         run: |
           passed=$(awk '/Steps:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' sanityReport.txt)
