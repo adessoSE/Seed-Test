@@ -2,7 +2,7 @@
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
 
-@import '~@angular/material/theming';
+@import '@angular/material/theming';
 @import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
 // Plus imports for other components in your app.
 
@@ -699,8 +699,12 @@ $dark-theme: mat.define-dark-theme(
 span[rel=def] {
   display: none;
 }
+.mdc-circular-progress__circle-clipper{
+  display: revert;
+}
 
 .def:hover span[rel=def]{
+  left: 19px;
   font-size: small;
   color: white;
   background-color: rgb(109, 109, 109);
@@ -916,7 +920,7 @@ a:hover {
 }
 
 .modal-backdrop {
-  z-index: 1040 !important;    
+  z-index: 1 !important;    
 } 
 
 .mat-tooltip {

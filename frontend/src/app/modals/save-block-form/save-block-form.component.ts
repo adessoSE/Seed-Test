@@ -5,7 +5,8 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
-import { ApiService } from 'src/app/Services/api.service';
+import { BlockService } from 'src/app/Services/block.service';
+import { BackgroundService } from '../../Services/background.service';
 
 @Component({
   selector: 'app-save-block-form',
@@ -25,11 +26,19 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     * Columns of the save block table
     */
   displayedColumnsSaveBlock: string[] = ['stepType', 'pre'];
+  /**
+    * Columns of the second save block table
+    */
+  displayedColumnsSaveBlockExample: string[];
 
    /**
     * List with the steps to be saved to the block
     */
   stepListSaveBlock = [];
+  /**
+    * List with the multiple scenarios to be saved to the block
+    */
+  stepListSaveBlockExample = [];
 
    /**
     * If the block is an example
@@ -57,16 +66,18 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
 
   updateObservable: Subscription;
 
+  isBackground: boolean;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService, private toastr: ToastrService) {}
+
+  constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService, public backgroundService: BackgroundService) {}
 
   ngOnInit() {
     const id = localStorage.getItem('id');
-    this.apiService.getBlocks(id).subscribe((resp) => {
+    this.blockService.getBlocks(id).subscribe((resp) => {
       this.blocks = resp;
     });
-    this.updateObservable = this.apiService.updateBlocksEvent.subscribe(_ => {
-      this.apiService.getBlocks(id).subscribe((resp) => {
+    this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
+      this.blockService.getBlocks(id).subscribe((resp) => {
         this.blocks = resp;
       });
     });
@@ -83,16 +94,20 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
      * @param block
      * @param comp
      */
-  openSaveBlockFormModal(block: Block, comp) {
+  openSaveBlockFormModal(block: Block, comp, isBackground?: boolean) {
     this.exampleBlock = false;
     this.exampleChecked = false;
     this.block = block;
     this.parentComponent = comp;
+    this.isBackground = isBackground;
     if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
-        this.exampleBlock = true;
+      this.exampleBlock = true;
     }
     this.createStepList();
     this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
+    if(isBackground && isBackground !== undefined){
+      document.getElementById('modalHeader').innerHTML = 'Save Background';
+    }
   }
 
 /**
@@ -100,11 +115,24 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
  */
   createStepList() {
     this.stepListSaveBlock = [];
+    this.stepListSaveBlockExample = [];
+    this.displayedColumnsSaveBlockExample = [];
     Object.keys(this.block.stepDefinitions).forEach((key, _) => {
         this.block.stepDefinitions[key].forEach((step: StepType) => {
+          if(step.stepType != 'example'){
             this.stepListSaveBlock.push(step);
+          } else {
+            this.stepListSaveBlockExample.push(step);
+          }
         });
     });
+    if(this.stepListSaveBlockExample.length > 0) {
+      const valueLength = this.stepListSaveBlockExample[0].values.length
+      this.displayedColumnsSaveBlockExample.push('stepType')
+      for (let index = 0; index < valueLength; index++) {
+        this.displayedColumnsSaveBlockExample.push(index.toString())
+      }
+    }
   }
 
 /**
@@ -145,8 +173,16 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.block.repository = localStorage.getItem('repository');
     this.block.source = localStorage.getItem('source');
     this.block.repositoryId = localStorage.getItem('id');
-    this.apiService.saveBlock(this.block).subscribe((resp) => {
+    if(this.exampleChecked){
+      this.block.stepDefinitions = {given: [], when: [], then: [], example: this.stepListSaveBlockExample}
+    }
+    if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
+      this.block.isBackground = true;
+    }
+    this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
+        this.updateBlocksBackEventEmitter();
+        this.toastr.success('successfully saved', 'Background');
     });
     this.modalReference.close();
   }
@@ -166,9 +202,13 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     });
     return bool;
   }
-
+  updateBlocksBackEventEmitter() {
+    this.blockService.updateBlocksBackgroundsEvent.emit();
+  }
   onSubmit(form: NgForm) {
     this.submitSaveBlock(form);
   }
-
+  closeModal(){
+    this.modalReference.close();
+  }
 }

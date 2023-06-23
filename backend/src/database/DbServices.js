@@ -248,7 +248,7 @@ async function mergeGithub(userId, login, id) {
  * @param collection
  */
 // TODO: storySource wont be needed anymore
-function findStory(storyId, storySource, collection) {
+function findStory(storyId, collection) {
 	const id = ObjectId(storyId);
 	return new Promise((resolve, reject) => {
 		collection.findOne({ _id: id }, (err, result) => {
@@ -302,16 +302,15 @@ async function updateStory(updatedStory) {
 
 // get One Story
 // searches the story either by mongoDB _id:ObjectId() or by story_id (from GitHub or Jira)
-async function getOneStory(storyId, storySource) {
+async function getOneStory(storyId) {
 	let query;
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
 		console.log(storyId);
-		if (typeof storyId === 'number' && (storySource === 'github' || storySource === 'jira')) {
+		if (typeof storyId === 'number') {
 			query = {
-				story_id: storyId,
-				storySource: storySource.toString()
+				story_id: storyId
 			};
 		} else {
 			query = {
@@ -444,7 +443,7 @@ async function showSteptypes() {
 }
 
 // UPDATE Background
-async function updateBackground(storyId, storySource, updatedBackground) {
+async function updateBackground(storyId, updatedBackground) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -456,8 +455,8 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 }
 
 // DELETE Background
-async function deleteBackground(storyId, storySource) {
-	return updateBackground(storyId, null, emptyBackground());
+async function deleteBackground(storyId) {
+	return updateBackground(storyId, emptyBackground());
 }
 
 async function createStory(storyTitle, storyDescription, repoId) {
@@ -562,7 +561,7 @@ async function getAllStoriesOfRepo( repoId) {
 }
 
 // GET ONE Scenario
-async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remove storySource
+async function getOneScenario(storyId, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
@@ -574,11 +573,11 @@ async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remov
 }
 
 // CREATE Scenario
-async function createScenario(storyId, storySource, scenarioTitle) { // TODO: remove storySource
+async function createScenario(storyId, scenarioTitle) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, null, collection);
+		const story = await findStory(storyId, collection);
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
@@ -606,11 +605,10 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 /**
  *
  * @param {*} storyId
- * @param {*} storySource
  * @param {*} updatedScenario
  * @returns updated Scenario
  */
-async function updateScenario(storyId, storySource, updatedScenario) {
+async function updateScenario(storyId, updatedScenario) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -625,7 +623,7 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioId) {
+async function deleteScenario(storyId, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -750,11 +748,11 @@ async function getAllSourceReposFromDb(source) {
 		return await db.collection(repositoriesCollection).find({ repoType: source })
 			.toArray();
 	} catch (e) {
-		console.log(`ERROR in getAllSourceReposFromDb${e}`);
+		console.log(`ERROR in getAllSourceReposFromDb ${e}`);
 	}
 }
 
-async function createRepo(ownerId, name) { 
+async function createRepo(ownerId, name) {
 	try {
 		const emptyRepo = {
 			owner: ObjectId(ownerId), repoName: name.toString(), stories: [], repoType: 'db', customBlocks: [], groups: []
@@ -777,12 +775,12 @@ async function createRepo(ownerId, name) {
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) { 
+async function updateRepository(repoID, newName, user) {
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		return collection.findOneAndUpdate(repoFilter, { $set: {"repoName": newName} }, { returnNewDocument: true });
+		return collection.findOneAndUpdate(repoFilter, { $set: { repoName: newName } }, { returnNewDocument: true });
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;
@@ -817,13 +815,44 @@ async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
 	}
 }
 
-async function updateOwnerInRepo(repoName, ownerId, source) {
+async function removeFromWorkgroup(repoId, user) {
 	try {
 		const db = dbConnection.getConnection();
-		await db.collection(repositoriesCollection).findOneAndUpdate({ repoName, repoType: source }, { $set: { owner: ownerId } });
-		return 'done';
+		const wGcollection = await db.collection(WorkgroupsCollection);
+		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
+		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
+		const workGroup = await wGcollection.findOneAndUpdate({ Repo: ObjectId(repoId) }, { $pull: { Members: { email: user.email } } });
+		if (workGroup.value) {
+			const wG = await wGcollection.findOne({ Repo: ObjectId(repoId) });
+			const result = { owner: {}, member: [] };
+			result.owner = { email: owner.email, canEdit: true };
+			result.member = wG.Members;
+			return result;
+		}
+		return;
 	} catch (e) {
-		console.log(`ERROR in updateOwnerInRepo${e}`);
+		console.log(`ERROR in removeFromWorkgroup: ${e }`);
+		throw e;
+	}
+}
+
+async function updateOwnerInRepo(repoId, newOwnerId, oldOwnerId) {
+	try {
+		const db = dbConnection.getConnection();
+		const oldOwner = await getUserById(oldOwnerId);
+		// set new Owner for the given Repo
+		const newOwner = await getUserById(newOwnerId);
+		await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
+		await db.collection(repositoriesCollection).findOneAndUpdate({ _id: ObjectId(repoId) }, { $set: { owner: newOwnerId } });
+		// remove the new Owner from Workgroup
+		await removeFromWorkgroup(repoId, newOwner);
+
+		// add old Owner as Member and update Email in Workgroup
+		const wgMember = { email: oldOwner.email, canEdit: Boolean(true) };
+		await db.collection(WorkgroupsCollection).findOneAndUpdate({ Repo: ObjectId(repoId) }, { $set: { owner: newOwner.email }, $push: { Members: wgMember } });
+		return 'Success';
+	} catch (e) {
+		console.log(`ERROR in updateOwnerInRepo ${e}`);
 		throw e;
 	}
 }
@@ -839,11 +868,10 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) { // TODO: vllt in
 	}
 }
 
-async function upsertEntry(storyId, updatedContent, storySource) { // TODO: remove storySource?
+async function upsertEntry(storyId, updatedContent) {
 	try {
 		const myObjt = {
-			story_id: storyId,
-			storySource
+			story_id: storyId
 		};
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -961,7 +989,7 @@ async function updateScenarioStatus(storyId, scenarioId, scenarioLastTestStatus)
 						{ scenario_id: scenarioId }
 				}
 			}, {
-				$set: { lastTestPassed: scenarioLastTestStatus }
+				$set: { 'scenarios.$.lastTestPassed': scenarioLastTestStatus }
 			});
 	} catch (e) {
 		console.log('Error in updateScenarioStatus. Could not set scenario LastTestPassed: ', e);
@@ -1140,6 +1168,9 @@ async function updateBlock(name, updatedBlock) { // delete by id but update by n
 	const oldBlock = { name };
 	try {
 		const db = dbConnection.getConnection();
+		updatedBlock._id = ObjectId(updatedBlock._id)
+		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
+		updatedBlock.owner = ObjectId(updatedBlock.owner);
 		await db.collection(CustomBlocksCollection).findOneAndReplace(oldBlock, updatedBlock);
 	} catch (e) {
 		console.log(`ERROR in updateBlock: ${e}`);
@@ -1255,26 +1286,6 @@ async function getMembers(id) {
 	}
 }
 
-async function removeFromWorkgroup(id, user) {
-	try {
-		const db = dbConnection.getConnection();
-		const wGcollection = await db.collection(WorkgroupsCollection);
-		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(id) });
-		const owner = await db.collection(userCollection).findOne({ _id: repo.owner });
-		const workGroup = await wGcollection.findOneAndUpdate({ Repo: ObjectId(id) }, { $pull: { Members: { email: user.email } } });
-		if (workGroup) {
-			const wG = await wGcollection.findOne({ Repo: ObjectId(id) });
-			const result = { owner: {}, member: [] };
-			result.owner = { email: owner.email, canEdit: true };
-			result.member = wG.Members;
-			return result;
-		}
-	} catch (e) {
-		console.log(`ERROR in removeFromWorkgroup: ${e}`);
-		throw e;
-	}
-}
-
 async function updateOneDriver(id, driver) {
 	try {
 		const oneDriver = !driver.oneDriver;
@@ -1301,8 +1312,6 @@ function mongoSanitize(v) { // from https://github.com/vkarpov15/mongo-sanitize
 	}
 	return v;
 };
-
-
 
 module.exports = {
 	setIsSavedTestReport,

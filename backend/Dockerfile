@@ -27,17 +27,18 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > mic
 RUN install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
 RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
 RUN rm microsoft.gpg
-RUN apt update && yes | apt install microsoft-edge-stable 
+RUN apt update && yes | apt install microsoft-edge-stable
+# include in path
+RUN export PATH=$PATH:/opt/microsoft/msedge/
+ENV PATH="${PATH}:/opt/microsoft/msedge/"
 
 # install msedgedriver
-# get the latest stable version number and remove two FF FE Bytes at start and OD Byte at end (DataStreamBytes)
-RUN curl https://msedgedriver.azureedge.net/LATEST_STABLE > latest_stable_with_weird_chars.txt
-RUN dd if=latest_stable_with_weird_chars.txt of=latest_stable.txt skip=2 bs=1
-RUN truncate -s -4 latest_stable.txt
+# # Extract the latest stable version of edge
+RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 
+# # Remove the driver-pagehtml
 RUN wget -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip
 RUN unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/
-RUN rm -f latest_stable_with_weird_chars.txt
 RUN rm -f latest_stable.txt
 
 # Bundle app source
@@ -53,7 +54,7 @@ EXPOSE 8080
 RUN service dbus start
 
 # starts the backend server
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm run database && npm run start"]
 
 # keeps container running without doing anything so you can bash into it
 # ENTRYPOINT ["tail", "-f", "/dev/null"]

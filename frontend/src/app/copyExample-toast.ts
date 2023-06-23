@@ -6,24 +6,39 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-import { Component} from '@angular/core';
+import { Component} from '@angular/core';  
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
-
-/**
- * Component of the Delete Story toasts
- */
+  
+  /**
+   * Component of the run save toasts
+   */
   @Component({
     selector: '[pink-toast-component]',
-    styles: [`
+    //styles: [`
+    //  :host {
+    //    background-color: #FF69B4;
+    //    position: relative;
+    //    overflow: hidden;
+    //    margin: 0 0 6px;
+    //    padding: 10px 10px 10px 10px;
+    //    width: 300px;
+    //    border-radius: 3px 3px 3px 3px;
+    //    color: #FFFFFF;
+    //    pointer-events: all;
+    //    cursor: pointer;
+    //  }
+    //  .btn-pink {
+    //    -webkit-backface-visibility: hidden;
+    //    -webkit-transform: translateZ(0);
+    //  }
+    //`],
+    styles:[`
         a {
             background: #388196;
             margin: 2px;
         }
 
-        .deleteButton{
-          background: darkred;
-        }
         a:hover {
             color: black;
         }
@@ -43,11 +58,11 @@ import { ApiService } from './Services/api.service';
         </div>
       </div>
       <div class="col-9">
-        <a *ngIf="!options.closeButton" class="deleteButton btn btn-pink btn-sm" (click)="deleteToast($event)">
-            {{ deleteString }}
+        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="copyExample($event)">
+          {{ copyExampleString }}
         </a>
-        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="remove()">
-        {{ cancelString }}
+        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="dontCopyExample($event)">
+            {{ dontCopyExampleString }}
         </a>
         <a *ngIf="options.closeButton" (click)="remove()" class="btn btn-pink btn-sm">
           close
@@ -94,38 +109,36 @@ import { ApiService } from './Services/api.service';
     ],
     preserveWhitespaces: false,
   })
-  export class DeleteRepositoryToast extends Toast {
-    /**
-     * Name of the delete button
-     */
-    deleteString = 'Delete';
-    /**
-     * Name of the cancel button
-     */
-    cancelString = 'Cancel';
+
+  export class CopyExampleToast extends Toast {
+    
+    copyExampleString = 'Copy with multiple scenario(s)';
+
+    dontCopyExampleString = 'Copy without multiple scenario(s)'
+    // constructor is only necessary when not using AoT
 
     /**
-     * Constructor
-     * @param toastrService
-     * @param toastPackage
-     * @param apiService
-     * constructor is only necessary when not using AoT
+     * @ignore
      */
     constructor(
       protected toastrService: ToastrService,
       public toastPackage: ToastPackage,
-      public apiService: ApiService,
+      public apiService: ApiService
     ) {
       super(toastrService, toastPackage);
     }
-
-    /**
-     * Creates a toast and deletes the repository
-     * @param event
-     */
-    deleteToast(event: Event) {
+  
+    copyExample(event: Event){
         event.stopPropagation();
-        this.apiService.deleteRepositoryEmitter();
+        this.apiService.copyStepWithExampleOption('copy')
+        this.remove();
+
+    }
+
+
+    dontCopyExample(event: Event){
+        event.stopPropagation();
+        this.apiService.copyStepWithExampleOption('dontCopy')
         this.remove();
     }
   }

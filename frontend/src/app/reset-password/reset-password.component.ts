@@ -1,9 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component} from '@angular/core';
 import { NgForm } from '@angular/forms';
-import {ApiService} from '../Services/api.service';
 import {Router} from '@angular/router';
-import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
+import { LoginService } from '../Services/login.service';
 
 /**
  * Component to reset the password
@@ -20,13 +19,20 @@ export class ResetPasswordComponent{
    * Error during reset password
    */
   error: string;
+  defaultErrorMessage = 'Reset password email faild';
+
+  /**
+   * Successfully sent email
+   */
+  success: string;
+  defaultSuccessMessage = "Email with password reset link has been send!"
 
   isDark :boolean = this.themeService.isDarkMode();
 
   /**
    * @ignore
    */
-  constructor(public apiService: ApiService, private router: Router, public themeService:ThemingService) {    
+  constructor(public loginService: LoginService, private router: Router, public themeService:ThemingService) {    
   }
 
   /**
@@ -34,10 +40,16 @@ export class ResetPasswordComponent{
    * @param form 
    */
   requestReset(form : NgForm) {
-    this.apiService.requestReset(form.value.email).subscribe(res => {
-      //console.log('test')
+    this.loginService.requestReset(form.value.email).subscribe({
+      next: value => {
+        this.error = undefined;
+        this.success = this.defaultSuccessMessage;
+      },
+      error: error => {
+        this.success = undefined;
+        this.error = this.defaultErrorMessage + ": " + error.error;      
+      },
     })
-    this.router.navigate(['/login']);
   }
 
   /**

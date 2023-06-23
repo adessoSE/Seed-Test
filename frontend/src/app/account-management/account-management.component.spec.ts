@@ -1,7 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ToastrModule } from 'ngx-toastr';
-import { findComponent } from 'src/test_helper';
+import { findComponent } from '../../test_helper';
 import { AccountManagementComponent } from './account-management.component';
 import { RepositoryContainer } from '../model/RepositoryContainer';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -40,8 +40,8 @@ describe('AccountManagementComponent', () => {
     location = TestBed.inject(Location);
     fixture = TestBed.createComponent(AccountManagementComponent);
     component = fixture.componentInstance;
-    jest.spyOn(component.apiService, 'isLoggedIn').mockReturnValue(true);
-    component.apiService.isLoggedIn();
+    jest.spyOn(component.loginService, 'isLoggedIn').mockReturnValue(true);
+    component.loginService.isLoggedIn();
     component.repositories = repositories;
     component.searchInput = '';
     component.github = '';

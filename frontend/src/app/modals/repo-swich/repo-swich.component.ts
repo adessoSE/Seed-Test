@@ -3,7 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
-import { ApiService } from 'src/app/Services/api.service';
+import { ProjectService } from 'src/app/Services/project.service';
 
 @Component({
   selector: 'app-repo-swich',
@@ -24,7 +24,7 @@ export class RepoSwichComponent implements OnInit {
 
   @ViewChild('repoSwitch') repoSwitch: RepoSwichComponent;
 
-  constructor(private modalService: NgbModal, public apiService: ApiService) {
+  constructor(private modalService: NgbModal, public projectService: ProjectService) {
     this.currentRepo = localStorage.getItem('repository');
     const value = sessionStorage.getItem('repositories');
     const repositories: RepositoryContainer[] = JSON.parse(value);
@@ -33,7 +33,7 @@ export class RepoSwichComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.updateRepositoryObservable = this.apiService.updateRepositoryEvent.subscribe(() => {
+    this.updateRepositoryObservable = this.projectService.updateRepositoryEvent.subscribe(() => {
       this.updateRepos();
     });
   }

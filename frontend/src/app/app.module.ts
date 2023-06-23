@@ -1,3 +1,4 @@
+import { CopyExampleToast } from './copyExample-toast';
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RouterModule} from '@angular/router';
@@ -26,7 +27,6 @@ import { TermsComponent } from './terms/terms.component';
 import { StoryEditorComponent } from './story-editor/story-editor.component';
 import { AccountManagementComponent } from './account-management/account-management.component';
 import {CookieService } from 'ngx-cookie-service';
-import { TestAccountComponent } from './test-account/test-account.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { ReportComponent } from './report/report.component';
 import { RegistrationComponent } from './registration/registration.component';
@@ -37,10 +37,7 @@ import { CarouselModule } from 'ngx-owl-carousel-o';
 import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
-import { DeleteScenarioToast } from './deleteScenario-toast';
-import { DeleteExampleToast } from './deleteExample-toast';
-import { DeleteStoryToast } from './deleteStory-toast';
-import { DeleteRepositoryToast } from './deleteRepository-toast';
+import { DeleteToast } from './delete-toast';
 import { DEFAULT_TIMEOUT, TimeoutInterceptor } from './Services/timeout-interceptor.interceptor';
 import {HttpLoggerInterceptor} from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from './report-history/report-history.component';
@@ -55,6 +52,7 @@ import {MatSelectModule} from '@angular/material/select';
 import { LayoutModalComponent } from './modals/layout-modal/layout-modal.component';
 import { CreateNewGroupComponent } from './modals/create-new-group/create-new-group.component';
 import { CreateCustomProjectComponent } from './modals/create-custom-project/create-custom-project.component';
+import { DisconnectJiraAccountComponent} from './modals/disconnect-jira-account/disconnect-jira-account.component';
 import { DeleteAccountComponent } from './modals/delete-account/delete-account.component';
 import { AddBlockFormComponent } from './modals/add-block-form/add-block-form.component';
 import { SaveBlockFormComponent } from './modals/save-block-form/save-block-form.component';
@@ -72,6 +70,7 @@ import { ResizeInputDirective } from './directives/resize-input.directive';
 import { RenameBackgroundComponent } from './modals/rename-background/rename-background.component';
 import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
+import { TransferOwnershipToast } from './transferOwnership-toastr';
 
 @NgModule({
   declarations: [
@@ -89,23 +88,19 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     FeedbackComponent,
     TermsComponent,
     AccountManagementComponent,
-    TestAccountComponent,
     StoryEditorComponent,
     RegistrationComponent,
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
-    DeleteScenarioToast,
-    DeleteExampleToast,
-    DeleteStoryToast,
-    DeleteRepositoryToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ReportHistoryComponent,
     LayoutModalComponent,
     CreateNewGroupComponent,
     CreateCustomProjectComponent,
+    DisconnectJiraAccountComponent,
     DeleteAccountComponent,
     AddBlockFormComponent,
     SaveBlockFormComponent,
@@ -122,7 +117,10 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     RenameBackgroundComponent,
     BaseEditorComponent,
     NewExampleComponent,
-    ExampleComponent
+    ExampleComponent,
+    CopyExampleToast,
+    DeleteToast,
+    TransferOwnershipToast
   ],
   imports: [
     NgbModule,
@@ -155,7 +153,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
     MatTabsModule,
     MatTooltipModule,
   ],
-  entryComponents: [RunTestToast],
+  entryComponents: [RunTestToast, CopyExampleToast],
   providers: [ApiService, AuthGuard, CookieService,
     [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],

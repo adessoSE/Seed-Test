@@ -5,6 +5,12 @@
 .submitForm{
     width: 100%
 }
+::ng-deep .d-block{
+    z-index: 1!important;
+}
+#changeOwner{
+    margin-left: 7px; 
+}
 
 .modal-body.modal-xl{
     padding: 10px;
@@ -56,26 +62,25 @@ table {
     max-width: 50px;
 }
 
-.mat-table{
+.mat-mdc-table{
     font-family: Klavika, sans-serif;
 }
 
-.mat-table .mat-cell:first-child, .mat-table .mat-header-cell:first-child{
+.mat-mdc-table .mat-mdc-cell:first-child, .mat-mdc-table .mat-mdc-header-cell:first-child{
     border-right: 1px solid #e0e0e0;
   }
 
-.mat-cell, .mat-header-cell {
+.mat-mdc-cell, .mat-mdc-header-cell {
     text-align: center;
 }
 
-td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type, th.mat-mdc-header-cell:last-of-type{
     padding-right: 0px;
 }
 
-td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:first-of-type{
+td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type, th.mat-mdc-header-cell:first-of-type{
     padding-left: 0px;
 }
-
 
 @media screen and (max-height: 800px) {
     .tableContainer{
@@ -92,6 +97,10 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type, th.mat-header-cell:
 .addTeamMembersLabel {
     position: relative;
     left: -67px;
+}
+
+::ng-deep .mdc-checkbox{
+    display: none !important;
 }
 
 ::-webkit-scrollbar-thumb {

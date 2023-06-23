@@ -6,6 +6,8 @@ import { RepositoryContainer } from '../model/RepositoryContainer';
 import { ThemingService } from '../Services/theming.service';
 import { Subscription } from 'rxjs';
 import { OwlOptions } from 'ngx-owl-carousel-o';
+import { LoginService } from '../Services/login.service';
+import { ProjectService } from '../Services/project.service';
 
 /**
  * Component to handle the client login
@@ -36,6 +38,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     currentTheme: String;
 
     isDark: boolean;
+
+    clientId: string;
 
     /**
      * Subscribtions for all EventEmitter
@@ -78,33 +82,51 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     /**
      * Constructor
+     * @param loginService
      * @param apiService
      * @param router
      * @param route
      * @param cdr
      * @param themeService
+     * @param projectServise
      */
-    constructor(public apiService: ApiService, public router: Router, private route: ActivatedRoute, private cdr: ChangeDetectorRef,
-            public themeService: ThemingService) {
+    constructor(public loginService: LoginService, 
+        public apiService: ApiService,
+        public router: Router, 
+        private route: ActivatedRoute, 
+        private cdr: ChangeDetectorRef,
+        public themeService: ThemingService,
+        public projectServise: ProjectService
+        ) {
         this.error = undefined;
+        this.clientId = localStorage.getItem('clientId');
         this.routeObservable = this.route.queryParams.subscribe((params) => {
            if (params.code) {
-                this.apiService.githubCallback(params.code).subscribe((resp) => {
+                this.loginService.githubCallback(params.code).subscribe((resp) => {
                     if (resp.error) {
-                        this.error = this.defaultErrorMessage; // resp.error
+                        if (resp.status === 501) {
+                            this.error = "GitHub Integration has not been set up yet."
+                        } else {
+                            this.error = this.defaultErrorMessage; // resp.error
+                        }
                     } else {
                         localStorage.setItem('login', 'true');
                         this.getRepositories();
                         const userId = localStorage.getItem('userId');
                         localStorage.removeItem('userId');
                         if (userId) {
-                            this.apiService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((_) => {
+                            this.loginService.mergeAccountGithub(userId, resp.login, resp.id).subscribe((_) => {
                                 this.loginGithubToken(resp.login, resp.id);
                             });
                         }
                     }
                 }, 
-                (error) => {this.error = this.defaultErrorMessage;}
+                (error) => {
+                    if (error.status === 501) {
+                        this.error = "GitHub Integration has not been set up yet."
+                    } else {
+                        this.error = this.defaultErrorMessage; // resp.error
+                }}
                 )
             }
         });
@@ -150,7 +172,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * @param id
      */
     loginGithubToken(login: string, id: any) {
-        this.apiService.loginGithubToken(login, id).subscribe((resp) => {
+        this.loginService.loginGithubToken(login, id).subscribe((resp) => {
             if (resp.status === 'error') {
                 this.error = this.defaultErrorMessage;
             } else if (resp.message === 'repository') {
@@ -178,7 +200,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             stayLoggedIn: form.value.stayLoggedIn
         };
         // const response = await
-        this.apiService.loginUser(user).subscribe(_ => {
+        this.loginService.loginUser(user).subscribe(_ => {
             localStorage.setItem('login', 'true');
             // this.apiService.updateRepositoryEmitter();
             this.getRepositories();
@@ -191,17 +213,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
         //     this.getRepositories();
         // }
     }
-
-
-    /**
-     * Redirects the user to the Test account
-     */
-    async loginTestAccount() {
-        localStorage.setItem('repository', 'adessoCucumber/Cucumber');
-        localStorage.setItem('source', 'github');
-        this.router.navigate(['/testaccount']);
-    }
-
     /**
      * Retrieves the repositories / projects of the user
      */
@@ -215,7 +226,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         if (loadingSpinner) {
             loadingSpinner.scrollIntoView();
         }
-        this.apiService.getRepositories().subscribe((resp: RepositoryContainer[]) => {
+        this.projectServise.getRepositories().subscribe((resp: RepositoryContainer[]) => {
             if (resp.length <= 0) {
                 console.log('repositories empty');
                 this.router.navigate(['/accountManagement']);
@@ -257,8 +268,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
      */
     githubLogin() {
         this.error = undefined;
+        if (localStorage.getItem('clientId') === 'undefined') {
+            this.error = "GitHub Integration has not been set up yet."
+            return
+        }
         this.isLoadingRepositories = true;
-        this.apiService.githubLogin();
+        this.loginService.githubLogin();
     }
 
       onDark(): boolean {

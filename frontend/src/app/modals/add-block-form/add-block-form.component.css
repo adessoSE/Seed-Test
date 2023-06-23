@@ -6,9 +6,27 @@
     font-size: 16px;
     font-weight: bold;
 }
+.material-icons{
+    color: var(--ocean-blue);
+    font-size: 20px !important;
+}
+.previewEditBlock{
+    display: flex;
+    justify-content: center;
+}
 
-.disabled {
-    background: gray !important;
+.blockButton{
+    border: none;
+    background: inherit;
+}
+
+[contenteditable='true'] {
+    caret-color: red;
+    outline: 0px solid transparent;
+}
+
+.blockButton.disabled em{
+    color: gray !important;
 }
 
 table {
@@ -17,11 +35,11 @@ table {
     padding: 0 10px 0;
 }
 
-.mat-table .mat-cell:first-child{
+.mat-mdc-table .mat-mdc-cell:first-child{
     border-right: 1px solid #e0e0e0;
 }
 
-.mat-cell {
+.mat-mdc-cell {
     text-align: center;
 }
 .normalButton:disabled{
@@ -30,12 +48,12 @@ table {
 .modal-ccc{
     width: 110%;
 }
-td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type{
+td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type{
     padding: 0 10px 0;
     word-break: break-all;
 }
 
-td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
+td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     padding: 0 5px 0;
 }
 
@@ -47,6 +65,9 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
     justify-content: space-between;
     margin: 2px 0px 2px 0px;
 }
+::ng-deep .mdc-checkbox{
+    display: none !important;
+}
 
 .savedBlocksContainer, .previewContainer{
     border: 1px solid #e0e0e0;
@@ -55,12 +76,20 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
     border-bottom: 0px;
     padding: 5px;
 }
+.previewContainer label{
+    padding: 3px;
+    cursor: text;
 
-::ng-deep div.mat-list-item-content.mat-list-item-content-reverse .deleteBlockButton{
+}
+.previewContainer div{
+    cursor: default;
+
+}
+::ng-deep div.mat-mdc-list-item-content.mat-mdc-list-item-content-reverse .deleteBlockButton{
     margin-right: 20px;
 }
 
-::ng-deep div.mat-list-item-content.mat-list-item-content-reverse div.mat-list-text{
+::ng-deep div.mat-mdc-list-item-content.mat-mdc-list-item-content-reverse div.mat-mdc-list-text{
     display: flex;
     flex-direction: row;
 }
@@ -72,7 +101,7 @@ td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type{
     margin-right: 5px;
 }
 
-.mat-table{
+.mat-mdc-table{
     font-family: Klavika, sans-serif;
 }
 

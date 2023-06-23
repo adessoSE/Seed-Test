@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
-const helper = require('../serverHelper');
+const userHelper = require('../../dist/helpers/userManagement');
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect');
 		next();
@@ -26,8 +26,11 @@ router
 	});
 
 router.post('/user/create/', (req, res) => {
-	if (typeof req.user !== 'undefined' && typeof req.user._id !== 'undefined') {
-		const { jiraAccountName, jiraPassword, jiraHost } = req.body;
+	if (typeof req.user === 'undefined' && typeof req.user._id === 'undefined') {
+		console.error('No Jira User sent. (Got undefinded)');
+		res.status(401).json('No Jira User sent. (Got undefinded)');
+	} else {
+		const { jiraAccountName, jiraPassword, jiraHost: jiraServer } = req.body;
 		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
 			.toString('base64');
 		const options = {
@@ -42,28 +45,37 @@ router.post('/user/create/', (req, res) => {
 			}
 		};
 
-		if (RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)) { // jiraHost must only consist of letters, numbers, '.' and ':' to represent URLs or IPs and ports
-			const jiraURL = `http://${jiraHost}/rest/auth/1/session`;
+		// jiraHost must only consist of letters, numbers, '.' and ':' to represent URLs, IPs or ports
+		if (/^[.:a-zA-Z0-9]+$/.test(jiraServer)) {
+			console.log(jiraServer);
+			const jiraURL = `http://${jiraServer}/rest/auth/1/session`;
 			fetch(jiraURL, options)
 				.then((response) => response.json())
 				.then(() => {
-					helper.updateJira(req.user._id, req.body)
+					userHelper.updateJiraCredential(req.user._id, jiraAccountName, jiraPassword, jiraServer)
 						.then((result) => {
 							res.status(200).json(result);
 						});
 				})
-				.catch((error) => console.error(error));
-			// in case of error
-			res.status(401).json('User doesnt exist.');
+				.catch((error) => {
+					console.error(error);
+					res.status(401).json('User doesnt exist.');
+				});
 		} else {
-			console.error('Given JiraHost does not comply with URL structure.');
-			res.status(401)
-				.json('Given JiraHost does not comply with URL structure.');
+			console.error('Given Jira-Server does not comply with URL structure.');
+			res.status(401).json('Given Jira-Server does not comply with URL structure.');
 		}
+	}
+});
+
+router.delete('/user/disconnect/', (req, res) => {
+	if (typeof req.user === 'undefined' && typeof req.user._id === 'undefined') {
+		console.error('No Jira User sent. (Got undefinded)');
+		res.status(401).json('No Jira User sent. (Got undefinded)');
 	} else {
-		console.error('User doesnt exist. 2');
-		res.status(401)
-			.json('User doesnt exist. 3');
+		helper.disconnectJira(req.user._id).then((result) => {
+			res.status(200).json(result);
+		}).catch((error) => console.error(error));
 	}
 });
 
@@ -83,26 +95,25 @@ router.post('/login', (req, res) => {
 				Authorization: `Basic ${auth}`
 			}
 		};
-		if (RegExp('^[.:a-zA-Z0-9]+$').test(jiraHost)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)
+		if (/^[.:a-zA-Z0-9]+$/.test(jiraServer)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)
 			.then((response, error) => {
 				if (error) {
 					res.status(500);
-					console.error('Cant connect to Jira Server');
+					console.error('Cant connect to Jira-Server.');
 				}
 				if (response.headers['set-cookie'] !== undefined) res.status(200).json(response.headers['set-cookie'][0]);
 				else {
 					res.status(401);
-					console.log('Jira-Login failed');
+					console.log('Failed to log in to Jira-Server.');
 				}
 			});
 		else {
-			console.error('Given JiraHost does not comply with URL structure.');
-			res.status(401)
-				.json('Given JiraHost does not comply with URL structure.');
+			console.error('Given Jira-Server does not comply with URL structure.');
+			res.status(401).json('Given Jira-Server does not comply with URL structure.');
 		}
 	} else {
-		res.status(500);
-		console.log('No Jira Account sent');
+		console.log('No Jira User sent. (Got undefinded)');
+		res.status(500).json('No Jira User sent. (Got undefinded)');
 	}
 });
 

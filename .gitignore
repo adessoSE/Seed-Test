@@ -48,7 +48,6 @@ frontend/src/environments/environment.ts
 Thumbs.db
 
 # Lints
-.eslintrc.json
 tslint.json
 
 # Coerage & Code Analysis
@@ -70,6 +69,7 @@ backend/features/reporting_html*.html
 *.sh
 *.ps1
 !runDocker.bat
+!runDocker.sh
 
 # Website Deployment with IIS
 **/web.config

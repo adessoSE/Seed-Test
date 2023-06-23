@@ -1,5 +1,4 @@
 import { DOCUMENT } from '@angular/common';
-import { parseI18nMeta } from '@angular/compiler/src/render3/view/i18n/meta';
 import { Injectable, EventEmitter, Output, Renderer2, Inject, RendererFactory2} from '@angular/core';
 import { Observable, of } from 'rxjs';
 

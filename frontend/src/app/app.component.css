@@ -16,6 +16,9 @@
   /*Below provides sticky footer*/
   min-height: 100vh;
 }
+/* :host::ng-deep .mat-mdc-form-field{
+  display: inline-table;
+} */
 
 .router{
   grid-area: router;
@@ -333,10 +336,11 @@ a:hover{
   }
 }
 
-.mat-slide-toggle {
+.mat-mdc-slide-toggle {
   margin-left: 8px;
   margin-right: 8px;
   margin-top: 2px;
+  display: inline-flex;
 }
 
 .mat-icon {
@@ -348,6 +352,11 @@ a:hover{
   z-index: 99999 !important;
 }
 
+#defaultVersionWarning {
+  color: var(--pumpkin-orange);
+}
 
-
-
+.vertical-container {
+  display: flex;
+  align-items: center;
+}

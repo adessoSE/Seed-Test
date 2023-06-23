@@ -13,12 +13,12 @@
             <div class="form-group modalsContent">
                 <div>
                     <label>Edit Background Title</label>
-                    <input ngbAutofocus type="text" [formControl]="backgroundTitle">
+                    <input ngbAutofocus type="text" style="margin-left: 24px;" pattern="\S(.*\S)?" [formControl]="backgroundTitle" (keyup)="backgroundUnique()" required>
                 </div>
             </div>
             
             <div class="modal-footer">
-                <button  (click)="onClickSubmit()" class="normalButton" [disabled]="!backgroundTitle.valid"
+                <button id="submitRenameBackground" (click)="onClickSubmit()"  class="normalButton" [disabled]="!backgroundTitle.valid || backgroundTitle.value == this.background.name"
                 [ngStyle]="{'opacity': !backgroundTitle.valid ?  '50%' : '100%'}">Submit
                 </button>
             </div>

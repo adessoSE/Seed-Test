@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const process = require('process');
 const passport = require('passport');
 const initializePassport = require('../passport-config');
-const helper = require('../serverHelper');
+const reporter = require('../../dist/helpers/reporting');
 const mongo = require('../database/DbServices');
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router
 		extended: true
 	}))
 	.use((req, res, next) => {
-		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
+		res.header('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:4200');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Credentials, Authorization, X-Redirect');
 		next();
@@ -51,9 +51,9 @@ router.post('/Group', (req, res, next) => {
 				} else {
 					const group = await mongo.getOneStoryGroup(req.body.repoID, req.body.groupID);
 					const mystories = [];
-					for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id, 'db'));
+					for (const id of group.member_stories) mystories.push(await mongo.getOneStory(id));
 					req.body = group;
-					helper.runReport(req, res, mystories, 'group', req.body);
+					reporter.runReport(req, res, mystories, 'group', req.body);
 					// res.json(user);
 				}
 			});
@@ -63,7 +63,7 @@ router.post('/Group', (req, res, next) => {
 	}
 });
 
-router.post('/Feature/:issueID/:storySource', (req, res, next) => {
+router.post('/Feature/:issueID', (req, res, next) => {
 	if (req.body.stayLoggedIn) req.session.cookie.maxAge = 864000000;
 	req.body.email = req.body.email.toLowerCase();
 	try {
@@ -79,7 +79,7 @@ router.post('/Feature/:issueID/:storySource', (req, res, next) => {
 					throw new UserError(err);
 				} else {
 					const stories = [];
-					helper.runReport(req, res, stories, 'feature', req.body);
+					reporter.runReport(req, res, stories, 'feature', req.body);
 					// res.json(user);
 				}
 			});

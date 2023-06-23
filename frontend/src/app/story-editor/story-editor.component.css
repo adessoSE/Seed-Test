@@ -16,6 +16,10 @@
   justify-content: space-between;
  }
 
+ :host ::ng-deep div.mdc-circular-progress__indeterminate-container >.mdc-circular-progress__spinner-layer > div.mdc-circular-progress__circle-clipper.mdc-circular-progress__circle-left
+{
+  position: unset !important;
+}
  .darkTheme .storyInfoContainer {
     border-top: 1px solid #B0BEC5;
  }
@@ -260,7 +264,10 @@
   :host ::ng-deep .uk-nav > li > .dropdownStep {
     color: var(--ocean-blue);
   }
-
+.uk-drop.uk-dropdown.uk-open{
+  top: 40px !important;
+  left: 400px !important;
+}
   /* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
   }
@@ -303,7 +310,7 @@
     justify-content: center;
   }
 
-  ::ng-deep .mat-progress-spinner circle, .mat-spinner circle {
+ :host ::ng-deep .mat-mdc-progress-spinner circle, .mat-mdc-spinner circle {
     stroke: var(--ocean-blue);
   }
 
@@ -371,7 +378,7 @@
     vertical-align: bottom;
   }
 
-  .mat-expansion-panel-header-title {
+  .mat-mdc-expansion-panel-header-title {
     flex-grow: 0.4;
   }
   #done{
@@ -404,7 +411,7 @@
   margin-right: 10px;
 }
 
-.mat-expansion-panel-body {
+.mat-mdc-expansion-panel-body {
   padding: 20px;
 }
 
@@ -471,7 +478,7 @@
 .uk-icon {
   background-color: transparent !important;
 }
-.mat-form-field + .mat-form-field {
+.mat-mdc-form-field + .mat-mdc-form-field {
   margin-left: 8px;
 }
 
@@ -483,7 +490,7 @@
   font-weight: bold;
   position: unset;
 }
-.mat-expansion-panel-header{
+.mat-mdc-expansion-panel-header{
     margin: 0;
     padding: 0 20px 0 40px;
     top: 0;
@@ -513,12 +520,12 @@ button#background_up {
   color: white;
 }
 
-.mat-expansion-panel#widened-expansion-panel {
+.mat-mdc-mdc-expansion-panel#widened-expansion-panel {
   padding: 12px 0 12px 0px;
   white-space: pre-wrap;
 }
 
-.mat-expansion-panel#widened-expansion-panel .mat-expansion-panel-header-title {
+.mat-mdc-expansion-panel#widened-expansion-panel .mat-mdc-expansion-panel-header-title {
   color: var(--brown-grey) !important;
 }
 
@@ -527,7 +534,7 @@ button#background_up {
 }
 
 .backgroundTitle {
-  flex-grow: .58;
+  flex-grow: .53;
 }
 
 .def:hover span[rel=def] {
