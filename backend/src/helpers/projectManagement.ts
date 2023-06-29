@@ -197,11 +197,52 @@ async function fuseStoryWithDb(story) {
 	return story;
 }
 
+async function exportProject(ownerId, repoName, repo_id) {
+	const repo = await mongo.getOneRepository(ownerId, repoName).json();  //Das womöglich durch neue Methodenparameter in DBServices nur auf repo_id reduzierbar
+	if(!repo || !repo.stories){
+		return null;
+	}
+	//Collect stories for export
+	let exportStories = []
+	let keyStoryIds = []	//falls doch nicht gebraucht: entfernen!
+	for (let index = 0; index < repo.stories.length; index++) {
+		let story = await mongo.getOneStory(repo.stories[index]).json();
+		keyStoryIds.push(story._id)
+		delete story._id;
+		//story.story_id = index; Das ist die Git/Jira Story ID - womöglich nicht entfernen
+		exportStories.push(story);
+	}
+
+	//Collect blocks for export
+	let repoBlocks = await mongo.getBlocks(repo_id).json();
+	//Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
+	for (let index = 0; index < repoBlocks; index++) {
+		delete repoBlocks[index]._id;
+	}
+	
+	//Collect & adjust groups for export
+	let repoGroups = [... repo.groups];
+	for (let index = 0; index < repoGroups.length; index++) {
+		delete repoGroups[index]._id;
+		//change memberStories references to indices
+		for (let sub_index = 0; sub_index < repoGroups[index].member_stories.length; sub_index++) {
+			repoGroups[index].member_stories[sub_index]
+			
+		}
+	}
+
+	repo.stories
+	console.log(repo);
+}
+
+
+
 module.exports = {
     getJiraRepos,
     dbProjects,
 	uniqueRepositories,
 	starredRepositories,
 	ownRepositories,
-	fuseStoryWithDb
+	fuseStoryWithDb,
+	exportProject
 };

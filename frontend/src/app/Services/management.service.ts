@@ -84,6 +84,18 @@ export class ManagementService {
       .get<Blob>(this.apiService.apiServer + '/story/download/project/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
     
   }
+
+  /**
+ * Downloading importable custom project in a file
+ * @param repo_id
+ * @param version_id
+ * @returns
+*/
+  exportProject(repo_id, version_id=''): Observable<Blob> {
+    return this.http
+      .get<Blob>(this.apiService.apiServer + '/story/download/project/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
+    
+  }
   
 
 }

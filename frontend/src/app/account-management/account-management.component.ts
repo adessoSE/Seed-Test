@@ -300,7 +300,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             console.log(userRepo);
             const source = userRepo.source;
             const id = userRepo._id;
-            this.managmentService.exportProject(source, id, this.versionInput).subscribe(ret => {
+            this.managmentService.exportProject(id, this.versionInput).subscribe(ret => {
                 this.versionInput ? saveAs(ret, userRepo.value + '-v' + this.versionInput + '.zip') : saveAs(ret, userRepo.value + '.zip');
             })
         }
