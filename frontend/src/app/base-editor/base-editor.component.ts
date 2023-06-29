@@ -1458,7 +1458,7 @@ export class BaseEditorComponent  {
       this.insertNewExamples(selectedExampleDefs, blockExampleDefs);
     } else {
       this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs);
-      this.insertPlaceholderValues(selectedExampleDefs, blockExampleDefs[0].values.length);
+      this.insertPlaceholderValues(selectedExampleDefs, selectedExampleDefs[0].values.length);
     }
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved()
@@ -1490,7 +1490,7 @@ export class BaseEditorComponent  {
   
   insertPlaceholderValues(selectedExampleDefs, length) {
     selectedExampleDefs.forEach(element => {
-      for (let i = 0; i < length; i++) {
+      for (let i = element.values.length; i < length; i++) {
         element.values.push('value');
       }
     });

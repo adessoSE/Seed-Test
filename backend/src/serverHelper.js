@@ -92,16 +92,20 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
 		if (scenario.comment !== null) {
-			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, "\n#  ")}\n\n`;
+			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
 	}
-	log("scenario steps: ", data);
+	log('scenario steps: ', data);
 	return data;
 }
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
-	let data = `Feature: ${story.title}\n\n${story.body}\n\n`;
+	let body = '';
+	if (story.body !== null && story.body !== undefined) {
+		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
+	}
+	let data = `Feature: ${story.title}\n\n${body}\n\n`;
 
 	// Get background
 	if (story.background != null) data += getBackgroundContent(story.background);
