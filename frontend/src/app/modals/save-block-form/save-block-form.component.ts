@@ -162,7 +162,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
         this.parentComponent.checkAllSteps(false);
     } */
     this.parentComponent.checkAllSteps(false);
-    if (this.isBackground == true){
+    if (this.isBackground && this.isBackground !== undefined){
       title = form.value.backgroundNameInput;
     }
     else {

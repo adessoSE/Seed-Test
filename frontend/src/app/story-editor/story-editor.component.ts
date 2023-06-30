@@ -609,7 +609,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
        count++;
       }
     }
-    if (count > 1 && this.backgroundService.backgroundReplaced == undefined && (this.selectedStory.background.saved == undefined || this.selectedStory.background.saved == false)){
+    if (count > 1 && this.backgroundService.backgroundReplaced == undefined && (this.selectedStory.background.saved == undefined || !this.selectedStory.background.saved)){
       this.backgroundChecks();
     }
     else {
