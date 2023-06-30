@@ -71,6 +71,7 @@ import { RenameBackgroundComponent } from './modals/rename-background/rename-bac
 import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
 import { TransferOwnershipToast } from './transferOwnership-toastr';
+import { ApplyBackgroundChanges } from './backgroundChanges-toast';
 
 @NgModule({
   declarations: [
@@ -94,6 +95,7 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     PasswordConfirmedValidatorDirective,
     ReportComponent,
     RunTestToast,
+    ApplyBackgroundChanges,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ReportHistoryComponent,
@@ -153,7 +155,7 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     MatTabsModule,
     MatTooltipModule,
   ],
-  entryComponents: [RunTestToast, CopyExampleToast],
+  entryComponents: [RunTestToast, ApplyBackgroundChanges, CopyExampleToast],
   providers: [ApiService, AuthGuard, CookieService,
     [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
