@@ -141,6 +141,9 @@ export class BaseEditorComponent  {
 
   exampleChild: ExampleTableComponent;
 
+  @ViewChild('textField1') textField1: ElementRef<HTMLDivElement>;
+  regexDetected: boolean = false;
+
   /**
     * Subscribtions for all EventEmitter
     */
@@ -269,6 +272,7 @@ export class BaseEditorComponent  {
     if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
     }
+    this.textField1.nativeElement.addEventListener('input', this.highlightRegex.bind(this));
   }
 
   /**
@@ -1675,6 +1679,27 @@ export class BaseEditorComponent  {
       this.selectedScenario.stepDefinitions.example.push(row)
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved();
+  }
+
+  highlightRegex() { // /[a-z]+\d+/gi
+    console.log('in hightlight')
+    const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
+    const textContent = this.textField1.nativeElement.textContent;
+    const regexMatchedText = textContent.match(regexPattern);
+    console.log(textContent)
+    console.log(regexMatchedText)
+
+    if (regexMatchedText) {
+      this.regexDetected = true;
+
+      const highlightedText = textContent.replace(regexPattern, (match) => {
+        return `<span style="color: var(--ocean-blue);font-weight: bold;">${match}</span>`;
+      });
+
+      this.textField1.nativeElement.innerHTML = highlightedText;
+    } else {
+      this.regexDetected = false;
+    }
   }
 
 }

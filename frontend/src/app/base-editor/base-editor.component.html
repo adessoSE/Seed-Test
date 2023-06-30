@@ -95,8 +95,17 @@
                       <div style="display: flex;" *ngIf="currentStep.values.length > 0" >
                         <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0" style="display: flex;">
                           <div *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false ">
-                            <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" elFocus class="scenario" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
-                            type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value, j, 0, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px; padding-bottom: 1px;"/>
+                            <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" elFocus class="scenario" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
+                            type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value, j, 0, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px; padding-bottom: 1px;" [(ngModel)]="textFieldValue" (ngModelChange)="highlightRegex()"/-->
+                            <div
+                            class="scenario"
+                            [id]="name + '_' + i + '_input_pre_' + j"
+                            #textField1
+                            contenteditable="true"
+                            (input)="highlightRegex()"
+                            style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;"
+                          ></div>
+                          
                           </div>
                           <div *ngIf="currentStep.isExample[0] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
                             <mat-form-field appearance="standard" class="exampleList">

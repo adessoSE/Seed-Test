@@ -419,3 +419,9 @@ input.scenario, input.background {
   height: 11px !important;
 
  }
+
+ .regex-expression {
+  color: var(--ocean-blue);
+  font-weight: bold;
+  /* Add any other desired styles */
+}
