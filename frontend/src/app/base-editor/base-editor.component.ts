@@ -1,7 +1,7 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CopyExampleToast } from '../copyExample-toast';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, Input, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -141,7 +141,7 @@ export class BaseEditorComponent  {
 
   exampleChild: ExampleTableComponent;
 
-  @ViewChild('textField1') textField1: ElementRef<HTMLDivElement>;
+  //@ViewChild('textField1', { static: true }) textField1: ElementRef<HTMLInputElement>;
   regexDetected: boolean = false;
 
   /**
@@ -160,7 +160,8 @@ export class BaseEditorComponent  {
     public exampleService: ExampleService,
     public scenarioService: ScenarioService,
     public backgroundService: BackgroundService,
-    public apiService: ApiService) {}
+    public apiService: ApiService,
+    private renderer: Renderer2) {}
 
   ngOnInit(): void {
     this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
@@ -252,6 +253,9 @@ export class BaseEditorComponent  {
   }
 
   ngAfterViewInit(): void {   
+    const textField = document.getElementById('textField1');
+    textField.addEventListener('input', this.highlightRegex.bind(this));
+
     this.step_type_input.changes.subscribe(_ => {
         this.step_type_input.forEach(in_field => {
           if ( in_field.nativeElement.id === this.lastToFocus) {
@@ -272,7 +276,6 @@ export class BaseEditorComponent  {
     if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
     }
-    this.textField1.nativeElement.addEventListener('input', this.highlightRegex.bind(this));
   }
 
   /**
@@ -1681,25 +1684,124 @@ export class BaseEditorComponent  {
     this.markUnsaved();
   }
 
-  highlightRegex() { // /[a-z]+\d+/gi
-    console.log('in hightlight')
-    const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
-    const textContent = this.textField1.nativeElement.textContent;
-    const regexMatchedText = textContent.match(regexPattern);
-    console.log(textContent)
-    console.log(regexMatchedText)
-
-    if (regexMatchedText) {
-      this.regexDetected = true;
-
-      const highlightedText = textContent.replace(regexPattern, (match) => {
-        return `<span style="color: var(--ocean-blue);font-weight: bold;">${match}</span>`;
-      });
-
-      this.textField1.nativeElement.innerHTML = highlightedText;
-    } else {
-      this.regexDetected = false;
+  /*highlightRegex() { // with input field
+    <span style="color: red">hi</span>
+      const regexPattern =  // Regex pattern to recognize and highlight regex expressions
+    
+      const divElement = document.getElementById('textField1');
+      const selection = window.getSelection();
+    
+      // Store the current selection position
+      const selectionStart = selection ? selection.anchorOffset : 0;
+    
+      const textContent = divElement.innerText || '';
+    
+      const regexMatchedText = textContent.match(regexPattern);
+      const regexDetected = regexMatchedText !== null;
+    
+      // Clear previous styling
+      divElement.innerHTML = '';
+    
+      if (regexDetected) {
+        const fragment = document.createDocumentFragment();
+        let currentIndex = 0;
+    
+        for (const match of regexMatchedText) {
+          const startIndex = textContent.indexOf(match, currentIndex);
+          const nonRegexPart = textContent.substring(currentIndex, startIndex);
+    
+          if (nonRegexPart) {
+            const nonRegexNode = document.createTextNode(nonRegexPart);
+            fragment.appendChild(nonRegexNode);
+          }
+    
+          const span = document.createElement('span');
+          span.style.color = 'var(--ocean-blue)';
+          span.style.fontWeight = 'bold';
+          span.textContent = match;
+          fragment.appendChild(span);
+    
+          currentIndex = startIndex + match.length;
+        }
+    
+        const remainingText = textContent.substring(currentIndex);
+        if (remainingText) {
+          const remainingTextNode = document.createTextNode(remainingText);
+          fragment.appendChild(remainingTextNode);
+        }
+    
+        divElement.appendChild(fragment);
+      } else {
+        // No regex matches, simply set the text content
+        divElement.innerText = textContent;
+      }
+    
+      // Restore the cursor position
+      if (selection) {
+        const updatedLength = divElement.innerText.length;
+        const updatedStart = Math.min(selectionStart, updatedLength);
+        const updatedEnd = Math.min(selectionStart, updatedLength);
+    
+        selection.removeAllRanges();
+        const range = document.createRange();
+        range.setStart(divElement.firstChild, updatedStart);
+        range.setEnd(divElement.firstChild, updatedEnd);
+        selection.addRange(range);
+      }
+    }*/
+    highlightRegex() { // div but cursor position bad
+      const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
+  
+      const textField = document.getElementById('textField1');
+      const textContent = textField.textContent;
+  
+      const regexMatchedText = textContent.match(regexPattern);
+      this.regexDetected = regexMatchedText !== null;
+  
+      // Clear previous styling
+      this.renderer.setStyle(textField, 'color', '');
+      this.renderer.setStyle(textField, 'fontWeight', '');
+  
+      if (this.regexDetected) {
+        const matches: RegExpExecArray[] = [];
+        let match: RegExpExecArray | null;
+  
+        while ((match = regexPattern.exec(textContent)) !== null) {
+          matches.push(match);
+        }
+  
+        const fragment = document.createDocumentFragment();
+        let currentIndex = 0;
+  
+        for (const match of matches) {
+          const nonRegexPart = textContent.substring(currentIndex, match.index);
+          const matchText = match[0];
+  
+          if (nonRegexPart) {
+            const nonRegexNode = document.createTextNode(nonRegexPart);
+            fragment.appendChild(nonRegexNode);
+          }
+  
+          const span = document.createElement('span');
+          span.style.color = 'var(--ocean-blue)';
+          span.style.fontWeight = 'bold';
+          span.appendChild(document.createTextNode(matchText));
+          fragment.appendChild(span);
+  
+          currentIndex = match.index + matchText.length;
+        }
+  
+        const remainingText = textContent.substring(currentIndex);
+        if (remainingText) {
+          const remainingTextNode = document.createTextNode(remainingText);
+          fragment.appendChild(remainingTextNode);
+        }
+  
+        while (textField.firstChild) {
+          textField.removeChild(textField.firstChild);
+        }
+  
+        textField.appendChild(fragment);
+      }
     }
-  }
-
-}
+}  // /[a-z]+\d+/gi
