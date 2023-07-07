@@ -37,7 +37,7 @@
     color: white;
     font-size: 20px;
   }
-  
+
 
 .BlockHeaderWarning>p {
     margin: 0;
@@ -134,6 +134,10 @@ em.dragIcon {
     border-radius: 10%;
 }
 
+.actionBarButtonGroup .disabled em{
+    color: gray !important;
+    /* background: #f8f8f8 !important; */
+}
 .actionButton {
     margin-left: 10px;
 }
@@ -184,7 +188,7 @@ em.dragIcon {
 
 ::ng-deep body > ngb-modal-window > .edit-block.modal-dialog {
 
-    width: 50%;
+    width: 55%;
 
     min-width: 1000px;
 
