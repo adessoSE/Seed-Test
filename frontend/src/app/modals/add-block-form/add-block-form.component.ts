@@ -120,7 +120,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
     
     /**
-     * Deletes a block(call a toaster)
+     * Deletes a block(call a toastr)
      */
     deleteBlock() {
       this.apiService.nameOfComponent('block');

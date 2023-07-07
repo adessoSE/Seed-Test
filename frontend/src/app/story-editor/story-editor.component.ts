@@ -6,7 +6,6 @@ import { Scenario } from '../model/Scenario';
 import { StepType } from '../model/StepType';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
-import { RunTestToast } from '../runSave-toast';
 import { DeleteToast } from '../delete-toast';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
@@ -25,7 +24,7 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { Block } from '../model/Block';
 import { StepDefinition } from '../model/StepDefinition';
 import { BlockService } from '../Services/block.service';
-import { ApplyBackgroundChanges } from '../backgroundChanges-toast';
+import { InfoWarningToast } from '../info-warning-toast';
 
 
 /**
@@ -627,11 +626,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     }
   }
     /**
-    * Toaster: background changes in multiple Stories or in current background
+    * Toastr: background changes in multiple Stories or in current background
     */
   backgroundChecks(){
+    this.apiService.nameOfComponent('applyBackgroundChanges');
+    this.apiService.setToastrOptions('Save Changes for All Stories', 'Save as New Background');
      this.toastr.info("", 'You are about to save a Background used in multiple Stories. How should the changes apply?', {
-        toastComponent: ApplyBackgroundChanges,
+        toastComponent: InfoWarningToast,
         timeOut: 10000,
         extendedTimeOut: 3000
       });
@@ -832,8 +833,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     } else {
       this.currentTestScenarioId = scenario_id;
       this.currentTestStoryId = this.selectedStory.story_id;
+      this.apiService.nameOfComponent('runSaveToast');
+      this.apiService.setToastrOptions('Save and Run', 'Run Test');
 				this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
-						toastComponent: RunTestToast
+						toastComponent: InfoWarningToast
 				});
 		}
   }
