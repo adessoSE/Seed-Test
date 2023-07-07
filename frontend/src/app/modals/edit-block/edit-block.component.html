@@ -34,6 +34,7 @@
     </div>
     <!--Action bar-->
     <div class="blockBarContainer">
+        <div class="actionBarButtonGroup">
             <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps(null)" [checked]="this.allChecked" uk-tooltip title="Check All Steps"/>
             <div [class.disabled]="!this.activeActionBar">
                 <button id="{{'block_deactivate_step_'}}"
