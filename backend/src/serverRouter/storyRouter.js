@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
-const pmHelper = require('../helpers/projectManagement.ts');
+const pmHelper = require('../../dist/helpers/projectManagement');
 
 const router = express.Router();
 

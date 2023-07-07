@@ -1,10 +1,8 @@
 const mongo = require('../../src/database/DbServices');
-//import { jiraDecryptPassword } from './userManagement';
-const { jiraDecryptPassword } = require('./userManagement');
+import { jiraDecryptPassword } from './userManagement';
 const emptyScenario = require('../../src/models/emptyScenario');
 const emptyBackground = require('../../src/models/emptyBackground');
-//import { writeFile } from '../../src/serverHelper';
-const { writeFile } = require('../../src/serverHelper');
+import { writeFile } from '../../src/serverHelper';
 import { XMLHttpRequest } from 'xmlhttprequest';
 
 enum Sources {
