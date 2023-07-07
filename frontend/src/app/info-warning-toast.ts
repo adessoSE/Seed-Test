@@ -11,28 +11,10 @@ import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
   
   /**
-   * Component of the run save toasts
+   * Information warning toastr component
    */
   @Component({
     selector: '[pink-toast-component]',
-    //styles: [`
-    //  :host {
-    //    background-color: #FF69B4;
-    //    position: relative;
-    //    overflow: hidden;
-    //    margin: 0 0 6px;
-    //    padding: 10px 10px 10px 10px;
-    //    width: 300px;
-    //    border-radius: 3px 3px 3px 3px;
-    //    color: #FFFFFF;
-    //    pointer-events: all;
-    //    cursor: pointer;
-    //  }
-    //  .btn-pink {
-    //    -webkit-backface-visibility: hidden;
-    //    -webkit-transform: translateZ(0);
-    //  }
-    //`],
     styles:[`
         a {
             background: #388196;
@@ -58,11 +40,11 @@ import { ApiService } from './Services/api.service';
         </div>
       </div>
       <div class="col-9">
-        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="saveAndRunTest($event)">
-          {{ saveRunString }}
+        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="firstOptionExecution($event)">
+          {{ firstOptionString }}
         </a>
-        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="runTest($event)">
-            {{ runString }}
+        <a *ngIf="!options.closeButton" class="btn btn-pink btn-sm" (click)="secondOptionExecution($event)">
+            {{ secondOptionString }}
         </a>
         <a *ngIf="options.closeButton" (click)="remove()" class="btn btn-pink btn-sm">
           close
@@ -110,19 +92,24 @@ import { ApiService } from './Services/api.service';
     preserveWhitespaces: false,
   })
 
-  export class RunTestToast extends Toast {
+  export class InfoWarningToast extends Toast {
     
     /**
-     * Name for the save run button
+     * Name for the first option
      */
-    saveRunString = 'Save and Run';
+    firstOptionString: string;
 
     /**
-     * Name for the run test button
+     * Name for the second option
      */
-    runString = 'Run Test'
-    // constructor is only necessary when not using AoT
+    secondOptionString: string;
+     /**
+     * Name of the toastr
+     */
+    nameToastr: string;
 
+    toastrOptions: string[];
+    // constructor is only necessary when not using AoT
     /**
      * @ignore
      */
@@ -133,26 +120,43 @@ import { ApiService } from './Services/api.service';
     ) {
       super(toastrService, toastPackage);
     }
-  
+    ngOnInit() {
+        this.nameToastr = this.apiService.getNameOfComponent();
+        this.toastrOptions = this.apiService.getNameOfToastrOptions();
+        this.firstOptionString = this.toastrOptions[0];
+        this.secondOptionString = this.toastrOptions[1];
+      }
     /**
-     * Run test without saving it
+     * Execution of the first option
      * @param event 
      */
-    runTest(event: Event){
+    firstOptionExecution(event: Event){
         event.stopPropagation();
-        this.apiService.runSaveOption('run')
+        switch(this.nameToastr){
+            case 'runSaveToast': this.apiService.runSaveOption('saveRun');
+            break;
+            case 'copyExampleToast': this.apiService.copyStepWithExampleOption('copy')
+            break;
+            default:
+            break;
+        }
         this.remove();
-
     }
 
     /**
-     * Saves the scenario and then runs the test
+     * Execution of the second option
      * @param event 
      */
-    saveAndRunTest(event: Event){
-        console.log('Save and Run Test')
+    secondOptionExecution(event: Event){
         event.stopPropagation();
-        this.apiService.runSaveOption('saveRun')
+        switch(this.nameToastr){
+            case 'runSaveToast': this.apiService.runSaveOption('run');
+            break;
+            case 'copyExampleToast': this.apiService.copyStepWithExampleOption('dontCopy')
+            break;
+            default:
+            break;
+        }
         this.remove();
     }
-  }
+}

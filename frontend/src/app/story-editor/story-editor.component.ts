@@ -6,7 +6,6 @@ import { Scenario } from '../model/Scenario';
 import { StepType } from '../model/StepType';
 import { Background } from '../model/Background';
 import { ToastrService } from 'ngx-toastr';
-import { RunTestToast } from '../runSave-toast';
 import { DeleteToast } from '../delete-toast';
 import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
@@ -25,6 +24,7 @@ import { SaveBlockFormComponent } from '../modals/save-block-form/save-block-for
 import { Block } from '../model/Block';
 import { StepDefinition } from '../model/StepDefinition';
 import { BlockService } from '../Services/block.service';
+import { InfoWarningToast } from '../info-warning-toast';
 
 
 /**
@@ -605,7 +605,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     }
     this.backgroundChecks(count);
   }
-  //Checking bagckrounds, setting toasters
+  //Checking bagckrounds, setting toastrs
   backgroundChecks(count){
     if (count > 1  && this.backgroundService.backgroundReplaced == undefined){
       this.backgroundService.backgroundReplaced = true; 
@@ -801,8 +801,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     } else {
       this.currentTestScenarioId = scenario_id;
       this.currentTestStoryId = this.selectedStory.story_id;
+      this.apiService.nameOfComponent('runSaveToast');
+      this.apiService.setToastrOptions('Save and Run', 'Run Test');
 				this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
-						toastComponent: RunTestToast
+						toastComponent: InfoWarningToast
 				});
 		}
   }

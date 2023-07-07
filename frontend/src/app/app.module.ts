@@ -1,4 +1,3 @@
-import { CopyExampleToast } from './copyExample-toast';
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {RouterModule} from '@angular/router';
@@ -34,7 +33,6 @@ import { PasswordConfirmedValidatorDirective } from './directives/password-confi
 import { ToastrModule } from 'ngx-toastr';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { CarouselModule } from 'ngx-owl-carousel-o';
-import {RunTestToast} from './runSave-toast';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { ConfirmResetPasswordComponent } from './confirm-reset-password/confirm-reset-password.component';
 import { DeleteToast } from './delete-toast';
@@ -71,6 +69,7 @@ import { RenameBackgroundComponent } from './modals/rename-background/rename-bac
 import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
 import { TransferOwnershipToast } from './transferOwnership-toastr';
+import { InfoWarningToast } from './info-warning-toast';
 
 @NgModule({
   declarations: [
@@ -93,7 +92,7 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     RegistrationComponent,
     PasswordConfirmedValidatorDirective,
     ReportComponent,
-    RunTestToast,
+    InfoWarningToast,
     ResetPasswordComponent,
     ConfirmResetPasswordComponent,
     ReportHistoryComponent,
@@ -118,7 +117,6 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     BaseEditorComponent,
     NewExampleComponent,
     ExampleComponent,
-    CopyExampleToast,
     DeleteToast,
     TransferOwnershipToast
   ],
@@ -153,7 +151,7 @@ import { TransferOwnershipToast } from './transferOwnership-toastr';
     MatTabsModule,
     MatTooltipModule,
   ],
-  entryComponents: [RunTestToast, CopyExampleToast],
+  entryComponents: [InfoWarningToast],
   providers: [ApiService, AuthGuard, CookieService,
     [{ provide: HTTP_INTERCEPTORS, useClass: TimeoutInterceptor, multi: true }], [{ provide: HTTP_INTERCEPTORS, useClass: HttpLoggerInterceptor, multi: true }],
     [{ provide: DEFAULT_TIMEOUT, useValue: 120000 }], ThemingService],
