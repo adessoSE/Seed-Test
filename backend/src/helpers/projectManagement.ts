@@ -1,8 +1,10 @@
 const mongo = require('../../src/database/DbServices');
-import { jiraDecryptPassword } from './userManagement';
+//import { jiraDecryptPassword } from './userManagement';
+const { jiraDecryptPassword } = require('./userManagement');
 const emptyScenario = require('../../src/models/emptyScenario');
 const emptyBackground = require('../../src/models/emptyBackground');
-import { writeFile } from '../../src/serverHelper';
+//import { writeFile } from '../../src/serverHelper';
+const { writeFile } = require('../../src/serverHelper');
 import { XMLHttpRequest } from 'xmlhttprequest';
 
 enum Sources {
@@ -197,49 +199,69 @@ async function fuseStoryWithDb(story) {
 	return story;
 }
 
-async function exportProject(ownerId, repoName, repo_id) {
-	const repo = await mongo.getOneRepository(ownerId, repoName).json();  //Das womöglich durch neue Methodenparameter in DBServices nur auf repo_id reduzierbar
-	if(!repo || !repo.stories){
-		return null;
-	}
-	//Collect stories for export
-	let exportStories = []
-	let keyStoryIds = []	//falls doch nicht gebraucht: entfernen!
-	for (let index = 0; index < repo.stories.length; index++) {
-		let story = await mongo.getOneStory(repo.stories[index]).json();
-		keyStoryIds.push(story._id)
-		delete story._id;
-		//story.story_id = index; Das ist die Git/Jira Story ID - womöglich nicht entfernen
-		exportStories.push(story);
-	}
-
-	//Collect blocks for export
-	let repoBlocks = await mongo.getBlocks(repo_id).json();
-	//Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
-	for (let index = 0; index < repoBlocks; index++) {
-		delete repoBlocks[index]._id;
-	}
-	
-	//Collect & adjust groups for export
-	let repoGroups = [... repo.groups];
-	for (let index = 0; index < repoGroups.length; index++) {
-		delete repoGroups[index]._id;
-		//change memberStories references to indices
-		for (let sub_index = 0; sub_index < repoGroups[index].member_stories.length; sub_index++) {
-			repoGroups[index].member_stories[sub_index]
-			
+async function exportProject(ownerId, repoName, repo_id, versionID) {
+	try {
+		const repo = await mongo.getOneRepository(ownerId, repoName).json();  //Das womöglich durch neue Methodenparameter in DBServices nur auf repo_id reduzierbar
+		if (!repo || !repo.stories) {
+			return null;
 		}
-	}
+		//Collect stories for export
+		let exportStories = []
+		let keyStoryIds = []	//falls doch nicht gebraucht: entfernen!
+		for (let index = 0; index < repo.stories.length; index++) {
+			let story = await mongo.getOneStory(repo.stories[index]).json();
+			if (!story) {
+				throw new Error(`Story ${repo.stories[index]} not found`);
+			}
+			keyStoryIds.push(story._id.toString())
+			delete story._id;
+			//story.story_id = index; Das ist die Git/Jira Story ID - womöglich nicht entfernen
+			exportStories.push(story);
+		}
 
-	repo.stories
-	console.log(repo);
+		//Collect blocks for export
+		let repoBlocks = await mongo.getBlocks(repo_id).json();
+		//Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
+		for (let index = 0; index < repoBlocks.length; index++) {
+			delete repoBlocks[index]._id;
+		}
+
+		//Collect & adjust groups for export
+		let repoGroups = [...repo.groups];
+		for (let index = 0; index < repoGroups.length; index++) {
+			delete repoGroups[index]._id;
+			//change memberStories references to indices
+			for (let sub_index = 0; sub_index < repoGroups[index].member_stories.length; sub_index++) {
+				repoGroups[index].member_stories[sub_index] = keyStoryIds.indexOf(repoGroups[index].member_stories[sub_index])
+			}
+		}
+		
+		console.log(repo);
+		console.log(exportStories);
+		console.log(repoBlocks);
+		console.log(repoGroups);
+
+		return {
+			repo,
+			exportStories,
+			repoBlocks,
+			repoGroups,
+			keyStoryIds
+		  };
+
+
+
+	} catch (error) {
+		console.error('Error exporting project:', error.message);
+		throw error;
+	}
 }
 
 
 
 module.exports = {
-    getJiraRepos,
-    dbProjects,
+	getJiraRepos,
+	dbProjects,
 	uniqueRepositories,
 	starredRepositories,
 	ownRepositories,
