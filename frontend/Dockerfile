@@ -3,12 +3,16 @@
 # Create app directory
 WORKDIR /usr/src/app
 
-# Bundle app source
-COPY . .
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
+# Install dependencies
+RUN npm ci
+
+# Install Angular CLI
+RUN npm install -g @angular/cli
+
+COPY . .
 
 EXPOSE 4200
 
