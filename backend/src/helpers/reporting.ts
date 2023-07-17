@@ -1,9 +1,9 @@
-const reporter = require('cucumber-html-reporter');
+import reporter from 'cucumber-html-reporter';
 import pfs from 'fs/promises';
-const fs = require('fs')
-const path = require('path');
-const ticketMng = require('./ticketManagement');
-const userMng = require('./userManagement')
+import fs  from 'fs';
+import path from 'path';
+import {renderComment,  postCommentGitHub, postCommentJira, updateLabel} from'./ticketManagement';
+import {jiraDecryptPassword} from './userManagement';
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
 import {executionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, passedCount, stepStatus, scenarioStatus} from '../models/models';
@@ -251,7 +251,12 @@ async function deleteOldReports(reports: any[]) {
 async function createReport(res, reportName: string) {//TODO remove res here push earlier
     const report = await mongo.getReportByName(reportName);
     const resolvedPath = path.resolve(`features/${reportName}.json`);
-    fs.writeFileSync(resolvedPath, report.jsonReport, (err) => { console.log('Error:', err); });
+    try {
+        fs.writeFileSync(resolvedPath, report.jsonReport);
+    } catch (error) {
+        console.log('Error:', error);
+    }
+    
     reporter.generate(setOptions(reportName));
     setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.json`);
     setTimeout(deleteReport, reportDeletionTime * 60000, `${reportName}.html`);
@@ -403,7 +408,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 			commentReportResult = (reportResults as ScenarioReport).featureTestResults
             commentReportname = reportName
 		}
-        comment += ticketMng.renderComment(commentReportResult, reportResults.status, reportResults.scenariosTested,
+        comment += renderComment(commentReportResult, reportResults.status, reportResults.scenariosTested,
             reportResults.reportTime, story, story.scenarios[0], mode, commentReportname);
 		if (story.storySource === 'github' && req.user && req.user.github) {
 			const githubValue = parameters.repository.split('/');
@@ -412,13 +417,13 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 			const githubName = githubValue[0];
 			const githubRepo = githubValue[1];
 
-			ticketMng.postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
-			if (mode === executionMode.STORY) ticketMng.updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
+			if (mode === executionMode.STORY) updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 		}
 		if (story.storySource === 'jira' && req.user && req.user.jira) {
 			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-			const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-			ticketMng.postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
+			const clearPass = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
+			postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
 		}
 	}
 }
