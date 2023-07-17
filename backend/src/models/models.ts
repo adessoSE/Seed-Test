@@ -13,62 +13,60 @@ class passedCount{
     }
 }
 
-class groupReport{
+class GenericReport {
     reportName: string
     reportOptions: any
-    status: boolean // different
+    status: boolean
+    scenariosTested: passedCount
+
+    reportTime: number
+    mode: executionMode
+    smallReport: string
+
+    constructor(){
+        this.status = false
+        this.scenariosTested = new passedCount()
+    }
+}
+
+class GroupReport extends GenericReport {
     storyStatuses: Array<{storyId: string, status: boolean, scenarioStatuses: Array<scenarioStatus>, featureTestResults: stepStatus, scenariosTested: passedCount}> // different
     // different no feature/storyId
     // featureTestResults: stepStatus
-    scenariosTested: { passed: number, failed: number }
     groupTestResults: stepStatus
-    reportTime: number
-    mode: executionMode.GROUP
-    smallReport: string
     constructor(){
-        this.status = false
+        super()
         this.storyStatuses = []
         this.scenariosTested = new passedCount()
         this.groupTestResults = new stepStatus() 
+        this.mode = executionMode.GROUP
     }
 }
 
-class storyReport{
-    reportName: string
-    reportOptions: any
-    status: boolean
+class StoryReport extends GenericReport {
     scenarioStatuses: scenarioStatus[]
     featureId: string // different
     featureTestResults: stepStatus
-    scenariosTested: passedCount
-    reportTime: number
-    mode: executionMode.STORY
-    smallReport: string
     constructor(){
-        this.status = false
+        super()
         this.scenarioStatuses = []
         this.featureTestResults = new stepStatus()
         this.scenariosTested = new passedCount()
+        this.mode = executionMode.STORY
     }
 }
 
-class scenarioReport {
-    reportName: string
-    reportOptions: any
-    status: boolean
+class ScenarioReport extends GenericReport {
     scenarioStatuses: scenarioStatus[]
     storyId: string // different
     scenarioId: string // different
     featureTestResults: stepStatus
-    scenariosTested: passedCount
-    reportTime: number
-    mode: executionMode.SCENARIO
-    smallReport: string
     constructor(){
-        this.status = false
+        super()
         this.scenarioStatuses = []
         this.featureTestResults = new stepStatus()
         this.scenariosTested = new passedCount()
+        this.mode = executionMode.SCENARIO
     }
 }
 
@@ -94,9 +92,10 @@ class stepStatus {
 export {
     scenarioStatus,
     executionMode,
-    groupReport,
-    storyReport,
-    scenarioReport,
+    GenericReport,
+    GroupReport,
+    StoryReport,
+    ScenarioReport,
     passedCount,
     stepStatus
 };

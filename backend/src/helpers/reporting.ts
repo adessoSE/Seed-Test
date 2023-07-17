@@ -1,12 +1,12 @@
 const reporter = require('cucumber-html-reporter');
-const pfs = require('fs/promises')
+import pfs from 'fs/promises';
 const fs = require('fs')
 const path = require('path');
 const ticketMng = require('./ticketManagement');
 const userMng = require('./userManagement')
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
-import {executionMode, storyReport, scenarioReport, groupReport, passedCount, stepStatus} from '../models/models';
+import {executionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, passedCount, stepStatus, scenarioStatus} from '../models/models';
 
 // this is needed for the html report
 const options = {
@@ -102,7 +102,7 @@ function analyzeReport(grpName: string, stories: any[], mode: executionMode, rep
 
 // param: stories should only contain one Story
 function analyzeStoryReport(stories, reportName, reportOptions) {
-    let reportResults = new storyReport();
+    let reportResults = new StoryReport();
     try {
         const reportPath = `./features/${reportName}.json`;
         return pfs.readFile(reportPath, 'utf8').then((data) => {
@@ -118,7 +118,7 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
                 reportResults.reportName = reportName
                 reportResults.reportOptions = reportOptions
                 reportResults.featureId = stories[0]._id
-                return reportResults
+                return reportResults as StoryReport
 
             } catch (error) {
                 reportResults.status = false;
@@ -131,53 +131,51 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
     }
 }
 function failedReportPromise(reportName) {
-    return { reportName: `Failed-${reportName}`, status: false };
+    return { reportName: `Failed-${reportName}`, status: false } as GenericReport;
 }
 
 
 
 function analyzeScenarioReport(stories: Array<any>, reportName: string, scenarioId: number, reportOptions: any) {
-    const reportResults = new scenarioReport();
+    const reportResults = new ScenarioReport();
     reportResults.reportName = reportName;
     reportResults.reportOptions = reportOptions;
-    try {
-        const reportPath = `./features/${reportName}.json`;
-        return pfs.readFile(reportPath, 'utf8').then((data) => {
-            const cucumberReport = JSON.parse(data);
-            console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
-            try {
-                const storyReport = cucumberReport[0];
-                console.log(`NUMBER OF SCENARIOS IN THE REPORT (must be 1): ${storyReport.elements.length}`);
-                const story = stories[0];
-                console.log(`Story ID: ${story._id}`);
-                console.log(story);
-                reportResults.storyId = story._id;
-                const scenarioReport = storyReport.elements[0]
+    const reportPath = `./features/${reportName}.json`;
 
-                const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
-                let result = scenarioResult(scenarioReport, scenario)
-                reportResults.scenarioId = result.scenarioId
-                reportResults.featureTestResults = result.stepResults
-                reportResults.scenariosTested = { passed: +result.status, failed: +!result.status }
-                reportResults.status = result.status
-                reportResults.scenarioStatuses.push(result)
-                return reportResults
-            } catch (error) {
-                reportResults.status = false;
-                console.log('iterating through report Json failed in serverHelper/runReport. '
-                    + 'Setting testStatus of Report to false.', error);
-            }
-        })
-    } catch (error) {
-        console.log(`fs.readFile error for file ./features/${reportName}.json`);
-    }
-    console.log('Report Results in analyzeScenarioReport: ');
-    console.log(reportResults);
-    return reportResults;
+    return pfs.readFile(reportPath, 'utf8')
+    .then((data) => {
+        const cucumberReport = JSON.parse(data);
+        console.log(`NUMBER OF STORIES IN THE REPORT (must be 1): ${cucumberReport.length}`);
+        try {
+            const storyReport = cucumberReport[0];
+            console.log(`NUMBER OF SCENARIOS IN THE REPORT (must be 1): ${storyReport.elements.length}`);
+            const story = stories[0];
+            console.log(`Story ID: ${story._id}`);
+            console.log(story);
+            reportResults.storyId = story._id;
+            const scenarioReport = storyReport.elements[0]
+
+            const scenario = story.scenarios.find(scen => scen.scenario_id == scenarioId)
+            let result = scenarioResult(scenarioReport, scenario)
+            reportResults.scenarioId = result.scenarioId
+            reportResults.featureTestResults = result.stepResults
+            reportResults.scenariosTested = { passed: +result.status, failed: +!result.status }
+            reportResults.status = result.status
+            reportResults.scenarioStatuses.push(result)
+            return reportResults as ScenarioReport
+        } catch (error) {
+            reportResults.status = false;
+            console.log('iterating through report Json failed in serverHelper/runReport. '
+                + 'Setting testStatus of Report to false.', error);
+        }
+    }).catch ((reason) => {
+        console.log(`fs.readFile error for file ./features/${reportName}.json`)
+        return reportResults
+    });
 }
 
 function analyzeGroupReport(grpName: string, stories: any[], reportOptions: any) {
-    const reportResults = new groupReport()
+    const reportResults = new GroupReport()
     reportResults.reportOptions = reportOptions
     try {
         const reportPath = `./features/${grpName}/${grpName}.html.json`;
@@ -209,7 +207,7 @@ function analyzeGroupReport(grpName: string, stories: any[], reportOptions: any)
                 reportResults.groupTestResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
                 reportResults.scenariosTested = scenariosTested;
                 reportResults.reportName = grpName;
-                return reportResults
+                return reportResults as GroupReport
             } catch (error) {
                 reportResults.status = false;
                 console.log('iterating through report Json failed in analyzeGroupReport.'
@@ -396,14 +394,17 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 	// if possible separate function
 	for (const story of stories) {
 		let comment;
+        let commentReportResult, commentReportname;
 		if (mode === executionMode.GROUP) {
 			comment = `This Execution ist part of group execution ${parameters.name}\n`;
-			comment += ticketMng.renderComment(reportResults.groupTestResults.passedSteps, reportResults.groupTestResults.failedSteps, reportResults.groupTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-				reportResults.reportTime, story, story.scenarios[0], mode, reportName.split('/')[0]);
+            commentReportResult = (reportResults as GroupReport).groupTestResults
+            commentReportname = reportName.split('/')[0]
 		} else {
-			comment += ticketMng.renderComment(reportResults.featureTestResults.passedSteps, reportResults.featureTestResults.failedSteps, reportResults.featureTestResults.skippedSteps, reportResults.status, reportResults.scenariosTested,
-				reportResults.reportTime, story, story.scenarios[0], mode, reportName);
+			commentReportResult = (reportResults as ScenarioReport).featureTestResults
+            commentReportname = reportName
 		}
+        comment += ticketMng.renderComment(commentReportResult, reportResults.status, reportResults.scenariosTested,
+            reportResults.reportTime, story, story.scenarios[0], mode, commentReportname);
 		if (story.storySource === 'github' && req.user && req.user.github) {
 			const githubValue = parameters.repository.split('/');
 			// eslint-disable-next-line no-continue
@@ -465,10 +466,10 @@ async function runSanityReport(req, res, stories: any[], mode: executionMode, pa
         `;
       
         return notificationText;
-      }
+    }
 
 	fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-		res.status(200).send(formatNotification({"scenarios": reportResults.scenariosTested, "steps": reportResults.groupTestResults}));
+		res.status(200).send(formatNotification({"scenarios": reportResults.scenariosTested, "steps": (reportResults as GroupReport).groupTestResults}));
 	});
 	testExecutor.updateLatestTestStatus(uploadedReport, mode);
 }

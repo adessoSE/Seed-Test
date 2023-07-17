@@ -3,7 +3,7 @@ import {checkValidGithub} from './userManagement'
 const { XMLHttpRequest } = require('xmlhttprequest');
 
 function renderComment(
-	stepsPassed, stepsFailed, stepsSkipped,
+	stepResults,
 	testStatus,
 	scenariosTested,
 	reportTime,
@@ -16,7 +16,7 @@ function renderComment(
 	const testPassedIcon = testStatus ? ':white_check_mark:' : ':x:';
 	const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
 	const reportUrl = `${frontendUrl}/report/${reportName}`;
-	if (mode === executionMode.SCENARIO) comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepsPassed} :white_check_mark:\nSteps failed: ${stepsFailed} :x:\nSteps skipped: ${stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
+	if (mode === executionMode.SCENARIO) comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Scenario: "${scenario.name}"\n### Test passed: ${testStatus}${testPassedIcon}\nSteps passed: ${stepResults.stepsPassed} :white_check_mark:\nSteps failed: ${stepResults.stepsFailed} :x:\nSteps skipped: ${stepResults.stepsSkipped} :warning:\nLink to the official report: [Report](${reportUrl})`;
 	else comment = `# Test Result ${new Date(reportTime).toLocaleString()}\n## Tested Story: "${story.title}"\n### Test passed: ${testStatus}${testPassedIcon}\nScenarios passed: ${scenariosTested.passed} :white_check_mark:\nScenarios failed: ${scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
 	return comment;
 }
