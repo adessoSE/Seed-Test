@@ -418,7 +418,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 			const githubRepo = githubValue[1];
 
 			postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
-			if (mode === executionMode.STORY) updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			if (mode === executionMode.STORY) updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 		}
 		if (story.storySource === 'jira' && req.user && req.user.jira) {
 			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
