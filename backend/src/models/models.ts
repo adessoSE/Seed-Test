@@ -89,6 +89,59 @@ class stepStatus {
     }
 }
 
+enum IssueTrackerOption{
+    JIRA = 'jira',
+    GITHUB = 'github',
+    NONE = 'db'
+}
+
+abstract class IssueTracker {
+
+    static getIssueTracker(tracker: IssueTrackerOption): IssueTracker {
+        switch (tracker) {
+            case IssueTrackerOption.JIRA:
+                return new Jira();
+            case IssueTrackerOption.GITHUB:
+                return new Github();
+            case IssueTrackerOption.NONE:
+                return new NoTracker();
+            default:
+                throw new Error('Invalid IssueTracker')
+        }
+    }
+    reportText(){
+        
+    }
+    abstract postComment();
+}
+
+class Jira extends IssueTracker {
+    reportText() {
+        throw new Error("Method not implemented.")
+    }
+    postComment() {
+        throw new Error("Method not implemented.")
+    }
+}
+
+class Github extends IssueTracker {
+    reportText() {
+        throw new Error("Method not implemented.")
+    }
+    postComment() {
+        throw new Error("Method not implemented.")
+    }
+}
+
+class NoTracker extends IssueTracker {
+    reportText() {
+        throw new Error("Method not implemented.")
+    }
+    postComment() {
+        throw new Error("Method not implemented.")
+    }
+}
+
 export {
     scenarioStatus,
     executionMode,
