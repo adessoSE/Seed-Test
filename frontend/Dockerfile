@@ -7,10 +7,10 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --ignore-scripts --only=production
 
 # Install Angular CLI
-RUN npm install -g @angular/cli
+RUN npm install -g @angular/cli --ignore-scripts --only=production
 
 COPY . .
 
