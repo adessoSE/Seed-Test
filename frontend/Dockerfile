@@ -10,8 +10,7 @@ COPY package*.json ./
 RUN npm ci --ignore-scripts --only=production
 
 # Install Angular CLI
-RUN npm install -g @angular/cli --ignore-scripts --only=production
-
+RUN npm install --ignore-scripts -g @angular/cli
 COPY . .
 
 EXPOSE 4200
