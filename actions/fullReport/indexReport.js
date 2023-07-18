@@ -6,7 +6,7 @@ async function postMessage() {
     const destinationBranch = process.env.INPUT_DESTINATIONBRANCH;
     const requestor = process.env.INPUT_REQUESTOR;
     const date = process.env.INPUT_DATE;
-    const description = process.env.INPUT_DESCRIPTION || "-";
+    const description = process.env.INPUT_DESCRIPTION || "- No Description";
     const dockerStatus = (process.env.INPUT_DOCKERSTATUS === "success");
     const workflowLink = process.env.INPUT_WORKFLOWLINK || "";
 
