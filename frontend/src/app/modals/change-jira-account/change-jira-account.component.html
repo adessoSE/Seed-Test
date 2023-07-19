@@ -13,8 +13,8 @@
                 <div class="form-group modalsContent" id="jiraForm" *ngIf="type==='Jira'">
                     <div>
                         <ul class="uk-subnav uk-subnav-pill" uk-switcher>
-                            <li><a href="#" formControlName="jiraAuthMethod" (click)="switchForm('bearer')" value="bearer">Bearer</a></li>
-                            <li><a href="#" formControlName="jiraAuthMethod" (click)="switchForm('basic')" value="basic">Basic</a></li>
+                            <li><a href="#" (click)="switchForm('bearer')" [class.active]="jiraForm.get('jiraAuthMethod').value === 'bearer'">Bearer</a></li>
+                            <li><a href="#" (click)="switchForm('basic')" [class.active]="jiraForm.get('jiraAuthMethod').value === 'basic'">Basic</a></li>
                         </ul>
                         <ul class="uk-switcher uk-margin">
                             <form [formGroup]="jiraBearer">
