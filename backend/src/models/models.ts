@@ -1,10 +1,11 @@
+import Jira from './JiraTracker'
 
-enum executionMode{
+enum ExecutionMode {
     SCENARIO = 'scenario',
     STORY = 'feature',
     GROUP = 'group'
 }
-class passedCount{
+class PassedCount {
     passed: number
     failed: number
     constructor(){
@@ -17,70 +18,70 @@ class GenericReport {
     reportName: string
     reportOptions: any
     status: boolean
-    scenariosTested: passedCount
+    scenariosTested: PassedCount
 
     reportTime: number
-    mode: executionMode
+    mode: ExecutionMode
     smallReport: string
 
     constructor(){
         this.status = false
-        this.scenariosTested = new passedCount()
+        this.scenariosTested = new PassedCount()
     }
 }
 
 class GroupReport extends GenericReport {
-    storyStatuses: Array<{storyId: string, status: boolean, scenarioStatuses: Array<scenarioStatus>, featureTestResults: stepStatus, scenariosTested: passedCount}> // different
+    storyStatuses: Array<{storyId: string, status: boolean, scenarioStatuses: Array<ScenarioStatus>, featureTestResults: StepStatus, scenariosTested: PassedCount}> // different
     // different no feature/storyId
     // featureTestResults: stepStatus
-    groupTestResults: stepStatus
+    groupTestResults: StepStatus
     constructor(){
         super()
         this.storyStatuses = []
-        this.scenariosTested = new passedCount()
-        this.groupTestResults = new stepStatus() 
-        this.mode = executionMode.GROUP
+        this.scenariosTested = new PassedCount()
+        this.groupTestResults = new StepStatus() 
+        this.mode = ExecutionMode.GROUP
     }
 }
 
 class StoryReport extends GenericReport {
-    scenarioStatuses: scenarioStatus[]
+    scenarioStatuses: ScenarioStatus[]
     featureId: string // different
-    featureTestResults: stepStatus
+    featureTestResults: StepStatus
     constructor(){
         super()
         this.scenarioStatuses = []
-        this.featureTestResults = new stepStatus()
-        this.scenariosTested = new passedCount()
-        this.mode = executionMode.STORY
+        this.featureTestResults = new StepStatus()
+        this.scenariosTested = new PassedCount()
+        this.mode = ExecutionMode.STORY
     }
 }
 
 class ScenarioReport extends GenericReport {
-    scenarioStatuses: scenarioStatus[]
+    scenarioStatuses: ScenarioStatus[]
     storyId: string // different
     scenarioId: string // different
-    featureTestResults: stepStatus
+    featureTestResults: StepStatus
     constructor(){
         super()
         this.scenarioStatuses = []
-        this.featureTestResults = new stepStatus()
-        this.scenariosTested = new passedCount()
-        this.mode = executionMode.SCENARIO
+        this.featureTestResults = new StepStatus()
+        this.scenariosTested = new PassedCount()
+        this.mode = ExecutionMode.SCENARIO
     }
 }
 
-class scenarioStatus{
+class ScenarioStatus {
     scenarioId: number
     status: boolean
-    stepResults: stepStatus
+    stepResults: StepStatus
     constructor() {
         this.status = false
-        this.stepResults = new stepStatus() // why nested?
+        this.stepResults = new StepStatus() // why nested?
     }
 }
 
-class stepStatus {
+class StepStatus {
     passedSteps: number
     failedSteps: number
     skippedSteps: number
@@ -97,6 +98,10 @@ enum IssueTrackerOption{
 
 abstract class IssueTracker {
 
+    constructor () {
+
+    }
+
     static getIssueTracker(tracker: IssueTrackerOption): IssueTracker {
         switch (tracker) {
             case IssueTrackerOption.JIRA:
@@ -109,20 +114,12 @@ abstract class IssueTracker {
                 throw new Error('Invalid IssueTracker')
         }
     }
-    reportText(){
+    reportText(report: GenericReport) {
         
     }
-    abstract postComment();
+    abstract postComment(comment: string, issueId: string, credentials: any);
 }
 
-class Jira extends IssueTracker {
-    reportText() {
-        throw new Error("Method not implemented.")
-    }
-    postComment() {
-        throw new Error("Method not implemented.")
-    }
-}
 
 class Github extends IssueTracker {
     reportText() {
@@ -143,12 +140,13 @@ class NoTracker extends IssueTracker {
 }
 
 export {
-    scenarioStatus,
-    executionMode,
+    IssueTracker,
+    ScenarioStatus,
+    ExecutionMode,
     GenericReport,
     GroupReport,
     StoryReport,
     ScenarioReport,
-    passedCount,
-    stepStatus
+    PassedCount,
+    StepStatus
 };

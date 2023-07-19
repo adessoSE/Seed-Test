@@ -6,7 +6,7 @@ import {renderComment,  postCommentGitHub, postCommentJira, updateLabel} from'./
 import {jiraDecryptPassword} from './userManagement';
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
-import {executionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, passedCount, stepStatus, scenarioStatus} from '../models/models';
+import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ScenarioStatus} from '../models/models';
 
 // this is needed for the html report
 const options = {
@@ -43,8 +43,8 @@ function setOptions(reportName: string, reportPath = 'features/') {
     return myOptions;
 }
 
-async function resolveReport(reportObj: any, mode: executionMode, stories: any[], req: any) {
-    if (mode !== executionMode.GROUP && stories.length === 0) stories.push(reportObj.story);
+async function resolveReport(reportObj: any, mode: ExecutionMode, stories: any[], req: any) {
+    if (mode !== ExecutionMode.GROUP && stories.length === 0) stories.push(reportObj.story);
     let scenarioId;
     if (req.params.scenarioId !== undefined) {
         scenarioId = req.params.scenarioId;
@@ -57,14 +57,14 @@ async function resolveReport(reportObj: any, mode: executionMode, stories: any[]
     reportResults.mode = mode;
 
     // Group needs an adjusted Path to Report
-    if (mode === executionMode.GROUP) reportName = `${reportResults.reportName}/${reportResults.reportName}`;
+    if (mode === ExecutionMode.GROUP) reportName = `${reportResults.reportName}/${reportResults.reportName}`;
     return {reportResults, reportName};
 }
 
-function analyzeReport(grpName: string, stories: any[], mode: executionMode, reportName: string, scenarioId: number) {
+function analyzeReport(grpName: string, stories: any[], mode: ExecutionMode, reportName: string, scenarioId: number) {
     let reportOptions;
     switch (mode) {
-        case executionMode.SCENARIO:
+        case ExecutionMode.SCENARIO:
             reportOptions = setOptions(reportName);
             try {
                 reporter.generate(reportOptions);
@@ -73,7 +73,7 @@ function analyzeReport(grpName: string, stories: any[], mode: executionMode, rep
                     inside analyzeReport. Error${e}`);
             }
             return analyzeScenarioReport(stories, reportName, scenarioId, reportOptions);
-        case executionMode.STORY:
+        case ExecutionMode.STORY:
             try {
                 reportOptions = setOptions(reportName);
                 reporter.generate(reportOptions);
@@ -82,7 +82,7 @@ function analyzeReport(grpName: string, stories: any[], mode: executionMode, rep
                     inside analyzeReport. Error${e}`);
             }
             return analyzeStoryReport(stories, reportName, reportOptions);
-        case executionMode.GROUP:
+        case ExecutionMode.GROUP:
             reportOptions = setOptions(grpName, `features/${grpName}/`);
             try {
                 /* after the last story in a group we need to generate the hmtl report
@@ -184,7 +184,7 @@ function analyzeGroupReport(grpName: string, stories: any[], reportOptions: any)
             const cucumberReport = JSON.parse(data);
             console.log(`NUMBER OF STORIES IN THE Group-Report: ${cucumberReport.length}`);
             try {
-                let scenariosTested = new passedCount()
+                let scenariosTested = new PassedCount()
                 let overallPassedSteps = 0;
                 let overallFailedSteps = 0;
                 let overallSkippedSteps = 0;
@@ -275,7 +275,7 @@ async function createReport(res, reportName: string) {//TODO remove res here pus
 function featureResult(featureReport: any, feature: any) {
     const storyId = feature._id
     console.log(` Story ID: ${storyId}`);
-    const featureStatus = { storyId, status: false, scenarioStatuses: [], featureTestResults: new stepStatus(), scenariosTested: { passed: 0, failed: 0 } };
+    const featureStatus = { storyId, status: false, scenarioStatuses: [], featureTestResults: new StepStatus(), scenariosTested: { passed: 0, failed: 0 } };
 
     let featurePassedSteps = 0;
     let featureFailedSteps = 0;
@@ -348,10 +348,10 @@ function deleteReport(jsonReport: string) {
     });
 }
 
-async function runReport(req, res, stories: any[], mode: executionMode, parameters) {
+async function runReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
 	let reportObj;
 	try {
-		if (mode === executionMode.GROUP) {
+		if (mode === ExecutionMode.GROUP) {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			if (parameters.isSequential == undefined || !parameters.isSequential)
@@ -389,7 +389,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 
 	// delete Group folder
 	const deletionTime = reportDeletionTime * 60000;
-	if (mode === executionMode.GROUP) setTimeout(deleteReport, deletionTime, `${reportResults.reportName}`);
+	if (mode === ExecutionMode.GROUP) setTimeout(deleteReport, deletionTime, `${reportResults.reportName}`);
 	else {
 		// delete reports in filesystem after a while
 		setTimeout(deleteReport, deletionTime, `${reportName}.json`);
@@ -400,7 +400,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 	for (const story of stories) {
 		let comment;
         let commentReportResult, commentReportname;
-		if (mode === executionMode.GROUP) {
+		if (mode === ExecutionMode.GROUP) {
 			comment = `This Execution ist part of group execution ${parameters.name}\n`;
             commentReportResult = (reportResults as GroupReport).groupTestResults
             commentReportname = reportName.split('/')[0]
@@ -418,7 +418,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 			const githubRepo = githubValue[1];
 
 			postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
-			if (mode === executionMode.STORY) updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			if (mode === ExecutionMode.STORY) updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 		}
 		if (story.storySource === 'jira' && req.user && req.user.jira) {
 			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
@@ -428,10 +428,10 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 	}
 }
 
-async function runSanityReport(req, res, stories: any[], mode: executionMode, parameters) {
+async function runSanityReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
 	let reportObj;
 	try {
-		if (mode === executionMode.GROUP) {
+		if (mode === ExecutionMode.GROUP) {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
 			if (parameters.isSequential == undefined || !parameters.isSequential)
