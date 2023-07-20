@@ -10,6 +10,7 @@ done < <(cat ./backend/.env)
 PORT="${PORT:-8080}"
 
 echo "BACKENDPORT=$PORT" > .env
+unset PORT
 
 sed -i -e '$a\' ./frontend/.env
 while read line; do

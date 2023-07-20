@@ -31,12 +31,12 @@ router
 	});
 
 // run single Feature
-router.post('/Feature/:issueID/:storySource', (req, res) => {
+router.post('/Feature/:issueID', (req, res) => {
 	reporter.runReport(req, res, [], 'feature', req.body).catch((reason) => { console.log('failed in runreport', reason); res.send(reason).status(500) });
 });
 
 // run single Scenario of a Feature
-router.post('/Scenario/:issueID/:storySource/:scenarioId', (req, res) => {
+router.post('/Scenario/:issueID/:scenarioId', (req, res) => {
 	reporter.runReport(req, res, [], 'scenario', req.body).catch((reason) => res.send(reason).status(500));
 });
 
@@ -46,7 +46,7 @@ router.post('/Group/:repoID/:groupID', async (req, res) => {
 	const mystories = [];
 	for (const ms of group.member_stories) {
 		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
-		mystories.push(await mongo.getOneStory(id, 'db'));
+		mystories.push(await mongo.getOneStory(id));
 	}
 	const params = group;
 	params.repository = req.body.repository;

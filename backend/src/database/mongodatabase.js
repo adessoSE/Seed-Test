@@ -16,7 +16,7 @@ if (!process.env.NODE_ENV) {
 	const dotenv = require('dotenv').config();
 }
 
-const uri = process.env.DATABASE_URI;
+const uri = process.env.DATABASE_URI || "mongodb://SeedAdmin:SeedTest@seedmongodb:27017";
 const dbName = 'Seed';
 const userCollection = 'User';
 const storiesCollection = 'Stories';
@@ -250,10 +250,10 @@ function selectUsersCollection(db) {
 	});
 }
 
-function findStory(storyId, storySource, collection) {
+function findStory(storyId, collection) {
 	const id = ObjectId(storyId);
 	return new Promise((resolve, reject) => {
-		collection.findOne({ _id: id, storySource }, (err, result) => {
+		collection.findOne({ _id: id }, (err, result) => {
 			if (err) reject(err);
 			else resolve(result);
 		});
@@ -307,14 +307,14 @@ async function updateStory(updatedStuff) {
 }
 
 // get One Story
-async function getOneStory(storyId, storySource) {
+async function getOneStory(storyId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		let story = await collection.findOne({ _id: ObjectId(storyId), storySource });
+		let story = await collection.findOne({ _id: ObjectId(storyId) });
 		// TODO remove later when all used stories have the tag storySource
-		if (!story) story = await collection.findOne({ _id: ObjectId(storyId), storySource: undefined });
+		if (!story) story = await collection.findOne({ _id: ObjectId(storyId) });
 		return story;
 	} catch (e) {
 		console.log(`UPS!!!! FEHLER in getOneStory: ${e}`);
@@ -484,12 +484,12 @@ async function showSteptypes() {
 }
 
 // UPDATE Background
-async function updateBackground(storyId, storySource, updatedBackground) {
+async function updateBackground(storyId, updatedBackground) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		story.background = updatedBackground;
 		return await replace(story, collection);
 	} catch (e) {
@@ -502,12 +502,12 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 }
 
 // DELETE Background
-async function deleteBackground(storyId, storySource) {
+async function deleteBackground(storyId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		story.background = emptyBackground();
 		return await replace(story, collection);
 	} catch (e) {
@@ -594,7 +594,7 @@ async function insertStoryIdIntoRepo(storyId, repoId) {
 	}
 }
 
-async function updateScenarioList(storyId, source, scenarioList) {
+async function updateScenarioList(storyId, scenarioList) {
 	let db;
 	try {
 		db = await connectDb();
@@ -649,12 +649,12 @@ async function getOneScenario(storyId, storySource, scenarioId) {
 }
 
 // CREATE Scenario
-async function createScenario(storyId, storySource) {
+async function createScenario(storyId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) story.scenarios.push(tmpScenario);
 		else {
@@ -678,12 +678,12 @@ async function createScenario(storyId, storySource) {
 }
 
 // PUT Scenario
-async function updateScenario(storyId, storySource, updatedScenario) {
+async function updateScenario(storyId, updatedScenario) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		for (const scenario of story.scenarios) {
 			if (story.scenarios.indexOf(scenario) === story.scenarios.length) {
 				story.scenarios.push(scenario);
@@ -707,12 +707,12 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioId) {
+async function deleteScenario(storyId, scenarioId) {
 	let db;
 	try {
 		db = await connectDb();
 		const collection = await selectStoriesCollection(db);
-		const story = await findStory(storyId, storySource, collection);
+		const story = await findStory(storyId, collection);
 		for (let i = 0; i < story.scenarios.length; i++) {
 			if (story.scenarios[i].scenario_id === scenarioId) story.scenarios.splice(i, 1);
 		}

@@ -248,7 +248,7 @@ async function mergeGithub(userId, login, id) {
  * @param collection
  */
 // TODO: storySource wont be needed anymore
-function findStory(storyId, storySource, collection) {
+function findStory(storyId, collection) {
 	const id = ObjectId(storyId);
 	return new Promise((resolve, reject) => {
 		collection.findOne({ _id: id }, (err, result) => {
@@ -302,16 +302,15 @@ async function updateStory(updatedStory) {
 
 // get One Story
 // searches the story either by mongoDB _id:ObjectId() or by story_id (from GitHub or Jira)
-async function getOneStory(storyId, storySource) {
+async function getOneStory(storyId) {
 	let query;
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
 		console.log(storyId);
-		if (typeof storyId === 'number' && (storySource === 'github' || storySource === 'jira')) {
+		if (typeof storyId === 'number') {
 			query = {
-				story_id: storyId,
-				storySource: storySource.toString()
+				story_id: storyId
 			};
 		} else {
 			query = {
@@ -444,7 +443,7 @@ async function showSteptypes() {
 }
 
 // UPDATE Background
-async function updateBackground(storyId, storySource, updatedBackground) {
+async function updateBackground(storyId, updatedBackground) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -456,8 +455,8 @@ async function updateBackground(storyId, storySource, updatedBackground) {
 }
 
 // DELETE Background
-async function deleteBackground(storyId, storySource) {
-	return updateBackground(storyId, null, emptyBackground());
+async function deleteBackground(storyId) {
+	return updateBackground(storyId, emptyBackground());
 }
 
 async function createStory(storyTitle, storyDescription, repoId) {
@@ -562,7 +561,7 @@ async function getAllStoriesOfRepo( repoId) {
 }
 
 // GET ONE Scenario
-async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remove storySource
+async function getOneScenario(storyId, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const scenarios = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId), 'scenarios.scenario_id': scenarioId }, { projection: { scenarios: 1 } });
@@ -574,11 +573,11 @@ async function getOneScenario(storyId, storySource, scenarioId) { // TODO: remov
 }
 
 // CREATE Scenario
-async function createScenario(storyId, storySource, scenarioTitle) { // TODO: remove storySource
+async function createScenario(storyId, scenarioTitle) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		const story = await findStory(storyId, null, collection);
+		const story = await findStory(storyId, collection);
 		const tmpScenario = emptyScenario();
 		if (story.scenarios.length === 0) {
 			tmpScenario.name = scenarioTitle;
@@ -606,11 +605,10 @@ async function createScenario(storyId, storySource, scenarioTitle) { // TODO: re
 /**
  *
  * @param {*} storyId
- * @param {*} storySource
  * @param {*} updatedScenario
  * @returns updated Scenario
  */
-async function updateScenario(storyId, storySource, updatedScenario) {
+async function updateScenario(storyId, updatedScenario) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -625,7 +623,7 @@ async function updateScenario(storyId, storySource, updatedScenario) {
 }
 
 // DELETE Scenario
-async function deleteScenario(storyId, storySource, scenarioId) {
+async function deleteScenario(storyId, scenarioId) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
@@ -754,7 +752,7 @@ async function getAllSourceReposFromDb(source) {
 	}
 }
 
-async function createRepo(ownerId, name) { 
+async function createRepo(ownerId, name) {
 	try {
 		const emptyRepo = {
 			owner: ObjectId(ownerId), repoName: name.toString(), stories: [], repoType: 'db', customBlocks: [], groups: []
@@ -777,7 +775,7 @@ async function createRepo(ownerId, name) {
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) { //
+async function updateRepository(repoID, newName, user) {
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
@@ -870,11 +868,10 @@ async function updateStoriesArrayInRepo(repoId, storiesArray) { // TODO: vllt in
 	}
 }
 
-async function upsertEntry(storyId, updatedContent, storySource) { // TODO: remove storySource?
+async function upsertEntry(storyId, updatedContent) {
 	try {
 		const myObjt = {
-			story_id: storyId,
-			storySource
+			story_id: storyId
 		};
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);

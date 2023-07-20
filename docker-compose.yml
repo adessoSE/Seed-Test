@@ -20,8 +20,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        - BUILD_DATE=${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
-        - VCS_REF=${VCS_REF:-$(git rev-parse --short HEAD)}
+        - BUILD_DATE=${BUILD_DATE:-$$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        - VCS_REF=${VCS_REF:-$$(git rev-parse --short HEAD)}
         - IMAGE_NAME=seed-test-backend:latest
     image: seed-test-backend:latest
     ports:
@@ -36,8 +36,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - BUILD_DATE=${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
-        - VCS_REF=${VCS_REF:-$(git rev-parse --short HEAD)}
+        - BUILD_DATE=${BUILD_DATE:-$$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        - VCS_REF=${VCS_REF:-$$(git rev-parse --short HEAD)}
         - IMAGE_NAME=seed-test-frontend:latest
     image: seed-test-frontend:latest
     ports:

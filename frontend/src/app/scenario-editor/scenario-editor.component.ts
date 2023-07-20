@@ -231,7 +231,7 @@ export class ScenarioEditorComponent implements OnInit{
         }
         this.selectedScenario.lastTestPassed = null;
         return new Promise<void>((resolve, _reject) => {this.scenarioService
-            .updateScenario(this.selectedStory._id, this.selectedStory.storySource, this.selectedScenario)
+            .updateScenario(this.selectedStory._id, this.selectedScenario)
             .subscribe(_resp => {
                 this.scenarioService.scenarioChangedEmitter();
                 this.toastr.success('successfully saved', 'Scenario');

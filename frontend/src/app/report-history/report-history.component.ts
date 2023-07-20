@@ -37,7 +37,7 @@ export class ReportHistoryComponent implements OnInit {
    */
   reports: ReportContainer = null;
 
-  isDark: boolean = this.themeService.isDarkMode();
+  isDark: boolean;
 
   /**
    * Event emiter to change the editor to story editor
@@ -54,7 +54,9 @@ export class ReportHistoryComponent implements OnInit {
   /**
    * @ignore
    */
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.isDark = this.themeService.isDarkMode();
+  }
 
   /**
    * Sets a new currently used story

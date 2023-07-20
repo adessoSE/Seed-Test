@@ -99,11 +99,23 @@
             </div>
           </mat-panel-title>
           <div class="backgroundTitle">
-            <span class="MediumHeadline5 scenarioTitle"> {{selectedStory.background.name | titlecase}}</span>
+            <span class="MediumHeadline5 scenarioTitle"> {{selectedStory.background.name}}</span>
             <button class="storyTitle pencil_icon" (click)="changeBackgroundTitle();$event.stopPropagation();" data-uk-tooltip
             title="Change Background Title">
               <em class="material-icons">edit</em>
             </button>
+            <!-- replace Background -->
+            <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon"  data-uk-tooltip title="Switch Background">
+              <em class="material-icons">swap_horiz</em>
+            </button>
+            <div *ngIf="showBackground && sortedBackgrounds() && this.openBlockModal == undefined" uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;" >
+              <ul class="uk-nav uk-dropdown-nav">
+                <li *ngFor="let background of sortedBackgrounds(); let j = index">
+                  <span id="{{name+'_add_step_type_' + j}}" class="dropdownStep" (click)="replaceBackground(background);$event.stopPropagation();"
+                  >{{background.name}}</span>
+                </li>
+              </ul>
+            </div>
           </div>
           <div>
             <button  *ngIf=" this.selectedStory.background.saved === false" id="saveButtonBackground" class="storyTitle" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
@@ -355,4 +367,5 @@
       </div>
     </div>
   </div>
+  <app-save-block-form #saveBlockModal></app-save-block-form> 
 </div>
