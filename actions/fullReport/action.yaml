@@ -5,6 +5,9 @@ inputs:
   prnumber:
     description: 'The pull request number'
     required: true
+  prlink: 
+    description: 'The link to the pull request'
+    required: true
   originBranch:
     description: 'The origin brnach that will be merged'
     required: true

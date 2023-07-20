@@ -168,6 +168,7 @@ jobs:
         uses: ./actions/fullReport
         with:
           prnumber: ${{ github.event.pull_request.number }}
+          prlink: ${{ github.event.pull_request.html_url }}
           originBranch: ${{ github.event.pull_request.head.ref }}
           destinationBranch: ${{ github.event.pull_request.base.ref }}
           requestor: ${{ github.event.pull_request.user.login }}
