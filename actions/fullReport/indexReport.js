@@ -2,6 +2,7 @@ async function postMessage() {
     const fetch = await import('node-fetch').then((module) => module.default);
     const webhook = process.env.INPUT_WEBHOOK;
     const prnumber = process.env.INPUT_PRNUMBER;
+    const prlink = process.env.INPUT_PRLINK;
     const originBranch = process.env.INPUT_ORIGINBRANCH;
     const destinationBranch = process.env.INPUT_DESTINATIONBRANCH;
     const requestor = process.env.INPUT_REQUESTOR;
@@ -105,7 +106,7 @@ async function postMessage() {
                                     {
                                         "type": "TextBlock",
                                         "weight": "Bolder",
-                                        "text": "Pull Request #" + prnumber,
+                                        "text": "Pull Request [#" + prnumber +"](" + prlink + ")",
                                         "wrap": true,
                                         "size": "Large"
                                     },
