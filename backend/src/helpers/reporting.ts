@@ -6,7 +6,9 @@ import {renderComment,  postCommentGitHub, postCommentJira, updateLabel} from'./
 import {jiraDecryptPassword} from './userManagement';
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
-import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus, ScenarioStatus} from '../models/models';
+import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus} from '../models/models';
+import { IssueTrackerOption } from '../models/IssueTracker';
+
 
 // this is needed for the html report
 const options = {
@@ -410,7 +412,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 		}
         comment += renderComment(commentReportResult, reportResults.status, reportResults.scenariosTested,
             reportResults.reportTime, story, story.scenarios[0], mode, commentReportname);
-		if (story.storySource === 'github' && req.user && req.user.github) {
+		if (story.storySource === IssueTrackerOption.GITHUB && req.user.github) {
 			const githubValue = parameters.repository.split('/');
 			// eslint-disable-next-line no-continue
 			if (githubValue == null) { continue; }
@@ -420,7 +422,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
 			if (mode === ExecutionMode.STORY) updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 		}
-		if (story.storySource === 'jira' && req.user && req.user.jira) {
+		if (story.storySource === IssueTrackerOption.JIRA  && req.user.jira) {
 			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
 			const clearPass = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
 			postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);

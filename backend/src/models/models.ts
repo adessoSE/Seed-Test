@@ -1,5 +1,3 @@
-import Jira from './JiraTracker'
-
 enum ExecutionMode {
     SCENARIO = 'scenario',
     STORY = 'feature',
@@ -90,57 +88,7 @@ class StepStatus {
     }
 }
 
-enum IssueTrackerOption{
-    JIRA = 'jira',
-    GITHUB = 'github',
-    NONE = 'db'
-}
-
-abstract class IssueTracker {
-
-    constructor () {
-
-    }
-
-    static getIssueTracker(tracker: IssueTrackerOption): IssueTracker {
-        switch (tracker) {
-            case IssueTrackerOption.JIRA:
-                return new Jira();
-            case IssueTrackerOption.GITHUB:
-                return new Github();
-            case IssueTrackerOption.NONE:
-                return new NoTracker();
-            default:
-                throw new Error('Invalid IssueTracker')
-        }
-    }
-    reportText(report: GenericReport) {
-        
-    }
-    abstract postComment(comment: string, issueId: string, credentials: any);
-}
-
-
-class Github extends IssueTracker {
-    reportText() {
-        throw new Error("Method not implemented.")
-    }
-    postComment() {
-        throw new Error("Method not implemented.")
-    }
-}
-
-class NoTracker extends IssueTracker {
-    reportText() {
-        throw new Error("Method not implemented.")
-    }
-    postComment() {
-        throw new Error("Method not implemented.")
-    }
-}
-
 export {
-    IssueTracker,
     ScenarioStatus,
     ExecutionMode,
     GenericReport,
