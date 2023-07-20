@@ -35,7 +35,7 @@ async function postCommentGitHub(issueNumber, comment, githubName, githubRepo, p
 	console.log(await response.json());
 }
 
-async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword) {
+async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword, authMethod) {
 	console.log(comment)
 	comment = comment.replace('#','')
 	comment = comment.replace('##','#')
@@ -48,14 +48,17 @@ async function postCommentJira(issueId, comment, host, jiraUser, jiraPassword) {
 	comment = comment.replace('Steps failed:','(-) Failed Steps:')
 	comment = comment.replace('Steps skipped:','(!) Skipped Steps:')
 	const link = `https://${host}/rest/api/2/issue/${issueId}/comment/`;
-	// const auth = `Basic ${Buffer.from(`${jiraUser}:${jiraPassword}`, 'binary').toString('base64')}`;
-	const auth =  `Bearer ${process.env.JIRA_PAT}`
+	let authString = `Bearer ${jiraPassword}`
+	if(authMethod === 'basic') { 
+		const auth = Buffer.from(`${jiraUser}:${jiraPassword}`).toString('base64');
+		authString = `Basic ${auth}`;
+	}
 	const body = { body: comment };
 	/** @type {Response} */
 	const response = await fetch(link, {
 		method: 'post',
 		body: JSON.stringify(body),
-		headers: { Authorization: auth, 'Content-Type': 'application/json' }
+		headers: { Authorization: authString, 'Content-Type': 'application/json' }
 	});
 	const data = await response.json();
 }

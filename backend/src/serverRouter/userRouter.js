@@ -315,10 +315,13 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-		// const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
-		// const auth = Buffer.from(`${AccountName}:${clearPass}`)
-		//	.toString('base64');
+		const { Host, AccountName, Password, Password_Nonce, Password_Tag, AuthMethod } = req.user.jira;
+		const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
+		let authString = `Bearer ${clearPass}`;
+		if(AuthMethod === 'basic') { 
+			const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
+			authString = `Basic ${auth}`;
+		}
 
 		const tmpStories = new Map();
 		const storiesArray = [];
@@ -327,7 +330,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			headers: {
 				'cache-control': 'no-cache',
 				// Authorization: `Basic ${auth}`
-				Authorization: `Bearer ${process.env.JIRA_PAT}`
+				Authorization: authString
 			}
 		};
 		let repo;

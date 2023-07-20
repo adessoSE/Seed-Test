@@ -414,9 +414,9 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 			if (mode === executionMode.STORY) ticketMng.updateLabel('testStatus', githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 		}
 		if (story.storySource === 'jira' && req.user && req.user.jira) {
-			const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
+			const { Host, AccountName, Password, Password_Nonce, Password_Tag, AuthMethod } = req.user.jira;
 			const clearPass = userMng.jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-			ticketMng.postCommentJira(story.issue_number, comment, Host, AccountName, clearPass);
+			ticketMng.postCommentJira(story.issue_number, comment, Host, AccountName, clearPass, AuthMethod);
 		}
 	}
 }

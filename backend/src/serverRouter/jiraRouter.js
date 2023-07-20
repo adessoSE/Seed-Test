@@ -85,8 +85,12 @@ router.delete('/user/disconnect/', (req, res) => {
 
 router.post('/login', (req, res) => {
 	if (typeof req.body.jiraAccountName !== 'undefined') {
-		const { jiraAccountName, jiraPassword, jiraServer } = req.body;
-		/// const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
+		const { jiraAccountName, jiraPassword, jiraServer, AuthMethod } = req.body;
+		let authString = `Bearer ${jiraPassword}`;
+		if (AuthMethod === 'basic') {
+			const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
+			authString = `Basic ${auth}`;
+		}
 		const options = {
 			method: 'GET',
 			qs: {
@@ -95,8 +99,7 @@ router.post('/login', (req, res) => {
 			},
 			headers: {
 				'cache-control': 'no-cache',
-				// Authorization: `Basic ${auth}`
-				Authorization: `Bearer ${process.env.JIRA_PAT}`
+				Authorization: authString
 			}
 		};
 		if (/^[.:a-zA-Z0-9]+$/.test(jiraServer)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)
