@@ -10,10 +10,6 @@ enum IssueTrackerOption{
 
 abstract class IssueTracker {
 
-    constructor() {
-      // nothing to do
-    }
-
     static getIssueTracker(tracker: IssueTrackerOption): IssueTracker {
         switch (tracker) {
             case IssueTrackerOption.JIRA:
@@ -28,14 +24,12 @@ abstract class IssueTracker {
     }
     reportText(report: GenericReport, testedTitle: string) {
         let comment = '';
-        let commentReportResult: StepStatus, commentReportname: string;
+        let commentReportResult: StepStatus;
         if (report.mode === ExecutionMode.GROUP) {
 			comment = `This Execution ist part of group execution ${report.reportName}\n`; // recheck it that is right, alternative prepend after call
             commentReportResult = (report as GroupReport).groupTestResults
-            commentReportname = report.reportName.split('/')[0]
 		} else {
 			commentReportResult = (report as ScenarioReport).featureTestResults
-            commentReportname = report.reportName
 		}
         const testPassedIcon = report.status ? ':white_check_mark:' : ':x:';
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
@@ -86,9 +80,6 @@ class NoTracker extends IssueTracker {
 }
 
 class Jira extends IssueTracker {
-    constructor () {
-        super()
-    }
     reportText(report: GenericReport, testedTitle: string) {
         let comment = super.reportText(report, testedTitle)
         comment = comment.replace('#','')
@@ -126,5 +117,4 @@ class Jira extends IssueTracker {
 export {
     IssueTrackerOption,
     IssueTracker,
-    Jira
 }

@@ -399,18 +399,8 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 
 	// if possible separate function
 	for (const story of stories) {
-		let comment;
-        let commentReportResult, commentReportname;
-		if (mode === ExecutionMode.GROUP) {
-			comment = `This Execution ist part of group execution ${parameters.name}\n`;
-            commentReportResult = (reportResults as GroupReport).groupTestResults
-            commentReportname = reportName.split('/')[0]
-		} else {
-			commentReportResult = (reportResults as ScenarioReport).featureTestResults
-            commentReportname = reportName
-		}
         const issueTracker = IssueTracker.getIssueTracker(story.storySource)
-        comment += issueTracker.reportText(reportResults, story.title)
+        const comment = issueTracker.reportText(reportResults, story.title)
 		if (story.storySource === IssueTrackerOption.GITHUB && req.user.github) {
 			const githubValue = parameters.repository.split('/');
 			// eslint-disable-next-line no-continue
