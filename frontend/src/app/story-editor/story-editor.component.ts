@@ -725,7 +725,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
      */
     replaceBackground(background: Background){
       this.selectedStory.background.stepDefinitions.when = JSON.parse(JSON.stringify(background.stepDefinitions.when));
-      this.selectedStory.background.name = JSON.parse(JSON.stringify(background.name));
+      this.selectedStory.background.name = background.name;
       this.backgroundService.backgroundReplaced = true;
       const found = this.backgrounds.some(background => background.name === this.backgroundService.currentBackground.name);
       if (!found && this.backgroundService.currentBackground.stepDefinitions.when.length > 0) {
