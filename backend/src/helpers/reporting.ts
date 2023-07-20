@@ -410,7 +410,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
             commentReportname = reportName
 		}
         const issueTracker = IssueTracker.getIssueTracker(story.storySource)
-        comment += issueTracker.reportText(reportResults,commentReportname)
+        comment += issueTracker.reportText(reportResults, story.title)
 		if (story.storySource === IssueTrackerOption.GITHUB && req.user.github) {
 			const githubValue = parameters.repository.split('/');
 			// eslint-disable-next-line no-continue
