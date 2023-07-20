@@ -27,12 +27,16 @@ export class ResetPasswordComponent{
   success: string;
   defaultSuccessMessage = "Email with password reset link has been send!"
 
-  isDark :boolean = this.themeService.isDarkMode();
+  isDark :boolean;
 
   /**
    * @ignore
    */
   constructor(public loginService: LoginService, private router: Router, public themeService:ThemingService) {    
+  }
+
+  ngOnInit(): void {
+    this.isDark = this.themeService.isDarkMode();
   }
 
   /**

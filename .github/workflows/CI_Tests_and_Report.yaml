@@ -190,5 +190,5 @@ jobs:
           sanityStepsPassed: ${{ steps.passed-total-sanity.outputs.passedSteps }}
           sanityStepsFailed: ${{ steps.passed-total-sanity.outputs.failedSteps }}
           sanityStepsSkipped: ${{ steps.passed-total-sanity.outputs.skippedSteps }}
-          workflowLink: ${{ github.event.workflow_run.url }}
+          workflowLink: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
