@@ -92,7 +92,7 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
 		if (scenario.comment !== null) {
-			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, "\n#  ")}\n\n`;
+			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
 	}
 	return data;
@@ -100,7 +100,11 @@ function getScenarioContent(scenarios, storyID) {
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
-	let data = `Feature: ${story.title}\n\n${story.body}\n\n`;
+	let body = '';
+	if (story.body !== null && story.body !== undefined) {
+		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
+	}
+	let data = `Feature: ${story.title}\n\n${body}\n\n`;
 
 	// Get background
 	if (story.background != null) data += getBackgroundContent(story.background);
@@ -145,97 +149,81 @@ async function deleteFeatureFile(storyTitle, storyId) {
 }
 
 async function executeTest(req, mode, story) {
-	return new Promise((resolve, reject) => {
-		let parameters = {};
-		if (mode === 'scenario') {
-		// TODO replace this using scenario prep
-			const scenario = story.scenarios.find(
-				(elem) => elem.scenario_id === parseInt(req.params.scenarioId, 10)
-			);
-			console.log(`SCENARIO EMULATOR: ${scenario.emulator}`);
+    let parameters = {};
 
-			if (!scenario.stepWaitTime) scenario.stepWaitTime = 0;
-			if (!scenario.browser) scenario.browser = 'chrome';
-			if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
-			if (scenario.stepDefinitions.example.length <= 0) {
-				parameters = {
-					scenarios: [
-						{
-							browser: scenario.browser,
-							waitTime: scenario.stepWaitTime,
-							daisyAutoLogout: scenario.daisyAutoLogout,
-							...(scenario.emulator !== undefined && { emulator: scenario.emulator })
-						}
-					]
-				};
-			} else {
-				parameters = { scenarios: [] };
-				scenario.stepDefinitions.example.forEach((examples, index) => {
-					if (index > 0) {
-						parameters.scenarios.push({
-							browser: scenario.browser,
-							waitTime: scenario.stepWaitTime,
-							daisyAutoLogout: scenario.daisyAutoLogout,
-							...(scenario.emulator !== undefined && { emulator: scenario.emulator })
-						});
-					}
-				});
-			}
-		} else if (mode === 'feature' || mode === 'group') {
-			const prep = scenarioPrep(story.scenarios, story.oneDriver);
-			story.scenarios = prep.scenarios;
-			parameters = prep.parameters;
-		}
-		const reportTime = Date.now();
-		const cucePath = 'node_modules/.bin/';
-		const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
-		const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
+    if (mode === 'scenario') {
+        const scenario = story.scenarios.find(elem => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 
-		let jsonPath = `../../features/${reportName}.json`;
-		if (mode === 'group') {
-			const grpDir = req.body.name;
-			jsonPath = `../../features/${grpDir}/${reportName}.json`;
-		}
+        const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
+        parameters = {
+            scenarios: Array.from({ length: scenarioCount }).map(() => ({
+                browser: scenario.browser || 'chrome',
+                waitTime: scenario.stepWaitTime || 0,
+                daisyAutoLogout: scenario.daisyAutoLogout || false,
+                ...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+            }))
+        };
+    } else if (mode === 'feature' || mode === 'group') {
+        const prep = scenarioPrep(story.scenarios, story.oneDriver);
+        story.scenarios = prep.scenarios;
+        parameters = prep.parameters;
+    }
 
-		const jsParam = JSON.stringify(parameters);
-		const cucumberArgs = [];
-		// specify location of feature to execute
-		cucumberArgs.push(path.normalize(featurePath));
-		if (mode === 'scenario') {
-		// run single Scenario by using '--tags @ScenarioName'
-			cucumberArgs.push('--tags', `@${req.params.issueID}_${req.params.scenarioId}`);
-		}
-		// specify desired location of JSON Report and pass world parameters for cucumber execution
-		cucumberArgs.push('--format', `json:${path.normalize(jsonPath)}`, '--world-parameters', jsParam, '--exit');
+    const reportTime = Date.now();
+    const cucePath = 'node_modules/.bin/';
+    const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
+    const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
-		// no cmd for non windows
-		const cmd = os.platform().includes('win') ? '.cmd' : '';
-		const cucumberCommand = `cucumber-js${cmd}`;
-		const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
+    try {
+        await fs.promises.access(featurePath, fs.constants.F_OK);
+    } catch (err) {
+        await updateFeatureFile(story._id, req.params.storySource);
+    }
 
-		console.log('\nExecuting:');
-		console.log(`Working Dir: "${cucumberPath}"`);
-		console.log(`Command: "${cucumberCommand}"`);
-		console.log(`Args: [${cucumberArgs}]\n`);
+    let jsonPath = `../../features/${reportName}.json`;
+    if (mode === 'group') {
+        const grpDir = req.body.name;
+        jsonPath = `../../features/${grpDir}/${reportName}.json`;
+    }
 
-		// spawn the process in the given directory (cwd)
-		const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
+    const jsParam = JSON.stringify(parameters);
+    const cucumberArgs = [
+        path.normalize(featurePath),
+        ...(mode === 'scenario' ? [`--tags`, `@${req.params.issueID}_${req.params.scenarioId}`] : []),
+        `--format`, `json:${path.normalize(jsonPath)}`,
+        `--world-parameters`, jsParam,
+        `--exit`
+    ];
 
-		runner.stdout.on('data', (data) => {
-			console.log(`stdout: ${data}`);
-		});
-		runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
-		runner.on('error', (error) => {
-			console.error(`exec error: ${error}`);
-			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
-		});
-		// if more than one child use "close" https://nodejs.org/api/child_process.html#event-close
-		runner.on('exit', () => {
-			console.log('test finished');
-			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
-		});
-	});
+    const cmd = os.platform().includes('win') ? '.cmd' : '';
+    const cucumberCommand = `cucumber-js${cmd}`;
+    const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
+
+    console.log('\nExecuting:');
+    console.log(`Working Dir: "${cucumberPath}"`);
+    console.log(`Command: "${cucumberCommand}"`);
+    console.log(`Args: [${cucumberArgs}]\n`);
+
+    const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
+
+    runner.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+    runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
+
+    return new Promise((resolve) => {
+        runner.on('error', (error) => {
+            console.error(`exec error: ${error}`);
+            resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+        });
+
+        runner.on('exit', () => {
+            console.log('test finished');
+            resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+        });
+    });
 }
+
 
 function scenarioPrep(scenarios, driver) {
 	const parameters = { scenarios: [] };

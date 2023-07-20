@@ -6,13 +6,9 @@ Behaviour-driven development (BDD) extends the Test-Driven Development (TDD) app
 
 ## What is Seed-Test?
 
-Seed-Test is a website user interface testing tool, which uses approaches of behaviour-driven development and the notation of Gherkin to enable developers and business users to execute automated tests for their website. It can be tested on the official [website](https://seed-test-frontend.herokuapp.com/).
-
-We are greateful for any testing and feedback, so please help us by filling out this [feedback form](https://seed-test-frontend.herokuapp.com/feedback)
-
+Seed-Test is a website user interface testing tool, which uses approaches of behaviour-driven development and the notation of Gherkin to enable developers and business users to execute automated tests for their website.
 
 <div style="text-align:center"><a href="https://gifyu.com/image/SnEf3"><img src="https://s12.gifyu.com/images/ezgif.com-video-to-gif8134348e0cec5a97.gif" alt="ezgif.com-video-to-gif8134348e0cec5a97.gif" border="0" /></a></div>
-
 
 ## Bugs, Problems ...
 
@@ -47,7 +43,9 @@ Linux:
 runDocker.sh
 ```
 
-And that's it! Seed-Test should now be running on it's own.
+And that's it! 
+
+Seed-Test can now be accessed via `http://localhost:4200/login`
 
 #### ⚠️ Warning:
 

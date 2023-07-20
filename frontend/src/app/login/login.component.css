@@ -209,6 +209,10 @@ a.repoLink:hover{
     align-items: center;
 }
 
+.githubLogin:disabled {
+    opacity: 0.5;
+}
+
 .githubLoginContainer{
     margin: 10px;
     display:inline-block;
@@ -335,3 +339,16 @@ a.repoLink:hover{
 .darkTheme .howToStart{
     background-color: transparent;
 }
+
+.vertical-container {
+    display: flex;
+    align-items: center;
+}
+
+.smallToolTip {
+    font-weight: normal !important;
+    translate: -75% !important;
+    font-size:smaller !important;
+    width: max-content !important;
+}
+  
