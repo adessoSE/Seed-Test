@@ -8,12 +8,11 @@ const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
 const fs = require('fs');
 const initializePassport = require('../passport-config');
-const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
-const { log } = require('console');
+const issueTracker = require('../../dist/models/IssueTracker');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -315,11 +314,12 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		const { Host, AccountName, Password, Password_Nonce, Password_Tag, AuthMethod } = req.user.jira;
-		const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
+		const jiraTracker = issueTracker.IssueTracker.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+		const clearPass = jiraTracker.decryptPassword(req.user.jira);
+		const { AccountName, AuthMethod, Host } = req.user.jira;
 		let authString = `Bearer ${clearPass}`;
-		if(AuthMethod === 'basic') { 
-			const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
+		if (AuthMethod === 'basic') { 
+			const auth = Buffer.from(`${AccountName}:${clearPass}`).toString('base64');
 			authString = `Basic ${auth}`;
 		}
 
@@ -329,7 +329,6 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			method: 'GET',
 			headers: {
 				'cache-control': 'no-cache',
-				// Authorization: `Basic ${auth}`
 				Authorization: authString
 			}
 		};
@@ -439,7 +438,7 @@ router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
 	const params = new URLSearchParams();
 	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
-		log("To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.");
+		console.log("To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.");
 		res.status(501).send("No GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET provided.")
 		return
 	}

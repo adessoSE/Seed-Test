@@ -2,12 +2,11 @@ import reporter from 'cucumber-html-reporter';
 import pfs from 'fs/promises';
 import fs  from 'fs';
 import path from 'path';
-import {renderComment,  postCommentGitHub, postCommentJira, updateLabel} from'./ticketManagement';
-import {jiraDecryptPassword} from './userManagement';
+import { updateLabel } from'./ticketManagement';
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
 import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus} from '../models/models';
-import { IssueTrackerOption } from '../models/IssueTracker';
+import { IssueTracker, IssueTrackerOption } from '../models/IssueTracker';
 
 
 // this is needed for the html report
@@ -410,8 +409,8 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			commentReportResult = (reportResults as ScenarioReport).featureTestResults
             commentReportname = reportName
 		}
-        comment += renderComment(commentReportResult, reportResults.status, reportResults.scenariosTested,
-            reportResults.reportTime, story, story.scenarios[0], mode, commentReportname);
+        const issueTracker = IssueTracker.getIssueTracker(story.storySource)
+        comment += issueTracker.reportText(reportResults,commentReportname)
 		if (story.storySource === IssueTrackerOption.GITHUB && req.user.github) {
 			const githubValue = parameters.repository.split('/');
 			// eslint-disable-next-line no-continue
@@ -419,13 +418,11 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			const githubName = githubValue[0];
 			const githubRepo = githubValue[1];
 
-			postCommentGitHub(story.issue_number, comment, githubName, githubRepo, req.user.github.githubToken);
+			issueTracker.postComment(comment, {issueId: story.issue_number, repoUser: githubName, repoName: githubRepo}, req.user.github)
 			if (mode === ExecutionMode.STORY) updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 		}
 		if (story.storySource === IssueTrackerOption.JIRA  && req.user.jira) {
-			const { Host, AccountName, Password, Password_Nonce, Password_Tag, AuthMethod } = req.user.jira;
-			const clearPass = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-			postCommentJira(story.issue_number, comment, Host, AccountName, clearPass, AuthMethod);
+            issueTracker.postComment(comment, {issueId: story.issue_number}, req.user.jira)
 		}
 	}
 }
