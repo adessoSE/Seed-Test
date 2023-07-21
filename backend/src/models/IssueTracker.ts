@@ -89,7 +89,7 @@ class Github extends IssueTracker {
         })
     }
     
-    updateLabel(testStatus: boolean, githubName: string, githubRepo: string, githubToken: string, issueNumber) {
+    updateLabel(testStatus: boolean, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, githubToken: string) {
         let removeLabel;
         let addedLabel;
         if (testStatus) {
@@ -99,8 +99,8 @@ class Github extends IssueTracker {
             removeLabel = 'Seed-Test Test Success :white_check_mark:';
             addedLabel = 'Seed-Test Test Fail :x:';
         }
-        this.removeLabelOfIssue(githubName, githubRepo, githubToken, issueNumber, removeLabel);
-        this.addLabelToIssue(githubName, githubRepo, githubToken, issueNumber, addedLabel);
+        this.removeLabelOfIssue(issueDetail.repoUser, issueDetail.repoName, githubToken, issueDetail.issueId, removeLabel);
+        this.addLabelToIssue(issueDetail.repoUser, issueDetail.repoName, githubToken, issueDetail.issueId, addedLabel);
     }
 }
 
@@ -123,7 +123,7 @@ class Jira extends IssueTracker {
         comment = comment.replaceAll(':x:','(x)')
         comment = comment.replaceAll(':warning:','(!)')
         comment = comment.replace('undefined','')
-        comment = comment.replace(/\[(.*?)\]\((.*?)\)/g, "[$1|$2]");//convert link
+        comment = comment.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "[$1|$2]");//convert link
         comment = comment.replace('Steps passed:','(+) Passed Steps:')
         comment = comment.replace('Steps failed:','(-) Failed Steps:')
         comment = comment.replace('Steps skipped:','(!) Skipped Steps:')

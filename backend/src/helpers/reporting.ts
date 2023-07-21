@@ -408,7 +408,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			const githubRepo = githubValue[1];
 
 			issueTracker.postComment(comment, {issueId: story.issue_number, repoUser: githubName, repoName: githubRepo}, req.user.github)
-			if (mode === ExecutionMode.STORY) (issueTracker as Github).updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			if (mode === ExecutionMode.STORY) (issueTracker as Github).updateLabel(reportResults.status, {issueId: story.issue_number, repoUser: githubName, repoName: githubRepo}, req.user.github.githubToken);
 		}
 		if (story.storySource === IssueTrackerOption.JIRA  && req.user.jira) {
             issueTracker.postComment(comment, {issueId: story.issue_number}, req.user.jira)
