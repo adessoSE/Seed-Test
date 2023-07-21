@@ -1,5 +1,4 @@
 import { ApiService } from 'src/app/Services/api.service';
-import { CopyExampleToast } from '../copyExample-toast';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
@@ -19,6 +18,7 @@ import { NewExampleComponent } from '../modals/new-example/new-example.component
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { BackgroundService } from '../Services/background.service';
+import { InfoWarningToast } from '../info-warning-toast';
 
 @Component({
   selector: 'app-base-editor',
@@ -1325,9 +1325,10 @@ export class BaseEditorComponent  {
       case 'scenario':
         //this.insertStepsWithExamples()
         if (this.clipboardBlock.stepDefinitions['example'].length != 0){
-
+          this.apiService.nameOfComponent('copyExampleToast');
+          this.apiService.setToastrOptions('Copy with multiple scenario(s)', 'Copy without multiple scenario(s)');
           this.toastr.info('Do you want to copy it?', 'Block contains muliple scenario(s)', {
-            toastComponent: CopyExampleToast
+            toastComponent: InfoWarningToast
           });
 
         } else {

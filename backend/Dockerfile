@@ -1,4 +1,4 @@
-FROM node:17
+FROM node:18.13
 
 RUN apt-get update
 RUN yes | apt-get install wget
@@ -44,7 +44,7 @@ RUN rm -f latest_stable.txt
 # Bundle app source
 COPY . .
 
-RUN npm install
+RUN npm ci
 # If you are building your code for production
 # RUN npm ci --only=production
 

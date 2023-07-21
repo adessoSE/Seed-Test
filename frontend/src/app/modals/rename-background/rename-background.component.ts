@@ -52,7 +52,7 @@ export class RenameBackgroundComponent{
         this.saveBackgroundAndRun = false;
       }
     });
-    this.backgroundService.backgroundReplaced = false;
+    this.backgroundService.backgroundReplaced = undefined;
     this.modalReference.close();
   }
 

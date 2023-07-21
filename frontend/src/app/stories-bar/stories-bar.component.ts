@@ -387,7 +387,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.selectScenario(this.stories[storyIndex].scenarios[0]);
         }
         this.toggleShows();
-        this.backgroundService.backgroundReplaced = false;
+        this.backgroundService.backgroundReplaced = undefined;
     }
 
     /**
