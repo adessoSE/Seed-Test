@@ -123,7 +123,7 @@ class Jira extends IssueTracker {
         comment = comment.replaceAll(':x:','(x)')
         comment = comment.replaceAll(':warning:','(!)')
         comment = comment.replace('undefined','')
-        comment = comment.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "[$1|$2]");//convert link
+        comment = comment.replace(/\[([^\]]{1,20})\]\(([^) ]{1,200})\)/g, "[$1|$2]");//convert link max 20 character text, max 200 character link
         comment = comment.replace('Steps passed:','(+) Passed Steps:')
         comment = comment.replace('Steps failed:','(-) Failed Steps:')
         comment = comment.replace('Steps skipped:','(!) Skipped Steps:')
