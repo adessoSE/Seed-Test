@@ -380,7 +380,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 		});
 	// read html Report and add it top response
 	fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
-		res.json({ htmlFile: data, reportId: uploadedReport._id });
+		res.json({ htmlFile: data, reportId: uploadedReport._id , report: reportResults});
 	});
 	testExecutor.updateLatestTestStatus(uploadedReport, mode);
 
