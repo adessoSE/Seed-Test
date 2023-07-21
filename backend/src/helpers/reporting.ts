@@ -2,11 +2,10 @@ import reporter from 'cucumber-html-reporter';
 import pfs from 'fs/promises';
 import fs  from 'fs';
 import path from 'path';
-import { updateLabel } from'./ticketManagement';
 const mongo = require('../../src/database/DbServices');
 const testExecutor = require('../../src/serverHelper')
 import {ExecutionMode, GenericReport, StoryReport, ScenarioReport, GroupReport, PassedCount, StepStatus} from '../models/models';
-import { IssueTracker, IssueTrackerOption } from '../models/IssueTracker';
+import { Github, IssueTracker, IssueTrackerOption } from '../models/IssueTracker';
 
 
 // this is needed for the html report
@@ -409,7 +408,7 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 			const githubRepo = githubValue[1];
 
 			issueTracker.postComment(comment, {issueId: story.issue_number, repoUser: githubName, repoName: githubRepo}, req.user.github)
-			if (mode === ExecutionMode.STORY) updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
+			if (mode === ExecutionMode.STORY) (issueTracker as Github).updateLabel(reportResults.status, githubName, githubRepo, req.user.github.githubToken, story.issue_number);
 		}
 		if (story.storySource === IssueTrackerOption.JIRA  && req.user.jira) {
             issueTracker.postComment(comment, {issueId: story.issue_number}, req.user.jira)
