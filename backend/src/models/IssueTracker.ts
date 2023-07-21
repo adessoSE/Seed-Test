@@ -82,13 +82,14 @@ class NoTracker extends IssueTracker {
 class Jira extends IssueTracker {
     reportText(report: GenericReport, testedTitle: string) {
         let comment = super.reportText(report, testedTitle)
-        comment = comment.replace('#','')
-        comment = comment.replace('##','#')
-        comment = comment.replace('###','##')
+        comment = comment.replace('#','h1. ')
+        comment = comment.replace('##','h2. ')
+        comment = comment.replace('###','h3. ')
         comment = comment.replaceAll(':white_check_mark:','(/)')
         comment = comment.replaceAll(':x:','(x)')
         comment = comment.replaceAll(':warning:','(!)')
         comment = comment.replace('undefined','')
+        comment = comment.replace(/\[(.*?)\]\((.*?)\)/g, "[$1|$2]");//convert link
         comment = comment.replace('Steps passed:','(+) Passed Steps:')
         comment = comment.replace('Steps failed:','(-) Failed Steps:')
         comment = comment.replace('Steps skipped:','(!) Skipped Steps:')
