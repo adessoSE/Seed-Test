@@ -101,7 +101,7 @@ function analyzeReport(grpName: string, stories: any[], mode: ExecutionMode, rep
 }
 
 // param: stories should only contain one Story
-function analyzeStoryReport(stories, reportName, reportOptions) {
+function analyzeStoryReport(stories: Array<any>, reportName: string, reportOptions: any) {
     let reportResults = new StoryReport();
     try {
         const reportPath = `./features/${reportName}.json`;
@@ -118,7 +118,7 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
                 reportResults.reportName = reportName
                 reportResults.reportOptions = reportOptions
                 reportResults.featureId = stories[0]._id
-                return reportResults as StoryReport
+                return reportResults
 
             } catch (error) {
                 reportResults.status = false;
@@ -130,7 +130,7 @@ function analyzeStoryReport(stories, reportName, reportOptions) {
         console.log(`fs.readFile error for file ./features/${reportName}.json`);
     }
 }
-function failedReportPromise(reportName) {
+function failedReportPromise(reportName: string) {
     return { reportName: `Failed-${reportName}`, status: false } as GenericReport;
 }
 
@@ -162,7 +162,7 @@ function analyzeScenarioReport(stories: Array<any>, reportName: string, scenario
             reportResults.scenariosTested = { passed: +result.status, failed: +!result.status }
             reportResults.status = result.status
             reportResults.scenarioStatuses.push(result)
-            return reportResults as ScenarioReport
+            return reportResults
         } catch (error) {
             reportResults.status = false;
             console.log('iterating through report Json failed in serverHelper/runReport. '
@@ -207,7 +207,7 @@ function analyzeGroupReport(grpName: string, stories: any[], reportOptions: any)
                 reportResults.groupTestResults = { passedSteps: overallPassedSteps, failedSteps: overallFailedSteps, skippedSteps: overallSkippedSteps };
                 reportResults.scenariosTested = scenariosTested;
                 reportResults.reportName = grpName;
-                return reportResults as GroupReport
+                return reportResults 
             } catch (error) {
                 reportResults.status = false;
                 console.log('iterating through report Json failed in analyzeGroupReport.'

@@ -35,7 +35,7 @@ abstract class IssueTracker {
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
         const reportUrl = `${frontendUrl}/report/${report.reportName}`;
         if (report.mode === ExecutionMode.SCENARIO) comment = `# Test Result ${new Date(report.reportTime).toLocaleString()}\n## Tested Scenario: "${testedTitle}"\n### Test passed: ${report.status}${testPassedIcon}\nSteps passed: ${commentReportResult.passedSteps} :white_check_mark:\nSteps failed: ${commentReportResult.failedSteps} :x:\nSteps skipped: ${commentReportResult.skippedSteps} :warning:\nLink to the official report: [Report](${reportUrl})`;
-        else comment = `# Test Result ${new Date(report.reportTime).toLocaleString()}\n## Tested Story: "${testedTitle}"\n### Test passed: ${report.status}${testPassedIcon}\nScenarios passed: ${report.scenariosTested.passed} :white_check_mark:\nScenarios failed: ${report.scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
+        else comment += `# Test Result ${new Date(report.reportTime).toLocaleString()}\n## Tested Story: "${testedTitle}"\n### Test passed: ${report.status}${testPassedIcon}\nScenarios passed: ${report.scenariosTested.passed} :white_check_mark:\nScenarios failed: ${report.scenariosTested.failed} :x:\nLink to the official report: [Report](${reportUrl})`;
         return comment;
     }
     abstract postComment(comment: string, issueDetail: {issueId: string, repoUser?: string, repoName?: string}, credentials: any);
@@ -72,7 +72,7 @@ class Github extends IssueTracker {
     private addLabelToIssue(githubName: string, githubRepo: string, password: string, issueNumber, label: string) {
         const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels`;
         const body = { labels: [label] };
-        const auth = `Basic ${Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')}`;
+        const auth = this.buildAuthText(githubName, password, 'basic')
         fetch(link, {
             method: 'post',
             body: JSON.stringify(body),
@@ -82,7 +82,7 @@ class Github extends IssueTracker {
     
     private removeLabelOfIssue(githubName: string, githubRepo: string, password: string, issueNumber, label: string) {
         const link = `https://api.github.com/repos/${githubName}/${githubRepo}/issues/${issueNumber}/labels/${label}`;
-        const auth = `Basic ${Buffer.from(`${githubName}:${password}`, 'binary').toString('base64')}`;
+        const auth = this.buildAuthText(githubName, password, 'basic')
         fetch(link, {
             method: 'post',
             headers: { Authorization: auth, 'Content-Type': 'application/json' }
