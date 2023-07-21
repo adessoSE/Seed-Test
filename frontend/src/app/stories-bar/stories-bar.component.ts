@@ -342,14 +342,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.groupService.runGroup(id, group._id, params).subscribe((ret: any) => {
             this.report.emit(ret);
             this.testRunningGroup.emit(false);
-            const report_id = ret.reportId;
-            this.reportService.getReport(report_id)
-            .subscribe((report: GroupReport) => {
-                report.storyStatuses.forEach(story => {
-                    story.scenarioStatuses.forEach(scenario => {
-                        this.scenarioService.scenarioStatusChangeEmit(
-                            story.storyId, scenario.scenarioId, scenario.status);
-                    });
+            const report = ret.report;
+            report.storyStatuses.forEach(story => {
+                story.scenarioStatuses.forEach(scenario => {
+                    this.scenarioService.scenarioStatusChangeEmit(
+                        story.storyId, scenario.scenarioId, scenario.status);
                 });
             });
         });
