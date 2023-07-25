@@ -46,6 +46,12 @@ async function updateJiraCredential(UserID: string, username: string, jiraClearP
     await mongo.updateUser(UserID, user);
 }
 
+async function disconnectJira(UserID: string) {
+	const user = await mongo.getUserData(UserID);
+	delete user.jira;
+	await mongo.updateUser(UserID, user);
+}
+
 const getGithubData = (res, req, accessToken) => {
 	fetch(
 		`https://api.github.com/user?access_token=${accessToken}`,
@@ -103,6 +109,7 @@ export {
     jiraDecryptPassword,
     jiraEncryptPassword,
     updateJiraCredential,
+	disconnectJira,
     checkValidGithub,
     getGithubData
 };
