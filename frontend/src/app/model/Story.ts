@@ -5,6 +5,7 @@ import { Background } from './Background';
  * Interface of the story
  */
 export interface Story {
+    disableRepPost?: boolean;
     /**
      * Object id of the story in the database
      */
