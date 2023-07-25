@@ -395,6 +395,7 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 
 	// if possible separate function
 	for (const story of stories) {
+        if(story.disableRepPost) continue;
 		let comment;
 		if (mode === executionMode.GROUP) {
 			comment = `This Execution ist part of group execution ${parameters.name}\n`;
