@@ -76,11 +76,8 @@ router.delete('/user/disconnect/', (req, res) => {
 	if (typeof req.user === 'undefined' && typeof req.user._id === 'undefined') {
 		console.error('No Jira User sent. (Got undefinded)');
 		res.status(401).json('No Jira User sent. (Got undefinded)');
-	} else {
-		helper.disconnectJira(req.user._id).then((result) => {
-			res.status(200).json(result);
-		}).catch((error) => console.error(error));
-	}
+	} else userHelper.disconnectJira(req.user._id).then((result) => res.status(200).json(result))
+		.catch((error) => console.error(error));
 });
 
 router.post('/login', (req, res) => {
