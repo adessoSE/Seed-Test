@@ -1,4 +1,4 @@
-import { Cipher, Decipher, scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
+import { scryptSync, createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 const passport = require('passport');
 
 const mongo = require('../../src/database/DbServices');
@@ -31,14 +31,15 @@ function jiraDecryptPassword(ciphertext: Buffer, nonce: Buffer, tag: Buffer): st
     }
 }
 
-async function updateJiraCredential(UserID: string, username: string, jiraClearPassword: string, host: string) {
+async function updateJiraCredential(UserID: string, username: string, jiraClearPassword: string, host: string, jiraAuthMethod: string) {
     const [password, nonce, tag] = jiraEncryptPassword(jiraClearPassword);
     const jira = {
         AccountName: username,
         Password: password,
         Password_Nonce: nonce,
         Password_Tag: tag,
-        Host: host
+        Host: host,
+		AuthMethod: jiraAuthMethod
     };
     const user = await mongo.getUserData(UserID);
     user.jira = jira;
@@ -59,8 +60,6 @@ const getGithubData = (res, req, accessToken) => {
 	)
 		.then((response) => response.json())
 		.then(async (json) => {
-			console.log('JSON in GetGitHubData');
-			console.log(json);
 			req.body = json;
 			req.body.githubToken = accessToken;
 			try {

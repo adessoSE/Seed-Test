@@ -30,9 +30,13 @@ router.post('/user/create/', (req, res) => {
 		console.error('No Jira User sent. (Got undefinded)');
 		res.status(401).json('No Jira User sent. (Got undefinded)');
 	} else {
-		const { jiraAccountName, jiraPassword, jiraHost: jiraServer } = req.body;
-		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
-			.toString('base64');
+		const { jiraAccountName, jiraPassword, jiraHost: jiraServer, jiraAuthMethod } = req.body;
+		let authString = `Bearer ${jiraPassword}`;
+		if (jiraAuthMethod === 'basic') {
+			const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
+			authString = `Basic ${auth}`;
+		}
+		console.log('auth ', authString);
 		const options = {
 			method: 'GET',
 			qs: {
@@ -41,7 +45,7 @@ router.post('/user/create/', (req, res) => {
 			},
 			headers: {
 				'cache-control': 'no-cache',
-				Authorization: `Basic ${auth}`
+				Authorization: authString
 			}
 		};
 
@@ -52,7 +56,7 @@ router.post('/user/create/', (req, res) => {
 			fetch(jiraURL, options)
 				.then((response) => response.json())
 				.then(() => {
-					userHelper.updateJiraCredential(req.user._id, jiraAccountName, jiraPassword, jiraServer)
+					userHelper.updateJiraCredential(req.user._id, jiraAccountName, jiraPassword, jiraServer, jiraAuthMethod)
 						.then((result) => {
 							res.status(200).json(result);
 						});
@@ -81,9 +85,12 @@ router.delete('/user/disconnect/', (req, res) => {
 
 router.post('/login', (req, res) => {
 	if (typeof req.body.jiraAccountName !== 'undefined') {
-		const { jiraAccountName, jiraPassword, jiraServer } = req.body;
-		const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`)
-			.toString('base64');
+		const { jiraAccountName, jiraPassword, jiraServer, AuthMethod } = req.body;
+		let authString = `Bearer ${jiraPassword}`;
+		if (AuthMethod === 'basic') {
+			const auth = Buffer.from(`${jiraAccountName}:${jiraPassword}`).toString('base64');
+			authString = `Basic ${auth}`;
+		}
 		const options = {
 			method: 'GET',
 			qs: {
@@ -92,7 +99,7 @@ router.post('/login', (req, res) => {
 			},
 			headers: {
 				'cache-control': 'no-cache',
-				Authorization: `Basic ${auth}`
+				Authorization: authString
 			}
 		};
 		if (/^[.:a-zA-Z0-9]+$/.test(jiraServer)) fetch(`http://${jiraServer}/rest/auth/1/session`, options)
