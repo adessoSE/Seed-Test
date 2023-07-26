@@ -11,22 +11,22 @@
         <div [class.disabled]="!this.activeActionBar">
           <button *ngIf="name != 'example'" id="{{name+'_addBlock_step_'}}"
           class="actionButton" uk-tooltip title="Save Steps as Block"
-          (click)="saveBlock();">
+          (click)="saveBlock();" [disabled]="!this.activeActionBar || this.isReferenceBlock" [class.disabled]="this.isReferenceBlock">
             <em class="material-icons">queue</em>
           </button>
           <button id="{{name+'_deactivate_step_'}}"
           class="actionButton" uk-tooltip title="Deactivate Step"
-          (click)="deactivateStep();">
+          (click)="deactivateStep();" [disabled]="!this.activeActionBar">
             <em class="material-icons">do_not_touch</em>
           </button>
           <button id="{{name+'_delete_step'}}"
           class="actionButton" uk-tooltip title="Delete Step"
-          (click)="removeStep();">
+          (click)="removeStep();" [disabled]="!this.activeActionBar">
             <em class="material-icons">delete</em>
           </button>
           <button id="{{name+'_copy_step'}}"
           class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-          (click)="copyBlock();">
+          (click)="copyBlock();" [disabled]="!this.activeActionBar">
             <em class="material-icons">content_copy</em>
           </button>
         </div>

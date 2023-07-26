@@ -144,6 +144,10 @@ export class BaseEditorComponent  {
   * If all examples steps are deactivated
   */
    allDeactivated: boolean;
+    /**
+  * If selected steps is a reference block
+  */
+   isReferenceBlock: boolean;
   /**
     * Block saved to clipboard
     */
@@ -163,6 +167,7 @@ export class BaseEditorComponent  {
   addBlocktoScenarioObservable: Subscription;
   scenarioChangedObservable: Subscription;
   backgroundChangedObservable: Subscription;
+  unpackBlockObservable: Subscription;
   copyExampleOptionObservable: Subscription;
 
 
@@ -186,10 +191,16 @@ export class BaseEditorComponent  {
         });
         this.markUnsaved();
       }
-      
       if (this.templateName == 'scenario' && block[0] == 'scenario') {      
-        block = block[1];
-        this.insertStepsWithExamples(block)
+        if (block[2]) {
+          const blockReference: StepType = { _id: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
+            pre: '', mid: '', post: '', values: [], isReferenceBlock: true};
+          this.selectedScenario.stepDefinitions.when.push(blockReference);  
+          this.checkStep(blockReference)
+        } else {
+          block = block[1];
+          this.insertStepsWithExamples(block);
+        }
         this.markUnsaved();
       }
       
@@ -213,6 +224,9 @@ export class BaseEditorComponent  {
         }
       }
   });
+    this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe(() => {
+      this.unpackBlock(this.selectedBlock);
+    });
     
   }
 
@@ -848,6 +862,7 @@ export class BaseEditorComponent  {
     */
   handleClick(event, step, checkbox_id, checkValue?: boolean) {
     // if key pressed is shift
+    delete this.isReferenceBlock;
     if (event.shiftKey && this.lastVisitedTemplate == this.templateName) {
       this.checkMany(step, checkbox_id);
     } else {
@@ -909,11 +924,33 @@ export class BaseEditorComponent  {
       step.checked = checkValue;
     } else {
       step.checked = !step.checked;
+      this.disableSaveBlock(step);
     }
-
     this.areAllStepsChecked();
   }
-
+  /**
+   * Enables/disables "Save steps as Block" if only reference-block-steps selected
+   */
+  disableSaveBlock(step){
+    let count = 0;
+    let onlyBlockSelected = null;
+    if(this.templateName === 'scenario'){
+      for (const prop in this.selectedScenario.stepDefinitions) {
+        if (prop !== 'example') {
+          for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
+            if (this.selectedScenario.stepDefinitions[prop][i].checked && this.selectedScenario.stepDefinitions[prop][i].isReferenceBlock == undefined) {
+             count++;
+            }else {
+              onlyBlockSelected = true;
+            }
+          }
+        }
+      }
+      if(count == 0 && ((step.checked && step.isReferenceBlock) || (onlyBlockSelected))){
+        this.isReferenceBlock = true;
+      }
+    }
+  }
   /**
    * Enables/disables action bar and checkbox in it depending on whether all steps are checked 
    */
@@ -1126,7 +1163,6 @@ export class BaseEditorComponent  {
             }
           });
           if (this.activatedSteps === totalSteps - 1) {
-            console.log("All steps are deactivated");
             this.deactivateAllExampleSteps();
             this.markUnsaved();
             return
@@ -1222,6 +1258,9 @@ export class BaseEditorComponent  {
           }
         }
       }
+    }
+    if(this.allChecked){
+      this.activeActionBar = !this.activeActionBar;
     }
   }
  
@@ -1324,7 +1363,25 @@ export class BaseEditorComponent  {
 
     return copyBlock
   }
- 
+  /**
+    * Unpack a reference block
+    * 
+    */
+  unpackBlock(block){
+    if (block && block.stepDefinitions) {
+      for (const s in block.stepDefinitions) {
+        block.stepDefinitions[s].forEach((step: StepType, j) => {
+          step.checked = false;
+          this.selectedScenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
+        });
+        const index = this.selectedScenario.stepDefinitions[s].findIndex((element) => element._id == this.selectedBlock._id);
+        if (index > -1) {
+          this.selectedScenario.stepDefinitions[s].splice(index, 1);
+        }
+      }
+    }
+    this.markUnsaved();
+  }
   /**
     * Insert block from clipboard
     * 
