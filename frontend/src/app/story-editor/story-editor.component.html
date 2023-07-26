@@ -167,11 +167,6 @@
             <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge" [selected]="this.selectedScenario.browser === 'MicrosoftEdge'">Edge</option>
         </select>
 
-        <div *ngIf="this.selectedStory.storySource !== 'db'">
-          <label class="selectLabel SmallIcontext" for="disableRepPost">Post Report comment:</label>
-          <input type="checkbox" id="disableRepPost" (change)= "setPostReport()" [checked]="this.selectedStory.disableRepPost">
-        </div>
-
         <!-- EMULATOR -->
         
         <label class="selectLabel SmallIcontext" for="emulatorCheck"
@@ -238,6 +233,11 @@
             Runs the test on a simulated a device.
           </span>
         </dfn>
+
+        <div class="selectLabel" *ngIf="this.selectedStory.storySource !== 'db'">
+          <label class="selectLabel SmallIcontext" for="disableRepPost">Post Report comment:</label>
+          <input type="checkbox" id="disableRepPost" (change)= "setPostReport()" [checked]="this.selectedStory.disableRepPost">
+        </div>
       </div>
       <div class="storyInfoRight uk-button-group">
         <button

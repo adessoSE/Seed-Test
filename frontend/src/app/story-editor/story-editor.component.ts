@@ -516,7 +516,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       }
     }
     setPostReport() {
-      this.selectedStory.disableRepPost = !this.selectedStory.disableRepPost
+      console.log(this.selectedStory.disableRepPost);
+      this.selectedStory.disableRepPost = !this.selectedStory.disableRepPost;
+      this.selectedScenario.saved = false;
     }
 
   /**
