@@ -123,6 +123,16 @@ export class BaseEditorComponent  {
   lastCheckedCheckboxIDx;
 
   /**
+   * Placeholder buttons are hidden
+   */
+  isHidden= true;
+
+  /**
+   * Placeholder activated
+   */
+  isPlaceholder = false;
+
+  /**
   * Flag to check how much enable steps left
   */
   activatedSteps = 0;
@@ -1676,6 +1686,27 @@ export class BaseEditorComponent  {
       this.selectedScenario.stepDefinitions.example.push(row)
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved();
+  }
+
+  /**
+   * Display placeholder
+   */
+  enablePlaceholder(rowidx, itemidx, name) {
+    const idx = name+'_' + rowidx + '_input_pre_' + itemidx;
+    const input = document.getElementById(idx) as HTMLInputElement;
+    input.placeholder = "This is dummy placeholder";
+    input.value = null; 
+    this.isPlaceholder = true;
+  }
+
+  /**
+   * Hide placeholder
+   */
+  disablePlaceholder (rowidx, itemidx, name, currentStep) {
+    const idx = name+'_' + rowidx + '_input_pre_' + itemidx;
+    const input = document.getElementById(idx) as HTMLInputElement;
+    input.value = currentStep.values[0];
+    this.isPlaceholder = false;
   }
 
 }
