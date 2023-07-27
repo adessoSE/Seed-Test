@@ -70,6 +70,9 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
 import { TransferOwnershipToast } from './transferOwnership-toastr';
 import { InfoWarningToast } from './info-warning-toast';
+import { MatDialogModule } from '@angular/material/dialog';
+import { WindowSizeDialogComponent } from './window-size-dialog/window-size-dialog.component';
+
 
 @NgModule({
   declarations: [
@@ -118,7 +121,8 @@ import { InfoWarningToast } from './info-warning-toast';
     NewExampleComponent,
     ExampleComponent,
     DeleteToast,
-    TransferOwnershipToast
+    TransferOwnershipToast,
+    WindowSizeDialogComponent
   ],
   imports: [
     NgbModule,
@@ -150,6 +154,7 @@ import { InfoWarningToast } from './info-warning-toast';
     MatExpansionModule,
     MatTabsModule,
     MatTooltipModule,
+    MatDialogModule
   ],
   entryComponents: [InfoWarningToast],
   providers: [ApiService, AuthGuard, CookieService,
