@@ -71,4 +71,8 @@ export interface StepType {
      * deactivated currently not used
      */
     deactivated?: boolean;
+    /**
+     * step added as "Block as Reference"
+     */
+    isReferenceBlock?: boolean;
 }

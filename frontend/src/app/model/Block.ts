@@ -37,5 +37,10 @@ export interface Block {
     /**
      * Source of the repository the block belongs to
      */
-    source?: string;
+    source?: string;  
+    /**
+     * If block was saved as a background 
+     */
+    isBackground ?: boolean;
+
 }

@@ -1,0 +1,194 @@
+name: Start Docker Stack
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  start-docker-stack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm install node-fetch
+
+      - name: Use Docker
+        uses: actions-hub/docker/cli@master
+        env:
+          SKIP_LOGIN: true
+
+      - name: Create .env file backend
+        run: |
+          echo "DATABASE_URI=${{secrets.DB_URI}}" > backend/.env
+          echo "EMAIL_AUTH=${{secrets.EMAIL_AUTH}}" >> backend/.env
+          echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> backend/.env
+          echo "EMAIL_PORT=${{secrets.EMAIL_PORT}}" >> backend/.env
+          echo "EMAIL_HOST=${{secrets.EMAIL_HOST}}" >> backend/.env
+          echo "FRONTEND_URL=${{secrets.FRONTEND_URL}}" >> backend/.env
+          echo "GITHUB_CLIENT_SECRET=${{secrets.G_CLIENT_SECRET}}" >> backend/.env
+          echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> backend/.env
+          echo "PASSPORT_GITHUB_LOCAL_PW_FIELD=${{secrets.PASSPORT_GITHUB_LOCAL_PW_FIELD}}" >> backend/.env
+
+      - name: Create .env file fronted
+        run: |
+          echo "API_SERVER=${{secrets.API_SERVER}}" > frontend/.env
+          echo "GITHUB_CLIENT_ID=${{secrets.G_CLIENT_ID}}" >> frontend/.env
+          echo "EMAIL_PW=${{secrets.EMAIL_PW}}" >> frontend/.env
+          echo "VERSION=SET" >> frontend/.env
+
+      - name: Build and start Docker stack
+        run: |
+          chmod +x runDocker.sh
+          ./runDocker.sh
+
+      - name: Send failure notification
+        if: ${{ failure() }}
+        uses: ./actions/fullReport
+        with:
+          prnumber: ${{ github.event.pull_request.number }}
+          originBranch: ${{ github.event.pull_request.head.ref }}
+          destinationBranch: ${{ github.event.pull_request.base.ref }}
+          requestor: ${{ github.event.pull_request.user.login }}
+          date: ${{ github.event.pull_request.created_at }}
+          description: ${{ github.event.pull_request.body }}
+          dockerStatus: "failed"
+          workflowLink: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+      - name: Wait for 1/2 minute
+        run: sleep 30
+
+      # execute npm test in the backend container ---------------------------------------------------------------
+      - name: Run npm test backend
+        run: |
+          docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
+        continue-on-error: true
+
+      - name: Clean up the result backend
+        run: |
+          awk '/Test Suites:/{flag=1; print; next} /Ran all test suites\./{flag=0} flag' testResultsBackend.txt > cleanResultsBackend.txt
+          echo "" >> cleanResultsBackend.txt
+          printf "$(cat cleanResultsBackend.txt)" > cleanResultsBackend.txt
+
+      - name: Get passed, failed and total backend
+        run: |
+          passed=$(awk '/Tests:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsBackend.txt)
+          failed=$(awk '/Tests:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsBackend.txt)
+          echo "passedTests=${passed}" >> "${GITHUB_OUTPUT}"
+          echo "failedTests=${failed}" >> "${GITHUB_OUTPUT}"
+          passedSuites=$(awk '/Suites:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsBackend.txt)
+          failedSuites=$(awk '/Suites:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsBackend.txt)
+          echo "passedSuites=${passedSuites}" >> ${GITHUB_OUTPUT}
+          echo "failedSuites=${failedSuites}" >> ${GITHUB_OUTPUT}
+          bottomText=$(awk '/Snapshots:/{flag=1;print}/^$/{flag=0}flag' cleanResultsBackend.txt | tr -d '\n')
+          echo "bottomText=${bottomText}" >> ${GITHUB_OUTPUT}
+        id: passed-total-backend
+
+      - name: Upload Artifact Backend
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results-backend
+          path: |
+            testResultsBackend.txt
+
+      # execute npm test in the frontend container --------------------------------------------------------------
+      - name: Run npm test frontend
+        run: |
+          docker exec Seed-frontend npm test > testResultsFrontend.txt 2>&1
+        continue-on-error: true
+
+      - name: Clean up the result frontend
+        run: |
+          awk '/Test Suites:/{flag=1; print; next} /Ran all test suites\./{flag=0} flag' testResultsFrontend.txt > cleanResultsFrontend.txt
+          echo "" >> cleanResultsFrontend.txt
+          printf "$(cat cleanResultsFrontend.txt)" > cleanResultsFrontend.txt
+
+      - name: Get passed and total frontend
+        run: |
+          passed=$(awk '/Tests:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsFrontend.txt)
+          failed=$(awk '/Tests:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsFrontend.txt)
+          echo "passedTests=${passed}" >> "${GITHUB_OUTPUT}"
+          echo "failedTests=${failed}" >> "${GITHUB_OUTPUT}"
+          passedSuites=$(awk '/Suites:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsFrontend.txt)
+          failedSuites=$(awk '/Suites:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' cleanResultsFrontend.txt)
+          echo "passedSuites=${passedSuites}" >> ${GITHUB_OUTPUT}
+          echo "failedSuites=${failedSuites}" >> ${GITHUB_OUTPUT}
+          bottomText=$(awk '/Snapshots:/{flag=1;print}/^$/{flag=0}flag' cleanResultsFrontend.txt | tr -d '\n')
+          echo "bottomText=${bottomText}" >> ${GITHUB_OUTPUT}
+        id: passed-total-frontend
+
+      - name: Upload Artifact Frontend
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results-frontend
+          path: |
+            testResultsFrontend.txt
+
+      # SANITY CHECK --------------------------------------------------------------------------------------------
+      - name: Send sanity POST request and store response
+        env:
+          # <-- api url for sanity test -->/<---- repository_id --->/<------ group_id ------>
+          API_URL: localhost:8080/api/sanity/test/632893aad3bd45536c41b684/6400a70f5eda22409c4d2ed9
+        run: |
+          curl -X POST -H 'Content-Type: application/json' -d '{"email": "${{ secrets.SEED_EMAIL }}", "password": "${{ secrets.SEED_PW }}", "stayLoggedIn": true, "repository": "Seed-Test", "source": "db"}' "$API_URL" > sanityReport.txt
+
+      - name: print sanity
+        run: |
+          echo $(cat sanityReport.txt)
+          
+      - name: Get passed and total sanity
+        run: |
+          passed=$(awk '/Steps:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' sanityReport.txt)
+          failed=$(awk '/Steps:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' sanityReport.txt)
+          skipped=$(awk '/Steps:/ { match($0, /[0-9]+ skipped/); print substr($0, RSTART, RLENGTH-8) }' sanityReport.txt)
+          echo "passedSteps=${passed}" >> "${GITHUB_OUTPUT}"
+          echo "failedSteps=${failed}" >> "${GITHUB_OUTPUT}"
+          echo "skippedSteps=${skipped}" >> "${GITHUB_OUTPUT}"
+          passedScenarios=$(awk '/Scenarios:/ { match($0, /[0-9]+ passed/); print substr($0, RSTART, RLENGTH-7) }' sanityReport.txt)
+          failedScenarios=$(awk '/Scenarios:/ { match($0, /[0-9]+ failed/); print substr($0, RSTART, RLENGTH-7) }' sanityReport.txt)
+          echo "passedScenarios=${passedScenarios}" >> ${GITHUB_OUTPUT}
+          echo "failedScenarios=${failedScenarios}" >> ${GITHUB_OUTPUT}
+          bottomText=bottomText=$(awk '/Snapshots:/{flag=1;next}/^$/{flag=0}flag' sanityReport.txt | tr -d '\n')
+          echo "bottomText=${bottomText}" >> ${GITHUB_OUTPUT}
+        id: passed-total-sanity
+
+      - name: Upload Artifact Sanity
+        uses: actions/upload-artifact@v2
+        with:
+          name: sanity-report
+          path: |
+            sanityReport.txt
+
+      # SEND FULL REPORT ---------------------------------------------------------------------------------------
+      - name: Send Teams Message
+        uses: ./actions/fullReport
+        with:
+          prnumber: ${{ github.event.pull_request.number }}
+          prlink: ${{ github.event.pull_request.html_url }}
+          originBranch: ${{ github.event.pull_request.head.ref }}
+          destinationBranch: ${{ github.event.pull_request.base.ref }}
+          requestor: ${{ github.event.pull_request.user.login }}
+          date: ${{ github.event.pull_request.created_at }}
+          description: ${{ github.event.pull_request.body }}
+          dockerStatus: "success"
+          frontendSuitsPassed: ${{ steps.passed-total-frontend.outputs.passedSuites }}
+          frontendSuitsFailed: ${{ steps.passed-total-frontend.outputs.failedSuites }}
+          frontendTestsPassed: ${{ steps.passed-total-frontend.outputs.passedTests }}
+          frontendTestsFailed: ${{ steps.passed-total-frontend.outputs.failedTests }}
+          frontendBottomText: ${{ steps.passed-total-frontend.outputs.bottomText }}
+          backendSuitsPassed: ${{ steps.passed-total-backend.outputs.passedSuites }}
+          backendSuitsFailed: ${{ steps.passed-total-backend.outputs.failedSuites }}
+          backendTestsPassed: ${{ steps.passed-total-backend.outputs.passedTests }}
+          backendTestsFailed: ${{ steps.passed-total-backend.outputs.failedTests }}
+          backendBottomText: ${{ steps.passed-total-backend.outputs.bottomText }}
+          sanityScenariosPassed: ${{ steps.passed-total-sanity.outputs.passedScenarios }}
+          sanityScenariosFailed: ${{ steps.passed-total-sanity.outputs.failedScenarios }}
+          sanityStepsPassed: ${{ steps.passed-total-sanity.outputs.passedSteps }}
+          sanityStepsFailed: ${{ steps.passed-total-sanity.outputs.failedSteps }}
+          sanityStepsSkipped: ${{ steps.passed-total-sanity.outputs.skippedSteps }}
+          workflowLink: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}

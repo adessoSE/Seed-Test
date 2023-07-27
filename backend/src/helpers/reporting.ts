@@ -422,6 +422,57 @@ async function runReport(req, res, stories: any[], mode: executionMode, paramete
 	}
 }
 
+async function runSanityReport(req, res, stories: any[], mode: executionMode, parameters) {
+	let reportObj;
+	try {
+		if (mode === executionMode.GROUP) {
+			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
+			fs.mkdirSync(`./features/${req.body.name}`);
+			if (parameters.isSequential == undefined || !parameters.isSequential)
+				reportObj = await Promise.all(stories.map((story) => testExecutor.executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());
+			else {
+				for (const story of stories) {
+					reportObj = await testExecutor.executeTest(req, mode, story);
+				}
+			}
+		} else {
+			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
+		}
+	} catch (error) {
+		res.status(404).send(error);
+		return;
+	}
+
+	const { reportResults, reportName } = await resolveReport(reportObj, mode, stories, req);
+	// generate HTML Report
+	console.log(`reportName in callback of resolveReport: ${reportName}`);
+	console.log(`reportResults in callback of resolveReport: ${reportResults}`);
+	// upload report to DB
+	const uploadedReport = await mongo.uploadReport(reportResults)
+		.catch((error) => {
+			console.log(`Could not UploadReport :  ./features/${reportName}.json
+				Rejection: ${error}`);
+			res.json({ htmlFile: `Could not UploadReport :  ./features/${reportName}.json` });
+		});
+
+    function formatNotification(json) {
+        const { scenarios, steps } = json;
+      
+        const notificationText = `
+          Scenarios: ${scenarios.failed} failed, ${scenarios.passed} passed, ${scenarios.passed+scenarios.failed} total
+          Steps: ${steps.failedSteps} failed, ${steps.passedSteps} passed, ${steps.skippedSteps} skipped, ${steps.passedSteps+steps.failedSteps+steps.skippedSteps} total    
+        `;
+      
+        return notificationText;
+      }
+
+	fs.readFile(`./features/${reportName}.html`, 'utf8', (err, data) => {
+		res.status(200).send(formatNotification({"scenarios": reportResults.scenariosTested, "steps": reportResults.groupTestResults}));
+	});
+	testExecutor.updateLatestTestStatus(uploadedReport, mode);
+}
+
 
 export {
     createReport,
@@ -430,4 +481,5 @@ export {
     reportDeletionTime, // Delete when not used
     deleteReport,
     runReport,
+    runSanityReport
 };

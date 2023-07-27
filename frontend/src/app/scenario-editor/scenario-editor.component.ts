@@ -231,7 +231,7 @@ export class ScenarioEditorComponent implements OnInit{
         }
         this.selectedScenario.lastTestPassed = null;
         return new Promise<void>((resolve, _reject) => {this.scenarioService
-            .updateScenario(this.selectedStory._id, this.selectedStory.storySource, this.selectedScenario)
+            .updateScenario(this.selectedStory._id, this.selectedScenario)
             .subscribe(_resp => {
                 this.scenarioService.scenarioChangedEmitter();
                 this.toastr.success('successfully saved', 'Scenario');
@@ -403,8 +403,9 @@ export class ScenarioEditorComponent implements OnInit{
         });
     }
 
-    blockSelectTrigger(blockId: string) {
-        this.selectedBlock = this.blocks.find(i => i._id == blockId);
+    blockSelectTrigger(block) {
+        this.selectedBlock = this.blocks.find(i => i._id == block._id);
+        block.stepDefinitions = this.selectedBlock.stepDefinitions;
         //this.expandStepBlock = true;
         console.log(this.selectedBlock);
         

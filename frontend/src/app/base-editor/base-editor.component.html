@@ -11,26 +11,27 @@
         <div [class.disabled]="!this.activeActionBar">
           <button *ngIf="name != 'example'" id="{{name+'_addBlock_step_'}}"
           class="actionButton" uk-tooltip title="Save Steps as Block"
-          (click)="saveBlock();">
+          (click)="saveBlock();" [disabled]="!this.activeActionBar || this.isReferenceBlock" [class.disabled]="this.isReferenceBlock">
             <em class="material-icons">queue</em>
           </button>
           <button id="{{name+'_deactivate_step_'}}"
           class="actionButton" uk-tooltip title="Deactivate Step"
-          (click)="deactivateStep();">
+          (click)="deactivateStep();" [disabled]="!this.activeActionBar">
             <em class="material-icons">do_not_touch</em>
           </button>
           <button id="{{name+'_delete_step'}}"
           class="actionButton" uk-tooltip title="Delete Step"
-          (click)="removeStep();">
+          (click)="removeStep();" [disabled]="!this.activeActionBar">
             <em class="material-icons">delete</em>
           </button>
           <button id="{{name+'_copy_step'}}"
           class="actionButton" uk-tooltip title="Copy Step to Clipboard"
-          (click)="copyBlock();">
+          (click)="copyBlock();" [disabled]="!this.activeActionBar">
             <em class="material-icons">content_copy</em>
           </button>
-          <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
-          class="actionButton" uk-tooltip title="Add new Variable"
+        </div>
+        <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
+          uk-tooltip title="Add new Variable"
           (click)="openNewExample(step)">
             <div class="actionButton" style="display:grid;">
               <em class="material-icons-outlined" style="transform: rotate(90deg); grid-column: 1; grid-row: 1">view_stream</em>
@@ -39,7 +40,7 @@
             </div>
           </button>
           <button *ngIf="name=='example'"id="{{name+'_add_row'}}"
-          class="actionButton" uk-tooltip title="Add Example"
+          uk-tooltip title="Add Example"
           (click)="addExampleValueRow()">
           <div class="actionButton" style="display: grid;">
             <em class="material-icons-outlined" style="grid-column: 1; grid-row: 1;">view_stream</em>
@@ -47,8 +48,6 @@
             <em class="material-icons-outlined" id="tableAddButtonBackground">add_circle</em>
           </div>
           </button>
-          
-        </div>
       </div>
       <div class="scenarioButtonGroup SmallHeadline5">
         <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock == null" [disabled]="this.clipboardBlock == null" uk-tooltip="Add Block from Clipboard"(click)="insertCopiedBlock()">
@@ -114,10 +113,10 @@
                               </mat-select>
                             </mat-form-field>
                           </div>&nbsp;
-                          <button *ngIf="getExampleList() !==undefined && currentStep.isExample[0] !== true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType, currentStep)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[0] !== true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('example', j, 0, currentStep.stepType)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
                             &nbsp;<p class="exampleButton">1+</p>&nbsp;
                           </button>
-                          <button *ngIf="getExampleList() !==undefined && currentStep.isExample[0] === true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true"  class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType, currentStep)" uk-tooltip="title: Use Textfield; pos: right">
+                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[0] === true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('text input', j, 0, currentStep.stepType)" uk-tooltip="title: Use Textfield; pos: right">
                             &nbsp;<p class="exampleButton">1</p>&nbsp;
                           </button>&nbsp;
                         </div>
@@ -133,11 +132,11 @@
                         {{currentStep.mid}}
                         <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1" style="display:flex">
                           <div *ngIf="currentStep.values[1] != null" style="display: flex;">
-                            <div *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false">
-                              <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2 *ngIf="currentStep.values[1] != null"
+                            <div *ngIf="currentStep.isExample[1] == false || ((!currentStep.values[1] || currentStep.values[1]) && currentStep.isExample[1] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false">
+                              <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2
                               type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                             </div>
-                            <div *ngIf="currentStep.isExample[0] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
+                            <div *ngIf="currentStep.isExample[1] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
                               <mat-form-field appearance="standard" class="exampleList">
                                 <mat-select [ngModel]="currentStep.values[1] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 1, currentStep.stepType,currentStep)" class="exampleMatSelect">
                                   <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" class="exampleListOption">
@@ -146,14 +145,13 @@
                                 </mat-select>
                               </mat-form-field>
                             </div>&nbsp;
-                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] !== true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('example', j, 1,currentStep.stepType, currentStep)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                            <button *ngIf="getExampleList() !== undefined && currentStep.isExample[1] !== true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('example', j, 1, currentStep.stepType)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
                               &nbsp;<p class="exampleButton">1+</p>&nbsp;
                             </button>
-                            <button *ngIf="getExampleList()!=undefined && currentStep.isExample[0] === true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" id="inputExample" class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType, currentStep)" uk-tooltip="title: Use Textfield; pos: right">
+                            <button *ngIf="getExampleList() !== undefined && currentStep.isExample[1] === true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('text input', j, 1,currentStep.stepType)" uk-tooltip="title: Use Textfield; pos: right">
                               &nbsp;<p class="exampleButton">1</p>&nbsp;
                             </button>&nbsp;
                           </div>
-                          
                         </div>
                         <div *ngIf="currentStep.selectionValue==1">
                           <mat-form-field appearance="standard">
@@ -166,8 +164,38 @@
                         </div>
                         {{currentStep.post}}
                       </div>
-                      <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_post_' + j + '_index_' + m}}" #step_type_input3 *ngFor="let value of currentStep.values | slice:2; let m = index;"
-                      type="text" value="{{value}}" on-input="addToValues(step_type_input3.value, j , m + 2, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                      <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=2" style="display:flex">
+                        <div *ngIf="currentStep.values[2] != null" style="display: flex;">
+                          <div *ngIf="currentStep.isExample[2] == false || ((!currentStep.values[2] || currentStep.values[2]) && currentStep.isExample[2] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false">
+                            <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_post_' + j}}" #step_type_input3
+                      type="text" value="{{currentStep.values[2]}}" on-input="addToValues(step_type_input3.value, j , 2, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                          </div>
+                          <div *ngIf="currentStep.isExample[2] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
+                            <mat-form-field appearance="standard" class="exampleList">
+                              <mat-select [ngModel]="currentStep.values[2] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 2, currentStep.stepType,currentStep)" class="exampleMatSelect">
+                                <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" class="exampleListOption">
+                                  {{exampleList}}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>&nbsp;
+                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[2] !== true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('example', j, 2, currentStep.stepType)" uk-tooltip="title: Use Multiple Scenarios; pos: right">
+                            &nbsp;<p class="exampleButton">1+</p>&nbsp;
+                          </button>
+                          <button *ngIf="getExampleList() !== undefined && currentStep.isExample[2] === true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="scenarioTitle" (click)="addIsExample('text input', j, 2,currentStep.stepType)" uk-tooltip="title: Use Textfield; pos: right">
+                            &nbsp;<p class="exampleButton">1</p>&nbsp;
+                          </button>&nbsp;
+                        </div>
+                      </div>
+                      <div *ngIf="currentStep.selectionValue==2">
+                        <mat-form-field appearance="standard">
+                            <mat-select [(ngModel)]="currentStep.values[2]" (selectionChange)="addToValues(currentStep.values[2], j, 2, currentStep.stepType)">
+                              <mat-option *ngFor="let dropdownValue of currentStep.selection" [value]="dropdownValue">
+                                {{dropdownValue}}
+                              </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                      </div>
                       <div *ngIf="currentStep.outdated">
                         <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                           <span rel="def">
@@ -297,7 +325,7 @@
     </div>
   </div>  
   <ng-template #stepBlockReference let-block>
-    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(block._id)" (closed)="unselectBlock()">
+    <mat-expansion-panel class="stepBlockContainer" (opened)="selectBlock(block)" (closed)="unselectBlock()">
       <mat-expansion-panel-header class="stepBlockHeader">
         <mat-panel-title class="stepBlockTitle">
           <!-- <div class="dragIconContainer" cdkDragHandle >
@@ -313,8 +341,8 @@
         <span class="mat-expansion-indicator" matTooltip="Expand Block to view its Steps" style="mix-blend-mode: color; width: 15px; transform: translate(9px, 0px);"></span>
       </mat-expansion-panel-header>
       <!--Block Content-->
-      <div *ngIf="this.selectedBlock" id="blockContent" [class.scrollable]="getStepsListBlockPreview(selectedBlock.stepDefinitions, j).length > 7" >
-        <div *ngFor="let currentStep of getStepsListBlockPreview(selectedBlock.stepDefinitions); let j = index;">
+      <div *ngIf="this.selectedBlock" id="blockContent" [class.scrollable]="getStepsListBlockPreview(block.stepDefinitions, j).length > 7" >
+        <div *ngFor="let currentStep of getStepsListBlockPreview(block.stepDefinitions); let j = index;">
           <ng-template  *ngTemplateOutlet="blockstep;
             context: {$implicit: currentStep , index:j}">
           </ng-template>

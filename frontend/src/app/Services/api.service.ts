@@ -27,16 +27,25 @@ export class ApiService {
      */
     public apiServer: string = localStorage.getItem('url_backend');
 
+    // ------------------------------- TOASTR TEMPLATE --------------------------------
     /**
      * name of component
      */
-    public nameComponent: string
+    public nameComponent: string;
+     /**
+     * name of the first option in the toastr
+     */
+     public firstOption: string;
+    /**
+     * name of the second option in the toastr
+     */
+    public secondOption: string;
     /**
      * set name of component
      * @param nameComponent
      */
     nameOfComponent(nameComponent:string){
-        this.nameComponent=nameComponent;
+        this.nameComponent = nameComponent;
     }
     /**
      * get name of component that user wants to delete
@@ -45,6 +54,23 @@ export class ApiService {
     getNameOfComponent(){
         return this.nameComponent;
     }
+    /**
+     * set options for info-warning-toster 
+     * @param nameComponent
+     */
+    setToastrOptions(first: string, second: string){
+        this.firstOption = first;
+        this.secondOption = second;
+    }
+    /**
+     * get name of options that user wants to execute
+     * @returns
+     */
+    getNameOfToastrOptions(){
+        return [this.firstOption, this.secondOption];
+    }
+    // ------------------------------- TOASTR TEMPLATE -----------------------------
+    
     /**
      * If the backend url was received
      */
@@ -66,6 +92,11 @@ export class ApiService {
      * Event emitter to save the story / scenario and then run the test
      */
     public runSaveOptionEvent = new EventEmitter();
+
+    /**
+     * Event emitter for handling copy of steps with example
+     */
+    public copyStepWithExampleEvent = new EventEmitter();
 
     /**
      * Gets api headers
@@ -91,6 +122,14 @@ export class ApiService {
      */
     public runSaveOption(option: string) {
         this.runSaveOptionEvent.emit(option);
+    }
+
+    /**
+     * Emits the copy with example option
+     * @param option
+     */
+    public copyStepWithExampleOption(option: string) {
+        this.copyStepWithExampleEvent.emit(option);
     }
 
     /**
@@ -157,10 +196,10 @@ export class ApiService {
      * @param user
      * @returns
      */
-    updateUser(userID: string, user: User): Observable<User> {
+    updateUser(userID: string, user: User): Observable<User> {//not used
         this.apiServer = localStorage.getItem('url_backend');
         return this.http
-            .post<User>(this.apiServer + '/mongo/user/update/' + userID, user)
+            .post<User>(this.apiServer + '/user/update/' + userID, user)
             .pipe(tap(_ => {
                 //
             }), catchError(this.handleStoryError));

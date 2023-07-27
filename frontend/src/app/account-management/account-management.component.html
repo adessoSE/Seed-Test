@@ -51,6 +51,7 @@
             <div class="uk-flex uk-flex-row uk-search downloadWrapper">
                 <em class="material-icons" id="searchBarIcons">search</em>
                 <input class="searchInput" type="text" #searchbar (keyup)="searchRepos()"  [(ngModel)]="searchInput" placeholder="Search"/>
+                <input class="versionInput" type="text" #versionbar [(ngModel)]="versionInput" placeholder="Optional: Version"/>
                 <div style="width: 10%;"></div>
                 <mat-form-field appearance="standard" class="filterFormField">
                     <mat-label>Project</mat-label>
@@ -73,8 +74,8 @@
     </div>
     <!------------------------------------->
     <div class="grid_github uk-card uk-card-default">
-        <h2 class="LargeHeadline3">Github</h2>
-        <div *ngIf="github">
+        <h2 class="LargeHeadline3" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">Github</h2>
+        <div *ngIf="github" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
             <p class="SmallHeadline5">Github-Account: </p>
             <label class="active MediumBody2">{{github['login']}}</label>
             <div>
@@ -87,15 +88,16 @@
             </div>
         </div>
         <div class="grid_github" *ngIf="!github">
-            <a class="githubLoginContainer" (click)="login();">
+            <a class="githubLoginContainer" (click)="login();" *ngIf="clientId!=='undefined'">
                 <div class="githubLogin" >
                    <img src ="../assets/github-logo.png" alt="github">
                    <p style="margin-bottom: 0px;">Login via GitHub</p>
                 </div>
-             </a>
+            </a>
+            <p class="wrongLogin" *ngIf="clientId==='undefined'">Github has not been set up yet.</p>
         </div>
         <!------------------Repositories GITHUB------------------->
-        <div class="grid_githubRepos repositories" *ngIf="repositories">
+        <div class="grid_githubRepos repositories" *ngIf="repositories" [ngStyle]="{ 'opacity': clientId==='undefined' ? '0.5' : '1' }">
             <div id="GitHubRepositoriesList">
                 <label class="MediumHeadline5">Github Projects:</label>
                 <ul class="uk-list">

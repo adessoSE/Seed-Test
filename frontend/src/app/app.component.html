@@ -29,7 +29,21 @@
           </li>
         </ul>
       </div>
-      <p id="version" class="Largecaption">Version 1.6.2</p>
+      <div class="vertical-container">
+        <div id="version" class="Largecaption">
+          Version 1.6.3 {{version === '' ? " (demo)" : ""}}
+        </div>
+        <dfn *ngIf="this.version === ''" id="defaultVersionWarning" class="def">
+          <span uk-icon="warning"></span>
+          <span rel="def" style="font-weight: normal">
+            This is a demo version of Seed-Test. 
+            Please note that to use it in production, you need to make some configurations to ensure it's fully functional. 
+            Certain features may not work until you complete the installation process. 
+            <b>We strongly advise against using this unconfigured version in a production environment.</b>
+            For more information, please refer to the README.
+          </span>
+        </dfn>
+      </div>
     </div>
 
 
