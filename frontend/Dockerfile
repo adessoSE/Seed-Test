@@ -11,6 +11,7 @@ RUN npm ci --ignore-scripts
 
 # Install Angular CLI
 RUN npm install --ignore-scripts -g @angular/cli
+
 COPY . .
 
 EXPOSE 4200
