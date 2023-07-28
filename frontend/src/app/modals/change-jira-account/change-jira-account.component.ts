@@ -29,14 +29,23 @@ export class ChangeJiraAccountComponent {
   * Model Reference for closing
   */
   modalReference: NgbModalRef;
+  activeForm: string;
 
   jiraForm = new UntypedFormGroup({
-    jiraAccountName: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
-    jiraPassword: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)]),
     jiraHost: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    jiraAuthMethod: new UntypedFormControl('',[])
   });
 
-  get jiraAccountName() { return this.jiraForm.get('jiraAccountName'); }
+  jiraBasic = new UntypedFormGroup({
+    jiraAccountName: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/)]),
+    jiraPassword: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)])
+  });
+
+  jiraBearer = new UntypedFormGroup({
+    jiraToken: new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.minLength(6)])
+  });
+
+  get jiraAccountName() { return this.jiraBasic.get('jiraAccountName'); }
 
   constructor(private modalService: NgbModal, public managmentService: ManagementService) {}
     /**
@@ -46,20 +55,26 @@ export class ChangeJiraAccountComponent {
   openChangeJiraAccountModal(type) {
     this.modalReference = this.modalService.open(this.changeJiraAccountModal, {ariaLabelledBy: 'modal-basic-title'});
     this.type = type;
+    this.activeForm = 'bearer';
   }
 
+  switchForm(form){
+    this.activeForm = form;
+  }
   /**
    * Create or change Jira Account
    */
   changeJiraAccountSubmit() {
     if (this.type === 'Jira') {
-      const jiraAccountName = this.jiraForm.value.jiraAccountName;
-      const jira_password = this.jiraForm.value.jiraPassword;
+      const jiraAuthMethod = this.jiraForm.value.jiraAuthMethod;
+      const jiraAccountName = this.jiraBasic.value.jiraAccountName;
+      const jiraPassword = jiraAuthMethod == 'basic' ? this.jiraBasic.value.jiraPassword : this.jiraBearer.value.jiraToken ;
       const jiraHost = this.jiraForm.value.jiraHost;
       const request = {
               'jiraAccountName': jiraAccountName,
-              'jiraPassword': jira_password,
+              'jiraPassword': jiraPassword,
               'jiraHost': jiraHost,
+              'jiraAuthMethod': jiraAuthMethod
       };  
       this.managmentService.createJiraAccount(request).subscribe(response => {
         this.jiraAccountResponse.emit(response);

@@ -37,9 +37,9 @@ class Repository {
  */
 async function getJiraRepos(jiraUser: any) {
     if(!jiraUser)return []
-    let { Host, AccountName, Password, Password_Nonce, Password_Tag } = jiraUser;
+    let { Host, AccountName, Password, Password_Nonce, Password_Tag , AuthMethod} = jiraUser;
     const jiraClearPassword = jiraDecryptPassword(Password, Password_Nonce, Password_Tag);
-    const repos = await requestJiraRepos(Host, AccountName, jiraClearPassword);
+    const repos = await requestJiraRepos(Host, AccountName, jiraClearPassword, AuthMethod);
     return await storeJiraRepos(repos)
 }
 
@@ -50,8 +50,13 @@ async function getJiraRepos(jiraUser: any) {
  * @param jiraClearPassword 
  * @returns 
  */
-async function requestJiraRepos(host: string, username: string, jiraClearPassword: string) {
-    const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
+async function requestJiraRepos(host: string, username: string, jiraClearPassword: string, authMethod: string) {
+	let authString: string = `Bearer ${jiraClearPassword}`
+	if(authMethod === 'basic'){ 
+		const auth = Buffer.from(`${username}:${jiraClearPassword}`).toString('base64');
+		authString = `Basic ${auth}`
+	}
+	console.log('auth ', authString);
     const reqoptions = {
         method: 'GET',
         qs: {
@@ -60,7 +65,7 @@ async function requestJiraRepos(host: string, username: string, jiraClearPasswor
         },
         headers: {
             'cache-control': 'no-cache',
-            Authorization: `Basic ${auth}`
+			'Authorization': authString
         }
     };
     // use GET /rest/api/2/project instead of GET /rest/api/2/issue/createmeta
@@ -89,7 +94,7 @@ async function storeJiraRepos(projects:Array<any>){
     if (projects.length !== 0) {
         for (const projectName of projects) {
             if (!jiraReposFromDb.some((entry) => entry.repoName === projectName)) {
-                jiraRepo = await mongo.createJiraRepo(projectName.name);
+                jiraRepo = await mongo.createJiraRepo(projectName);
             } else {
                 jiraRepo = jiraReposFromDb.find((element) => element.repoName === projectName);
             }
@@ -97,11 +102,11 @@ async function storeJiraRepos(projects:Array<any>){
         }
         return repos.map<{_id:string, value:string, source:string}>
         ((value) => ({
-            _id: value._id.to,
+            _id: value._id,
             value: value.name,
             source
         }));
-    }
+    } else return [];
 }
 function dbProjects(userId: string) {
 	return new Promise((resolve) => {
@@ -143,6 +148,8 @@ function execRepositoryRequests(link, user, password, ownerId, githubId) {
 		request.send();
 		request.onreadystatechange = async () => {
 			if (request.readyState !== 4) return;
+			//if (request.status == 401) resolve([]);
+			//if (request.status == 403) resolve([]);
 			if (request.status !== 200) { reject(request.status); return; }
 			const data = JSON.parse(request.responseText);
 			const projects = [];
