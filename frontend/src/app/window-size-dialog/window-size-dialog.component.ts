@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 export interface DialogData {
   width: number;
@@ -8,26 +8,11 @@ export interface DialogData {
 
 @Component({
   selector: 'app-window-size-dialog',
-  template: `
-    <h1 mat-dialog-title>Set Window Size</h1>
-    <div mat-dialog-content>
-      <mat-form-field>
-        <mat-label>Width</mat-label>
-        <input matInput [(ngModel)]="data.width">
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Height</mat-label>
-        <input matInput [(ngModel)]="data.height">
-      </mat-form-field>
-    </div>
-    <div mat-dialog-actions>
-      <button mat-button (click)="onNoClick()">Cancel</button>
-      <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
-    </div>
-  `
+  templateUrl: './window-size-dialog.component.html',
+  styleUrls: ['./window-size-dialog.component.css']
 })
 export class WindowSizeDialogComponent {
-  data: DialogData = { width: 0, height: 0 };
+  data: DialogData = { width: 800, height: 600 };
 
   constructor(
     public dialogRef: MatDialogRef<WindowSizeDialogComponent>,

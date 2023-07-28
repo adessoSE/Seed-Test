@@ -54,4 +54,15 @@ export interface Scenario {
      * Selected emultaor to execute the test with
      */
     emulator?: string;
+
+    /**
+     * Width of the window for the test
+     */
+    witdh?: number;
+
+    /**
+     * Height of the window for the test
+     */
+
+    height?: number;
 }

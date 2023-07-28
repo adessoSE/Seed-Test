@@ -25,6 +25,8 @@ import { Block } from '../model/Block';
 import { StepDefinition } from '../model/StepDefinition';
 import { BlockService } from '../Services/block.service';
 import { InfoWarningToast } from '../info-warning-toast';
+import { MatDialog } from '@angular/material/dialog';
+import { WindowSizeDialogComponent, DialogData} from '../window-size-dialog/window-size-dialog.component';
 
 
 /**
@@ -295,6 +297,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         public projectService: ProjectService,
         public loginService: LoginService,
         public blockService: BlockService,
+        public dialog: MatDialog
     ) {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -326,6 +329,22 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
     this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+  } 
+
+  openDialog(): void {
+    const dialogData: DialogData = { width: 800, height: 600 };
+    const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
+      width: '250px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('The dialog was closed');
+        console.log(result);
+        // Hier können Sie die Daten an das Backend senden.
+      }
+    }); 
   }
 
     ngAfterViewChecked(){

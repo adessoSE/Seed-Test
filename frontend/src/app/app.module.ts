@@ -70,6 +70,8 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
 import { TransferOwnershipToast } from './transferOwnership-toastr';
 import { InfoWarningToast } from './info-warning-toast';
+import { MatInputModule} from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { WindowSizeDialogComponent } from './window-size-dialog/window-size-dialog.component';
 
@@ -154,7 +156,9 @@ import { WindowSizeDialogComponent } from './window-size-dialog/window-size-dial
     MatExpansionModule,
     MatTabsModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   entryComponents: [InfoWarningToast],
   providers: [ApiService, AuthGuard, CookieService,
