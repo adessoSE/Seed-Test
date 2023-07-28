@@ -4,6 +4,8 @@ const emptyScenario = require('../../src/models/emptyScenario');
 const emptyBackground = require('../../src/models/emptyBackground');
 import { writeFile } from '../../src/serverHelper';
 import { XMLHttpRequest } from 'xmlhttprequest';
+const fs = require('fs');
+const path = require('path');
 
 enum Sources {
     GITHUB = "github",
@@ -197,9 +199,9 @@ async function fuseStoryWithDb(story) {
 	return story;
 }
 
-async function exportProject(ownerId, repoName, repo_id, versionID) {
+async function exportProject(repo_id, versionID) {
 	try {
-		const repo = await mongo.getOneRepository(ownerId, repoName).json();  //Das womöglich durch neue Methodenparameter in DBServices nur auf repo_id reduzierbar
+		const repo = await mongo.getOneRepositoryById(repo_id).json();  //Neu definiert womöglich auch nur OneRepository nutzbar, dafür aber ownerID + repoName mitzugeben
 		if (!repo || !repo.stories) {
 			return null;
 		}
@@ -219,6 +221,7 @@ async function exportProject(ownerId, repoName, repo_id, versionID) {
 
 		//Collect blocks for export
 		let repoBlocks = await mongo.getBlocks(repo_id).json();
+		
 		//Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
 		for (let index = 0; index < repoBlocks.length; index++) {
 			delete repoBlocks[index]._id;
@@ -239,12 +242,32 @@ async function exportProject(ownerId, repoName, repo_id, versionID) {
 		console.log(repoBlocks);
 		console.log(repoGroups);
 
+
+		// Create separate folders for stories and groups
+        const storiesFolder = 'stories_data';
+        fs.mkdirSync(storiesFolder, { recursive: true });
+        for (let index = 0; index < exportStories.length; index++) {
+            fs.writeFileSync(path.join(storiesFolder, `story_${index}.json`), JSON.stringify(exportStories[index]));
+        }
+
+        const groupsFolder = 'groups_data';
+        fs.mkdirSync(groupsFolder, { recursive: true });
+        for (let index = 0; index < repoGroups.length; index++) {
+            fs.writeFileSync(path.join(groupsFolder, `group_${index}.json`), JSON.stringify(repoGroups[index]));
+        }
+
+        // Write the rest of the data as individual JSON files
+        fs.writeFileSync('repo.json', JSON.stringify(repo));
+        fs.writeFileSync('repoBlocks.json', JSON.stringify(repoBlocks));
+        fs.writeFileSync('keyStoryIds.json', JSON.stringify(keyStoryIds));
+
+
 		return {
-			repo,
-			exportStories,
-			repoBlocks,
-			repoGroups,
-			keyStoryIds
+			storiesFolder,
+            groupsFolder,
+            repoFilePath: 'repo.json',
+            repoBlocksFilePath: 'repoBlocks.json',
+            keyStoryIdsFilePath: 'keyStoryIds.json'
 		  };
 
 
