@@ -155,7 +155,6 @@ async function getUserByEmail(email) {
  */
 async function registerUser(user) {
 	try {
-		console.log(user);
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(userCollection);
 		const dbUser = await getUserByEmail(user.email);
@@ -184,7 +183,6 @@ async function registerGithubUser(user) {
 	try {
 		const db = dbConnection.getConnection();
 		user = mongoSanitize(user);
-		console.log(user);
 		return await db.collection(userCollection).insertOne({ github: user });
 	} catch (e) {
 		console.log(`ERROR in registerGithubUser: ${e}`);

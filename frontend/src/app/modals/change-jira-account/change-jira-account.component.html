@@ -10,24 +10,38 @@
     <form [formGroup]="jiraForm" novalidate (ngSubmit)="changeJiraAccountSubmit()"> 
         <div class="modal-body">
             <div class="submitForm">
-                <div>
-                    <div class="form-group modalsContent" id="jiraForm" *ngIf="type==='Jira'">
-                        <div>
-                            <label class="uk-form-label">Enter existing account name*</label>
-                            <input name="jiraAccountName" formControlName="jiraAccountName" required>
-                            <div *ngIf="jiraAccountName.invalid && (jiraAccountName.dirty || jiraAccountName.touched)" class="alert alert-danger">
-                                <div *ngIf="jiraAccountName.errors?.['required']" style="font-size: small;">Title is required.</div>
-                                <div *ngIf="jiraAccountName.errors?.['pattern']" style="font-size: small;">Enter valid title name.</div>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="uk-form-label">Enter password*</label>
-                            <input name="jira_password" type="password" formControlName="jiraPassword" required>    
-                        </div>  
+                <div class="form-group modalsContent" id="jiraForm" *ngIf="type==='Jira'">
+                    <div>
+                        <ul class="uk-subnav uk-subnav-pill" uk-switcher>
+                            <li><a href="#" (click)="switchForm('bearer')" [class.active]="jiraForm.get('jiraAuthMethod').value === 'bearer'">Bearer</a></li>
+                            <li><a href="#" (click)="switchForm('basic')" [class.active]="jiraForm.get('jiraAuthMethod').value === 'basic'">Basic</a></li>
+                        </ul>
+                        <ul class="uk-switcher uk-margin">
+                            <form [formGroup]="jiraBearer">
+                                <label class="uk-form-label">Enter Token*</label>
+                                <input name="jiraToken" type="password" formControlName="jiraToken" required>
+                            </form>
+                            <form [formGroup]="jiraBasic">
+                                <div>
+                                    <label class="uk-form-label">Enter existing account name*</label>
+                                    <input name="jiraAccountName" formControlName="jiraAccountName" required>
+                                    <div *ngIf="!jiraAccountName.valid && (jiraAccountName.dirty || jiraAccountName.touched)" class="alert alert-danger">
+                                        <div *ngIf="jiraAccountName.errors?.['required']" style="font-size: small;">Title is required.</div>
+                                        <div *ngIf="jiraAccountName.errors?.['pattern']" style="font-size: small;">Enter valid title name.</div>
+                                    </div>
+                                </div>
+                                <br>
+                                <div>
+                                    <label class="uk-form-label">Enter password*</label>
+                                    <input name="jiraPassword" type="password" formControlName="jiraPassword" required>
+                                </div>  
+                            </form>
+                        </ul>
+                        
                         <div>
                             <label class="uk-form-label">Enter server URL*</label>
                             <input name="jiraHost" formControlName="jiraHost" required>
-                        </div>                
+                        </div>
                     </div>
                     <div id="githubForm" *ngIf="type==='Github'">
                         <div class="padding_top uk-form-horizontal">
@@ -43,8 +57,14 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="submit" [disabled]="!jiraForm.valid" 
-            [ngStyle]="{'opacity': !jiraForm.valid ?  '50%' : '100%'}" class="normalButton">Submit</button>
+            <button *ngIf="activeForm === 'bearer'" type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBearer.valid"
+            [ngStyle]="{'opacity': (!jiraForm.valid || !jiraBearer.valid) ?  '50%' : '100%'}">
+            Submit
+            </button>
+            <button *ngIf="activeForm === 'basic'" type="submit" class="normalButton" [disabled]="!jiraForm.valid || !jiraBasic.valid"
+            [ngStyle]="{'opacity':  (!jiraForm.valid || !jiraBasic.valid)  ?  '50%' : '100%'}">
+            Submit
+            </button>
         </div> 
     </form>  
 </ng-template>

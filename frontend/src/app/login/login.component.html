@@ -31,11 +31,12 @@
       <br>
       <br>
       <!-- Button Login -->
-      <button class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
+      <button id="Login" class="normalButton" type="submit" [disabled]="form.invalid">Login</button>
       <div id="loadingSpinner" *ngIf="this.isLoadingRepositories">
         <mat-spinner [diameter]="40" id="loadingSpinnerlogin" class="loadingSpinner"></mat-spinner>
       </div>
     </form>
+    <br>
     <div>
       <button class="linkButton" routerLink='/resetpassword' style="margin: 10px;">Forgot Password?</button>
     </div>

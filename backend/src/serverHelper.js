@@ -127,7 +127,6 @@ async function getScenarioContent(scenarios, storyID) {
 			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
 	}
-	log('scenario steps: ', data);
 	return data;
 }
 
