@@ -42,5 +42,9 @@ export interface Block {
      * If block was saved as a background 
      */
     isBackground ?: boolean;
+    /**
+     * 
+     */
+    usedAsReference?: boolean;
 
 }
