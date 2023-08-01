@@ -194,6 +194,7 @@ export class BaseEditorComponent  {
         if (block[2]) {
           const blockReference: StepType = { _id: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
             pre: '', mid: '', post: '', values: [], isReferenceBlock: true};
+            block[1].usedAsReference = true;
           this.selectedScenario.stepDefinitions.when.push(blockReference);  
           this.checkStep(blockReference)
         } else {

@@ -128,6 +128,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       });
     }
     
+    closeModal(){
+      delete this.addAsReference;
+      this.modalReference.close();
+    }
     /**
      * Deletes a block(call a toastr)
      */
@@ -247,6 +251,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     addBlockFormSubmit() {
       this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
+      delete this.addAsReference;
       this.modalReference.close();
     }
     
