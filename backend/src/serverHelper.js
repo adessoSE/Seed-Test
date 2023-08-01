@@ -75,16 +75,20 @@ function getSteps(steps, stepType) {
 	for (const step of steps) {
 		// eslint-disable-next-line no-continue
 		if (step.deactivated) continue;
-		data += `${jsUcfirst(stepType)} `;
-		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-			data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] ? `'${step.values[1]}'` : ''}`;
-			if (step.post !== undefined) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
-		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
-		else {
-			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
-			if (step.post !== undefined) data += ` ${step.post}`;
+		if (step._id !== undefined) {
+			data += await parseStepBlock(step._id);
+		} else {
+			data += `${jsUcfirst(stepType)} `;
+			if ((step.values[0]) != null && (step.values[0]) !== 'User') {
+				data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] ? `'${step.values[1]}'` : ''}`;
+				if (step.post !== undefined) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
+			} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
+			else {
+				data += `${step.pre} ${step.mid}${getValues(step.values)}`;
+				if (step.post !== undefined) data += ` ${step.post}`;
+			}
+			data += '\n';
 		}
-		data += '\n';
 	}
 	return data;
 }
