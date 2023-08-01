@@ -42,8 +42,7 @@ jobs:
 
       - name: Build and start Docker stack
         run: |
-          chmod +x runDocker.sh
-          ./runDocker.sh
+          docker compose up -d
 
       - name: Send failure notification
         if: ${{ failure() }}
