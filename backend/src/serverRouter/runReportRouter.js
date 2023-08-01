@@ -1,11 +1,11 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const helper = require('../serverHelper');
-const reporter = require('../../dist/helpers/reporting');
-const mongo = require('../database/DbServices');
+import { Router } from 'express';
+import { json, urlencoded } from 'body-parser';
+import cors from 'cors';
+import { getReportHistory } from '../serverHelper';
+import { runReport, createReport } from '../../dist/helpers/reporting';
+import { getOneStoryGroup, getOneStory, deleteReport, setIsSavedTestReport } from '../database/DbServices';
 
-const router = express.Router();
+const router = Router();
 // This router is used for accessing Cucumber/Selenium Reports
 
 router
@@ -14,8 +14,8 @@ router
 		console.log('Time of submitted Run:', Date.now());
 		next();
 	})
-	.use(bodyParser.json({ limit: '100kb' }))
-	.use(bodyParser.urlencoded({
+	.use(json({ limit: '100kb' }))
+	.use(urlencoded({
 		limit: '100kb',
 		extended: true
 	}))
@@ -32,37 +32,37 @@ router
 
 // run single Feature
 router.post('/Feature/:issueID', (req, res) => {
-	reporter.runReport(req, res, [], 'feature', req.body).catch((reason) => { console.log('failed in runreport', reason); res.send(reason).status(500) });
+	runReport(req, res, [], 'feature', req.body).catch((reason) => { console.log('failed in runreport', reason); res.send(reason).status(500) });
 });
 
 // run single Scenario of a Feature
 router.post('/Scenario/:issueID/:scenarioId', (req, res) => {
-	reporter.runReport(req, res, [], 'scenario', req.body).catch((reason) => res.send(reason).status(500));
+	runReport(req, res, [], 'scenario', req.body).catch((reason) => res.send(reason).status(500));
 });
 
 // run one Group and return report
 router.post('/Group/:repoID/:groupID', async (req, res) => {
-	const group = await mongo.getOneStoryGroup(req.params.repoID, req.params.groupID);
+	const group = await getOneStoryGroup(req.params.repoID, req.params.groupID);
 	const mystories = [];
 	for (const ms of group.member_stories) {
 		const id = typeof (ms) === 'object' ? ms._id : ms; // inconsistent in database
-		mystories.push(await mongo.getOneStory(id));
+		mystories.push(await getOneStory(id));
 	}
 	const params = group;
 	params.repository = req.body.repository;
 	req.body = group;
-	reporter.runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
+	runReport(req, res, mystories, 'group', req.body).catch((reason) => res.send(reason).status(500));
 });
 
 // generate older Report
 router.get('/report/:reportName', (req, res) => {
-	reporter.createReport(res, req.params.reportName);
+	createReport(res, req.params.reportName);
 });
 
 // get Report Data for a Story
 router.get('/reportHistory/:storyId', async (req, res) => {
 	const { storyId } = req.params;
-	const reportContainer = await helper.getReportHistory(storyId);
+	const reportContainer = await getReportHistory(storyId);
 	res.status(200).json(reportContainer);
 });
 
@@ -71,7 +71,7 @@ router.delete('/report/:reportId', async (req, res) => {
 	try {
 		// TODO: Authenticate user
 		console.log('params', req.params.reportId);
-		const result = await mongo.deleteReport(req.params.reportId);
+		const result = await deleteReport(req.params.reportId);
 		res.status(200).json(result);
 	} catch (error) {
 		console.log('error in delete report', error);
@@ -83,7 +83,7 @@ router.delete('/report/:reportId', async (req, res) => {
 router.get('/saveReport/:reportId', async (req, res) => {
 	try {
 		// TODO: Authenticate user
-		const result = await mongo.setIsSavedTestReport(req.params.reportId, true);
+		const result = await setIsSavedTestReport(req.params.reportId, true);
 		res.status(200).json(result);
 	} catch (error) {
 		console.log('error in saveReport', error);
@@ -95,7 +95,7 @@ router.get('/saveReport/:reportId', async (req, res) => {
 router.get('/unsaveReport/:reportId', async (req, res) => {
 	try {
 		// TODO: Authenticate user
-		const result = await mongo.setIsSavedTestReport(req.params.reportId, false);
+		const result = await setIsSavedTestReport(req.params.reportId, false);
 		res.status(200).json(result);
 	} catch (error) {
 		console.log('error in unsaveReport', error);
@@ -103,4 +103,4 @@ router.get('/unsaveReport/:reportId', async (req, res) => {
 	}
 });
 
-module.exports = router;
+export default router;
