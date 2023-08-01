@@ -157,7 +157,7 @@ export class BlockService {
    */
   searchReferences(stories: Story[], blockId){
     this.referenceScenarios = [];
-    stories.flatMap((story) => story.scenarios.filter((scenario) =>{
+    stories.filter((s) => s !== null).flatMap((story) => story.scenarios.filter((scenario) =>{
       for (const prop in scenario.stepDefinitions) {
         for (const step of scenario.stepDefinitions[prop]) {
           if (step.isReferenceBlock === true && step._id === blockId) {
