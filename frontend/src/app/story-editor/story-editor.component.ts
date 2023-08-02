@@ -332,7 +332,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   } 
 
   openDialog(): void {
-    const dialogData: DialogData = { width: 800, height: 600 };
+    const dialogData: DialogData = { width: 0, height: 0 };
     const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
       width: '250px',
       data: dialogData
@@ -342,7 +342,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       if (result) {
         console.log('The dialog was closed');
         console.log(result);
-        // Hier können Sie die Daten an das Backend senden.
+        this.selectedScenario.witdh= result.width
+        this.selectedScenario.height = result.height
+        console.log(this.selectedScenario)
       }
     }); 
   }
