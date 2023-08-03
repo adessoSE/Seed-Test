@@ -3,9 +3,9 @@
  */
 export interface StepType {
     /**
-     * Object id of the reference block step / determine whether the step is a reference
+     * Object id of the step type in the database
      */
-    _referenceId?: string;
+    _id?: string;
 
     /**
      * Importance of the step type, the lower, the higher the importance -> the higher the step is the higher ordered it is in the list of available steps
@@ -71,4 +71,8 @@ export interface StepType {
      * deactivated currently not used
      */
     deactivated?: boolean;
+    /**
+     * step added as "Block as Reference"
+     */
+    isReferenceBlock?: boolean;
 }
