@@ -13,7 +13,7 @@ async function postMessage() {
 
     // Helper function to parse environment variables or fallback to "-"
     const parseValueOrDefault = (value) => {
-        return value ? parseInt(value) : "-";
+        return value ? parseInt(value) : 0;
     };
 
     function calculatePercentage(num1, num2) {
@@ -34,12 +34,14 @@ async function postMessage() {
     }
 
     function getStatus(passed, total) {
+        if (passed === 0) return "⚠️";
         return passed === total ? "✅" : "⚠️";
     }
 
     function calcTotal(dockerStatus, num1, num2) {
         if (!dockerStatus) return "-";
-        if (isNaN(num1) || isNaN(num2)) return "-";
+        if (isNaN(num1)) num1 = 0;
+        if (isNaN(num2)) num1 = 0;
         return num1+num2;
     }
   

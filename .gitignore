@@ -81,3 +81,5 @@ backend/logs/
 
 # local testing for step-definition development
 backend/features/step_definitions/testing.js
+
+*.secrets

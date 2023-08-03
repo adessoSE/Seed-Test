@@ -5,6 +5,9 @@ on:
     types:
       - opened
       - synchronize
+  push:
+    branches:
+      - master
 
 jobs:
   start-docker-stack:
@@ -88,6 +91,7 @@ jobs:
         id: passed-total-backend
 
       - name: Upload Artifact Backend
+        if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v2
         with:
           name: test-results-backend
@@ -121,6 +125,7 @@ jobs:
         id: passed-total-frontend
 
       - name: Upload Artifact Frontend
+        if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v2
         with:
           name: test-results-frontend
@@ -156,6 +161,7 @@ jobs:
         id: passed-total-sanity
 
       - name: Upload Artifact Sanity
+        if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v2
         with:
           name: sanity-report
