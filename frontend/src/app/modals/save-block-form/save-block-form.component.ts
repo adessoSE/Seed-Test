@@ -119,7 +119,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.displayedColumnsSaveBlockExample = [];
     Object.keys(this.block.stepDefinitions).forEach((key, _) => {
         this.block.stepDefinitions[key].forEach((step: StepType) => {
-          if(step.stepType != 'example' && !step.isReferenceBlock){
+          if(step.stepType != 'example'){
             this.stepListSaveBlock.push(step);
           } else {
             this.stepListSaveBlockExample.push(step);
@@ -186,7 +186,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
       this.block.isBackground = true;
     }
-    this.block.stepDefinitions.when = this.block.stepDefinitions.when.filter((step) => !step.isReferenceBlock);
+    //this.block.stepDefinitions.when = this.block.stepDefinitions.when.filter((step) => !step.isReferenceBlock);
     this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
         this.updateBlocksBackEventEmitter();

@@ -193,8 +193,8 @@ export class BaseEditorComponent  {
       }
       if (this.templateName == 'scenario' && block[0] == 'scenario') {      
         if (block[2]) {
-          const blockReference: StepType = { _id: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
-            pre: '', mid: '', post: '', values: [], isReferenceBlock: true};
+          const blockReference: StepType = { _referenceId: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
+            pre: '', mid: '', post: '', values: []};
           this.selectedScenario.stepDefinitions.when.push(blockReference);  
           this.checkStep(blockReference)
         } else {
@@ -924,32 +924,8 @@ export class BaseEditorComponent  {
       step.checked = checkValue;
     } else {
       step.checked = !step.checked;
-      this.disableSaveBlock(step);
     }
     this.areAllStepsChecked();
-  }
-  /**
-   * Enables/disables "Save steps as Block" if only reference-block-steps selected
-   */
-  disableSaveBlock(step){
-    let count = 0;
-    let onlyBlockSelected = null;
-    if(this.templateName === 'scenario'){
-      for (const prop in this.selectedScenario.stepDefinitions) {
-        if (prop !== 'example') {
-          for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-            if (this.selectedScenario.stepDefinitions[prop][i].checked && this.selectedScenario.stepDefinitions[prop][i].isReferenceBlock == undefined) {
-             count++;
-            }else {
-              onlyBlockSelected = true;
-            }
-          }
-        }
-      }
-      if(count == 0 && ((step.checked && step.isReferenceBlock) || (onlyBlockSelected))){
-        this.isReferenceBlock = true;
-      }
-    }
   }
   /**
    * Enables/disables action bar and checkbox in it depending on whether all steps are checked 
