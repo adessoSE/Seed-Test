@@ -236,7 +236,7 @@
 
         <div class="selectLabel" *ngIf="this.selectedStory.storySource !== 'db'">
           <label class="selectLabel SmallIcontext" for="disableRepPost">Post Report comment:</label>
-          <input type="checkbox" id="disableRepPost" (change)= "setPostReport()" [checked]="this.selectedStory.disableRepPost">
+          <input type="checkbox" id="disableRepPost" (change)="setPostReport()" [checked]="this.selectedStory.disableRepPost">
         </div>
       </div>
       <div class="storyInfoRight uk-button-group">

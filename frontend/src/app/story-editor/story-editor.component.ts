@@ -505,21 +505,21 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   }
 
 
-    /**
-     * Select a new currently used scenario
-     * @param scenario
-     */
-    selectNewScenario(scenario: Scenario) {
-      this.selectedScenario = scenario;
-      if (this.selectedStory) {
-          this.selectScenario(scenario);
-      }
+  /**
+   * Select a new currently used scenario
+   * @param scenario
+   */
+  selectNewScenario(scenario: Scenario) {
+    this.selectedScenario = scenario;
+    if (this.selectedStory) {
+        this.selectScenario(scenario);
     }
-    setPostReport() {
-      console.log(this.selectedStory.disableRepPost);
-      this.selectedStory.disableRepPost = !this.selectedStory.disableRepPost;
-      this.selectedScenario.saved = false;
-    }
+  }
+  setPostReport() {
+    console.log(this.selectedStory.disableRepPost);
+    this.selectedStory.disableRepPost = !this.selectedStory.disableRepPost;
+    this.storyService.updateStory(this.selectedStory).subscribe(() => true);
+  }
 
   /**
    * Change to the report history component
