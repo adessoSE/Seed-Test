@@ -157,7 +157,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       }
     }
     updateBlocksBackEventEmitter() {
-      this.blockService.updateBlocksBackgroundsEvent.emit();
+      this.blockService.refreshBlockUponChanges.emit();
     }
     /**
      * Change block title
@@ -234,6 +234,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     addBlockFormSubmit() {
       this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
+      delete this.addAsReference;
       this.modalReference.close();
     }
     
@@ -276,5 +277,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 
     onClickSubmit() {
       this.addBlockFormSubmit();
+    }
+    closeModal(){
+      delete this.addAsReference;
+      this.modalReference.close();
     }
   }

@@ -70,13 +70,13 @@ async function parseStepBlock(blockId) {
 }
 
 // Building feature file step-content
-function getSteps(steps, stepType) {
+async function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
 		// eslint-disable-next-line no-continue
 		if (step.deactivated) continue;
-		if (step._id !== undefined) {
-			data += await parseStepBlock(step._id);
+		if (step._blockReferenceId !== undefined) {
+			data += await parseStepBlock(step._blockReferenceId);
 		} else {
 			data += `${jsUcfirst(stepType)} `;
 			if ((step.values[0]) != null && (step.values[0]) !== 'User') {

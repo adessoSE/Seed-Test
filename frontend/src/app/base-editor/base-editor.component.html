@@ -92,7 +92,7 @@
                         </div>
                       </div>
                       {{i+1}}.{{j+1}}                      
-                      <div *ngIf="currentStep._id" style = "width: 100%; margin-left: 6px; margin-right: 15px;">
+                      <div *ngIf="currentStep._blockReferenceId" style = "width: 100%; margin-left: 6px; margin-right: 15px;">
                         <ng-template  *ngTemplateOutlet="stepBlockReference;
                           context: {$implicit: currentStep}">
                         </ng-template> 
