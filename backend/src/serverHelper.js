@@ -46,49 +46,22 @@ function jsUcfirst(string) {
 		.toUpperCase() + string.slice(1);
 }
 
-// takes a block and returns its steps
-async function getBlockSteps(blockId) {
-	try {
-		const block = await mongo.getBlock(blockId);
-		return block.stepDefinitions;
-	} catch (e) {
-		console.log('ERROR in getBlockSteps - serverHelper');
-		return '';
-	}
-}
-
-// takes a block and parses its steps
-async function parseStepBlock(blockId) {
-	try {
-		const steps = await getBlockSteps(blockId);
-		console.log(`BLOCK-STEPS:${steps}`);
-		return await parseSteps(steps);
-	} catch (e) {
-		console.log('ERROR in parseStepBlock - serverHelper');
-		return '';
-	}
-}
-
 // Building feature file step-content
-async function getSteps(steps, stepType) {
+function getSteps(steps, stepType) {
 	let data = '';
 	for (const step of steps) {
 		// eslint-disable-next-line no-continue
 		if (step.deactivated) continue;
-		if (step._blockReferenceId !== undefined) {
-			data += await parseStepBlock(step._blockReferenceId);
-		} else {
-			data += `${jsUcfirst(stepType)} `;
-			if ((step.values[0]) != null && (step.values[0]) !== 'User') {
-				data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] ? `'${step.values[1]}'` : ''}`;
-				if (step.post !== undefined) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
-			} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
-			else {
-				data += `${step.pre} ${step.mid}${getValues(step.values)}`;
-				if (step.post !== undefined) data += ` ${step.post}`;
-			}
-			data += '\n';
+		data += `${jsUcfirst(stepType)} `;
+		if ((step.values[0]) != null && (step.values[0]) !== 'User') {
+			data += `${step.pre} '${step.values[0]}' ${step.mid}${step.values[1] ? `'${step.values[1]}'` : ''}`;
+			if (step.post !== undefined) data += ` ${step.post}${step.values[2] ? `'${step.values[2]}'` : ''}`;
+		} else if ((step.values[0]) === 'User') data += `${step.pre} '${step.values[0]}'`;
+		else {
+			data += `${step.pre} ${step.mid}${getValues(step.values)}`;
+			if (step.post !== undefined) data += ` ${step.post}`;
 		}
+		data += '\n';
 	}
 	return data;
 }
@@ -116,7 +89,6 @@ async function parseSteps(steps) {
 
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
-
 	let data = '';
 	for (const scenario of scenarios) {
 		data += `@${storyID}_${scenario.scenario_id}\n`;
@@ -169,8 +141,11 @@ function writeFile(story) {
 
 // Updates feature file based on _id
 async function updateFeatureFile(issueID) {
-	const result = await mongo.getOneStory(issueID);
-	if (result != null) writeFile(result);
+	const story = await mongo.getOneStory(issueID);
+	if (story != null) {
+		story.scenarios = await replaceRefBlocks(story.scenarios);
+		writeFile(story);
+	};
 }
 
 async function deleteFeatureFile(storyTitle, storyId) {
@@ -368,11 +343,35 @@ async function updateScenarioTestStatus(uploadedReport) {
 	}
 }
 
-
+async function replaceRefBlocks(scenarios) {
+	if (!scenarios.some((scen) => scen.hasRefBlock)) return scenarios;
+	const retScenarios = [];
+	for (const scen of scenarios) {
+		let stepdef = {};
+		// eslint-disable-next-line guard-for-in
+		for (const steps in scen.stepDefinitions) { // iterate over given, when, then
+			const promised = await scen.stepDefinitions[steps].map(async (elem) => {
+				if (!elem._blockReferenceId) return [elem];
+				return mongo.getBlock(elem._blockReferenceId).then((block) => {
+					// Get an array of the values of the given, when, then and example properties
+					console.log('abc',elem)
+					let steps = Object.values(block.stepDefinitions);
+					// Flatten array
+					return steps.flat(1);
+				});
+			});
+			stepdef[steps] = await Promise.all(promised).then((resSteps) => resSteps.flat(1));
+		}
+		scen.stepDefinitions = stepdef;
+		retScenarios.push(scen);
+	}
+	return retScenarios;
+}
 
 async function exportSingleFeatureFile(_id) {
 	const dbStory = mongo.getOneStory(_id);
 	return dbStory.then(async (story) => {
+		story.scenarios = await replaceRefBlocks(story.scenarios);
 		writeFile(story);
 		return pfs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8')
 			.catch((err) => console.log('couldn`t read File'));
@@ -384,6 +383,7 @@ async function exportProjectFeatureFiles(repoId, versionId) {
 	return dbStories.then(async (stories) => {
 		const zip = new AdmZip();
 		return Promise.all(stories.map(async (story) => {
+			story.scenarios = await replaceRefBlocks(story.scenarios);
 			writeFile(story);
 			const postfix = versionId ? `-v${versionId}` : '';
 			const filename = this.cleanFileName(story.title + story._id.toString());
