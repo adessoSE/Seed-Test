@@ -354,7 +354,6 @@ async function replaceRefBlocks(scenarios) {
 				if (!elem._blockReferenceId) return [elem];
 				return mongo.getBlock(elem._blockReferenceId).then((block) => {
 					// Get an array of the values of the given, when, then and example properties
-					console.log('abc',elem)
 					let steps = Object.values(block.stepDefinitions);
 					// Flatten array
 					return steps.flat(1);
