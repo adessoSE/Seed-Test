@@ -16,7 +16,7 @@ services:
     restart: always
 
   backend:
-    image: i3rotlher/seed-test-backend:latest
+    image: seedtest/seed-test-backend:latest
     ports:
       - "8080:8080"
     container_name: "Seed-backend"
@@ -44,7 +44,7 @@ services:
       MAX_SAVED_REPORTS:
 
   frontend:
-    image: i3rotlher/seed-test-frontend:latest
+    image: seedtest/seed-test-frontend:latest
     ports:
       - "4200:4200"
     container_name: "Seed-frontend"

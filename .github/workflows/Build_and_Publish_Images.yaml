@@ -1,0 +1,53 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Get Tag Name
+        id: get_tag_name
+        run: |
+          version=$(echo $GITHUB_REF | sed 's/refs\/tags\///' | sed 's/.*_//')
+          echo "version=${version}" >> ${GITHUB_OUTPUT}
+
+      # BACKEND
+      - name: Build Docker Image
+        run: docker build -t seed-test-backend:${{ steps.get_tag_name.outputs.version }} ./backend
+
+      - name: Tag Docker Image as Latest
+        run: |
+          docker tag seed-test-backend:${{ steps.get_tag_name.outputs.version }} ${{ secrets.DOCKER_USERNAME }}/seed-test-backend:${{ steps.get_tag_name.outputs.version }}
+          docker tag seed-test-backend:${{ steps.get_tag_name.outputs.version }} ${{ secrets.DOCKER_USERNAME }}/seed-test-backend:latest
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-backend:${{ steps.get_tag_name.outputs.version }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-backend:latest
+
+      # FRONTEND
+      - name: Build Docker Image
+        run: docker build -t seed-test-frontend:${{ steps.get_tag_name.outputs.version }} ./frontend
+
+      - name: Tag Docker Image as Latest
+        run: |
+          docker tag seed-test-frontend:${{ steps.get_tag_name.outputs.version }} ${{ secrets.DOCKER_USERNAME }}/seed-test-frontend:${{ steps.get_tag_name.outputs.version }}
+          docker tag seed-test-frontend:${{ steps.get_tag_name.outputs.version }} ${{ secrets.DOCKER_USERNAME }}/seed-test-frontend:latest
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-frontend:${{ steps.get_tag_name.outputs.version }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-frontend:latest

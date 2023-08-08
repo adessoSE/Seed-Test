@@ -5,9 +5,6 @@ on:
     types:
       - opened
       - synchronize
-  push:
-    branches:
-      - master
 
 jobs:
   start-docker-stack:
@@ -18,11 +15,6 @@ jobs:
 
       - name: Install Dependencies
         run: npm install node-fetch
-
-      - name: Use Docker
-        uses: actions-hub/docker/cli@master
-        env:
-          SKIP_LOGIN: true
 
       - name: Create .env file backend
         run: |
