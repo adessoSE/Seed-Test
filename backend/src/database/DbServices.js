@@ -17,7 +17,6 @@ const dbConnection = require('./DbConnector');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
-const Collection = require('mongodb/lib/collection');
 
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
@@ -810,6 +809,28 @@ async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
 	} catch (e) {
 		console.log(`ERROR in createGitRepo${e}`);
 		throw e;
+	}
+}
+
+/**
+ * return the Repo containing the storyId
+ * needs the 'stories' field mapping index(mongo Atlas). set on stories in the repo collection, mapping type ObjectId.
+ * @param {string} storyId
+ */
+async function repoOfStory(storyId) {
+	try {
+		const db = dbConnection.getConnection();
+		const repo = db.collection(repositoriesCollection).aggregate([{
+			$search: {
+				index: 'stories',
+				equals: {
+					value: ObjectId('62b337b27f37a55f60836b0a'),
+					path: 'stories'
+				}
+			}
+		}]).next();
+	} catch (error) {
+		console.error(`ERROR Repo of Story: ${error}`);
 	}
 }
 
