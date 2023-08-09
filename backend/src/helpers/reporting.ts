@@ -350,10 +350,12 @@ function deleteReport(jsonReport: string) {
 
 async function runReport(req, res, stories: any[], mode: ExecutionMode, parameters) {
 	let reportObj;
+    let project;
 	try {
 		if (mode === ExecutionMode.GROUP) {
 			req.body.name = req.body.name.replace(/ /g, '_') + Date.now();
 			fs.mkdirSync(`./features/${req.body.name}`);
+            project = await mongo.repoOfStory(stories[0]._id)
 			if (parameters.isSequential == undefined || !parameters.isSequential)
 				reportObj = await Promise.all(stories.map((story) => testExecutor.executeTest(req, mode, story))).then((valueArr)=>valueArr.pop());
 			else {
@@ -362,7 +364,8 @@ async function runReport(req, res, stories: any[], mode: ExecutionMode, paramete
 				}
 			}
 		} else {
-			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			const story = await mongo.getOneStory(req.params.issueID);
+            project = await mongo.repoOfStory(story._id)
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {
@@ -430,7 +433,7 @@ async function runSanityReport(req, res, stories: any[], mode: ExecutionMode, pa
 				}
 			}
 		} else {
-			const story = await mongo.getOneStory(req.params.issueID, req.params.storySource);
+			const story = await mongo.getOneStory(req.params.issueID);
 			reportObj = await testExecutor.executeTest(req, mode, story).catch((reason) =>{console.log('crashed in execute test');res.send(reason).status(500)});
 		}
 	} catch (error) {

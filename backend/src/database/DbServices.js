@@ -1395,5 +1395,6 @@ module.exports = {
 	getAllSourceReposFromDb,
 	createGitRepo,
 	updateOwnerInRepo,
-	updateRepository
+	updateRepository,
+	repoOfStory
 };
