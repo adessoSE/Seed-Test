@@ -1685,10 +1685,10 @@ export class BaseEditorComponent  {
   }
 
 
-    highlightRegex() {
+    highlightRegex(element, stepIndex: number, valueIndex: number, stepType: string, step?:StepType) {
       const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
-  
-      const textField = document.getElementById('textField1');
+
+      const textField = document.getElementById(element.id);
       const textContent = textField.textContent;
       //Get current cursor position
       const offset = this.getCaretCharacterOffsetWithin(textField)
@@ -1769,6 +1769,7 @@ export class BaseEditorComponent  {
           selection.setBaseAndExtent(textField.childNodes[node].childNodes[0], offsetIndex, textField.childNodes[node].childNodes[0], offsetIndex)
         }
       }
+      this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
     }
 
     /**
