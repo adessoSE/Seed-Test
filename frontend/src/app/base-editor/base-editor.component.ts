@@ -253,8 +253,8 @@ export class BaseEditorComponent  {
   }
 
   ngAfterViewInit(): void {   
-    const textField = document.getElementById('textField1');
-    textField.addEventListener('input', this.highlightRegex.bind(this));
+    //const textField = document.getElementById('textField1');
+    //textField.addEventListener('input', this.highlightRegex.bind(this));
 
     this.step_type_input.changes.subscribe(_ => {
         this.step_type_input.forEach(in_field => {
@@ -1684,77 +1684,15 @@ export class BaseEditorComponent  {
     this.markUnsaved();
   }
 
-  /*highlightRegex() { // with input field
-    <span style="color: red">hi</span>
-      const regexPattern =  // Regex pattern to recognize and highlight regex expressions
-    
-      const divElement = document.getElementById('textField1');
-      const selection = window.getSelection();
-    
-      // Store the current selection position
-      const selectionStart = selection ? selection.anchorOffset : 0;
-    
-      const textContent = divElement.innerText || '';
-    
-      const regexMatchedText = textContent.match(regexPattern);
-      const regexDetected = regexMatchedText !== null;
-    
-      // Clear previous styling
-      divElement.innerHTML = '';
-    
-      if (regexDetected) {
-        const fragment = document.createDocumentFragment();
-        let currentIndex = 0;
-    
-        for (const match of regexMatchedText) {
-          const startIndex = textContent.indexOf(match, currentIndex);
-          const nonRegexPart = textContent.substring(currentIndex, startIndex);
-    
-          if (nonRegexPart) {
-            const nonRegexNode = document.createTextNode(nonRegexPart);
-            fragment.appendChild(nonRegexNode);
-          }
-    
-          const span = document.createElement('span');
-          span.style.color = 'var(--ocean-blue)';
-          span.style.fontWeight = 'bold';
-          span.textContent = match;
-          fragment.appendChild(span);
-    
-          currentIndex = startIndex + match.length;
-        }
-    
-        const remainingText = textContent.substring(currentIndex);
-        if (remainingText) {
-          const remainingTextNode = document.createTextNode(remainingText);
-          fragment.appendChild(remainingTextNode);
-        }
-    
-        divElement.appendChild(fragment);
-      } else {
-        // No regex matches, simply set the text content
-        divElement.innerText = textContent;
-      }
-    
-      // Restore the cursor position
-      if (selection) {
-        const updatedLength = divElement.innerText.length;
-        const updatedStart = Math.min(selectionStart, updatedLength);
-        const updatedEnd = Math.min(selectionStart, updatedLength);
-    
-        selection.removeAllRanges();
-        const range = document.createRange();
-        range.setStart(divElement.firstChild, updatedStart);
-        range.setEnd(divElement.firstChild, updatedEnd);
-        selection.addRange(range);
-      }
-    }*/
-    highlightRegex() { // div but cursor position bad
+
+    highlightRegex() {
       const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
   
       const textField = document.getElementById('textField1');
       const textContent = textField.textContent;
-  
+      //Get current cursor position
+      const offset = this.getCaretCharacterOffsetWithin(textField)
+
       const regexMatchedText = textContent.match(regexPattern);
       this.regexDetected = regexMatchedText !== null;
   
@@ -1803,5 +1741,63 @@ export class BaseEditorComponent  {
   
         textField.appendChild(fragment);
       }
+
+      // Set cursor to correct position
+      if (this.regexDetected){
+        const selection = window.getSelection();
+        selection.removeAllRanges()
+
+        let length = 0;
+        let preLength = 0;
+        let node=0;
+        let offsetIndex=0;
+
+        for(let i = 0; i<= textField.childNodes.length; i++) {
+          length = textField.childNodes[i].textContent.length
+          if (preLength+length>=offset){
+            offsetIndex = offset-preLength
+            node=i
+            break;
+          }
+          else {
+            preLength = preLength+length
+          }
+        }
+        if (textField.childNodes[node].nodeType == 3){
+          selection.setBaseAndExtent(textField.childNodes[node], offsetIndex, textField.childNodes[node], offsetIndex)
+        } else {
+          selection.setBaseAndExtent(textField.childNodes[node].childNodes[0], offsetIndex, textField.childNodes[node].childNodes[0], offsetIndex)
+        }
+      }
     }
-}  // /[a-z]+\d+/gi
+
+    /**
+     * Helper for Regex Highlighter, extract current cursor position
+     * @param element HTMLElement
+     * @returns num, offset of cursor position
+     */
+    getCaretCharacterOffsetWithin(element) {
+      var caretOffset = 0;
+      var doc = element.ownerDocument || element.document;
+      var win = doc.defaultView || doc.parentWindow;
+      var sel;
+      if (typeof win.getSelection != "undefined") {
+          sel = win.getSelection();
+          if (sel.rangeCount > 0) {
+              var range = win.getSelection().getRangeAt(0);
+              var preCaretRange = range.cloneRange();
+              preCaretRange.selectNodeContents(element);
+              preCaretRange.setEnd(range.endContainer, range.endOffset);
+              caretOffset = preCaretRange.toString().length;
+          }
+      } else if ( (sel = doc.selection) && sel.type != "Control") {
+          var textRange = sel.createRange();
+          var preCaretTextRange = doc.body.createTextRange();
+          preCaretTextRange.moveToElementText(element);
+          preCaretTextRange.setEndPoint("EndToEnd", textRange);
+          caretOffset = preCaretTextRange.text.length;
+      }
+      return caretOffset;
+  }
+
+}
