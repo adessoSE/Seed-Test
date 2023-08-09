@@ -210,7 +210,7 @@ export class ScenarioEditorComponent implements OnInit{
      * @returns
      */
     updateScenario() {
-
+        delete this.selectedScenario.hasRefBlock 
         delete this.selectedScenario.saved;
         let steps = this.selectedScenario.stepDefinitions['given'];
         steps = steps.concat(this.selectedScenario.stepDefinitions['when']);
@@ -237,6 +237,7 @@ export class ScenarioEditorComponent implements OnInit{
             console.log('There are undefined steps here');
         }
         this.selectedScenario.lastTestPassed = null;
+        this.checkOnReferences(this.selectedScenario);
         return new Promise<void>((resolve, _reject) => {this.scenarioService
             .updateScenario(this.selectedStory._id, this.selectedScenario)
             .subscribe(_resp => {
@@ -251,7 +252,16 @@ export class ScenarioEditorComponent implements OnInit{
         const scenarioName = event;
         this.addScenarioEvent.emit(scenarioName);
     }
-
+    checkOnReferences(scenario){
+        for (const prop in scenario.stepDefinitions) {
+            for (const step of scenario.stepDefinitions[prop]) {
+                if(step._blockReferenceId){
+                    this.selectedScenario.hasRefBlock = true;
+                }
+            }  
+        }
+        return this.selectedScenario;
+    }
     /**
      * Emitts the delete scenario event
      * @param event
