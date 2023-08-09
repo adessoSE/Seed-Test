@@ -1685,6 +1685,15 @@ export class BaseEditorComponent  {
   }
 
 
+  /**
+   * Add value and highlight regex, Style regex in value and give value to addToValue() function
+   * Value is in textContent and style is in innerHTML
+   * @param element HTMLElement of div, id needed for hightlightRegex, textContend needed for addToValue
+   * @param stepIndex for addToValue
+   * @param valueIndex for addToValue
+   * @param stepType for addToValue
+   * @param step for addToValue
+   */
     highlightRegex(element, stepIndex: number, valueIndex: number, stepType: string, step?:StepType) {
       const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
 
@@ -1711,6 +1720,7 @@ export class BaseEditorComponent  {
         const fragment = document.createDocumentFragment();
         let currentIndex = 0;
   
+        // Create span with style for every regex match
         for (const match of matches) {
           const nonRegexPart = textContent.substring(currentIndex, match.index);
           const matchText = match[0];
@@ -1747,11 +1757,11 @@ export class BaseEditorComponent  {
         const selection = window.getSelection();
         selection.removeAllRanges()
 
+        // Check in which node the cursor is and set new offsetIndex to position in that node
         let length = 0;
         let preLength = 0;
         let node=0;
         let offsetIndex=0;
-
         for(let i = 0; i<= textField.childNodes.length; i++) {
           length = textField.childNodes[i].textContent.length
           if (preLength+length>=offset){
@@ -1763,12 +1773,13 @@ export class BaseEditorComponent  {
             preLength = preLength+length
           }
         }
-        if (textField.childNodes[node].nodeType == 3){
+        if (textField.childNodes[node].nodeType == 3){ // in case childNode is text
           selection.setBaseAndExtent(textField.childNodes[node], offsetIndex, textField.childNodes[node], offsetIndex)
-        } else {
+        } else { // in case childNode is span, childNode of span is text
           selection.setBaseAndExtent(textField.childNodes[node].childNodes[0], offsetIndex, textField.childNodes[node].childNodes[0], offsetIndex)
         }
       }
+      
       this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
     }
 
