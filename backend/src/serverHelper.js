@@ -160,7 +160,7 @@ async function executeTest(req, mode, story) {
 		if (scenario.emulator !== undefined) {
 			additionalParams = { emulator: scenario.emulator };
 		} else if (scenario.width !== undefined && scenario.height !== undefined) {
-			additionalParams = { width: scenario.width, height: scenario.height };
+			additionalParams = { windowSize: { height: scenario.height, width: scenario.width } };
 		}
 
 		parameters = {
@@ -170,7 +170,9 @@ async function executeTest(req, mode, story) {
 				daisyAutoLogout: scenario.daisyAutoLogout || false,
 				...additionalParams
 			}))
+		
 		};
+		console.log(parameters);
 	} else if (mode === 'feature' || mode === 'group') {
 		const prep = scenarioPrep(story.scenarios, story.oneDriver);
 		story.scenarios = prep.scenarios;
@@ -247,7 +249,6 @@ function scenarioPrep(scenarios, driver) {
 			additionalParams = { emulator: scenario.emulator };
 		} else if (scenario.width !== undefined && scenario.height !== undefined) {
 			additionalParams = { width: scenario.width, height: scenario.height };
-			driver.set_window_size(500,500);
 		}
 
 		if (scenario.stepDefinitions.example.length <= 0) {

@@ -66,6 +66,7 @@ defineParameterType({
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
 	currentParameters = this.parameters.scenarios[scenarioIndex];
+	console.log(currentParameters.windowSize)
 
 	if (currentParameters.emulator !== undefined) switch (currentParameters.browser) {
 		case 'chrome':
@@ -77,6 +78,18 @@ Before(async function () {
 		case 'firefox':
 				// no way to do it ?
 	}
+
+	if (currentParameters.windowSize !== undefined) switch (currentParameters.browser) {
+		case 'chrome':
+			chromeOptions.addArguments("--window-size=1000,100");
+			break;
+		case 'MicrosoftEdge':
+			edgeOptions.windowSize(currentParameters.windowSize);
+			break;
+		case 'firefox':
+			firefoxOptions.windowSize(currentParameters.windowSize);
+	}
+	
 
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) if (driver) console.log('OneDriver');
