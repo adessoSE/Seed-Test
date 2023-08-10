@@ -27,18 +27,33 @@ It will download NodeJs and the browsers with their correct driver on it's own.
 
 For this [docker](https://www.docker.com/products/docker-desktop/) needs to be installed.
 
-#### Installing Seed
+#### And that's it!
 
-After installing docker you just simply need to downlaod the docker-compose.yml of the [release](https://github.com/adessoSE/Seed-Test/releases) you want.
+#### Installation of Seed
 
-Execute it by executing this command:
+Once you have Docker installed, the process of setting up Seed is straightforward. Follow these steps:
 
-```
-docker compose up -d
-```
+1. **Download the Release:**
 
-And that's it!
-Docker will now pull all the images necessairy and start the containers needed (mongoDB, seed-test-frontend, seed-test-backend).
+   - Go to the [releases page](https://github.com/adessoSE/Seed-Test/releases) of Seed on GitHub.
+   - Download the `docker-compose.yml` file from the assets for the specific release you want.
+2. **Place the File:**
+
+   - Choose a directory where you want to set up Seed (e.g., `C:/seed-test/`).
+   - Move the downloaded `docker-compose.yml` file to that directory.
+3. **Navigate and Execute:**
+
+   - Open a terminal.
+   - Navigate to the directory where you placed the `docker-compose.yml` file using the `cd` command. For instance:
+     ```
+     cd C:/seed-test
+     ```
+   - Execute the following command to start the Seed application in the background:
+     ```
+     docker compose up -d
+     ```
+
+With these steps, you'll have Seed up and running using Docker and the downloaded `docker-compose.yml` file. This will initiate the necessary services and configurations for the applicationvb (mongoDB, seed-test-frontend, seed-test-backend).
 
 Seed-Test can now be accessed via `http://localhost:4200/login`
 
@@ -97,7 +112,6 @@ To configure anything when running seed via docker, you can simply adjust the en
 | MONGO_INITDB_DATABASE*      | The name which should be used for the database.     |
 
 *By modifying any of these variables, remember to adjust the corresponding database URI in the backend configuration as well.
-
 
 ### 🤙 By hand:
 
