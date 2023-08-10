@@ -31,6 +31,8 @@ export class BaseEditorComponent  {
 
   @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
 
+  @ViewChildren('step_type_input2') step_type_input2: QueryList<ElementRef>;
+
   /**
     * View child of the example table
     */
@@ -141,8 +143,7 @@ export class BaseEditorComponent  {
 
   exampleChild: ExampleTableComponent;
 
-  //@ViewChild('textField1', { static: true }) textField1: ElementRef<HTMLInputElement>;
-  regexDetected: boolean = false;
+  regexInStory: boolean = false;
 
   /**
     * Subscribtions for all EventEmitter
@@ -253,9 +254,6 @@ export class BaseEditorComponent  {
   }
 
   ngAfterViewInit(): void {   
-    //const textField = document.getElementById('textField1');
-    //textField.addEventListener('input', this.highlightRegex.bind(this));
-
     this.step_type_input.changes.subscribe(_ => {
         this.step_type_input.forEach(in_field => {
           if ( in_field.nativeElement.id === this.lastToFocus) {
@@ -276,6 +274,14 @@ export class BaseEditorComponent  {
     if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
     }
+
+    // Regex Highlight on init
+    this.step_type_input1.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+    });
+    this.step_type_input2.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+    });
   }
 
   /**
@@ -1688,28 +1694,33 @@ export class BaseEditorComponent  {
   /**
    * Add value and highlight regex, Style regex in value and give value to addToValue() function
    * Value is in textContent and style is in innerHTML
-   * @param element HTMLElement of div, id needed for hightlightRegex, textContend needed for addToValue
+   * @param element id of HTML div
    * @param stepIndex for addToValue
    * @param valueIndex for addToValue
    * @param stepType for addToValue
    * @param step for addToValue
+   * @param initialCall if call is from ngAfterViewInit
    */
-    highlightRegex(element, stepIndex: number, valueIndex: number, stepType: string, step?:StepType) {
+    highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, initialCall?:boolean) {
       const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
 
-      const textField = document.getElementById(element.id);
+      const textField = document.getElementById(element);
       const textContent = textField.textContent;
       //Get current cursor position
       const offset = this.getCaretCharacterOffsetWithin(textField)
 
+      if(!initialCall){
+        this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
+      }
+
       const regexMatchedText = textContent.match(regexPattern);
-      this.regexDetected = regexMatchedText !== null;
+      const regexDetected = regexMatchedText !== null;
   
       // Clear previous styling
       this.renderer.setStyle(textField, 'color', '');
       this.renderer.setStyle(textField, 'fontWeight', '');
   
-      if (this.regexDetected) {
+      if (regexDetected) {
         const matches: RegExpExecArray[] = [];
         let match: RegExpExecArray | null;
   
@@ -1753,7 +1764,9 @@ export class BaseEditorComponent  {
       }
 
       // Set cursor to correct position
-      if (this.regexDetected){
+      if(!initialCall){
+        requestAnimationFrame(() => {
+      if (regexDetected){ //maybe not needed
         const selection = window.getSelection();
         selection.removeAllRanges()
 
@@ -1778,9 +1791,20 @@ export class BaseEditorComponent  {
         } else { // in case childNode is span, childNode of span is text
           selection.setBaseAndExtent(textField.childNodes[node].childNodes[0], offsetIndex, textField.childNodes[node].childNodes[0], offsetIndex)
         }
+      } else {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.setBaseAndExtent(textField.firstChild, offset, textField.firstChild, offset)
       }
-      
-      this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
+      })}
+      if(initialCall && regexDetected) {
+        this.regexInStory = true
+      }
+
+      if(regexDetected && !this.regexInStory){
+        this.regexInStory = true
+        this.toastr.info('Regex Highlight');
+      }
     }
 
     /**

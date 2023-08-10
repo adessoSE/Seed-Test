@@ -97,10 +97,7 @@
                           <div *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false ">
                             <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" elFocus class="scenario" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
                             type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value, j, 0, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px; padding-bottom: 1px;" [(ngModel)]="textFieldValue" (ngModelChange)="highlightRegex()"/-->
-                            <div class="scenario content_editable_element" #step_type_input1 id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input1, j, 0, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[0]}}</div>
-                          <!--input #textField1 containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" (input)="highlightRegex()" type="text" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;"-->
-                          <!--div contenteditable="true" id="textField1" (input)="highlightRegex()">asdf</div-->
-                          
+                            <div class="scenario content_editable_element" #step_type_input1 id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input1.id, j, 0, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[0]}}</div>
                           </div>
                           <div *ngIf="currentStep.isExample[0] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
                             <mat-form-field appearance="standard" class="exampleList">
@@ -131,8 +128,9 @@
                         <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1" style="display:flex">
                           <div *ngIf="currentStep.values[1] != null" style="display: flex;">
                             <div *ngIf="currentStep.isExample[1] == false || ((!currentStep.values[1] || currentStep.values[1]) && currentStep.isExample[1] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false">
-                              <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2
-                              type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                              <!--input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2
+                              type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/-->
+                              <div class="scenario content_editable_element" #step_type_input2 id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input2.id, j, 1, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[1]}}</div>
                             </div>
                             <div *ngIf="currentStep.isExample[1] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
                               <mat-form-field appearance="standard" class="exampleList">
