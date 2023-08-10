@@ -33,6 +33,8 @@ export class BaseEditorComponent  {
 
   @ViewChildren('step_type_input2') step_type_input2: QueryList<ElementRef>;
 
+  @ViewChildren('step_type_input3') step_type_input3: QueryList<ElementRef>;
+
   /**
     * View child of the example table
     */
@@ -280,6 +282,9 @@ export class BaseEditorComponent  {
       this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
     });
     this.step_type_input2.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+    });
+    this.step_type_input3.forEach(in_field => {  
       this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
     });
   }
