@@ -205,7 +205,7 @@ export class BaseEditorComponent  {
         }
       }
   });
-    
+
   }
 
   ngOnDestroy(): void {
@@ -253,6 +253,18 @@ export class BaseEditorComponent  {
     if(this.allChecked) {
       this.checkAllSteps(this.allChecked);
     } 
+
+    // Regex Highlight on init
+    if(this.step_type_input1){
+    this.step_type_input1.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+    });
+    this.step_type_input2.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+    });
+    this.step_type_input3.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+    });}
   }
 
   ngAfterViewInit(): void {   
@@ -276,17 +288,6 @@ export class BaseEditorComponent  {
     if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
     }
-
-    // Regex Highlight on init
-    this.step_type_input1.forEach(in_field => {  
-      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-    });
-    this.step_type_input2.forEach(in_field => {  
-      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-    });
-    this.step_type_input3.forEach(in_field => {  
-      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-    });
   }
 
   /**
@@ -1805,7 +1806,7 @@ export class BaseEditorComponent  {
       if(initialCall && regexDetected) {
         this.regexInStory = true
       }
-
+      console.log(this.regexInStory, regexDetected)
       if(regexDetected && !this.regexInStory){
         this.regexInStory = true
         this.toastr.info('Regex Highlight');
