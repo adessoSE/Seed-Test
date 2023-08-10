@@ -109,8 +109,6 @@ export class ScenarioEditorComponent implements OnInit{
      */
     runSaveOptionObservable: Subscription;
     renameScenarioObservable: Subscription;
-    unpackBlockObservable: Subscription;
-    updateObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -191,9 +189,6 @@ export class ScenarioEditorComponent implements OnInit{
         if (!this.renameScenarioObservable.closed) {
             this.renameScenarioObservable.unsubscribe();
         }
-        if (!this.unpackBlockObservable.closed) {
-            this.unpackBlockObservable.unsubscribe();
-        }
     }
 
     /**
@@ -241,11 +236,37 @@ export class ScenarioEditorComponent implements OnInit{
         return new Promise<void>((resolve, _reject) => {this.scenarioService
             .updateScenario(this.selectedStory._id, this.selectedScenario)
             .subscribe(_resp => {
+                this.isStepReference(this.selectedScenario, this.blocks);
                 this.scenarioService.scenarioChangedEmitter();
                 this.toastr.success('successfully saved', 'Scenario');
                 resolve();
             });
         });
+    }
+    /**
+    * Update/Check for reference
+    * @param scenario
+    * @param blocks
+    */
+    isStepReference(scenario, blocks){
+        const stepsReferences = [];
+        for (const prop in scenario.stepDefinitions) {
+          for (const step of scenario.stepDefinitions[prop]) {
+            for (const block of blocks) {
+                if(block._id === step._id && block.usedAsReference == undefined ){
+                    stepsReferences.push(step);
+                    block.usedAsReference = true;
+                    this.blockService.updateBlock(block.name, block)
+                    .subscribe(_ => {
+                      this.blockService.updateBlocksEvent.emit();
+                    });
+                }
+            }  
+          }
+        }
+        if(stepsReferences.length == 0){
+            this.blockService.stepAsReference();
+        }
     }
 
     addScenarioToStory(event) {

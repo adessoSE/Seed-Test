@@ -252,6 +252,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   renameBackgroundObservable: Subscription;
   updateObservable: Subscription;
   applyBackgroundChangesObservable: Subscription;
+  checkReferenceObservable: Subscription;
+  deleteReferenceObservable: Subscription;
+  unpackBlockObservable: Subscription;
 
   @Input() isDark: boolean;
 
@@ -438,6 +441,25 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
           console.log("Updated blocks:", this.updatedBlocks);
         });
       });
+      this.checkReferenceObservable = this.blockService.checkRefOnRemoveEvent.subscribe(blockId => {
+        const id = localStorage.getItem('id');
+        this.blockService.getBlocks(id).subscribe((resp) => {
+          this.blocks = resp;
+          this.blockService.removeReferenceForStep(this.blocks, this.stories, blockId)
+        });
+      });
+      this.deleteReferenceObservable = this.blockService.deleteReferenceEvent.subscribe(block => {
+        this.blockService.deteleBlockReference(block, this.stories);
+      });
+      this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((block) => {
+        this.blockService.unpackScenarioWithBlock(block, this.selectedScenario);
+        const id = localStorage.getItem('id');
+        this.blockService.getBlocks(id).subscribe((resp) => {
+          this.blocks = resp;
+          this.blockService.removeReferenceForStep(this.blocks, this.stories, block._id)
+        });
+        this.selectedScenario.saved = false;
+      });
       this.applyBackgroundChangesObservable = this.backgroundService.applyChangesBackgroundEvent.subscribe(option => {
         if (option == 'toCurrentBackground') {
           this.toastr.info('Please enter a new Background name to save your changes');
@@ -479,6 +501,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
         if (!this.applyBackgroundChangesObservable.closed) {
           this.applyBackgroundChangesObservable.unsubscribe();
+      }
+      if (!this.unpackBlockObservable.closed) {
+        this.unpackBlockObservable.unsubscribe();
       }
     }
   

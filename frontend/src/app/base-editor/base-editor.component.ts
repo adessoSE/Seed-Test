@@ -167,7 +167,6 @@ export class BaseEditorComponent  {
   addBlocktoScenarioObservable: Subscription;
   scenarioChangedObservable: Subscription;
   backgroundChangedObservable: Subscription;
-  unpackBlockObservable: Subscription;
   copyExampleOptionObservable: Subscription;
 
 
@@ -222,11 +221,7 @@ export class BaseEditorComponent  {
           this.insertStepsWithoutExamples()
         }
       }
-  });
-    this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe(() => {
-      this.unpackBlock(this.selectedBlock);
-    });
-    
+  });  
   }
 
   ngOnDestroy(): void {
@@ -1253,6 +1248,9 @@ export class BaseEditorComponent  {
       if (this.templateName !== 'example' && prop !== 'example') {
         for (let i = stepsList[prop].length - 1; i >= 0; i--) {
           if (stepsList[prop][i].checked) {
+            if(stepsList[prop][i].isReferenceBlock){
+              this.blockService.checkRefOnRemoveEmitter(stepsList[prop][i]._id);
+            }
             stepsList[prop].splice(i, 1);
           }
         }
@@ -1361,25 +1359,6 @@ export class BaseEditorComponent  {
     }
 
     return copyBlock
-  }
-  /**
-    * Unpack a reference block
-    * 
-    */
-  unpackBlock(block){
-    if (block && block.stepDefinitions) {
-      for (const s in block.stepDefinitions) {
-        block.stepDefinitions[s].forEach((step: StepType, j) => {
-          step.checked = false;
-          this.selectedScenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
-        });
-        const index = this.selectedScenario.stepDefinitions[s].findIndex((element) => element._id == this.selectedBlock._id);
-        if (index > -1) {
-          this.selectedScenario.stepDefinitions[s].splice(index, 1);
-        }
-      }
-    }
-    this.markUnsaved();
   }
   /**
     * Insert block from clipboard
@@ -1617,8 +1596,9 @@ export class BaseEditorComponent  {
       this.expandStepBlock = false;
     }
 
-  showUnpackBlockToast() {
+  showUnpackBlockToast(block) {
     // Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?
+    this.blockService.block = block;
     this.toastr.warning(
     '', 'Unpack Block', {
       toastComponent: UnpackBlockToast

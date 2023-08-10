@@ -110,7 +110,8 @@ import { BlockService } from './Services/block.service';
    */
   unpackBlock(event: Event) {
     event.stopPropagation();
-    this.blockService.unpackBlockEmitter();
+    const blockToUnpack = this.blockService.block;
+    this.blockService.unpackBlockEmitter(blockToUnpack);
     this.remove();
   }
 }
