@@ -29,21 +29,15 @@ For this [docker](https://www.docker.com/products/docker-desktop/) needs to be i
 
 #### Installing Seed
 
-After installing docker you just simply need to clone the repository and launch the runDocker script matching your OS:
+After installing docker you just simply need to downlaod the docker-compose.yml of the [release](https://github.com/adessoSE/Seed-Test/releases) you want.
 
-Windows:
-
+Execute it by calling:
 ```
-runDocker.bat
-```
-
-Linux:
-
-```
-runDocker.sh
+docker compose up -d
 ```
 
 And that's it! 
+Docker will now pull all the images necessairy and start the containers needed (mongoDB, seed-test-frontend, seed-test-backend).
 
 Seed-Test can now be accessed via `http://localhost:4200/login`
 
@@ -56,25 +50,14 @@ Seed-Test now runs within docker with default values which means the following:
 - GitHub functionalities don't work:
   To get GitHub functionalities to work you need to create and link a [GitHub OAuth App](https://docs.github.com/de/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
 - Salt and secrets are defaults:They should be changed for generating secure passwords!
-- The mongoDB used has a default username and password. This should be changed for a secure database:To change this change the values in the docker-compose.yml
+- The mongoDB used has a default username and password:
+  This should be changed for a secure databas.
 
 To know how to change this look at the configure section below.
 
 #### ⚙️ Configuration:
 
-Seed-Test's front- and backend can be configured sepreratly.
-
-##### Backend:
-
-To configure the backend create a file with the name ".env" in the /backend directory.
-Now you can configure the backend by adding parameters shown in the .env.example file.
-
-##### Frontend:
-
-To configure the frontend create a file with the name ".env" in the /frontend directory.
-Now you can configure the frontend by adding parameters shown in the .env.example file.
-
-The dockerRun script needs to be run after any changes to the ".env" files.
+To configure anything when running seed via docker, you can simply adjust the environment variables for each container in the docker-compose.yaml file
 
 ### 🤙 By hand:
 
@@ -165,7 +148,7 @@ Now you can configure the backend by adding parameters shown in the .env.example
 ##### Frontend:
 
 To configure the frontend create a file with the name ".env" in the /frontend directory.
-Now you can configure the frontendby adding parameters shown in the .env.example file.
+Now you can configure the frontend by adding parameters shown in the .env.example file.
 
 ## Database
 
