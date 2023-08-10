@@ -115,6 +115,29 @@ export class EditBlockComponent {
     return sortedStepTypes;
   }
 
+  getUniqueSteps(): StepType[] {
+    let uniqueStepTypes: StepType[] = [];
+    let addedTypes: Set<string> = new Set();
+    let screenshotCount = 0;
+  
+    for (let step of this.sortedStepTypes()) {
+      if (step.type === 'Screenshot') { //first two screenshot elements do not work (?) we skip these and take third screenshot elemment
+        screenshotCount++;
+        if (screenshotCount > 3 && !addedTypes.has(step.type)) {
+          uniqueStepTypes.push(step);
+          addedTypes.add(step.type);
+        }
+      } else if (!addedTypes.has(step.type)) {
+        uniqueStepTypes.push(step);
+        addedTypes.add(step.type);
+      }
+    }
+  
+    return uniqueStepTypes;
+  }
+  
+  
+
   /**
    * Gets the last id in the steps
    * @param stepDefs
