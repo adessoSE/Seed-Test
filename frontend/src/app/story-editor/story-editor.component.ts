@@ -339,7 +339,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     }
     if (this.selectedStory !== undefined){
       this.storeCurrentBackground(this.selectedStory.background);
-      this.backgrounds = this.stories.map((s) => s.background);
+      this.backgrounds = this.stories.filter((s) => s !== null).map((s) => s.background);
       this.blockAsBackground = [];
       this.blocks = this.blocks.filter((b) => b.isBackground);
       for (const b of this.blocks) {

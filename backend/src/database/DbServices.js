@@ -17,7 +17,6 @@ const dbConnection = require('./DbConnector');
 const emptyStory = require('../models/emptyStory');
 const emptyScenario = require('../models/emptyScenario');
 const emptyBackground = require('../models/emptyBackground');
-const Collection = require('mongodb/lib/collection');
 
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
@@ -155,7 +154,6 @@ async function getUserByEmail(email) {
  */
 async function registerUser(user) {
 	try {
-		console.log(user);
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(userCollection);
 		const dbUser = await getUserByEmail(user.email);
@@ -184,7 +182,6 @@ async function registerGithubUser(user) {
 	try {
 		const db = dbConnection.getConnection();
 		user = mongoSanitize(user);
-		console.log(user);
 		return await db.collection(userCollection).insertOne({ github: user });
 	} catch (e) {
 		console.log(`ERROR in registerGithubUser: ${e}`);
@@ -815,6 +812,21 @@ async function createGitRepo(gitOwnerId, repoName, userGithubId, userId) {
 	}
 }
 
+/**
+ * return the Repo containing the storyId
+ * for better performance set index on stories field
+ * @param {string} storyId
+ */
+async function repoOfStory(storyId) {
+	try {
+		const db = dbConnection.getConnection();
+		const repo = db.collection(repositoriesCollection).findOne({ stories: ObjectId(storyId) });
+		return repo;
+	} catch (error) {
+		console.error(`ERROR Repo of Story: ${error}`);
+	}
+}
+
 async function removeFromWorkgroup(repoId, user) {
 	try {
 		const db = dbConnection.getConnection();
@@ -1383,5 +1395,6 @@ module.exports = {
 	getAllSourceReposFromDb,
 	createGitRepo,
 	updateOwnerInRepo,
-	updateRepository
+	updateRepository,
+	repoOfStory
 };
