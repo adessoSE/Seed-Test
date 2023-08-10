@@ -37,7 +37,6 @@ services:
       EMAIL_PW:
       EMAIL_PORT:
       EMAIL_HOST:
-      FRONTEND_URL: 'http://localhost:4200'
       GITHUB_CLIENT_SECRET:
       GITHUB_CLIENT_ID:
       PASSPORT_GITHUB_LOCAL_PW_FIELD: 'id'
@@ -52,7 +51,6 @@ services:
       - backend
     restart: always
     environment:
-      API_SERVER: http://localhost:8080/api
       GITHUB_CLIENT_ID:
       VERSION:
 
