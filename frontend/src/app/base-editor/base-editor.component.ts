@@ -193,12 +193,11 @@ export class BaseEditorComponent  {
       }
       if (this.templateName == 'scenario' && block[0] == 'scenario') {      
         if (block[2]) {
-          const blockReference: StepType = { _id: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
-            pre: '', mid: '', post: '', values: [], isReferenceBlock: true};
-          this.selectedScenario.stepDefinitions.when.push(blockReference);  
-          this.checkStep(blockReference)
+          const blockReference: StepType = {_blockReferenceId: block[1]._id, id: 0, type: block[1].name, stepType: 'when',
+            pre: '', mid: '', post: '', values: []};
+          this.selectedScenario.stepDefinitions.when.push(JSON.parse(JSON.stringify(blockReference)));  
         } else {
-          block = block[1];
+            block = block[1];
           this.insertStepsWithExamples(block);
         }
         this.markUnsaved();
@@ -820,7 +819,7 @@ export class BaseEditorComponent  {
     } else {
         this.allChecked = !this.allChecked;
     }
-
+    delete this.isReferenceBlock;
     switch (this.templateName){
       case 'background':
         this.checkOnIteration(this.selectedStory.background.stepDefinitions, this.allChecked);
@@ -932,21 +931,21 @@ export class BaseEditorComponent  {
    * Enables/disables "Save steps as Block" if only reference-block-steps selected
    */
   disableSaveBlock(step){
-    let count = 0;
-    let onlyBlockSelected = null;
+    let allSelectedSteps = 0;
+    let onlyReferenceSteps = 0;
     if(this.templateName === 'scenario'){
       for (const prop in this.selectedScenario.stepDefinitions) {
         if (prop !== 'example') {
           for (let i = this.selectedScenario.stepDefinitions[prop].length - 1; i >= 0; i--) {
-            if (this.selectedScenario.stepDefinitions[prop][i].checked && this.selectedScenario.stepDefinitions[prop][i].isReferenceBlock == undefined) {
-             count++;
-            }else {
-              onlyBlockSelected = true;
+            if(this.selectedScenario.stepDefinitions[prop][i].checked){
+              allSelectedSteps++;
+            } if(this.selectedScenario.stepDefinitions[prop][i].checked && this.selectedScenario.stepDefinitions[prop][i]._blockReferenceId){
+              onlyReferenceSteps++;
             }
           }
         }
       }
-      if(count == 0 && ((step.checked && step.isReferenceBlock) || (onlyBlockSelected))){
+      if(onlyReferenceSteps == allSelectedSteps){
         this.isReferenceBlock = true;
       }
     }
@@ -1607,7 +1606,6 @@ export class BaseEditorComponent  {
    * @param blockId: _id of the Block
    */
   selectBlock(block) {
-    //this.selectedBlock = this.blocks.find(i => i._id == blockId);
     this.blockSelectTriggerEvent.emit(block);
     this.expandStepBlock = true;
   }

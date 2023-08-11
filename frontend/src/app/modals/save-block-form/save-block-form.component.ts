@@ -117,10 +117,19 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.stepListSaveBlock = [];
     this.stepListSaveBlockExample = [];
     this.displayedColumnsSaveBlockExample = [];
+    let toastrShown = false;
     Object.keys(this.block.stepDefinitions).forEach((key, _) => {
         this.block.stepDefinitions[key].forEach((step: StepType) => {
-          if(step.stepType != 'example' && !step.isReferenceBlock){
-            this.stepListSaveBlock.push(step);
+          if(step.stepType != 'example'){
+            if(step._blockReferenceId && !toastrShown){
+              this.toastr.info("Please Note: To avoid complexity issues embedded blocks aren't allowed to be saved in another blocks ","You've selected at least one reference block to save in another block.", {
+                timeOut: 8000,
+                extendedTimeOut: 3000
+              });
+              toastrShown = true;
+            }else if(!step._blockReferenceId){
+              this.stepListSaveBlock.push(step);
+            }
           } else {
             this.stepListSaveBlockExample.push(step);
           }
@@ -186,7 +195,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     if (this.backgroundService.backgroundReplaced && this.backgroundService.backgroundReplaced !== undefined){
       this.block.isBackground = true;
     }
-    this.block.stepDefinitions.when = this.block.stepDefinitions.when.filter((step) => !step.isReferenceBlock);
+    this.block.stepDefinitions.when = this.block.stepDefinitions.when.filter((step) => !step._blockReferenceId);
     this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
         this.updateBlocksBackEventEmitter();
@@ -211,7 +220,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     return bool;
   }
   updateBlocksBackEventEmitter() {
-    this.blockService.updateBlocksBackgroundsEvent.emit();
+    this.blockService.refreshBlockUponChanges.emit();
   }
   onSubmit(form: NgForm) {
     this.submitSaveBlock(form);

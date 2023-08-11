@@ -54,4 +54,9 @@ export interface Scenario {
      * Selected emultaor to execute the test with
      */
     emulator?: string;
+    /**
+     * If scenario has a reference among a steps
+     */
+    hasRefBlock?: boolean;
+
 }

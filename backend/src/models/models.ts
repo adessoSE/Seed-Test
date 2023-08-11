@@ -1,10 +1,9 @@
-
-enum executionMode{
+enum ExecutionMode {
     SCENARIO = 'scenario',
     STORY = 'feature',
     GROUP = 'group'
 }
-class passedCount{
+class PassedCount {
     passed: number
     failed: number
     constructor(){
@@ -13,76 +12,74 @@ class passedCount{
     }
 }
 
-class groupReport{
+class GenericReport {
     reportName: string
     reportOptions: any
-    status: boolean // different
-    storyStatuses: Array<{storyId: string, status: boolean, scenarioStatuses: Array<scenarioStatus>, featureTestResults: stepStatus, scenariosTested: passedCount}> // different
+    status: boolean
+    scenariosTested: PassedCount
+
+    reportTime: number
+    mode: ExecutionMode
+    smallReport: string
+
+    constructor(){
+        this.status = false
+        this.scenariosTested = new PassedCount()
+    }
+}
+
+class GroupReport extends GenericReport {
+    storyStatuses: Array<{storyId: string, status: boolean, scenarioStatuses: Array<ScenarioStatus>, featureTestResults: StepStatus, scenariosTested: PassedCount}> // different
     // different no feature/storyId
     // featureTestResults: stepStatus
-    scenariosTested: { passed: number, failed: number }
-    groupTestResults: stepStatus
-    reportTime: number
-    mode: executionMode.GROUP
-    smallReport: string
+    groupTestResults: StepStatus
     constructor(){
-        this.status = false
+        super()
         this.storyStatuses = []
-        this.scenariosTested = new passedCount()
-        this.groupTestResults = new stepStatus() 
+        this.scenariosTested = new PassedCount()
+        this.groupTestResults = new StepStatus() 
+        this.mode = ExecutionMode.GROUP
     }
 }
 
-class storyReport{
-    reportName: string
-    reportOptions: any
-    status: boolean
-    scenarioStatuses: scenarioStatus[]
+class StoryReport extends GenericReport {
+    scenarioStatuses: ScenarioStatus[]
     featureId: string // different
-    featureTestResults: stepStatus
-    scenariosTested: passedCount
-    reportTime: number
-    mode: executionMode.STORY
-    smallReport: string
+    featureTestResults: StepStatus
     constructor(){
-        this.status = false
+        super()
         this.scenarioStatuses = []
-        this.featureTestResults = new stepStatus()
-        this.scenariosTested = new passedCount()
+        this.featureTestResults = new StepStatus()
+        this.scenariosTested = new PassedCount()
+        this.mode = ExecutionMode.STORY
     }
 }
 
-class scenarioReport {
-    reportName: string
-    reportOptions: any
-    status: boolean
-    scenarioStatuses: scenarioStatus[]
+class ScenarioReport extends GenericReport {
+    scenarioStatuses: ScenarioStatus[]
     storyId: string // different
     scenarioId: string // different
-    featureTestResults: stepStatus
-    scenariosTested: passedCount
-    reportTime: number
-    mode: executionMode.SCENARIO
-    smallReport: string
+    featureTestResults: StepStatus
     constructor(){
-        this.status = false
+        super()
         this.scenarioStatuses = []
-        this.featureTestResults = new stepStatus()
-        this.scenariosTested = new passedCount()
+        this.featureTestResults = new StepStatus()
+        this.scenariosTested = new PassedCount()
+        this.mode = ExecutionMode.SCENARIO
     }
 }
 
-class scenarioStatus{
+class ScenarioStatus {
     scenarioId: number
     status: boolean
-    stepResults: stepStatus
+    stepResults: StepStatus
     constructor() {
         this.status = false
-        this.stepResults = new stepStatus() // why nested?
+        this.stepResults = new StepStatus() // why nested?
     }
 }
 
-class stepStatus {
+class StepStatus {
     passedSteps: number
     failedSteps: number
     skippedSteps: number
@@ -92,11 +89,12 @@ class stepStatus {
 }
 
 export {
-    scenarioStatus,
-    executionMode,
-    groupReport,
-    storyReport,
-    scenarioReport,
-    passedCount,
-    stepStatus
+    ScenarioStatus,
+    ExecutionMode,
+    GenericReport,
+    GroupReport,
+    StoryReport,
+    ScenarioReport,
+    PassedCount,
+    StepStatus
 };

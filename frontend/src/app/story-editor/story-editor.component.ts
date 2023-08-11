@@ -339,7 +339,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     }
     if (this.selectedStory !== undefined){
       this.storeCurrentBackground(this.selectedStory.background);
-      this.backgrounds = this.stories.map((s) => s.background);
+      this.backgrounds = this.stories.filter((s) => s !== null).map((s) => s.background);
       this.blockAsBackground = [];
       this.blocks = this.blocks.filter((b) => b.isBackground);
       for (const b of this.blocks) {
@@ -432,7 +432,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.blockService.getBlocks(id).subscribe((resp) => {
         this.blocks = resp;
       });
-      this.updateObservable = this.blockService.updateBlocksBackgroundsEvent.subscribe(_ => {
+      this.updateObservable = this.blockService.refreshBlockUponChanges.subscribe(_ => {
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.updatedBlocks = resp;
           console.log("Updated blocks:", this.updatedBlocks);

@@ -60,8 +60,6 @@ export class ScenarioEditorComponent implements OnInit{
         if (this.selectedStory) {
            this.selectScenario(scenario);
         }
-        const repoId = localStorage.getItem('id');
-        this.getAllBlocks(repoId);
     }
 
     testRunning;
@@ -112,6 +110,7 @@ export class ScenarioEditorComponent implements OnInit{
     runSaveOptionObservable: Subscription;
     renameScenarioObservable: Subscription;
     unpackBlockObservable: Subscription;
+    updateObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -168,12 +167,20 @@ export class ScenarioEditorComponent implements OnInit{
     * Subscribes to all necessary events
     */
     ngOnInit() {
+        const id = localStorage.getItem('id');
+        this.blockService.getBlocks(id).subscribe((resp) => {
+            this.blocks = resp;
+          });
 		this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option == 'saveScenario') {
                 this.saveRunOption();
             }
         });
-
+        this.updateObservable = this.blockService.refreshBlockUponChanges.subscribe(_ => {
+            this.blockService.getBlocks(id).subscribe((resp) => {
+              this.blocks = resp;
+            });
+          });
         this.renameScenarioObservable = this.scenarioService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
     }
 
@@ -203,7 +210,7 @@ export class ScenarioEditorComponent implements OnInit{
      * @returns
      */
     updateScenario() {
-
+        delete this.selectedScenario.hasRefBlock 
         delete this.selectedScenario.saved;
         let steps = this.selectedScenario.stepDefinitions['given'];
         steps = steps.concat(this.selectedScenario.stepDefinitions['when']);
@@ -230,6 +237,7 @@ export class ScenarioEditorComponent implements OnInit{
             console.log('There are undefined steps here');
         }
         this.selectedScenario.lastTestPassed = null;
+        this.checkOnReferences(this.selectedScenario);
         return new Promise<void>((resolve, _reject) => {this.scenarioService
             .updateScenario(this.selectedStory._id, this.selectedScenario)
             .subscribe(_resp => {
@@ -244,7 +252,16 @@ export class ScenarioEditorComponent implements OnInit{
         const scenarioName = event;
         this.addScenarioEvent.emit(scenarioName);
     }
-
+    checkOnReferences(scenario){
+        for (const prop in scenario.stepDefinitions) {
+            for (const step of scenario.stepDefinitions[prop]) {
+                if(step._blockReferenceId){
+                    this.selectedScenario.hasRefBlock = true;
+                }
+            }  
+        }
+        return this.selectedScenario;
+    }
     /**
      * Emitts the delete scenario event
      * @param event
@@ -393,21 +410,8 @@ export class ScenarioEditorComponent implements OnInit{
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
     }
 
-    /**
-     * Get all blocks from the backend
-     * @param repoId id of the repository / project
-     */
-    getAllBlocks(repoId: string) {
-        this.blockService.getBlocks(repoId).subscribe((resp) => {
-            this.blocks = resp;
-        });
-    }
-
     blockSelectTrigger(block) {
-        this.selectedBlock = this.blocks.find(i => i._id == block._id);
+        this.selectedBlock =  this.blocks.find(i => i._id == block._blockReferenceId);
         block.stepDefinitions = this.selectedBlock.stepDefinitions;
-        //this.expandStepBlock = true;
-        console.log(this.selectedBlock);
-        
     }
 }

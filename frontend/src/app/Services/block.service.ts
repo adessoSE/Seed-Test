@@ -30,7 +30,7 @@ export class BlockService {
   /**
   * Event emitter to track blocks updates
    */
-  public updateBlocksBackgroundsEvent: EventEmitter<any> = new EventEmitter();
+  public refreshBlockUponChanges: EventEmitter<any> = new EventEmitter();
   /**
   * Delete emitter to add delete a block from blocks
    */
@@ -60,7 +60,7 @@ export class BlockService {
   * Emits the update block in background list
    */
   updateBlocksBackgroundsEmitter() {
-    this.updateBlocksBackgroundsEvent.emit();
+    this.refreshBlockUponChanges.emit();
   }
   
   /**

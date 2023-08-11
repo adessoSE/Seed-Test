@@ -60,7 +60,6 @@ router.post('/', async (req, res) => {
 // update Story
 router.put('/:_id', async (req, res) => {
 	try {
-		console.log(req.body);
 		const story = await mongo.updateStory(req.body);
 		await helper.updateFeatureFile(req.params._id);
 		res.status(200).json(story);
@@ -114,7 +113,6 @@ router.post('/:story_id', async (req, res) => {
 
 // update scenario
 router.put('/:story_id/:_id', async (req, res) => {
-	console.log(req.body);
 	try {
 		const scenario = req.body;
 		const updatedStory = await mongo.updateScenario(req.params.story_id, scenario);

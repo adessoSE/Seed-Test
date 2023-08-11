@@ -8,12 +8,11 @@ const bcrypt = require('bcrypt');
 const { v1: uuidv1 } = require('uuid');
 const fs = require('fs');
 const initializePassport = require('../passport-config');
-const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
 const nodeMail = require('../nodemailer');
 const userMng = require('../../dist/helpers/userManagement');
 const projectMng = require('../../dist/helpers/projectManagement');
-const { log } = require('console');
+const issueTracker = require('../../dist/models/IssueTracker');
 
 const router = express.Router();
 const salt = bcrypt.genSaltSync(10);
@@ -178,7 +177,7 @@ router.get('/repositories', (req, res) => {
 	let githubName;
 	let token;
 	let githubId;
-	if (req.user && req.user.github) {// note order
+	if (req.user && req.user.github) { // note order
 		githubName = req.user.github.login;
 		token = req.user.github.githubToken;
 		githubId = req.user.github.id;
@@ -200,8 +199,9 @@ router.get('/repositories', (req, res) => {
 			merged = projectMng.uniqueRepositories(merged);
 			res.status(200).json(merged);
 		})
-		.catch((reason) => {
-			res.status(401).json('Wrong Github name or Token');
+		.catch((reason) => { // TODO: individuell abfangen, wo ein Fehler (GitHub / Jira / DB) aufgetreten ist.
+			// bei Jira behandeln, falls der Token abgelaufen ist
+			res.status(401).json('Wrong Username or Password');
 			console.error(`Get Repositories Error: ${reason}`);
 		});
 });
@@ -314,10 +314,14 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
-		const { Host, AccountName, Password, Password_Nonce, Password_Tag } = req.user.jira;
-		const clearPass = userMng.decryptPassword(Password, Password_Nonce, Password_Tag);
-		const auth = Buffer.from(`${AccountName}:${clearPass}`)
-			.toString('base64');
+		const jiraTracker = issueTracker.IssueTracker.getIssueTracker(issueTracker.IssueTrackerOption.JIRA);
+		const clearPass = jiraTracker.decryptPassword(req.user.jira);
+		const { AccountName, AuthMethod, Host } = req.user.jira;
+		let authString = `Bearer ${clearPass}`;
+		if (AuthMethod === 'basic') { 
+			const auth = Buffer.from(`${AccountName}:${clearPass}`).toString('base64');
+			authString = `Basic ${auth}`;
+		}
 
 		const tmpStories = new Map();
 		const storiesArray = [];
@@ -325,7 +329,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 			method: 'GET',
 			headers: {
 				'cache-control': 'no-cache',
-				Authorization: `Basic ${auth}`
+				Authorization: authString
 			}
 		};
 		let repo;
@@ -434,7 +438,7 @@ router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
 	const params = new URLSearchParams();
 	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
-		log("To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.");
+		console.log("To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.");
 		res.status(501).send("No GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET provided.")
 		return
 	}
@@ -452,7 +456,6 @@ router.get('/callback', (req, res) => {
 		.then((response) => response.text())
 		.then((text) => mapper(text))
 		.then((data) => {
-			console.log(data);
 			if (data.error) throw Error('github user register failed');
 			else userMng.getGithubData(res, req, data.access_token);
 		})
