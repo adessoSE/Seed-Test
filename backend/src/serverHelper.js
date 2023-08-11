@@ -160,7 +160,7 @@ async function executeTest(req, mode, story) {
 		if (scenario.emulator !== undefined) {
 			additionalParams = { emulator: scenario.emulator };
 		} else if (scenario.width !== undefined && scenario.height !== undefined) {
-			additionalParams = { windowSize: { height: scenario.height, width: scenario.width } };
+			additionalParams = { windowSize: { height: Number(scenario.height), width: Number(scenario.width) } };
 		}
 
 		parameters = {
