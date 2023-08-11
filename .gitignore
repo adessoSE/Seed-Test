@@ -68,9 +68,6 @@ backend/features/reporting_html*.html
 *.bat
 *.sh
 *.ps1
-!runDocker.bat
-!runDocker.sh
-!_docker/publishImages.bat
 
 # Website Deployment with IIS
 **/web.config
