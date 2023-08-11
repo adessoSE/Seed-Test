@@ -1770,12 +1770,19 @@ export class BaseEditorComponent  {
         textField.appendChild(fragment);
       }
 
+      // Toastr logic
+      if(initialCall && regexDetected) {
+        this.regexInStory = true
+      }
+      if(regexDetected && !this.regexInStory){
+        this.regexInStory = true
+        this.toastr.info('Regex Highlight');
+      }
+
       // Set cursor to correct position
       if(!initialCall){
-        requestAnimationFrame(() => {
-      if (regexDetected){ //maybe not needed
-        const selection = window.getSelection();
-        selection.removeAllRanges()
+      //if (regexDetected){ //maybe not needed
+        console.log(offset)
 
         // Check in which node the cursor is and set new offsetIndex to position in that node
         let length = 0;
@@ -1793,24 +1800,29 @@ export class BaseEditorComponent  {
             preLength = preLength+length
           }
         }
+        console.log(node, offset, offsetIndex)
+        requestAnimationFrame(() => {
         if (textField.childNodes[node].nodeType == 3){ // in case childNode is text
+          const selection = window.getSelection();
+        selection.removeAllRanges()
           selection.setBaseAndExtent(textField.childNodes[node], offsetIndex, textField.childNodes[node], offsetIndex)
+          console.log('in if')
         } else { // in case childNode is span, childNode of span is text
+          const selection = window.getSelection();
+        selection.removeAllRanges()
           selection.setBaseAndExtent(textField.childNodes[node].childNodes[0], offsetIndex, textField.childNodes[node].childNodes[0], offsetIndex)
+          console.log('in else 1')
         }
-      } else {
+        console.log(window.getSelection())
+      })
+      /*} else {
+        //requestAnimationFrame(() => {
         const selection = window.getSelection();
         selection.removeAllRanges();
         selection.setBaseAndExtent(textField.firstChild, offset, textField.firstChild, offset)
-      }
-      })}
-      if(initialCall && regexDetected) {
-        this.regexInStory = true
-      }
-      console.log(this.regexInStory, regexDetected)
-      if(regexDetected && !this.regexInStory){
-        this.regexInStory = true
-        this.toastr.info('Regex Highlight');
+        console.log('in else 2')
+        //})
+      }*/
       }
     }
 
