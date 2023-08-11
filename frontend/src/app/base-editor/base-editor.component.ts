@@ -21,7 +21,7 @@ import { StoryService } from '../Services/story.service';
 import { BackgroundService } from '../Services/background.service';
 import { InfoWarningToast } from '../info-warning-toast';
 import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
-import { UnpackBlockToast } from '../unpackBlock-toast';
+import { DeleteToast } from '../delete-toast';
 
 @Component({
   selector: 'app-base-editor',
@@ -1248,8 +1248,8 @@ export class BaseEditorComponent  {
       if (this.templateName !== 'example' && prop !== 'example') {
         for (let i = stepsList[prop].length - 1; i >= 0; i--) {
           if (stepsList[prop][i].checked) {
-            if(stepsList[prop][i].isReferenceBlock){
-              this.blockService.checkRefOnRemoveEmitter(stepsList[prop][i]._id);
+            if(stepsList[prop][i]._blockReferenceId){
+              this.blockService.checkRefOnRemoveEmitter(stepsList[prop][i]._blockReferenceId);
             }
             stepsList[prop].splice(i, 1);
           }
@@ -1597,11 +1597,11 @@ export class BaseEditorComponent  {
     }
 
   showUnpackBlockToast(block) {
-    // Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?
+    this.apiService.nameOfComponent('unpackBlock');
     this.blockService.block = block;
     this.toastr.warning(
-    '', 'Unpack Block', {
-      toastComponent: UnpackBlockToast
+    'Unpacking the Block will remove its reference to the original Block! Do you want to unpack the block?', 'Unpack Block', {
+      toastComponent: DeleteToast
     });
   }
 

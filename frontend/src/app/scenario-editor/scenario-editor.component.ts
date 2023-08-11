@@ -109,6 +109,7 @@ export class ScenarioEditorComponent implements OnInit{
      */
     runSaveOptionObservable: Subscription;
     renameScenarioObservable: Subscription;
+    updateRefObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -174,12 +175,12 @@ export class ScenarioEditorComponent implements OnInit{
                 this.saveRunOption();
             }
         });
-        this.updateObservable = this.blockService.refreshBlockUponChanges.subscribe(_ => {
+        this.renameScenarioObservable = this.scenarioService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
+        this.updateRefObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
             this.blockService.getBlocks(id).subscribe((resp) => {
               this.blocks = resp;
             });
           });
-        this.renameScenarioObservable = this.scenarioService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
     }
 
     ngOnDestroy() {
@@ -236,7 +237,7 @@ export class ScenarioEditorComponent implements OnInit{
         return new Promise<void>((resolve, _reject) => {this.scenarioService
             .updateScenario(this.selectedStory._id, this.selectedScenario)
             .subscribe(_resp => {
-                this.isStepReference(this.selectedScenario, this.blocks);
+                this.updateReferences(this.selectedScenario);
                 this.scenarioService.scenarioChangedEmitter();
                 this.toastr.success('successfully saved', 'Scenario');
                 resolve();
@@ -248,12 +249,12 @@ export class ScenarioEditorComponent implements OnInit{
     * @param scenario
     * @param blocks
     */
-    isStepReference(scenario, blocks){
+    updateReferences(scenario){
         const stepsReferences = [];
         for (const prop in scenario.stepDefinitions) {
           for (const step of scenario.stepDefinitions[prop]) {
-            for (const block of blocks) {
-                if(block._id === step._id && block.usedAsReference == undefined ){
+            for (const block of this.blocks) {
+                if(block._id === step._blockReferenceId && block.usedAsReference == undefined){
                     stepsReferences.push(step);
                     block.usedAsReference = true;
                     this.blockService.updateBlock(block.name, block)
@@ -264,15 +265,22 @@ export class ScenarioEditorComponent implements OnInit{
             }  
           }
         }
+        //If the reference was deleted
         if(stepsReferences.length == 0){
             this.blockService.stepAsReference();
         }
+        return this.blocks;
+     
     }
 
     addScenarioToStory(event) {
         const scenarioName = event;
         this.addScenarioEvent.emit(scenarioName);
     }
+    /**
+    * Checking if the scenario has a reference when saving
+    * @param scenario
+    */
     checkOnReferences(scenario){
         for (const prop in scenario.stepDefinitions) {
             for (const step of scenario.stepDefinitions[prop]) {

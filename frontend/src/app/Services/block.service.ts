@@ -8,6 +8,7 @@ import {catchError, tap} from 'rxjs/operators';
 import { Story } from '../model/Story';
 import { StepType } from '../model/StepType';
 import { StoryService } from './story.service';
+import { Scenario } from '../model/Scenario';
 
 /**
  * Service for communication between block component and the backend
@@ -27,36 +28,30 @@ export class BlockService {
    */
   public addBlockToScenarioEvent = new EventEmitter();
   /**
-  * Event emitter to add update a block
+   * Event emitter to add update a block
    */
   public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
-   /**
-  * Event emitter to delete reference
-   */
-   public deleteReferenceEvent: EventEmitter<any> = new EventEmitter();
-    /**
-  * Event emitter to check for reference
-   */
-    public checkRefOnRemoveEvent: EventEmitter<any> = new EventEmitter();
   /**
-  * Event emitter to track blocks updates
+   * Event emitter to delete reference
    */
-  public refreshBlockUponChanges: EventEmitter<any> = new EventEmitter();
+  public deleteReferenceEvent: EventEmitter<any> = new EventEmitter();
   /**
-  * Delete emitter to add delete a block from blocks
+   * Event emitter to check for reference
+   */
+  public checkRefOnRemoveEvent: EventEmitter<any> = new EventEmitter();
+  /**
+   * Delete emitter to add delete a block from blocks
    */
   public deleteBlockEvent = new EventEmitter();
-
-  blocks: Block[];
-  referenceStories: Story[];
-  referenceScenarios;
-  block: Block;
-
   /**
-     * Event emitter to unpack Block
-     */
+   * Event emitter to unpack Block
+   */
   public unpackBlockEvent = new EventEmitter();
- 
+
+  blocks: Block[] = [];
+  referenceStories: Story[];
+  referenceScenarios: Scenario[];
+  block: Block;
 
   /**
   * Emits the add block to scenario event
@@ -73,18 +68,33 @@ export class BlockService {
     this.updateBlocksEvent.emit();
   }
   /**
-  * Emits the update block in background list
-   */
-  updateBlocksBackgroundsEmitter() {
-    this.refreshBlockUponChanges.emit();
-  }
-  
-  /**
   * Emits the delete block in blocks
   */
   public deleteBlockEmitter() {
     this.deleteBlockEvent.emit();
   } 
+  /**
+  * Emits the unpack block event
+  * @param block
+  */
+  public unpackBlockEmitter(block) {
+    this.unpackBlockEvent.emit(block);
+  }
+  /**
+  * Emits the checking stories for references event 
+  * @param blockReferenceId
+  */
+  public checkRefOnRemoveEmitter(blockReferenceId) {
+    this.checkRefOnRemoveEvent.emit(blockReferenceId);
+  }
+  /**
+  * Emits the delete block as reference 
+  * @param block
+  */
+  public deleteReferenceEmitter(block: Block) {
+    this.deleteReferenceEvent.emit(block);
+  }
+
   /**
   * Retrieves the blocks
   * @param repoId id of the project of the blocks
@@ -153,28 +163,21 @@ export class BlockService {
    /**
    * Search for a references in all stories
    * @param stories
-   * @param blockId
    */
-  searchReferences(stories: Story[], blockId){
+  searchReferences(stories: Story[]){
     this.referenceScenarios = [];
-    stories.filter((s) => s !== null).flatMap((story) => story.scenarios.filter((scenario) =>{
-      for (const prop in scenario.stepDefinitions) {
-        for (const step of scenario.stepDefinitions[prop]) {
-          if (step.isReferenceBlock === true && step._id === blockId) {
-            this.referenceScenarios.push(scenario);
-          }
-        }
-      }
-    }));
+    stories.filter((s) => s !== null).flatMap((story) => story.scenarios
+      .filter((scenario) => scenario.hasRefBlock))
+      .forEach((scenario) => this.referenceScenarios.push(scenario));
     this.referenceStories = this.referenceScenarios
     .map((scenario) => stories.find((story) => story.scenarios.includes(scenario)))
     .filter((story, index, arr) => story && arr.indexOf(story) === index); 
   }
    /**
-   * Add/Delete for reference steps in scenario   
+   * Add/Delete for reference steps in scenario. 
    */
   stepAsReference() {  
-    if(this.blocks){
+    if(this.blocks.length !== 0){
       for (const block of this.blocks) {
         if (block.usedAsReference === false) {
           delete block.usedAsReference;
@@ -184,26 +187,36 @@ export class BlockService {
           });
         }
       }
+      this.blocks = [];
     }
     else return 0;
   }
 
    /**
-     * Remove the reference property for the block
-     * @param blockId
+     * Remove the reference property for the steps
+     * @param blockReferenceId
      * @param blocks
      * @param stories
-     * @returns
      */
-  removeReferenceForStep(blocks:Block[], stories: Story[], blockId){
-    this.searchReferences(stories, blockId)
-    if(this.referenceScenarios.length == 0){
-      for (const block of blocks) {
-        if (block._id === blockId) {
-          block.usedAsReference = false;
+  removeReferenceForStep(blocks:Block[], stories: Story[], blockReferenceId){
+    this.searchReferences(stories);
+    let blockNoLongerRef = true;
+    for (const scen of this.referenceScenarios){
+      for (const prop in scen.stepDefinitions) {
+        for (let i = scen.stepDefinitions[prop].length - 1; i >= 0; i--) {
+          if (scen.stepDefinitions[prop][i]._blockReferenceId == blockReferenceId) {
+            blockNoLongerRef = false;
+          }
         }
       }
-      this.blocks = blocks;
+    }
+    if (blockNoLongerRef){
+      for (const block of blocks){
+        if(block._id === blockReferenceId){
+          block.usedAsReference = false;
+          this.blocks.push(block);
+        }
+      }
     }
   }
    /**
@@ -212,7 +225,7 @@ export class BlockService {
    * @param stories
    */
    deteleBlockReference(block, stories: Story[]) {
-    this.searchReferences(stories, block._id);
+    this.searchReferences(stories);
     this.referenceScenarios.forEach((scenario) => {
       this.unpackScenarioWithBlock(block, scenario);
     });
@@ -222,7 +235,7 @@ export class BlockService {
   }
 
   /**
-   * Unpack all reference in repository
+   * Unpack references. Wenn delete block unpack all reference in repository
    * @param block
    * @param scenario
    */
@@ -234,29 +247,11 @@ export class BlockService {
           step.checked = false;
           scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
-        const index = scenario.stepDefinitions[s].findIndex((element) => element._id == block._id);
+        const index = scenario.stepDefinitions[s].findIndex((element) => element._blockReferenceId == block._id);
         if (index > -1) {
           scenario.stepDefinitions[s].splice(index, 1);
         }
       }
     }
-  }
-  /**
-     * Emits the unpack block event
-     */
-  public unpackBlockEmitter(block) {
-    this.unpackBlockEvent.emit(block);
-  }
-   /**
-     * Emits the checking stories for references event 
-     */
-   public checkRefOnRemoveEmitter(blockId) {
-    this.checkRefOnRemoveEvent.emit(blockId);
-  }
-  /**
-     * Emits the delete block as reference 
-     */
-  public deleteReferenceEmitter(block: Block) {
-    this.deleteReferenceEvent.emit(block);
   }
 }

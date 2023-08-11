@@ -92,7 +92,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       });
       this.deleteBlockObservable = this.blockService.deleteBlockEvent.subscribe(_ => {
         this.blockDeleted(this.selectedBlock);
-        });
+      });
     }
     
     ngOnDestroy() {
@@ -128,10 +128,6 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       });
     }
     
-    closeModal(){
-      delete this.addAsReference;
-      this.modalReference.close();
-    }
     /**
      * Deletes a block(call a toastr)
      */
@@ -168,13 +164,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.stepList = [];
           this.selectedBlock = null;
           console.log(resp);
-          this.updateBlocksBackEventEmitter();
+          this.updateBlocksEventEmitter();
           this.toastr.error('', 'Block deleted');
         }); 
       }
-    }
-    updateBlocksBackEventEmitter() {
-      this.blockService.refreshBlockUponChanges.emit();
     }
     /**
      * Change block title
@@ -265,7 +258,6 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
         } else{
           this.oldName = this.selectedBlock.name;
           this.selectedBlock.name = this.newblockName;
-          console.log(" this.selectedBlock",  this.selectedBlock)
           this.blockService
           .updateBlock(this.oldName, this.selectedBlock)
           .subscribe(_ => {
