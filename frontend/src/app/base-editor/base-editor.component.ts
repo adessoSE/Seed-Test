@@ -255,6 +255,7 @@ export class BaseEditorComponent  {
     } 
 
     // Regex Highlight on init
+    this.regexInStory = false
     if(this.step_type_input1){
     this.step_type_input1.forEach(in_field => {  
       this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
