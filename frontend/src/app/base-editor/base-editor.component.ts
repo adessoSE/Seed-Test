@@ -146,6 +146,7 @@ export class BaseEditorComponent  {
   exampleChild: ExampleTableComponent;
 
   regexInStory: boolean = false;
+  initialRegex: boolean = true;
 
   /**
     * Subscribtions for all EventEmitter
@@ -230,6 +231,10 @@ export class BaseEditorComponent  {
 
   }
 
+  ngOnChanges(){
+    this.initialRegex = true;
+  }
+
   /**
     * retrieves the saved block from the session storage
     */
@@ -255,17 +260,20 @@ export class BaseEditorComponent  {
     } 
 
     // Regex Highlight on init
-    this.regexInStory = false
-    if(this.step_type_input1){
-    this.step_type_input1.forEach(in_field => {  
-      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-    });
-    this.step_type_input2.forEach(in_field => {  
-      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-    });
-    this.step_type_input3.forEach(in_field => {  
-      this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-    });}
+    if(this.initialRegex){
+      this.regexInStory = false
+      if(this.step_type_input1){
+        this.step_type_input1.forEach(in_field => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+        });
+        this.step_type_input2.forEach(in_field => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+        });
+        this.step_type_input3.forEach(in_field => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+        });
+      }
+    }
   }
 
   ngAfterViewInit(): void {   
@@ -1718,6 +1726,10 @@ export class BaseEditorComponent  {
 
       if(!initialCall){
         this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
+      }
+
+      if(!initialCall){
+        this.initialRegex = false;
       }
 
       const regexMatchedText = textContent.match(regexPattern);
