@@ -142,13 +142,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.stepList = [];
           this.selectedBlock = null;
           console.log(resp);
-          this.updateBlocksBackEventEmitter();
+          this.updateBlocksEventEmitter();
           this.toastr.error('', 'Block deleted');
         }); 
       }
-    }
-    updateBlocksBackEventEmitter() {
-      this.blockService.updateBlocksBackgroundsEvent.emit();
     }
     /**
      * Change block title

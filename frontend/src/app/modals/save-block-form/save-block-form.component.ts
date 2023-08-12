@@ -187,7 +187,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     }
     this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
-        this.updateBlocksBackEventEmitter();
+        this.updateBlocksEventEmitter();
         this.toastr.success('successfully saved', 'Background');
     });
     this.modalReference.close();
@@ -208,8 +208,9 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     });
     return bool;
   }
-  updateBlocksBackEventEmitter() {
-    this.blockService.updateBlocksBackgroundsEvent.emit();
+
+  updateBlocksEventEmitter() {
+    this.blockService.updateBlocksEvent.emit();
   }
   onSubmit(form: NgForm) {
     this.submitSaveBlock(form);
