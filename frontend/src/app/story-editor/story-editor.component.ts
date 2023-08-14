@@ -332,7 +332,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   } 
 
   openDialog(): void {
-    const dialogData: DialogData = { width: 0, height: 0 };
+    console.log("DEBUG")
+    console.log(this.selectedScenario)
+    console.log(this.selectedScenario.width)
+    console.log(this.selectedScenario.height)
+    const dialogData: DialogData = { 
+      width: this.selectedScenario.width || 0, 
+      height: this.selectedScenario.height || 0 
+  };
     const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
       width: '250px',
       data: dialogData
@@ -340,10 +347,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('The dialog was closed');
-        console.log(result);
-        this.selectedScenario.witdh= result.width
+        this.selectedScenario.width= result.width
         this.selectedScenario.height = result.height
+        console.log("MY TEST")
         console.log(this.selectedScenario)
       }
     }); 
@@ -710,7 +716,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
 
     if (scenario.emulator) this.emulator_enabled = true 
     // nicht besser als wenn man im html entweder oder macht (267)
-    if (!scenario.browser) this.selectedScenario.browser = 'chrome'    
+    if (!scenario.browser) this.selectedScenario.browser = 'chrome' 
+    if (scenario.width) this.selectedScenario.width = scenario.width;
+    if (scenario.height) this.selectedScenario.height = scenario.height;    
   }
 
   /**
@@ -790,6 +798,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * @param scenario_id
    */
   runTests(scenario_id) {
+    console.log("Im in test run")
     if (this.storySaved()) {
       this.reportIsSaved = false;
       this.testRunning = true;
@@ -811,6 +820,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       // are these values already saved in the Scenario / Story?
       // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
       // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
+      console.log("TEST SELECTED SCENARIO")
+      console.log(this.selectedScenario)
       loadingScreen.scrollIntoView();
       this.storyService
         .runTests(
@@ -819,6 +830,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
           {
             browser: browserSelect,
             emulator: emulator,
+            width: this.selectedScenario.width,
+            height: this.selectedScenario.height,
             repository: localStorage.getItem("repository"),
             source: localStorage.getItem("source"),
             oneDriver: this.selectedStory.oneDriver,

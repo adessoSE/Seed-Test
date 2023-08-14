@@ -248,7 +248,8 @@ function scenarioPrep(scenarios, driver) {
 		if (scenario.emulator !== undefined) {
 			additionalParams = { emulator: scenario.emulator };
 		} else if (scenario.width !== undefined && scenario.height !== undefined) {
-			additionalParams = { width: scenario.width, height: scenario.height };
+			additionalParams.width = parseInt(scenario.width, 10);
+			additionalParams.height = parseInt(scenario.height, 10);
 		}
 
 		if (scenario.stepDefinitions.example.length <= 0) {

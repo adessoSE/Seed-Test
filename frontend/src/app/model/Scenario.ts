@@ -58,7 +58,7 @@ export interface Scenario {
     /**
      * Width of the window for the test
      */
-    witdh?: number;
+    width?: number;
 
     /**
      * Height of the window for the test
