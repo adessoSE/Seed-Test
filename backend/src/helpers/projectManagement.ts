@@ -280,7 +280,7 @@ async function exportProject(repo_id, versionID) {
 
 
 	} catch (error) {
-		console.error('Error exporting project:', error.message);
+		console.error('Error exporting project: ', error.message);
 		throw error;
 	}
 }
