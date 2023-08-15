@@ -216,7 +216,7 @@ async function exportProject(repo_id, versionID) {
 		}
 		//Collect stories for export
 		let exportStories = [];
-		let keyStoryIds = [];
+		let keyStoryIds = []; //Needed for goup-story link
 		for (let index = 0; index < repo.stories.length; index++) {
 			let story = await mongo.getOneStory(repo.stories[index]);
 			if (!story) {
