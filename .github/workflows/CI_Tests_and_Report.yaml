@@ -62,6 +62,14 @@ jobs:
           docker exec Seed-backend npm test > testResultsBackend.txt 2>&1
         continue-on-error: true
 
+      - name: Upload Artifact Backend
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-backend
+          path: |
+            testResultsBackend.txt
+
       - name: Clean up the result backend
         run: |
           awk '/Test Suites:/{flag=1; print; next} /Ran all test suites\./{flag=0} flag' testResultsBackend.txt > cleanResultsBackend.txt
@@ -81,14 +89,6 @@ jobs:
           bottomText=$(awk '/Snapshots:/{flag=1;print}/^$/{flag=0}flag' cleanResultsBackend.txt | tr -d '\n')
           echo "bottomText=${bottomText}" >> ${GITHUB_OUTPUT}
         id: passed-total-backend
-
-      - name: Upload Artifact Backend
-        if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results-backend
-          path: |
-            testResultsBackend.txt
 
       # execute npm test in the frontend container --------------------------------------------------------------
       - name: Run npm test frontend
