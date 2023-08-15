@@ -210,8 +210,8 @@ async function fuseStoryWithDb(story) {
 async function exportProject(repo_id, versionID) {
 	try {
 		const repo = await mongo.getOneRepositoryById(repo_id);  //Neu definiert womöglich auch nur OneRepository nutzbar, dafür aber ownerID + repoName mitzugeben
-		console.log(repo_id, repo)
 		if (!repo || !repo.stories) {
+			console.log("No repo to corresonding ID found!")
 			return null;
 		}
 		//Collect stories for export
@@ -245,11 +245,6 @@ async function exportProject(repo_id, versionID) {
 				repoGroups[index].member_stories[sub_index] = keyStoryIds.indexOf(repoGroups[index].member_stories[sub_index])
 			}
 		}
-		
-		console.log(repo);
-		console.log(exportStories);
-		console.log(repoBlocks);
-		console.log(repoGroups);
 
 		const zip = new AdmZip();
 		// Create separate folders for stories and groups
