@@ -37,7 +37,7 @@ jobs:
 
       - name: Build and start Docker stack
         run: |
-          docker-compose -f docker-test.yml up -d
+          docker-compose -f docker-test.yml up
 
       - name: Send failure notification
         if: ${{ failure() }}
@@ -84,7 +84,7 @@ jobs:
 
       - name: Upload Artifact Backend
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-results-backend
           path: |
@@ -118,7 +118,7 @@ jobs:
 
       - name: Upload Artifact Frontend
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-results-frontend
           path: |
@@ -154,7 +154,7 @@ jobs:
 
       - name: Upload Artifact Sanity
         if: ${{ !env.ACT }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: sanity-report
           path: |
