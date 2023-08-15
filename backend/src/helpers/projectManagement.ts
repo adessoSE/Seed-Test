@@ -4,7 +4,8 @@ const emptyScenario = require('../../src/models/emptyScenario');
 const emptyBackground = require('../../src/models/emptyBackground');
 import { writeFile } from '../../src/serverHelper';
 import { XMLHttpRequest } from 'xmlhttprequest';
-const fs = require('fs');
+import AdmZip from 'adm-zip';
+import fs from 'fs';
 const path = require('path');
 
 enum Sources {
@@ -208,7 +209,8 @@ async function fuseStoryWithDb(story) {
 
 async function exportProject(repo_id, versionID) {
 	try {
-		const repo = await mongo.getOneRepositoryById(repo_id).json();  //Neu definiert womöglich auch nur OneRepository nutzbar, dafür aber ownerID + repoName mitzugeben
+		const repo = await mongo.getOneRepositoryById(repo_id);  //Neu definiert womöglich auch nur OneRepository nutzbar, dafür aber ownerID + repoName mitzugeben
+		console.log(repo_id, repo)
 		if (!repo || !repo.stories) {
 			return null;
 		}
@@ -216,7 +218,7 @@ async function exportProject(repo_id, versionID) {
 		let exportStories = []
 		let keyStoryIds = []	//falls doch nicht gebraucht: entfernen!
 		for (let index = 0; index < repo.stories.length; index++) {
-			let story = await mongo.getOneStory(repo.stories[index]).json();
+			let story = await mongo.getOneStory(repo.stories[index]);
 			if (!story) {
 				throw new Error(`Story ${repo.stories[index]} not found`);
 			}
@@ -227,7 +229,7 @@ async function exportProject(repo_id, versionID) {
 		}
 
 		//Collect blocks for export
-		let repoBlocks = await mongo.getBlocks(repo_id).json();
+		let repoBlocks = await mongo.getBlocks(repo_id);
 		
 		//Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
 		for (let index = 0; index < repoBlocks.length; index++) {
@@ -249,35 +251,26 @@ async function exportProject(repo_id, versionID) {
 		console.log(repoBlocks);
 		console.log(repoGroups);
 
-
+		const zip = new AdmZip();
 		// Create separate folders for stories and groups
         const storiesFolder = 'stories_data';
-        fs.mkdirSync(storiesFolder, { recursive: true });
+        // fs.mkdirSync(storiesFolder, { recursive: true });
         for (let index = 0; index < exportStories.length; index++) {
-            fs.writeFileSync(path.join(storiesFolder, `story_${index}.json`), JSON.stringify(exportStories[index]));
+            zip.addFile(path.join(`${storiesFolder}/story_${index}.json`), Buffer.from(JSON.stringify(exportStories[index]), 'utf8'));
         }
 
         const groupsFolder = 'groups_data';
-        fs.mkdirSync(groupsFolder, { recursive: true });
+        // fs.mkdirSync(groupsFolder, { recursive: true });
         for (let index = 0; index < repoGroups.length; index++) {
-            fs.writeFileSync(path.join(groupsFolder, `group_${index}.json`), JSON.stringify(repoGroups[index]));
+            zip.addFile(path.join(`${groupsFolder}/group_${index}.json`), Buffer.from(JSON.stringify(repoGroups[index]), 'utf8'));
         }
 
         // Write the rest of the data as individual JSON files
-        fs.writeFileSync('repo.json', JSON.stringify(repo));
-        fs.writeFileSync('repoBlocks.json', JSON.stringify(repoBlocks));
-        fs.writeFileSync('keyStoryIds.json', JSON.stringify(keyStoryIds));
+		zip.addFile('repo.json', Buffer.from(JSON.stringify(repo), 'utf8'));
+		zip.addFile('repoBlocks.json', Buffer.from(JSON.stringify(repoBlocks), 'utf8'));
+		zip.addFile('keyStoryIds.json', Buffer.from(JSON.stringify(keyStoryIds), 'utf8'));
 
-
-		return {
-			storiesFolder,
-            groupsFolder,
-            repoFilePath: 'repo.json',
-            repoBlocksFilePath: 'repoBlocks.json',
-            keyStoryIdsFilePath: 'keyStoryIds.json'
-		  };
-
-
+		return zip.toBuffer();
 
 	} catch (error) {
 		console.error('Error exporting project: ', error.message);

@@ -93,7 +93,7 @@ export class ManagementService {
 */
   exportProject(repo_id, version_id=''): Observable<Blob> {
     return this.http
-      .get<Blob>(this.apiService.apiServer + '/story/export/project/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
+      .get<Blob>(this.apiService.apiServer + '/story/download/export/' + repo_id, { withCredentials: true, responseType: 'blob' as 'json', params: {version_id: version_id} });
     
   }
   

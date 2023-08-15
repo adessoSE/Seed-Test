@@ -703,7 +703,7 @@ async function getOneRepository(ownerId, name) {
 
 async function getOneRepositoryById(repoId) {
 	try {
-		const repo = { id: ObjectId(repoId) };
+		const repo = { _id: ObjectId(repoId) };
 		const db = dbConnection.getConnection();
 		return db.collection(repositoriesCollection).findOne(repo);
 	} catch (e) {
