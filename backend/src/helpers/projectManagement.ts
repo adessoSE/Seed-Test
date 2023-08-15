@@ -209,14 +209,14 @@ async function fuseStoryWithDb(story) {
 
 async function exportProject(repo_id, versionID) {
 	try {
-		const repo = await mongo.getOneRepositoryById(repo_id);  //Neu definiert womöglich auch nur OneRepository nutzbar, dafür aber ownerID + repoName mitzugeben
+		const repo = await mongo.getOneRepositoryById(repo_id);
 		if (!repo || !repo.stories) {
 			console.log("No repo to corresonding ID found!")
 			return null;
 		}
 		//Collect stories for export
-		let exportStories = []
-		let keyStoryIds = []	//falls doch nicht gebraucht: entfernen!
+		let exportStories = [];
+		let keyStoryIds = [];
 		for (let index = 0; index < repo.stories.length; index++) {
 			let story = await mongo.getOneStory(repo.stories[index]);
 			if (!story) {
@@ -224,7 +224,7 @@ async function exportProject(repo_id, versionID) {
 			}
 			keyStoryIds.push(story._id.toString())
 			delete story._id;
-			//story.story_id = index; Das ist die Git/Jira Story ID - womöglich nicht entfernen
+			//story.story_id = index; Das ist die Git/Jira Story ID - lieber nicht entfernen
 			exportStories.push(story);
 		}
 
@@ -249,13 +249,11 @@ async function exportProject(repo_id, versionID) {
 		const zip = new AdmZip();
 		// Create separate folders for stories and groups
         const storiesFolder = 'stories_data';
-        // fs.mkdirSync(storiesFolder, { recursive: true });
         for (let index = 0; index < exportStories.length; index++) {
             zip.addFile(path.join(`${storiesFolder}/story_${index}.json`), Buffer.from(JSON.stringify(exportStories[index]), 'utf8'));
         }
 
         const groupsFolder = 'groups_data';
-        // fs.mkdirSync(groupsFolder, { recursive: true });
         for (let index = 0; index < repoGroups.length; index++) {
             zip.addFile(path.join(`${groupsFolder}/group_${index}.json`), Buffer.from(JSON.stringify(repoGroups[index]), 'utf8'));
         }
