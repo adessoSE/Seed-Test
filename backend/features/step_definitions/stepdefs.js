@@ -79,24 +79,18 @@ Before(async function () {
 				// no way to do it ?
 	}
 
-	console.log(currentParameters.width)
-	console.log(currentParameters.height)
-	if (currentParameters.width !== undefined && currentParameters.height !== undefined) {
-		const windowSize = {
-			width: currentParameters.width,
-			height: currentParameters.height
-		};
-		
+
+
+	if (currentParameters.windowSize !== undefined) {
 		switch (currentParameters.browser) {
 			case 'chrome':
-				console.log("WindowSize Chrome TEST")
-				chromeOptions.windowSize(windowSize);
+				chromeOptions.windowSize(currentParameters.windowSize);
 				break;
 			case 'MicrosoftEdge':
-				edgeOptions.windowSize(windowSize);
+				edgeOptions.windowSize(currentParameters.windowSize);
 				break;
 			case 'firefox':
-				firefoxOptions.windowSize(windowSize);
+				firefoxOptions.windowSize(currentParameters.windowSize);
 				break;
 			default:
 				console.error(`Unsupported browser: ${currentParameters.browser}`);

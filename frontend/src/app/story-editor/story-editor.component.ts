@@ -332,14 +332,11 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   } 
 
   openDialog(): void {
-    console.log("DEBUG")
-    console.log(this.selectedScenario)
-    console.log(this.selectedScenario.width)
-    console.log(this.selectedScenario.height)
     const dialogData: DialogData = { 
       width: this.selectedScenario.width || 0, 
       height: this.selectedScenario.height || 0 
-  };
+    };
+
     const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
       width: '250px',
       data: dialogData
@@ -347,13 +344,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.selectedScenario.width= result.width
-        this.selectedScenario.height = result.height
-        console.log("MY TEST")
-        console.log(this.selectedScenario)
+        this.selectedScenario.width = result.width;
+        this.selectedScenario.height = result.height;
+
+        // Speichere das aktualisierte Szenario im Backend
+        this.scenarioService.updateScenario(this.selectedStory._id, this.selectedScenario)
+          .subscribe(response => {
+            console.log('Scenario erfolgreich aktualisiert!', response);
+          }, error => {
+            console.error('Fehler beim Aktualisieren des Szenarios', error);
+          });
       }
-    }); 
-  }
+    });
+}
+
 
     ngAfterViewChecked(){
       this.openBlockModal = undefined
