@@ -65,6 +65,7 @@ jobs:
       - name: Run npm test backend
         run: |
           docker exec Seed-backend npm test > testResultsBackend.txt 2>&1 || true
+          sleep 5
         continue-on-error: true
 
       - name: Clean up the result backend
