@@ -78,15 +78,15 @@
 }
 
 .dragIconContainer, .dragIconContainer .dragIcon {
-    margin: 0;
+    margin-bottom: 15px;
     padding: 0;
 }
+
 
 em.dragIcon {
     font-size: 18px;
     color: black;
     background-color: var(--white);
-    margin-top: 3px
 }
 
 .text-inline {
@@ -102,7 +102,7 @@ em.dragIcon {
 }
 
 .checkbox {
-    margin: 7px 5px 10px 3px;
+    margin: 4.5px 5px 15px 3px;
 }
 
 .checkbox:hover {
