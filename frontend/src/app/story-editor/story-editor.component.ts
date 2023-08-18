@@ -807,28 +807,26 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
           this.reportId = resp.reportId;
           iframe.srcdoc = resp.htmlFile;
           this.htmlReport = resp.htmlFile;
+          const report = resp.report;
           this.testDone = true;
           this.showResults = true;
           this.testRunning = false;
           setTimeout(function () {
             iframe.scrollIntoView();
           }, 10);
-								this.toastr.info('', 'Test is done');
-                this.runUnsaved = false;
-								this.reportService.getReport(this.reportId)
-									.subscribe((report: any) => {
-            if (scenario_id) {
-              // ScenarioReport
-              const val = report.status;
-              this.scenarioService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
-            } else {
-              // StoryReport
-								report.scenarioStatuses.forEach(scenario => {
-                  this.scenarioService.scenarioStatusChangeEmit(
-                    this.selectedStory._id, scenario.scenarioId, scenario.status);
-              });
-            }
-          });
+          this.toastr.info('', 'Test is done');
+          this.runUnsaved = false;
+          if (scenario_id) {
+            // ScenarioReport
+            const val = report.status;
+            this.scenarioService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val); //filteredStories in stories-bar.component is undefined causing an error same file 270
+          } else {
+            // StoryReport
+              report.scenarioStatuses.forEach(scenario => {
+                this.scenarioService.scenarioStatusChangeEmit(
+                  this.selectedStory._id, scenario.scenarioId, scenario.status);
+            });
+          }
         });
     } else {
       this.currentTestScenarioId = scenario_id;
