@@ -188,7 +188,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.blockService.saveBlock(this.block).subscribe((resp) => {
         console.log(resp);
         this.updateBlocksEventEmitter();
-        this.toastr.success('successfully saved', 'Background');
+        this.toastr.success('successfully saved', 'Block');
     });
     this.modalReference.close();
   }
