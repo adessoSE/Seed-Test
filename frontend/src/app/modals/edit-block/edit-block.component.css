@@ -2,7 +2,21 @@
     margin: 1% 30px;
     overflow-y: scroll;
     max-height: 260px;
+
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 113, 185, 0.7);
+        border-radius: 5px; 
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: #F5F5F5; 
+    }
 }
+
+.infoIcon.uk-icon {
+    color: white;
+}
+
 
 
 .stepsListContainer {
@@ -59,6 +73,13 @@
 .dragIconContainer {
     text-align: center;
     cursor: move;
+    display: flex;
+    align-items: center
+}
+
+.dragIconContainer, .dragIconContainer .dragIcon {
+    margin: 0;
+    padding: 0;
 }
 
 em.dragIcon {
@@ -81,7 +102,7 @@ em.dragIcon {
 }
 
 .checkbox {
-    margin: 5px 5px 10px 3px;
+    margin: 7px 5px 10px 3px;
 }
 
 .checkbox:hover {
