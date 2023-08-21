@@ -118,7 +118,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.blocks = resp;
       });
     }
-    
+
+    getFilteredListBlocks() {
+      return this.blocks.filter((b)=> b.isBackground == undefined)
+    }
     /**
      * Deletes a block(call a toastr)
      */

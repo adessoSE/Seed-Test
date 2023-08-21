@@ -6,6 +6,8 @@ import { Background } from '../../model/Background';
 import { Story } from '../../model/Story';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../../Services/api.service';
+import { Block } from '../../model/Block';
+import { BlockService } from '../../Services/block.service';
 
 @Component({
   selector: 'app-rename-background',
@@ -21,18 +23,20 @@ export class RenameBackgroundComponent{
   backgrounds: Background[];
   story: Story;
   saveBackgroundAndRun;
+  blockToRename: Block;
   backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
 
-  constructor(private modalService: NgbModal, public backgroundService: BackgroundService,  public toastr: ToastrService, public apiService: ApiService) { }
+  constructor(private modalService: NgbModal, public backgroundService: BackgroundService,  public toastr: ToastrService, public apiService: ApiService, public blockService: BlockService) { }
   /**
    * Opens the rename story Modal
    * @param backgrounds
    * @param background
    */
-  openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun) {
+  openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun, blockToRename) {
     this.background = background;
     this.backgrounds = backgrounds;
     this.story = story;
+    this.blockToRename = blockToRename;
     this.saveBackgroundAndRun = saveBackgroundAndRun;
     this.modalReference = this.modalService.open(this.renameBackground, {ariaLabelledBy: 'modal-basic-title'});
     this.backgroundTitle.setValue(background.name);
@@ -42,15 +46,22 @@ export class RenameBackgroundComponent{
     const title = this.backgroundTitle.value;
     this.story.background.saved = undefined;
     this.backgroundService.renameBackgroundEmit(title);  
+    if(this.blockToRename){
+      const oldName = this.blockToRename.name;
+      this.blockToRename.name = title;
+      this.blockService.updateBlock(oldName, this.blockToRename).subscribe(_=>{
+        this.blockService.updateBlocksEmitter()
+      })
+    }
     this.backgroundService
-    .updateBackground(this.story._id, this.story.background)
-    .subscribe(_ => {
-      this.backgroundService.backgroundChangedEmitter();
-      this.toastr.success('successfully saved', 'Background');
-      if (this.saveBackgroundAndRun) {
-        this.apiService.runSaveOption('saveScenario');
-        this.saveBackgroundAndRun = false;
-      }
+      .updateBackground(this.story._id, this.story.background)
+      .subscribe(_ => {
+        this.backgroundService.backgroundChangedEmitter();
+        this.toastr.success('successfully saved', 'Background');
+        if (this.saveBackgroundAndRun) {
+          this.apiService.runSaveOption('saveScenario');
+          this.saveBackgroundAndRun = false;
+        }
     });
     this.backgroundService.backgroundReplaced = undefined;
     this.modalReference.close();

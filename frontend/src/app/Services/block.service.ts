@@ -104,4 +104,17 @@ export class BlockService {
       //
     }));
   }
+ /**
+  * Delete central background-block
+  * @param block
+  * @param stories
+  */
+  checkBackroundsOnDelete(block, stories){
+    let matchingStories = stories.filter((s) => s !== null && s.background.name === block.name);
+    if(matchingStories.length == 1){
+      this.deleteBlock(block._id).subscribe(_=>
+        this.updateBlocksEvent.emit()
+      )
+    }
+  }
 }
