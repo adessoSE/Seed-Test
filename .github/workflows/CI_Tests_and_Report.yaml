@@ -42,7 +42,7 @@ jobs:
 
       - name: Build and start Docker stack
         run: |
-          docker-compose -f docker-test.yml up -d
+          docker compose -f docker-test.yml up -d
 
       - name: Send failure notification
         if: ${{ failure() }}
