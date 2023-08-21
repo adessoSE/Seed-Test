@@ -25,7 +25,7 @@ services:
         - IMAGE_NAME=seed-test-backend:latest
     image: seed-test-backend:latest
     ports:
-      - "${BACKENDPORT}:${BACKENDPORT}"
+      - "8080:8080"
     container_name: "Seed-backend"
     depends_on:
       - seedmongodb
@@ -41,7 +41,7 @@ services:
         - IMAGE_NAME=seed-test-frontend:latest
     image: seed-test-frontend:latest
     ports:
-      - "${FRONTENDPORT}:${FRONTENDPORT}"
+      - "4200:4200"
     container_name: "Seed-frontend"
     depends_on:
       - backend
