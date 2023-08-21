@@ -1,20 +1,6 @@
 version: "2.12"
 
 services:
-
-  seedmongodb:
-    container_name: "Seed-MongoDB"
-    image: mongo
-    volumes:
-      - seedDB:/data/db
-      - seedDB:/data/configdb
-    ports:
-      - "27017-27019:27017-27019"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=SeedAdmin
-      - MONGO_INITDB_ROOT_PASSWORD=SeedTest
-      - MONGO_INITDB_DATABASE=Seed
-    restart: always
   backend:
     build:
       context: ./backend
@@ -27,8 +13,6 @@ services:
     ports:
       - "8080:8080"
     container_name: "Seed-backend"
-    depends_on:
-      - seedmongodb
     restart: always
     
   frontend:
@@ -46,5 +30,3 @@ services:
     depends_on:
       - backend
     restart: always
-volumes:
-  seedDB:
