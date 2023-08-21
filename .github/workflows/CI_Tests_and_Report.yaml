@@ -42,9 +42,6 @@ jobs:
 
       - name: Build and start Docker stack
         run: |
-          docker compose down
-          docker rmi seed-test-backend
-          docker rmi seed-test-frontend
           docker compose build --no-cache
           docker compose -f docker-test.yml up -d
 
