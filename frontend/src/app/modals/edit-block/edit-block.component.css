@@ -1,23 +1,22 @@
 .uk-steps {
     margin: 1% 30px;
     overflow-y: scroll;
-    max-height: 260px;
+    max-height: 250px;
 
     &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 113, 185, 0.7);
-        border-radius: 5px; 
-    }
-
-    &::-webkit-scrollbar-track {
-        background-color: #F5F5F5; 
+        background-color: #90CAF9;
+      
     }
 }
 
-.infoIcon.uk-icon {
+.text-inline {
+    margin-bottom: -20px;
+}
+
+
+#whiteInfoIcon {
     color: white;
 }
-
-
 
 .stepsListContainer {
     display: flex;
@@ -48,14 +47,14 @@
     border-radius: 15px;
     padding: 10px 0;
     width: 70%;
-    max-width: 600px; 
+    max-width: 600px;
     min-width: 300px;
 }
 
 .BlockHeaderWarning .material-icons {
     color: white;
     font-size: 20px;
-  }
+}
 
 
 .BlockHeaderWarning>p {
@@ -77,7 +76,8 @@
     align-items: center
 }
 
-.dragIconContainer, .dragIconContainer .dragIcon {
+.dragIconContainer,
+.dragIconContainer .dragIcon {
     margin-bottom: 15px;
     padding: 0;
 }
@@ -160,10 +160,11 @@ em.dragIcon {
     border-radius: 10%;
 }
 
-.actionBarButtonGroup .disabled em{
+.actionBarButtonGroup .disabled em {
     color: gray !important;
     /* background: #f8f8f8 !important; */
 }
+
 .actionButton {
     margin-left: 10px;
 }
@@ -200,10 +201,10 @@ em.dragIcon {
     text-decoration: line-through;
 }
 
-@media screen and (min-width: 500px){
+@media screen and (min-width: 500px) {
 
 
-    ::ng-deep body > ngb-modal-window > .edit-block.modal-dialog {
+    ::ng-deep body>ngb-modal-window>.edit-block.modal-dialog {
 
         max-width: none !important;
 
@@ -212,7 +213,7 @@ em.dragIcon {
 }
 
 
-::ng-deep body > ngb-modal-window > .edit-block.modal-dialog {
+::ng-deep body>ngb-modal-window>.edit-block.modal-dialog {
 
     width: 55%;
 
@@ -220,7 +221,7 @@ em.dragIcon {
 
 }
 
-::ng-deep body > ngb-modal-window.modal{
+::ng-deep body>ngb-modal-window.modal {
 
     z-index: 1;
 
