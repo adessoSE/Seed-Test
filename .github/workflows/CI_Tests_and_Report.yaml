@@ -68,6 +68,11 @@ jobs:
           docker exec Seed-backend npm test
         continue-on-error: true
 
+      - name: Run npm test backend 2
+        run: |
+          docker exec Seed-backend npm test
+        continue-on-error: true
+
       # - name: Clean up the result backend
       #   run: |
       #     awk '/Test Suites:/{flag=1; print; next} /Ran all test suites\./{flag=0} flag' testResultsBackend.txt > cleanResultsBackend.txt
