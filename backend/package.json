@@ -67,6 +67,7 @@
       "<rootDir>/spec/server.spec.js",
       "<rootDir>/spec/serverHelper.spec.js",
       "<rootDir>/node_modules/"
-    ]
+    ],
+    "setupFiles": ["./spec/setupTest.js"]
   }
 }
