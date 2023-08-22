@@ -8,8 +8,6 @@ services:
     ports:
       - 8080:8080
     container_name: "Seed-backend"
-    depends_on:
-      - seedmongodb
     restart: always
     
   frontend:
