@@ -4,6 +4,7 @@ const emptyScenario = require('../../src/models/emptyScenario');
 const emptyBackground = require('../../src/models/emptyBackground');
 import { writeFile } from '../../src/serverHelper';
 import { XMLHttpRequest } from 'xmlhttprequest';
+import fetch from "node-fetch";
 
 enum Sources {
     GITHUB = "github",

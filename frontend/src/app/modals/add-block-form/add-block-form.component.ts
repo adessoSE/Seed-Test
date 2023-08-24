@@ -231,10 +231,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
         this.newblockName = this.selectedBlock.name;
       } else{
-        this.oldName = this.selectedBlock.name;
         this.selectedBlock.name = this.newblockName;        
         this.blockService
-        .updateBlock(this.oldName, this.selectedBlock)
+        .updateBlock(this.selectedBlock)
         .subscribe(_ => {
           this.updateBlocksEventEmitter();
           this.toastr.success('successfully saved', 'Block');

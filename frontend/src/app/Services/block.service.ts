@@ -71,9 +71,9 @@ export class BlockService {
   * @param block
   * @returns
   */
-  updateBlock(oldTitle: string, block: Block):Observable<Block>{
+  updateBlock(block: Block):Observable<Block>{
     return this.http
-    .put<Block>(this.apiService.apiServer + '/block/' + oldTitle, block, ApiService.getOptions())
+    .put<Block>(this.apiService.apiServer + '/block/' + block._id, block, ApiService.getOptions())
     .pipe(tap(_ => {
         //
     }),
