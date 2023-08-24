@@ -60,6 +60,8 @@ export class ChangeJiraAccountComponent {
 
   switchForm(form){
     this.activeForm = form;
+    this.jiraForm.get("jiraAuthMethod").setValue( this.activeForm);
+    
   }
   /**
    * Create or change Jira Account
