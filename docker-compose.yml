@@ -32,7 +32,6 @@ services:
       SESSION_SECRET: 'secretSessionKey'
       JIRA_SECRET: 'secretJiraKey'
       JIRA_SALT: 'BJ1yJTJ7AFql'
-      Unassigned_AVATAR_URL: 'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'
       EMAIL_AUTH:
       EMAIL_PW:
       EMAIL_PORT:
