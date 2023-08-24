@@ -252,6 +252,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   renameBackgroundObservable: Subscription;
   updateObservable: Subscription;
   applyBackgroundChangesObservable: Subscription;
+  checkReferenceObservable: Subscription;
+  deleteReferenceObservable: Subscription;
+  unpackBlockObservable: Subscription;
 
   @Input() isDark: boolean;
 
@@ -432,11 +435,33 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.blockService.getBlocks(id).subscribe((resp) => {
         this.blocks = resp;
       });
-      this.updateObservable = this.blockService.refreshBlockUponChanges.subscribe(_ => {
+      this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.updatedBlocks = resp;
           console.log("Updated blocks:", this.updatedBlocks);
         });
+      });
+      //Event when deleting references among steps
+      this.checkReferenceObservable = this.blockService.checkRefOnRemoveEvent.subscribe(blockReferenceId => {
+        const id = localStorage.getItem('id');
+        this.blockService.getBlocks(id).subscribe((resp) => {
+          this.blocks = resp;
+          this.blockService.removeReferenceForStep(this.blocks, this.stories, blockReferenceId)
+        });
+      });
+      //Event when the entire reference block is deleted. Unpacking steps in all stories
+      this.deleteReferenceObservable = this.blockService.deleteReferenceEvent.subscribe(block => {
+        this.blockService.deteleBlockReference(block, this.stories);
+      });
+      //Event when unpacking steps
+      this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((block) => {
+        this.blockService.unpackScenarioWithBlock(block, this.selectedScenario);
+        const id = localStorage.getItem('id');
+        this.blockService.getBlocks(id).subscribe((resp) => {
+          this.blocks = resp;
+          this.blockService.removeReferenceForStep(this.blocks, this.stories, block._id)
+        });
+        this.selectedScenario.saved = false;
       });
       this.applyBackgroundChangesObservable = this.backgroundService.applyChangesBackgroundEvent.subscribe(option => {
         if (option == 'toCurrentBackground') {
@@ -479,6 +504,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
         if (!this.applyBackgroundChangesObservable.closed) {
           this.applyBackgroundChangesObservable.unsubscribe();
+      }
+      if (!this.unpackBlockObservable.closed) {
+        this.unpackBlockObservable.unsubscribe();
       }
     }
   

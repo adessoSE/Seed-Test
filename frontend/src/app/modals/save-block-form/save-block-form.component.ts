@@ -220,7 +220,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     return bool;
   }
   updateBlocksBackEventEmitter() {
-    this.blockService.refreshBlockUponChanges.emit();
+    this.blockService.updateBlocksEvent.emit();
   }
   onSubmit(form: NgForm) {
     this.submitSaveBlock(form);
