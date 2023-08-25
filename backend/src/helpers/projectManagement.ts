@@ -1,12 +1,12 @@
-const mongo = require('../../src/database/DbServices');
+import mongo from '../../src/database/DbServices';
 import { jiraDecryptPassword } from './userManagement';
-const emptyScenario = require('../../src/models/emptyScenario');
-const emptyBackground = require('../../src/models/emptyBackground');
+import emptyScenario from '../../src/models/emptyScenario';
+import emptyBackground from '../../src/models/emptyBackground';
 import { writeFile } from '../../src/serverHelper';
 import { XMLHttpRequest } from 'xmlhttprequest';
 import AdmZip from 'adm-zip';
-import fs from 'fs';
-const path = require('path');
+import path from 'path';
+import fetch from "node-fetch";
 
 enum Sources {
     GITHUB = "github",
