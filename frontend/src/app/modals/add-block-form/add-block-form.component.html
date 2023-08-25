@@ -24,9 +24,9 @@
         </div>
         <div class="previewContainer">
             <div class="previewEditBlock">
-              <p class="subHeader">Preview: </p>
-                <div class="subHeader" *ngIf="selectedBlock != undefined "> 
-                  <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
+              <p class="subHeader" *ngIf="selectedBlock == undefined">Preview</p>
+                <div class="subHeader" *ngIf="selectedBlock != undefined"> 
+                  Preview: <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
                 </div>
                 <button *ngIf="this.blockSaved==true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
                   <em class="material-icons">edit</em>

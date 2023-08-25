@@ -6,7 +6,7 @@
     <div class="modal-header">
       <span id="modalHeader" class="MediumSubline1H4 modal-title">Save as Block</span>
       <dfn class="def"><span class="infoIcon" uk-icon="info"></span>
-        <span rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
+        <span id="infoSpan" rel="def">Saving multiple steps as block, can be used to add these steps in another scenario without much effort. 
           Just click the Add Saved Block button next to the Save button. These saved blocks can be used only in this project.
         </span>
       </dfn>
@@ -18,10 +18,14 @@
       <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
           <div class="blockNameContainer modalsContent">
-              <div class="uk-form-label" id="inputLabels">
-                <label>Enter name*</label>
-                <input *ngIf="isBackground === true" type="text" id="backgroundNameInput" ngModel pattern="\S(.*\S)?" name="backgroundNameInput" class="blockNameInput leftMargin" required placeholder="Background">
-                <input *ngIf="isBackground === false || isBackground === undefined" type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
+              <div *ngIf="isBackground === false || isBackground === undefined" class="uk-form-label" id="inputLabels">
+                <label class="block">Enter name*</label>
+                <input type="text" id="blockNameInput" ngModel pattern="\S(.*\S)?" name="blockNameInput" placeholder="New Block" class="blockNameInput leftMargin" required>
+              </div>
+              <div *ngIf="isBackground === true" class="uk-form-label" id="inputLabels" style="padding-right: 30px;
+              font-size: 16px;">
+                <label>Background Name:</label>
+                {{this.backgroundName}}
               </div>
           </div>
           <div *ngIf="!this.exampleChecked" class="tableContainer">
@@ -40,7 +44,7 @@
               <tr mat-row *matRowDef="let row; columns: displayedColumnsSaveBlock;"></tr>
             </table>
           </div>
-          <div class="tableContainer">
+          <div id="multipleScenarioDiv" class="tableContainer">
             <span class="blockNameHeader blockNameHeader">Selected Multiple Scenarios</span>
             <table id="blockStepTable" mat-table [dataSource]="stepListSaveBlockExample" class="mat-elevation-z8" aria-describedby="mydesc2">
               <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumnsSaveBlockExample">

@@ -24,6 +24,7 @@ export class RenameBackgroundComponent{
   story: Story;
   saveBackgroundAndRun;
   blockToRename: Block;
+  storiesWithBlock: Story[];
   backgroundTitle = new UntypedFormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(20)]);
 
   constructor(private modalService: NgbModal, public backgroundService: BackgroundService,  public toastr: ToastrService, public apiService: ApiService, public blockService: BlockService) { }
@@ -32,11 +33,12 @@ export class RenameBackgroundComponent{
    * @param backgrounds
    * @param background
    */
-  openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun, blockToRename) {
+  openRenameBackgroundModal(backgrounds: Background[], background: Background, story: Story, saveBackgroundAndRun, blockToRename, storiesWithBlock) {
     this.background = background;
     this.backgrounds = backgrounds;
     this.story = story;
     this.blockToRename = blockToRename;
+    this.storiesWithBlock = storiesWithBlock;
     this.saveBackgroundAndRun = saveBackgroundAndRun;
     this.modalReference = this.modalService.open(this.renameBackground, {ariaLabelledBy: 'modal-basic-title'});
     this.backgroundTitle.setValue(background.name);
@@ -46,11 +48,10 @@ export class RenameBackgroundComponent{
     const title = this.backgroundTitle.value;
     this.story.background.saved = undefined;
     this.backgroundService.renameBackgroundEmit(title);  
-    if(this.blockToRename){
-      const oldName = this.blockToRename.name;
+    if(this.blockToRename && (this.storiesWithBlock && this.storiesWithBlock.length == 1)){
       this.blockToRename.name = title;
-      this.blockService.updateBlock(oldName, this.blockToRename).subscribe(_=>{
-        this.blockService.updateBlocksEmitter()
+      this.blockService.updateBlock(this.blockToRename).subscribe(_=>{
+        this.updateBlocksEventEmitter();
       })
     }
     this.backgroundService
@@ -73,6 +74,9 @@ export class RenameBackgroundComponent{
 
   onClickSubmit() {
     this.submitRenameBackground();
+  }
+  updateBlocksEventEmitter() {
+    this.blockService.updateBlocksEvent.emit();
   }
   backgroundUnique() {
     const button = (document.getElementById('submitRenameBackground')) as HTMLButtonElement;

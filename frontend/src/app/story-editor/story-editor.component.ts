@@ -184,10 +184,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   blocks: Block [];
   /**
-   * Blocks after changing
-   */
-  updatedBlocks: Block[];
-  /**
    * Converted blocks as backgrounds
    */
   blockAsBackground: Background[];
@@ -352,15 +348,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.backgrounds = this.backgrounds.concat(this.blockAsBackground);
     }
   }
-    /**
-   * If blocks were updated
-   */
-  ngDoCheck(){
-    if (this.updatedBlocks !== undefined && this.updatedBlocks !== this.blocks){
-      this.blocks = this.updatedBlocks;
-    }
-  }
-
   /**
    * Subscribes to all necessary events
    */
@@ -435,8 +422,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
-          this.updatedBlocks = resp;
-          console.log("Updated blocks:", this.updatedBlocks);
+          this.blocks = resp;
+          console.log("Updated blocks:", this.blocks);
         });
       });
       this.applyBackgroundChangesObservable = this.backgroundService.applyChangesBackgroundEvent.subscribe(option => {
@@ -608,6 +595,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.backgroundChecks();
     }
     else {
+      this.changeBackgroundBlock();
       delete this.selectedStory.background.saved;
       this.backgroundService
       .updateBackground(this.selectedStory._id, this.selectedStory.background)
@@ -627,6 +615,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   checkStoriesForBack(){
     const usingBackground = this.stories.filter((s)=> s.background.name == this.selectedStory.background.name && s.background.name !== "New Background" && s.background.stepDefinitions.when.length !== 0)
     return usingBackground;
+  }
+
+  /**
+    * Change Block if background
+    */
+  changeBackgroundBlock(){
+    this.blocks.forEach((block)=> {
+      if(block.isBackground && this.backgroundService.backgroundReplaced == undefined && block.name == this.selectedStory.background.name && block.stepDefinitions != this.selectedStory.background.stepDefinitions){
+        block.stepDefinitions.when = this.selectedStory.background.stepDefinitions.when;
+          this.blockService.updateBlock(block).subscribe(_=>
+            this.blockService.updateBlocksEmitter()
+          )
+      }
+    })
   }
     /**
     * Toastr: background changes in multiple Stories or in current background
@@ -652,6 +654,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         storyId.push(story._id);
       }
     })
+    this.changeBackgroundBlock();
     storyId.forEach(_id => {
       this.backgroundService.updateBackground(_id, this.selectedStory.background)
         .subscribe(_ => {
@@ -757,7 +760,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       if(this.backgrounds.filter((b)=>b === unsavedBackground).length < 2){
         const stepDefs: StepDefinition = {given:[], then:[], example:[], when:unsavedBackground.stepDefinitions.when}
         const block: Block = {name: unsavedBackground.name ,stepDefinitions: stepDefs}
-        this.saveBlockModal.openSaveBlockFormModal(block, this, true);
+        this.saveBlockModal.openSaveBlockFormModal(block, this, true, this.backgroundService.currentBackground.name);
       }
       this.backgroundService.backgroundReplaced = true;
     }
@@ -1078,8 +1081,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   changeBackgroundTitle() {
     const background = this.selectedStory.background;
+    let storiesWithBlock;
     const blockToRename = this.blocks.find((b)=> b.isBackground && b.name === this.selectedStory.background.name)
-    this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun, blockToRename);
+    if(blockToRename){
+     storiesWithBlock = this.stories.filter((s)=> s!== null && s.background.name == blockToRename.name);
+    }
+    this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun, blockToRename, storiesWithBlock);
   }
 
   setShowDaisy(event) {
