@@ -1,9 +1,11 @@
-const mongo = require('../../src/database/DbServices');
+import mongo from '../../src/database/DbServices';
 import { jiraDecryptPassword } from './userManagement';
-const emptyScenario = require('../../src/models/emptyScenario');
-const emptyBackground = require('../../src/models/emptyBackground');
+import emptyScenario from '../../src/models/emptyScenario';
+import emptyBackground from '../../src/models/emptyBackground';
 import { writeFile } from '../../src/serverHelper';
 import { XMLHttpRequest } from 'xmlhttprequest';
+import AdmZip from 'adm-zip';
+import path from 'path';
 import fetch from "node-fetch";
 
 enum Sources {
@@ -205,11 +207,78 @@ async function fuseStoryWithDb(story) {
 	return story;
 }
 
+async function exportProject(repo_id, versionID) {
+	try {
+		const repo = await mongo.getOneRepositoryById(repo_id);
+		if (!repo || !repo.stories) {
+			console.log("No repo to corresonding ID found!")
+			return null;
+		}
+		//Collect stories for export
+		let exportStories = [];
+		let keyStoryIds = []; //Needed for goup-story link
+		for (let index = 0; index < repo.stories.length; index++) {
+			let story = await mongo.getOneStory(repo.stories[index]);
+			if (!story) {
+				throw new Error(`Story ${repo.stories[index]} not found`);
+			}
+			keyStoryIds.push(story._id.toString())
+			delete story._id;
+			//story.story_id = index; Das ist die Git/Jira Story ID - lieber nicht entfernen
+			exportStories.push(story);
+		}
+
+		//Collect blocks for export
+		let repoBlocks = await mongo.getBlocks(repo_id);
+		
+		//Falls sich die getBlocks Blöcke wider Erwarten von den customBlocks in dem repo unterscheiden, müssen wir ggf. anders loopen und zwischenabfragen
+		for (let index = 0; index < repoBlocks.length; index++) {
+			delete repoBlocks[index]._id;
+		}
+
+		//Collect & adjust groups for export
+		let repoGroups = [...repo.groups];
+		for (let index = 0; index < repoGroups.length; index++) {
+			delete repoGroups[index]._id;
+			//change memberStories references to indices
+			for (let sub_index = 0; sub_index < repoGroups[index].member_stories.length; sub_index++) {
+				repoGroups[index].member_stories[sub_index] = keyStoryIds.indexOf(repoGroups[index].member_stories[sub_index])
+			}
+		}
+
+		const zip = new AdmZip();
+		// Create separate folders for stories and groups
+        const storiesFolder = 'stories_data';
+        for (let index = 0; index < exportStories.length; index++) {
+            zip.addFile(path.join(`${storiesFolder}/story_${index}.json`), Buffer.from(JSON.stringify(exportStories[index]), 'utf8'));
+        }
+
+        const groupsFolder = 'groups_data';
+        for (let index = 0; index < repoGroups.length; index++) {
+            zip.addFile(path.join(`${groupsFolder}/group_${index}.json`), Buffer.from(JSON.stringify(repoGroups[index]), 'utf8'));
+        }
+
+        // Write the rest of the data as individual JSON files
+		zip.addFile('repo.json', Buffer.from(JSON.stringify(repo), 'utf8'));
+		zip.addFile('repoBlocks.json', Buffer.from(JSON.stringify(repoBlocks), 'utf8'));
+		zip.addFile('keyStoryIds.json', Buffer.from(JSON.stringify(keyStoryIds), 'utf8'));
+
+		return zip.toBuffer();
+
+	} catch (error) {
+		console.error('Error exporting project: ', error.message);
+		throw error;
+	}
+}
+
+
+
 module.exports = {
-    getJiraRepos,
-    dbProjects,
+	getJiraRepos,
+	dbProjects,
 	uniqueRepositories,
 	starredRepositories,
 	ownRepositories,
-	fuseStoryWithDb
+	fuseStoryWithDb,
+	exportProject
 };

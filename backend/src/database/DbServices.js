@@ -701,6 +701,16 @@ async function getOneRepository(ownerId, name) {
 	}
 }
 
+async function getOneRepositoryById(repoId) {
+	try {
+		const repo = { _id: ObjectId(repoId) };
+		const db = dbConnection.getConnection();
+		return db.collection(repositoriesCollection).findOne(repo);
+	} catch (e) {
+		console.log(`ERROR in getOneRepository${e}`);
+	}
+}
+
 /**
  *
  * @param {*} name
@@ -1381,5 +1391,6 @@ module.exports = {
 	getAllSourceReposFromDb,
 	createGitRepo,
 	updateOwnerInRepo,
-	updateRepository
+	updateRepository,
+	getOneRepositoryById
 };
