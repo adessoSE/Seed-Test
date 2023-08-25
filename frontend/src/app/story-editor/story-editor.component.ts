@@ -676,8 +676,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     .deleteBackground(this.selectedStory._id)
     .subscribe(_ => {
       this.showBackground = false;
-      this.blocks.filter((b)=> b.isBackground)
-      if (this.blocks){
+      let blockBackground = this.blocks.filter((b)=> b.isBackground)
+      if (blockBackground){
         for(const block of this.blocks){
           if(block.name == this.selectedStory.background.name){
             this.blockService.checkBackroundsOnDelete(block, this.stories)
@@ -685,7 +685,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
       }
       this.selectedStory.background = emptyBackground;
-      this.selectedStory.background.saved = false;
+      this.selectedStory.background.saved = true;
     });
   }
 
