@@ -1014,7 +1014,7 @@ async function uploadBigJsonData(data, fileName) {
 			assert.ifError(error);
 		})
 		.on('finish', async () => {
-			console.log('Done! Uplaoded BigReport');
+			console.log('Done! Uploaded BigReport');
 			console.log('ObjectID: of Big Report: ', id);
 			return id;
 		});
@@ -1026,9 +1026,8 @@ async function uploadReport(reportResults) {
 	const db = dbConnection.getConnection();
 	const collection = await db.collection(ReportDataCollection);
 	fs.readFile(reportResults.reportOptions.jsonFile, 'utf8', async (err, data) => {
-		if(err)console.log(err)
-
-		const jReport = { jsonReport: data };
+		if (err) console.log(err);
+		const jReport = { jsonReport: data, created: new Date()};
 		const len = Buffer.byteLength(JSON.stringify(data));
 		if (len >= 16000000) {
 			try {
