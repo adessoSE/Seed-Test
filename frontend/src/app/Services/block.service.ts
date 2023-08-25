@@ -109,7 +109,7 @@ export class BlockService {
   * @param block
   * @param stories
   */
-  checkBackroundsOnDelete(block, stories){
+  checkBackgroundsOnDelete(block, stories){
     let matchingStories = stories.filter((s) => s !== null && s.background.name === block.name);
     if(matchingStories.length == 1){
       this.deleteBlock(block._id).subscribe(_=>

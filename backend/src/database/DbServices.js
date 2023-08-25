@@ -1162,7 +1162,7 @@ async function saveBlock(block) {
 	}
 }
 
-async function updateBlock(blockId, updatedBlock) { // delete by id but update by name?
+async function updateBlock(blockId, updatedBlock) {
 	try {
 		const db = dbConnection.getConnection();
 		updatedBlock._id = ObjectId(updatedBlock._id)

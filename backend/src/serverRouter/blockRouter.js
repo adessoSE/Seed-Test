@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
 });
 
 // update custom Blocks
-router.put('/:blockId', async (req, res) => { // isn't used in frontend, bug risk update by name. better blockId & owner like delete
+router.put('/:blockId', async (req, res) => {
 	try {
 		const result = await mongo.updateBlock(req.params.blockId, req.body);
 		res.status(200).json(result);
