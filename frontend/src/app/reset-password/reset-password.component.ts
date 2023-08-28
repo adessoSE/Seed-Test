@@ -63,6 +63,13 @@ export class ResetPasswordComponent{
     this.router.navigate(['/register']);
   }
 
+    /**
+   * Redirects the user to the login component
+   */
+    redirectToLogin(){
+      this.router.navigate(['/']);
+    }
+
   isDarkModeOn () {
     this.isDark = this.themeService.isDarkMode();
     return this.isDark
