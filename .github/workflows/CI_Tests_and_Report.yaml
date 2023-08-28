@@ -42,8 +42,7 @@ jobs:
 
       - name: Build and start Docker stack
         run: |
-          chmod +x runDocker.sh
-          ./runDocker.sh
+          docker compose -f docker-test.yml up -d
 
       - name: Send failure notification
         if: ${{ failure() }}
@@ -89,7 +88,8 @@ jobs:
         id: passed-total-backend
 
       - name: Upload Artifact Backend
-        uses: actions/upload-artifact@v2
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
         with:
           name: test-results-backend
           path: |
@@ -122,7 +122,8 @@ jobs:
         id: passed-total-frontend
 
       - name: Upload Artifact Frontend
-        uses: actions/upload-artifact@v2
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
         with:
           name: test-results-frontend
           path: |
@@ -157,7 +158,8 @@ jobs:
         id: passed-total-sanity
 
       - name: Upload Artifact Sanity
-        uses: actions/upload-artifact@v2
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
         with:
           name: sanity-report
           path: |

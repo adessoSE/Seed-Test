@@ -1,0 +1,23 @@
+version: "2.12"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    container_name: "Seed-backend"
+    restart: always
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: seed-test-frontend:latest
+    ports:
+      - 4200:4200
+    container_name: "Seed-frontend"
+    depends_on:
+      - backend
+    restart: always
