@@ -16,6 +16,8 @@
   },
   "private": true,
   "dependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^18.0.4",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
     "@cucumber/cucumber": "^7.3.2",
     "@types/promise-fs": "^2.1.2",
     "adm-zip": "^0.5.9",
@@ -69,5 +71,9 @@
       "<rootDir>/spec/serverHelper.spec.js",
       "<rootDir>/node_modules/"
     ]
+  },
+  "cypress-cucumber-preprocessor": {
+    "nonGlobalStepDefinitions": true,
+    "step_definitions": "./features/step_definitions/stepdefsCy.js"
   }
 }

@@ -5,7 +5,7 @@
       "declaration": true,
       "declarationMap": true,
       "target": "es2022",
-      "moduleResolution": "node",
+      "moduleResolution": "Node16",
       "sourceMap": true,
       "outDir": "dist",
       //"allowJs": true,
