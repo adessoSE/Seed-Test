@@ -257,7 +257,7 @@ export class ScenarioEditorComponent implements OnInit{
                 if(block._id === step._blockReferenceId && block.usedAsReference == undefined){
                     stepsReferences.push(step);
                     block.usedAsReference = true;
-                    this.blockService.updateBlock(block.name, block)
+                    this.blockService.updateBlock(block)
                     .subscribe(_ => {
                       this.blockService.updateBlocksEvent.emit();
                     });

@@ -184,10 +184,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   blocks: Block [];
   /**
-   * Blocks after changing
-   */
-  updatedBlocks: Block[];
-  /**
    * Converted blocks as backgrounds
    */
   blockAsBackground: Background[];
@@ -355,15 +351,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.backgrounds = this.backgrounds.concat(this.blockAsBackground);
     }
   }
-    /**
-   * If blocks were updated
-   */
-  ngDoCheck(){
-    if (this.updatedBlocks !== undefined && this.updatedBlocks !== this.blocks){
-      this.blocks = this.updatedBlocks;
-    }
-  }
-
   /**
    * Subscribes to all necessary events
    */
@@ -436,9 +423,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         this.blocks = resp;
       });
       this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
+        const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
-          this.updatedBlocks = resp;
-          console.log("Updated blocks:", this.updatedBlocks);
+          this.blocks = resp;
+          console.log("Updated blocks:", this.blocks);
         });
       });
       //Event when deleting references among steps
@@ -468,7 +456,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
           this.toastr.info('Please enter a new Background name to save your changes');
           this.changeBackgroundTitle();
         } else if (option == 'centrally'){
-          this.applyChangesToBackground(this.selectedStory.background);
+          this.applyChangesToBackgrounds(this.selectedStory.background);
         }
       
       });
@@ -630,16 +618,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
       });
     });
-    let count = 0;
-    for (const background of this.backgrounds) {
-      if (JSON.stringify(background.name) === JSON.stringify(this.selectedStory.background.name) && background.name !== "New Background" && background.stepDefinitions.when.length !== 0) {
-       count++;
-      }
-    }
-    if (count > 1 && this.backgroundService.backgroundReplaced == undefined && (this.selectedStory.background.saved == undefined || !this.selectedStory.background.saved)){
+    const usingBackground = this.checkStoriesForBack();
+    if (usingBackground.length > 1 && this.backgroundService.backgroundReplaced == undefined && (this.selectedStory.background.saved == undefined || !this.selectedStory.background.saved)){
       this.backgroundChecks();
     }
     else {
+      this.changeBackgroundBlock();
       delete this.selectedStory.background.saved;
       this.backgroundService
       .updateBackground(this.selectedStory._id, this.selectedStory.background)
@@ -652,6 +636,27 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         }
       });
     }
+  }
+  /**
+    * Check: if the same background is used in different stories
+    */
+  checkStoriesForBack(){
+    const usingBackground = this.stories.filter((s)=> s !== null && s.background.name == this.selectedStory.background.name && s.background.name !== "New Background" && s.background.stepDefinitions.when.length !== 0)
+    return usingBackground;
+  }
+
+  /**
+    * Change Block if background
+    */
+  changeBackgroundBlock(){
+    this.blocks.forEach((block)=> {
+      if(block.isBackground && this.backgroundService.backgroundReplaced == undefined && block.name == this.selectedStory.background.name && block.stepDefinitions != this.selectedStory.background.stepDefinitions){
+        block.stepDefinitions.when = this.selectedStory.background.stepDefinitions.when;
+          this.blockService.updateBlock(block).subscribe(_=>
+            this.blockService.updateBlocksEmitter()
+          )
+      }
+    })
   }
     /**
     * Toastr: background changes in multiple Stories or in current background
@@ -668,7 +673,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   /**
     * Applying changes for all relevant backgrounds in repository
     */
-  applyChangesToBackground(background){
+  applyChangesToBackgrounds(background){
     delete this.selectedStory.background.saved;
     const storyId = [];
     this.stories.forEach(story=>{
@@ -677,6 +682,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         storyId.push(story._id);
       }
     })
+    this.changeBackgroundBlock();
     storyId.forEach(_id => {
       this.backgroundService.updateBackground(_id, this.selectedStory.background)
         .subscribe(_ => {
@@ -698,8 +704,16 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     .deleteBackground(this.selectedStory._id)
     .subscribe(_ => {
       this.showBackground = false;
+      let blockBackgrounds = this.blocks.filter((b)=> b.isBackground)
+      if (blockBackgrounds){
+        for(const block of this.blocks){
+          if(block.name == this.selectedStory.background.name){
+            this.blockService.checkBackgroundsOnDelete(block, this.stories)
+          }
+        }
+      }
       this.selectedStory.background = emptyBackground;
-      this.selectedStory.background.saved = false;
+      this.selectedStory.background.saved = true;
     });
   }
 
@@ -755,8 +769,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       this.selectedStory.background.stepDefinitions.when = JSON.parse(JSON.stringify(background.stepDefinitions.when));
       this.selectedStory.background.name = background.name;
       this.backgroundService.backgroundReplaced = true;
+      const currentStepsLength = this.backgroundService.currentBackground.stepDefinitions.when.length;
       const found = this.backgrounds.some(background => background.name === this.backgroundService.currentBackground.name);
-      if (!found && this.backgroundService.currentBackground.stepDefinitions.when.length > 0) {
+      if (!found && currentStepsLength > 0) {
         this.checkBackgroundLost();
         this.openBlockModal = true;
       }
@@ -773,8 +788,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       if(this.backgrounds.filter((b)=>b === unsavedBackground).length < 2){
         const stepDefs: StepDefinition = {given:[], then:[], example:[], when:unsavedBackground.stepDefinitions.when}
         const block: Block = {name: unsavedBackground.name ,stepDefinitions: stepDefs}
-        this.saveBlockModal.openSaveBlockFormModal(block, this, true);
+        this.saveBlockModal.openSaveBlockFormModal(block, this, true, this.backgroundService.currentBackground.name);
       }
+      this.backgroundService.backgroundReplaced = true;
     }
 
 
@@ -835,28 +851,26 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
           this.reportId = resp.reportId;
           iframe.srcdoc = resp.htmlFile;
           this.htmlReport = resp.htmlFile;
+          const report = resp.report;
           this.testDone = true;
           this.showResults = true;
           this.testRunning = false;
           setTimeout(function () {
             iframe.scrollIntoView();
           }, 10);
-								this.toastr.info('', 'Test is done');
-                this.runUnsaved = false;
-								this.reportService.getReport(this.reportId)
-									.subscribe((report: any) => {
-            if (scenario_id) {
-              // ScenarioReport
-              const val = report.status;
-              this.scenarioService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val);
-            } else {
-              // StoryReport
-								report.scenarioStatuses.forEach(scenario => {
-                  this.scenarioService.scenarioStatusChangeEmit(
-                    this.selectedStory._id, scenario.scenarioId, scenario.status);
-              });
-            }
-          });
+          this.toastr.info('', 'Test is done');
+          this.runUnsaved = false;
+          if (scenario_id) {
+            // ScenarioReport
+            const val = report.status;
+            this.scenarioService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val); //filteredStories in stories-bar.component is undefined causing an error same file 270
+          } else {
+            // StoryReport
+              report.scenarioStatuses.forEach(scenario => {
+                this.scenarioService.scenarioStatusChangeEmit(
+                  this.selectedStory._id, scenario.scenarioId, scenario.status);
+            });
+          }
         });
     } else {
       this.currentTestScenarioId = scenario_id;
@@ -1095,7 +1109,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   changeBackgroundTitle() {
     const background = this.selectedStory.background;
-    this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun);
+    let storiesWithBlock;
+    const blockToRename = this.blocks.find((b)=> b.isBackground && b.name === this.selectedStory.background.name)
+    if(blockToRename){
+     storiesWithBlock = this.stories.filter((s)=> s!== null && s.background.name == blockToRename.name);
+    }
+    this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun, blockToRename, storiesWithBlock);
   }
 
   setShowDaisy(event) {

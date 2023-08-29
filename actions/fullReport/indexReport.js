@@ -1,3 +1,37 @@
+// Helper function to parse environment variables or fallback to "-"
+const parseValueOrDefault = (value) => {
+    return value ? parseInt(value) : 0;
+};
+
+function calculatePercentage(num1, num2) {
+    if (isNaN(num1) || isNaN(num2)) {
+        return "-";
+    }
+
+    // Check if either number is zero to avoid division by zero error
+    if (num2 === 0) {
+        return "-";
+    }
+
+    // Calculate the percentage with two decimal places
+    const percentage = (num1 / num2) * 100;
+    const formattedPercentage = percentage.toFixed(0);
+
+    return formattedPercentage + "%";
+}
+
+function getStatus(passed, total) {
+    if (passed === 0) return "⚠️";
+    return passed === total ? "✅" : "⚠️";
+}
+
+function calcTotal(dockerStatus, num1, num2) { 
+    if (!dockerStatus) return "-";
+    if (isNaN(num1)) num1 = 0;
+    if (isNaN(num2)) num1 = 0;
+    return num1+num2;
+}
+
 async function postMessage() {
     const fetch = await import('node-fetch').then((module) => module.default);
     const webhook = process.env.INPUT_WEBHOOK;
@@ -10,39 +44,6 @@ async function postMessage() {
     const description = process.env.INPUT_DESCRIPTION || "- No Description";
     const dockerStatus = (process.env.INPUT_DOCKERSTATUS === "success");
     const workflowLink = process.env.INPUT_WORKFLOWLINK || "";
-
-    // Helper function to parse environment variables or fallback to "-"
-    const parseValueOrDefault = (value) => {
-        return value ? parseInt(value) : "-";
-    };
-
-    function calculatePercentage(num1, num2) {
-        if (isNaN(num1) || isNaN(num2)) {
-            return "-";
-        }
-
-        // Check if either number is zero to avoid division by zero error
-        if (num2 === 0) {
-            return "-";
-        }
-    
-        // Calculate the percentage with two decimal places
-        const percentage = (num1 / num2) * 100;
-        const formattedPercentage = percentage.toFixed(0);
-    
-        return formattedPercentage + "%";
-    }
-
-    function getStatus(passed, total) {
-        return passed === total ? "✅" : "⚠️";
-    }
-
-    function calcTotal(dockerStatus, num1, num2) {
-        if (!dockerStatus) return "-";
-        if (isNaN(num1) || isNaN(num2)) return "-";
-        return num1+num2;
-    }
-  
   
   // Frontend block
   const frontendSuitsPassed = parseValueOrDefault(process.env.INPUT_FRONTENDSUITSPASSED);
@@ -244,6 +245,6 @@ async function postMessage() {
         console.error('Error occurred:', error);
         process.exit(-1);
       }      
-    }
+}
 
 postMessage();

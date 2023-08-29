@@ -67,6 +67,7 @@ export class BlockService {
   updateBlocksEmitter() {
     this.updateBlocksEvent.emit();
   }
+  
   /**
   * Emits the delete block in blocks
   */
@@ -114,9 +115,9 @@ export class BlockService {
   * @param block
   * @returns
   */
-  updateBlock(oldTitle: string, block: Block):Observable<Block>{
+  updateBlock(block: Block):Observable<Block>{
     return this.http
-    .put<Block>(this.apiService.apiServer + '/block/' + oldTitle, block, ApiService.getOptions())
+    .put<Block>(this.apiService.apiServer + '/block/' + block._id, block, ApiService.getOptions())
     .pipe(tap(_ => {
         //
     }),
@@ -146,6 +147,19 @@ export class BlockService {
     .pipe(tap(_ => {
       //
     }));
+  }
+ /**
+  * Delete central background-block
+  * @param block
+  * @param stories
+  */
+  checkBackgroundsOnDelete(block, stories){
+    let matchingStories = stories.filter((s) => s !== null && s.background.name === block.name);
+    if(matchingStories.length == 1){
+      this.deleteBlock(block._id).subscribe(_=>
+        this.updateBlocksEvent.emit()
+      )
+    }
   }
 
   /**
@@ -181,7 +195,7 @@ export class BlockService {
       for (const block of this.blocks) {
         if (block.usedAsReference === false) {
           delete block.usedAsReference;
-          this.updateBlock(block.name, block)
+          this.updateBlock(block)
           .subscribe(_ => {
             this.updateBlocksEvent.emit();
           });

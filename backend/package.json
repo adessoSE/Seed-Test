@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@babel/helper-compilation-targets": "^7.18.9",
+    "@types/adm-zip": "^0.5.0",
     "@types/express": "^4.17.1",
     "@types/jasmine": "^3.10.3",
     "@types/jasminewd2": "^2.0.10",
@@ -67,6 +68,7 @@
       "<rootDir>/spec/server.spec.js",
       "<rootDir>/spec/serverHelper.spec.js",
       "<rootDir>/node_modules/"
-    ]
+    ],
+    "setupFiles": ["./spec/setupTest.js"]
   }
 }
