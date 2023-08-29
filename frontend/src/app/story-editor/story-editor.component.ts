@@ -613,7 +613,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     * Check: if the same background is used in different stories
     */
   checkStoriesForBack(){
-    const usingBackground = this.stories.filter((s)=> s.background.name == this.selectedStory.background.name && s.background.name !== "New Background" && s.background.stepDefinitions.when.length !== 0)
+    const usingBackground = this.stories.filter((s)=> s !== null && s.background.name == this.selectedStory.background.name && s.background.name !== "New Background" && s.background.stepDefinitions.when.length !== 0)
     return usingBackground;
   }
 
