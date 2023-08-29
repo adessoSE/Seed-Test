@@ -45,6 +45,8 @@ export class ResetPasswordComponent {
    * @param form
    */
   requestReset(form: NgForm) {
+    this.error = undefined;
+    this.success = undefined;
     this.loginService.requestReset(form.value.email).subscribe({
       next: (value) => {
         this.error = undefined;
@@ -52,6 +54,10 @@ export class ResetPasswordComponent {
       },
       error: (error) => {
         this.success = undefined;
+        if (error !== "No user found with the given email adress!") {
+          this.error = "Email couldn't be send.";
+          return;
+        }
         this.error = error.error;
       },
     });
