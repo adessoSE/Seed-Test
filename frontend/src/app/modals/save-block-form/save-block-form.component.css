@@ -97,7 +97,7 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     display: table;
 }
 
-label {
+label.block {
     margin-right: 10px;
     /*float: left;
     margin-left: -145px;
