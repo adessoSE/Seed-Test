@@ -74,6 +74,6 @@
   },
   "cypress-cucumber-preprocessor": {
     "nonGlobalStepDefinitions": true,
-    "step_definitions": "./features/step_definitions/stepdefsCy.js"
+    "stepDefinitions": "./features/step_definitions/stepdefsCy.js"
   }
 }
