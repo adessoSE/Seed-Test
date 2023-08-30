@@ -1,19 +1,18 @@
-import { Component} from '@angular/core';
-import { NgForm } from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
-import { LoginService } from '../Services/login.service';
+import { Component } from "@angular/core";
+import { NgForm } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { ThemingService } from "../Services/theming.service";
+import { LoginService } from "../Services/login.service";
 
 /**
  * Component to enable to reset the password
  */
 @Component({
-  selector: 'app-confirm-reset-password',
-  templateUrl: './confirm-reset-password.component.html',
-  styleUrls: ['./confirm-reset-password.component.css']
+  selector: "app-confirm-reset-password",
+  templateUrl: "./confirm-reset-password.component.html",
+  styleUrls: ["./confirm-reset-password.component.css"],
 })
-
 export class ConfirmResetPasswordComponent {
- 
   /**
    * Id of the reset password request
    */
@@ -22,30 +21,77 @@ export class ConfirmResetPasswordComponent {
   /**
    * New Password of the user
    */
-  password: string; 
+  password: string;
 
- 
+  /**
+   * Error during reset password
+   */
+  error: string;
+  defaultErrorMessage = "Couldn't set password!";
+
+  /**
+   * Successfully sent email
+   */
+  success: string;
+  defaultSuccessMessage = "Password set!";
+
+  isDark: boolean;
   /**
    * Constructor
    * @param loginService
-   * @param router 
-   * @param route 
+   * @param router
+   * @param route
    */
-  constructor(public loginService: LoginService, private router: Router, private route: ActivatedRoute) {
+  constructor(
+    public loginService: LoginService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private themeService: ThemingService
+  ) {
     this.route.queryParams.subscribe((params) => {
-      if (params.uuid){
-           this.uuid = params.uuid;
-       }
-   })
+      if (params.uuid) {
+        this.uuid = params.uuid;
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.isDark = this.themeService.isDarkMode();
   }
 
   /**
    * Confirm the reset and send new password
    * @param form form with the new password value
    */
-  confirmReset(form : NgForm) {
-    this.loginService.confirmReset(this.uuid, form.value.password).toPromise()
-    this.router.navigate(['/login']);
+  confirmReset(form: NgForm) {
+    this.error = undefined;
+    this.success = undefined;
+    this.loginService.confirmReset(this.uuid, form.value.password).subscribe({
+      next: (value) => {
+        this.error = undefined;
+        this.success = this.defaultSuccessMessage;
+        // setTimeout(function () {
+        //   // this.router.navigate(["/login"]);
+        // }, 1500);
+        console.log(value);
+      },
+      error: (error) => {
+        this.success = undefined;
+        this.error = this.defaultErrorMessage;
+        console.log(error);
+      },
+    });
   }
 
+  /**
+   * Redirects the user to the login component
+   */
+  redirectToLogin() {
+    this.router.navigate(["/"]);
+  }
+
+  isDarkModeOn() {
+    this.isDark = this.themeService.isDarkMode();
+    return this.isDark;
+  }
 }
