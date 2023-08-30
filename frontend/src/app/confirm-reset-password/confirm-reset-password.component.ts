@@ -3,6 +3,7 @@ import { NgForm } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ThemingService } from "../Services/theming.service";
 import { LoginService } from "../Services/login.service";
+import { FeGaussianBlurElement } from "canvg";
 
 /**
  * Component to enable to reset the password
@@ -28,6 +29,10 @@ export class ConfirmResetPasswordComponent {
    */
   error: string;
   defaultErrorMessage = "Couldn't set password!";
+  /**
+   * Error for invalid link/token
+   */
+  tokenError: string;
 
   /**
    * Successfully sent email
@@ -66,19 +71,23 @@ export class ConfirmResetPasswordComponent {
   confirmReset(form: NgForm) {
     this.error = undefined;
     this.success = undefined;
+    this.tokenError = undefined;
     this.loginService.confirmReset(this.uuid, form.value.password).subscribe({
       next: (value) => {
         this.error = undefined;
         this.success = this.defaultSuccessMessage;
-        // setTimeout(function () {
-        //   // this.router.navigate(["/login"]);
-        // }, 1500);
+        setTimeout(() => {
+          this.router.navigate(["/login"]);
+        }, 1500);
         console.log(value);
       },
       error: (error) => {
         this.success = undefined;
+        if (error.status === 401) {
+          this.tokenError = "error";
+          return;
+        }
         this.error = this.defaultErrorMessage;
-        console.log(error);
       },
     });
   }
@@ -88,6 +97,10 @@ export class ConfirmResetPasswordComponent {
    */
   redirectToLogin() {
     this.router.navigate(["/"]);
+  }
+
+  redirectToReset() {
+    this.router.navigate(["/resetpassword"]);
   }
 
   isDarkModeOn() {
