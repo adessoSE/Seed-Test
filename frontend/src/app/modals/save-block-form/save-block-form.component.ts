@@ -67,6 +67,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
   updateObservable: Subscription;
 
   isBackground: boolean;
+  backgroundName: string;
 
 
   constructor(private modalService: NgbModal, private toastr: ToastrService, public blockService: BlockService, public backgroundService: BackgroundService) {}
@@ -94,11 +95,12 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
      * @param block
      * @param comp
      */
-  openSaveBlockFormModal(block: Block, comp, isBackground?: boolean) {
+  openSaveBlockFormModal(block: Block, comp, isBackground?: boolean, backgroundName?) {
     this.exampleBlock = false;
     this.exampleChecked = false;
     this.block = block;
     this.parentComponent = comp;
+    this.backgroundName = backgroundName;
     this.isBackground = isBackground;
     if (block.stepDefinitions.example && block.stepDefinitions.example.length > 0) {
       this.exampleBlock = true;
@@ -107,6 +109,8 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.modalReference = this.modalService.open(this.saveBlockFormModal, {ariaLabelledBy: 'modal-basic-title'});
     if(isBackground && isBackground !== undefined){
       document.getElementById('modalHeader').innerHTML = 'Save Background';
+      document.getElementById('infoSpan').innerHTML = 'You have replaced the current story background. To save this background in your project, click Submit. If you don`t want to use it anymore and want to delete the current background, click Discard Background.';
+      document.getElementById('multipleScenarioDiv').style.display = 'none';
     }
   }
 
@@ -155,7 +159,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
  * Submits and saves a block
  */
   submitSaveBlock(form: NgForm) {
-    let title;
+    let title = form.value.blockNameInput;
     /* if (this.exampleBlock) {
         this.parentComponent.checkAllExampleSteps(false);
     } else {
@@ -163,10 +167,7 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     } */
     this.parentComponent.checkAllSteps(false);
     if (this.isBackground && this.isBackground !== undefined){
-      title = form.value.backgroundNameInput;
-    }
-    else {
-      title = form.value.blockNameInput;
+      title = this.backgroundName;
     }
     if (title.trim() === '') {
       title = (document.getElementById('blockNameInput') as HTMLInputElement).placeholder;
@@ -200,11 +201,14 @@ export class SaveBlockFormComponent implements OnInit, OnDestroy {
     this.toastr.warning('', 'This name exists already. Enter unique name.', {
     });
   }
-
+  /**
+   * If title already used
+   * @param value
+   */
   isTitleEqual(value): boolean {
     let bool = false;
     this.blocks.forEach(block => {
-      if (value === block.name) { bool = true; }
+      if (value === block.name && this.isBackground == this.block.isBackground) { bool = true; }
     });
     return bool;
   }
