@@ -3,7 +3,6 @@ import { NgForm } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ThemingService } from "../Services/theming.service";
 import { LoginService } from "../Services/login.service";
-import { FeGaussianBlurElement } from "canvg";
 
 /**
  * Component to enable to reset the password
@@ -27,18 +26,18 @@ export class ConfirmResetPasswordComponent {
   /**
    * Error during reset password
    */
-  error: string;
+  error: boolean;
   defaultErrorMessage = "Couldn't set password!";
-  /**
-   * Error for invalid link/token
-   */
-  tokenError: string;
-
   /**
    * Successfully sent email
    */
-  success: string;
+  success: boolean;
   defaultSuccessMessage = "Password set!";
+
+  /**
+   * The message to display
+   */
+  message: string;
 
   isDark: boolean;
   /**
@@ -69,25 +68,19 @@ export class ConfirmResetPasswordComponent {
    * @param form form with the new password value
    */
   confirmReset(form: NgForm) {
-    this.error = undefined;
-    this.success = undefined;
-    this.tokenError = undefined;
+    this.error = false;
+    this.success = false;
     this.loginService.confirmReset(this.uuid, form.value.password).subscribe({
       next: (value) => {
-        this.error = undefined;
-        this.success = this.defaultSuccessMessage;
-        setTimeout(() => {
-          this.router.navigate(["/login"]);
-        }, 1500);
-        console.log(value);
+        this.message = this.defaultSuccessMessage;
+        this.success = true;
       },
       error: (error) => {
-        this.success = undefined;
+        this.message = this.defaultErrorMessage;
         if (error.status === 401) {
-          this.tokenError = "error";
-          return;
+          this.message = "This link has expired.";
         }
-        this.error = this.defaultErrorMessage;
+        this.error = true;
       },
     });
   }
