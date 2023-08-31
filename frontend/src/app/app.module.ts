@@ -70,7 +70,7 @@ import { BaseEditorComponent } from './base-editor/base-editor.component';
 import { NewExampleComponent } from './modals/new-example/new-example.component';
 import { TransferOwnershipToast } from './transferOwnership-toastr';
 import { InfoWarningToast } from './info-warning-toast';
-import { ImportPopupComponent } from './modals/import-popup/import-popup.component';
+import { ImportModalComponent } from './modals/import-modal/import-modal.component';
 
 @NgModule({
   declarations: [
@@ -120,7 +120,7 @@ import { ImportPopupComponent } from './modals/import-popup/import-popup.compone
     ExampleComponent,
     DeleteToast,
     TransferOwnershipToast,
-    ImportPopupComponent
+    ImportModalComponent
   ],
   imports: [
     NgbModule,

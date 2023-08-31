@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import { ThemingService } from '../Services/theming.service';
 import { interval } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 import { CreateCustomProjectComponent } from '../modals/create-custom-project/create-custom-project.component';
 import { DeleteAccountComponent } from '../modals/delete-account/delete-account.component';
 import { WorkgroupEditComponent } from '../modals/workgroup-edit/workgroup-edit.component';
@@ -17,6 +18,7 @@ import { ProjectService } from '../Services/project.service';
 import { LoginService } from '../Services/login.service';
 import { ManagementService } from '../Services/management.service';
 import { DisconnectJiraAccountComponent } from '../modals/disconnect-jira-account/disconnect-jira-account.component';
+import { ImportModalComponent } from '../modals/import-modal/import-modal.component';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -103,6 +105,7 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
      * @param router router to handle url changes
      * @param themeService
      * @param toastr
+     * @param dialog material implementation for popups
      */
     constructor(public apiService: ApiService,
         public projectService: ProjectService,
@@ -110,7 +113,8 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         public managmentService: ManagementService,
         public router: Router,
         public themeService: ThemingService,
-        private toastr: ToastrService) {
+        private toastr: ToastrService,
+        private dialog: MatDialog) {
         this.routeSub = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
