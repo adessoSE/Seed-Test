@@ -32,7 +32,7 @@ export class ConfirmResetPasswordComponent {
    * Successfully sent email
    */
   success: boolean;
-  defaultSuccessMessage = "Password set!";
+  defaultSuccessMessage = "Your Password Has Been Updated!";
 
   /**
    * The message to display
@@ -78,7 +78,7 @@ export class ConfirmResetPasswordComponent {
       error: (error) => {
         this.message = this.defaultErrorMessage;
         if (error.status === 401) {
-          this.message = "This link has expired.";
+          this.message = "This Link Has Expired!";
         }
         this.error = true;
       },
