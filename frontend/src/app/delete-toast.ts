@@ -6,7 +6,7 @@ import {
     transition,
     trigger
   } from '@angular/animations';
-import { Component, ViewChild} from '@angular/core';
+import { Component } from '@angular/core';
 import { Toast, ToastrService, ToastPackage } from 'ngx-toastr';
 import { ApiService } from './Services/api.service';
 import { BlockService } from './Services/block.service';
@@ -140,7 +140,7 @@ import { StoryService } from './Services/story.service';
      */
     deleteToast(event: Event){
         event.stopPropagation();
-        this.nameComponent=this.apiService.getNameOfComponent();
+        this.nameComponent = this.apiService.getNameOfComponent();
         switch(this.nameComponent){
           case 'scenario': this.scenarioService.deleteScenarioEmitter();
           break;
@@ -152,7 +152,6 @@ import { StoryService } from './Services/story.service';
           break;
           case 'block': this.blockService.deleteBlockEmitter();
         }
-        console.log(this.nameComponent);
         this.remove();
     }
   }

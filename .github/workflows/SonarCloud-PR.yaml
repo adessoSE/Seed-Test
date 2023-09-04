@@ -1,0 +1,39 @@
+on:
+  # Trigger analysis when pushing in master or pull requests, and when creating
+  # a pull request.
+  gollum
+name: SonarCloud
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      id: sonarcloud-scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - name: Send simple notification
+      if: ${{ failure() }}
+      uses: mikesprague/teams-incoming-webhook-action@v1
+      with:
+        github-token: ${{ github.token }}
+        webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        title: 'SonarCloud Scan failed'
+        deploy-card: true
+        timestamp: Europe/Berlin
+        color: 'failure'
+    - name: Send simple notification
+      if: ${{ success() }}
+      uses: mikesprague/teams-incoming-webhook-action@v1
+      with:
+        github-token: ${{ github.token }}
+        webhook-url: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+        title: 'SonarCloud Scan succesfull'
+        deploy-card: true
+        timestamp: Europe/Berlin
+        color: 'success'

@@ -31,6 +31,18 @@ export class BackgroundService {
   */
   public backgroundReplaced = false;
   /**
+    * Event emitter for applying changes to Backgrounds(current or centrally)
+  */
+  public applyChangesBackgroundEvent = new EventEmitter();
+  /**
+    * Emits the applying changes for background
+    * @param option
+  */
+  public applyBackgroundChanges(option: string) {
+    this.applyChangesBackgroundEvent.emit(option);
+  }
+
+  /**
     * Track current background before saving changes
   */
   public currentBackground: Background;

@@ -105,7 +105,7 @@
               <em class="material-icons">edit</em>
             </button>
             <!-- replace Background -->
-            <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon"  data-uk-tooltip title="Replace Background">
+            <button [class.disabled]="sortedBackgrounds() === undefined" class="storyTitle pencil_icon"  data-uk-tooltip title="Switch Background">
               <em class="material-icons">swap_horiz</em>
             </button>
             <div *ngIf="showBackground && sortedBackgrounds() && this.openBlockModal == undefined" uk-dropdown="mode:hover" style="overflow: scroll; max-height: 150px;" >
@@ -124,8 +124,7 @@
               <img class="mat-icons" alt="unsavedChanges" src="assets/unsaved.png">
             </button>
             <button *ngIf=" this.selectedStory.background.saved!= false" id="saveButtonBackground" class="storyTitle" data-uk-tooltip [class.disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined" [disabled]="testRunning || this.selectedStory.background.saved || this.selectedStory.background.saved === undefined"
-            title="Without changes" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}"
-            (click)="updateBackground();$event.stopPropagation();">
+            title="Without changes" [ngClass]="{'iconButton_unsaved': this.selectedStory.background.saved === false && this.selectedStory.background.saved !== undefined}">
             <img class="mat-icons" alt="savedChanges" src="assets/save-done.png">
             </button>
             <button id="background_delete" [class.disabled]="testRunning" [disabled]="testRunning"

@@ -267,9 +267,9 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         });
 
         this.scenarioStatusChangeObservable = this.scenarioService.scenarioStatusChangeEvent.subscribe(custom => {
-            const storyIndex = this.filteredStories.findIndex(story => story._id === custom.storyId);
-            const scenarioIndex = this.filteredStories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
-            this.filteredStories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
+            const storyIndex = this.stories.findIndex(story => story._id === custom.storyId);
+            const scenarioIndex = this.stories[storyIndex].scenarios.findIndex(scenario => scenario.scenario_id === custom.scenarioId);
+            this.stories[storyIndex].scenarios[scenarioIndex].lastTestPassed = custom.lastTestPassed;
         });
 
 
@@ -342,14 +342,11 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.groupService.runGroup(id, group._id, params).subscribe((ret: any) => {
             this.report.emit(ret);
             this.testRunningGroup.emit(false);
-            const report_id = ret.reportId;
-            this.reportService.getReport(report_id)
-            .subscribe((report: GroupReport) => {
-                report.storyStatuses.forEach(story => {
-                    story.scenarioStatuses.forEach(scenario => {
-                        this.scenarioService.scenarioStatusChangeEmit(
-                            story.storyId, scenario.scenarioId, scenario.status);
-                    });
+            const report = ret.report;
+            report.storyStatuses.forEach(story => {
+                story.scenarioStatuses.forEach(scenario => {
+                    this.scenarioService.scenarioStatusChangeEmit(
+                        story.storyId, scenario.scenarioId, scenario.status);
                 });
             });
         });
@@ -387,7 +384,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             this.selectScenario(this.stories[storyIndex].scenarios[0]);
         }
         this.toggleShows();
-        this.backgroundService.backgroundReplaced = false;
+        this.backgroundService.backgroundReplaced = undefined;
     }
 
     /**
