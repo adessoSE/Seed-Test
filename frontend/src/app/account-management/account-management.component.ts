@@ -18,6 +18,7 @@ import { ProjectService } from '../Services/project.service';
 import { LoginService } from '../Services/login.service';
 import { ManagementService } from '../Services/management.service';
 import { DisconnectJiraAccountComponent } from '../modals/disconnect-jira-account/disconnect-jira-account.component';
+import { ImportModalComponent } from '../modals/import-modal/import-modal.component';
 
 /**
  * Component to show all account data including the projects of Github, Jira and custom sources
@@ -110,9 +111,10 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
         public loginService: LoginService,
         public managmentService: ManagementService,
         public router: Router,
+        private dialog: MatDialog,
         public themeService: ThemingService,
-        private toastr: ToastrService,
-        private dialog: MatDialog) {
+        private toastr: ToastrService
+        ) {
         this.routeSub = this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd && this.router.url === '/accountManagement') {
                 this.updateSite('Successful'); //
@@ -337,5 +339,12 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
             this.projectService.getRepositories();
             this.toastr.success('successfully saved', 'Repository');
         });
+    }
+
+    openImportPopup() {
+        this.dialog.open(ImportModalComponent,{
+            width: '60%',
+            height: '400px'
+        })
     }
 }

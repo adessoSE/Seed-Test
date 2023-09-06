@@ -1,5 +1,12 @@
 <h1 mat-dialog-title>Import project</h1>
 <div mat-dialog-content>
+    <h2>Import Test Cases</h2>
+<form (ngSubmit)="importTestCases()" #importForm="ngForm">
+  <!-- Import-Optionen hier hinzufügen -->
+  <input type="file" name="fileInput" (change)="handleFileInput($event)" accept=".zip">
+  <!-- Weitere Formularelemente hier hinzufügen, z.B., Optionen für doppelte Story-Namen, etc. -->
+  <button type="submit">Import</button>
+</form>
 
 </div>
 <div mat-dialog-actions>

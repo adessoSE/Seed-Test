@@ -71,6 +71,7 @@ import { NewExampleComponent } from './modals/new-example/new-example.component'
 import { TransferOwnershipToast } from './transferOwnership-toastr';
 import { InfoWarningToast } from './info-warning-toast';
 import { ImportModalComponent } from './modals/import-modal/import-modal.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -151,6 +152,7 @@ import { ImportModalComponent } from './modals/import-modal/import-modal.compone
     MatIconModule,
     MatExpansionModule,
     MatTabsModule,
+    MatDialogModule,
     MatTooltipModule,
   ],
   entryComponents: [InfoWarningToast],
