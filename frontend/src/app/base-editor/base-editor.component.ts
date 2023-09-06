@@ -166,6 +166,8 @@ export class BaseEditorComponent  {
         Object.keys(block.stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             block.stepDefinitions[key].forEach((step: StepType) => {
+              //to prevent blocks to be checked after pasting
+              step.checked = false;
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }
@@ -174,8 +176,16 @@ export class BaseEditorComponent  {
       }
       
       if (this.templateName == 'scenario' && block[0] == 'scenario') {      
+        Object.keys(block[1].stepDefinitions).forEach((key, _) => {
+          if (key != 'example') {
+            block[1].stepDefinitions[key].forEach((step: StepType, j) => {
+              //to prevent blocks to be checked after pasting
+              step.checked = false;
+           });
+          }
+        });  
         block = block[1];
-        this.insertStepsWithExamples(block)
+        this.insertStepsWithExamples(block);
         this.markUnsaved();
       }
     });
@@ -1314,6 +1324,8 @@ export class BaseEditorComponent  {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+              //to prevent blocks to be checked after pasting
+              step.checked = false;
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }
@@ -1335,6 +1347,8 @@ export class BaseEditorComponent  {
           Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
             if (key != 'example') {
               this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                //to prevent blocks to be checked after pasting
+                step.checked = false;
                 this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step))); 
              });
            } 
