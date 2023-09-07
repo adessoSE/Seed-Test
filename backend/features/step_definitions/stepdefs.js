@@ -143,6 +143,9 @@ Given('I add a session-storage with the name {string} and value {string}', async
 	try {
 		await driver.executeScript(`window.sessionStorage.setItem('${name}', '${value}');`);
 	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
 		throw Error(e);
 	}
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -153,6 +156,9 @@ Given('I remove a session-storage with the name {string}', async function addSes
 	try {
 		await driver.executeScript(`window.sessionStorage.removeItem('${name}');`);
 	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
 		throw Error(e);
 	}
 	await driver.sleep(100 + currentParameters.waitTime);
