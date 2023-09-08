@@ -124,11 +124,6 @@ em.dragIcon {
     padding: 0;
 }
 
-.darkTheme app-base-editor .scenarioBarContainer {
-    background-color: #546E7A !important;
-    border-bottom: 1px solid #B0BEC5 !important;
-}
-
 .BlockBarContainer button {
     border: none;
     background: none;
@@ -220,7 +215,10 @@ em.dragIcon {
     min-width: 1000px;
 
 }
-
+::ng-deep  .modal-container.darkTheme>app-base-editor .scenarioBarContainer {
+    background-color: #546E7A !important;
+    border-bottom: 1px solid #B0BEC5 !important;
+}
 ::ng-deep body>ngb-modal-window.modal {
 
     z-index: 1;

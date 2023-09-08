@@ -34,10 +34,10 @@
                 </div>
             </div>
         </div>
-        <div [class.darkTheme] ="isDark">
+        <div class="uk-card uk-card-default modal-container" [class.darkTheme]="isDark" >
             <app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning"
                 [newlySelectedScenario]="selectedScenario" [newlySelectedStory]="selectedStory"
                 [originalStepTypes]="originalStepTypes" [selectedBlock]="selectedBlock"></app-base-editor>
         </div>
-        </div>
+    </div>
 </ng-template>
