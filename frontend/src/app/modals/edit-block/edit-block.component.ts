@@ -1,11 +1,13 @@
-import {Component, Input, ViewChild} from '@angular/core';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import {Block} from 'src/app/model/Block';
-import {BlockService} from 'src/app/Services/block.service';
-import {StepType} from 'src/app/model/StepType';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import {StepDefinition} from '../../model/StepDefinition';
-import {StepDefinitionBackground} from '../../model/StepDefinitionBackground';
+import { Component, Input, ViewChild } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Block } from 'src/app/model/Block';
+import { BlockService } from 'src/app/Services/block.service';
+import { StepType } from 'src/app/model/StepType';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { StepDefinition } from '../../model/StepDefinition';
+import { StepDefinitionBackground } from '../../model/StepDefinitionBackground';
+import { Scenario } from '../../model/Scenario';
+import { Story } from '../../model/Story';
 
 @Component({
   selector: 'app-edit-block',
@@ -27,6 +29,17 @@ export class EditBlockComponent {
   @Input() selectedBlock: Block;
 
   /**
+    * Currently selected story
+    */
+  selectedStory: Story;
+
+  /**
+    * currently selected scenario
+    */
+  selectedScenario: Scenario;
+
+
+  /**
    * Action Bar Logic
    */
   activeActionBar = false;
@@ -36,6 +49,10 @@ export class EditBlockComponent {
   saved = true;
 
   modalReference: NgbModalRef;
+
+  testRunning = false;
+
+  readonly TEMPLATE_NAME = 'block-editor';
 
   /**
    * Subscriptions for all EventEmitter
@@ -49,7 +66,7 @@ export class EditBlockComponent {
    * Opens the edit block form modal
    */
   openEditBlockModal() {
-    this.modalReference = this.modalService.open(this.editBlockModal, {ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block'});
+    this.modalReference = this.modalService.open(this.editBlockModal, { ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block' });
     this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
   }
 
@@ -80,7 +97,7 @@ export class EditBlockComponent {
   }
 
   copyBlock() {
-    const copyBlock: any = {given: [], when: [], then: [], example: []};
+    const copyBlock: any = { given: [], when: [], then: [], example: [] };
     for (const prop in this.selectedBlock.stepDefinitions) {
       if (prop !== 'example') {
         for (const s in this.selectedBlock.stepDefinitions[prop]) {
@@ -91,7 +108,7 @@ export class EditBlockComponent {
         }
       }
     }
-    const block: Block = {stepDefinitions: copyBlock};
+    const block: Block = { stepDefinitions: copyBlock };
     sessionStorage.setItem('copiedBlock', JSON.stringify(block));
     this.allChecked = false;
     this.activeActionBar = false;
@@ -119,7 +136,7 @@ export class EditBlockComponent {
     let uniqueStepTypes: StepType[] = [];
     let addedTypes: Set<string> = new Set();
     let screenshotCount = 0;
-  
+
     for (let step of this.sortedStepTypes()) {
       if (step.type === 'Screenshot') { //first two screenshot elements do not work (?) we skip these and take third screenshot elemment
         screenshotCount++;
@@ -132,11 +149,11 @@ export class EditBlockComponent {
         addedTypes.add(step.type);
       }
     }
-  
+
     return uniqueStepTypes;
   }
-  
-  
+
+
 
   /**
    * Gets the last id in the steps
@@ -246,10 +263,10 @@ export class EditBlockComponent {
     let stepCount = 0;
 
     for (const prop in this.selectedBlock.stepDefinitions) {
-        for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
-          stepCount++;
-          if (this.selectedBlock.stepDefinitions[prop][i].checked) {
-            checkCount++;
+      for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
+        stepCount++;
+        if (this.selectedBlock.stepDefinitions[prop][i].checked) {
+          checkCount++;
         }
       }
     }
@@ -291,8 +308,8 @@ export class EditBlockComponent {
     }
     if (this.allChecked) {
       for (const prop in this.selectedBlock.stepDefinitions) {
-          for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
-            this.checkStep(this.selectedBlock.stepDefinitions[prop][i], true);
+        for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
+          this.checkStep(this.selectedBlock.stepDefinitions[prop][i], true);
         }
       }
       this.activeActionBar = true;

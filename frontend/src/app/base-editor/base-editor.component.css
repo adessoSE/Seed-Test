@@ -10,7 +10,12 @@
 :host ::ng-deep .stepsListContainer .disabled em{
   color: gray !important;
 }
-  
+
+.disabled {
+  color: gray !important;
+  font-style: italic;
+  text-decoration: line-through;
+}
   
 :host ::ng-deep .stepsListContainer button{
   border: none;
@@ -23,6 +28,10 @@
   margin-left: 3px;
   margin-top: 5px
 } 
+
+.checkbox {
+  margin: 4.5px 5px 15px 3px;
+}
 
 :host ::ng-deep .checkbox:hover{
   cursor: pointer;
@@ -113,6 +122,12 @@ em.dragIcon{
   border: none;
   background: inherit;
 }
+
+.darkTheme .blockBarContainer {
+  background-color: #546E7A !important;
+  border-bottom: 1px solid #B0BEC5 !important;
+}
+
 .blockButtonGroup .material-icons{
   color: var(--ocean-blue);
 }
@@ -240,6 +255,11 @@ input[type="text"]{
 
 .actionBarButtonGroup{
   margin-left: 3px;
+}
+
+.actionBarButtonGroup .disabled em {
+  color: gray !important;
+  /* background: #f8f8f8 !important; */
 }
 
 .actionButton{
@@ -409,6 +429,10 @@ mat-expansion-panel.stepBlockContainer  .mat-expansion-panel-body{
   color: var(--light-blue);
 }
 
+.dropdownStep {
+  color: var(--ocean-blue);
+}
+
 :host ::ng-deep .uk-nav > li > span:hover {
     color: gray;
 }
@@ -463,4 +487,15 @@ input.scenario, input.background {
  .scrollable {
   overflow: auto;
   max-height: 200px;
+}
+
+#block-edit-steps {
+  margin: 1% 30px;
+  overflow-y: scroll;
+  max-height: 250px;
+
+  &::-webkit-scrollbar-thumb {
+      background-color: #90CAF9;
+    
+  }
 }
