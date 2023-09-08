@@ -124,7 +124,7 @@ em.dragIcon {
     padding: 0;
 }
 
-.darkTheme .blockBarContainer {
+.darkTheme app-base-editor .scenarioBarContainer {
     background-color: #546E7A !important;
     border-bottom: 1px solid #B0BEC5 !important;
 }

@@ -8,6 +8,8 @@ import { StepDefinition } from '../../model/StepDefinition';
 import { StepDefinitionBackground } from '../../model/StepDefinitionBackground';
 import { Scenario } from '../../model/Scenario';
 import { Story } from '../../model/Story';
+import { ThemingService } from '../../Services/theming.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-block',
@@ -27,6 +29,8 @@ export class EditBlockComponent {
    * Currently selected block
    */
   @Input() selectedBlock: Block;
+
+  @Input() isDark: boolean;
 
   /**
     * Currently selected story
@@ -53,15 +57,20 @@ export class EditBlockComponent {
   testRunning = false;
 
   readonly TEMPLATE_NAME = 'block-editor';
-
+  themeObservable: Subscription;
   /**
    * Subscriptions for all EventEmitter
    */
 
-  constructor(private modalService: NgbModal, public blockService: BlockService) {
+  constructor(private modalService: NgbModal, public blockService: BlockService, public themeService: ThemingService) {
 
   }
-
+  ngOnInit() {
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe(() => {
+     this.isDark = this.themeService.isDarkMode();
+    });
+  }
   /**
    * Opens the edit block form modal
    */
