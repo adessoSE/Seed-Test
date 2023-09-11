@@ -563,7 +563,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     if (indexScenario !== -1) {
       this.selectedStory.scenarios.splice(indexScenario, 1);
     }
-    this.showEditor = false;
+    this.selectScenario(this.selectedStory.scenarios.slice(-1)[0])
+    if(!this.selectedStory.scenarios) this.showEditor = false;
+    
   }
 
   /**
