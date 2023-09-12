@@ -311,6 +311,7 @@
         </ng-container>
       </ng-container>
 
+      <!-- Edit-Block steps-->
       <ng-container *ngIf="name === 'block-editor'">
         <div class="uk-steps" id="block-edit-steps">
           <div *ngFor="let sd of getKeysList(this.selectedBlock.stepDefinitions);let i = index;">
@@ -327,16 +328,19 @@
                   {{currentStep.pre}}
                   <div *ngIf="currentStep.values.length > 0" style="display:inline">
                     <input id="{{'block_step_input_pre' + j}}" #step_type_input type="text"
-                      value="{{currentStep.values[0]}}" on-input="addToValuesBlock(step_type_input.value,j,0)" />
+                      value="{{currentStep.values[0]}}" on-input="addToValuesBlock(step_type_input.value,j,0)"
+                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                     {{currentStep.mid}}
                     <input id="{{'block_step_input_mid' + j}}" #step_type_input
                       *ngIf="currentStep.mid !== ''" type="text"
-                      value="{{currentStep.values[1]}}" on-input="addToValuesBlock(step_type_input.value, j, 1)" />
+                      value="{{currentStep.values[1]}}" on-input="addToValuesBlock(step_type_input.value, j, 1)"
+                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                   </div>
                   {{currentStep.post}}
                   <input id="{{'block_step_input_post' + j + n}}" #step_type_input
                     *ngFor="let value of currentStep.values | slice:2; let n = index" type="text" value="{{value}}"
-                    on-input="addToValuesBlock(step_type_input.value,j , n + 2)" />
+                    on-input="addToValuesBlock(step_type_input.value,j , n + 2)" 
+                    style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                   <div *ngIf="currentStep.outdated">
                     <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                       <span rel="def">
@@ -350,10 +354,6 @@
             </div>
           </div>
         </div>
-        <div id="addBlockFooter" class="modal-footer">
-          <button type="button" class="normalButton" (click)="onClickSubmit()">Save Block</button>
-        </div>
-
       </ng-container>
 
 

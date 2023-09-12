@@ -13,10 +13,10 @@
     <div (keydown)="enterSubmit($event)">
         <div class="title">
             <div class="BlockHeaderWarning">
-                <em class="material-icons">warning</em>
+                <em class="material-icons" id="warning">warning</em>
                 <p>Changes to a Block will be applied to EVERY Scenario referencing this Block.<br>
                     This might result in Breaking Changes!</p>
-                <em class="material-icons">warning</em>
+                <em class="material-icons" id="warning">warning</em>
             </div>
             <div class="BlockHeaderContainer">
                 <div>
@@ -34,10 +34,16 @@
                 </div>
             </div>
         </div>
-        <div class="uk-card uk-card-default modal-container" [class.darkTheme]="isDark" >
+        <div class="uk-card uk-card-default modal-container" [class.darkTheme]="isDark">
             <app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning"
                 [newlySelectedScenario]="selectedScenario" [newlySelectedStory]="selectedStory"
                 [originalStepTypes]="originalStepTypes" [selectedBlock]="selectedBlock"></app-base-editor>
+
+            <!-- Save Block Button-->
+            <div id="addBlockFooter" class="modal-footer">
+                <button type="button" class="normalButton" (click)="onClickSubmit()">Save Block</button>
+            </div>
+
         </div>
     </div>
 </ng-template>

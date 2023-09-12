@@ -117,9 +117,11 @@ export class BaseEditorComponent {
   */
   newStepName = 'New Step';
 
-  saved = true;
+  /**
+   * To track changes on edit-block 
+   */
 
-  modalReference: NgbModalRef;
+  saved = true;
 
   lastToFocus;
 
@@ -592,7 +594,6 @@ export class BaseEditorComponent {
         addedTypes.add(step.type);
       }
     }
-
     return uniqueStepTypes;
   }
 
@@ -679,7 +680,7 @@ export class BaseEditorComponent {
 
   onDropBlock(event: CdkDragDrop<any>, stepDefs: StepDefinition, stepIndex: number) {
     moveItemInArray(this.getStepsList(stepDefs, stepIndex), event.previousIndex, event.currentIndex);
-    this.saved = false;
+    this.markUnsaved();
   }
 
   /**
@@ -698,7 +699,7 @@ export class BaseEditorComponent {
         this.selectedScenario.saved = false;
         break;
       case 'block-editor':
-        this.selectedScenario.saved = false;
+        this.saved = false;
         break;
     }
   }
@@ -910,23 +911,7 @@ export class BaseEditorComponent {
         break;
 
       case 'block-editor':
-        if (this.allChecked) {
-          for (const prop in this.selectedBlock.stepDefinitions) {
-            for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
-              this.checkStep(this.selectedBlock.stepDefinitions[prop][i], true);
-            }
-          }
-          this.activeActionBar = true;
-          this.allChecked = true;
-        } else {
-          for (const prop in this.selectedBlock.stepDefinitions) {
-            for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
-              this.checkStep(this.selectedBlock.stepDefinitions[prop][i], false);
-            }
-          }
-          this.activeActionBar = false;
-          this.allChecked = false;
-        }
+        this.checkOnIteration(this.selectedBlock.stepDefinitions, this.allChecked);
         break;
     }
   }
@@ -1308,16 +1293,11 @@ export class BaseEditorComponent {
         break;
 
       case 'block-editor':
-        this.deactivateOnIteration(this.selectedScenario.stepDefinitions);
+        this.deactivateOnIteration(this.selectedBlock.stepDefinitions);
         this.markUnsaved();
-        // for (const prop in this.selectedBlock.stepDefinitions) {
-        //   for (const s in this.selectedBlock.stepDefinitions[prop]) {
-        //     if (this.selectedBlock.stepDefinitions[prop][s].checked) {
-        //       this.selectedBlock.stepDefinitions[prop][s].deactivated = !this.selectedBlock.stepDefinitions[prop][s].deactivated;
-        //     }
-        //   }
-        // }
+        console.log("Deactivated chosen steps, saved status is set to:", this.saved);
         break;
+
       default:
         break;
     }
@@ -1386,17 +1366,11 @@ export class BaseEditorComponent {
         break;
 
       case 'block-editor':
-        for (const prop in this.selectedBlock.stepDefinitions) {
-          for (let i = this.selectedBlock.stepDefinitions[prop].length - 1; i >= 0; i--) {
-            if (this.selectedBlock.stepDefinitions[prop][i].checked) {
-              this.selectedBlock.stepDefinitions[prop].splice(i, 1);
-            }
-          }
-        }
-        this.saved = false;
-        this.allChecked = false;
-        this.activeActionBar = false;
+        this.removeStepOnIteration(this.selectedBlock.stepDefinitions);
+        this.markUnsaved();
+        console.log("Removed chosen steps, saved status is set to:", this.saved);
         break;
+
       default:
         break;
     }
@@ -1952,15 +1926,6 @@ export class BaseEditorComponent {
     this.selectedScenario.stepDefinitions.example.push(row)
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved();
-  }
-
-  editBlockSubmit() {
-    this.blockService.editBlock(this.selectedBlock).subscribe();
-    this.modalReference.close();
-  }
-
-  onClickSubmit() {
-    this.editBlockSubmit();
-  }
-
+  }  
+  
 }
