@@ -101,7 +101,7 @@ export class ScenarioEditorComponent implements OnInit{
     lastStepId;
 
     indexOfExampleToDelete;
-
+    scenarioToUpdate: Scenario;
     readonly TEMPLATE_NAME ='scenario';
 
     /**
@@ -110,6 +110,7 @@ export class ScenarioEditorComponent implements OnInit{
     runSaveOptionObservable: Subscription;
     renameScenarioObservable: Subscription;
     updateRefObservable: Subscription;
+    updateScenariObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -181,6 +182,10 @@ export class ScenarioEditorComponent implements OnInit{
               this.blocks = resp;
             });
           });
+        //currently not used
+        this.updateScenariObservable = this.blockService.updateScenariosRefEvent.subscribe(element =>{
+            this.updateScenario(element[0], element[1]);
+        });
     }
 
     ngOnDestroy() {
@@ -205,13 +210,25 @@ export class ScenarioEditorComponent implements OnInit{
      * update a scenario
      * @returns
      */
-    updateScenario() {
-        delete this.selectedScenario.hasRefBlock 
-        delete this.selectedScenario.saved;
-        let steps = this.selectedScenario.stepDefinitions['given'];
-        steps = steps.concat(this.selectedScenario.stepDefinitions['when']);
-        steps = steps.concat(this.selectedScenario.stepDefinitions['then']);
-        steps = steps.concat(this.selectedScenario.stepDefinitions['example']);
+    updateScenario(scenario? : Scenario, storyId?) {
+        let storyIdUpdate;
+        let updatingWithReferences: boolean;
+        if (scenario && storyId){
+            this.scenarioToUpdate = scenario;
+            storyIdUpdate = storyId;
+            updatingWithReferences = true;
+        }
+        else{
+            this.scenarioToUpdate = this.selectedScenario;
+            storyIdUpdate = this.selectedStory._id;
+            updatingWithReferences = false;
+        }
+        delete this.scenarioToUpdate.hasRefBlock 
+        delete this.scenarioToUpdate.saved;
+        let steps = this.scenarioToUpdate.stepDefinitions['given'];
+        steps = steps.concat(this.scenarioToUpdate.stepDefinitions['when']);
+        steps = steps.concat(this.scenarioToUpdate.stepDefinitions['then']);
+        steps = steps.concat(this.scenarioToUpdate.stepDefinitions['example']);
 
         let undefined_steps = [];
         for (let i = 0; i < steps.length; i++) {
@@ -220,26 +237,28 @@ export class ScenarioEditorComponent implements OnInit{
             }
         }
 
-        Object.keys(this.selectedScenario.stepDefinitions).forEach((key, _) => {
-            this.selectedScenario.stepDefinitions[key].forEach((step: StepType) => {
+        Object.keys(this.scenarioToUpdate.stepDefinitions).forEach((key, _) => {
+            this.scenarioToUpdate.stepDefinitions[key].forEach((step: StepType) => {
                 delete step.checked;
                 if (step.outdated) {
                     step.outdated = false;
                 }
             });
         });
-
         if (undefined_steps.length != 0) {
             console.log('There are undefined steps here');
         }
-        this.selectedScenario.lastTestPassed = null;
-        this.checkOnReferences(this.selectedScenario);
+
+        this.scenarioToUpdate.lastTestPassed = null;
+        this.checkOnReferences(this.scenarioToUpdate);
         return new Promise<void>((resolve, _reject) => {this.scenarioService
-            .updateScenario(this.selectedStory._id, this.selectedScenario)
+            .updateScenario(storyIdUpdate, this.scenarioToUpdate)
             .subscribe(_resp => {
-                this.updateReferences(this.selectedScenario);
+                this.updateReferences(this.scenarioToUpdate);
                 this.scenarioService.scenarioChangedEmitter();
-                this.toastr.success('successfully saved', 'Scenario');
+                if(!updatingWithReferences){
+                    this.toastr.success('successfully saved', 'Scenario');
+                }
                 resolve();
             });
         });
@@ -285,11 +304,11 @@ export class ScenarioEditorComponent implements OnInit{
         for (const prop in scenario.stepDefinitions) {
             for (const step of scenario.stepDefinitions[prop]) {
                 if(step._blockReferenceId){
-                    this.selectedScenario.hasRefBlock = true;
+                    this.scenarioToUpdate.hasRefBlock = true;
                 }
             }  
         }
-        return this.selectedScenario;
+        return this.scenarioToUpdate;
     }
     /**
      * Emitts the delete scenario event
