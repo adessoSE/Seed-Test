@@ -201,10 +201,10 @@ async function executeTest(req, mode, story) {
 	const jsParam = JSON.stringify(parameters);
 	const cucumberArgs = [
 		path.normalize(featurePath),
-		...(mode === 'scenario' ? ['--tags', `@${req.params.issueID}_${req.params.scenarioId}`] : []),
-		'--format', `json:${path.normalize(jsonPath)}`,
-		'--world-parameters', jsParam,
-		'--exit'
+		...(mode === 'scenario' ? [`--tags`, `@${req.params.issueID}_${req.params.scenarioId}`] : []),
+		`--format`, `json:${path.normalize(jsonPath)}`,
+		`--world-parameters`, jsParam,
+		`--exit`
 	];
 
 	const cmd = os.platform().includes('win') ? '.cmd' : '';

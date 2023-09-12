@@ -701,6 +701,16 @@ async function getOneRepository(ownerId, name) {
 	}
 }
 
+async function getOneRepositoryById(repoId) {
+	try {
+		const repo = { _id: ObjectId(repoId) };
+		const db = dbConnection.getConnection();
+		return db.collection(repositoriesCollection).findOne(repo);
+	} catch (e) {
+		console.log(`ERROR in getOneRepository${e}`);
+	}
+}
+
 /**
  *
  * @param {*} name
@@ -1004,7 +1014,7 @@ async function uploadBigJsonData(data, fileName) {
 			assert.ifError(error);
 		})
 		.on('finish', async () => {
-			console.log('Done! Uplaoded BigReport');
+			console.log('Done! Uploaded BigReport');
 			console.log('ObjectID: of Big Report: ', id);
 			return id;
 		});
@@ -1016,9 +1026,8 @@ async function uploadReport(reportResults) {
 	const db = dbConnection.getConnection();
 	const collection = await db.collection(ReportDataCollection);
 	fs.readFile(reportResults.reportOptions.jsonFile, 'utf8', async (err, data) => {
-		if(err)console.log(err)
-
-		const jReport = { jsonReport: data };
+		if (err) console.log(err);
+		const jReport = { jsonReport: data, created: new Date()};
 		const len = Buffer.byteLength(JSON.stringify(data));
 		if (len >= 16000000) {
 			try {
@@ -1162,8 +1171,7 @@ async function saveBlock(block) {
 	}
 }
 
-async function updateBlock(name, updatedBlock) { // delete by id but update by name?
-	const oldBlock = { name };
+async function updateBlock(blockId, updatedBlock) {
 	try {
 		updatedBlock._id = ObjectId(updatedBlock._id);
 		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
@@ -1172,7 +1180,7 @@ async function updateBlock(name, updatedBlock) { // delete by id but update by n
 		updatedBlock._id = ObjectId(updatedBlock._id)
 		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
 		updatedBlock.owner = ObjectId(updatedBlock.owner);
-		await db.collection(CustomBlocksCollection).findOneAndReplace(oldBlock, updatedBlock);
+		await db.collection(CustomBlocksCollection).findOneAndReplace({_id: ObjectId(blockId)}, updatedBlock);
 	} catch (e) {
 		console.log(`ERROR in updateBlock: ${e}`);
 		throw e;
@@ -1397,5 +1405,6 @@ module.exports = {
 	getAllSourceReposFromDb,
 	createGitRepo,
 	updateOwnerInRepo,
-	updateRepository
+	updateRepository,
+	getOneRepositoryById
 };

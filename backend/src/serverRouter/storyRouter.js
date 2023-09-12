@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
+const pmHelper = require('../../dist/helpers/projectManagement');
 
 const router = express.Router();
 
@@ -154,6 +155,17 @@ router.get('/download/project/:repo_id', async (req, res) => {
 		const version = req.query.version_id ? req.query.version_id : '';
 		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
 		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/export/:repo_id', async (req, res) => {
+	try {
+		console.log('export project ', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await pmHelper.exportProject(req.params.repo_id, version);
 		res.send(file);
 	} catch (error) {
 		handleError(res, error, error, 500);

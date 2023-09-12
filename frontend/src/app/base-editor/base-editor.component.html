@@ -508,10 +508,10 @@
         <button id="editBlock" uk-tooltip title="Edit Block" class="blockButton" (click)="editBlock();">
           <em class="material-icons">edit</em>
         </button>
-        <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block" class="blockButton"
-          (click)="showUnpackBlockToast();">
-          <em class="material-icons">link_off</em>
-        </button>
+          <button id="block_RemoveReference" uk-tooltip title="Remove Reference and Unpack Block" class="blockButton"
+                  (click)="showUnpackBlockToast(this.selectedBlock);">
+            <em class="material-icons">link_off</em>
+          </button>
       </mat-action-row>
     </mat-expansion-panel>
   </ng-template>
