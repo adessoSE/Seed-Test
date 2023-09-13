@@ -583,22 +583,30 @@ export class BaseEditorComponent {
   getUniqueSteps(): StepType[] {
     let uniqueStepTypes: StepType[] = [];
     let addedTypes: Set<string> = new Set();
-    let screenshotCount = 0;
+    let screenshotAdded: boolean = false;
 
     for (let step of this.sortedStepTypes()) {
-      if (step.type === 'Screenshot') { //first two screenshot elements do not work (?) we skip these and take third screenshot element
-        screenshotCount++;
-        if (screenshotCount > 3 && !addedTypes.has(step.type)) {
-          uniqueStepTypes.push(step);
-          addedTypes.add(step.type);
-        }
-      } else if (!addedTypes.has(step.type)) {
-        uniqueStepTypes.push(step);
-        addedTypes.add(step.type);
+      let stepCopy = { ...step };
+      //for all unique steps set steptype to "when" for edit-block
+      stepCopy.stepType = 'when';
+
+      if (stepCopy.type === "Screenshot" && !screenshotAdded) {
+        stepCopy.pre = "I take a screenshot. Optionally: Focus the page on the element";
+        uniqueStepTypes.push(stepCopy);
+        addedTypes.add(stepCopy.type);
+        screenshotAdded = true;
+      } else if (!addedTypes.has(stepCopy.type)) {
+        uniqueStepTypes.push(stepCopy);
+        addedTypes.add(stepCopy.type);
       }
     }
+
     return uniqueStepTypes;
-  }
+}
+
+
+
+
 
   /**
    * Gets the steps list (For Background: it should be set to 1 in order to enter when-Block)
@@ -701,9 +709,7 @@ export class BaseEditorComponent {
       case 'example':
         this.selectedScenario.saved = false;
         break;
-      case 'block-editor':
-        // this.selectedScenario.saved = false;
-        this.saved = false;
+      case 'default':
         break;
     }
   }
@@ -1298,7 +1304,6 @@ export class BaseEditorComponent {
 
       case 'block-editor':
         this.deactivateOnIteration(this.selectedBlock.stepDefinitions);
-        this.markUnsaved();
         break;
 
       default:
@@ -1370,7 +1375,6 @@ export class BaseEditorComponent {
 
       case 'block-editor':
         this.removeStepOnIteration(this.selectedBlock.stepDefinitions);
-        this.markUnsaved();
         break;
 
       default:
@@ -1567,7 +1571,6 @@ export class BaseEditorComponent {
         });
         
         });
-        this.markUnsaved();
         break;
 
       default:

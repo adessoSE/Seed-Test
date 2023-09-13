@@ -60,10 +60,10 @@
           uk-tooltip>
           <em class="material-icons-outlined">add_circle_outline</em>
         </button>
-        <div *ngIf="name === 'block-editor'" uk-dropdown="pos: left-bottom">
+        <div *ngIf="name === 'block-editor'" uk-dropdown="pos: right-bottom">
           <ul class="uk-nav uk-dropdown-nav">
-            <ng-template ngFor let-step [ngForOf]="sortedStepTypes()" let-i="index">
-              <li *ngIf="step.stepType === 'when'">
+            <ng-template ngFor let-step [ngForOf]="getUniqueSteps()" let-i="index">
+              <li>
                 <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep"
                   *ngIf="step.type !== this.newStepName && step.type !== 'Role' && step.type !== 'Add Variable'"
                   (click)="addStepToBlock(step);">
@@ -325,22 +325,22 @@
                   </div>
                   <input type="checkbox" class="checkbox" id="{{'block' + '_checkbox_' + j}}"
                     (change)="this.checkStep(currentStep, null)" [checked]="currentStep.checked">
-                  {{currentStep.pre}}
+                    {{j+1}}. {{currentStep.pre}}
                   <div *ngIf="currentStep.values.length > 0" style="display:inline">
                     <input id="{{'block_step_input_pre' + j}}" #step_type_input type="text"
                       value="{{currentStep.values[0]}}" on-input="addToValuesBlock(step_type_input.value,j,0)"
-                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;"/>
                     {{currentStep.mid}}
                     <input id="{{'block_step_input_mid' + j}}" #step_type_input
                       *ngIf="currentStep.mid !== ''" type="text"
                       value="{{currentStep.values[1]}}" on-input="addToValuesBlock(step_type_input.value, j, 1)"
-                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;"/>
                   </div>
                   {{currentStep.post}}
                   <input id="{{'block_step_input_post' + j + n}}" #step_type_input
                     *ngFor="let value of currentStep.values | slice:2; let n = index" type="text" value="{{value}}"
                     on-input="addToValuesBlock(step_type_input.value,j , n + 2)" 
-                    style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;min-width: 100px"/>
+                    style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;"/>
                   <div *ngIf="currentStep.outdated">
                     <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
                       <span rel="def">
