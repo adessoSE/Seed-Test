@@ -271,6 +271,9 @@ export class BaseEditorComponent {
       case 'example':
         this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedExampleBlock'));
         break;
+      
+      case 'block-editor':
+        this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedEditBlock'))
 
       default:
         break;
@@ -699,6 +702,7 @@ export class BaseEditorComponent {
         this.selectedScenario.saved = false;
         break;
       case 'block-editor':
+        // this.selectedScenario.saved = false;
         this.saved = false;
         break;
     }
@@ -1295,7 +1299,6 @@ export class BaseEditorComponent {
       case 'block-editor':
         this.deactivateOnIteration(this.selectedBlock.stepDefinitions);
         this.markUnsaved();
-        console.log("Deactivated chosen steps, saved status is set to:", this.saved);
         break;
 
       default:
@@ -1368,7 +1371,6 @@ export class BaseEditorComponent {
       case 'block-editor':
         this.removeStepOnIteration(this.selectedBlock.stepDefinitions);
         this.markUnsaved();
-        console.log("Removed chosen steps, saved status is set to:", this.saved);
         break;
 
       default:
@@ -1456,21 +1458,12 @@ export class BaseEditorComponent {
         break;
 
       case 'block-editor':
-        const copyBlock: any = { given: [], when: [], then: [], example: [] };
-        for (const prop in this.selectedBlock.stepDefinitions) {
-          if (prop !== 'example') {
-            for (const s in this.selectedBlock.stepDefinitions[prop]) {
-              if (this.selectedBlock.stepDefinitions[prop][s].checked) {
-                this.selectedBlock.stepDefinitions[prop][s].checked = false;
-                copyBlock[prop].push(this.selectedBlock.stepDefinitions[prop][s]);
-              }
-            }
-          }
-        }
-        block = { stepDefinitions: copyBlock };
-        sessionStorage.setItem('copiedBlock', JSON.stringify(block));
-        this.allChecked = false;
-        this.activeActionBar = false;
+        block = this.addStepsToBlockOnIteration(this.selectedBlock.stepDefinitions);
+        const editBlock: Block = { stepDefinitions: block };
+        sessionStorage.setItem('copiedEditBlock', JSON.stringify(editBlock));
+        this.toastr.success('successfully copied', 'Step(s)');
+        break;
+
       default:
         break;
     }
@@ -1563,6 +1556,17 @@ export class BaseEditorComponent {
           });
         });
         this.exampleService.updateExampleTableEmit();
+        this.markUnsaved();
+        break;
+
+      case 'block-editor':
+        Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
+          this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+            step.checked = false;
+            this.selectedBlock.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
+        });
+        
+        });
         this.markUnsaved();
         break;
 
