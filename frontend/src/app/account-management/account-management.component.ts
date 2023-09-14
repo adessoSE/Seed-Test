@@ -344,7 +344,11 @@ export class AccountManagementComponent implements OnInit, OnDestroy {
     openImportPopup() {
         this.dialog.open(ImportModalComponent,{
             width: '60%',
-            height: '400px'
+            enterAnimationDuration: '180ms',
+            exitAnimationDuration: '180ms',
+            data:{
+                repoList: this.repositories
+            }
         })
     }
 }

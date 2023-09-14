@@ -1,14 +1,72 @@
-<h1 mat-dialog-title>Import project</h1>
+<div class="modal-header">
+  <span mat-dialog-title id="modalHeader" class="MediumSubline1H4 modal-title"
+    >Import project</span
+  >
+  <dfn class="def"
+    ><span class="infoIcon" uk-icon="info"></span>
+    <span rel="def"
+      >You are about to import test cases into either an existing project or a
+      new project. Select the .zip file you want to upload and choose if you
+      want to import into an existing project or create a new project.
+    </span>
+  </dfn>
+  <button type="button" class="close" aria-label="Close" mat-dialog-close>
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 <div mat-dialog-content>
-    <h2>Import Test Cases</h2>
-<form (ngSubmit)="importTestCases()" #importForm="ngForm">
-  <!-- Import-Optionen hier hinzufügen -->
-  <input type="file" name="fileInput" (change)="handleFileInput($event)" accept=".zip">
-  <!-- Weitere Formularelemente hier hinzufügen, z.B., Optionen für doppelte Story-Namen, etc. -->
-  <button type="submit">Import</button>
-</form>
+  <form (ngSubmit)="importTestCases()" #importForm="ngForm">
+    <input
+      type="file"
+      name="fileInput"
+      (change)="handleFileInput($event)"
+      accept=".zip"
+    />
+    <div class="toggle-container">
+      <span class="import-label">Import into:</span>
+      <mat-slide-toggle
+        [(ngModel)]="isNewProject"
+        color="primary"
+      ></mat-slide-toggle>
+      <span class="toggle-label" [ngClass]="{ 'text-primary': isNewProject }">
+        {{ isNewProject ? "New Project" : "Existing Project" }}
+      </span>
+    </div>
 
+    <!-- Zeige das Eingabefeld für den Projektname basierend auf isNewProject -->
+    <input
+      type="text"
+      name="projectNameInput"
+      [(ngModel)]="projectName"
+      [hidden]="!isNewProject"
+      placeholder="Project name"
+    />
+
+    <!-- Zeige das Eingabefeld für die Suche basierend auf isNewProject -->
+
+    <div [hidden]="isNewProject">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search for project"
+      />
+
+      <mat-form-field appearance="standard" class="filterFormField">
+        <mat-label [hidden]="(filterRepositories(searchTerm).length === 0)">Project</mat-label>
+        <mat-label [hidden]="!(filterRepositories(searchTerm).length === 0)">No Projects found</mat-label>
+        <mat-select #ngSelect [(ngModel)]="importingRepoId">
+          <mat-option
+            *ngFor="let repo of filterRepositories(searchTerm)"
+            [value]="repo._id"
+            >{{ repo.value }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <br />
+    <button mat-raised-button color="primary" type="submit">Import</button>
+  </form>
 </div>
 <div mat-dialog-actions>
-
+  <button mat-button mat-dialog-close color="warn">Cancel</button>
 </div>
