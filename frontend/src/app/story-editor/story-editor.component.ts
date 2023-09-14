@@ -560,12 +560,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   scenarioDeleted() {
     const indexScenario: number = this.selectedStory.scenarios.indexOf(this.selectedScenario);
-    this.selectedStory.scenarios.splice(indexScenario, 1);
-    this.selectScenario(this.selectedStory.scenarios.slice(-1)[0])
-    /* if(this.selectedStory.scenarios.length < 1) { 
-      this.selectScenario(this.selectedStory.scenarios.slice(-1)[0])
+    if (indexScenario !== -1) {
+      this.selectedStory.scenarios.splice(indexScenario, 1);
+    }
+    
+    if (this.selectedStory.scenarios.length > 0) { 
+      this.selectScenario(this.selectedStory.scenarios.slice(-1)[0]);
+    } else {
       this.showEditor = false;
-    } */
+    }
   }
 
   /**
