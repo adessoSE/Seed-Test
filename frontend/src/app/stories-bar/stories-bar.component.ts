@@ -52,7 +52,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      * If it is the daisy version
      */
     daisyVersion = true;
-    hideCreateScenario = false;
 
     /**
      * Subscription element if a custom story should be created
@@ -127,7 +126,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     storyString: string;
 
-        /**
+    /**
      * SearchTerm for group title search
      */
     groupString: string;
@@ -136,7 +135,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
      */
     filteredStories: Story[];
 
-        /**
+    /**
      * Groups filtered for searchterm
      */
     filteredGroups: Group[];
@@ -383,7 +382,6 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         if (this.stories[storyIndex].scenarios[0]) {
             this.selectScenario(this.stories[storyIndex].scenarios[0]);
         }
-        this.toggleShows();
         this.backgroundService.backgroundReplaced = undefined;
     }
 
@@ -413,13 +411,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
                 this.selectScenario(resp);
                 this.selectedStory.scenarios.push(resp);
                 this.toastr.info('Successfully added', 'Scenario');
-                this.hideCreateScenario = true;
             });
-    }
-
-    toggleShows(): boolean {
-        this.hideCreateScenario = this.selectedStory.scenarios.length !== 0;
-        return this.hideCreateScenario;
     }
 
     /**
