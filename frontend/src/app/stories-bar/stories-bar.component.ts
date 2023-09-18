@@ -378,9 +378,8 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         this.selectedStory = story;
         this.initialyAddIsExample();
         this.storyChosen.emit(story);
-        const storyIndex = this.stories.indexOf(this.selectedStory);
-        if (this.stories[storyIndex].scenarios[0]) {
-            this.selectScenario(this.stories[storyIndex].scenarios[0]);
+        if (story.scenarios.length > 0) {
+            this.selectScenario(story.scenarios[0]);
         }
         this.backgroundService.backgroundReplaced = undefined;
     }
@@ -456,7 +455,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
             pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id);
         }
         this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(ret => {
-            console.log(ret);
+            // console.log(ret);
         });
     }
 
