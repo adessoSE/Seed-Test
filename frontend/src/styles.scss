@@ -670,6 +670,11 @@ $dark-theme: mat.define-dark-theme(
   background: var(--marine-blue);
 }
 
+.normalButton:disabled{
+  opacity: 20%;
+  pointer-events: none;
+}
+
 .darkTheme .normalButton:hover {
   background: var(--buttonHover);
 }

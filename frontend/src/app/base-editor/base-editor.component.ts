@@ -1522,6 +1522,8 @@ export class BaseEditorComponent {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+              //to prevent blocks to be checked after pasting
+              step.checked = false;
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }

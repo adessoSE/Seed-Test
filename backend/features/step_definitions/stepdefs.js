@@ -138,6 +138,32 @@ Given('I remove a cookie with the name {string}', async function removeCookie(na
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
+Given('I add a session-storage with the name {string} and value {string}', async function addSessionStorage(name, value) {
+	const world = this;
+	try {
+		await driver.executeScript(`window.sessionStorage.setItem('${name}', '${value}');`);
+	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	}
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
+Given('I remove a session-storage with the name {string}', async function addSessionStorage(name) {
+	const world = this;
+	try {
+		await driver.executeScript(`window.sessionStorage.removeItem('${name}');`);
+	} catch (e) {
+		await driver.takeScreenshot().then(async (buffer) => {
+			world.attach(buffer, 'image/png');
+		});
+		throw Error(e);
+	}
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
 // Take a Screenshot
 Given('I take a screenshot', async function () {
 	const world = this;
