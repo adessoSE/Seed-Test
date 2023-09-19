@@ -746,6 +746,32 @@ Then(
 	}
 );
 
+Then('So the picture {string} has the name {string}', async function checkPicture(picture, name) {
+	const world = this;
+	const identifiers = [`//img[@alt='${picture}']`, `//img[@title='${picture}']`, `//img[@id='${picture}']`, `${picture}`];
+	const promises = [];
+	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	await Promise.any(promises)
+		.then(async (elem) => {
+			const parent = await elem.findElement(By.xpath('..'));
+			if (await parent.getTagName() !== 'picture') expect(await elem.getAttribute('src')).to.include(name);
+			const childSourceElems = await parent.findElements(By.xpath('.//source'));
+			const elementWithSrcset = await childSourceElems.find(async (element) => {
+				const srcsetValue = await element.getAttribute('srcset');
+				return srcsetValue && srcsetValue.includes('myName');
+			});
+			if (elementWithSrcset) expect((await elementWithSrcset.getAttribute('src'))).to.include(name);
+			else expect(elem.getAttribute('src')).to.include(name);
+		})
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
+		});
+	await driver.sleep(100 + currentParameters.waitTime);
+})
+
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
 	const world = this;
