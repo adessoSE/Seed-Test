@@ -169,7 +169,7 @@ export class BlockService {
      */
   editBlock(block: Block) {
     return this.http
-      .put<Block>(this.apiService.apiServer + '/mongo/block', block, ApiService.getOptions())
+      .put<Block>(this.apiService.apiServer + '/block/' + block._id, block, ApiService.getOptions())
       .pipe(tap(),
         catchError(this.apiService.handleError)
       );
