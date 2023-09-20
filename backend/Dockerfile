@@ -12,9 +12,11 @@ RUN yes | apt install ./google-chrome-stable_current_amd64.deb
 RUN rm -f google-chrome-stable_current_amd64.deb
 
 # install chromedriver
+RUN google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+' > chromeversion.txt
 RUN apt-get install -yqq unzip curl
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+RUN wget -O /tmp/chromedriverzip.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$(cat chromeversion.txt)/linux64/chromedriver-linux64.zip
+RUN unzip /tmp/chromedriverzip.zip chromedriver-linux64/chromedriver -d /usr/local/bin/
+RUN mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
 
 # install firefox
 RUN wget -O ~/FirefoxSetup.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64"
