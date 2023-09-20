@@ -751,10 +751,9 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 	const identifiers = [`//img[@alt='${picture}']`, `//img[@title='${picture}']`, `//img[@id='${picture}']`, `//picture[source[contains(@srcset, '${picture}')] or img[contains(@srcset, '${picture}')]]`, `${picture}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	let finSrc;
 	await Promise.any(promises)
 		.then(async (elem) => {
-			let finSrc;
-			//throw Error(await elem.getTagName())
 			if (await elem.getTagName() === picture) {
 				const childSourceElems = await elem.findElements(By.xpath('.//source'));
 				const elementWithSrcset = await childSourceElems.find(async (element) => {
@@ -767,7 +766,6 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			const secSrc = await elem.getAttribute('srcset');
 			if (primSrc.includes(name)) finSrc = primSrc;
 			if (secSrc.includes(name)) finSrc = secSrc;
-			throw Error('final Src: ' + finSrc + ';               ' + primSrc + secSrc);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -775,21 +773,14 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			});
 			throw Error(e);
 		});
+		await fetch(finSrc, { method: 'HEAD' })
+		.then(response => {
+			if (!response.ok) throw Error(`Image ${finSrc} not Found`);
+		})
+		.catch(e => {
+			throw Error(`Image Availabel check Request Error `, e);
+		});
 	await driver.sleep(100 + currentParameters.waitTime);
-
-	/*
-	fetch('path/to/image.jpg', { method: 'HEAD' })
-    .then(response => {
-        if (response.ok) {
-            console.log('Image exists.');
-        } else {
-            console.log('Image does not exist.');
-        }
-    })
-    .catch(error => {
-        console.log('Error occurred while checking the image:', error);
-    });
-	*/
 });
 
 // Search if a text isn't in html code
