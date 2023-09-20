@@ -748,20 +748,26 @@ Then(
 
 Then('So the picture {string} has the name {string}', async function checkPicture(picture, name) {
 	const world = this;
-	const identifiers = [`//img[@alt='${picture}']`, `//img[@title='${picture}']`, `//img[@id='${picture}']`, `${picture}`];
+	const identifiers = [`//img[@alt='${picture}']`, `//img[@title='${picture}']`, `//img[@id='${picture}']`, `//picture[source[contains(@srcset, '${picture}')] or img[contains(@srcset, '${picture}')]]`, `${picture}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 	await Promise.any(promises)
 		.then(async (elem) => {
-			const parent = await elem.findElement(By.xpath('..'));
-			if (await parent.getTagName() !== 'picture') expect(await elem.getAttribute('src')).to.include(name);
-			const childSourceElems = await parent.findElements(By.xpath('.//source'));
-			const elementWithSrcset = await childSourceElems.find(async (element) => {
-				const srcsetValue = await element.getAttribute('srcset');
-				return srcsetValue && srcsetValue.includes('myName');
-			});
-			if (elementWithSrcset) expect((await elementWithSrcset.getAttribute('src'))).to.include(name);
-			else expect(elem.getAttribute('src')).to.include(name);
+			let finSrc;
+			//throw Error(await elem.getTagName())
+			if (await elem.getTagName() === picture) {
+				const childSourceElems = await elem.findElements(By.xpath('.//source'));
+				const elementWithSrcset = await childSourceElems.find(async (element) => {
+					const srcsetValue = await element.getAttribute('srcset');
+					return srcsetValue && srcsetValue.includes(name);
+				});
+				finSrc = elementWithSrcset.getAttribute('srcset');
+			}
+			const primSrc = await elem.getAttribute('src');
+			const secSrc = await elem.getAttribute('srcset');
+			if (primSrc.includes(name)) finSrc = primSrc;
+			if (secSrc.includes(name)) finSrc = secSrc;
+			throw Error('final Src: ' + finSrc + ';               ' + primSrc + secSrc);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -770,7 +776,21 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
-})
+
+	/*
+	fetch('path/to/image.jpg', { method: 'HEAD' })
+    .then(response => {
+        if (response.ok) {
+            console.log('Image exists.');
+        } else {
+            console.log('Image does not exist.');
+        }
+    })
+    .catch(error => {
+        console.log('Error occurred while checking the image:', error);
+    });
+	*/
+});
 
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
