@@ -99,15 +99,16 @@ em.dragIcon{
 .text-inline{
   display: flex;
 }
+
 .mat-expansion-panel-header.stepBlockHeader{
   height: 100%;
   padding: 3.4px
 }
-.text-inline.SmallBody1regularLH.stepLine{
+
+.blockReference{
   width: 100%;
-  position: relative;
-  top: 0;
 }
+
 .text-inline > button{
   margin: 0 5px;
 }

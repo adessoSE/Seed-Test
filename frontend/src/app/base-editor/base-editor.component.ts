@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -17,18 +17,15 @@ import { ExampleTableComponent } from '../example-table/example-table.component'
 import { NewExampleComponent } from '../modals/new-example/new-example.component';
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
-import { StoryService } from '../Services/story.service';
 import { BackgroundService } from '../Services/background.service';
 import { InfoWarningToast } from '../info-warning-toast';
 import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
 import { DeleteToast } from '../delete-toast';
-import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-base-editor',
   templateUrl: './base-editor.component.html',
-  styleUrls: ['./base-editor.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./base-editor.component.css']
 })
 export class BaseEditorComponent {
 
@@ -361,8 +358,6 @@ export class BaseEditorComponent {
   addToValuesBlock(input: string, stepIndex: number, valueIndex: number) {
     this.selectedBlock.stepDefinitions.when[stepIndex].values[valueIndex] = input;
     this.markUnsaved();
-    console.log("Current Block after added Value:");
-    console.log(this.selectedBlock);
   }
 
   /**
