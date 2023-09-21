@@ -434,17 +434,13 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
     dropStory(event: CdkDragDrop<string[]>) {
         const repo_id = localStorage.getItem('id');
         moveItemInArray(this.stories, event.previousIndex, event.currentIndex);
-        this.storyService.updateStoryList(repo_id, this.stories.map(s => s._id)).subscribe(_ => {
-            // console.log(ret)
-        });
+        this.storyService.updateStoryList(repo_id, this.stories.map(s => s._id)).subscribe(_ => {});
     }
 
     dropScenario(event: CdkDragDrop<string[]>, s) {
         const index = this.stories.findIndex(o => o._id === s._id);
         moveItemInArray(this.stories[index].scenarios, event.previousIndex, event.currentIndex);
-        this.scenarioService.updateScenarioList(this.stories[index]._id, this.stories[index].scenarios).subscribe(_ => {
-            // console.log(ret)
-        });
+        this.scenarioService.updateScenarioList(this.stories[index]._id, this.stories[index].scenarios).subscribe(_ => {});
     }
 
     dropGroup(event: CdkDragDrop<string[]>) {
@@ -454,9 +450,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         for (const groupIndex in pass_arr) {
             pass_arr[groupIndex].member_stories = pass_arr[groupIndex].member_stories.map(o => o._id);
         }
-        this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(ret => {
-            // console.log(ret);
-        });
+        this.groupService.updateGroupsArray(repo_id, pass_arr).subscribe(_ => {});
     }
 
     dropGroupStory(event: CdkDragDrop<string[]>, group) {
@@ -465,9 +459,7 @@ export class StoriesBarComponent implements OnInit, OnDestroy {
         moveItemInArray(this.groups[index].member_stories, event.previousIndex, event.currentIndex);
         const pass_gr = this.groups[index];
         pass_gr.member_stories = this.groups[index].member_stories.map(o => o._id);
-        this.groupService.updateGroup(repo_id, group._id, pass_gr).subscribe(_ => {
-            // console.log(ret)
-        });
+        this.groupService.updateGroup(repo_id, group._id, pass_gr).subscribe(_ => {});
     }
 
   /**

@@ -69,7 +69,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   @Input()
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
-    this.showEditor = story.scenarios.length > 0 ? true : false;
+
+    // hide if no scenarios in story
+    this.showEditor = !!story.scenarios.length;
   }
 
   /**
