@@ -13,6 +13,7 @@ import { ApiService } from '../Services/api.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatTable } from '@angular/material/table';
 import { StepDefinition } from '../model/StepDefinition';
+import { ThemePalette } from '@angular/material/core';
 
 
 @Component({
@@ -98,14 +99,19 @@ export class ExampleTableComponent implements OnInit {
    * selected Scenario
    */
   selectedScenario: Scenario;
-
+  /**
+   * toggle Edit table mode
+   */
+  color: ThemePalette = 'primary';
+  toggleControl = new UntypedFormControl(false);
+  editMode: boolean;
   /**
    * Boolean if the example table should be shown or not
    */
   exampleThere: boolean = false;
 
   deleteExampleObservable: Subscription;
-
+  toggleObservable: Subscription;
   updateExampleTableObservable: Subscription;
 
   indexOfExampleToDelete;
@@ -152,6 +158,10 @@ export class ExampleTableComponent implements OnInit {
     this.deleteExampleObservable = this.exampleService.deleteExampleEvent.subscribe(() => {this.deleteExampleFunction();});
     //this.lastRow = this.selectedScenario.stepDefinitions.example.slice(-1)[0];
     this.updateExampleTableObservable = this.exampleService.updateExampleTableEvent.subscribe(() =>{this.updateTable();});
+
+    this.toggleObservable = this.toggleControl.valueChanges.subscribe(val => {
+      this.editMode = val;
+    });
   }
  
   // eslint-disable-next-line @angular-eslint/use-lifecycle-interface

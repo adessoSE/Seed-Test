@@ -116,3 +116,18 @@ th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:
   left:0;
   background: inherit;
 }
+
+.slide-toggle-container{
+  display: flex;
+  justify-content: center;
+}
+
+.icon{
+  color: var(--ocean-blue);
+}
+
+.edit-mode{
+  font-size: 17px;
+  margin: 2px;
+  margin-right: 5px;
+}
