@@ -48,7 +48,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   @Input()
   set newSelectedScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
-      if (this.selectedStory) {
+      if (this.selectedStory && scenario) {
           this.selectScenario(scenario);
       }       
   }
@@ -69,7 +69,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   @Input()
   set newSelectedStory(story: Story) {
     this.selectedStory = story;
-    this.showEditor = true;
+
+    // hide if no scenarios in story
+    this.showEditor = !!story.scenarios.length;
   }
 
   /**
@@ -499,7 +501,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
      */
     selectNewScenario(scenario: Scenario) {
       this.selectedScenario = scenario;
-      if (this.selectedStory) {
+      if (this.selectedStory && scenario) {
           this.selectScenario(scenario);
       }
     }
@@ -563,7 +565,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     if (indexScenario !== -1) {
       this.selectedStory.scenarios.splice(indexScenario, 1);
     }
-    this.showEditor = false;
+    
+    if (this.selectedStory.scenarios.length > 0) { 
+      this.selectScenario(this.selectedStory.scenarios.slice(-1)[0]);
+    } else {
+      this.showEditor = false;
+    }
   }
 
   /**
@@ -697,7 +704,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   selectScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
     this.showResults = false;
-    this.showEditor = true;
+    if (scenario) this.showEditor = true;
+    else this.showEditor = false;
     this.testDone = false;
     this.emulator_enabled = false;
 
@@ -770,14 +778,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * Selects a story and scenario
    * @param story
    */
-	selectStoryScenario(story: Story) {
+	selectStoryScenario(story: Story) { 
 		this.showResults = false;
 		this.selectedStory = story;
-		this.showEditor = true;
-		const storyIndex = this.stories.indexOf(this.selectedStory);
-		if (this.stories[storyIndex].scenarios[0] !== undefined) {
-			this.selectScenario(this.stories[storyIndex].scenarios[0]);
-		}
+    console.log('log aus story editor selectStoryScen', story)
+		if (story.scenarios.length > 0) {
+			this.selectScenario(story.scenarios[0]);
+      this.showEditor = true;
+		} else this.showEditor = false;
 	}
 
   /**
