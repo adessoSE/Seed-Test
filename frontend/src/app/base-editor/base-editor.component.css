@@ -420,11 +420,27 @@ input.scenario, input.background {
 
  }
 
-.content_editable_element { /*not needed !?*/
+.contentEditableElement { /*not needed !?*/
   white-space: pre-wrap;       /* css-3 */
   white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
   white-space: -pre-wrap;      /* Opera 4-6 */
   white-space: -o-pre-wrap;    /* Opera 7 */
   word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.inputEditableDiv{
+	margin: 1px;
+	padding: 1px;
+	border: none;
+	border-bottom: 1px solid #333;
+	position: relative;
+	top: -2px;
+	width: auto;
+	min-width: 5px;
+
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
