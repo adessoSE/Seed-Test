@@ -118,9 +118,12 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.blocks = resp;
       });
     }
-    
+
+    getFilteredListBlocks() {
+      return this.blocks.filter((b)=> b.isBackground == undefined)
+    }
     /**
-     * Deletes a block(call a toaster)
+     * Deletes a block(call a toastr)
      */
     deleteBlock() {
       this.apiService.nameOfComponent('block');
@@ -142,13 +145,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
           this.stepList = [];
           this.selectedBlock = null;
           console.log(resp);
-          this.updateBlocksBackEventEmitter();
+          this.updateBlocksEventEmitter();
           this.toastr.error('', 'Block deleted');
         }); 
       }
-    }
-    updateBlocksBackEventEmitter() {
-      this.blockService.updateBlocksBackgroundsEvent.emit();
     }
     /**
      * Change block title
@@ -231,10 +231,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
         this.newblockName = this.selectedBlock.name;
       } else{
-        this.oldName = this.selectedBlock.name;
         this.selectedBlock.name = this.newblockName;        
         this.blockService
-        .updateBlock(this.oldName, this.selectedBlock)
+        .updateBlock(this.selectedBlock)
         .subscribe(_ => {
           this.updateBlocksEventEmitter();
           this.toastr.success('successfully saved', 'Block');

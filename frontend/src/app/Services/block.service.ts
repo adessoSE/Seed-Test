@@ -28,10 +28,6 @@ export class BlockService {
    */
   public updateBlocksEvent: EventEmitter<any> = new EventEmitter();
   /**
-  * Event emitter to track blocks updates
-   */
-  public updateBlocksBackgroundsEvent: EventEmitter<any> = new EventEmitter();
-  /**
   * Delete emitter to add delete a block from blocks
    */
   public deleteBlockEvent = new EventEmitter();
@@ -48,12 +44,6 @@ export class BlockService {
   */
   updateBlocksEmitter() {
     this.updateBlocksEvent.emit();
-  }
-  /**
-  * Emits the update block in background list
-   */
-  updateBlocksBackgroundsEmitter() {
-    this.updateBlocksBackgroundsEvent.emit();
   }
   
   /**
@@ -81,9 +71,9 @@ export class BlockService {
   * @param block
   * @returns
   */
-  updateBlock(oldTitle: string, block: Block):Observable<Block>{
+  updateBlock(block: Block):Observable<Block>{
     return this.http
-    .put<Block>(this.apiService.apiServer + '/block/' + oldTitle, block, ApiService.getOptions())
+    .put<Block>(this.apiService.apiServer + '/block/' + block._id, block, ApiService.getOptions())
     .pipe(tap(_ => {
         //
     }),
@@ -113,5 +103,18 @@ export class BlockService {
     .pipe(tap(_ => {
       //
     }));
+  }
+ /**
+  * Delete central background-block
+  * @param block
+  * @param stories
+  */
+  checkBackgroundsOnDelete(block, stories){
+    let matchingStories = stories.filter((s) => s !== null && s.background.name === block.name);
+    if(matchingStories.length == 1){
+      this.deleteBlock(block._id).subscribe(_=>
+        this.updateBlocksEvent.emit()
+      )
+    }
   }
 }

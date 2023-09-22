@@ -91,9 +91,9 @@
             </a>
           </li>
         </ul>
-        <button id="add_first_scenario" class="SmallButton" *ngIf="!this.hideCreateScenario" (click)="openCreateNewScenarioModal()">
+        <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length>0)" (click)="openCreateNewScenarioModal()">
           Create First Scenario</button>
-        <button id="add_scenario" *ngIf="this.hideCreateScenario" class="material-icons"
+        <button id="add_scenario" *ngIf="s.scenarios.length>0" class="material-icons"
           uk-tooltip="Add New Scenario" (click)="openCreateNewScenarioModal()">
           add</button>
       </div>
@@ -130,8 +130,8 @@
           {{g.name}}
         </a>
         <span class="groupIconSpan">
-          <em class="material-icons" (click)="selectFirstStoryOfGroup(g);runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
-          <em class="material-icons" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
+          <em class="material-icons" uk-tooltip title="Run Tests in Group" (click)="selectFirstStoryOfGroup(g);runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
+          <em class="material-icons" uk-tooltip title="Update Group" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
         </span>
       </div>
 

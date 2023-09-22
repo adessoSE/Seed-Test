@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const helper = require('../serverHelper');
 const mongo = require('../database/DbServices');
+const pmHelper = require('../../dist/helpers/projectManagement');
 
 const router = express.Router();
 
@@ -60,7 +61,6 @@ router.post('/', async (req, res) => {
 // update Story
 router.put('/:_id', async (req, res) => {
 	try {
-		console.log(req.body);
 		const story = await mongo.updateStory(req.body);
 		await helper.updateFeatureFile(req.params._id);
 		res.status(200).json(story);
@@ -114,7 +114,6 @@ router.post('/:story_id', async (req, res) => {
 
 // update scenario
 router.put('/:story_id/:_id', async (req, res) => {
-	console.log(req.body);
 	try {
 		const scenario = req.body;
 		const updatedStory = await mongo.updateScenario(req.params.story_id, scenario);
@@ -156,6 +155,17 @@ router.get('/download/project/:repo_id', async (req, res) => {
 		const version = req.query.version_id ? req.query.version_id : '';
 		const file = await helper.exportProjectFeatureFiles(req.params.repo_id, version);
 		console.log(file);
+		res.send(file);
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
+router.get('/download/export/:repo_id', async (req, res) => {
+	try {
+		console.log('export project ', req.params.repo_id);
+		const version = req.query.version_id ? req.query.version_id : '';
+		const file = await pmHelper.exportProject(req.params.repo_id, version);
 		res.send(file);
 	} catch (error) {
 		handleError(res, error, error, 500);

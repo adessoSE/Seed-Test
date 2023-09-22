@@ -92,16 +92,19 @@ function getScenarioContent(scenarios, storyID) {
 		if (scenario.stepDefinitions.then !== undefined) data += `${getSteps(scenario.stepDefinitions.then, Object.keys(scenario.stepDefinitions)[2])}\n`;
 		if ((scenario.stepDefinitions.example.length) > 0) data += `${getExamples(scenario.stepDefinitions.example)}\n\n`;
 		if (scenario.comment !== null) {
-			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, "\n#  ")}\n\n`;
+			data += `# Comment:\n#  ${scenario.comment.replaceAll(/\n/g, '\n#  ')}\n\n`;
 		}
 	}
-	log("scenario steps: ", data);
 	return data;
 }
 
 // Building feature file story-name-content (feature file title)
 function getFeatureContent(story) {
-	let data = `Feature: ${story.title}\n\n${story.body.replaceAll('#', '').replaceAll('(/)', '')}\n\n`;
+	let body = '';
+	if (story.body !== null && story.body !== undefined) {
+		body = story.body.replaceAll('#', '').replaceAll('(/)', '');
+	}
+	let data = `Feature: ${story.title}\n\n${body}\n\n`;
 
 	// Get background
 	if (story.background != null) data += getBackgroundContent(story.background);
@@ -146,79 +149,79 @@ async function deleteFeatureFile(storyTitle, storyId) {
 }
 
 async function executeTest(req, mode, story) {
-    let parameters = {};
+	let parameters = {};
 
-    if (mode === 'scenario') {
-        const scenario = story.scenarios.find(elem => elem.scenario_id === parseInt(req.params.scenarioId, 10));
+	if (mode === 'scenario') {
+		const scenario = story.scenarios.find(elem => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 
-        const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
-        parameters = {
-            scenarios: Array.from({ length: scenarioCount }).map(() => ({
-                browser: scenario.browser || 'chrome',
-                waitTime: scenario.stepWaitTime || 0,
-                daisyAutoLogout: scenario.daisyAutoLogout || false,
-                ...(scenario.emulator !== undefined && { emulator: scenario.emulator })
-            }))
-        };
-    } else if (mode === 'feature' || mode === 'group') {
-        const prep = scenarioPrep(story.scenarios, story.oneDriver);
-        story.scenarios = prep.scenarios;
-        parameters = prep.parameters;
-    }
+		const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
+		parameters = {
+			scenarios: Array.from({ length: scenarioCount }).map(() => ({
+				browser: scenario.browser || 'chrome',
+				waitTime: scenario.stepWaitTime || 0,
+				daisyAutoLogout: scenario.daisyAutoLogout || false,
+				...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+			}))
+		};
+	} else if (mode === 'feature' || mode === 'group') {
+		const prep = scenarioPrep(story.scenarios, story.oneDriver);
+		story.scenarios = prep.scenarios;
+		parameters = prep.parameters;
+	}
 
-    const reportTime = Date.now();
-    const cucePath = 'node_modules/.bin/';
-    const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
-    const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
+	const reportTime = Date.now();
+	const cucePath = 'node_modules/.bin/';
+	const featurePath = `../../features/${cleanFileName(story.title + story._id)}.feature`;
+	const reportName = req.user && req.user.github ? `${req.user.github.login}_${reportTime}` : `reporting_${reportTime}`;
 
-    try {
-        await fs.promises.access(featurePath, fs.constants.F_OK);
-    } catch (err) {
-        await updateFeatureFile(story._id, req.params.storySource);
-    }
+	try {
+		await fs.promises.access(featurePath, fs.constants.F_OK);
+	} catch (err) {
+		await updateFeatureFile(story._id, req.params.storySource);
+	}
 
-    let jsonPath = `../../features/${reportName}.json`;
-    if (mode === 'group') {
-        const grpDir = req.body.name;
-        jsonPath = `../../features/${grpDir}/${reportName}.json`;
-    }
+	let jsonPath = `../../features/${reportName}.json`;
+	if (mode === 'group') {
+		const grpDir = req.body.name;
+		jsonPath = `../../features/${grpDir}/${reportName}.json`;
+	}
 
-    const jsParam = JSON.stringify(parameters);
-    const cucumberArgs = [
-        path.normalize(featurePath),
-        ...(mode === 'scenario' ? [`--tags`, `@${req.params.issueID}_${req.params.scenarioId}`] : []),
-        `--format`, `json:${path.normalize(jsonPath)}`,
-        `--world-parameters`, jsParam,
-        `--exit`
-    ];
+	const jsParam = JSON.stringify(parameters);
+	const cucumberArgs = [
+		path.normalize(featurePath),
+		...(mode === 'scenario' ? [`--tags`, `@${req.params.issueID}_${req.params.scenarioId}`] : []),
+		`--format`, `json:${path.normalize(jsonPath)}`,
+		`--world-parameters`, jsParam,
+		`--exit`
+	];
 
-    const cmd = os.platform().includes('win') ? '.cmd' : '';
-    const cucumberCommand = `cucumber-js${cmd}`;
-    const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
+	const cmd = os.platform().includes('win') ? '.cmd' : '';
+	const cucumberCommand = `cucumber-js${cmd}`;
+	const cucumberPath = path.normalize(`${__dirname}/../${cucePath}`);
 
-    console.log('\nExecuting:');
-    console.log(`Working Dir: "${cucumberPath}"`);
-    console.log(`Command: "${cucumberCommand}"`);
-    console.log(`Args: [${cucumberArgs}]\n`);
+	console.log('\nExecuting:');
+	console.log(`Working Dir: "${cucumberPath}"`);
+	console.log(`Command: "${cucumberCommand}"`);
+	console.log(`Args: [${cucumberArgs}]\n`);
 
-    const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
+	const runner = ch.spawn(cucumberCommand, cucumberArgs, { cwd: cucumberPath });
 
-    runner.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
-    });
-    runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
+	runner.stdout.on('data', (data) => {
+		console.log(`stdout: ${data}`);
+	});
+	runner.stderr.on('data', (data) => { console.log(`stderr: ${data}`); });
 
-    return new Promise((resolve) => {
-        runner.on('error', (error) => {
-            console.error(`exec error: ${error}`);
-            resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
-        });
+	return new Promise((resolve) => {
+		runner.on('error', (error) => {
+			console.error(`exec error: ${error}`);
+			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+		});
 
-        runner.on('exit', () => {
-            console.log('test finished');
-            resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
-        });
-    });
+		runner.on('exit', () => {
+			console.log('test finished');
+			resolve({ reportTime, story, scenarioId: req.params.scenarioId, reportName });
+		});
+	});
 }
 
 

@@ -1,5 +1,4 @@
 import { ApiService } from 'src/app/Services/api.service';
-import { CopyExampleToast } from '../copyExample-toast';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, ElementRef, Input, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
@@ -19,6 +18,7 @@ import { NewExampleComponent } from '../modals/new-example/new-example.component
 import { ExampleService } from '../Services/example.service';
 import { ScenarioService } from '../Services/scenario.service';
 import { BackgroundService } from '../Services/background.service';
+import { InfoWarningToast } from '../info-warning-toast';
 
 @Component({
   selector: 'app-base-editor',
@@ -174,6 +174,8 @@ export class BaseEditorComponent  {
         Object.keys(block.stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             block.stepDefinitions[key].forEach((step: StepType) => {
+              //to prevent blocks to be checked after pasting
+              step.checked = false;
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }
@@ -182,8 +184,16 @@ export class BaseEditorComponent  {
       }
       
       if (this.templateName == 'scenario' && block[0] == 'scenario') {      
+        Object.keys(block[1].stepDefinitions).forEach((key, _) => {
+          if (key != 'example') {
+            block[1].stepDefinitions[key].forEach((step: StepType, j) => {
+              //to prevent blocks to be checked after pasting
+              step.checked = false;
+           });
+          }
+        });  
         block = block[1];
-        this.insertStepsWithExamples(block)
+        this.insertStepsWithExamples(block);
         this.markUnsaved();
       }
     });
@@ -1342,6 +1352,8 @@ export class BaseEditorComponent  {
         Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
+              //to prevent blocks to be checked after pasting
+              step.checked = false;
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }
@@ -1353,15 +1365,18 @@ export class BaseEditorComponent  {
       case 'scenario':
         //this.insertStepsWithExamples()
         if (this.clipboardBlock.stepDefinitions['example'].length != 0){
-
+          this.apiService.nameOfComponent('copyExampleToast');
+          this.apiService.setToastrOptions('Copy with multiple scenario(s)', 'Copy without multiple scenario(s)');
           this.toastr.info('Do you want to copy it?', 'Block contains muliple scenario(s)', {
-            toastComponent: CopyExampleToast
+            toastComponent: InfoWarningToast
           });
 
         } else {
           Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
             if (key != 'example') {
               this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                //to prevent blocks to be checked after pasting
+                step.checked = false;
                 this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step))); 
              });
            } 
@@ -1486,7 +1501,7 @@ export class BaseEditorComponent  {
       this.insertNewExamples(selectedExampleDefs, blockExampleDefs);
     } else {
       this.insertValuesIntoSelectedExamples(selectedExampleDefs, blockExampleDefs);
-      this.insertPlaceholderValues(selectedExampleDefs, blockExampleDefs[0].values.length);
+      this.insertPlaceholderValues(selectedExampleDefs, selectedExampleDefs[0].values.length);
     }
     this.exampleService.updateExampleTableEmit();
     this.markUnsaved()
@@ -1518,7 +1533,7 @@ export class BaseEditorComponent  {
   
   insertPlaceholderValues(selectedExampleDefs, length) {
     selectedExampleDefs.forEach(element => {
-      for (let i = 0; i < length; i++) {
+      for (let i = element.values.length; i < length; i++) {
         element.values.push('value');
       }
     });
