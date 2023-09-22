@@ -44,6 +44,8 @@ chromeOptions.setUserPreferences({ 'download.default_directory': 'C:\\Users\\Pub
 chromeOptions.bynary_location = process.env.GOOGLE_CHROME_SHIM;
 let currentParameters = {};
 
+const NotFoundError = (e) => Error(`ElementNotFoundError: ${e}`);
+
 function CustomWorld({ attach, parameters }) {
 	this.attach = attach;
 	this.parameters = parameters;
@@ -201,6 +203,7 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Element ${element} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -242,6 +245,7 @@ When('I click the button: {string}', async function clickButton(button) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Button ${button} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -283,6 +287,7 @@ When('I insert {string} into the field {string}', async function fillTextField(v
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Input/Textarea ${label} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -449,6 +454,7 @@ When('I select {string} from the selection {string}', async function clickRadioB
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Radio ${label} with option ${radioname} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -468,6 +474,7 @@ When('I select the option {string} from the drop-down-menue {string}', async (va
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown ${dropd} with option ${value} could not be found!`);
 			throw Error(e);
 		});
 	await driver.sleep(currentParameters.waitTime);
@@ -482,6 +489,7 @@ When('I select the option {string}', async function selectviaXPath(dropd) {
 		await driver.takeScreenshot().then(async (buffer) => {
 			world.attach(buffer, 'image/png');
 		});
+		if (Object.keys(e).length === 0) throw NotFoundError(`Dropdown-option ${dropd} could not be found!`);
 		throw Error(e);
 	}
 	await driver.sleep(100 + currentParameters.waitTime);
@@ -522,6 +530,7 @@ When('I hover over the element {string} and select the option {string}', async f
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
+				if (Object.keys(e).length === 0) throw NotFoundError(`Selector ${element} could not be found!`);
 				throw Error(e);
 			}
 		}
@@ -559,10 +568,9 @@ When('I check the box {string}', async function checkBox(name) {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
 			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`checkbox ${name} could not be found!`);
 			throw Error(e);
 		});
-
-	// await driver.wait(async () => driver.executeScript('return document.readyState').then(async (readyState) => readyState === 'complete'));
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
@@ -630,6 +638,7 @@ When(
 				await driver.takeScreenshot().then(async (buffer) => {
 					world.attach(buffer, 'image/png');
 				});
+				if (Object.keys(e).length === 0) throw NotFoundError(`Upload Field ${input} could not be found!`);
 				throw Error(e);
 			});
 		await driver.sleep(100 + currentParameters.waitTime);
