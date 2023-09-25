@@ -748,24 +748,26 @@ Then(
 
 Then('So the picture {string} has the name {string}', async function checkPicture(picture, name) {
 	const world = this;
-	const identifiers = [`//img[@alt='${picture}']`, `//img[@title='${picture}']`, `//img[@id='${picture}']`, `//picture[source[contains(@srcset, '${picture}')] or img[contains(@srcset, '${picture}')]]`, `${picture}`];
+	const identifiers = [`//picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]]`, `//img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]`, `${picture}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
-	let finSrc;
+	const domain = (await driver.getCurrentUrl()).split('/').slice(0, 3).join('/');
+	let finSrc = '';
 	await Promise.any(promises)
 		.then(async (elem) => {
-			if (await elem.getTagName() === picture) {
+			if (await elem.getTagName() === 'picture') {
 				const childSourceElems = await elem.findElements(By.xpath('.//source'));
 				const elementWithSrcset = await childSourceElems.find(async (element) => {
 					const srcsetValue = await element.getAttribute('srcset');
 					return srcsetValue && srcsetValue.includes(name);
 				});
-				finSrc = elementWithSrcset.getAttribute('srcset');
+				finSrc = await elementWithSrcset.getAttribute('srcset');
 			}
 			const primSrc = await elem.getAttribute('src');
 			const secSrc = await elem.getAttribute('srcset');
-			if (primSrc.includes(name)) finSrc = primSrc;
-			if (secSrc.includes(name)) finSrc = secSrc;
+			if (!finSrc && primSrc && primSrc.includes(name)) finSrc = primSrc;
+			if (!finSrc && secSrc && secSrc.includes(name)) finSrc = secSrc;
+			finSrc = finSrc.split(' ').filter((substring) => substring.includes(name));
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -773,12 +775,12 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			});
 			throw Error(e);
 		});
-		await fetch(finSrc, { method: 'HEAD' })
+		await fetch(domain + finSrc, { method: 'HEAD' })
 		.then(response => {
 			if (!response.ok) throw Error(`Image ${finSrc} not Found`);
 		})
 		.catch(e => {
-			throw Error(`Image Availabel check Request Error `, e);
+			throw Error(`Image Availabel check Request Error to ${domain + finSrc} `, e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
 });
