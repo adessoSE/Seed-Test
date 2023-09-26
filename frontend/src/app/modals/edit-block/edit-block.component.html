@@ -2,7 +2,7 @@
     <app-layout-modal></app-layout-modal>
     <div [class.darkTheme] ="isDark" class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Edit Block</span>
-        <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info" id="whiteInfoIcon"></span>
+        <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
             <span rel="def">Edit a saved Block. Scenarios that use this block will be updated.
             </span>
         </dfn>
@@ -13,10 +13,10 @@
     <div (keydown)="enterSubmit($event)">
         <div class="title">
             <div class="BlockHeaderWarning">
-                <em class="material-icons" id="warning">warning</em>
+                <em class="material-icons warningIcon">warning</em>
                 <p>Changes to a Block will be applied to EVERY Scenario referencing this Block.<br>
                     This might result in Breaking Changes!</p>
-                <em class="material-icons" id="warning">warning</em>
+                <em class="material-icons warningIcon">warning</em>
             </div>
             <div class="BlockHeaderContainer">
                 <div>
