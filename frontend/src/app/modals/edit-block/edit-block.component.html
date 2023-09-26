@@ -1,6 +1,6 @@
 <ng-template #editBlockModal let-modal>
     <app-layout-modal></app-layout-modal>
-    <div class="modal-header">
+    <div [class.darkTheme] ="isDark" class="modal-header">
         <span id="modalHeader" class="MediumSubline1H4 modal-title">Edit Block</span>
         <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info" id="whiteInfoIcon"></span>
             <span rel="def">Edit a saved Block. Scenarios that use this block will be updated.
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <div class="uk-card uk-card-default modal-container" [class.darkTheme]="isDark">
+        <div class="uk-card uk-card-default modal-container">
             <app-base-editor #baseEditor [templateName]="TEMPLATE_NAME" [testRunning]="testRunning"
                 [newlySelectedScenario]="selectedScenario" [newlySelectedStory]="selectedStory"
                 [originalStepTypes]="originalStepTypes" [selectedBlock]="selectedBlock"></app-base-editor>

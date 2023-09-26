@@ -25,7 +25,7 @@ export class EditBlockComponent {
    */
   @Input() selectedBlock: Block;
 
-  @Input() isDark: boolean;
+  isDark: boolean;
 
   clipboardBlock: Block = null;
 
@@ -45,8 +45,9 @@ export class EditBlockComponent {
 
   ngOnInit() {
     this.isDark = this.themeService.isDarkMode();
+    console.log(this.isDark);
     this.themeObservable = this.themeService.themeChanged.subscribe(() => {
-    this.isDark = this.themeService.isDarkMode();
+    this.isDark = this.themeService.isDarkMode(); 
     });
   }
 

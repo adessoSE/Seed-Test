@@ -1773,10 +1773,13 @@ export class BaseEditorComponent {
      * @returns returns all examples in list
      */
   getExampleList() {
-    if (this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length && this.selectedScenario.stepDefinitions.example[0].values.length) {
-      return this.selectedScenario.stepDefinitions.example[0].values
+    if (this.templateName != 'block-editor') {
+      if (this.selectedScenario.stepDefinitions.example && this.selectedScenario.stepDefinitions.example.length && this.selectedScenario.stepDefinitions.example[0].values.length) {
+        return this.selectedScenario.stepDefinitions.example[0].values
+      }
+      return undefined
     }
-    return undefined
+    
   }
 
   /**
