@@ -1,5 +1,5 @@
-#whiteInfoIcon {
-    color: white;
+#warningIcon {
+    color: white !important;
 }
 
 .BlockHeaderContainer {
@@ -43,12 +43,14 @@
     min-width: 1000px;
 
 }
-::ng-deep  .modal-container.darkTheme>app-base-editor .scenarioBarContainer {
-    background-color: #546E7A !important;
-    border-bottom: 1px solid #B0BEC5 !important;
-}
+
 ::ng-deep body>ngb-modal-window.modal {
 
     z-index: 1;
 
 }
+
+:host ::ng-deep .darkTheme.uk-dropdown {
+  background-color: #60767b;
+  color: var(--light-blue);
+}  
