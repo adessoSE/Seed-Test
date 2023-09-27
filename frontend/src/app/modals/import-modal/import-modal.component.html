@@ -16,6 +16,12 @@
 </div>
 <div mat-dialog-content>
   <form (ngSubmit)="importTestCases()" #importForm="ngForm">
+
+    <div class="error-container" *ngIf="errorMessage">
+      <mat-icon class="error-icon">error</mat-icon>
+      <div class="error-message">{{ errorMessage }}</div>
+    </div>
+
     <input
       type="file"
       name="fileInput"
@@ -27,6 +33,7 @@
       <mat-slide-toggle
         [(ngModel)]="isNewProject"
         color="primary"
+        (ngModelChange)="onSlideToggleChange()"
       ></mat-slide-toggle>
       <span class="toggle-label" [ngClass]="{ 'text-primary': isNewProject }">
         {{ isNewProject ? "New Project" : "Existing Project" }}

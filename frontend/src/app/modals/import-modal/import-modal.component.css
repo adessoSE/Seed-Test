@@ -1,16 +1,31 @@
 .import-label {
-    margin-right: 16px;
-  }
-  
-  .toggle-container {
-    display: flex; 
-    align-items: center; 
-    margin-top: 16px;
-    margin-bottom: 16px;
-  }
-  
-  .toggle-label {
-    margin-left: 16px;
-    margin-right: 16px;
-  }
-  
+  margin-right: 16px;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.toggle-label {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+.error-container {
+  display: flex;
+  align-items: center;
+  color: red;
+  margin-bottom: 10px;
+}
+
+.error-icon {
+  margin-right: 10px;
+  font-size: 24px;
+}
+
+.error-message {
+  font-size: 18px;
+}
