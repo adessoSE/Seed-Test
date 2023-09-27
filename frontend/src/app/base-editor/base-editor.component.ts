@@ -351,13 +351,11 @@ export class BaseEditorComponent {
           this.handleExamples(input, step);
           this.markUnsaved();
         }
+      case 'block-editor':
+        this.selectedBlock.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+        // this.markUnsaved();
         break;
     }
-  }
-
-  addToValuesBlock(input: string, stepIndex: number, valueIndex: number) {
-    this.selectedBlock.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-    this.markUnsaved();
   }
 
   /**

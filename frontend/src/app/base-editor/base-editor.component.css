@@ -27,6 +27,10 @@
   cursor: pointer;
 }
 
+.block-editor-margin {
+  padding: 0 !important;
+}
+
 :host ::ng-deep #checkbox_all_example {
   margin-left: 10px;
 }
@@ -468,13 +472,7 @@ input.background {
 
 .scrollable {
   overflow: auto;
-  max-height: 200px;
-}
-
-#block-edit-steps {
-  overflow-y: scroll;
   max-height: 250px;
-
   &::-webkit-scrollbar-thumb {
     background-color: #90CAF9;
 
