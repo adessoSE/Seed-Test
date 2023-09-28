@@ -29,7 +29,10 @@ export class ReportComponent implements OnInit {
     reportId;
 
     reportComponent;
-
+    /**
+     * Changed report
+     */
+    updatedReports;
     /**
      * html report of the result
      */
@@ -112,10 +115,13 @@ export class ReportComponent implements OnInit {
     }
 
     ngAfterContentInit(){
-        window.addEventListener('storage', (event) => {
-          if (event.key === 'reportComponent') {
+        window.addEventListener('storage', (event) => {           
+          if (event.key === 'reportComponent' ) {
             const storedReportComponentString = localStorage.getItem('reportComponent');
-            this.reportComponent = JSON.parse(storedReportComponentString);
+            this.updatedReports = JSON.parse(storedReportComponentString);
+            if (this.updatedReports._id === this.reportComponent._id){
+                this.reportComponent = JSON.parse(storedReportComponentString);
+            }
           }
         });    
     }
