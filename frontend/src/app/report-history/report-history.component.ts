@@ -38,7 +38,7 @@ export class ReportHistoryComponent implements OnInit {
   reports: ReportContainer = null;
 
   isDark: boolean;
-
+  updatedReports;
   /**
    * Event emiter to change the editor to story editor
    */
@@ -58,6 +58,22 @@ export class ReportHistoryComponent implements OnInit {
     this.isDark = this.themeService.isDarkMode();
   }
 
+  ngAfterContentInit(){
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'reportComponent') {
+        const storedReportComponentString = localStorage.getItem('reportComponent');
+        this.updatedReports = JSON.parse(storedReportComponentString);
+        for (const prop in this.reports) {
+          for (let i = this.reports[prop].length - 1; i >= 0; i--) {
+            if (this.reports[prop][i]._id == this.updatedReports._id) {
+              this.reports[prop][i] = this.updatedReports;
+            }
+          }  
+        }
+      }
+    });    
+  }
+ 
   /**
    * Sets a new currently used story
    */
@@ -137,6 +153,7 @@ export class ReportHistoryComponent implements OnInit {
    */
   unsaveReport(report: Report) {
     report.isSaved = false;
+    localStorage.setItem('reportComponent', JSON.stringify(report));
     this.reportService
       .unsaveReport(report._id)
       .subscribe(_resp => {
@@ -149,6 +166,7 @@ export class ReportHistoryComponent implements OnInit {
    */
   saveReport(report: StoryReport | ScenarioReport | GroupReport) {
     report.isSaved = true;
+    localStorage.setItem('reportComponent', JSON.stringify(report));
     this.reportService
       .saveReport(report._id)
       .subscribe(_resp => {

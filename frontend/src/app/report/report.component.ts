@@ -6,6 +6,7 @@ import { ThemingService } from '../Services/theming.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ReportService } from '../Services/report.service';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
 
 /**
@@ -27,7 +28,8 @@ export class ReportComponent implements OnInit {
 
     reportId;
 
-    reportIsSaved;
+    reportComponent;
+
     /**
      * html report of the result
      */
@@ -42,6 +44,16 @@ export class ReportComponent implements OnInit {
 
     @ViewChild('iframe') iframe: ElementRef;
 
+    /**
+     * Subject to get a report object and emits its current value whenever it is subscribed to
+    */
+    reportComponentSubject = new BehaviorSubject<any>(null);
+    reportComponent$ = this.reportComponentSubject.asObservable();
+    
+    /**
+     * Subscribtions for all EventEmitter
+    */
+    reportObservable: Subscription;
 
     /**
      * Retrieves the report
@@ -72,21 +84,48 @@ export class ReportComponent implements OnInit {
         .subscribe((_) => {
             this.isDark = this.themeService.isDarkMode()
         });
+        this.reportObservable = this.reportComponent$.subscribe((report)=>{
+            this.setReportElement(report);
+        });
     }
 
+    
     ngOnChanges() {
         this.reportId = this.report.reportId;
         this.htmlReport = this.report.htmlFile;
         this.testDone = true;
-        this.reportIsSaved = false;
         const iframe: HTMLIFrameElement = document.getElementById('testFrameReport') as HTMLIFrameElement;
         iframe.srcdoc = this.report.htmlFile;
         this.showResults = true;
         setTimeout(function () {
             iframe.scrollIntoView();
         }, 10);
+        if(this.reportId){
+            return new Promise<void>((resolve, _reject) => {this.reportService
+                .getReport(this.reportId)
+                .subscribe(resp => {
+                    this.reportComponentSubject.next(resp); 
+                    resolve();
+                }); 
+            });
+        }          
     }
 
+    ngAfterContentInit(){
+        window.addEventListener('storage', (event) => {
+          if (event.key === 'reportComponent') {
+            const storedReportComponentString = localStorage.getItem('reportComponent');
+            this.reportComponent = JSON.parse(storedReportComponentString);
+          }
+        });    
+    }
+  
+     /**
+     * Set a report value
+     */
+    setReportElement(report){
+        this.reportComponent = report;
+    }
     /**
      * Hide the test results
      */
@@ -100,7 +139,8 @@ export class ReportComponent implements OnInit {
      * @returns
      */
     unsaveReport(reportId) {
-        this.reportIsSaved = false;
+        this.reportComponent.isSaved = false;
+        localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent));
         return new Promise<void>((resolve, _reject) => {this.reportService
             .unsaveReport(reportId)
             .subscribe(_resp => {
@@ -114,7 +154,8 @@ export class ReportComponent implements OnInit {
      * @returns
      */
     saveReport(reportId) {
-        this.reportIsSaved = true;
+        this.reportComponent.isSaved = true;
+        localStorage.setItem('reportComponent', JSON.stringify(this.reportComponent));
         return new Promise<void>((resolve, _reject) => {this.reportService
             .saveReport(reportId)
             .subscribe(_resp => {
