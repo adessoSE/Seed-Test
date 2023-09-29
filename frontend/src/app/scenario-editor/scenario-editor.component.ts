@@ -57,7 +57,7 @@ export class ScenarioEditorComponent implements OnInit{
     @Input()
     set newlySelectedScenario(scenario: Scenario) {
         this.selectedScenario = scenario;
-        if (this.selectedStory) {
+        if (this.selectedStory && scenario) {
            this.selectScenario(scenario);
         }
     }
@@ -214,9 +214,9 @@ export class ScenarioEditorComponent implements OnInit{
         steps = steps.concat(this.selectedScenario.stepDefinitions['example']);
 
         let undefined_steps = [];
-        for (let i = 0; i < steps.length; i++) {
-            if (String(steps[i]['type']).includes('Undefined Step')) {
-                undefined_steps = undefined_steps.concat(steps[i]);
+        for (const element of steps) {
+            if (String(element['type']).includes('Undefined Step')) {
+                undefined_steps = undefined_steps.concat(element);
             }
         }
 

@@ -459,22 +459,17 @@ async function deleteBackground(storyId) {
 
 async function createStory(storyTitle, storyDescription, repoId) {
 	const iNumberArray = [];
-	let finalIssueNumber = 0;
+	let finalIssueNumber = 1;
 	try {
 		const db = dbConnection.getConnection();
 		const repo = await db.collection(repositoriesCollection).findOne({ _id: ObjectId(repoId) });
-		if (repo) if (repo.stories.length > 0) {
+		if (repo && repo.stories.length > 0) {
 			for (const storyId of repo.stories) {
 				const story = await db.collection(storiesCollection).findOne({ _id: ObjectId(storyId) });
 				iNumberArray.push(story.issue_number);
 			}
-			for (let i = 0; i <= iNumberArray.length; i++) {
-				const included = iNumberArray.includes(i);
-				if (!included) {
-					finalIssueNumber = i;
-					break;
-				}
-			}
+			finalIssueNumber = iNumberArray.findIndex((_, i) => !iNumberArray.includes(i + 1)) + 1;
+			if (finalIssueNumber === 0) finalIssueNumber = iNumberArray.length + 1;
 		}
 		const story = emptyStory(storyTitle, storyDescription);
 		story.issue_number = finalIssueNumber;

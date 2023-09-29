@@ -5,9 +5,9 @@
     <div class="uk-button-group" style="text-align: right; float: right;">
         <button id="download_results" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
                 uk-tooltip="Download Test Results" type="button" (click)=" downloadFile();"><em class="material-icons-outlined">file_download</em></button>
-        <button *ngIf="!this.reportIsSaved" id="save_report" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
+        <button *ngIf="this.reportComponent && !this.reportComponent.isSaved" id="save_report" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
                 uk-tooltip="Save Report" type="button" (click)=" saveReport(this.reportId);"><em class="material-icons-outlined">save</em></button>
-        <button *ngIf="this.reportIsSaved" id="unsave_report" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
+        <button *ngIf="this.reportComponent && this.reportComponent.isSaved" id="unsave_report" [class.disabledButton] ="!testDone" [disabled]="!testDone" class="button"
                 uk-tooltip="Do not Save Report" type="button" (click)=" unsaveReport(this.reportId);"><em class="material-icons-outlined">cancel</em></button>
         <button (click)="exportHtmlToPDF()" class="button" uk-tooltip="Generate and download PDF report">PDF</button>
     </div>
