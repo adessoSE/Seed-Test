@@ -352,9 +352,22 @@ export class BaseEditorComponent {
           this.markUnsaved();
         }
       case 'block-editor':
-        this.selectedBlock.stepDefinitions.when[stepIndex].values[valueIndex] = input;
-        // this.markUnsaved();
-        break;
+        switch (stepType) {
+          case 'given':
+              this.selectedBlock.stepDefinitions.given[stepIndex].values[valueIndex] = input;
+              break;
+          case 'when':
+              this.selectedBlock.stepDefinitions.when[stepIndex].values[valueIndex] = input;
+              break;
+          case 'then':
+              this.selectedBlock.stepDefinitions.then[stepIndex].values[valueIndex] = input;
+              break;
+          default:
+              console.error('Unknown stepType:', stepType);
+              break;
+      }
+      // this.markUnsaved();
+      break;
     }
   }
 
@@ -563,15 +576,40 @@ export class BaseEditorComponent {
   * Sort the step types 
   * @returns 
   */
-  sortedStepTypes() {
+ 
+  sortedStepTypes(): any[] {
     if (this.originalStepTypes) {
-      const sortedStepTypes = this.originalStepTypes;
-      sortedStepTypes.sort((a, b) => {
-        return a.id - b.id;
-      });
-      return sortedStepTypes;
+      const given = [];
+      const when = [];
+      const then = [];
+  
+      for (const step of this.originalStepTypes) {
+        if (step.stepType === 'given') {
+          given.push(step)
+        } else if (step.stepType === 'when') {
+          when.push(step);
+         
+        } else if (step.stepType === 'then') {
+          then.push(step);
+  
+        } 
+      }
+      given.sort((a, b) => a.id - b.id);
+      when.sort((a, b) => a.id - b.id);
+      then.sort((a, b) => a.id - b.id);
+  
+      return [
+        { type: 'Header', label: 'Given' },
+        ...given, 
+        { type: 'Header', label: 'When' }, 
+        ...when, 
+        { type: 'Header', label: 'Then' }, 
+        ...then
+      ];
     }
+    return [];
   }
+  
 
   getUniqueSteps(): StepType[] {
     let uniqueStepTypes: StepType[] = [];

@@ -62,15 +62,17 @@
         </button>
         <div *ngIf="name === 'block-editor'" uk-dropdown="pos: right-bottom">
           <ul class="uk-nav uk-dropdown-nav">
-            <ng-template ngFor let-step [ngForOf]="getUniqueSteps()" let-i="index">
-              <li>
-                <span id="{{'backgound_add_step_type' + i}}" class="dropdownStep"
-                  *ngIf="step.type !== this.newStepName && step.type !== 'Role' && step.type !== 'Add Variable'"
-                  (click)="addStepToBlock(step);">
-                  {{step.type}}</span>
+            <ng-template ngFor let-item [ngForOf]="sortedStepTypes()" let-i="index">
+              <li *ngIf="item.type === 'Header'" class="dropdownHeader">
+                {{item.label}}
+              </li>
+              <li *ngIf="item.type !== 'Header' && item.type !== this.newStepName && item.type !== 'Role' && item.type !== 'Add Variable'">
+                <span id="{{'background_add_step_type' + i}}" class="dropdownStep" (click)="addStepToBlock(item);">
+                  {{item.type}}
+                </span>
               </li>
             </ng-template>
-          </ul>
+          </ul>          
         </div>
       </div>
     </div>
@@ -81,8 +83,7 @@
   <div class="uk-steps" [class]="name === 'block-editor' ? 'scrollable' : ''">
 
     <!-- Scenario & Block Editor Steps -->
-    <div class="uk-card-title padding"
-    [ngClass]="{'block-editor-margin': name === 'block-editor'}">
+    <div class="uk-card-title padding">
       <ng-container *ngIf="name === 'scenario' || 'block-editor'">
         <ng-container *ngIf="this.selectedBlock && name === 'block-editor'">
           <div *ngFor="let sd of getKeysList(this.selectedBlock.stepDefinitions); let i = index;">
@@ -99,13 +100,11 @@
         </div>
       </ng-container>
         <ng-template #steps let-sd let-i="index" let-stepDefs="stepDefs", let-name="templateName">
-          <ng-container *ngIf="name !=='block-editor'">
           <div  class="stepsListContainer SmallHeadline5">
             <div *ngIf="sd === 'given'">{{i+1}}. Given (Precondition)</div>
             <div *ngIf="sd === 'when'">{{i+1}}. When (Action)</div>
             <div *ngIf="sd === 'then'">{{i+1}}. Then (Result)</div>
           </div>
-        </ng-container>
           <div class="uk-steps " *ngIf="sd != 'example'">
             <div cdkDropList class="cdkListStyle"
               (cdkDropListDropped)="onDrop($event,stepDefs, i)">
@@ -136,14 +135,7 @@
                         {{ selectedCount(stepDefs,i) || 1 }}
                       </div>
                     </div>
-                    <!-- Show Step Counter -->
-                    <ng-container *ngIf="name === 'block-editor'">
-                      {{j+1}}.
-                    </ng-container>
-                    <ng-container *ngIf="name === 'scenario'">
                       {{i+1}}.{{j+1}}
-                    </ng-container>
-                    
                     <div *ngIf="currentStep._blockReferenceId"
                       style="width: 100%; margin-left: 6px; margin-right: 15px;">
                       <ng-template *ngTemplateOutlet="stepBlockReference;
@@ -158,7 +150,7 @@
                         <div
                           *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false ">
                           <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl"
-                            elFocus class="scenario" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
+                            elFocus class="{{ name }}" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
                             type="text" value="{{currentStep.values[0]}}"
                             on-input="addToValues(step_type_input1.value, j, 0, currentStep.stepType)"
                             style="padding-left: 5px; padding-right: 5px;min-width: 100px; padding-bottom: 1px;" />
@@ -336,53 +328,6 @@
         </ng-template>
       </ng-container>
 
-      <!-- Edit-Block steps-->
-      <!-- <ng-container *ngIf="name === 'block-editor'">
-        <div class="uk-steps" id="block-edit-steps">
-          <div *ngFor="let sd of getKeysList(this.selectedBlock.stepDefinitions);let i = index;">
-            <div cdkDropList (cdkDropListDropped)="onDropBlock($event, this.selectedBlock.stepDefinitions, i)">
-              <div *ngFor="let currentStep of getStepsList(this.selectedBlock.stepDefinitions, i); let j=index;"
-                cdkDrag>
-                <div class="text-inline SmallBody1regularLH"
-                  [class.disabled]="this.selectedBlock.stepDefinitions[currentStep.stepType][j].deactivated">
-                  <div class="dragIconContainer" cdkDragHandle>
-                    <em class="material-icons dragIcon">drag_indicator</em>
-                  </div>
-                  <input type="checkbox" class="checkbox" id="{{'block' + '_checkbox_' + j}}"
-                    (change)="this.checkStep(currentStep, null)" [checked]="currentStep.checked">
-                  {{j+1}}. {{currentStep.pre}}
-                  <div *ngIf="currentStep.values.length > 0" style="display:inline">
-                    <input id="{{'block_step_input_pre' + j}}" #step_type_input type="text"
-                      value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input.value,j,0)"
-                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;"
-                      [class.disabled]="this.selectedBlock.stepDefinitions[currentStep.stepType][j].deactivated">
-                    {{currentStep.mid}}
-                    <input id="{{'block_step_input_mid' + j}}" #step_type_input *ngIf="currentStep.mid !== ''"
-                      type="text" value="{{currentStep.values[1]}}"
-                      on-input="addToValues(step_type_input.value, j, 1)"
-                      style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;"
-                      [class.disabled]="this.selectedBlock.stepDefinitions[currentStep.stepType][j].deactivated" />
-                  </div>
-                  {{currentStep.post}}
-                  <input id="{{'block_step_input_post' + j + n}}" #step_type_input
-                    *ngFor="let value of currentStep.values | slice:2; let n = index" type="text" value="{{value}}"
-                    on-input="addToValues(step_type_input.value,j , n + 2)"
-                    style="margin-left: 10px; margin-right: 10px; padding-left: 5px; padding-right: 5px;"
-                    [class.disabled]="this.selectedBlock.stepDefinitions[currentStep.stepType][j].deactivated" />
-                  <div *ngIf="currentStep.outdated">
-                    <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
-                      <span rel="def">
-                        This step got updated. Please check if the implemented logic is still valid.
-                        When you've adjusted the step, save the block to confirm your adjustments.
-                      </span>
-                    </dfn>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container> -->
 
 
       <!-- Example steps -->

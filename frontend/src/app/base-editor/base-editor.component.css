@@ -282,11 +282,15 @@ input[type="text"] {
 :host ::ng-deep .disabled input {
   color: gray;
   border-bottom: 1px solid gray;
+  text-decoration: line-through;
+  font-style: italic;
 }
 
 :host ::ng-deep .darkTheme .disabled input {
   color: var(--buttonDisabled) !important;
   border-color: var(--border);
+  text-decoration: line-through;
+  font-style: italic;
 }
 
 .uk-dropdown {
@@ -472,9 +476,23 @@ input.background {
 
 .scrollable {
   overflow: auto;
-  max-height: 250px;
+  max-height: 400px;
   &::-webkit-scrollbar-thumb {
     background-color: #90CAF9;
 
   }
+}
+
+.dropdownHeader {
+  font-weight: bold;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+
+.dropdownHeader:first-of-type {
+  border-top: none; 
+  margin-top: 0;    
+  padding-top: 0;  
 }
