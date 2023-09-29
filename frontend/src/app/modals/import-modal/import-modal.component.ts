@@ -1,7 +1,9 @@
 import { Component, OnInit, Inject } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { RepositoryContainer } from "../../model/RepositoryContainer";
-import AdmZip from "adm-zip";
+import { ManagementService } from "../../Services/management.service";
+import { ApiService } from "../../Services/api.service";
+//import AdmZip from "adm-zip";
 
 @Component({
   selector: "app-import-modal",
@@ -18,7 +20,8 @@ export class ImportModalComponent implements OnInit {
   errorMessage: string;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private ref: MatDialogRef<ImportModalComponent>
+    private ref: MatDialogRef<ImportModalComponent>,
+    private apiService: ApiService
   ) {
     this.repoList = data.repoList;
   }
@@ -36,7 +39,7 @@ export class ImportModalComponent implements OnInit {
 
   handleFileInput(event: any) {
     const file = event.target.files[0];
-    const maxSizeInBytes = 104857600; // 100 MB (10 * 1024 * 1024 Bytes)
+    const maxSizeInBytes = 10485760; // 10 MB (10 * 1024 * 1024 Bytes)
 
     if (file) {
       // Überprüfen Sie die Dateigröße
@@ -45,7 +48,7 @@ export class ImportModalComponent implements OnInit {
           "Die Datei ist zu groß. Bitte wählen Sie eine kleinere Datei aus.";
       } else if (!this.isValidFileFormat(file)) {
         this.errorMessage =
-          "Ungültige Datei. Bitte wählen Sie eine gültige .zip-Datei aus.";
+          "Ungültiges Dateiformat. Bitte wählen Sie eine gültige .zip-Datei aus.";
       } else {
         // Dateiformat und Größe sind gültig, setzen Sie die Fehlermeldung auf null (kein Fehler)
         this.errorMessage = null;
@@ -87,7 +90,7 @@ export class ImportModalComponent implements OnInit {
     );
   }
 
-  hasValidContent(file: File): boolean {
+  /* hasValidContent(file: File): boolean {
     const zip = new AdmZip(file);
 
     const zipEntries = zip.getEntries();
@@ -119,7 +122,7 @@ export class ImportModalComponent implements OnInit {
     });
     return true;
   }
-
+ */
   getFileExtension(fileName: string): string {
     return fileName.split(".").pop();
   }
