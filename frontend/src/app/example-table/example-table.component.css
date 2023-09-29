@@ -65,8 +65,8 @@ span, .checkboxWrapper{
   background: transparent;
 }
 
-.darkTheme, .icon {
-  color: var(--light-blue)!important;;
+.edit-mode.icon.darkTheme {
+  color: var(--light-blue);
 }
 
 .scenarioTitle > em{
