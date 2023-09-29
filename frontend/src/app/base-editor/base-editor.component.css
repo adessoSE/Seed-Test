@@ -491,8 +491,18 @@ input.background {
   text-decoration: underline;
 }
 
+.darkTheme .uk-dropdown .dropdownHeader {
+  font-weight: bold;
+  padding: 10px 0;
+  color: white !important;
+  border-top: 1px solid #ddd;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+
 .dropdownHeader:first-of-type {
   border-top: none; 
   margin-top: 0;    
   padding-top: 0;  
 }
+

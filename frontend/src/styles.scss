@@ -819,6 +819,19 @@ div.notPassed {
   color: red !important;
 }
 
+.dropdownHeader {
+  font-weight: bold;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+
+.darkTheme .uk-dropdown .dropdownHeader {
+  color: white;
+}
+
+
 .darkTheme .uk-dropdown {
   background: #546E7A;
   color: var(--light-blue);
