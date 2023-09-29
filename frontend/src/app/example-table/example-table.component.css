@@ -65,6 +65,10 @@ span, .checkboxWrapper{
   background: transparent;
 }
 
+.darkTheme, .icon {
+  color: var(--light-blue)!important;;
+}
+
 .scenarioTitle > em{
   color:  var(--ocean-blue);
   font-size: 20px;
