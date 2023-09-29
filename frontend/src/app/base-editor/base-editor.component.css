@@ -477,10 +477,11 @@ input.background {
 .scrollable {
   overflow: auto;
   max-height: 400px;
-  &::-webkit-scrollbar-thumb {
-    background-color: #90CAF9;
+}
 
-  }
+.blockEditorElement ::-webkit-scrollbar-thumb,
+.blockEditorElement::-webkit-scrollbar-thumb{
+  background: #90CAF9 !important;
 }
 
 .dropdownHeader {

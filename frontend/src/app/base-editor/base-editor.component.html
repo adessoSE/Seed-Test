@@ -80,11 +80,12 @@
 
   <ng-container
     *ngIf="name === 'background' || name === 'scenario' || name === 'block-editor' ; then actionBar; else ''"></ng-container>
-  <div class="uk-steps" [class]="name === 'block-editor' ? 'scrollable' : ''">
+  <div class="uk-steps" [class]="name === 'block-editor' ? 'scrollable blockEditorElement' : ''" >
 
     <!-- Scenario & Block Editor Steps -->
     <div class="uk-card-title padding">
       <ng-container *ngIf="name === 'scenario' || 'block-editor'">
+        <!-- Block Editor Template -->
         <ng-container *ngIf="this.selectedBlock && name === 'block-editor'">
           <div *ngFor="let sd of getKeysList(this.selectedBlock.stepDefinitions); let i = index;">
             <ng-template *ngTemplateOutlet="steps;
@@ -92,7 +93,8 @@
             </ng-template>
           </div>
         </ng-container>
-      <ng-container *ngIf=" this.selectedScenario && name == 'scenario'">
+      <!-- Scenario Temlate -->
+      <ng-container *ngIf=" this.selectedScenario && name === 'scenario'">
         <div *ngFor="let sd of getKeysList(this.selectedScenario.stepDefinitions);let i = index;">
           <ng-template *ngTemplateOutlet="steps;
             context: {$implicit: sd , index:i, stepDefs:this.selectedScenario.stepDefinitions, templateName : templateName}">
@@ -399,6 +401,7 @@
                     <div style="display:inline" *ngIf="currentStep.values.length > 0">
                       <input appResizeInput [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl"
                         elFocus class="{{name}}" id="{{name+'_step_input_pre_' + j}}" #step_type_input type="text"
+                        type="text" 
                         value="{{currentStep.values[0]}}"
                         on-input="addToValues(step_type_input.value, j,0,currentStep.stepType)"
                         style="padding-left: 5px; padding-right: 5px;min-width: 100px" />

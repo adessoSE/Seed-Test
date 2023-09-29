@@ -1349,6 +1349,7 @@ export class BaseEditorComponent {
         for (const s in stepsList[prop]) {
           if (stepsList[prop][s].checked) {
             stepsList[prop][s].deactivated = !stepsList[prop][s].deactivated;
+            stepsList[prop][s].checked = !stepsList[prop][s].checked;
           }
         }
       }

@@ -46,7 +46,7 @@ export class EditBlockComponent {
   ngOnInit() {
     this.isDark = this.themeService.isDarkMode();
     this.themeObservable = this.themeService.themeChanged.subscribe(() => {
-    this.isDark = this.themeService.isDarkMode(); 
+      this.isDark = this.themeService.isDarkMode(); 
     });
   }
 
@@ -56,6 +56,12 @@ export class EditBlockComponent {
   openEditBlockModal() {
     this.modalReference = this.modalService.open(this.editBlockModal, { ariaLabelledBy: 'modal-basic-title', modalDialogClass: 'edit-block' });
     this.clipboardBlock = JSON.parse(sessionStorage.getItem('copiedBlock'));
+    Object.keys(this.selectedBlock.stepDefinitions).forEach((key, _) => {
+      this.selectedBlock.stepDefinitions[key].forEach((step: StepType) => {
+        //to prevent blocks to be checked after pasting
+        step.checked = false;
+      });
+    });
   }
 
   editBlockSubmit() {
