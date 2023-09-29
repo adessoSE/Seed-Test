@@ -33,7 +33,6 @@ export class ResizeInputDirective {
       
       el.nativeElement.classList.forEach((value) => {
         if (value === 'scenario' || value === 'background' || value === 'block-editor') {
-        if (value === 'scenario' || value === 'background' || value === 'block-editor') {
           this.class = value;
         }
       });
