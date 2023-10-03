@@ -65,6 +65,10 @@ span, .checkboxWrapper{
   background: transparent;
 }
 
+.edit-mode.icon.darkTheme {
+  color: var(--light-blue);
+}
+
 .scenarioTitle > em{
   color:  var(--ocean-blue);
   font-size: 20px;
@@ -115,4 +119,19 @@ th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:
   z-index:999;
   left:0;
   background: inherit;
+}
+
+.slide-toggle-container{
+  display: flex;
+  justify-content: center;
+}
+
+.icon{
+  color: var(--ocean-blue);
+}
+
+.edit-mode{
+  font-size: 17px;
+  margin: 2px;
+  margin-right: 5px;
 }
