@@ -29,6 +29,8 @@ export class BaseEditorComponent  {
 
   @ViewChildren('step_type_input') step_type_input: QueryList<ElementRef>;
 
+  @ViewChildren('step_type_pre') step_type_pre: QueryList<ElementRef>;
+
   @ViewChildren('step_type_input1') step_type_input1: QueryList<ElementRef>;
 
   @ViewChildren('step_type_input2') step_type_input2: QueryList<ElementRef>;
@@ -272,21 +274,25 @@ export class BaseEditorComponent  {
     // Regex Highlight on init
     if(this.initialRegex){
       this.regexInStory = false
-      if(this.step_type_input){ //background
+      //Logic currently not needed since regex only in then step
+      /*if(this.step_type_input){ //background
         this.step_type_input.forEach(in_field => {  
           this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
           });
-      }
+      }*/
       if(this.step_type_input1){ //scenario
-        this.step_type_input1.forEach(in_field => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+        const stepTypePre = this.step_type_pre.toArray()
+        this.step_type_input1.forEach((in_field, index) => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,0,undefined,undefined,stepTypePre[index].nativeElement.innerText, true)
         });
-        this.step_type_input2.forEach(in_field => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+
+        //Logic currently not needed since regex only in first input field
+        /*this.step_type_input2.forEach((in_field, index) => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,1,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
         });
-        this.step_type_input3.forEach(in_field => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-        });
+        this.step_type_input3.forEach((in_field, index) => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,2,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
+        });*/
       }
     }
   }
@@ -374,7 +380,6 @@ export class BaseEditorComponent  {
     * @param stepType
     */
   updateScenarioValues(input: string, stepIndex: number, valueIndex: number, stepType: string) {
-    console.log(this.selectedScenario.stepDefinitions);
     
     switch (stepType) { 
       case 'given': 
@@ -1734,15 +1739,19 @@ export class BaseEditorComponent  {
    * @param valueIndex for addToValue
    * @param stepType for addToValue
    * @param step for addToValue
+   * @param stepPre pre text of step
    * @param initialCall if call is from ngAfterViewInit
    */
-    highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, initialCall?:boolean) {
+    highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
       const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
 
       const textField = document.getElementById(element);
       const textContent = textField.textContent;
       //Get current cursor position
       const offset = this.getCaretCharacterOffsetWithin(textField)
+      const regexSteps = ['So I can see the text', 'So I can see the text:', 'So I can\'t see the text:', 'So I can\'t see text in the textbox:']
+
+      let textIsRegex = false;
 
       if(!initialCall){
         this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
@@ -1752,14 +1761,17 @@ export class BaseEditorComponent  {
         this.initialRegex = false;
       }
 
-      const regexMatchedText = textContent.match(regexPattern);
-      const regexDetected = regexMatchedText !== null;
-  
-      // Clear previous styling
-      this.renderer.setStyle(textField, 'color', '');
-      this.renderer.setStyle(textField, 'fontWeight', '');
-  
+      if(0==valueIndex && regexSteps.includes(stepPre)){
+
+        const regexMatchedText = textContent.match(regexPattern);
+        const regexDetected = regexMatchedText !== null;
+
+        // Clear previous styling
+        this.renderer.setStyle(textField, 'color', '');
+        this.renderer.setStyle(textField, 'fontWeight', '');
+
       if (regexDetected) {
+        textIsRegex = true;
         const matches: RegExpExecArray[] = [];
         let match: RegExpExecArray | null;
   
@@ -1801,19 +1813,20 @@ export class BaseEditorComponent  {
   
         textField.appendChild(fragment);
       }
+        // Toastr logic
+        if(initialCall && regexDetected) {
+          this.regexInStory = true
+        }
+        if(regexDetected && !this.regexInStory){
+          this.regexInStory = true
+          this.toastr.info('Regex Highlight');
+        }
+      }
 
-      // Toastr logic
-      if(initialCall && regexDetected) {
-        this.regexInStory = true
-      }
-      if(regexDetected && !this.regexInStory){
-        this.regexInStory = true
-        this.toastr.info('Regex Highlight');
-      }
 
       // Set cursor to correct position
       if(!initialCall){
-      if (regexDetected){ //maybe not needed
+      if (textIsRegex){ //maybe not needed
         const selection = window.getSelection();
         selection.removeAllRanges()
 
