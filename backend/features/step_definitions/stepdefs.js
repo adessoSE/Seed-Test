@@ -776,11 +776,14 @@ Then('So the picture {string} has the name {string}', async function checkPictur
 			throw Error(e);
 		});
 		await fetch(domain + finSrc, { method: 'HEAD' })
-		.then(response => {
+		.then((response) => {
 			if (!response.ok) throw Error(`Image ${finSrc} not Found`);
 		})
-		.catch(e => {
-			throw Error(`Image Availabel check Request Error to ${domain + finSrc} `, e);
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(`Image availability check: could not reach image source ${domain + finSrc} `, e);
 		});
 	await driver.sleep(100 + currentParameters.waitTime);
 });
