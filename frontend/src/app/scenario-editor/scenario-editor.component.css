@@ -15,19 +15,6 @@
   position: relative; 
 }
 
-:host ::ng-deep .mat-mdc-form-field-appearance-standard .mat-mdc-form-field-flex {
-  padding-top: 0 !important;
- }
-
-:host ::ng-deep.mat-mdc-form-field-infix {
-  padding: 0 0 0.5em .1em !important;
-  border-top: 0 !important;
-}
-
-:host ::ng-deep.mat-mdc-form-field-underline {
-  background-color: black !important;
-}
-
 #scenario{
   border: 1px solid #999;
 }

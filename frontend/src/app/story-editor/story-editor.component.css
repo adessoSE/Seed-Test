@@ -298,11 +298,6 @@
     background:#dddddd
   }
 
-  .darkTheme .disabledButton {
-    background: var(--buttonDisabled) !important;
-  }
-
-
   #loading{
     /* text-align: center;
     font-size: 40px; */
@@ -477,9 +472,6 @@
 
 .uk-icon {
   background-color: transparent !important;
-}
-.mat-mdc-form-field + .mat-mdc-form-field {
-  margin-left: 8px;
 }
 
 .mat-expansion-panel{

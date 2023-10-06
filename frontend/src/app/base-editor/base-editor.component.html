@@ -76,7 +76,12 @@
               <div cdkDropList  class="cdkListStyle" (cdkDropListDropped)="onDrop($event,selectedScenario.stepDefinitions, i)">
                 <div *ngFor="let currentStep of getStepsList(selectedScenario.stepDefinitions, i); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, selectedScenario.stepDefinitions, i)" (cdkDragEnded)="dragEnded()">
                   <div #scenarioContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(selectedScenario.stepDefinitions, i, j)">
-                    <div #scenarioParentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
+                    <div #scenarioParentEl class="text-inline SmallBody1regularLH stepLine" [class.deactivated]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated" 
+                      [ngStyle]="{
+                       'align-items': (currentStep.isExample[0] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true) ? 'center' : 'normal',
+                       'width': (currentStep.isExample[0] == true && currentStep.isExample[1] === true) ? '100%' : ''
+                      }"
+                      >
                       <div class="dragIconContainer" cdkDragHandle>
                         <em class="material-icons dragIcon">drag_indicator</em>
                       </div>
@@ -92,15 +97,15 @@
                         </div>
                       </div>
                       {{i+1}}.{{j+1}} {{currentStep.pre}}
-                      <div style="display: flex;" *ngIf="currentStep.values.length > 0" >
-                        <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0" style="display: flex;">
+                      <div style="display: flex; overflow: hidden; align-items: center;" *ngIf="currentStep.values.length > 0">
+                        <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0" style="display: flex; overflow: hidden; align-items: center;">
                           <div *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false ">
                             <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" elFocus class="scenario" id="{{name+'_' + i + '_input_pre_' + j}}" #step_type_input1
                             type="text" value="{{currentStep.values[0]}}" on-input="addToValues(step_type_input1.value, j, 0, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px; padding-bottom: 1px;"/>
                           </div>
-                          <div *ngIf="currentStep.isExample[0] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
+                          <div *ngIf="currentStep.isExample[0] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="exampleListContainer">
                             <mat-form-field appearance="standard" class="exampleList">
-                              <mat-select [ngModel]="currentStep.values[0] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 0, currentStep.stepType, currentStep)" class="exampleMatSelect">
+                              <mat-select [ngModel]="currentStep.values[0] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 0, currentStep.stepType, currentStep)" class="exampleMatSelect" [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                                 <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" style="padding-left: 5px;" class="exampleListOption">
                                   {{exampleList}}
                                 </mat-option>
@@ -130,9 +135,9 @@
                               <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2
                               type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                             </div>
-                            <div *ngIf="currentStep.isExample[1] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
+                            <div *ngIf="currentStep.isExample[1] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="exampleListContainer">
                               <mat-form-field appearance="standard" class="exampleList">
-                                <mat-select [ngModel]="currentStep.values[1] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 1, currentStep.stepType,currentStep)" class="exampleMatSelect">
+                                <mat-select [ngModel]="currentStep.values[1] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 1, currentStep.stepType,currentStep)" class="exampleMatSelect" [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                                   <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" class="exampleListOption">
                                     {{exampleList}}
                                   </mat-option>
@@ -164,9 +169,9 @@
                             <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_post_' + j}}" #step_type_input3
                       type="text" value="{{currentStep.values[2]}}" on-input="addToValues(step_type_input3.value, j , 2, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>
                           </div>
-                          <div *ngIf="currentStep.isExample[2] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" style="display: flex; padding: 0px 1px 0px 1px;">
+                          <div *ngIf="currentStep.isExample[2] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true" class="exampleListContainer">
                             <mat-form-field appearance="standard" class="exampleList">
-                              <mat-select [ngModel]="currentStep.values[2] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 2, currentStep.stepType,currentStep)" class="exampleMatSelect">
+                              <mat-select [ngModel]="currentStep.values[2] | slice:1:-1" (selectionChange)="addToValues($event.value, j, 2, currentStep.stepType,currentStep)" class="exampleMatSelect" [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                                 <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList" class="exampleListOption">
                                   {{exampleList}}
                                 </mat-option>
@@ -264,7 +269,7 @@
             <div cdkDropList (cdkDropListDropped)="onDrop($event,selectedStory.background.stepDefinitions, 1)" style="padding-top: 10px;">
               <div  *ngFor="let currentStep of getStepsList(selectedStory.background.stepDefinitions, 1); let j=index;" cdkDrag (cdkDragStarted)="dragStarted($event, selectedStory.background.stepDefinitions, 1)" (cdkDragEnded)="dragEnded()">
                 <div #backgroundContainerEl class="stepsContainer" *ngIf="!dragging || !isSelected(selectedStory.background.stepDefinitions, 1, j)">
-                  <div #backgroundParentEl class="text-inline SmallBody1regularLH stepLine" [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
+                  <div #backgroundParentEl class="text-inline SmallBody1regularLH stepLine" [class.deactivated]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
                     <div class="dragIconContainer" cdkDragHandle>
                       <em class="material-icons dragIcon">drag_indicator</em>
                     </div>

@@ -924,6 +924,16 @@ a:hover {
   opacity: 96%;
 }
 
+.darkTheme .disabled {
+  color: var(--buttonDisabled) !important;
+}
+
+.darkTheme .deactivated,
+.darkTheme .deactivated input,
+.darkTheme .deactivated .exampleList span{
+  color: var(--buttonDisabled) !important;
+}
+
 .modal-backdrop {
   z-index: 1 !important;    
 } 
@@ -935,6 +945,63 @@ a:hover {
 button:focus, input[type="button"]:focus, input[type="submit"]:focus { 
   outline: none;
 } 
+
+.mat-mdc-text-field-wrapper{
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+.mat-mdc-form-field-infix{
+  padding-bottom: 0 !important;
+  padding-top: 9px !important;
+  min-height: fit-content;
+  width: 45%;
+}
+
+.mat-mdc-floating-label{
+  top: 20px !important;
+  font-size: 13px !important;
+}
+
+.mdc-list-item__primary-text{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+mat-mdc-select{
+  margin-top: 5px;
+}
+
+.mat-mdc-select-arrow{
+  width: 15px !important;
+}
+
+.darkTheme .mdc-menu-surface{
+  background-color: #6c7c84;
+}
+
+.mat-mdc-select-value{
+  margin-top: 5px;
+}
+
+.mat-mdc-select-value-text{
+  font-size: 13px;
+}
+
+.mat-mdc-form-field-subscript-wrapper{
+  height: 0px;
+}
+
+.mat-mdc-form-field{
+  height: 40px;
+}
+
+.darkTheme .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text, 
+.darkTheme .mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal:after,
+.darkTheme .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: var(--light-blue) !important;
+}
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
