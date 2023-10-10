@@ -43,26 +43,6 @@ h1{
     color: var(--light-blue);
 }
 
-.repositories{
-    grid-area: repositories;
-    grid-row: 3 / 4;
-    grid-column: 3 / 4;
-    /*width: 400px;*/
-    text-align: center;
-    margin-right: auto;
-    margin-bottom: 5%;
-    margin-left: auto;
-    padding: 25px;
-    background-color:rgb(224, 224, 224);
-    border: 1px solid #999;
-}
-
-.darkTheme .repositories {
-    background: #455A64;
-    border: 1px solid #60767b
-}
-
-
 .howToStart {
     grid-area: howToStart;
     grid-row: 2 / 3;
@@ -157,33 +137,6 @@ h1{
     color: black;
 }
 
-.repo_img{
-    margin-left: 5px;
-    margin-right: 5px;
-    max-height: 18px;
-}
-
-.repositoryList{
-    list-style: none;
-}
-
-a.repoLink{
-    color: var(--ocean-blue);
-    transition: 0.2s;
-}
-  
-.darkTheme a.repoLink {
-    color: var(--light-blue);
-}
-  
-a.repoLink:hover{
-    color: var(--marine-blue);
-}
-  
-.darkTheme a.repoLink:hover {
-    color: white;
-}
-
 .wrongLogin{
     background-color: var(--grape);
     text-align: center;
@@ -274,7 +227,7 @@ a.repoLink:hover{
     .grid{
         display: grid;
         grid-template-rows: auto;
-        grid-template-areas: "formular" "repositories";
+        grid-template-areas: "formular";
     }
 }
 
@@ -307,25 +260,6 @@ a.repoLink:hover{
         padding: 40px;
     }
     
-    .repositories{
-        grid-area: repositories;
-        grid-row: 3 / 4;
-        grid-column: 3 / 4;
-        width: 400px;
-        text-align: center;
-        margin-right: 100px;
-        margin-bottom: 80px;
-        margin-top: -30px;
-        padding: 15px;
-        background-color:rgb(224, 224, 224);
-        border: 1px solid #999;
-    }
-    
-}
-
-.darkTheme .repositories {
-    background-color: #37474F;
-    border-color:#60767b;
 }
 
 /* .darkTheme button {
