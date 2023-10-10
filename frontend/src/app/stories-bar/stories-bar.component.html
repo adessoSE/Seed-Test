@@ -83,9 +83,9 @@
                 <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
                   <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
                   #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
-                  <mat-icon class="icon" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
-                  <mat-icon class="icon" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
-                  <mat-icon class="icon" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
+                  <mat-icon class="icon passed" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
+                  <mat-icon class="icon notPassed" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
+                  <mat-icon class="icon undefined" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
                 </a>
               </li>
             </ul>

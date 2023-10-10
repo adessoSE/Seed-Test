@@ -752,16 +752,18 @@ a.passed{
   color: green !important;
 }
 
-.darkTheme a.passed {
-  color: #4CAF50 !important;
+.darkTheme a.passed,
+.darkTheme .scenarioListItem .passed {
+  color: #5dc560 !important;
 }
 
 a.notPassed{
   color: red !important;
 }
 
-.darkTheme a.notPassed{
-  color: red !important;
+.darkTheme a.notPassed,
+.darkTheme .scenarioListItem .notPassed{
+   color: #fb8d8d !important;
 }
 
 div.passed{
