@@ -79,7 +79,7 @@
                     <div #scenarioParentEl class="text-inline SmallBody1regularLH stepLine" [class.deactivated]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated" 
                       [ngStyle]="{
                        'align-items': (currentStep.isExample[0] == true && this.selectedScenario.stepDefinitions.example[i].isExample[0] == true) ? 'center' : 'normal',
-                       'width': (currentStep.isExample[0] == true && currentStep.isExample[1] === true) ? '100%' : ''
+                       'width': (currentStep.isExample[0] == true || currentStep.isExample[1] === true) ? '100%' : ''
                       }"
                       >
                       <div class="dragIconContainer" cdkDragHandle>
@@ -129,8 +129,8 @@
                           </mat-form-field>
                         </div>
                         {{currentStep.mid}}
-                        <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1" style="display:flex">
-                          <div *ngIf="currentStep.values[1] != null" style="display: flex;">
+                        <div *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1" style="display:flex;">
+                          <div *ngIf="currentStep.values[1] != null" style="display: flex; align-items: center;">
                             <div *ngIf="currentStep.isExample[1] == false || ((!currentStep.values[1] || currentStep.values[1]) && currentStep.isExample[1] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false">
                               <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl" class="{{name}}" id="{{name+'_' + i + '_input_mid_' + j}}" #step_type_input2
                               type="text" value="{{currentStep.values[1]}}" on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)" style="padding-left: 5px; padding-right: 5px;min-width: 100px"/>

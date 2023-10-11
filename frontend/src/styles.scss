@@ -297,9 +297,6 @@ $dark-theme: mat.define-dark-theme(
     letter-spacing: normal;
     color: var(--black);
   }
-  .darkTheme .MediumSubline1H4 {
-    color: white;
-  }
 
   .LargeHeadline5 {
     font-family: Klavika, sans-serif;
@@ -409,7 +406,11 @@ $dark-theme: mat.define-dark-theme(
     color: var(--black);
   }
 
-  .darkTheme .MediumHeadline5 {
+  .darkTheme .MediumHeadline5, 
+  .darkTheme .SmallHeadline1,
+  .darkTheme .SmallBody1regularLH, 
+  .darkTheme .MediumSubline1H4,
+  .darkTheme .SmallHeadline5{
     color: white;
   }
 
@@ -510,11 +511,7 @@ $dark-theme: mat.define-dark-theme(
     letter-spacing: normal;
     color: var(--black);
   }
-
-  .darkTheme .SmallHeadline5 {
-    color: white;
-  }
-
+  
   .Smallnavigation1 {
     font-family: Klavika, sans-serif;
     font-size: 16px;
@@ -559,9 +556,6 @@ $dark-theme: mat.define-dark-theme(
     line-height: 1.5;
     letter-spacing: normal;
     color: var(--black);
-  }
-  .darkTheme .SmallBody1regularLH {
-    color: white;
   }
 
   .MediumButton1 {
@@ -762,7 +756,8 @@ a.notPassed{
 }
 
 .darkTheme a.notPassed,
-.darkTheme .scenarioListItem .notPassed{
+.darkTheme .scenarioListItem .notPassed,
+.darkTheme .groupReportContainer .notPassed{
    color: #fb8d8d !important;
 }
 
@@ -775,7 +770,7 @@ div.passed{
 }
 
 div.notPassed{
-  color: red !important;
+  color: red;
 }
 
 .darkTheme .uk-dropdown {
