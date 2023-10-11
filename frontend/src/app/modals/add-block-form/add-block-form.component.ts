@@ -17,7 +17,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 
   @ViewChild('addBlockFormModal') addBlockFormModal: any;
   @ViewChild('newTitle') newTitleLabel: HTMLElement;
-  @ViewChild('saveBlockButton') saveBlockButton: HTMLElement;
+ 
 
     /**
      * Saved blocks
@@ -37,6 +37,10 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       * If blocks are saved 
       */
     blockSaved: boolean;
+    /**
+      * If save button is disable
+      */
+    saveBlockButtonDisable: boolean;
 
     /**
       * Steps of the current block
@@ -68,6 +72,11 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       */
     clipboardBlock: Block;
 
+    /**
+     * Boolean, wether Block should be added as reference
+     */
+    addAsReference: boolean;
+
     modalReference: NgbModalRef;
     deleteBlockObservable: Subscription;
    
@@ -83,7 +92,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       });
       this.deleteBlockObservable = this.blockService.deleteBlockEvent.subscribe(_ => {
         this.blockDeleted(this.selectedBlock);
-        });
+      });
     }
     
     ngOnDestroy() {
@@ -127,7 +136,17 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     deleteBlock() {
       this.apiService.nameOfComponent('block');
-      this.toastr.warning('Are your sure you want to delete this block? It cannot be restored.', 'Delete Block?', {
+      let warningMessage = '';
+      let warningQuestion = '';
+      if(this.selectedBlock.usedAsReference){
+        warningMessage = "This block has a references and you're going to delete them. It cannot be restored."
+        warningQuestion = 'Delete this block and all its references?'
+      }
+      else {
+        warningMessage = 'Are you sure you want to delete this block? It cannot be restored.';
+        warningQuestion = 'Delete Block?';
+      }
+      this.toastr.warning(warningMessage, warningQuestion, {
 				toastComponent: DeleteToast
 		  });
     }  
@@ -141,6 +160,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
         this.blockService
         .deleteBlock(block._id)
         .subscribe((resp) => {
+          if(block.usedAsReference){
+            this.blockService.deleteReferenceEmitter(block);
+          }
           this.blocks.splice(this.blocks.findIndex(x => x === this.selectedBlock), 1);
           this.stepList = [];
           this.selectedBlock = null;
@@ -166,17 +188,21 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Check if a new block name is valid
      */   
     checkName(){
-      this.saveBlockButton = document.getElementById("saveBlockButton");
-      this.newblockName = this.newTitleLabel.textContent.replace(/\s/g, '');
-      if(this.newblockName.trim().length === 0){
-        this.saveBlockButton.setAttribute('disabled', 'true');
+      this.newblockName = this.newTitleLabel.textContent;
+      if (this.newTitleLabel.getAttribute('contentEditable') === 'true') {
+        const pattern = /^\S(.*\S)?$/;
+        if (!pattern.test(this.newblockName)) {
+          this.saveBlockButtonDisable = true;
+          return;
+        }
+      }
+      if (this.newblockName.trim().length === 0) {
+        this.saveBlockButtonDisable = true;
         this.toastr.warning('', 'The field can not be empty. Enter the name.', {});
-      }
-      else if((this.newblockName && !this.blocks.find(i => i.name === this.newblockName)) || (this.selectedBlock ? this.blocks.find(g => g._id === this.selectedBlock._id && g.name === this.newblockName) : false)) {
-        this.saveBlockButton.removeAttribute('disabled');
-      }
-      else  {
-        this.saveBlockButton.setAttribute('disabled', 'true');
+      } else if ((!this.blocks.find(i => i.name === this.newblockName)) || (this.selectedBlock ? this.blocks.find(g => g._id === this.selectedBlock._id && g.name === this.newblockName) : false)) {
+        this.saveBlockButtonDisable = false;
+      } else {
+        this.saveBlockButtonDisable = true;
         this.toastr.warning('', 'This name exists already. Enter unique name.', {});
       }
     }
@@ -202,7 +228,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
       //to avoid an error if the user selects another block when new name is undefined
       if(this.newTitleLabel !== undefined)
       {
-        if(this.newTitleLabel.textContent.replace(/\s/g, '').trim().length === 0)
+        if(this.newTitleLabel.textContent.trim().length === 0)
         this.newTitleLabel.textContent = this.selectedBlock.name;
       }
     }
@@ -212,7 +238,7 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      */
     copiedBlock() {
       if (this.clipboardBlock) {
-          this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent);
+        this.blockService.addBlockToScenario(this.clipboardBlock, this.correspondingComponent, false);
       }
     }
 
@@ -220,7 +246,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Adds a block to saved blocks
      */
     addBlockFormSubmit() {
-      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent);
+      this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
+      delete this.addAsReference;
       this.modalReference.close();
     }
     
@@ -228,24 +255,31 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Update block when title is changed
      */
     updateBlock(){
-      if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
-        this.newblockName = this.selectedBlock.name;
-      } else{
-        this.selectedBlock.name = this.newblockName;        
-        this.blockService
-        .updateBlock(this.selectedBlock)
-        .subscribe(_ => {
-          this.updateBlocksEventEmitter();
-          this.toastr.success('successfully saved', 'Block');
-        });
+      if(this.saveBlockButtonDisable == false){
+        if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
+          this.newblockName = this.selectedBlock.name;
+        } else{
+          this.selectedBlock.name = this.newblockName;        
+          this.blockService
+          .updateBlock(this.selectedBlock)
+          .subscribe(_ => {
+            this.updateBlocksEventEmitter();
+            this.toastr.success('successfully saved', 'Block');
+          });
+        }
+       this.newTitleLabel.setAttribute('contentEditable', 'false');
+       this.newTitleLabel.style.border = 'none';
+       this.blockSaved = true;
       }
-     this.newTitleLabel.setAttribute('contentEditable', 'false');
-     this.newTitleLabel.style.border = 'none';
-     this.blockSaved = true;
+ 
     }
 
     updateBlocksEventEmitter() {
       this.blockService.updateBlocksEvent.emit();
+    }
+
+    checkAddAsReference() {
+      this.addAsReference = (!this.addAsReference);
     }
 
     enterSubmit(event) {
@@ -254,5 +288,9 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
 
     onClickSubmit() {
       this.addBlockFormSubmit();
+    }
+    closeModal(){
+      delete this.addAsReference;
+      this.modalReference.close();
     }
   }

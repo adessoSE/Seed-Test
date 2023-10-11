@@ -1168,6 +1168,9 @@ async function saveBlock(block) {
 
 async function updateBlock(blockId, updatedBlock) {
 	try {
+		updatedBlock._id = ObjectId(updatedBlock._id);
+		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
+		updatedBlock.owner = ObjectId(updatedBlock.owner);
 		const db = dbConnection.getConnection();
 		updatedBlock._id = ObjectId(updatedBlock._id)
 		updatedBlock.repositoryId = ObjectId(updatedBlock.repositoryId);
@@ -1175,6 +1178,18 @@ async function updateBlock(blockId, updatedBlock) {
 		await db.collection(CustomBlocksCollection).findOneAndReplace({_id: ObjectId(blockId)}, updatedBlock);
 	} catch (e) {
 		console.log(`ERROR in updateBlock: ${e}`);
+		throw e;
+	}
+}
+
+// get one Block by Id
+async function getBlock(blockId) {
+	try {
+		const db = dbConnection.getConnection();
+		return await db.collection(CustomBlocksCollection)
+			.findOne({ _id: ObjectId(blockId) });
+	} catch (e) {
+		console.log(`ERROR in getBlock: ${e}`);
 		throw e;
 	}
 }
@@ -1371,6 +1386,7 @@ module.exports = {
 	getResetRequestByEmail,
 	saveBlock,
 	updateBlock,
+	getBlock,
 	getBlocks,
 	deleteBlock,
 	getWorkgroup,

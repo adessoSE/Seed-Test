@@ -32,12 +32,12 @@ export class ResizeInputDirective {
     setTimeout(() => {
       
       el.nativeElement.classList.forEach((value) => {
-        if (value == 'scenario' || value == 'background') {
+        if (value === 'scenario' || value === 'background' || value === 'block-editor') {
           this.class = value;
         }
       });
 
-      if (this.class === 'background' || this.class === 'scenario') {
+      if (this.class === 'scenario' || this.class === 'background' || this.class === 'block-editor') {
         this.maxWidth = this.containerEl.offsetWidth;
       }  
       this.resize('load'); 
@@ -79,7 +79,7 @@ export class ResizeInputDirective {
    * @returns 
    */
   private setParentWidth() {
-    if (this.class === 'background' || this.class === 'scenario') {
+    if (this.class === 'scenario' || this.class === 'background' || this.class === 'block-editor') {
       return this.parentEl.offsetWidth;
     }
   }

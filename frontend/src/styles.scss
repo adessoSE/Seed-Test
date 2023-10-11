@@ -25,9 +25,9 @@ $cucumber-frontend-warn: mat.define-palette($mat-red);
 $cucumber-frontend-theme: mat.define-light-theme((
   color: (
     primary: $cucumber-frontend-primary,
-    accent: $cucumber-frontend-accent,
-    warn: $cucumber-frontend-warn,
-  )
+        accent: $cucumber-frontend-accent,
+        warn: $cucumber-frontend-warn,
+      )
 ));
 
 // Include theme styles for core and each component used in your app.
@@ -45,11 +45,10 @@ $dark-theme: mat.define-dark-theme(
   (
     color: (
       primary: $dark-primary,
-      accent: $dark-accent,
-      warn: $dark-warn,
-    ),
-  )
-);
+        accent: $dark-accent,
+        warn: $dark-warn,
+      ),
+    ));
 
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/uikit/src/scss/variables-theme.scss";
@@ -59,618 +58,661 @@ $dark-theme: mat.define-dark-theme(
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto&display=swap');
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
-  	body{
-  	    overflow-y:scroll;
-  	    font-family: 'Klavika', sans-serif;
-  	}
-  	@font-face {
-  	    font-family: Klavika, sans-serif;
-  	    src: local(Klavika-Light), url(fonts/Klavika-Light.otf) format("opentype");
-  	    font-weight: 300;
-  	    font-style: normal;
-  	    font-stretch: normal;
-  	}
-  	@font-face {
-  	    font-family: Klavika, sans-serif;
-  	    src: local(Klavika-Regular), url(fonts/Klavika-Regular.otf) format("opentype");
-  	    font-weight: normal;
-  	    font-style: normal;
-  	    font-stretch: normal;
-  	}
-  	@font-face {
-  	  font-family: Klavika, sans-serif;
-  	  src: local(Klavika-Medium), url(fonts/Klavika-Medium.otf) format("opentype");
-  	  font-weight: 500;
-  	  font-style: normal;
-  	  font-stretch: normal;
-  	}
+body {
+  overflow-y: scroll;
+  font-family: 'Klavika', sans-serif;
+}
 
-  :root{
-      --ocean-blue: #0071b9;
-      --grape: #782f40;
-      --white: #ffffff;
-      --black: #000000;
-      --baby-poo: #a79300;
-      --brown-grey: #887d75;
-      --grey-blue: #678b97;
-      --sunflower-yellow: #f9e700;
-      --sienna: #995219;
-      --pumpkin-orange: #ef8200;
-      --light-peach: #dcd9d7;
-      --very-light-pink: #f3f2f1;
-      --brown: #594800;
-      --marine-blue: #003754;
-      --charcoal-grey: #364445;
-      --pale: #e8e4e1;
-      --grape-purple: #40171d;
-      --dark-forest-green: #002e19;
-      --violet: #7e4654;
-      --grey: #505555;
-      --dark-grey: #857971;
-      --light-grey: #E8E4E1;
-      --light-blue: #a0d9ff;
-      --deep-grey : #60767b;
-      /* selfdefined dark theme button palette */
-      --button : #607d8b;
-      --buttonHover : #546E7A;
-      --buttonDisabled: #90A4AE;
-      --border : #B0BEC5;
-  }
+@font-face {
+  font-family: Klavika, sans-serif;
+  src: local(Klavika-Light), url(fonts/Klavika-Light.otf) format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-stretch: normal;
+}
 
-  .LargeHeadline1 {
-    font-family: Klavika, sans-serif;
-    font-size: 56px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.14;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeHeadline2 {
-    font-family: Klavika, sans-serif;
-    font-size: 40px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.2;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .MediumHeadline1 {
-    font-family: Klavika, sans-serif;
-    font-size: 40px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.1;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeHeadline3 {
-    font-family: Klavika, sans-serif;
-    font-size: 32px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeSublineH1 {
-    font-family: Klavika, sans-serif;
-    font-size: 32px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeCategory1 {
-    font-family: Klavika, sans-serif;
-    font-size: 32px;
-    font-weight: 300;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: 1.6px;
-    color: var(--brown-grey);
-  }
-  .SmallHeadline1 {
-    font-family: Klavika, sans-serif;
-    font-size: 28px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.14;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeIntro {
-    font-family: Klavika, sans-serif;
-    font-size: 28px;
-    font-weight: 300;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.29;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .MediumHeadline3 {
-    font-family: Klavika, sans-serif;
-    font-size: 26px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.23;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .MediumSublineH1 {
-    font-family: Klavika, sans-serif;
-    font-size: 26px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.23;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeHeadline4 {
-    font-family: Klavika, sans-serif;
-    font-size: 24px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.17;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .Largeaccordeon1 {
-    font-family: Klavika, sans-serif;
-    font-size: 24px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.17;
-    letter-spacing: normal;
-    color: var(--ocean-blue);
-  }
-  .LargeSublineH4 {
-    font-family: Klavika, sans-serif;
-    font-size: 24px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.17;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .Largenavigation2 {
-    font-family: Klavika, sans-serif;
-    font-size: 24px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.17;
-    letter-spacing: normal;
-    color: var(--brown-grey);
-  }
-  .MediumCategory1 {
-    font-family: Klavika, sans-serif;
-    font-size: 24px;
-    font-weight: 300;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.17;
-    letter-spacing: 1.2px;
-    color: var(--brown-grey);
-  }
-  .MediumIntro {
-    font-family: Klavika, sans-serif;
-    font-size: 24px;
-    font-weight: 300;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .MediumHeadline4 {
-    font-family: Klavika, sans-serif;
-    font-size: 22px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.18;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .MediumSubline1H4 {
-    font-family: Klavika, sans-serif;
-    font-size: 22px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.18;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .darkTheme .MediumSubline1H4 {
-    color: white;
-  }
+@font-face {
+  font-family: Klavika, sans-serif;
+  src: local(Klavika-Regular), url(fonts/Klavika-Regular.otf) format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+}
 
-  .LargeHeadline5 {
-    font-family: Klavika, sans-serif;
-    font-size: 20px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.2;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+@font-face {
+  font-family: Klavika, sans-serif;
+  src: local(Klavika-Medium), url(fonts/Klavika-Medium.otf) format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-stretch: normal;
+}
 
-  .Mediumaccordeon1 {
-    font-family: Klavika, sans-serif;
-    font-size: 20px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.2;
-    letter-spacing: normal;
-    color: var(--ocean-blue);
-  }
-  .LargeBody1compact {
-    font-family: Klavika, sans-serif;
-    font-size: 20px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.2;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeBody1regularLH {
-    font-family: Klavika, sans-serif;
-    font-size: 20px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.6;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .Mediumnavigation2 {
-    font-family: Klavika, sans-serif;
-    font-size: 20px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.2;
-    letter-spacing: normal;
-    color: var(--brown-grey);
-  }
-  .SmallCategory1 {
-    font-family: Klavika, sans-serif;
-    font-size: 20px;
-    font-weight: 300;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.2;
-    letter-spacing: 1px;
-    color: var(--brown-grey);
-  }
-  .SmallIntro {
-    font-family: Klavika, sans-serif;
-    font-size: 20px;
-    font-weight: 300;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.3;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .Largeaccordeon2 {
-    font-family: Klavika, sans-serif;
-    font-size: 18px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.11;
-    letter-spacing: normal;
-    color: var(--ocean-blue);
-  }
+:root {
+  --ocean-blue: #0071b9;
+  --grape: #782f40;
+  --white: #ffffff;
+  --black: #000000;
+  --baby-poo: #a79300;
+  --brown-grey: #887d75;
+  --grey-blue: #678b97;
+  --sunflower-yellow: #f9e700;
+  --sienna: #995219;
+  --pumpkin-orange: #ef8200;
+  --light-peach: #dcd9d7;
+  --very-light-pink: #f3f2f1;
+  --brown: #594800;
+  --marine-blue: #003754;
+  --charcoal-grey: #364445;
+  --pale: #e8e4e1;
+  --grape-purple: #40171d;
+  --dark-forest-green: #002e19;
+  --violet: #7e4654;
+  --grey: #505555;
+  --dark-grey: #857971;
+  --light-grey: #E8E4E1;
+  --light-blue: #a0d9ff;
+  --deep-grey: #60767b;
+  /* selfdefined dark theme button palette */
+  --button: #607d8b;
+  --buttonHover: #546E7A;
+  --buttonDisabled: #90A4AE;
+  --border: #B0BEC5;
+}
 
-  .darkTheme .Largeaccordeon2 {
-    color: var(--light-blue);
-  }
+.LargeHeadline1 {
+  font-family: Klavika, sans-serif;
+  font-size: 56px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.14;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .Largenavigation1 {
-    font-family: Klavika, sans-serif;
-    font-size: 18px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.11;
-    letter-spacing: normal;
-    text-align: center;
-    color: var(--brown-grey);
-  }
-  .MediumHeadline5 {
-    font-family: Klavika, sans-serif;
-    font-size: 18px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.22;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+.LargeHeadline2 {
+  font-family: Klavika, sans-serif;
+  font-size: 40px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .darkTheme .MediumHeadline5 {
-    color: white;
-  }
+.MediumHeadline1 {
+  font-family: Klavika, sans-serif;
+  font-size: 40px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.1;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .Smallaccordeon1 {
-    font-family: Klavika, sans-serif;
-    font-size: 18px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.22;
-    letter-spacing: normal;
-    color: var(--ocean-blue);
-  }
-  .MediumBody1compact {
-    font-family: Klavika, sans-serif;
-    font-size: 18px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.22;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .MediumBody1regularLH {
-    font-family: Klavika, sans-serif;
-    font-size: 18px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.56;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .Smallnavigation2 {
-    font-family: Klavika, sans-serif;
-    font-size: 18px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.22;
-    letter-spacing: normal;
-    color: var(--brown-grey);
-  }
-  .LargeButton {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.38;
-    letter-spacing: normal;
-    text-align: center;
-    color: var(--black);
-  }
-  .LargeLink {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.38;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .Mediumaccordeon2 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--ocean-blue);
-  }
+.LargeHeadline3 {
+  font-family: Klavika, sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .darkTheme .Mediumaccordeon2 {
-    color: var(--light-blue);
-  }
+.LargeSublineH1 {
+  font-family: Klavika, sans-serif;
+  font-size: 32px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .Mediumnavigation1 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    text-align: center;
-    color: var(--brown-grey);
-  }
-  .SmallHeadline5 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+.LargeCategory1 {
+  font-family: Klavika, sans-serif;
+  font-size: 32px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: 1.6px;
+  color: var(--brown-grey);
+}
 
-  .darkTheme .SmallHeadline5 {
-    color: white;
-  }
+.SmallHeadline1 {
+  font-family: Klavika, sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.14;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .Smallnavigation1 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--brown-grey);
-  }
-  .LargeBody2 {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.38;
-    letter-spacing: normal;
-    color: var(--black);
-  }
+.LargeIntro {
+  font-family: Klavika, sans-serif;
+  font-size: 28px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.29;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .darkTheme .LargeBody2 {
-    color: var(--white);
-  }
+.MediumHeadline3 {
+  font-family: Klavika, sans-serif;
+  font-size: 26px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.23;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .SmallBody1compact {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.25;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .SmallBody1regularLH {
-    font-family: Klavika, sans-serif;
-    font-size: 16px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.5;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .darkTheme .SmallBody1regularLH {
-    color: white;
-  }
+.MediumSublineH1 {
+  font-family: Klavika, sans-serif;
+  font-size: 26px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.23;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .MediumButton1 {
-    font-family: Klavika, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.29;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .SmallButton {
-    font-family: Klavika, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.29;
-    letter-spacing: normal;
-    text-align: center;
-    //color: var(--black);
-    color:var(--white);
-    background: var(--ocean-blue);
-    cursor: pointer;
-  }
+.LargeHeadline4 {
+  font-family: Klavika, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .darkTheme .SmallButton {
-    background: var(--button);
-    border-color: var(--button);
-  }
+.Largeaccordeon1 {
+  font-family: Klavika, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  color: var(--ocean-blue);
+}
 
-  .SmallButton:hover{
-    background: var(--marine-blue);
-  }
+.LargeSublineH4 {
+  font-family: Klavika, sans-serif;
+  font-size: 24px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .darkTheme .SmallButton:hover {
-    background : var(--buttonHover);
-  }
+.Largenavigation2 {
+  font-family: Klavika, sans-serif;
+  font-size: 24px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  color: var(--brown-grey);
+}
 
-  .SmallIcontext {
-    font-family: Klavika, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.14;
-    letter-spacing: normal;
-    text-align: center;
-    color: var(--brown-grey);
-  }
-  .Largecaption {
-    font-family: Klavika, sans-serif;
-    font-size: 14px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.14;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .MediumBody2 {
-    font-family: Klavika, sans-serif;
-    font-size: 14px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.29;
-    letter-spacing: normal;
-    color: var(--black);
-  }
-  .LargeCategory2 {
-    font-family: Klavika, sans-serif;
-    /* font-size: 12px; */
-    font-weight: 500;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.17;
-    letter-spacing: 0.6px;
-    color: var(--black);
-  }
-  .Mediumcaption {
-    font-family: Klavika, sans-serif;
-    font-size: 12px;
-    font-weight: normal;
-    font-stretch: normal;
-    font-style: normal;
-    line-height: 1.17;
-    letter-spacing: normal;
-    text-align: center;
-    color: var(--black);
-  }
+.MediumCategory1 {
+  font-family: Klavika, sans-serif;
+  font-size: 24px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: 1.2px;
+  color: var(--brown-grey);
+}
 
+.MediumIntro {
+  font-family: Klavika, sans-serif;
+  font-size: 24px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-  .normalButton{
-    color:var(--white);
-    padding: 5px 10px !important;
-    font-size: 15px;
-    cursor: pointer;
-    transition: 0.2s;
-    background: var(--ocean-blue);
-    border: none;
-  }
+.MediumHeadline4 {
+  font-family: Klavika, sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.18;
+  letter-spacing: normal;
+  color: var(--black);
+}
 
-.normalButton:hover{
+.MediumSubline1H4 {
+  font-family: Klavika, sans-serif;
+  font-size: 22px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.18;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.darkTheme .MediumSubline1H4 {
+  color: white;
+}
+
+.LargeHeadline5 {
+  font-family: Klavika, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.Mediumaccordeon1 {
+  font-family: Klavika, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: var(--ocean-blue);
+}
+
+.LargeBody1compact {
+  font-family: Klavika, sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.LargeBody1regularLH {
+  font-family: Klavika, sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.Mediumnavigation2 {
+  font-family: Klavika, sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: normal;
+  color: var(--brown-grey);
+}
+
+.SmallCategory1 {
+  font-family: Klavika, sans-serif;
+  font-size: 20px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  color: var(--brown-grey);
+}
+
+.SmallIntro {
+  font-family: Klavika, sans-serif;
+  font-size: 20px;
+  font-weight: 300;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.3;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.Largeaccordeon2 {
+  font-family: Klavika, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.11;
+  letter-spacing: normal;
+  color: var(--ocean-blue);
+}
+
+.darkTheme .Largeaccordeon2 {
+  color: var(--light-blue);
+}
+
+.Largenavigation1 {
+  font-family: Klavika, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.11;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--brown-grey);
+}
+
+.MediumHeadline5 {
+  font-family: Klavika, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.22;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.darkTheme .MediumHeadline5 {
+  color: white;
+}
+
+.Smallaccordeon1 {
+  font-family: Klavika, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.22;
+  letter-spacing: normal;
+  color: var(--ocean-blue);
+}
+
+.MediumBody1compact {
+  font-family: Klavika, sans-serif;
+  font-size: 18px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.22;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.MediumBody1regularLH {
+  font-family: Klavika, sans-serif;
+  font-size: 18px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.56;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.Smallnavigation2 {
+  font-family: Klavika, sans-serif;
+  font-size: 18px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.22;
+  letter-spacing: normal;
+  color: var(--brown-grey);
+}
+
+.LargeButton {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.38;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--black);
+}
+
+.LargeLink {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.38;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.Mediumaccordeon2 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--ocean-blue);
+}
+
+.darkTheme .Mediumaccordeon2 {
+  color: var(--light-blue);
+}
+
+.Mediumnavigation1 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--brown-grey);
+}
+
+.SmallHeadline5 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.darkTheme .SmallHeadline5 {
+  color: white;
+}
+
+.Smallnavigation1 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--brown-grey);
+}
+
+.LargeBody2 {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.38;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.darkTheme .LargeBody2 {
+  color: var(--white);
+}
+
+.SmallBody1compact {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.25;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.SmallBody1regularLH {
+  font-family: Klavika, sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.darkTheme .SmallBody1regularLH {
+  color: white;
+}
+
+.MediumButton1 {
+  font-family: Klavika, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.29;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.SmallButton {
+  font-family: Klavika, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.29;
+  letter-spacing: normal;
+  text-align: center;
+  //color: var(--black);
+  color: var(--white);
+  background: var(--ocean-blue);
+  cursor: pointer;
+}
+
+.darkTheme .SmallButton {
+  background: var(--button);
+  border-color: var(--button);
+}
+
+.SmallButton:hover {
   background: var(--marine-blue);
 }
 
-.normalButton:disabled{
+.darkTheme .SmallButton:hover {
+  background: var(--buttonHover);
+}
+
+.SmallIcontext {
+  font-family: Klavika, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.14;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--brown-grey);
+}
+
+.Largecaption {
+  font-family: Klavika, sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.14;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.MediumBody2 {
+  font-family: Klavika, sans-serif;
+  font-size: 14px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.29;
+  letter-spacing: normal;
+  color: var(--black);
+}
+
+.LargeCategory2 {
+  font-family: Klavika, sans-serif;
+  /* font-size: 12px; */
+  font-weight: 500;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: 0.6px;
+  color: var(--black);
+}
+
+.Mediumcaption {
+  font-family: Klavika, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.17;
+  letter-spacing: normal;
+  text-align: center;
+  color: var(--black);
+}
+
+
+.normalButton {
+  color: var(--white);
+  padding: 5px 10px !important;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: var(--ocean-blue);
+  border: none;
+}
+
+.normalButton:hover {
+  background: var(--marine-blue);
+}
+
+.normalButton:disabled {
   opacity: 20%;
   pointer-events: none;
 }
@@ -679,15 +721,15 @@ $dark-theme: mat.define-dark-theme(
   background: var(--buttonHover);
 }
 
-.deleteButton{
+.deleteButton {
   background: var(--grape) !important;
 }
 
-.deleteButton:hover{
+.deleteButton:hover {
   background: var(--grape-purple) !important;
 }
 
-.infoIcon{
+.infoIcon {
   grid-area: storyHeader;
   color: #999;
   padding-top: 3px !important;
@@ -704,11 +746,12 @@ $dark-theme: mat.define-dark-theme(
 span[rel=def] {
   display: none;
 }
-.mdc-circular-progress__circle-clipper{
+
+.mdc-circular-progress__circle-clipper {
   display: revert;
 }
 
-.def:hover span[rel=def]{
+.def:hover span[rel=def] {
   left: 19px;
   font-size: small;
   color: white;
@@ -736,11 +779,11 @@ span[rel=def] {
   border: transparent;
 }
 
-span.notPassed{
+span.notPassed {
   background-color: red !important;
 }
 
-span.passed{
+span.passed {
   background-color: green !important;
 }
 
@@ -748,7 +791,7 @@ span.passed{
   background-color: #4CAF50 !important;
 }
 
-a.passed{
+a.passed {
   color: green !important;
 }
 
@@ -756,15 +799,15 @@ a.passed{
   color: #4CAF50 !important;
 }
 
-a.notPassed{
+a.notPassed {
   color: red !important;
 }
 
-.darkTheme a.notPassed{
+.darkTheme a.notPassed {
   color: red !important;
 }
 
-div.passed{
+div.passed {
   color: green !important;
 }
 
@@ -772,19 +815,44 @@ div.passed{
   color: #4CAF50 !important;
 }
 
-div.notPassed{
+div.notPassed {
   color: red !important;
 }
+
+.dropdownHeader {
+  font-weight: bold;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+
+.darkTheme .uk-dropdown .dropdownHeader {
+  color: white;
+}
+
 
 .darkTheme .uk-dropdown {
   background: #546E7A;
   color: var(--light-blue);
 }
-#static{
+
+.uk-nav>li>.dropdownStep {
+  color: var(--ocean-blue);
+}
+
+.darkTheme .uk-nav>li>.dropdownStep {
+  color: var(--light-blue) !important;
+}
+
+
+#static {
   position: static;
 }
 
-.darkTheme select, .darkTheme input, .darkTheme textarea {
+.darkTheme select,
+.darkTheme input,
+.darkTheme textarea {
   background: transparent;
   border-color: #60767b;
   color: white;
@@ -799,7 +867,7 @@ div.notPassed{
   color: white;
 }
 
-.darkTheme select > option {
+.darkTheme select>option {
   background-color: #60767b;
   color: white !important;
 }
@@ -812,17 +880,18 @@ div.notPassed{
   background-color: var(--light-grey);
 }
 
-.mat-app-background .darkTheme, 
+.mat-app-background .darkTheme,
 .mat-app-background.darkTheme {
   background-color: map-get($mat-blue-grey, 800);
 }
 
-.darkTheme .Smallnavigation1, .darkTheme .Smallnavigation2,
-.darkTheme span{
+.darkTheme .Smallnavigation1,
+.darkTheme .Smallnavigation2,
+.darkTheme span {
   color: var(--white);
 }
 
-a.repoLink{
+a.repoLink {
   color: var(--ocean-blue);
   transition: 0.2s;
 }
@@ -831,7 +900,7 @@ a.repoLink{
   color: var(--light-blue);
 }
 
-a.repoLink:hover{
+a.repoLink:hover {
   color: var(--marine-blue);
 }
 
@@ -840,21 +909,21 @@ a.repoLink:hover{
 }
 
 .darkTheme a {
-  color:var(--light-blue) !important;
+  color: var(--light-blue) !important;
 }
 
 a:hover {
-  color:var(--black) !important;
+  color: var(--black) !important;
 }
 
 .darkTheme a:hover {
-  color:var(--white) !important;
-} 
+  color: var(--white) !important;
+}
 
 
 .darkTheme span.infoIcon {
   color: var(--white) !important;
-} 
+}
 
 .darkTheme em {
   color: var(--light-blue) !important;
@@ -866,10 +935,10 @@ a:hover {
 }
 
 .darkTheme label {
-  color:var(--white);
+  color: var(--white);
 }
 
-.darkTheme hr{
+.darkTheme hr {
   /* border: 1px solid #60767b; */
   border-color: #60767b !important;
 }
@@ -879,7 +948,7 @@ a:hover {
 }
 
 .darkTheme ::placeholder {
-  color: rgb(255,255,255,70%) !important;
+  color: rgb(255, 255, 255, 70%) !important;
 }
 
 ::-webkit-scrollbar {
@@ -894,7 +963,7 @@ a:hover {
 
 .darkTheme ::-webkit-scrollbar-thumb,
 .darkTheme::-webkit-scrollbar-thumb {
-  background: map-get($mat-blue-gray-palette, 200)!important;
+  background: map-get($mat-blue-gray-palette, 200) !important;
   border: 1px 1px 1px 1px black;
 }
 
@@ -905,11 +974,12 @@ a:hover {
 
 }
 
-.uk-input, .uk-select:not([multiple]):not([size]) {
+.uk-input,
+.uk-select:not([multiple]):not([size]) {
   height: 32px;
 }
 
-#searchBarIcons{
+#searchBarIcons {
   color: var(--brown-grey);
   vertical-align: middle;
 }
@@ -924,17 +994,31 @@ a:hover {
   opacity: 96%;
 }
 
+.darkTheme .scenarioBarContainer {
+  background-color: #546E7A !important;
+  border-bottom: 1px solid #B0BEC5 !important;
+}
+
 .modal-backdrop {
-  z-index: 1 !important;    
-} 
+  z-index: 1 !important;
+}
 
 .mat-tooltip {
   font-style: italic !important;
 }
 
-button:focus, input[type="button"]:focus, input[type="submit"]:focus { 
+button:focus,
+input[type="button"]:focus,
+input[type="submit"]:focus {
   outline: none;
-} 
+}
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
