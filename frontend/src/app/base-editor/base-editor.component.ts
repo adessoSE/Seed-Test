@@ -1731,6 +1731,11 @@ export class BaseEditorComponent  {
   }
 
 
+  //TODO
+  //darkmode, handhabung felder vergleichen (str v), multiple scenario
+  //beim hinzufügen von blöcken oder kopierten wird nicht gehighlighted
+  //zentrale Bloeke
+
   /**
    * Add value and highlight regex, Style regex in value and give value to addToValue() function
    * Value is in textContent and style is in innerHTML
@@ -1743,14 +1748,12 @@ export class BaseEditorComponent  {
    * @param initialCall if call is from ngAfterViewInit
    */
     highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
-      const regexPattern = /\/[^\n\/]+\/[a-z]*/gi; // Regex pattern to recognize and highlight regex expressions
-
+      const regexPattern = /\/\^[^/]*\//g///\/\^[^/]*\//g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with /
       const textField = document.getElementById(element);
       const textContent = textField.textContent;
       //Get current cursor position
       const offset = this.getCaretCharacterOffsetWithin(textField)
       const regexSteps = ['So I can see the text', 'So I can see the text:', 'So I can\'t see the text:', 'So I can\'t see text in the textbox:']
-
       let textIsRegex = false;
 
       if(!initialCall){
@@ -1761,67 +1764,66 @@ export class BaseEditorComponent  {
         this.initialRegex = false;
       }
 
-      if(0==valueIndex && regexSteps.includes(stepPre)){
+      // Clear previous styling
+      this.renderer.setStyle(textField, 'color', '');
+      this.renderer.setStyle(textField, 'fontWeight', '');
 
-        const regexMatchedText = textContent.match(regexPattern);
-        const regexDetected = regexMatchedText !== null;
+      var regexDetected = false;
 
-        // Clear previous styling
-        this.renderer.setStyle(textField, 'color', '');
-        this.renderer.setStyle(textField, 'fontWeight', '');
-
-      if (regexDetected) {
-        textIsRegex = true;
-        const matches: RegExpExecArray[] = [];
-        let match: RegExpExecArray | null;
+      const matches: RegExpExecArray[] = [];
+      let match: RegExpExecArray | null;
   
-        while ((match = regexPattern.exec(textContent)) !== null) {
-          matches.push(match);
+      while ((match = regexPattern.exec(textContent)) !== null) {
+        matches.push(match);
+        textIsRegex = true;
+      }
+  
+      const fragment = document.createDocumentFragment();
+      let currentIndex = 0;
+  
+      // Create span with style for every regex match
+      for (const match of matches) {
+        const nonRegexPart = textContent.substring(currentIndex, match.index);
+        const matchText = match[0];
+  
+        if (nonRegexPart) {
+          const nonRegexNode = document.createTextNode(nonRegexPart);
+          fragment.appendChild(nonRegexNode);
         }
   
-        const fragment = document.createDocumentFragment();
-        let currentIndex = 0;
-  
-        // Create span with style for every regex match
-        for (const match of matches) {
-          const nonRegexPart = textContent.substring(currentIndex, match.index);
-          const matchText = match[0];
-  
-          if (nonRegexPart) {
-            const nonRegexNode = document.createTextNode(nonRegexPart);
-            fragment.appendChild(nonRegexNode);
-          }
-  
-          const span = document.createElement('span');
+        const span = document.createElement('span');
+        if(0==valueIndex && regexSteps.includes(stepPre)){
+          regexDetected = true;
           span.style.color = 'var(--ocean-blue)';
           span.style.fontWeight = 'bold';
-          span.appendChild(document.createTextNode(matchText));
-          fragment.appendChild(span);
-  
-          currentIndex = match.index + matchText.length;
         }
+        span.appendChild(document.createTextNode(matchText));
+        fragment.appendChild(span);
   
-        const remainingText = textContent.substring(currentIndex);
-        if (remainingText) {
-          const remainingTextNode = document.createTextNode(remainingText);
-          fragment.appendChild(remainingTextNode);
-        }
-  
-        while (textField.firstChild) {
-          textField.removeChild(textField.firstChild);
-        }
-  
-        textField.appendChild(fragment);
+        currentIndex = match.index + matchText.length;
       }
-        // Toastr logic
-        if(initialCall && regexDetected) {
-          this.regexInStory = true
-        }
-        if(regexDetected && !this.regexInStory){
-          this.regexInStory = true
-          this.toastr.info('Regex Highlight');
-        }
+  
+      const remainingText = textContent.substring(currentIndex);
+      if (remainingText) {
+        const remainingTextNode = document.createTextNode(remainingText);
+        fragment.appendChild(remainingTextNode);
       }
+  
+      while (textField.firstChild) {
+        textField.removeChild(textField.firstChild);
+      }
+  
+      textField.appendChild(fragment);
+
+      // Toastr logic
+      if(initialCall && regexDetected) {
+        this.regexInStory = true
+      }
+      if(regexDetected && !this.regexInStory){
+        this.regexInStory = true
+        this.toastr.info('Regex Highlight');
+      }
+
 
 
       // Set cursor to correct position
