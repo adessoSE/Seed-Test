@@ -1748,7 +1748,7 @@ export class BaseEditorComponent  {
    * @param initialCall if call is from ngAfterViewInit
    */
     highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
-      const regexPattern = /\/\^[^/]*\//g///\/\^[^/]*\//g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with /
+      const regexPattern = /@@[^ ]+/g;// Regex pattern to recognize and highlight regex expressions -> start with @@
       const textField = document.getElementById(element);
       const textContent = textField.textContent;
       //Get current cursor position
