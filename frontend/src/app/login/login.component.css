@@ -137,11 +137,6 @@ h1{
     color: black;
 }
 
-.wrongLogin{
-    background-color: var(--grape);
-    text-align: center;
-}
-
 .loginFont{
     color:var(--ocean-blue);
 }

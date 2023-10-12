@@ -16,7 +16,6 @@
     <div *ngIf="error" class="alert alert-danger text-center" style="margin-bottom: 15px; width: 210px;">
       <b>Login Failed: </b>{{error}}
     </div>
-    <!-- <p class="wrongLogin" ></p> -->
     <!-- Formular -->
     <h1 class="LargeHeadline2 loginFont">Login</h1>
     <form #form="ngForm" novalidate (ngSubmit)="login(form)">
