@@ -801,7 +801,7 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 
 Then('So on element {string} the css property {string} is {string}', async function cssIs(element, property, value) {
 	const world = this;
-	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@*, '${element}')]`, `//*[contains(@id, '${element}')]`, `${element}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 	await Promise.any(promises)
@@ -818,7 +818,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
 
 Then('So the element {string} has the tool-tip {string}', async function toolTipIs(element, value) {
 	const world = this;
-	const identifiers = [ `${element}`];
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[contains(@*, '${element}')]`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 	await Promise.any(promises)
