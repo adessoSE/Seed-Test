@@ -1,0 +1,62 @@
+.warningIcon {
+    color: white !important;
+}
+
+.BlockHeaderContainer {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto;
+    padding: 0 20px;
+}
+
+.BlockHeaderWarning {
+    display: flex;
+    justify-content: space-evenly;
+    text-align: center;
+    background-color: #ff9800;
+    color: white;
+    margin: 2.5% auto;
+    align-items: center;
+    font-size: 14px;
+    border-radius: 15px;
+    padding: 10px 0;
+    width: 70%;
+    max-width: 600px;
+    min-width: 300px;
+}
+
+@media screen and (min-width: 500px) {
+
+
+    ::ng-deep body>ngb-modal-window>.edit-block.modal-dialog {
+
+        max-width: none !important;
+
+    }
+
+}
+
+
+::ng-deep body>ngb-modal-window>.edit-block.modal-dialog {
+
+    width: 55%;
+
+    min-width: 1000px;
+
+}
+
+::ng-deep body>ngb-modal-window.modal {
+
+    z-index: 1;
+
+}
+
+:host ::ng-deep .darkTheme.uk-dropdown {
+  background-color: #60767b;
+  color: var(--light-blue);
+}  
+
+.infoIconHeader{
+    color: var(--white);
+    margin-left: 5px;
+    margin-right: 5px;
+}
