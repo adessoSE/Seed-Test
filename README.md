@@ -14,6 +14,36 @@ Seed-Test is a website user interface testing tool, which uses approaches of beh
 
 Please contact us via mail seed-test@adesso.de
 
+Seed-Test can be installed via docker or by hand.
+
+## **Give Seed-Test Demo a Try!**
+
+Seed-Test offers a handy demo version that's ready for you to dive into. If you're just looking to test out Seed-Test, you can easily do so by installing this demo.
+
+**Prerequisites**
+
+Before you begin, make sure you have [Docker](https://www.docker.com/products/docker-desktop/) installed.
+
+**Installation**
+
+Follow these simple steps to get up and running:
+
+- Open your terminal and run this command:
+
+  ```
+  docker run seedtest/seed-test-demo:latest
+  ```
+
+**Try Seed-Test in Your Browser**
+
+Now, you can try out Seed-Test in your web browser by visiting `http://localhost:4200/login`.
+
+<b>Have Fun!</b>
+
+**Important Note**
+
+⚠️ Please note that Seed-Test's demo version is for testing purposes only and should not be used in a production environment. For production use, consider using the full version of Seed-Test.Test completely check out the Installation section bellow.
+
 ## Installation
 
 Seed-Test can be installed via docker or by hand.
