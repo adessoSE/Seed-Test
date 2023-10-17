@@ -1,8 +1,11 @@
 name: Build and Publish Docker Image
 
 on:
-  push:
-    tags:
+  release:
+    types:
+      - published
+      - edited
+    name:
       - "Seed-Test_v*"
 
 jobs:
