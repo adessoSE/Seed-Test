@@ -1,12 +1,8 @@
 name: Build and Publish Docker Image
 
 on:
-  release:
-    types:
-      - published
-      - edited
-      - deleted
-    name:
+  push:
+    tags:
       - "Test_v*"
 
 jobs:
