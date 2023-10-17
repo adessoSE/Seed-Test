@@ -16,7 +16,7 @@ Please contact us via mail seed-test@adesso.de
 
 Seed-Test can be installed via docker or by hand.
 
-## **Give Seed-Test Demo a Try!**
+## 🚀Give Seed-Test Demo a Try!
 
 Seed-Test offers a handy demo version that's ready for you to dive into. If you're just looking to test out Seed-Test, you can easily do so by installing this demo.
 
@@ -36,9 +36,14 @@ Follow these simple steps to get up and running:
 
 **Try Seed-Test in Your Browser**
 
-Now, you can try out Seed-Test in your web browser by visiting `http://localhost:4200/login`.
+Now, you can experience Seed-Test in your web browser at http://localhost:4200.
 
-<b>Have Fun!</b>
+An example user account is ready for you to explore.
+
+- <b>E-Mail:</b> `seed@test.de`
+- <b>Password:</b> `seedtest`
+
+<b>Have Fun! 🚀🌟</b>
 
 #### ⚠️ Important Note
 
