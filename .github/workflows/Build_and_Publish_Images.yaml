@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "Seed-Test_v*"
+      - "Test_v*"
 
 jobs:
   build-and-publish:
