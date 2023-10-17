@@ -3,7 +3,7 @@ name: Build and Publish Docker Image
 on:
   push:
     tags:
-      - "Seed-Test_v*"
+      - "Test_v*"
 
 jobs:
   build-and-publish:
@@ -21,7 +21,7 @@ jobs:
       - name: Get Tag Name
         id: get_tag_name
         run: |
-          version=$(echo $GITHUB_REF | sed 's/refs\/tags\///' | sed 's/.*_//')
+          version=$(echo $GITHUB_REF)
           echo "version=${version}" >> ${GITHUB_OUTPUT}
 
       # BACKEND
