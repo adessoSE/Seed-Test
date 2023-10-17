@@ -5,12 +5,11 @@ on:
     types:
       - published
       - edited
-    name:
-      - "Seed-Test_v*"
 
 jobs:
-  build-and-publish:
+  build-and-publish-release:
     runs-on: ubuntu-latest
+    if: startsWith(github.event.release.name, 'Seed-Test_v')
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -69,3 +68,79 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-demo:${{ steps.get_tag_name.outputs.version }}
           docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-demo:latest
+
+      - name: Post susccess message
+        uses: ./actions/notifyTeams
+        with:
+          title: "Publish Release DockerHub 🐳🌐"
+          text: "Published Images for release ${{ github.event.release.name }} successfully."
+          style: "success"
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+      - name: Post error message
+        if: ${{ failure() }}
+        with:
+          title: "Publish Release DockerHub 🐳🌐❌"
+          text: "Published Images for release ${{ github.event.release.name }} failed."
+          style: "failure"
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+  build-and-publish-test:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.release.name, 'Test_v')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Get Tag Name
+        id: get_tag_name
+        run: |
+          version=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
+          echo "version=${version}" >> ${GITHUB_OUTPUT}
+
+      # BACKEND
+      - name: Build Docker Image
+        run: docker build -t seed-test-backend:${{ steps.get_tag_name.outputs.version }} ./backend
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-backend:${{ steps.get_tag_name.outputs.version }}
+
+      # FRONTEND
+      - name: Build Docker Image
+        run: docker build -t seed-test-frontend:${{ steps.get_tag_name.outputs.version }} ./frontend
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-frontend:${{ steps.get_tag_name.outputs.version }}
+
+      # SINGLE QUICK DEMO CONTAINER
+      - name: Build Docker Image as Latest
+        run: |
+          docker build -t seed-test-demo:${{ steps.get_tag_name.outputs.version }} .
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/seed-test-demo:${{ steps.get_tag_name.outputs.version }}
+
+      - name: Post susccess message
+        uses: ./actions/notifyTeams
+        with:
+          title: "Publish Test-Release DockerHub 🧪🐳🌐"
+          text: "Published Images for test-release ${{ github.event.release.name }} successfully."
+          style: "success"
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+      - name: Post error message
+        if: ${{ failure() }}
+        with:
+          title: "Publish Test-Release DockerHub 🐳🌐❌"
+          text: "Published Images for test-release ${{ github.event.release.name }} failed."
+          style: "failure"
+          webhook: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
