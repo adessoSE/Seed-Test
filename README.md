@@ -31,7 +31,7 @@ Follow these simple steps to get up and running:
 - Open your terminal and run this command:
 
   ```
-  docker run seedtest/seed-test-demo:latest
+  docker run -p 4200:4200 -p 8080:8080 seedtest/seed-test-demo:latest
   ```
 
 **Try Seed-Test in Your Browser**
