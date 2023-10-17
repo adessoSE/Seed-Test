@@ -40,9 +40,9 @@ Now, you can try out Seed-Test in your web browser by visiting `http://localhost
 
 <b>Have Fun!</b>
 
-#### Important Note
+#### ⚠️ Important Note
 
-⚠️ Please note that Seed-Test's demo version is for testing purposes only and should not be used in a production environment. For production use, consider using the full version of Seed-Test. Check out the Installation section bellow.
+Please note that Seed-Test's demo version is for testing purposes only and should not be used in a production environment. For production use, consider using the full version of Seed-Test. Check out the Installation section bellow.
 
 ## Installation
 
