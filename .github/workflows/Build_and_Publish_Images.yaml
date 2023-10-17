@@ -135,7 +135,7 @@ jobs:
       - name: Build Docker Image as Latest
         run: |
           docker build -t seed-test-demo:${{ steps.get_tag_name.outputs.version }} .
-          docker tag seed-test-demo:${{ steps.get_tag_name.outputs.version }} ${{ secrets.DOCKER_USERNAME }}/seed-test-demo:l${{ steps.get_tag_name.outputs.version }}
+          docker tag seed-test-demo:${{ steps.get_tag_name.outputs.version }} ${{ secrets.DOCKER_USERNAME }}/seed-test-demo:${{ steps.get_tag_name.outputs.version }}
 
       - name: Push Docker Image to Docker Hub
         run: |
