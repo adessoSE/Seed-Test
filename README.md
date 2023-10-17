@@ -20,11 +20,11 @@ Seed-Test can be installed via docker or by hand.
 
 Seed-Test offers a handy demo version that's ready for you to dive into. If you're just looking to test out Seed-Test, you can easily do so by installing this demo.
 
-**Prerequisites**
+#### Prerequisites
 
 Before you begin, make sure you have [Docker](https://www.docker.com/products/docker-desktop/) installed.
 
-**Installation**
+#### Installation
 
 Follow these simple steps to get up and running:
 
@@ -40,9 +40,9 @@ Now, you can try out Seed-Test in your web browser by visiting `http://localhost
 
 <b>Have Fun!</b>
 
-**Important Note**
+#### Important Note
 
-⚠️ Please note that Seed-Test's demo version is for testing purposes only and should not be used in a production environment. For production use, consider using the full version of Seed-Test.Test completely check out the Installation section bellow.
+⚠️ Please note that Seed-Test's demo version is for testing purposes only and should not be used in a production environment. For production use, consider using the full version of Seed-Test. Check out the Installation section bellow.
 
 ## Installation
 
