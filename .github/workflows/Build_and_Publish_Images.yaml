@@ -79,6 +79,7 @@ jobs:
 
       - name: Post error message
         if: ${{ failure() }}
+        uses: ./actions/notifyTeams
         with:
           title: "Publish Release DockerHub 🐳🌐❌"
           text: "Published Images for release ${{ github.event.release.name }} failed."
@@ -139,6 +140,7 @@ jobs:
 
       - name: Post error message
         if: ${{ failure() }}
+        uses: ./actions/notifyTeams
         with:
           title: "Publish Test-Release DockerHub 🐳🌐❌"
           text: "Published Images for test-release ${{ github.event.release.name }} failed."
