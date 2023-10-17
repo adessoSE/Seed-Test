@@ -48,7 +48,11 @@ export class BlockService {
    */
   public unpackBlockEvent = new EventEmitter();
 
-  blocks: Block[] = [];
+   /**
+   * Stores an array of references blocks, before the reference is deleted
+   */
+  referencesBlocks: Block[] = [];
+
   referenceStories: Story[];
   referenceScenarios: Scenario[];
   block: Block;
@@ -188,11 +192,11 @@ export class BlockService {
     .filter((story, index, arr) => story && arr.indexOf(story) === index); 
   }
    /**
-   * Add/Delete for reference steps in scenario. 
+   * delete a reference and update Block
    */
-  stepAsReference() {  
-    if(this.blocks.length !== 0){
-      for (const block of this.blocks) {
+  deleteUpdateReferenceForBlock() {  
+    if(this.referencesBlocks.length !== 0){
+      for (const block of this.referencesBlocks) {
         if (block.usedAsReference === false) {
           delete block.usedAsReference;
           this.updateBlock(block)
@@ -201,18 +205,18 @@ export class BlockService {
           });
         }
       }
-      this.blocks = [];
+      this.referencesBlocks = [];
     }
     else return 0;
   }
 
    /**
-     * Remove the reference property for the steps
+     * Сhecking whether the block is used as a reference
      * @param blockReferenceId
      * @param blocks
      * @param stories
      */
-  removeReferenceForStep(blocks:Block[], stories: Story[], blockReferenceId){
+  checkBlockOnReference(blocks:Block[], stories: Story[], blockReferenceId){
     this.searchReferences(stories);
     let blockNoLongerRef = true;
     for (const scen of this.referenceScenarios){
@@ -228,28 +232,43 @@ export class BlockService {
       for (const block of blocks){
         if(block._id === blockReferenceId){
           block.usedAsReference = false;
-          this.blocks.push(block);
+          this.referencesBlocks.push(block);
         }
       }
     }
   }
    /**
-   * Check reference and delete in all repository
+   * Check reference and unpack block in all relevant stories
    * @param block
    * @param stories
    */
-   deteleBlockReference(block, stories: Story[]) {
+  deleteBlockReference(block, stories: Story[]) {
     this.searchReferences(stories);
+    let scenariosToUpdate = [];
     this.referenceScenarios.forEach((scenario) => {
-      this.unpackScenarioWithBlock(block, scenario);
+      for(const s in scenario.stepDefinitions){
+        scenario.stepDefinitions[s].forEach((element) => {
+          if(element._blockReferenceId == block._id){
+            this.unpackScenarioWithBlock(block, scenario);
+            scenariosToUpdate.push(scenario);
+          }
+        })
+      }
     });
-    this.referenceStories.forEach((story) => {
-      this.storyService.updateStory(story).subscribe(_resp => {}); 
-    });
+    //update relevant stories after unpacking
+    if(scenariosToUpdate.length > 0){
+      this.referenceStories.forEach((story) => {
+        scenariosToUpdate.forEach((scenario) => {
+          if (story.scenarios.includes(scenario)) {
+            this.storyService.updateStory(story).subscribe(_resp => {}); 
+          }
+        });
+      });
+    }
   }
 
   /**
-   * Unpack references. Wenn delete block unpack all reference in repository
+   * Unpack steps from block. Wenn delete block unpack all reference in repository
    * @param block
    * @param scenario
    */
@@ -261,6 +280,7 @@ export class BlockService {
           step.checked = false;
           scenario.stepDefinitions[s].push(JSON.parse(JSON.stringify(step)));
         });
+        //remove the block reference among the steps 
         const index = scenario.stepDefinitions[s].findIndex((element) => element._blockReferenceId == block._id);
         if (index > -1) {
           scenario.stepDefinitions[s].splice(index, 1);
