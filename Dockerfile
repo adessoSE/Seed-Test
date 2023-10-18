@@ -1,7 +1,6 @@
 FROM node:18.13
 
-RUN apt-get update
-RUN yes | apt-get install wget
+RUN apt-get update && apt-get -y install wget
 
 # Set DATABASE_URI to be localhost
 ENV DATABASE_URI=mongodb://localhost:27017
@@ -10,13 +9,12 @@ ENV DATABASE_URI=mongodb://localhost:27017
 WORKDIR /usr/src/app
 
 # install mongoDB
-RUN yes | apt-get install gnupg curl
+RUN apt-get -y install gnupg curl
 RUN curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
     gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
    --dearmor
 RUN echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] http://repo.mongodb.org/apt/debian bullseye/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-RUN apt-get update
-RUN apt-get install -y mongodb-org
+RUN apt-get update && apt-get -y install mongodb-org
 RUN mkdir /data
 RUN mkdir /data/db
 RUN mongod --fork --logpath /var/log/mongodb.log
@@ -25,7 +23,7 @@ RUN mongod --fork --logpath /var/log/mongodb.log
 
 # install chrome 
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN yes | apt install ./google-chrome-stable_current_amd64.deb
+RUN apt-get -y install ./google-chrome-stable_current_amd64.deb
 RUN rm -f google-chrome-stable_current_amd64.deb
 
 # install chromedriver
@@ -46,7 +44,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > mic
 RUN install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
 RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
 RUN rm microsoft.gpg
-RUN apt update && yes | apt install microsoft-edge-stable
+RUN apt-get update && apt-get install -y microsoft-edge-stable
 # include in path
 RUN export PATH=$PATH:/opt/microsoft/msedge/
 ENV PATH="${PATH}:/opt/microsoft/msedge/"
@@ -59,6 +57,9 @@ RUN msedge --version | sed 's/.*Edge \([0-9.]*\).*/\1/' > latest_stable.txt
 RUN wget -O /tmp/msedgedriver.zip https://msedgedriver.azureedge.net/$(cat latest_stable.txt)/edgedriver_linux64.zip
 RUN unzip /tmp/msedgedriver.zip msedgedriver -d /usr/local/bin/
 RUN rm -f latest_stable.txt
+
+# Clean up the cache after installing all necessary packages
+RUN apt-get update && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app/backend
 # Bundle app source
