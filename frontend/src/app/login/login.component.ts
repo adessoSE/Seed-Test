@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Login error
      */
     error: string;
-    defaultErrorMessage = 'Login Failed: Wrong Username Or Password';
+    defaultErrorMessage = 'Wrong Username Or Password';
 
     /**
      * Boolean to see if the repository is loading
@@ -217,6 +217,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
      * Retrieves the repositories / projects of the user
      */
      getRepositories() {
+        let repoNotSet = false; 
         const value = localStorage.getItem('repository');
         const source = localStorage.getItem('source');
         const _id = localStorage.getItem('id');
@@ -234,33 +235,19 @@ export class LoginComponent implements OnInit, AfterViewInit {
             resp.forEach((elem) => {
                 if (elem.value == repository.value && elem.source == repository.source && elem._id == repository._id) {
                     this.router.navigate(['']);
-            }});
+                    repoNotSet = true;
+                }
+            });
+            if(!repoNotSet){
+                this.router.navigate(['/accountManagement']);
+            }
             this.repositories = resp;
             this.isLoadingRepositories = false;
-            setTimeout(() => {
-                const repositoriesList: HTMLElement = document.getElementById('repositoriesList');
-                if (repositoriesList) {
-                    repositoriesList.scrollIntoView();
-                }
-            }, 500);
 
         }, (_) => {
             this.error = this.defaultErrorMessage;
             this.isLoadingRepositories = false;
         });
-    }
-
-    /**
-     * Selects a repository and redirects the user to the story editor
-     * @param userRepository selected repository
-     */
-    selectRepository(userRepository: RepositoryContainer) {
-        const ref: HTMLLinkElement = document.getElementById('githubHref') as HTMLLinkElement;
-        ref.href = 'https://github.com/' + userRepository.value;
-        localStorage.setItem('repository', userRepository.value);
-        localStorage.setItem('source', userRepository.source);
-        localStorage.setItem('id', userRepository._id);
-        this.router.navigate(['']);
     }
 
     /**
