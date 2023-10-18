@@ -15,7 +15,7 @@
             [disabled]="!this.activeActionBar || this.isReferenceBlock" [class.disabled]="this.isReferenceBlock">
             <em class="material-icons">queue</em>
           </button>
-          <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="Deactivate Step"
+          <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="De-/Aactivate Step"
             (click)="deactivateStep();" [disabled]="!this.activeActionBar">
             <em class="material-icons">do_not_touch</em>
           </button>
@@ -48,7 +48,7 @@
       </div>
       <div class="scenarioButtonGroup SmallHeadline5">
         <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
-          [disabled]="this.clipboardBlock === null" uk-tooltip="Add Block from Clipboard" (click)="insertCopiedBlock()">
+          [disabled]="this.clipboardBlock === null" uk-tooltip="Add Step from Clipboard" (click)="insertCopiedBlock()">
           <em class="material-icons">copy_all</em>
         </button>
         <button *ngIf="name !== 'example' && name !== 'block-editor'" id="add_block" class="scenarioButton"
