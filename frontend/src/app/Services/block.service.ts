@@ -210,30 +210,46 @@ export class BlockService {
     else return 0;
   }
 
-   /**
-     * Сhecking whether the block is used as a reference
-     * @param blockReferenceId
-     * @param blocks
-     * @param stories
-     */
+  /**
+    * Сhecking whether the block is used as a reference
+    * @param blockReferenceId
+    * @param blocks
+    * @param stories
+  */
   checkBlockOnReference(blocks:Block[], stories: Story[], blockReferenceId){
+    if (!this.isBlockReferencedInScenarios(blockReferenceId,stories)) {
+      this.updateBlockReferenceStatus(blockReferenceId, blocks);
+    }
+  }
+
+  /**
+    * check if a block is referenced in any scenario step definitions
+    * @param blockReferenceId
+    * @param stories
+  */
+  isBlockReferencedInScenarios(blockReferenceId: string, stories): boolean {
     this.searchReferences(stories);
-    let blockNoLongerRef = true;
-    for (const scen of this.referenceScenarios){
+    for (const scen of this.referenceScenarios) {
       for (const prop in scen.stepDefinitions) {
         for (let i = scen.stepDefinitions[prop].length - 1; i >= 0; i--) {
           if (scen.stepDefinitions[prop][i]._blockReferenceId == blockReferenceId) {
-            blockNoLongerRef = false;
+            return true;
           }
         }
       }
     }
-    if (blockNoLongerRef){
-      for (const block of blocks){
-        if(block._id === blockReferenceId){
-          block.usedAsReference = false;
-          this.referencesBlocks.push(block);
-        }
+    return false;
+  }
+  /**
+    * update block reference status
+    * @param blockReferenceId
+    * @param blocks
+  */
+  updateBlockReferenceStatus(blockReferenceId: string, blocks): void {
+    for (const block of blocks) {
+      if (block._id === blockReferenceId) {
+        block.usedAsReference = false;
+        this.referencesBlocks.push(block);
       }
     }
   }
