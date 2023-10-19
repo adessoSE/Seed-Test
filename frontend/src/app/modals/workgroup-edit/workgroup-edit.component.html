@@ -10,7 +10,26 @@
     </div>
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
+            <div class="globalSettings">
+                <h2 class="section-header">Global Settings:</h2>
+                <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
+                <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200>
+                <label class="selectLabel SmallIcontext">Browser:</label>
+                <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
+                    <option>Chrome</option>
+                    <option>Firefox</option>
+                    <option>Edge</option>
+                </select>
+                <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
+                <input type="checkbox" id="applyEmulatorCheckbox" [(ngModel)]="getAvaiableEmulators">
+            <div>
+                <label for="applyGlobalSettingsCheckbox">Apply global settings:</label>
+                <input type="checkbox" id="applyGlobalSettingsCheckbox" [(ngModel)]="applyGlobalSettings">
+            </div>
+    </div>
+           <hr>
             <!-- Part: Workgroup Owner -->
+            <h2 class="section-header">Ownership:</h2>
             <div class="divWrapper" id="Workgroup_Owner">
                 <!-- Only for WG-Owner -->
                 <div *ngIf="userEmail===workgroupOwner">
@@ -41,6 +60,7 @@
             </div>
             <hr>
             <!-- Part: Invite Member -->
+            <h2 class="section-header">Members:</h2>
             <div>
                 <form #workgroupInviteForm="ngForm" novalidate [disabled]="workgroupInviteForm.invalid"
                 (ngSubmit)="workgroupInvite(workgroupInviteForm);">
@@ -81,7 +101,7 @@
     <div class="modal-footer">
         <button *ngIf="userEmail===workgroupOwner" type="button" class="normalButton deleteButton" (click)="isCurrentRepoToDelete()">Delete Project
         </button>
-        <button type="button" class="normalButton" (click)="modal.close('Save click')">Done
+        <button type="button" class="normalButton" (click)="modal.close('Save click')">Save Project
         </button>
     </div>
 </ng-template>
