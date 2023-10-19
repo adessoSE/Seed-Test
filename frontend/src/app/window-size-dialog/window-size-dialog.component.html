@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Set Window Size</h1>
+<div mat-dialog-content>
+    <mat-form-field>
+        <mat-label>Width</mat-label>
+        <input matInput [(ngModel)]="data.width">
+    </mat-form-field>
+    <mat-form-field>
+        <mat-label>Height</mat-label>
+        <input matInput [(ngModel)]="data.height">
+    </mat-form-field>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()" class="button">Cancel</button>
+    <button mat-button [mat-dialog-close]="data" cdkFocusInitial class="button">Submit</button>
+</div>

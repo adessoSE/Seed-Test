@@ -303,6 +303,10 @@
           Run Story
         </button>
         <button
+         class="button"
+         (click)="openDialog();"
+        >Window Size</button>
+        <button
           class="button material-icons"
           [cdkCopyToClipboard]="storyLink()"
           (click)="showStoryLinkToast()"

@@ -68,6 +68,7 @@ defineParameterType({
 Before(async function () {
 	testLength = this.parameters.scenarios.length;
 	currentParameters = this.parameters.scenarios[scenarioIndex];
+	console.log(currentParameters);
 
 	if (currentParameters.emulator !== undefined) switch (currentParameters.browser) {
 		case 'chrome':
@@ -79,6 +80,28 @@ Before(async function () {
 		case 'firefox':
 				// no way to do it ?
 	}
+
+
+
+	if (currentParameters.windowSize !== undefined) {
+		switch (currentParameters.browser) {
+			case 'chrome':
+				chromeOptions.windowSize(currentParameters.windowSize);
+				break;
+			case 'MicrosoftEdge':
+				edgeOptions.windowSize(currentParameters.windowSize);
+				break;
+			case 'firefox':
+				firefoxOptions.windowSize(currentParameters.windowSize);
+				break;
+			default:
+				console.error(`Unsupported browser: ${currentParameters.browser}`);
+				break;
+		}
+	} else {
+		console.error('Invalid width or height values');
+	}
+	
 
 	if (currentParameters.oneDriver) {
 		if (currentParameters.oneDriver === true) if (driver) console.log('OneDriver');

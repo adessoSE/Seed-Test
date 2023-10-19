@@ -25,6 +25,8 @@ import { Block } from '../model/Block';
 import { StepDefinition } from '../model/StepDefinition';
 import { BlockService } from '../Services/block.service';
 import { InfoWarningToast } from '../info-warning-toast';
+import { MatDialog } from '@angular/material/dialog';
+import { WindowSizeDialogComponent, DialogData} from '../window-size-dialog/window-size-dialog.component';
 
 
 /**
@@ -296,6 +298,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         public projectService: ProjectService,
         public loginService: LoginService,
         public blockService: BlockService,
+        public dialog: MatDialog
     ) {
         if (this.apiService.urlReceived) {
             this.loadStepTypes();
@@ -327,7 +330,35 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
     this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
-  }
+  } 
+
+  openDialog(): void {
+    const dialogData: DialogData = { 
+      width: this.selectedScenario.width || 0, 
+      height: this.selectedScenario.height || 0 
+    };
+
+    const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
+      width: '250px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectedScenario.width = result.width;
+        this.selectedScenario.height = result.height;
+
+        // Speichere das aktualisierte Szenario im Backend
+        this.scenarioService.updateScenario(this.selectedStory._id, this.selectedScenario)
+          .subscribe(response => {
+            console.log('Scenario erfolgreich aktualisiert!', response);
+          }, error => {
+            console.error('Fehler beim Aktualisieren des Szenarios', error);
+          });
+      }
+    });
+}
+
 
     ngAfterViewChecked(){
       this.openBlockModal = undefined
@@ -739,7 +770,9 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
 
     if (scenario.emulator) this.emulator_enabled = true 
     // nicht besser als wenn man im html entweder oder macht (267)
-    if (!scenario.browser) this.selectedScenario.browser = 'chrome'    
+    if (!scenario.browser) this.selectedScenario.browser = 'chrome' 
+    if (scenario.width) this.selectedScenario.width = scenario.width;
+    if (scenario.height) this.selectedScenario.height = scenario.height;    
   }
 
   /**
@@ -821,6 +854,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * @param scenario_id
    */
   runTests(scenario_id) {
+    console.log("Im in test run")
     if (this.storySaved()) {
       this.reportIsSaved = false;
       this.testRunning = true;
@@ -842,6 +876,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       // are these values already saved in the Scenario / Story?
       // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
       // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
+      console.log("TEST SELECTED SCENARIO")
+      console.log(this.selectedScenario)
       loadingScreen.scrollIntoView();
       this.storyService
         .runTests(
@@ -850,6 +886,8 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
           {
             browser: browserSelect,
             emulator: emulator,
+            width: this.selectedScenario.width,
+            height: this.selectedScenario.height,
             repository: localStorage.getItem("repository"),
             source: localStorage.getItem("source"),
             oneDriver: this.selectedStory.oneDriver,

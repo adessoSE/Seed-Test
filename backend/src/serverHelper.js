@@ -167,14 +167,24 @@ async function executeTest(req, mode, story) {
 		const scenario = story.scenarios.find(elem => elem.scenario_id === parseInt(req.params.scenarioId, 10));
 
 		const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
+
+		let additionalParams = {};
+		if (scenario.emulator !== undefined) {
+			additionalParams = { emulator: scenario.emulator };
+		} else if (scenario.width !== undefined && scenario.height !== undefined) {
+			additionalParams = { windowSize: { height: Number(scenario.height), width: Number(scenario.width) } };
+		}
+
 		parameters = {
 			scenarios: Array.from({ length: scenarioCount }).map(() => ({
 				browser: scenario.browser || 'chrome',
 				waitTime: scenario.stepWaitTime || 0,
 				daisyAutoLogout: scenario.daisyAutoLogout || false,
-				...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+				...additionalParams
 			}))
+		
 		};
+		console.log(parameters);
 	} else if (mode === 'feature' || mode === 'group') {
 		const prep = scenarioPrep(story.scenarios, story.oneDriver);
 		story.scenarios = prep.scenarios;
@@ -245,13 +255,22 @@ function scenarioPrep(scenarios, driver) {
 		if (!scenario.browser) scenario.browser = 'chrome';
 		// eslint-disable-next-line no-param-reassign
 		if (!scenario.daisyAutoLogout) scenario.daisyAutoLogout = false;
+
+		let additionalParams = {};
+		if (scenario.emulator !== undefined) {
+			additionalParams = { emulator: scenario.emulator };
+		} else if (scenario.width !== undefined && scenario.height !== undefined) {
+			additionalParams.width = parseInt(scenario.width, 10);
+			additionalParams.height = parseInt(scenario.height, 10);
+		}
+
 		if (scenario.stepDefinitions.example.length <= 0) {
 			parameters.scenarios.push({
 				browser: scenario.browser,
 				waitTime: scenario.stepWaitTime,
 				daisyAutoLogout: scenario.daisyAutoLogout,
 				oneDriver: driver,
-				...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+				...additionalParams
 			});
 		} else {
 			scenario.stepDefinitions.example.forEach((examples, index) => {
@@ -261,7 +280,7 @@ function scenarioPrep(scenarios, driver) {
 						waitTime: scenario.stepWaitTime,
 						daisyAutoLogout: scenario.daisyAutoLogout,
 						oneDriver: driver,
-						...(scenario.emulator !== undefined && { emulator: scenario.emulator })
+						...additionalParams
 					});
 				}
 			});
