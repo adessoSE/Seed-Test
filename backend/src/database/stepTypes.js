@@ -456,6 +456,16 @@ function stepDefs() {
 			'',
 			''
 		]
+	}, {
+		id: 3,
+		stepType: 'then',
+		type: 'Check Image',
+		pre: 'So the picture',
+		mid: 'has the name ',
+		values: [
+			'',
+			''
+		]
 	}
 	];
 }
