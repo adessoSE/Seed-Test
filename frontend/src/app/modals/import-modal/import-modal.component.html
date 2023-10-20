@@ -15,7 +15,7 @@
   </button>
 </div>
 <div mat-dialog-content>
-  <form (ngSubmit)="importTestCases()" #importForm="ngForm">
+  <form (ngSubmit)="importTestCases(file)" #importForm="ngForm">
 
     <div class="error-container" *ngIf="errorMessage">
       <mat-icon class="error-icon">error</mat-icon>
@@ -47,6 +47,7 @@
       [(ngModel)]="projectName"
       [hidden]="!isNewProject"
       placeholder="Project name"
+      (ngModelChange)="onProjectChange()"
     />
 
     <!-- Zeige das Eingabefeld für die Suche basierend auf isNewProject -->
@@ -61,7 +62,7 @@
       <mat-form-field appearance="standard" class="filterFormField">
         <mat-label [hidden]="(filterRepositories(searchTerm).length === 0)">Project</mat-label>
         <mat-label [hidden]="!(filterRepositories(searchTerm).length === 0)">No Projects found</mat-label>
-        <mat-select #ngSelect [(ngModel)]="importingRepoId">
+        <mat-select #ngSelect [(ngModel)]="importingRepoId" (ngModelChange)="onProjectChange()">
           <mat-option
             *ngFor="let repo of filterRepositories(searchTerm)"
             [value]="repo._id"

@@ -7,7 +7,7 @@ let connection = [];
 // Create the database connection
 async function establishConnection(callback) {
 	// eslint-disable-next-line max-len
-	MongoClient.connect(uri, { poolSize: 20, useNewUrlParser: true, useUnifiedTopology: true }, async (err, db) => {
+	MongoClient.connect(uri, { poolSize: 20, useNewUrlParser: true, useUnifiedTopology: true, useSession: true }, async (err, db) => {
 		if (err) {
 			console.log('DB_ERROR: Can`t connect to DB. The Project may not be set up correctly. For more information read the README');
 			exit(-1);

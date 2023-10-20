@@ -18,10 +18,12 @@ export class ImportModalComponent implements OnInit {
   importingRepoId: string;
   repoList: RepositoryContainer[];
   errorMessage: string;
+  file: File;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private ref: MatDialogRef<ImportModalComponent>,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private managmentService: ManagementService
   ) {
     this.repoList = data.repoList;
   }
@@ -30,11 +32,16 @@ export class ImportModalComponent implements OnInit {
     this.inputData = this.data;
   }
 
-  importTestCases() {
+  importTestCases(file) {
     if (this.isNewProject && !this.projectName) {
-      this.errorMessage = "Bitte geben Sie einen Projektnamen ein.";
+      this.errorMessage = "Please enter a project name.";
       return;
     }
+    this.managmentService
+      .importProject(file, this.importingRepoId, this.projectName)
+      .subscribe((ret) => {
+        console.log(ret);
+      });
   }
 
   handleFileInput(event: any) {
@@ -45,10 +52,10 @@ export class ImportModalComponent implements OnInit {
       // Überprüfen Sie die Dateigröße
       if (file.size > maxSizeInBytes) {
         this.errorMessage =
-          "Die Datei ist zu groß. Bitte wählen Sie eine kleinere Datei aus.";
+          "The file is too large. Please select a smaller file.";
       } else if (!this.isValidFileFormat(file)) {
         this.errorMessage =
-          "Ungültiges Dateiformat. Bitte wählen Sie eine gültige .zip-Datei aus.";
+          "Invalid file format. Please select a valid .zip file.";
       } else {
         // Dateiformat und Größe sind gültig, setzen Sie die Fehlermeldung auf null (kein Fehler)
         this.errorMessage = null;
@@ -57,6 +64,7 @@ export class ImportModalComponent implements OnInit {
         console.log("Import - File type: ", file.type);
         console.log("Import - File size: ", file.size, " bytes");
         console.log(this.projectName);
+        this.file = file;
       }
     }
   }
@@ -80,9 +88,17 @@ export class ImportModalComponent implements OnInit {
     }
   }
 
+  onProjectChange() {
+    console.log("Import - RepoID: ", this.importingRepoId);
+    console.log("Import - File name: ", this.file.name);
+    console.log("Import - File type: ", this.file.type);
+    console.log("Import - File size: ", this.file.size, " bytes");
+    console.log(this.projectName);
+  }
+
   isValidFileFormat(file: File): boolean {
     const validExtensions = ["zip"]; //Später vielleicht noch einzelne .json Files?
-    const validMimeType = ["application/zip", "application/x-zip-compressed"]; //Andere MIME-Types möglich, die sollten aber reichen (vermutlich auch nur letzterer)
+    const validMimeType = ["application/x-zip-compressed"]; //Andere MIME-Types möglich, die sollten aber reichen (vermutlich auch nur letzterer)
 
     return (
       validExtensions.includes(this.getFileExtension(file.name)) &&

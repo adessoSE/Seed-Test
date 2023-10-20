@@ -172,6 +172,23 @@ router.get('/download/export/:repo_id', async (req, res) => {
 	}
 });
 
+router.post('/upload/import/', async (req, res) => {
+	try {
+		console.log('WE ARE IMPORTING!!!');
+		const msg = (req.query.projectName ? ('Importing to new project: ', req.query.projectName) : ('Importing to existing project: ', req.query.repo_id));
+		console.log(msg);
+		// Vermutlich inzwischen if-Abfrage reduzierbar
+		if (req.query.projectName) { 
+			const result = pmHelper.importProject(req.body, req.query.repo_id, req.query.projectName);
+			res.status(200).json(result);
+		}else {
+			res.status(200).json("");
+		}
+	} catch (error) {
+		handleError(res, error, error, 500);
+	}
+});
+
 router.post('/oneDriver/:storyID', async (req, res) => {
 	try {
 		const result = await mongo.updateOneDriver(req.params.storyID, req.body);
