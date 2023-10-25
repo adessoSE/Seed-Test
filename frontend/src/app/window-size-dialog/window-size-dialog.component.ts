@@ -12,7 +12,7 @@ export interface DialogData {
   styleUrls: ['./window-size-dialog.component.css']
 })
 export class WindowSizeDialogComponent {
-  data: DialogData = { width: 800, height: 600 };
+  data: DialogData = { width: 0, height: 0 };
 
   constructor(
     public dialogRef: MatDialogRef<WindowSizeDialogComponent>,

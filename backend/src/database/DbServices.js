@@ -775,15 +775,22 @@ async function createRepo(ownerId, name) {
  *
  * @param {*} repoID
  * @param {*} newName
+ * @param {*} globalSettings
  * @param {*} user
  * @returns
  */
-async function updateRepository(repoID, newName, user) {
+async function updateRepository(repoID, newName, globalSettings, user) {
 	try {
 		const repoFilter = { owner: ObjectId(user), _id: ObjectId(repoID) };
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
-		return collection.findOneAndUpdate(repoFilter, { $set: { repoName: newName } }, { returnNewDocument: true });
+		if (newName !== undefined) {
+			await collection.findOneAndUpdate(repoFilter, { $set: { repoName: newName } }, { returnDocument: 'after' });
+		}
+		if (globalSettings !== undefined) {
+			await collection.findOneAndUpdate(repoFilter, { $set: { settings: globalSettings } }, { returnDocument: 'after' });
+		}
+		return await collection.findOne(repoFilter);
 	} catch (e) {
 		console.log(`ERROR updateRepository: ${e}`);
 		throw e;

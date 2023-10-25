@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
-import { DeleteToast } from 'src/app/delete-toast'; 
+import { DeleteToast } from 'src/app/delete-toast';
 import { RepositoryContainer } from 'src/app/model/RepositoryContainer';
 import { ApiService } from 'src/app/Services/api.service';
 import { ProjectService } from 'src/app/Services/project.service';
@@ -23,49 +23,52 @@ export class WorkgroupEditComponent {
      */
   displayedColumnsWorkgroup: string[] = ['email', 'can_edit_workgroup'];
 
-   /**
-    * List of all members in the workgroup
-    */
+  /**
+   * List of all members in the workgroup
+   */
   workgroupList = [];
 
-   /**
-    * Owner of the workgroup
-    */
+  /**
+   * Owner of the workgroup
+   */
   workgroupOwner = '';
 
-   /**
-    * Error if the request was not successful
-    */
+  /**
+   * Error if the request was not successful
+   */
   workgroupError = '';
 
-   /**
-    * Repository container of the workgroup
-    */
+  /**
+   * Repository container of the workgroup
+   */
   workgroupProject: RepositoryContainer;
 
-   /**
-    * Email and id of the active user
-    */
+  /**
+   * Email and id of the active user
+   */
   userEmail = '';
   userId = '';
   repos: RepositoryContainer[];
 
-   /**
-    * Model Reference for closing
-    */
+  waitBetweenSteps: number;
+  applyGlobalSettings: boolean;
+
+  /**
+   * Model Reference for closing
+   */
   modalReference: NgbModalRef;
 
   projectName: string;
   @ViewChild('ownerSelect') ownerSelect: MatSelect;
-    /**
-    * Selected member to transfer Ownership
-    */
-    selectedOwner: string;
-  
+  /**
+  * Selected member to transfer Ownership
+  */
+  selectedOwner: string;
+
   @ViewChild('workgroupEditModal') workgroupEditModal: WorkgroupEditComponent;
   @ViewChild('repoSwitchModal') repoSwitchModal: RepoSwichComponent;
   transferOwnershipObservable: Subscription;
-  constructor(private modalService: NgbModal, 
+  constructor(private modalService: NgbModal,
     public projectService: ProjectService,
     private toastr: ToastrService,
     public apiService: ApiService) {
@@ -80,7 +83,7 @@ export class WorkgroupEditComponent {
     this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
       this.transferedOwnership(this.selectedOwner);
     });
- }
+  }
   ngOnDestroy() {
     if (!this.transferOwnershipObservable.closed) {
       this.transferOwnershipObservable.unsubscribe();
@@ -90,7 +93,7 @@ export class WorkgroupEditComponent {
     this.selectedOwner = undefined;
     this.ownerSelect = null;
   }
- 
+
   /**
      * Opens the workgroup edit modal
      */
@@ -99,43 +102,43 @@ export class WorkgroupEditComponent {
     this.userId = userId;
     this.workgroupList = [];
     this.workgroupProject = project;
-    this.modalReference = this.modalService.open(this.workgroupEditModal, {ariaLabelledBy: 'modal-basic-titles'});
+    this.modalReference = this.modalService.open(this.workgroupEditModal, { ariaLabelledBy: 'modal-basic-titles' });
     const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
     header.textContent = 'Project: ' + project.value;
     this.projectName = project.value;
 
     this.projectService.getWorkgroup(this.workgroupProject._id).subscribe(res => {
-        this.workgroupList = res.member;
-        this.workgroupOwner = res.owner.email;
+      this.workgroupList = res.member;
+      this.workgroupOwner = res.owner.email;
     });
   }
 
-  transferedOwnership(newOwner){
+  transferedOwnership(newOwner) {
     document.getElementById('changeOwner').setAttribute('style', 'display: none');
     const repo_id = localStorage.getItem('id');
     this.projectService
-    .changeOwner(repo_id, newOwner)
-    .subscribe(_ => {
+      .changeOwner(repo_id, newOwner)
+      .subscribe(_ => {
         this.toastr.success('successfully changed', 'New owner');
-    }); 
+      });
     this.modalReference.close();
   }
 
- transferOwnership(selectedMember: string){
-  this.selectedOwner = selectedMember;
-  this.toastr.warning('', 'Do you really want to transfer your ownership? You will lose your administrator rights.', {
-    toastComponent: TransferOwnershipToast
-  });
- }
-/**
- * Invites a user to the workgroup
- * @param form
- */
+  transferOwnership(selectedMember: string) {
+    this.selectedOwner = selectedMember;
+    this.toastr.warning('', 'Do you really want to transfer your ownership? You will lose your administrator rights.', {
+      toastComponent: TransferOwnershipToast
+    });
+  }
+  /**
+   * Invites a user to the workgroup
+   * @param form
+   */
   workgroupInvite(form: NgForm) {
     const email = form.value.email;
     let canEdit = form.value.canEdit;
     if (!canEdit) { canEdit = false; }
-    const user = {email, canEdit};
+    const user = { email, canEdit };
     this.workgroupError = '';
     this.projectService.addToWorkgroup(this.workgroupProject._id, user).subscribe(res => {
       const originList = JSON.parse(JSON.stringify(this.workgroupList));
@@ -149,31 +152,31 @@ export class WorkgroupEditComponent {
 
   }
 
-/**
- * Removes a user from the workgroup
- * @param user
- */
+  /**
+   * Removes a user from the workgroup
+   * @param user
+   */
   removeFromWorkgroup(user) {
     this.projectService.removeFromWorkgroup(this.workgroupProject._id, user).subscribe(res => {
-        this.workgroupList = res.member;
+      this.workgroupList = res.member;
     });
   }
 
-/**
- * Checks if the user can edit the workgroup
- * @param event
- * @param user
- */
+  /**
+   * Checks if the user can edit the workgroup
+   * @param event
+   * @param user
+   */
   checkEditUser(event, user) {
     user.canEdit = !user.canEdit;
     this.projectService.updateWorkgroupUser(this.workgroupProject._id, user).subscribe(res => {
-        this.workgroupList = res.member;
+      this.workgroupList = res.member;
     });
   }
 
-/**
- * Delete a custom repository
- */
+  /**
+   * Delete a custom repository
+   */
   deleteCustomRepo() {
     if (this.userEmail == this.workgroupOwner) {
       this.projectService.deleteRepository(this.workgroupProject, this.userId).subscribe(() => {
@@ -186,24 +189,50 @@ export class WorkgroupEditComponent {
 
   isCurrentRepoToDelete() {
     const currentRepo = localStorage.getItem('repository');
-    if ( this.workgroupProject.value === currentRepo) {
+    if (this.workgroupProject.value === currentRepo) {
       this.openRepoSwitchModal();
     } else {
       this.showDeleteRepositoryToast();
     }
   }
 
-/**
- * Opens the delete repository toast
- */
-  showDeleteRepositoryToast() {
-    this.apiService.nameOfComponent('repository');
-    this.toastr.warning('Are your sure you want to delete this Project? It cannot be restored.', 'Delete Project?', {
-        toastComponent: DeleteToast
+  onWaitBetweenStepsChange(): void {
+    console.log('Wait time changed:', this.waitBetweenSteps);
+  }
+
+
+  onApplyGlobalSettingsChange(): void {
+    console.log('Apply Global Settings status:', this.applyGlobalSettings);
+  }
+
+  updateRepository(project: RepositoryContainer) {
+
+    project.settings = {
+      ...project.settings,
+      stepWaitTime: this.waitBetweenSteps,
+      activated: this.applyGlobalSettings,
+    };
+
+    this.projectService.updateRepository(project._id, project.value, this.userId, project.settings).subscribe(_resp => {
+      this.projectService.getRepositories();
+      this.toastr.success('successfully saved', 'Repository');
     });
   }
 
-  showErrorToast () {
+
+  async saveProject() {
+    console.log('bla')
+    this.updateRepository(this.workgroupProject)
+  }
+  
+  showDeleteRepositoryToast() {
+    this.apiService.nameOfComponent('repository');
+    this.toastr.warning('Are your sure you want to delete this Project? It cannot be restored.', 'Delete Project?', {
+      toastComponent: DeleteToast
+    });
+  }
+
+  showErrorToast() {
     this.toastr.error(this.workgroupError);
   }
 
@@ -229,7 +258,7 @@ export class WorkgroupEditComponent {
     const project = this.workgroupProject;
     if (name.replace(/\s/g, '').length > 0) {
       project.value = name;
-   }
+    }
     // Emits rename event
     this.projectService.renameProjectEmitter(project);
   }

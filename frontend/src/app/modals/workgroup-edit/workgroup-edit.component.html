@@ -10,10 +10,11 @@
     </div>
     <div class="modal-body modal-xl">
         <div class="uk-card-title submitForm">
+            <!--Global Settings-->
             <div class="globalSettings">
                 <h2 class="section-header">Global Settings:</h2>
                 <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
-                <input id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200>
+                <input [(ngModel)]="waitBetweenSteps" (change)="onWaitBetweenStepsChange()" id="defaultWaitTimeInput" class="waitTime" type="number" min=0 max=25000 step=200>
                 <label class="selectLabel SmallIcontext">Browser:</label>
                 <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
                     <option>Chrome</option>
@@ -22,9 +23,13 @@
                 </select>
                 <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
                 <input type="checkbox" id="applyEmulatorCheckbox" [(ngModel)]="getAvaiableEmulators">
+                <button
+                class="button"
+                (click)="openDialog();"
+               >Window Size</button>
             <div>
                 <label for="applyGlobalSettingsCheckbox">Apply global settings:</label>
-                <input type="checkbox" id="applyGlobalSettingsCheckbox" [(ngModel)]="applyGlobalSettings">
+                <input type="checkbox" id="applyGlobalSettingsCheckbox" [(ngModel)]="applyGlobalSettings" (change)="onApplyGlobalSettingsChange()">
             </div>
     </div>
            <hr>
@@ -101,7 +106,7 @@
     <div class="modal-footer">
         <button *ngIf="userEmail===workgroupOwner" type="button" class="normalButton deleteButton" (click)="isCurrentRepoToDelete()">Delete Project
         </button>
-        <button type="button" class="normalButton" (click)="modal.close('Save click')">Save Project
+        <button type="button" class="normalButton" (click)="saveProject()">Save Project
         </button>
     </div>
 </ng-template>
