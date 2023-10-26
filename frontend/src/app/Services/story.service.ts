@@ -215,7 +215,8 @@ export class StoryService {
   */
   public goToTicket(storyId: string, repository: RepositoryContainer) {
     if (repository.source === 'github') {
-      const AUTHORIZE_URL = 'https://github.com/adessoSE/Seed-Test/issues/';
+      const AUTHORIZE_URL = 'https://github.com/' + repository.value + '/issues/';
+      console.log("AUTHORIZE_UR",AUTHORIZE_URL)
       const s = `${AUTHORIZE_URL}${storyId}`;
       return window.open(s);
     } else if (repository.source === 'jira') {

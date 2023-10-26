@@ -32,7 +32,7 @@
   </span>
 </div>
 <div [hidden]="!showFilter">
-  <mat-form-field appearance="standard" class="filterFormField">
+  <mat-form-field *ngIf="!isCustomStory" appearance="standard" class="filterFormField">
     <mat-label>Assignee</mat-label>
       <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
         <mat-option>--</mat-option>
@@ -62,45 +62,45 @@
   </mat-form-field>
 </div>
   <hr>
-  <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
-    <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag>
-      <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" >
-        <span class="github-avatar">
-          <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
-          <button *ngIf="!isCustomStory" uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
-            <mat-icon class="toTicket">launch</mat-icon>
-          </button>
-          <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
-          <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
-        </span>
-        <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-          <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
-            {{s.issue_number}}. {{s.title}}
-          </a>
-      </div>
-
-      <div id="scenarioList" class="uk-accordion-content">
-        <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
-          <li *ngFor="let scen of s.scenarios; let c = index">
-            <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
-              <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-              #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
-              <mat-icon class="icon" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
-              <mat-icon class="icon" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
-              <mat-icon class="icon" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
+    <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
+      <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag>
+        <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" >
+          <span *ngIf="!isCustomStory" class="jiraGithubStoryIcons">
+            <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
+            <button uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
+              <mat-icon class="toTicket">launch</mat-icon>
+            </button>
+            <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
+            <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
+          </span>
+          <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+              {{s.issue_number}}. {{s.title}}
             </a>
-          </li>
-        </ul>
-        <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length>0)" (click)="openCreateNewScenarioModal()">
-          Create First Scenario</button>
-        <button id="add_scenario" *ngIf="s.scenarios.length>0" class="material-icons"
-          uk-tooltip="Add New Scenario" (click)="openCreateNewScenarioModal()">
-          add</button>
-      </div>
-    </li>
-  </ul>
-  <div *ngIf="isCustomStory" id="createNewStoryDiv">
-    <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
+        </div>
+
+        <div id="scenarioList" class="uk-accordion-content">
+          <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
+            <li *ngFor="let scen of s.scenarios; let c = index">
+              <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
+                <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+                <mat-icon class="icon" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
+                <mat-icon class="icon" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
+                <mat-icon class="icon" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
+              </a>
+            </li>
+          </ul>
+          <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length>0)" (click)="openCreateNewScenarioModal()">
+            Create First Scenario</button>
+          <button id="add_scenario" *ngIf="s.scenarios.length>0" class="material-icons"
+            uk-tooltip="Add New Scenario" (click)="openCreateNewScenarioModal()">
+            add</button>
+        </div>
+      </li>
+    </ul>
+    <div *ngIf="isCustomStory" id="createNewStoryDiv">
+      <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
   </div>
   <br>
   <hr>
