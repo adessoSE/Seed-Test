@@ -161,30 +161,55 @@ async function deleteFeatureFile(storyTitle, storyId) {
 }
 
 async function executeTest(req, mode, story) {
+	const repoId = req.body.repositoryId;
+
+	let globalSettings;
+
+	try {
+		globalSettings = await mongo.getRepoSettingsById(repoId);
+	} catch (error) {
+		console.error('Es gab einen Fehler beim Abrufen der globalen Einstellungen:', error);
+		return;
+	}
+
 	let parameters = {};
 
 	if (mode === 'scenario') {
 		const scenario = story.scenarios.find(elem => elem.scenario_id === parseInt(req.params.scenarioId, 10));
-
 		const scenarioCount = Math.max(scenario.stepDefinitions.example.length, 1);
 
 		let additionalParams = {};
-		if (scenario.emulator !== undefined) {
-			additionalParams = { emulator: scenario.emulator };
-		} else if (scenario.width !== undefined && scenario.height !== undefined) {
-			additionalParams = { windowSize: { height: Number(scenario.height), width: Number(scenario.width) } };
+
+		if (globalSettings && globalSettings.activated) {
+			additionalParams = {
+				browser: globalSettings.browser || scenario.browser || 'chrome',
+				waitTime: globalSettings.stepWaitTime || scenario.stepWaitTime || 0,
+				emulator: globalSettings.emulator
+			};
+		} else {
+			additionalParams = {
+				browser: scenario.browser || 'chrome',
+				waitTime: scenario.stepWaitTime || 0
+			};
+
+			if (scenario.emulator !== undefined) {
+				additionalParams.emulator = scenario.emulator;
+			}
+			if (scenario.width !== undefined && scenario.height !== undefined) {
+				additionalParams.windowSize = {
+					height: Number(scenario.height),
+					width: Number(scenario.width)
+				};
+			}
 		}
 
 		parameters = {
 			scenarios: Array.from({ length: scenarioCount }).map(() => ({
-				browser: scenario.browser || 'chrome',
-				waitTime: scenario.stepWaitTime || 0,
-				daisyAutoLogout: scenario.daisyAutoLogout || false,
-				...additionalParams
+				...additionalParams,
+				daisyAutoLogout: scenario.daisyAutoLogout || false
 			}))
-		
 		};
-		console.log(parameters);
+
 	} else if (mode === 'feature' || mode === 'group') {
 		const prep = scenarioPrep(story.scenarios, story.oneDriver);
 		story.scenarios = prep.scenarios;
