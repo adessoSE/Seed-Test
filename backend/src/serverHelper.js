@@ -187,7 +187,7 @@ async function executeTest(req, mode, story) {
 				emulator: globalSettings.emulator
 			};
 
-			if (!additionalParams.emulator) {
+			if (additionalParams.emulator === undefined) {
 				additionalParams.windowSize = {
 					height: Number(globalSettings.height),
 					width: Number(globalSettings.width)
@@ -199,7 +199,7 @@ async function executeTest(req, mode, story) {
 				waitTime: scenario.stepWaitTime || 0
 			};
 
-			if (scenario.emulator) {
+			if (scenario.emulator !== undefined) {
 				additionalParams.emulator = scenario.emulator;
 			} else if (scenario.width !== undefined && scenario.height !== undefined) {
 				additionalParams.windowSize = {
@@ -208,7 +208,6 @@ async function executeTest(req, mode, story) {
 				};
 			}
 		}
-
 		parameters = {
 			scenarios: Array.from({ length: scenarioCount }).map(() => ({
 				...additionalParams,
