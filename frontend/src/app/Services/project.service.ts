@@ -141,6 +141,22 @@ export class ProjectService {
   }
 
   /**
+ * Retrieves the global settings from the repository
+ * @returns
+*/
+  getRepositorySettings(repoId: string) {
+    const str = this.apiService.apiServer + '/user/repository/settings/' + repoId;
+
+    return this.http.get<any>(str, ApiService.getOptions())
+      .pipe(
+        tap(settings => {
+          console.log('received settings:', settings);
+        }),
+        catchError(this.apiService.handleError) 
+      );
+  }
+
+  /**
    * Delete one Repository
    * @param repo
    * @param user

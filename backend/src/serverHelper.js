@@ -168,7 +168,7 @@ async function executeTest(req, mode, story) {
 	try {
 		globalSettings = await mongo.getRepoSettingsById(repoId);
 	} catch (error) {
-		console.error('Es gab einen Fehler beim Abrufen der globalen Einstellungen:', error);
+		console.error('Error during fetching global settings:', error);
 		return;
 	}
 
@@ -186,16 +186,22 @@ async function executeTest(req, mode, story) {
 				waitTime: globalSettings.stepWaitTime || scenario.stepWaitTime || 0,
 				emulator: globalSettings.emulator
 			};
+
+			if (!additionalParams.emulator) {
+				additionalParams.windowSize = {
+					height: Number(globalSettings.height),
+					width: Number(globalSettings.width)
+				};
+			}
 		} else {
 			additionalParams = {
 				browser: scenario.browser || 'chrome',
 				waitTime: scenario.stepWaitTime || 0
 			};
 
-			if (scenario.emulator !== undefined) {
+			if (scenario.emulator) {
 				additionalParams.emulator = scenario.emulator;
-			}
-			if (scenario.width !== undefined && scenario.height !== undefined) {
+			} else if (scenario.width !== undefined && scenario.height !== undefined) {
 				additionalParams.windowSize = {
 					height: Number(scenario.height),
 					width: Number(scenario.width)
@@ -209,7 +215,6 @@ async function executeTest(req, mode, story) {
 				daisyAutoLogout: scenario.daisyAutoLogout || false
 			}))
 		};
-
 	} else if (mode === 'feature' || mode === 'group') {
 		const prep = scenarioPrep(story.scenarios, story.oneDriver);
 		story.scenarios = prep.scenarios;

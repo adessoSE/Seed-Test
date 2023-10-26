@@ -10,6 +10,8 @@ import { TransferOwnershipToast } from 'src/app/transferOwnership-toastr';
 import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 import { Subscription } from 'rxjs';
 import { MatSelect } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogData, WindowSizeDialogComponent } from '../../window-size-dialog/window-size-dialog.component';
 
 @Component({
   selector: 'app-workgroup-edit',
@@ -50,7 +52,20 @@ export class WorkgroupEditComponent {
   userId = '';
   repos: RepositoryContainer[];
 
+  gecko_enabled;
+
+  chromium_enabled;
+
+  edge_enabled;
+
+  browser: string;
+
   waitBetweenSteps: number;
+
+  width: number;
+
+  height: number;
+
   applyGlobalSettings: boolean;
 
   /**
@@ -71,6 +86,7 @@ export class WorkgroupEditComponent {
   constructor(private modalService: NgbModal,
     public projectService: ProjectService,
     private toastr: ToastrService,
+    public dialog: MatDialog,
     public apiService: ApiService) {
     this.projectService.deleteRepositoryEvent.subscribe(() => {
       this.deleteCustomRepo();
@@ -78,7 +94,22 @@ export class WorkgroupEditComponent {
     this.projectService.getRepositories().subscribe(repos => {
       this.repos = repos;
     });
+
+    this.gecko_enabled = localStorage.getItem("gecko_enabled");
+    this.chromium_enabled = localStorage.getItem("chromium_enabled");
+    this.edge_enabled = localStorage.getItem("edge_enabled");
+
+    this.gecko_emulators = localStorage.getItem("gecko_emulators");
+    this.gecko_emulators =
+      this.gecko_emulators === "" ? [] : this.gecko_emulators.split(",");
+    this.chromium_emulators = localStorage.getItem("chromium_emulators");
+    this.chromium_emulators =
+      this.chromium_emulators === "" ? [] : this.chromium_emulators.split(",");
+    this.edge_emulators = localStorage.getItem("edge_emulators");
+    this.edge_emulators =
+      this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
   }
+
   ngOnInit() {
     this.transferOwnershipObservable = this.projectService.transferOwnershipEvent.subscribe(_ => {
       this.transferedOwnership(this.selectedOwner);
@@ -94,6 +125,56 @@ export class WorkgroupEditComponent {
     this.ownerSelect = null;
   }
 
+  loadGlobalSettings(): void {
+    const repoId = this.workgroupProject._id;
+    this.projectService.getRepositorySettings(repoId).subscribe({
+      next: (settings) => {
+        if (settings) {
+          this.applyGlobalSettings = settings.activated !== undefined ? settings.activated : false;
+          if(settings.emulator){
+            this.emulator_enabled = true
+            this.emulator = settings.emulator;
+          }
+          this.waitBetweenSteps = settings.stepWaitTime || 0;
+          this.browser = settings.browser || 'Chrome';
+          this.height = settings.height || 0;
+          this.width = settings.width || 0;
+        } else {
+          console.warn('No global settings found, default settings are used.');
+          this.applyDefaultSettings();
+        }
+      },
+      error: (error) => {
+        console.error('Error loading global settings:', error);
+        this.applyDefaultSettings();
+      }
+    });
+  }
+
+  applyDefaultSettings() {
+    this.applyGlobalSettings = false;
+    this.waitBetweenSteps = 0;
+    this.browser = 'Chrome';
+  }
+
+  openDialog(): void {
+    const dialogData: DialogData = { 
+      width: this.width || 0, 
+      height: this.height || 0 
+    };
+
+    const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
+      width: '250px',
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.width = result.width;
+        this.height = result.height;
+      }
+    });
+}
   /**
      * Opens the workgroup edit modal
      */
@@ -111,6 +192,7 @@ export class WorkgroupEditComponent {
       this.workgroupList = res.member;
       this.workgroupOwner = res.owner.email;
     });
+    this.loadGlobalSettings();
   }
 
   transferedOwnership(newOwner) {
@@ -196,21 +278,16 @@ export class WorkgroupEditComponent {
     }
   }
 
-  onWaitBetweenStepsChange(): void {
-    console.log('Wait time changed:', this.waitBetweenSteps);
-  }
-
-
-  onApplyGlobalSettingsChange(): void {
-    console.log('Apply Global Settings status:', this.applyGlobalSettings);
-  }
-
   updateRepository(project: RepositoryContainer) {
 
     project.settings = {
       ...project.settings,
       stepWaitTime: this.waitBetweenSteps,
+      browser: this.browser,
+      emulator: this.emulator,
       activated: this.applyGlobalSettings,
+      width: this.width,
+      height: this.height
     };
 
     this.projectService.updateRepository(project._id, project.value, this.userId, project.settings).subscribe(_resp => {
@@ -224,7 +301,7 @@ export class WorkgroupEditComponent {
     console.log('bla')
     this.updateRepository(this.workgroupProject)
   }
-  
+
   showDeleteRepositoryToast() {
     this.apiService.nameOfComponent('repository');
     this.toastr.warning('Are your sure you want to delete this Project? It cannot be restored.', 'Delete Project?', {
@@ -262,5 +339,75 @@ export class WorkgroupEditComponent {
     // Emits rename event
     this.projectService.renameProjectEmitter(project);
   }
+
+  /**
+ * Set the browser
+ * @param newBrowser
+ */
+  setBrowser(newBrowser) {
+    this.browser = newBrowser;
+    this.setEmulatorEnabled(false);
+  }
+
+  // ------------------------------- EMULATOR --------------------------------
+
+  /**
+   * To store emulator
+   */
+
+  emulator;
+  /**
+   * Boolean emulator indicator
+   */
+  emulator_enabled;
+
+  /**
+   * List of supported emulators for gecko
+   */
+  gecko_emulators;
+
+  /**
+   * List of supported emulators for gecko
+   */
+  chromium_emulators;
+
+  /**
+   * List of supported emulators for gecko
+   */
+  edge_emulators;
+
+  /**
+   * Set if an emulator should be used
+   * @param enabled Boolean
+   */
+  setEmulatorEnabled(enabled) {
+    this.emulator_enabled = enabled;
+    this.setEmulator(enabled ? this.getAvaiableEmulators()[0] : undefined)
+  }
+
+  /**
+   * Set the emultaor
+   * @param newEmultaor
+   */
+  setEmulator(newEmulator) {
+    this.emulator = newEmulator;
+  }
+
+  /**
+   * Get the avaiable emulators
+   */
+  getAvaiableEmulators() {
+    switch (this.browser) {
+      case "chrome":
+        return this.chromium_emulators;
+      case "firefox":
+        return this.gecko_emulators;
+      case "MicrosoftEdge":
+        return this.edge_emulators;
+    }
+    return []
+  }
+
+  // ------------------------------- EMULATOR -----------------------------
 
 }

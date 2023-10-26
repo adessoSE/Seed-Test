@@ -854,7 +854,6 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * @param scenario_id
    */
   runTests(scenario_id) {
-    console.log("Im in test run")
     if (this.storySaved()) {
       this.reportIsSaved = false;
       this.testRunning = true;
@@ -889,6 +888,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
             width: this.selectedScenario.width,
             height: this.selectedScenario.height,
             repository: localStorage.getItem("repository"),
+            repositoryId: localStorage.getItem("id"),
             source: localStorage.getItem("source"),
             oneDriver: this.selectedStory.oneDriver,
           }

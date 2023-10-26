@@ -776,7 +776,7 @@ async function getRepoSettingsById(repoId) {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(repositoriesCollection);
 
-		const repo = await collection.findOne({ _id: new ObjectId(repoId) }); 
+		const repo = await collection.findOne({ _id: new ObjectId(repoId) });
 
 		if (!repo) {
 			console.log(`Kein Repository gefunden mit der ID: ${repoId}`);

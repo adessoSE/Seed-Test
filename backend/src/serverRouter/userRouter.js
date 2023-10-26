@@ -63,8 +63,8 @@ router.post('/resetpassword', async (req, res) => {
 		try {
 			await nodeMail.sendResetLink(thisUser.email, id);
 			res.status(200)
-			.json();
-		} catch(err) {
+				.json();
+		} catch (err) {
 			res.status(500).send(err.message);
 		}
 	} catch (error) {
@@ -167,7 +167,7 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout({}, () => {});
+	req.logout({}, () => { });
 	res.clearCookie('connect.sid', { path: '/' });
 	res.status(200).send({ status: 'success' });
 });
@@ -224,6 +224,17 @@ router.put('/repository/:repo_id/:owner_id', async (req, res) => {
 	}
 });
 
+// get global repository settings
+router.get('/repository/settings/:repo_id', async (req, res) => {
+	try {
+		const globalSettings = await mongo.getRepoSettingsById(req.params.repo_id);
+		res.status(200).json(globalSettings);
+	} catch (error) {
+		console.error(error);
+		res.status(500).send('Error getting global repository settings');
+	}
+});
+
 // update user
 router.post('/update/:userID', async (req, res) => {
 	try {
@@ -263,7 +274,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
-		if (!userMng.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
+		if (!userMng.checkValidGithub(req.query.githubName, req.query.repository)) console.log('Username or Reponame not valid');
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
@@ -316,7 +327,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} catch (err) {
 		res.status(503).send(err.message);
 
-	// get Jira Repo / Projects
+		// get Jira Repo / Projects
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
@@ -324,7 +335,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const { AccountName, AuthMethod, Host } = req.user.jira;
 		let authString = `Bearer ${clearPass}`;
-		if (AuthMethod === 'basic') { 
+		if (AuthMethod === 'basic') {
 			const auth = Buffer.from(`${AccountName}:${clearPass}`).toString('base64');
 			authString = `Basic ${auth}`;
 		}
