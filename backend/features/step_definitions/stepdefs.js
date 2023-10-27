@@ -829,8 +829,8 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
 	await Promise.any(promises)
-		.then((elem) => {
-			expect(elem.isSelected()).to.equal(checked);
+		.then(async (elem) => {
+			expect(await elem.isSelected()).to.equal(checked);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
