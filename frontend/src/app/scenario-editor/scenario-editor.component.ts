@@ -9,7 +9,8 @@ import { RenameScenarioComponent } from '../modals/rename-scenario/rename-scenar
 import { Subscription } from 'rxjs';
 import { CreateScenarioComponent } from '../modals/create-scenario/create-scenario.component';
 import { ScenarioService } from '../Services/scenario.service';
-
+import { BaseEditorComponent } from '../base-editor/base-editor.component';
+import { BlockService } from '../Services/block.service';
 
 
 /**
@@ -31,6 +32,7 @@ export class ScenarioEditorComponent implements OnInit{
      */
 	 constructor(
         public apiService: ApiService,
+        public blockService: BlockService,
         public scenarioService: ScenarioService,
         public toastr: ToastrService
     ) {
@@ -58,7 +60,6 @@ export class ScenarioEditorComponent implements OnInit{
         if (this.selectedStory && scenario) {
            this.selectScenario(scenario);
         }
-
     }
 
     testRunning;
@@ -104,10 +105,11 @@ export class ScenarioEditorComponent implements OnInit{
     readonly TEMPLATE_NAME ='scenario';
 
     /**
-     * Subscribtions for all EventEmitter
+     * Subscriptions for all EventEmitter
      */
     runSaveOptionObservable: Subscription;
     renameScenarioObservable: Subscription;
+    updateRefObservable: Subscription;
 
     @Input() isDark: boolean;
 
@@ -116,11 +118,22 @@ export class ScenarioEditorComponent implements OnInit{
      */
     @ViewChild('renameScenarioModal') renameScenarioModal: RenameScenarioComponent;
     @ViewChild('createScenarioModal') createScenarioModal: CreateScenarioComponent;
+    @ViewChild('baseEditor') baseEditor: BaseEditorComponent;
 
     /**
      * Original step types not sorted or changed
      */
     @Input() originalStepTypes: StepType[];
+    
+    /**
+     * List of Blocks
+     */
+    blocks: Block [];
+
+    /**
+      * Currently selected block
+      */
+    selectedBlock: Block;
 
     /**
      * Event emitter to delete the scenario
@@ -153,13 +166,21 @@ export class ScenarioEditorComponent implements OnInit{
     * Subscribes to all necessary events
     */
     ngOnInit() {
+        const id = localStorage.getItem('id');
+        this.blockService.getBlocks(id).subscribe((resp) => {
+            this.blocks = resp;
+          });
 		this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
             if (option == 'saveScenario') {
                 this.saveRunOption();
             }
         });
-
         this.renameScenarioObservable = this.scenarioService.renameScenarioEvent.subscribe(newName => this.renameScenario(newName));
+        this.updateRefObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
+            this.blockService.getBlocks(id).subscribe((resp) => {
+              this.blocks = resp;
+            });
+          });
     }
 
     ngOnDestroy() {
@@ -185,7 +206,7 @@ export class ScenarioEditorComponent implements OnInit{
      * @returns
      */
     updateScenario() {
-
+        delete this.selectedScenario.hasRefBlock 
         delete this.selectedScenario.saved;
         let steps = this.selectedScenario.stepDefinitions['given'];
         steps = steps.concat(this.selectedScenario.stepDefinitions['when']);
@@ -212,21 +233,64 @@ export class ScenarioEditorComponent implements OnInit{
             console.log('There are undefined steps here');
         }
         this.selectedScenario.lastTestPassed = null;
+        this.checkOnReferences(this.selectedScenario);
         return new Promise<void>((resolve, _reject) => {this.scenarioService
             .updateScenario(this.selectedStory._id, this.selectedScenario)
             .subscribe(_resp => {
+                this.updateReferences(this.selectedScenario);
                 this.scenarioService.scenarioChangedEmitter();
                 this.toastr.success('successfully saved', 'Scenario');
                 resolve();
             });
         });
     }
+    /**
+    * Update/Check for reference
+    * @param scenario
+    * @param blocks
+    */
+    updateReferences(scenario){
+        const stepsReferences = [];
+        for (const prop in scenario.stepDefinitions) {
+          for (const step of scenario.stepDefinitions[prop]) {
+            for (const block of this.blocks) {
+                if(block._id === step._blockReferenceId && block.usedAsReference == undefined){
+                    stepsReferences.push(step);
+                    block.usedAsReference = true;
+                    this.blockService.updateBlock(block)
+                    .subscribe(_ => {
+                      this.blockService.updateBlocksEvent.emit();
+                    });
+                }
+            }  
+          }
+        }
+        //If the reference was deleted
+        if(stepsReferences.length == 0){
+            this.blockService.stepAsReference();
+        }
+        return this.blocks;
+     
+    }
 
     addScenarioToStory(event) {
         const scenarioName = event;
         this.addScenarioEvent.emit(scenarioName);
     }
-
+    /**
+    * Checking if the scenario has a reference when saving
+    * @param scenario
+    */
+    checkOnReferences(scenario){
+        for (const prop in scenario.stepDefinitions) {
+            for (const step of scenario.stepDefinitions[prop]) {
+                if(step._blockReferenceId){
+                    this.selectedScenario.hasRefBlock = true;
+                }
+            }  
+        }
+        return this.selectedScenario;
+    }
     /**
      * Emitts the delete scenario event
      * @param event
@@ -373,5 +437,10 @@ export class ScenarioEditorComponent implements OnInit{
     openCreateScenario() {
         console.log(this.createScenarioModal)
         this.createScenarioModal.openCreateScenarioModal(this.selectedStory);
+    }
+
+    blockSelectTrigger(block) {
+        this.selectedBlock =  this.blocks.find(i => i._id == block._blockReferenceId);
+        block.stepDefinitions = this.selectedBlock.stepDefinitions;
     }
 }
