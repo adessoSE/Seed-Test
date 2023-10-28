@@ -47,6 +47,7 @@ import { HttpLoggerInterceptor } from "./Services/http-logger.interceptor";
 import { ReportHistoryComponent } from "./report-history/report-history.component";
 import { ClipboardModule } from "@angular/cdk/clipboard";
 import { LoggerModule, NgxLoggerLevel } from "ngx-logger";
+import { EditBlockComponent } from './modals/edit-block/edit-block.component';
 import { ThemingService } from "./Services/theming.service";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MatIconModule } from "@angular/material/icon";
@@ -119,6 +120,7 @@ import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-pop
     ChangeJiraAccountComponent,
     RepoSwichComponent,
     CreateScenarioComponent,
+    EditBlockComponent,
     ResizeInputDirective,
     RenameBackgroundComponent,
     BaseEditorComponent,

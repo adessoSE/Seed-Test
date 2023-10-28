@@ -7,8 +7,8 @@
       <span rel="def">Add a saved Block. These Steps will get appended to the steps of this story.
       </span>
     </dfn>
-    
-    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+
+    <button type="button" class="close" aria-label="Close" (click)="closeModal()" >
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -28,10 +28,10 @@
                 <div class="subHeader" *ngIf="selectedBlock != undefined"> 
                   Preview: <label id="newTitle" contentEditable="false" spellcheck="false" (keyup)="checkName()">{{selectedBlock.name}}</label>
                 </div>
-                <button *ngIf="this.blockSaved==true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
+                <button *ngIf="this.blockSaved == true" id="editBlock" class="blockButton" (click)="changeBlockTitle();" title="Change Block Title" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined">
                   <em class="material-icons">edit</em>
                 </button>   
-                <button *ngIf="this.blockSaved==false" id="saveBlockButton" class="blockButton" title="Save Block" (click)="updateBlock();">
+                <button *ngIf="this.blockSaved == false" id="saveBlockButton" class="blockButton" title="Save Block" [class.disabled]="saveBlockButtonDisable == true" [disabled]="saveBlockButtonDisable == true" (click)="updateBlock();">
                   <em class="material-icons">save</em>
                 </button>
                 <button id="deleteBlock" class="blockButton" [class.disabled]="selectedBlock == undefined" [disabled]="selectedBlock == undefined" title="Delete Block" (click)="deleteBlock($event)">
@@ -53,8 +53,18 @@
             </table>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="normalButton"  (click)="onClickSubmit()">Add Block</button>
+      <div id="addBlockFooter" class="modal-footer">
+        <form *ngIf="blocks.length !== 0" class="addAsReference">
+          <label id="addAsReferenceLabel">Add Block as Reference: </label>
+          <input id="addAsReferenceCheckbox "type="checkbox"  [checked]="this.addAsReference" (change)="checkAddAsReference()">
+          <dfn class="def">
+            <span class="infoIcon uk-icon" uk-icon="info" style="color:#999999"></span>
+            <span rel="def">
+              Add the saved Block as a Reference to adopt changes, when steps in the original Block get changed.
+            </span>
+          </dfn>
+        </form>
+        <button *ngIf="blocks.length !== 0" type="button" class="normalButton"  (click)="onClickSubmit()">Add Block</button>
       </div>
     </div>
   </ng-template>

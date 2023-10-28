@@ -1,9 +1,9 @@
-:host ::ng-deep .stepsListContainer{
+:host ::ng-deep .stepsListContainer {
   display: flex;
   justify-content: space-between;
 }
-  
-:host ::ng-deep .stepsListContainer em{
+
+:host ::ng-deep .stepsListContainer em {
   color: var(--ocean-blue);
 }
     
@@ -12,25 +12,30 @@
   background: none;
 }
 
-:host ::ng-deep .checkbox{
+:host ::ng-deep .checkbox {
   margin-right: 5px;
   margin-bottom: 5px;
   margin-left: 3px;
   margin-top: 5px
-} 
+}
 
-:host ::ng-deep .checkbox:hover{
+:host ::ng-deep .checkbox:hover {
   cursor: pointer;
 }
 
-:host ::ng-deep #checkbox_all_example{
+.block-editor-margin {
+  padding: 0 !important;
+}
+
+:host ::ng-deep #checkbox_all_example {
   margin-left: 10px;
 }
-  
-:host ::ng-deep #checkbox_all{
+
+:host ::ng-deep #checkbox_all {
   margin-top: 2px;
   margin-bottom: 2px;
   margin-left: 6px;
+  margin-right: 15px;
 }
 
 .select-item-drag-preview {
@@ -41,15 +46,15 @@
   display: inline-block;
   width: 30px;
   line-height: 30px;
-text-align: center;
+  text-align: center;
 }
 
 input[type=checkbox] {
   height: 13px;
 }
 
-.stepsContainer {
-	white-space: nowrap;
+:host ::ng-deep .stepsContainer {
+  white-space: nowrap;
   overflow: hidden;
   width: 100%;
 }
@@ -59,33 +64,70 @@ input[type=checkbox] {
   width: fit-content;
   max-width: inherit;
   padding: 1px 20px 1px 20px;
-} 
+  align-items:center;
+}
 
 .cdk-drop-list-dragging .cdk-drag {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.dragIconContainer{
+.dragIconContainer {
   text-align: center;
   cursor: move;
+  margin-top: 1.5px;
 }
 
-em.dragIcon{
+em.dragIcon {
   font-size: 18px;
   color: black;
   background-color: var(--white);
-  margin-top:1px;
+  margin-top: 1px;
 }
 
-.text-inline{
+.text-inline {
   display: flex;
 }
-  
-.text-inline > button{
+
+.mat-expansion-panel-header.stepBlockHeader {
+  height: 100%;
+  padding: 3.4px
+}
+
+.blockReference {
+  width: 100%;
+  align-items: flex-start;
+}
+
+.text-inline>button {
   margin: 0 5px;
 }
-  
-.text-inline > p > input{
+
+.stepBlockTitle {
+  justify-content: center;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.stepBlockTitle .SmallHeadline5 {
+  margin-top: 2px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.blockButton {
+  border: none;
+  background: inherit;
+}
+
+.blockButtonGroup .material-icons {
+  color: var(--ocean-blue);
+}
+
+.mat-action-row.blockButtonGroup {
+  padding: 5px 8px 0px 24px !important;
+}
+
+.text-inline>p>input {
   margin: 0 5px;
 }
 
@@ -96,7 +138,8 @@ em.dragIcon{
 .uk-card-title {
   font-size: medium;
 }
-.addStepButton{
+
+.addStepButton {
   border: inherit;
   background: inherit;
   color: var(--ocean-blue);
@@ -104,7 +147,8 @@ em.dragIcon{
   transform: translate(0, -45px);
 
 }
-em.addStep{
+
+em.addStep {
   color: var(--ocean-blue);
 }
 
@@ -123,31 +167,30 @@ em.addStep{
   display: none;
 }
 
-.checkboxDropdown{
+.checkboxDropdown {
   margin-top: -15px !important;
 }
 
-input[type="text"]{
-	margin: 1px;
-	padding: 1px;
-	border: none;
-	border-bottom: 1px solid #333;
-	position: relative;
-	top: -2px;
-	width: auto;
-	min-width: 5px;
+input[type="text"] {
+  margin: 1px;
+  padding: 1px;
+  border: none;
+  border-bottom: 1px solid #333;
+  position: relative;
+  width: auto;
+  min-width: 5px;
 }
 
-.scenarioBarContainer{
+.scenarioBarContainer {
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
   margin: 0px 20px;
-} 
+}
 
 .scenarioBarContainer button,
-.exampleBarContainer button{
+.exampleBarContainer button {
   border: none;
   background: none;
   transform: translate(0px, -3px);
@@ -155,8 +198,8 @@ input[type="text"]{
   border-radius: 10%;
 }
 
-.scenarioBarContainer > div,
-.exampleBarContainer{
+.scenarioBarContainer>div,
+.exampleBarContainer {
   margin-top: 5px;
   margin-bottom: 5px;
   padding: 10px 15px;
@@ -181,7 +224,7 @@ input[type="text"]{
   transform: translate(0px, 3px)
 }
 
-.exampleBarContainer{
+.exampleBarContainer {
   border-bottom: 1px solid #e5e5e5;
   background-color: #f8f8f8;
   display: flex;
@@ -191,29 +234,29 @@ input[type="text"]{
   margin-right: 10px;
 }
 
-.actionBarButtonGroup{
+.actionBarButtonGroup {
   margin-left: 3px;
 }
 
-.actionButton{
+.actionButton {
   margin-left: 10px;
 }
 
-.actionButton > em{
+.actionButton>em {
   color: #333;
   font-size: 22px;
 }
 
-.darkTheme .actionButton > em {
-  color:#000000;
+.darkTheme .actionButton>em {
+  color: #000000;
 }
 
-.scenarioButton em{
-  color:  var(--ocean-blue);
+.scenarioButton em {
+  color: var(--ocean-blue);
 }
 
-.darkTheme.scenarioButton em{
-  color:  var(--ocean-blue);
+.darkTheme.scenarioButton em {
+  color: var(--ocean-blue);
 }
 
 .scenarioButton em:active {
@@ -225,11 +268,12 @@ input[type="text"]{
   padding: 15px;
 }
 
-/* .darkTheme .uk-dropdown {
+/* :host ::ng-deep .darkTheme . ng-star-inserted.uk-dropdown {
   background-color: #60767b;
-} */
+  color: var(--light-blue);
+}  */
 
-.padding{
+.padding {
   padding-top: 20px;
   padding-left: 20px;
   padding-bottom: 20px;
@@ -256,6 +300,18 @@ input[type="text"]{
   bottom: 5px; 
   width: fit-content;
   min-width: 150px;
+
+}
+
+.stepInBlock {
+  display: inline-flex;
+  margin-bottom: 10px;
+  max-width: 660px;
+  max-height: 20px;
+}
+
+mat-expansion-panel.stepBlockContainer .mat-expansion-panel-body {
+  padding: 0 4px 0px 10px;
 }
 
 :host ::ng-deep .exampleListContainer .mat-mdc-form-field-infix {
@@ -281,8 +337,10 @@ input[type="text"]{
   height: 20px;
   width: 20px;
 
-  -moz-border-radius: 30px; /* or 50% */
-  border-radius: 30px; /* or 50% */
+  -moz-border-radius: 30px;
+  /* or 50% */
+  border-radius: 30px;
+  /* or 50% */
   border: 2px solid;
 
   text-align: center;
@@ -290,63 +348,52 @@ input[type="text"]{
   font-weight: bold;
   font-size: 12px;
   display: inline-block;
-  color: var(--ocean-blue) 
-
+  color: var(--ocean-blue)
 }
 
 .darkTheme ::ng-deep .exampleButton {
-  color: var(--light-blue) 
+  color: var(--light-blue)
 }
 
 
-.exampleMatSelect{
+.exampleMatSelect {
   padding-left: 5px;
 }
 
-.uk-nav > li > span{
+.uk-nav>li>span {
   padding: 1px;
   cursor: pointer;
 }
 
-:host ::ng-deep .uk-nav > li > .dropdownStep {
-  color:var(--ocean-blue);
+:host ::ng-deep .uk-nav>li>span:hover {
+  color: gray;
 }
 
-/* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
-  color: #40C4FF;
-} */
-:host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
-  color: var(--light-blue);
-}
-
-:host ::ng-deep .uk-nav > li > span:hover {
-    color: gray;
-}
-
-:host ::ng-deep .darkTheme .uk-nav > li > span:hover {
+:host ::ng-deep .darkTheme .uk-nav>li>span:hover {
   color: white;
 }
 
-:host ::ng-deep .uk-nav > li > .dropdownStepUndefined {
-  color:var(--marine-blue);
+:host ::ng-deep .uk-nav>li>.dropdownStepUndefined {
+  color: var(--marine-blue);
 }
 
-:host ::ng-deep .darkTheme .uk-nav > li > .dropdownStepUndefined {
-  color:#00B0FF;
+:host ::ng-deep .darkTheme .uk-nav>li>.dropdownStepUndefined {
+  color: #00B0FF;
 }
 
-#saveButton.iconButton_unsaved em{
+#saveButton.iconButton_unsaved em {
   color: red !important;
 }
 
-input.scenario, input.background {
+input.scenario,
+input.background {
   margin-left: 10px;
   margin-right: 10px;
   padding-left: 5px;
   padding-right: 5px;
 }
 
-#tableAddButton{
+#tableAddButton {
   grid-column: 1;
   grid-row: 1;
   font-size: 15px !important;
@@ -356,7 +403,7 @@ input.scenario, input.background {
   z-index: 100;
 }
 
-#tableAddButtonBackground{
+#tableAddButtonBackground {
   grid-column: 1;
   grid-row: 1;
   font-size: 10px !important;
@@ -369,4 +416,38 @@ input.scenario, input.background {
   width: 11px !important;
   height: 11px !important;
 
- }
+}
+
+.scrollable {
+  overflow: auto;
+  max-height: 400px;
+}
+
+.blockEditorElement ::-webkit-scrollbar-thumb,
+.blockEditorElement::-webkit-scrollbar-thumb{
+  background: #90CAF9 !important;
+}
+
+.dropdownHeader {
+  font-weight: bold;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+
+.darkTheme .uk-dropdown .dropdownHeader {
+  font-weight: bold;
+  padding: 10px 0;
+  color: white !important;
+  border-top: 1px solid #ddd;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+
+.dropdownHeader:first-of-type {
+  border-top: none; 
+  margin-top: 0;    
+  padding-top: 0;  
+}
+
