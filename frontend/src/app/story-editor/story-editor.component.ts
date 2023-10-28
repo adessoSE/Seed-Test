@@ -338,7 +338,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       const loadingScreen = document.getElementById('loading');
       loadingScreen.scrollIntoView();
     }
-    if (this.selectedStory !== undefined){
+    if (this.selectedStory !== undefined && this.stories && this.blocks){
       this.storeCurrentBackground(this.selectedStory.background);
       this.backgrounds = this.stories.filter((s) => s !== null).map((s) => s.background);
       this.blockAsBackground = [];
