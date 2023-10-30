@@ -23,13 +23,12 @@ RUN mongod --fork --logpath /var/log/mongodb.log
 
 # install chrome 
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt-get -y install ./google-chrome-stable_current_amd64.deb
+RUN yes | apt install ./google-chrome-stable_current_amd64.deb
 RUN rm -f google-chrome-stable_current_amd64.deb
 
 # install chromedriver
-RUN google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+' > chromeversion.txt
 RUN apt-get install -yqq unzip curl
-RUN wget -O /tmp/chromedriverzip.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$(cat chromeversion.txt)/linux64/chromedriver-linux64.zip
+RUN wget -O /tmp/chromedriverzip.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$(curl https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE)/linux64/chromedriver-linux64.zip
 RUN unzip /tmp/chromedriverzip.zip chromedriver-linux64/chromedriver -d /usr/local/bin/
 RUN mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
 
