@@ -337,9 +337,17 @@ async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatu
 
 async function updateScenarioTestStatus(uploadedReport) {
 	try {
-		await mongo.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.status);
+		let storyStatus = uploadedReport.status;
+		if (uploadedReport.status === true) {
+			const scenarios = await mongo.getOneStory(uploadedReport.storyId).then((story) => story.scenarios);
+			const updateIndex = scenarios.findIndex((scen) => scen.scenario_id === uploadedReport.scenarioId);
+			console.log(scenarios, storyStatus, updateIndex, uploadedReport.scenarioId);
+			scenarios[updateIndex].lastTestPassed = uploadedReport.status;
+			storyStatus = scenarios.every((scen) => !!scen.lastTestPassed === true);
+		}
+		updateStoryTestStatus(uploadedReport.storyId, storyStatus, [{ scenarioId: uploadedReport.scenarioId, status: uploadedReport.status }]);
 	} catch (e) {
-		console.log('Could not Update Scenario LastTestPassed.');
+		console.log('Could not Update Scenario LastTestPassed.', e);
 	}
 }
 
