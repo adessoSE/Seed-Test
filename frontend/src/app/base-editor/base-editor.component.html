@@ -15,7 +15,7 @@
             [disabled]="!this.activeActionBar || this.isReferenceBlock" [class.disabled]="this.isReferenceBlock">
             <em class="material-icons">queue</em>
           </button>
-          <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="Deactivate Step"
+          <button id="{{name+'_deactivate_step_'}}" class="actionButton" uk-tooltip title="De-/Activate Step"
             (click)="deactivateStep();" [disabled]="!this.activeActionBar">
             <em class="material-icons">do_not_touch</em>
           </button>
@@ -48,7 +48,7 @@
       </div>
       <div class="scenarioButtonGroup SmallHeadline5">
         <button type="button" class="scenarioButton" [class.disabled]="this.clipboardBlock === null"
-          [disabled]="this.clipboardBlock === null" uk-tooltip="Add Block from Clipboard" (click)="insertCopiedBlock()">
+          [disabled]="this.clipboardBlock === null" uk-tooltip="Add Step from Clipboard" (click)="insertCopiedBlock()">
           <em class="material-icons">copy_all</em>
         </button>
         <button *ngIf="name !== 'example' && name !== 'block-editor'" id="add_block" class="scenarioButton"
@@ -116,8 +116,11 @@
                 <div #scenarioContainerEl class="stepsContainer"
                   *ngIf="!dragging || !isSelected(stepDefs, i, j)">
                   <div #scenarioParentEl class="text-inline SmallBody1regularLH stepLine"
-                    [class.disabled]="stepDefs[currentStep.stepType][j].deactivated"
-                    [ngClass]="{'blockReference': currentStep._blockReferenceId}">
+                    [class.deactivated]="stepDefs[currentStep.stepType][j].deactivated"
+                    [ngClass]="{'blockReference': currentStep._blockReferenceId}"
+                    [ngStyle]="{
+                      'width': (currentStep.isExample !== undefined && (currentStep.isExample[0] == true || currentStep.isExample[1] === true)) ? '100%' : ''
+                     }">
                     <div class="dragIconContainer" cdkDragHandle>
                       <em class="material-icons dragIcon">drag_indicator</em>
                     </div>
@@ -145,10 +148,10 @@
                       </ng-template>
                     </div>
                     {{currentStep.pre}}
-                    <div style="display: flex;" *ngIf="currentStep.values.length > 0">
+                    <div style="display: flex; overflow: hidden; align-items: center;" *ngIf="currentStep.values.length > 0">
                       <div
                         *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0"
-                        style="display: flex;">
+                        style="display: flex; overflow: hidden; align-items: center;">
                         <div
                           *ngIf="currentStep.isExample[0] == false || ((!currentStep.values[0] || currentStep.values[0]) && currentStep.isExample[0] != true) || this.selectedScenario.stepDefinitions.example[i].isExample[0] == false ">
                           <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl"
@@ -159,11 +162,11 @@
                         </div>
                         <div
                           *ngIf="currentStep.isExample[0] == true && stepDefs.example[i].isExample[0] == true && name!=='block-editor'"
-                          style="display: flex; padding: 0px 1px 0px 1px;">
+                          class="exampleListContainer">
                           <mat-form-field appearance="standard" class="exampleList">
                             <mat-select [ngModel]="currentStep.values[0] | slice:1:-1"
                               (selectionChange)="addToValues($event.value, j, 0, currentStep.stepType, currentStep)"
-                              class="exampleMatSelect">
+                              class="exampleMatSelect" [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                               <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList"
                                 style="padding-left: 5px;" class="exampleListOption">
                                 {{exampleList}}
@@ -198,7 +201,7 @@
                       <div
                         *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!=1"
                         style="display:flex">
-                        <div *ngIf="currentStep.values[1] != null" style="display: flex;">
+                        <div *ngIf="currentStep.values[1] != null" style="display: flex; align-items: center;">
                           <div
                             *ngIf="currentStep.isExample[1] == false || ((!currentStep.values[1] || currentStep.values[1]) && currentStep.isExample[1] != true) || stepDefs.example[i].isExample[0] == false">
                             <input appResizeInput [containerEl]="scenarioContainerEl" [parentEl]="scenarioParentEl"
@@ -209,11 +212,11 @@
                           </div>
                           <div
                             *ngIf="currentStep.isExample[1] == true && stepDefs.example[i].isExample[0] == true && name!=='block-editor'"
-                            style="display: flex; padding: 0px 1px 0px 1px;">
+                            class="exampleListContainer">
                             <mat-form-field appearance="standard" class="exampleList">
                               <mat-select [ngModel]="currentStep.values[1] | slice:1:-1"
                                 (selectionChange)="addToValues($event.value, j, 1, currentStep.stepType,currentStep)"
-                                class="exampleMatSelect">
+                                class="exampleMatSelect"  [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                                 <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList"
                                   class="exampleListOption">
                                   {{exampleList}}
@@ -261,11 +264,11 @@
                         </div>
                         <div
                           *ngIf="currentStep.isExample[2] == true && stepDefs.example[i].isExample[0] == true && name!=='block-editor'"
-                          style="display: flex; padding: 0px 1px 0px 1px;">
+                          class="exampleListContainer">
                           <mat-form-field appearance="standard" class="exampleList">
                             <mat-select [ngModel]="currentStep.values[2] | slice:1:-1"
                               (selectionChange)="addToValues($event.value, j, 2, currentStep.stepType,currentStep)"
-                              class="exampleMatSelect">
+                              class="exampleMatSelect"  [disabled]="this.selectedScenario.stepDefinitions[currentStep.stepType][j].deactivated">
                               <mat-option *ngFor="let exampleList of getExampleList()" [value]="exampleList"
                                 class="exampleListOption">
                                 {{exampleList}}
@@ -385,7 +388,7 @@
                 <div #backgroundContainerEl class="stepsContainer"
                   *ngIf="!dragging || !isSelected(selectedStory.background.stepDefinitions, 1, j)">
                   <div #backgroundParentEl class="text-inline SmallBody1regularLH stepLine"
-                    [class.disabled]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
+                  [class.deactivated]="this.selectedStory.background.stepDefinitions[currentStep.stepType][j].deactivated">
                     <div class="dragIconContainer" cdkDragHandle>
                       <em class="material-icons dragIcon">drag_indicator</em>
                     </div>

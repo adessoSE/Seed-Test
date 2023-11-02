@@ -188,6 +188,7 @@ export class BaseEditorComponent {
         Object.keys(block[1].stepDefinitions).forEach((key, _) => {
           if (key === 'when') {
             block[1].stepDefinitions[key].forEach((step: StepType) => {
+              this.uncheckStep(step);
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }
@@ -743,6 +744,10 @@ export class BaseEditorComponent {
       case 'default':
         break;
     }
+  }
+
+  uncheckStep (step) {
+    step.checked = false;
   }
 
   /** Updates step definitions list (background & scenario)
@@ -1349,7 +1354,7 @@ export class BaseEditorComponent {
         for (const s in stepsList[prop]) {
           if (stepsList[prop][s].checked) {
             stepsList[prop][s].deactivated = !stepsList[prop][s].deactivated;
-            stepsList[prop][s].checked = !stepsList[prop][s].checked;
+            this.uncheckStep(stepsList[prop][s]);
           }
         }
       }
@@ -1425,6 +1430,7 @@ export class BaseEditorComponent {
       if (this.templateName !== 'example' && prop !== 'example') {
         for (let i = stepsList[prop].length - 1; i >= 0; i--) {
           if (stepsList[prop][i].checked) {
+            this.uncheckStep(stepsList[prop][i]);
             if(stepsList[prop][i]._blockReferenceId){
               this.blockService.checkRefOnRemoveEmitter(stepsList[prop][i]._blockReferenceId);
             }
@@ -1519,6 +1525,7 @@ export class BaseEditorComponent {
     Object.keys(stepsListIterate).forEach((key, _) => {
       for (const s in stepsList[key]) {
         if (stepsList[key][s].checked) {
+          this.uncheckStep(stepsList[key][s]);
           copyBlock[key].push(stepsList[key][s]);
           stepsList[key][s].values.forEach((value, index) => {
             if (stepsList[key][s].isExample[index]) {
@@ -1555,7 +1562,7 @@ export class BaseEditorComponent {
           if (key === 'when') {
             this.clipboardBlock.stepDefinitions[key].forEach((step: StepType) => {
               //to prevent blocks to be checked after pasting
-              step.checked = false;
+              this.uncheckStep(step);
               this.selectedStory.background.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
             });
           }
@@ -1577,6 +1584,7 @@ export class BaseEditorComponent {
           Object.keys(this.clipboardBlock.stepDefinitions).forEach((key, _) => {
             if (key != 'example') {
               this.clipboardBlock.stepDefinitions[key].forEach((step: StepType, j) => {
+                this.uncheckStep(step);
                 this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
               });
             }
@@ -1658,6 +1666,7 @@ export class BaseEditorComponent {
     Object.keys(block.stepDefinitions).forEach((key, _) => {
       if (key != 'example') {
         block.stepDefinitions[key].forEach((step: StepType, j) => {
+          this.uncheckStep(step);
           this.selectedScenario.stepDefinitions[key].push(JSON.parse(JSON.stringify(step)));
         });
       } else if (key == 'example') {
