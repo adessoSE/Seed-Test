@@ -73,12 +73,13 @@
                 </div>
                 <div>
                     <button (click)="exportProject(downloadRepoID)"  class="normalButton" style="width: 86.76px;" >Export</button>
-                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="downloadInfo"></span>
+                    <dfn class="def"><span class="infoIcon" uk-icon="info" id="exportInfo"></span>
                         <span rel="def">Export Tests in Gherkin: Export your project as a .zip file containing the stories and blocks of a project importable as .json.</span>
                     </dfn>
                 </div>
+                <br>
                 <div>
-                    <button class="normalButton" (click)="openImportPopup()">Import</button>
+                    <button class="normalButton" style="width: 86.76px;" (click)="openImportPopup()">Import</button>
                     <dfn class="def">
                         <span class="infoIcon" uk-icon="info" id="importInfo"></span>
                         <span rel="def">Import Tests: Import test cases from a previously exported project.</span>
