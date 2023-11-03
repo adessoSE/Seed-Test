@@ -68,6 +68,8 @@ export class WorkgroupEditComponent {
 
   applyGlobalSettings: boolean;
 
+  currentTab: string = 'globalSettings';
+
   /**
    * Model Reference for closing
    */
@@ -347,6 +349,10 @@ export class WorkgroupEditComponent {
   setBrowser(newBrowser) {
     this.browser = newBrowser;
     this.setEmulatorEnabled(false);
+  }
+
+  setCurrentTab(tabName: string): void {
+    this.currentTab = tabName;
   }
 
   // ------------------------------- EMULATOR --------------------------------

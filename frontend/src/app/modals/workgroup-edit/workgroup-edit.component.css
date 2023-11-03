@@ -16,6 +16,8 @@
 
 .modal-body.modal-xl {
     padding: 10px;
+    margin-bottom: 30px;
+    margin-top: 20px
 }
 
 input.wrongEmail {
@@ -162,3 +164,21 @@ th.mat-mdc-header-cell:first-of-type {
 #applyGlobalSettingsCheckbox {
     margin-left: 5px;
 }
+
+/* Zentriert die Tab-Liste im Container */
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Styling für inaktive Tabs */
+  .nav-link {
+    color: #6c757d; /* Grauton für inaktive Tabs */
+    margin: 5px;
+  }
+  
+  /* Styling für den aktiven Tab */
+  .nav-link.active {
+    color: black; 
+   
+  }
