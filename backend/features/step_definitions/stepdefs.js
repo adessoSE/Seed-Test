@@ -818,7 +818,7 @@ Then('So on element {string} the css property {string} is {string}', async funct
 
 Then('So the element {string} has the tool-tip {string}', async function toolTipIs(element, value) {
 	const world = this;
-	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[contains(@*, '${element}')]`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `\\*[@*='${element} and @role=tooltip]`, `//*[contains(@*, '${element}')]`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 	await Promise.any(promises)
