@@ -78,6 +78,15 @@ function getExamples(steps) {
 	return `${data}\n`;
 }
 
+// parse Steps from stepDefinition container to feature content
+async function parseSteps(steps) {
+	let data = '';
+	if (steps.given !== undefined) data += `${getSteps(steps.given, Object.keys(steps)[0])}\n`;
+	if (steps.when !== undefined) data += `${getSteps(steps.when, Object.keys(steps)[1])}\n`;
+	if (steps.then !== undefined) data += `${getSteps(steps.then, Object.keys(steps)[2])}\n`;
+	return data;
+}
+
 // Building feature file scenario-name-content
 function getScenarioContent(scenarios, storyID) {
 	let data = '';
@@ -132,8 +141,11 @@ function writeFile(story) {
 
 // Updates feature file based on _id
 async function updateFeatureFile(issueID) {
-	const result = await mongo.getOneStory(issueID);
-	if (result != null) writeFile(result);
+	const story = await mongo.getOneStory(issueID);
+	if (story != null) {
+		story.scenarios = await replaceRefBlocks(story.scenarios);
+		writeFile(story);
+	};
 }
 
 async function deleteFeatureFile(storyTitle, storyId) {
@@ -223,7 +235,6 @@ async function executeTest(req, mode, story) {
 		});
 	});
 }
-
 
 function scenarioPrep(scenarios, driver) {
 	const parameters = { scenarios: [] };
@@ -326,17 +337,48 @@ async function updateStoryTestStatus(storyId, storyLastTestStatus, scenarioStatu
 
 async function updateScenarioTestStatus(uploadedReport) {
 	try {
-		await mongo.updateScenarioStatus(uploadedReport.storyId, uploadedReport.scenarioId, uploadedReport.status);
+		let storyStatus = uploadedReport.status;
+		if (uploadedReport.status === true) {
+			const scenarios = await mongo.getOneStory(uploadedReport.storyId).then((story) => story.scenarios);
+			const updateIndex = scenarios.findIndex((scen) => scen.scenario_id === uploadedReport.scenarioId);
+			console.log(scenarios, storyStatus, updateIndex, uploadedReport.scenarioId);
+			scenarios[updateIndex].lastTestPassed = uploadedReport.status;
+			storyStatus = scenarios.every((scen) => !!scen.lastTestPassed === true);
+		}
+		updateStoryTestStatus(uploadedReport.storyId, storyStatus, [{ scenarioId: uploadedReport.scenarioId, status: uploadedReport.status }]);
 	} catch (e) {
-		console.log('Could not Update Scenario LastTestPassed.');
+		console.log('Could not Update Scenario LastTestPassed.', e);
 	}
 }
 
-
+async function replaceRefBlocks(scenarios) {
+	if (!scenarios.some((scen) => scen.hasRefBlock)) return scenarios;
+	const retScenarios = [];
+	for (const scen of scenarios) {
+		let stepdef = {};
+		// eslint-disable-next-line guard-for-in
+		for (const steps in scen.stepDefinitions) { // iterate over given, when, then
+			const promised = await scen.stepDefinitions[steps].map(async (elem) => {
+				if (!elem._blockReferenceId) return [elem];
+				return mongo.getBlock(elem._blockReferenceId).then((block) => {
+					// Get an array of the values of the given, when, then and example properties
+					let steps = Object.values(block.stepDefinitions);
+					// Flatten array
+					return steps.flat(1);
+				});
+			});
+			stepdef[steps] = await Promise.all(promised).then((resSteps) => resSteps.flat(1));
+		}
+		scen.stepDefinitions = stepdef;
+		retScenarios.push(scen);
+	}
+	return retScenarios;
+}
 
 async function exportSingleFeatureFile(_id) {
 	const dbStory = mongo.getOneStory(_id);
 	return dbStory.then(async (story) => {
+		story.scenarios = await replaceRefBlocks(story.scenarios);
 		writeFile(story);
 		return pfs.readFile(`./features/${this.cleanFileName(story.title + story._id.toString())}.feature`, 'utf8')
 			.catch((err) => console.log('couldn`t read File'));
@@ -348,6 +390,7 @@ async function exportProjectFeatureFiles(repoId, versionId) {
 	return dbStories.then(async (stories) => {
 		const zip = new AdmZip();
 		return Promise.all(stories.map(async (story) => {
+			story.scenarios = await replaceRefBlocks(story.scenarios);
 			writeFile(story);
 			const postfix = versionId ? `-v${versionId}` : '';
 			const filename = this.cleanFileName(story.title + story._id.toString());

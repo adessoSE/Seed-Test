@@ -132,6 +132,12 @@ import { StoryService } from './Services/story.service';
 
     ) {
       super(toastrService, toastPackage);
+      this.nameComponent = this.apiService.getNameOfComponent();
+      if (this.nameComponent == 'unpackBlock') {
+        this.deleteString = 'Unpack';
+      }else {
+        this.deleteString = 'Delete';
+      }
     }
     
     /**
@@ -140,7 +146,6 @@ import { StoryService } from './Services/story.service';
      */
     deleteToast(event: Event){
         event.stopPropagation();
-        this.nameComponent = this.apiService.getNameOfComponent();
         switch(this.nameComponent){
           case 'scenario': this.scenarioService.deleteScenarioEmitter();
           break;
@@ -151,6 +156,12 @@ import { StoryService } from './Services/story.service';
           case 'repository': this.projectService.deleteRepositoryEmitter();
           break;
           case 'block': this.blockService.deleteBlockEmitter();
+          break;
+          case 'unpackBlock':{
+            const blockToUnpack = this.blockService.block;
+            this.blockService.unpackBlockEmitter(blockToUnpack);
+          }
+          break;
         }
         this.remove();
     }

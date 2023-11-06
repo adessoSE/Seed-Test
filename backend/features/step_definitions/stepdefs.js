@@ -755,6 +755,48 @@ Then(
 	}
 );
 
+Then('So the picture {string} has the name {string}', async function checkPicture(picture, name) {
+	const world = this;
+	const identifiers = [`//picture[source[contains(@srcset, '${picture}')] or img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]]`, `//img[contains(@src, '${picture}') or contains(@alt, '${picture}') or @id='${picture}' or contains(@title, '${picture}')]`, `${picture}`];
+	const promises = [];
+	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	const domain = (await driver.getCurrentUrl()).split('/').slice(0, 3).join('/');
+	let finSrc = '';
+	await Promise.any(promises)
+		.then(async (elem) => {
+			if (await elem.getTagName() === 'picture') {
+				const childSourceElems = await elem.findElements(By.xpath('.//source'));
+				const elementWithSrcset = await childSourceElems.find(async (element) => {
+					const srcsetValue = await element.getAttribute('srcset');
+					return srcsetValue && srcsetValue.includes(name);
+				});
+				finSrc = await elementWithSrcset.getAttribute('srcset');
+			}
+			const primSrc = await elem.getAttribute('src');
+			const secSrc = await elem.getAttribute('srcset');
+			if (!finSrc && primSrc && primSrc.includes(name)) finSrc = primSrc;
+			if (!finSrc && secSrc && secSrc.includes(name)) finSrc = secSrc;
+			finSrc = finSrc.split(' ').filter((substring) => substring.includes(name));
+		})
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
+		});
+		await fetch(domain + finSrc, { method: 'HEAD' })
+		.then((response) => {
+			if (!response.ok) throw Error(`Image ${finSrc} not Found`);
+		})
+		.catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(`Image availability check: could not reach image source ${domain + finSrc} `, e);
+		});
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
 // Search if a text isn't in html code
 Then('So I can\'t see the text: {string}', async function checkIfTextIsMissing(expectedText) {
 	const world = this;
@@ -787,8 +829,8 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
 	await Promise.any(promises)
-		.then((elem) => {
-			expect(elem.isSelected()).to.equal(checked);
+		.then(async (elem) => {
+			expect(await elem.isSelected()).to.equal(checked);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {

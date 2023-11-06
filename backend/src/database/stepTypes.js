@@ -463,6 +463,16 @@ function stepDefs() {
 		type: 'Tool-Tip',
 		pre: 'So the element',
 		mid: 'has the tool-tip ',
+    values: [
+			'',
+			''
+		]
+	}, {
+		id: 3,
+		stepType: 'then',
+		type: 'Check Image',
+		pre: 'So the picture',
+		mid: 'has the name ',
 		values: [
 			'',
 			''

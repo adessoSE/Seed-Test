@@ -14,6 +14,9 @@
     display: flex;
     justify-content: center;
 }
+.disabled {
+    color: gray !important;
+}
 
 .blockButton{
     border: none;
@@ -78,7 +81,7 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
 }
 .previewContainer label{
     cursor: text;
-
+    word-break: break-word;
 }
 .previewContainer div{
     cursor: default;
@@ -100,7 +103,23 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type{
     margin-right: 5px;
 }
 
-.mat-mdc-table{
+#addBlockFooter{
+    justify-content: space-between;
+}
+
+
+#addAsReferenceLabel{
+    margin-right: 5px;
+    margin-top: 3px
+}
+
+#addAsReferenceCheckbox{
+    margin-left: 5px;
+    margin-right: 10px;
+    margin-top: 3px
+}
+
+.mat-table{
     font-family: Klavika, sans-serif;
 }
 

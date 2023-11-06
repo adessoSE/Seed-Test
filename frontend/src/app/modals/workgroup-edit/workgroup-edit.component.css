@@ -106,3 +106,12 @@ td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type, th.mat-mdc-
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
 }
+
+::ng-deep .mat-mdc-select-arrow-wrapper{
+    transform: inherit !important;
+}
+
+::ng-deep #Workgroup_Owner .mat-mdc-floating-label {
+    top: 25px !important;
+    font-size: 16px !important;
+}
