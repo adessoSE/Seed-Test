@@ -1,5 +1,5 @@
 .grid {
-  /*display: grid;
+/*display: grid;
   grid-template-columns: 100%;
   grid-template-rows: auto;
   grid-template-areas: "storyHeader" "storyList";*/
@@ -10,8 +10,10 @@
   padding-bottom: 1px;
   box-shadow: 0px 5px 15px rgba(0,0,0,0.08);
   background-color: var(--white);
-  overflow-y: scroll;
-  max-height: 88vmin;
+  margin-bottom: 20px;
+  height: 88vmin;
+  display: block;
+
 }
 
 .darkTheme.grid {
@@ -21,6 +23,18 @@
 
 .uk-background-muted {
   background-color: #f8f8f8;
+}
+mat-tab-group{
+  height: calc(100% - 65px);
+}
+
+.itemListDiv {
+  height: calc(100% - 125px);
+}
+
+.itemListDiv>ul{
+  height: 100%;
+  overflow: scroll;
 }
 
 .darkTheme.uk-background-muted {
@@ -330,10 +344,8 @@ a.storyListLink:hover{
   height: 19px;
 }
 
-::-webkit-scrollbar-thumb,
-.darkTheme::-webkit-scrollbar-thumb {
+.darkTheme ::-webkit-scrollbar-corner{
   background: none !important;
-  box-shadow: none !important;
 }
 .tab-icon{
   color: var(--brown-grey);
