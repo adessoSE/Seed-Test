@@ -2013,9 +2013,22 @@ export class BaseEditorComponent {
 
 
   //TODO
-  //darkmode, handhabung felder vergleichen (str v), multiple scenario
+  //multiple scenario
   //beim hinzufügen von blöcken oder kopierten wird nicht gehighlighted
-  //zentrale Bloeke
+  //zentrale Bloeke -> geht aber in ansicht ohne feld schwarz
+  //higlighting start @@ und ende whitespace oder zeile
+
+  //span.setAttribute('class', 'regexStyling'); -> wie funktioniert darkmode
+  /*.regexStyling {
+  color: var(--ocean-blue);
+  font-weight: bold;
+}
+
+.darkTheme .regexStyling em{
+  color: var(--light-blue) !important;
+  font-weight: bold;
+}*/
+
 
   /**
    * Add value and highlight regex, Style regex in value and give value to addToValue() function
@@ -2044,10 +2057,6 @@ export class BaseEditorComponent {
       if(!initialCall){
         this.initialRegex = false;
       }
-
-      // Clear previous styling
-      this.renderer.setStyle(textField, 'color', '');
-      this.renderer.setStyle(textField, 'fontWeight', '');
 
       var regexDetected = false;
 

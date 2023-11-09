@@ -391,4 +391,148 @@ export class ExampleTableComponent implements OnInit {
       this.selectedScenario.stepDefinitions.example[i].values = newData[i-1]
     }
   }
+
+  private highlightMatches(el, columnIndex, rowIndex, initialCall) {
+    const regex = /@@[^ ]+/g;
+    const inputValue: string = el.textContent;
+    const offset = this.getCaretCharacterOffsetWithin(el)
+
+    if(!initialCall){
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = inputValue
+    }
+    const trailingWhitepace = inputValue.slice(-1) == ' '
+    console.log('inputValue', el.innerHTML.slice(-1))
+    console.log('textContent',el.textContent.slice(-1))
+    console.log(trailingWhitepace)
+      
+    const highlightedText = inputValue.replace(regex, (match) => `<span style="color: blue">${match}</span>`);
+
+    const textIsRegex = regex.test(inputValue);
+    console.log(inputValue)
+    //if (trailingWhitepace){
+      //highlightedText.concat(' ')
+    //}
+    console.log(highlightedText)
+    el.innerHTML = highlightedText
+    console.log(el)
+
+    /*var regexDetected = false;
+    let textIsRegex = false;
+
+      const matches: RegExpExecArray[] = [];
+      let match: RegExpExecArray | null;
+  
+      while ((match = regex.exec(inputValue)) !== null) {
+        matches.push(match);
+        textIsRegex = true;
+      }
+  
+      const fragment = document.createDocumentFragment();
+      let currentIndex = 0;
+  
+      // Create span with style for every regex match
+      for (const match of matches) {
+        const nonRegexPart = inputValue.substring(currentIndex, match.index);
+        const matchText = match[0];
+  
+        if (nonRegexPart) {
+          const nonRegexNode = document.createTextNode(nonRegexPart);
+          fragment.appendChild(nonRegexNode);
+        }
+  
+        const span = document.createElement('span');
+          regexDetected = true;
+          span.style.color = 'var(--ocean-blue)';
+          span.style.fontWeight = 'bold';
+        
+        span.appendChild(document.createTextNode(matchText));
+        fragment.appendChild(span);
+  
+        currentIndex = match.index + matchText.length;
+      }
+  
+      const remainingText = inputValue.substring(currentIndex);
+      if (remainingText) {
+        const remainingTextNode = document.createTextNode(remainingText);
+        fragment.appendChild(remainingTextNode);
+      }
+  
+      while (el.firstChild) {
+        el.removeChild(el.firstChild);
+      }
+  
+      el.appendChild(fragment);
+
+      console.log(el)*/
+
+    // Set cursor to correct position
+    if(!initialCall){
+      if (textIsRegex){ //maybe not needed
+        const selection = window.getSelection();
+        selection.removeAllRanges()
+
+        // Check in which node the cursor is and set new offsetIndex to position in that node
+        let length = 0;
+        let preLength = 0;
+        let node=0;
+        let offsetIndex=0;
+        for(let i = 0; i<= el.childNodes.length; i++) {
+          length = el.childNodes[i].textContent.length
+          if (preLength+length>=offset){
+            offsetIndex = offset-preLength
+            node=i
+            break;
+          }
+          else {
+            preLength = preLength+length
+          }
+        }
+
+        requestAnimationFrame(() => {
+        if (el.childNodes[node].nodeType == 3){ // in case childNode is text
+          selection.setBaseAndExtent(el.childNodes[node], offsetIndex, el.childNodes[node], offsetIndex)
+        } else { // in case childNode is span, childNode of span is text
+          selection.setBaseAndExtent(el.childNodes[node].childNodes[0], offsetIndex, el.childNodes[node].childNodes[0], offsetIndex)
+        }
+      })
+      } else {
+        requestAnimationFrame(() => {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.setBaseAndExtent(el.firstChild, offset, el.firstChild, offset)
+        })
+      }
+      }
+
+    
+  }
+
+  /**
+     * Helper for Regex Highlighter, extract current cursor position
+     * @param element HTMLElement
+     * @returns num, offset of cursor position
+     */
+  getCaretCharacterOffsetWithin(element) {
+    var caretOffset = 0;
+    var doc = element.ownerDocument || element.document;
+    var win = doc.defaultView || doc.parentWindow;
+    var sel;
+    if (typeof win.getSelection != "undefined") {
+        sel = win.getSelection();
+        if (sel.rangeCount > 0) {
+            var range = win.getSelection().getRangeAt(0);
+            var preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(element);
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            caretOffset = preCaretRange.toString().length;
+        }
+    } else if ( (sel = doc.selection) && sel.type != "Control") {
+        var textRange = sel.createRange();
+        var preCaretTextRange = doc.body.createTextRange();
+        preCaretTextRange.moveToElementText(element);
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        caretOffset = preCaretTextRange.text.length;
+    }
+    return caretOffset;
+}
 }

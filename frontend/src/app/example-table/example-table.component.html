@@ -36,15 +36,15 @@ cdkDropListData="data"
 					<input type="checkbox" class="checkbox" id="{{'exampleCheckbox_' + index}}" (change)="this.checkExample($event, rowIndex)" [checked]="this.selectedScenario.stepDefinitions.example[rowIndex + 1].checked">
 					&nbsp;&nbsp;&nbsp;&nbsp;<p class="numbering">{{rowIndex+1}}.</p>
 				</div>
-				<editable *ngIf="!first" (update)="updateField(columnIndex, rowIndex, column)">
-						<ng-template viewMode>
-							{{element[column]}}
-							<label *ngIf="element[column]===''" id="nullValue">[--null--]</label>
-						</ng-template>
-						<ng-template editMode >
-							<input [formControl]="getControl(rowIndex, column)" focusable editableOnEnter>
-						</ng-template>
-				</editable> 
+				<div *ngIf="!first">
+						<!--ng-template viewMode-->
+							<div class="contentEditableElement" contenteditable="true" #example_input (input)="highlightMatches(example_input, columnIndex, rowIndex, false)">{{element[column]}}</div>
+							<!--label *ngIf="element[column]===''" id="nullValue">[--null--]</label-->
+						<!--/ng-template-->
+						<!--ng-template editMode >
+							<input [formControl]="getControl(rowIndex, column)" focusable editableOnEnter regexHighlight="@@[^ ]+">
+						</ng-template-->
+					</div> 
 			</td>
 	</ng-container>			
 	
