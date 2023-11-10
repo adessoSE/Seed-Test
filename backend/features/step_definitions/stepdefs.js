@@ -872,7 +872,7 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 	await Promise.any(promises)
 		.then(async (elem) => {
 			const actual = await elem.getAttribute('title');
-			expect(value).to.equal(actual);
+			expect(actual).to.equal(value);
 		}).catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
