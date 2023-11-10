@@ -444,7 +444,8 @@ function calcDate(value) {
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
 	const world = this;
-	const identifiers = [`//*[@${label}='${radioname}']`, `//*[contains(@${label}, '${radioname}')]`];
+	const identifiers = [`//input[@${label}='${radioname}']/following-sibling::label[1]`, `//input[contains(@${label}, '${radioname}')]/following-sibling::label[1]`, `//label[contains(text(), '${label}')]/following::input[@value='${radioname}']/following-sibling::label[1]
+	`, `//input[@name='${label}' and @value='${radioname}']/following-sibling::label[1]`, `//input[contains(@*,'${label}')]/following-sibling::label[contains(text(), '${radioname}')]`, `${radioname}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
