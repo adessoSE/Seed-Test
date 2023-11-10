@@ -462,12 +462,18 @@ When('I select {string} from the selection {string}', async function clickRadioB
 });
 
 // Select an Option from a dropdown-menu
-When('I select the option {string} from the drop-down-menue {string}', async (value, dropd) => {
-	let world;
+When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
+	const world = this;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
 		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`];
-	const promises = [];
-	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	const promises = identifiers.map((idString) =>
+		driver.wait(
+			until.elementLocated(By.xpath(idString)),
+			searchTimeout,
+			`Timed out after ${searchTimeout} ms`,
+			100
+		)
+	);
 
 	await Promise.any(promises)
 		.then((elem) => elem.click())
