@@ -855,7 +855,13 @@ Then('So on element {string} the css property {string} is {string}', async funct
 				const hex = `#${r}${g}${b}`;
 				expect(value.toString()).to.equal(hex.toString(), `actual ${hex} does not match ${value}`);
 			} else expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`);
+		}).catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
 		});
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 Then('So the element {string} has the tool-tip {string}', async function toolTipIs(element, value) {
@@ -867,7 +873,14 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 		.then(async (elem) => {
 			const actual = await elem.getAttribute('title');
 			expect(value).to.equal(actual);
+		}).catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found (check tool-tip).`);
+			throw Error(e);
 		});
+		await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Closes the webdriver (Browser)
