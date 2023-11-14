@@ -63,8 +63,8 @@ router.post('/resetpassword', async (req, res) => {
 		try {
 			await nodeMail.sendResetLink(thisUser.email, id);
 			res.status(200)
-			.json();
-		} catch(err) {
+				.json();
+		} catch (err) {
 			res.status(500).send(err.message);
 		}
 	} catch (error) {
@@ -72,7 +72,7 @@ router.post('/resetpassword', async (req, res) => {
 			.json(error);
 	} else {
 		console.log('UserRouter/ResetPassword: der Benutzer konnte nicht in der Datenbank gefunden werden!');
-		res.status(404).send("No user found with the given email adress!");
+		res.status(404).send('No user found with the given email adress!');
 	}
 });
 
@@ -167,7 +167,7 @@ router.post('/register', async (req, res) => {
 
 // logout for user
 router.get('/logout', async (req, res) => {
-	req.logout({}, () => {});
+	req.logout({}, () => { });
 	res.clearCookie('connect.sid', { path: '/' });
 	res.status(200).send({ status: 'success' });
 });
@@ -187,6 +187,7 @@ router.get('/repositories', (req, res) => {
 		githubId = 0;
 	}
 	// get repositories from individual sources
+	console.log(req);
 	Promise.all([
 		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
 		projectMng.ownRepositories(req.user._id, githubId, githubName, token),
@@ -257,7 +258,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	const { source } = req.query;
 	// get GitHub Repo / Projects
 	if (source === 'github' || !source) try {
-		if (!userMng.checkValidGithub(req.query.githubName, req.query.repository))console.log('Username or Reponame not valid');
+		if (!userMng.checkValidGithub(req.query.githubName, req.query.repository)) console.log('Username or Reponame not valid');
 
 		const githubName = (req.user) ? req.query.githubName : process.env.TESTACCOUNT_NAME;
 		const githubRepo = (req.user) ? req.query.repository : process.env.TESTACCOUNT_REPO;
@@ -310,7 +311,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 	} catch (err) {
 		res.status(503).send(err.message);
 
-	// get Jira Repo / Projects
+		// get Jira Repo / Projects
 	} else if (source === 'jira' && typeof req.user !== 'undefined' && typeof req.user.jira !== 'undefined' && req.query.projectKey !== 'null') {
 		// prepare request
 		const { projectKey } = req.query;
@@ -318,7 +319,7 @@ router.get('/stories', async (req, res) => { // put into ticketManagement.ts
 		const clearPass = jiraTracker.decryptPassword(req.user.jira);
 		const { AccountName, AuthMethod, Host } = req.user.jira;
 		let authString = `Bearer ${clearPass}`;
-		if (AuthMethod === 'basic') { 
+		if (AuthMethod === 'basic') {
 			const auth = Buffer.from(`${AccountName}:${clearPass}`).toString('base64');
 			authString = `Basic ${auth}`;
 		}
@@ -438,9 +439,9 @@ router.get('/callback', (req, res) => {
 	const TOKEN_URL = 'https://github.com/login/oauth/access_token';
 	const params = new URLSearchParams();
 	if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
-		console.log("To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.");
-		res.status(501).send("No GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET provided.")
-		return
+		console.log('To use github authentication please provide your GITHUB_CLIENT_ID and your GITHUB_CLIENT_SECRET. You can see how to in the README.');
+		res.status(501).send('No GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET provided.');
+		return;
 	}
 
 	params.append('client_id', process.env.GITHUB_CLIENT_ID);
@@ -467,7 +468,7 @@ router.get('/callback', (req, res) => {
 
 router.post('/log', (req, res) => {
 	const stream = fs.createWriteStream('./logs/front.log', { flags: 'a' });
-	stream.write(req.body.message + JSON.stringify(req.body.additional) + '\n');
+	stream.write(`${req.body.message + JSON.stringify(req.body.additional)}\n`);
 	stream.close();
 	res.status(200).json('logged');
 });

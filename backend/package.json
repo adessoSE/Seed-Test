@@ -2,7 +2,7 @@
   "name": "seed-test-backend",
   "version": "1.6.2",
   "engines": {
-    "node": "18.13.0"
+    "node": "^18.13.0"
   },
   "scripts": {
     "start": "tsc && node src/server.js",
@@ -32,7 +32,7 @@
     "express-session": "^1.17.2",
     "geckodriver": "^3.0.1",
     "moment": "^2.29.4",
-    "mongodb": "^3.7.3",
+    "mongodb": "^6.2.0",
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.5",
     "passport": "^0.6.0",
@@ -69,6 +69,8 @@
       "<rootDir>/spec/serverHelper.spec.js",
       "<rootDir>/node_modules/"
     ],
-    "setupFiles": ["./spec/setupTest.js"]
+    "setupFiles": [
+      "./spec/setupTest.js"
+    ]
   }
 }
