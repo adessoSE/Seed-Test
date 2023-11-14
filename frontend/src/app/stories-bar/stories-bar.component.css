@@ -32,6 +32,10 @@ mat-tab-group{
   height: calc(100% - 125px);
 }
 
+.itemListDivNotCustom{
+  height: calc(100% - 110px);
+}
+
 .itemListDiv>ul{
   height: 100%;
   overflow: scroll;

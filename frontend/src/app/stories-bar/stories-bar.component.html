@@ -61,7 +61,7 @@
         </mat-form-field>
       </div>
       <hr>
-      <div [ngClass]="{'itemListDiv': this.stories.length !== 0}">    
+      <div [class.itemListDiv]="this.stories?.length !== 0 && isCustomStory" [class.itemListDivNotCustom]="this.stories?.length !== 0 && !isCustomStory">   
         <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
           <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag > 
             <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" >
@@ -116,7 +116,7 @@
           <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>  
       </div>
       <hr>
-      <div [ngClass]="{'itemListDiv': this.groups.length !== 0}">
+      <div [class.itemListDiv]="this.groups?.length !== 0 && this.groups?.length !== null">
         <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
           <li *ngFor="let g of getSortedGroups(); let i = index " class="{{liGroupList[i]}}" cdkDrag>
             <div id="groupList" class=" Mediumaccordeon2 uk-accordion-title" (click)="selectFirstStoryOfGroup(g)">
