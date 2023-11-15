@@ -465,7 +465,7 @@ When('I select {string} from the selection {string}', async function clickRadioB
 When('I select the option {string} from the drop-down-menue {string}', async function (value, dropd) {
 	const world = this;
 	const identifiers = [`//*[@*='${dropd}']/option[text()='${value}']`, `//label[contains(text(),'${dropd}')]/following::button[text()='${value}']`,
-		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `${dropd}`];
+		`//label[contains(text(),'${dropd}')]/following::span[text()='${value}']`, `//*[contains(text(),'${dropd}')]/following::*[contains(text(),'${value}']`, `//*[@role='listbox']//*[self::li[@role='option' and text()='${value}'] or parent::li[@role='option' and text()='${value}']]`, `${dropd}`];
 	const promises = identifiers.map((idString) =>
 		driver.wait(
 			until.elementLocated(By.xpath(idString)),
