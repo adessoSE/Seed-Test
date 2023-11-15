@@ -187,7 +187,6 @@ router.get('/repositories', (req, res) => {
 		githubId = 0;
 	}
 	// get repositories from individual sources
-	console.log(req);
 	Promise.all([
 		projectMng.starredRepositories(req.user._id, githubId, githubName, token),
 		projectMng.ownRepositories(req.user._id, githubId, githubName, token),
