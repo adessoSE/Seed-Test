@@ -266,12 +266,7 @@ function replace(story, collection) {
 		storySource: story.storySource
 	};
 	story._id = new ObjectId(story._id);
-	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(filter, story, (err, result) => {
-			if (err) reject(err);
-			else resolve(result.value);
-		});
-	});
+	return collection.findOneAndReplace(filter, story);
 }
 
 async function disconnectGithub(user) {
@@ -283,12 +278,7 @@ async function disconnectGithub(user) {
 
 function replaceUser(newUser, collection) {
 	const myObjt = { _id: new ObjectId(newUser._id) };
-	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(myObjt, newUser, (err, result) => {
-			if (err) reject(err);
-			else resolve(result.value);
-		});
-	});
+	return collection.findOneAndReplace(myObjt, newUser);
 }
 
 async function updateStory(updatedStuff) {

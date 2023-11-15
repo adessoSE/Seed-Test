@@ -198,7 +198,7 @@ async function registerGithubUser(user) {
  */
 function replaceUser(newUser, collection) {
 	const myObjt = { _id: new ObjectId(newUser._id) };
-	return collection.findOneAndReplace(myObjt, newUser).then((res) => res.value);
+	return collection.findOneAndReplace(myObjt, newUser);
 }
 
 async function updateGithubToken(objId, updatedToken) {
@@ -242,18 +242,11 @@ async function mergeGithub(userId, login, id) {
  *
  * @returns updated UserObject
  * @param storyId
- * @param storySource
  * @param collection
  */
-// TODO: storySource wont be needed anymore
 function findStory(storyId, collection) {
 	const id = new ObjectId(storyId);
-	return new Promise((resolve, reject) => {
-		collection.findOne({ _id: id }, (err, result) => {
-			if (err) reject(err);
-			else resolve(result);
-		});
-	});
+	return collection.findOne({ _id: id });
 }
 
 /**
@@ -267,12 +260,7 @@ function replace(story, collection) {
 		_id: new ObjectId(story._id.toString())
 	};
 	story._id = new ObjectId(story._id);
-	return new Promise((resolve, reject) => {
-		collection.findOneAndReplace(filter, story, (err, result) => {
-			if (err) reject(err);
-			else resolve(result.value);
-		});
-	});
+	return collection.findOneAndReplace(filter, story);
 }
 
 async function disconnectGithub(user) {
@@ -445,7 +433,7 @@ async function updateBackground(storyId, updatedBackground) {
 	try {
 		const db = dbConnection.getConnection();
 		const collection = await db.collection(storiesCollection);
-		return collection.findOneAndUpdate({ _id: new ObjectId(storyId) }, { $set: { background: updatedBackground } }, { returnDocument: 'after', upsert: true }).then((res) => res.value);
+		return collection.findOneAndUpdate({ _id: new ObjectId(storyId) }, { $set: { background: updatedBackground } }, { returnDocument: 'after', upsert: true });
 	} catch (e) {
 		console.log(`ERROR in updateBackground: ${e}`);
 		throw e;
@@ -612,7 +600,6 @@ async function updateScenario(storyId, updatedScenario) {
 				arrayFilters: [{ 'it.scenario_id': updatedScenario.scenario_id }], returnDocument: 'after', upsert: true, projection: { scenarios: true }
 			}
 		)// Options
-			.then((res) => res.value)
 			.then((result) => result.scenarios.find((scen) => scen.scenario_id == updatedScenario.scenario_id));
 	} catch (e) {
 		console.log(`ERROR in updateScenario: ${e}`);
