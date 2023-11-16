@@ -189,7 +189,7 @@ Given('I take a screenshot. Optionally: Focus the page on the element {string}',
 	const world = this;
 	await driver.wait(async () => driver.executeScript('return document.readyState')
 		.then(async (readyState) => readyState === 'complete'));
-	const identifiers = [`//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
+	const identifiers = [`//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `//*[contains(text(),'${element}')]`, `${element}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.executeScript('arguments[0].scrollIntoView(true);', driver.findElement(By.xpath(idString))));
 
@@ -884,9 +884,9 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 	await driver.sleep(100 + currentParameters.waitTime);
 });
 
-Then('I Hover over {string} so I can see the text {}', async function hoverElem(element, value) {
+Then('I Hover over {string} so I can see the text {string}', async function hoverElem(element, value) {
 	const world = this;
-	const identifiers = [`//*[@id='${element}']`, `//*[contains(@id,'${element}')]`, `//*[text()='${element}' or @*='${element}']`, `//*[contains(text(),'${element}')]`, `${element}`]
+	const identifiers = [`//*[@id='${element}']`, `//*[contains(@id,'${element}')]`, `//*[text()='${element}' or @*='${element}']`, `//*[contains(text(),'${element}')]`, `${element}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 	await Promise.any(promises)
