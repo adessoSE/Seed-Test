@@ -174,6 +174,7 @@ export class ExampleTableComponent implements OnInit {
     this.isDark = this.themeService.isDarkMode();
     this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
       this.isDark = this.themeService.isDarkMode();
+      this.regexHightlightOnInit();
   });
   }
  
@@ -189,12 +190,7 @@ export class ExampleTableComponent implements OnInit {
 
   ngDoCheck(){
     if(this.initialRegex){
-      this.regexInStory = false
-      if(this.example_input){
-        this.example_input.forEach(in_field => {  
-        this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
-        });
-      }
+      this.regexHightlightOnInit();
     }
   }
 
@@ -302,12 +298,7 @@ export class ExampleTableComponent implements OnInit {
     } else {
       this.exampleThere = false;
     }
-    this.regexInStory = false
-      if(this.example_input){
-        this.example_input.forEach(in_field => {  
-          this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
-        });
-      }
+    this.regexHightlightOnInit();
   }
 
   /**
@@ -433,8 +424,20 @@ export class ExampleTableComponent implements OnInit {
     if(!initialCall){
       this.initialRegex = false;
     }
+      
+    let highlightedText;
+    if(this.isDark){
+      highlightedText = inputValue.replace(regex, (match) => `<span style="color: white; font-weight: bold">${match}</span>`);
+    } else{
+      highlightedText = inputValue.replace(regex, (match) => `<span style="color: var(--ocean-blue); font-weight: bold">${match}</span>`);
+    }
 
-    var regexDetected = false;
+    const textIsRegex = regex.test(inputValue);
+    const regexDetected = regex.test(inputValue);
+    el.innerHTML = highlightedText
+
+
+    /*var regexDetected = false;
     let textIsRegex = false;
 
       const matches: RegExpExecArray[] = [];
@@ -479,7 +482,7 @@ export class ExampleTableComponent implements OnInit {
         el.removeChild(el.firstChild);
       }
   
-      el.appendChild(fragment);
+      el.appendChild(fragment);*/
 
       if(initialCall && regexDetected) {
         this.regexInStory = true
@@ -558,5 +561,17 @@ export class ExampleTableComponent implements OnInit {
         caretOffset = preCaretTextRange.text.length;
     }
     return caretOffset;
-}
+  }
+
+  /**
+     * Helper for inital hightlighting
+     */
+  regexHightlightOnInit(){
+    this.regexInStory = false
+      if(this.example_input){
+        this.example_input.forEach(in_field => {  
+        this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
+        });
+      }
+  }
 }

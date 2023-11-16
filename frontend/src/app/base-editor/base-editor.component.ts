@@ -1,6 +1,6 @@
 import { ApiService } from 'src/app/Services/api.service';
 import { CdkDragDrop, CdkDragStart, DragRef, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, Output, Renderer2, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AddBlockFormComponent } from '../modals/add-block-form/add-block-form.component';
 import { NewStepRequestComponent } from '../modals/new-step-request/new-step-request.component';
@@ -21,6 +21,7 @@ import { BackgroundService } from '../Services/background.service';
 import { InfoWarningToast } from '../info-warning-toast';
 import { EditBlockComponent } from '../modals/edit-block/edit-block.component';
 import { DeleteToast } from '../delete-toast';
+import { ThemingService } from '../Services/theming.service';
 
 @Component({
   selector: 'app-base-editor',
@@ -172,6 +173,8 @@ export class BaseEditorComponent {
   regexInStory: boolean = false;
   initialRegex: boolean = true;
 
+  @Input() isDark: boolean;
+
   /**
     * Subscribtions for all EventEmitter
     */
@@ -181,6 +184,7 @@ export class BaseEditorComponent {
   scenarioChangedObservable: Subscription;
   backgroundChangedObservable: Subscription;
   copyExampleOptionObservable: Subscription;
+  themeObservable: Subscription;
 
 
   constructor(public toastr: ToastrService,
@@ -189,7 +193,7 @@ export class BaseEditorComponent {
     public scenarioService: ScenarioService,
     public backgroundService: BackgroundService,
     public apiService: ApiService,
-    private renderer: Renderer2) {}
+    public themeService: ThemingService) {}
 
   ngOnInit(): void {
     this.addBlocktoScenarioObservable = this.blockService.addBlockToScenarioEvent.subscribe(block => {
@@ -237,7 +241,12 @@ export class BaseEditorComponent {
           this.insertStepsWithoutExamples()
         }
       }
-  });  
+    });
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
+      this.isDark = this.themeService.isDarkMode();
+      this.regexHightlightOnInit();
+    });  
   }
 
   ngOnDestroy(): void {
@@ -2047,8 +2056,13 @@ export class BaseEditorComponent {
         const span = document.createElement('span');
         if(0==valueIndex && regexSteps.includes(stepPre)){
           regexDetected = true;
-          span.style.color = 'var(--ocean-blue)';
-          span.style.fontWeight = 'bold';
+          if(this.isDark){
+            span.style.color = 'white';
+            span.style.fontWeight = 'bold';
+          } else{
+            span.style.color = 'var(--ocean-blue)';
+            span.style.fontWeight = 'bold';
+          }
         }
         span.appendChild(document.createTextNode(matchText));
         fragment.appendChild(span);
