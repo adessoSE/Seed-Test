@@ -248,6 +248,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     addBlockFormSubmit() {
       this.blockService.addBlockToScenario(this.selectedBlock, this.correspondingComponent, this.addAsReference);
       delete this.addAsReference;
+      delete this.selectedBlock;
+      this.stepList = [];
       this.modalReference.close();
     }
     
@@ -259,10 +261,13 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
         if(this.newblockName == undefined){//if user has not entered anything, name saves without changes
           this.newblockName = this.selectedBlock.name;
         } else{
-          this.selectedBlock.name = this.newblockName;        
+          this.selectedBlock.name = this.newblockName;    
           this.blockService
           .updateBlock(this.selectedBlock)
           .subscribe(_ => {
+            if(this.selectedBlock.usedAsReference){
+              this.blockService.updateNameRefEmitter(this.selectedBlock);
+            }
             this.updateBlocksEventEmitter();
             this.toastr.success('successfully saved', 'Block');
           });
@@ -291,6 +296,8 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
     }
     closeModal(){
       delete this.addAsReference;
+      delete this.selectedBlock;
+      this.stepList = [];
       this.modalReference.close();
     }
   }

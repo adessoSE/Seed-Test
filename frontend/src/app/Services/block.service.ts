@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../Services/api.service';
 import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
-import {catchError, tap} from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { Story } from '../model/Story';
 import { StepType } from '../model/StepType';
 import { StoryService } from './story.service';
@@ -17,7 +17,7 @@ import { Scenario } from '../model/Scenario';
   providedIn: 'root'
 })
 export class BlockService {
-  
+
   /**
   * @ignore
   */
@@ -47,12 +47,19 @@ export class BlockService {
    * Event emitter to unpack Block
    */
   public unpackBlockEvent = new EventEmitter();
-
-   /**
-   * Stores an array of references blocks, before the reference is deleted
+  /**
+   * Event emitter to update reference Block name
    */
-  referencesBlocks: Block[] = [];
+  public updateNameRefEvent = new EventEmitter();
 
+  /**
+  * Stores an array of references blocks, before the reference is deleted
+  */
+  referencesBlocks: Block[] = [];
+  /**
+   * Scenarios to update when reference block is completely deleted
+   */
+  scenariosToUpdate: Scenario[];
   referenceStories: Story[];
   referenceScenarios: Scenario[];
   block: Block;
@@ -71,19 +78,26 @@ export class BlockService {
   updateBlocksEmitter() {
     this.updateBlocksEvent.emit();
   }
-  
+
   /**
   * Emits the delete block in blocks
   */
   public deleteBlockEmitter() {
     this.deleteBlockEvent.emit();
-  } 
+  }
   /**
   * Emits the unpack block event
   * @param block
   */
   public unpackBlockEmitter(block) {
     this.unpackBlockEvent.emit(block);
+  }
+  /**
+  * Emits the update a reference block name event
+  * @param block
+  */
+  public updateNameRefEmitter(block) {
+    this.updateNameRefEvent.emit(block);
   }
   /**
   * Emits the checking stories for references event 
@@ -107,11 +121,11 @@ export class BlockService {
   */
   getBlocks(repoId: string): Observable<Block[]> {
     const str = this.apiService.apiServer + '/block/getBlocks/' + repoId;
-    return this.http.get<Block[]>(str,  ApiService.getOptions())
-    .pipe(tap(_ => {
-      //
-    }),
-    catchError(this.apiService.handleError));
+    return this.http.get<Block[]>(str, ApiService.getOptions())
+      .pipe(tap(_ => {
+        //
+      }),
+        catchError(this.apiService.handleError));
   }
   /**
   * Updates a block
@@ -119,13 +133,13 @@ export class BlockService {
   * @param block
   * @returns
   */
-  updateBlock(block: Block):Observable<Block>{
+  updateBlock(block: Block): Observable<Block> {
     return this.http
-    .put<Block>(this.apiService.apiServer + '/block/' + block._id, block, ApiService.getOptions())
-    .pipe(tap(_ => {
+      .put<Block>(this.apiService.apiServer + '/block/' + block._id, block, ApiService.getOptions())
+      .pipe(tap(_ => {
         //
-    }),
-    catchError(this.apiService.handleError));
+      }),
+        catchError(this.apiService.handleError));
   }
   /**
   * Deletes a block
@@ -135,10 +149,10 @@ export class BlockService {
   deleteBlock(blockId: string) {
     const str = this.apiService.apiServer + '/block/' + blockId;
     return this.http.delete<any>(str, ApiService.getOptions())
-    .pipe(tap(_ => {
-      //
-    }),
-    catchError(this.apiService.handleError));
+      .pipe(tap(_ => {
+        //
+      }),
+        catchError(this.apiService.handleError));
   }
   /**
   * Saves a new block
@@ -147,20 +161,20 @@ export class BlockService {
   */
   saveBlock(block: Block) {
     return this.http
-    .post<any>(this.apiService.apiServer + '/block', block, ApiService.getOptions())
-    .pipe(tap(_ => {
-      //
-    }));
+      .post<any>(this.apiService.apiServer + '/block', block, ApiService.getOptions())
+      .pipe(tap(_ => {
+        //
+      }));
   }
- /**
-  * Delete central background-block
-  * @param block
-  * @param stories
-  */
-  checkBackgroundsOnDelete(block, stories){
+  /**
+   * Delete central background-block
+   * @param block
+   * @param stories
+   */
+  checkBackgroundsOnDelete(block, stories) {
     let matchingStories = stories.filter((s) => s !== null && s.background.name === block.name);
-    if(matchingStories.length == 1){
-      this.deleteBlock(block._id).subscribe(_=>
+    if (matchingStories.length == 1) {
+      this.deleteBlock(block._id).subscribe(_ =>
         this.updateBlocksEvent.emit()
       )
     }
@@ -178,31 +192,31 @@ export class BlockService {
         catchError(this.apiService.handleError)
       );
   }
-   /**
-   * Search for a references in all stories
-   * @param stories
-   */
-  searchReferences(stories: Story[]){
+  /**
+  * Search for a references in all stories
+  * @param stories
+  */
+  searchReferences(stories: Story[]) {
     this.referenceScenarios = [];
     stories.filter((s) => s !== null).flatMap((story) => story.scenarios
       .filter((scenario) => scenario.hasRefBlock))
       .forEach((scenario) => this.referenceScenarios.push(scenario));
     this.referenceStories = this.referenceScenarios
-    .map((scenario) => stories.find((story) => story.scenarios.includes(scenario)))
-    .filter((story, index, arr) => story && arr.indexOf(story) === index); 
+      .map((scenario) => stories.find((story) => story !== null && story.scenarios.includes(scenario)))
+      .filter((story, index, arr) => story && arr.indexOf(story) === index);
   }
-   /**
-   * delete a reference and update Block
-   */
-  deleteUpdateReferenceForBlock() {  
-    if(this.referencesBlocks.length !== 0){
+  /**
+  * delete a reference and update Block
+  */
+  deleteUpdateReferenceForBlock() {
+    if (this.referencesBlocks.length !== 0) {
       for (const block of this.referencesBlocks) {
         if (block.usedAsReference === false) {
           delete block.usedAsReference;
           this.updateBlock(block)
-          .subscribe(_ => {
-            this.updateBlocksEvent.emit();
-          });
+            .subscribe(_ => {
+              this.updateBlocksEvent.emit();
+            });
         }
       }
       this.referencesBlocks = [];
@@ -216,29 +230,10 @@ export class BlockService {
     * @param blocks
     * @param stories
   */
-  checkBlockOnReference(blocks:Block[], stories: Story[], blockReferenceId){
-    if (!this.isBlockReferencedInScenarios(blockReferenceId,stories)) {
-      this.updateBlockReferenceStatus(blockReferenceId, blocks);
+  checkBlockOnReference(blocks: Block[], stories: Story[], block: Block) {
+    if (!this.findRefBlockInScenarios(block, stories, 'checkOnReference')) {
+      this.updateBlockReferenceStatus(block._id, blocks);
     }
-  }
-
-  /**
-    * check if a block is referenced in any scenario step definitions
-    * @param blockReferenceId
-    * @param stories
-  */
-  isBlockReferencedInScenarios(blockReferenceId: string, stories): boolean {
-    this.searchReferences(stories);
-    for (const scen of this.referenceScenarios) {
-      for (const prop in scen.stepDefinitions) {
-        for (let i = scen.stepDefinitions[prop].length - 1; i >= 0; i--) {
-          if (scen.stepDefinitions[prop][i]._blockReferenceId == blockReferenceId) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
   }
   /**
     * update block reference status
@@ -253,43 +248,40 @@ export class BlockService {
       }
     }
   }
-   /**
-   * Check reference and unpack block in all relevant stories
+  /**
+  * Check reference and unpack block in all relevant stories
+  * @param block
+  * @param stories
+  */
+  deleteBlockReference(block, stories: Story[]) {
+    this.findRefBlockInScenarios(block, stories, "deleteBlockReference")
+    //update relevant stories after unpacking
+    this.updateReferenceStories();
+
+  }
+  /**
+   * Update scenarios after changes in reference blocks
    * @param block
    * @param stories
    */
-  deleteBlockReference(block, stories: Story[]) {
-    this.searchReferences(stories);
-    let scenariosToUpdate = [];
-    this.referenceScenarios.forEach((scenario) => {
-      for(const s in scenario.stepDefinitions){
-        scenario.stepDefinitions[s].forEach((element) => {
-          if(element._blockReferenceId == block._id){
-            this.unpackScenarioWithBlock(block, scenario);
-            scenariosToUpdate.push(scenario);
-          }
-        })
-      }
-    });
-    //update relevant stories after unpacking
-    if(scenariosToUpdate.length > 0){
+  updateReferenceStories() {
+    if (this.scenariosToUpdate.length > 0) {
       this.referenceStories.forEach((story) => {
-        scenariosToUpdate.forEach((scenario) => {
+        this.scenariosToUpdate.forEach((scenario) => {
           if (story.scenarios.includes(scenario)) {
-            this.storyService.updateStory(story).subscribe(_resp => {}); 
+            this.storyService.updateStory(story).subscribe(_resp => { });
           }
         });
       });
     }
   }
-
   /**
    * Unpack steps from block. Wenn delete block unpack all reference in repository
    * @param block
    * @param scenario
    */
   unpackScenarioWithBlock(block, scenario) {
-    delete block.usedAsReference; 
+    delete block.usedAsReference;
     if (block && block.stepDefinitions) {
       for (const s in block.stepDefinitions) {
         block.stepDefinitions[s].forEach((step: StepType, j) => {
@@ -303,5 +295,55 @@ export class BlockService {
         }
       }
     }
+  }
+  /**
+   * Update the reference name in scenarios after changing the block name
+   * @param block
+   * @param stories
+   */
+  updateNameReference(block: Block, stories: Story[]) {
+    if (this.findRefBlockInScenarios(block, stories, 'updateRefName')) {
+      this.updateReferenceStories();
+    } else {
+      console.error('No found');
+    }
+  }
+  /**
+    * Searching for a reference block in scenarios
+    * @param block
+    * @param stories
+    * @param event
+    */
+  findRefBlockInScenarios(block: Block, stories: Story[], event: string) {
+    this.searchReferences(stories);
+    this.scenariosToUpdate = [];
+    let blockFound = false;
+
+    this.referenceScenarios.forEach((scenario) => {
+      for (const s in scenario.stepDefinitions) {
+        scenario.stepDefinitions[s].forEach((refStep) => {
+          if (refStep._blockReferenceId == block._id) {
+            switch (event) {
+              case 'updateRefName':
+                refStep.type = block.name;
+                this.scenariosToUpdate.push(scenario);
+                blockFound = true;
+                break;
+              case 'checkOnReference':
+                blockFound = true;
+                break;
+              case 'deleteBlockReference':
+                this.unpackScenarioWithBlock(block, scenario);
+                this.scenariosToUpdate.push(scenario);
+                blockFound = true;
+                break;
+              default:
+                break;
+            }
+          }
+        });
+      }
+    });
+    return blockFound;
   }
 }
