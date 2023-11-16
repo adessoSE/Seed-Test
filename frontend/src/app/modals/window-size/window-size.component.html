@@ -1,0 +1,36 @@
+
+<!-- <ng-template #windowSizeModal let-modal> -->
+
+<button class="button-4" [matMenuTriggerFor]="appMenu">Change Window-Size</button>
+
+<mat-menu #appMenu="matMenu" class="custom-menu">
+    <form (click)="$event.stopPropagation()">
+        <div class="menu-header">
+            <mat-label class="selectLabel SmallIcontext showCurrentSize">Current size: {{
+                width }} x {{ height }}</mat-label>
+        </div>
+        <hr>
+        <div class="inputFields">
+            <mat-form-field appearance="fill">
+                <mat-label>Width</mat-label>
+                <!-- <input ngModel="tempWidth" name="tempWidth"> -->
+                <input matInput [(ngModel)]="tempWidth">
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Height</mat-label>
+                <!-- <input ngModel="tempHeight" name="tempHeight"> -->
+                <input matInput [(ngModel)]="tempHeight">
+            </mat-form-field>
+        </div>
+        <hr>
+        <div class="menu-actions">
+            <button class="normalButton defaultButton" mat-button
+                (click)="saveWindowSize($event)">Save</button>
+            <button class="normalButton defaultButton" mat-button
+                (click)="setDefaultWindowSize()">Restore default size</button>
+        </div>
+    </form>
+</mat-menu>
+
+<!-- </ng-template> -->

@@ -81,7 +81,8 @@ import { ConfirmResetPasswordPopupComponent } from "./confirm-reset-password-pop
 import { MatInputModule} from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
-import { WindowSizeDialogComponent } from './window-size-dialog/window-size-dialog.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { WindowSizeComponent } from './modals/window-size/window-size.component';
 
 
 @NgModule({
@@ -134,7 +135,7 @@ import { WindowSizeDialogComponent } from './window-size-dialog/window-size-dial
     DeleteToast,
     TransferOwnershipToast,
     ConfirmResetPasswordPopupComponent,
-    WindowSizeDialogComponent
+    WindowSizeComponent
   ],
   imports: [
     NgbModule,
@@ -168,7 +169,8 @@ import { WindowSizeDialogComponent } from './window-size-dialog/window-size-dial
     MatTooltipModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatMenuModule
   ],
   entryComponents: [InfoWarningToast],
   providers: [
