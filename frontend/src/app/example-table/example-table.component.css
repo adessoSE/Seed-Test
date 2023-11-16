@@ -93,7 +93,7 @@ span, .checkboxWrapper{
   vertical-align: middle;
 }
 
-#inputExample_rename #inputExample_delete{
+#inputExample_rename, #inputExample_delete{
   margin: 0 !important;
   padding: 0 !important;
 }
