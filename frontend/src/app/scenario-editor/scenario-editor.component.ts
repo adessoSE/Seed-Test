@@ -267,7 +267,7 @@ export class ScenarioEditorComponent implements OnInit{
         }
         //If the reference was deleted
         if(stepsReferences.length == 0){
-            this.blockService.stepAsReference();
+            this.blockService.deleteUpdateReferenceForBlock();
         }
         return this.blocks;
      

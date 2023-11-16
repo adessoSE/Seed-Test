@@ -338,7 +338,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
       const loadingScreen = document.getElementById('loading');
       loadingScreen.scrollIntoView();
     }
-    if (this.selectedStory !== undefined){
+    if (this.selectedStory !== undefined && this.stories && this.blocks){
       this.storeCurrentBackground(this.selectedStory.background);
       this.backgrounds = this.stories.filter((s) => s !== null).map((s) => s.background);
       this.blockAsBackground = [];
@@ -436,20 +436,20 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.blocks = resp;
-          this.blockService.removeReferenceForStep(this.blocks, this.stories, blockReferenceId)
+          this.blockService.checkBlockOnReference(this.blocks, this.stories, blockReferenceId)
         });
       });
-      //Event when the entire reference block is deleted. Unpacking steps in all stories
+      //Event when the entire reference block is deleted. Unpacking steps in all relevant stories
       this.deleteReferenceObservable = this.blockService.deleteReferenceEvent.subscribe(block => {
-        this.blockService.deteleBlockReference(block, this.stories);
+        this.blockService.deleteBlockReference(block, this.stories);
       });
-      //Event when unpacking steps
+      //Event when unpacking block
       this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((block) => {
         this.blockService.unpackScenarioWithBlock(block, this.selectedScenario);
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.blocks = resp;
-          this.blockService.removeReferenceForStep(this.blocks, this.stories, block._id)
+          this.blockService.checkBlockOnReference(this.blocks, this.stories, block._id)
         });
         this.selectedScenario.saved = false;
       });

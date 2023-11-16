@@ -107,6 +107,7 @@
 
 ::ng-deep .darkTheme .savedBlocksContainer, ::ng-deep .darkTheme .previewContainer {
     border: 1px solid #60767b;
+    color: white;
 }
 
 ::ng-deep .darkTheme .def:hover span[rel=def] {
