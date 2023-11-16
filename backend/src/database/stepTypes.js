@@ -477,6 +477,17 @@ function stepDefs() {
 			'',
 			''
 		]
+	},
+	{
+		id: 5,
+		stepType: 'then',
+		type: 'Hover-Element',
+		pre: 'I Hover over',
+		mid: 'so I can see the text ',
+		values: [
+			'',
+			''
+		]
 	}
 	];
 }

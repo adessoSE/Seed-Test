@@ -881,7 +881,27 @@ Then('So the element {string} has the tool-tip {string}', async function toolTip
 			if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found (check tool-tip).`);
 			throw Error(e);
 		});
-		await driver.sleep(100 + currentParameters.waitTime);
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
+Then('I Hover over {string} so I can see the text {}', async function hoverElem(element, value) {
+	const world = this;
+	const identifiers = [`//*[@id='${element}']`, `//*[contains(@id,'${element}')]`, `//*[text()='${element}' or @*='${element}']`, `//*[contains(text(),'${element}')]`, `${element}`]
+	const promises = [];
+	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	await Promise.any(promises)
+		.then(async (elem) => {
+			await driver.actions().move({ origin: elem }).perform();
+			await driver.wait(until.elementLocated(By.xpath(`//*[contains(text(), "${value}")]`)), searchTimeout)
+				.catch((e)=> { throw NotFoundError(`Could not find ${value} after hovering over element`); });
+		}).catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found (Hover text).`);
+			throw Error(e);
+		});
+	await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Closes the webdriver (Browser)
