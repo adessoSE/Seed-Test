@@ -293,29 +293,8 @@ export class BaseEditorComponent {
       this.checkAllSteps(this.allChecked);
     } 
 
-    // Regex Highlight on init
     if(this.initialRegex){
-      this.regexInStory = false
-      //Logic currently not needed since regex only in then step
-      /*if(this.step_type_input){ //background
-        this.step_type_input.forEach(in_field => {  
-          this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-          });
-      }*/
-      if(this.step_type_input1){ //scenario
-        const stepTypePre = this.step_type_pre.toArray()
-        this.step_type_input1.forEach((in_field, index) => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,0,undefined,undefined,stepTypePre[index].nativeElement.innerText, true)
-        });
-
-        //Logic currently not needed since regex only in first input field
-        /*this.step_type_input2.forEach((in_field, index) => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,1,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
-        });
-        this.step_type_input3.forEach((in_field, index) => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,2,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
-        });*/
-      }
+      this.regexHightlightOnInit()
     }
   }
 
@@ -1620,6 +1599,7 @@ export class BaseEditorComponent {
               });
             }
           });
+          this.regexHightlightOnInit();
           this.markUnsaved();
         }
         break;
@@ -1703,6 +1683,7 @@ export class BaseEditorComponent {
         this.insertCopiedExamples(block)
       }
     });
+    this.regexHightlightOnInit();
     this.markUnsaved();
 
   }
@@ -1726,6 +1707,7 @@ export class BaseEditorComponent {
         });
       }
     });
+    this.regexHightlightOnInit();
     this.markUnsaved();
   }
 
@@ -2011,11 +1993,6 @@ export class BaseEditorComponent {
     this.markUnsaved();
   }
 
-
-  //TODO
-  //beim hinzufügen von blöcken oder kopierten wird nicht gehighlighted
-
-
   /**
    * Add value and highlight regex, Style regex in value and give value to addToValue() function
    * Value is in textContent and style is in innerHTML
@@ -2169,6 +2146,36 @@ export class BaseEditorComponent {
           caretOffset = preCaretTextRange.text.length;
       }
       return caretOffset;
-  }
+    }
+
+    /**
+     * Helper for inital hightlighting
+     */
+    regexHightlightOnInit(){
+      // Regex Highlight on init
+    //if(callBoolean){
+      this.regexInStory = false
+      //Logic currently not needed since regex only in then step
+      /*if(this.step_type_input){ //background
+        this.step_type_input.forEach(in_field => {  
+          this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
+          });
+      }*/
+      if(this.step_type_input1){ //scenario
+        const stepTypePre = this.step_type_pre.toArray()
+        this.step_type_input1.forEach((in_field, index) => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,0,undefined,undefined,stepTypePre[index].nativeElement.innerText, true)
+        });
+
+        //Logic currently not needed since regex only in first input field
+        /*this.step_type_input2.forEach((in_field, index) => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,1,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
+        });
+        this.step_type_input3.forEach((in_field, index) => {  
+        this.highlightRegex(in_field.nativeElement.id,undefined,2,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
+        });*/
+      }
+    //}
+    }
 
 }

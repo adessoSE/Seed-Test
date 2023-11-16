@@ -302,6 +302,13 @@ export class ExampleTableComponent implements OnInit {
     } else {
       this.exampleThere = false;
     }
+    this.regexInStory = false
+      if(this.example_input){
+        console.log('example exist')
+        this.example_input.forEach(in_field => {  
+          this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
+        });
+      }
   }
 
   /**
@@ -474,8 +481,6 @@ export class ExampleTableComponent implements OnInit {
       }
   
       el.appendChild(fragment);
-
-      console.log(el)
 
       if(initialCall && regexDetected) {
         this.regexInStory = true
