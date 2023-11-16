@@ -198,11 +198,13 @@ export class BlockService {
   */
   searchReferences(stories: Story[]) {
     this.referenceScenarios = [];
-    stories.filter((s) => s !== null).flatMap((story) => story.scenarios
-      .filter((scenario) => scenario.hasRefBlock))
+    stories = stories.filter((s) => s !== null);
+    stories.flatMap((story) => story.scenarios
+      .filter((scenario) => scenario !== null && scenario.hasRefBlock))
       .forEach((scenario) => this.referenceScenarios.push(scenario));
+      
     this.referenceStories = this.referenceScenarios
-      .map((scenario) => stories.find((story) => story !== null && story.scenarios.includes(scenario)))
+      .map((scenario) => stories.find((story) => story.scenarios.includes(scenario)))
       .filter((story, index, arr) => story && arr.indexOf(story) === index);
   }
   /**
