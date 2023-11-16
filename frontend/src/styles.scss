@@ -151,6 +151,13 @@ body {
   letter-spacing: normal;
   color: var(--black);
 }
+  .darkTheme .MediumHeadline5, 
+  .darkTheme .SmallHeadline1,
+  .darkTheme .SmallBody1regularLH, 
+  .darkTheme .MediumSubline1H4,
+  .darkTheme .SmallHeadline5{
+    color: white;
+  }
 
 .LargeHeadline3 {
   font-family: Klavika, sans-serif;
@@ -174,6 +181,48 @@ body {
   color: var(--black);
 }
 
+  .Mediumnavigation1 {
+    font-family: Klavika, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.25;
+    letter-spacing: normal;
+    text-align: center;
+    color: var(--brown-grey);
+  }
+  .SmallHeadline5 {
+    font-family: Klavika, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.25;
+    letter-spacing: normal;
+    color: var(--black);
+  }
+  
+  .Smallnavigation1 {
+    font-family: Klavika, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.25;
+    letter-spacing: normal;
+    color: var(--brown-grey);
+  }
+  .LargeBody2 {
+    font-family: Klavika, sans-serif;
+    font-size: 16px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.38;
+    letter-spacing: normal;
+    color: var(--black);
+  }
 .LargeCategory1 {
   font-family: Klavika, sans-serif;
   font-size: 32px;
@@ -218,6 +267,26 @@ body {
   color: var(--black);
 }
 
+  .SmallBody1compact {
+    font-family: Klavika, sans-serif;
+    font-size: 16px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.25;
+    letter-spacing: normal;
+    color: var(--black);
+  }
+  .SmallBody1regularLH {
+    font-family: Klavika, sans-serif;
+    font-size: 16px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.5;
+    letter-spacing: normal;
+    color: var(--black);
+  }
 .MediumSublineH1 {
   font-family: Klavika, sans-serif;
   font-size: 26px;
@@ -795,16 +864,19 @@ a.passed {
   color: green !important;
 }
 
-.darkTheme a.passed {
-  color: #4CAF50 !important;
+.darkTheme a.passed,
+.darkTheme .scenarioListItem .passed {
+  color: #5dc560 !important;
 }
 
 a.notPassed {
   color: red !important;
 }
 
-.darkTheme a.notPassed {
-  color: red !important;
+.darkTheme a.notPassed,
+.darkTheme .scenarioListItem .notPassed,
+.darkTheme .groupReportContainer .notPassed{
+   color: #fb8d8d !important;
 }
 
 div.passed {
@@ -815,8 +887,8 @@ div.passed {
   color: #4CAF50 !important;
 }
 
-div.notPassed {
-  color: red !important;
+div.notPassed{
+  color: red;
 }
 
 .dropdownHeader {
@@ -856,10 +928,6 @@ div.notPassed {
   background: transparent;
   border-color: #60767b;
   color: white;
-}
-
-.darkTheme .uk-active {
-  background-color: #90A4AE;
 }
 
 .darkTheme .uk-select {
@@ -999,6 +1067,17 @@ a:hover {
   border-bottom: 1px solid #B0BEC5 !important;
 }
 
+.darkTheme .disabled {
+  color: var(--buttonDisabled) !important;
+}
+
+.darkTheme .deactivated,
+.darkTheme .deactivated input,
+.darkTheme .deactivated .exampleList span,
+.darkTheme .deactivated .exampleList .mat-mdc-select-value{
+  color: var(--buttonDisabled) !important;
+}
+
 .modal-backdrop {
   z-index: 1 !important;
 }
@@ -1013,10 +1092,65 @@ input[type="submit"]:focus {
   outline: none;
 }
 
-html,
-body {
-  height: 100%;
+.mat-mdc-text-field-wrapper{
+  background-color: transparent !important;
+  padding: 0 !important;
 }
+
+.mat-mdc-form-field-infix{
+  padding-bottom: 0 !important;
+  padding-top: 9px !important;
+  min-height: fit-content;
+  width: 45%;
+}
+
+.mat-mdc-floating-label{
+  top: 20px !important;
+  font-size: 13px !important;
+}
+
+.mdc-list-item__primary-text{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+mat-mdc-select{
+  margin-top: 5px;
+}
+
+.mat-mdc-select-arrow{
+  width: 15px !important;
+}
+
+.darkTheme .mdc-menu-surface{
+  background-color: #6c7c84;
+}
+
+.mat-mdc-select-value{
+  margin-top: 5px;
+}
+
+.mat-mdc-select-value-text{
+  font-size: 13px;
+}
+
+.mat-mdc-form-field-subscript-wrapper{
+  height: 0px;
+}
+
+.mat-mdc-form-field{
+  height: 40px;
+}
+
+.darkTheme .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text, 
+.darkTheme .mat-pseudo-checkbox-checked.mat-pseudo-checkbox-minimal:after,
+.darkTheme .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+  color: var(--light-blue) !important;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 body {
   margin: 0;

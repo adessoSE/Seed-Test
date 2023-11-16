@@ -53,8 +53,8 @@
             </table>
         </div>
       </div>
-      <div id="addBlockFooter" class="modal-footer">
-        <form *ngIf="blocks.length !== 0" class="addAsReference">
+      <div id="addBlockFooter" class="modal-footer" [class.forBackground]="this.selectedTemplate == 'background'">
+        <form *ngIf="blocks.length !== 0 && this.selectedTemplate !== 'background'" class="addAsReference">
           <label id="addAsReferenceLabel">Add Block as Reference: </label>
           <input id="addAsReferenceCheckbox "type="checkbox"  [checked]="this.addAsReference" (change)="checkAddAsReference()">
           <dfn class="def">
@@ -64,7 +64,7 @@
             </span>
           </dfn>
         </form>
-        <button *ngIf="blocks.length !== 0" type="button" class="normalButton"  (click)="onClickSubmit()">Add Block</button>
+        <button *ngIf="blocks.length !== 0" type="button" class="normalButton" (click)="onClickSubmit()">Add Block</button>
       </div>
     </div>
   </ng-template>

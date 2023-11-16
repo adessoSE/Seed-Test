@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input } from '@angular/core';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { Block } from 'src/app/model/Block';
 import { StepType } from 'src/app/model/StepType';
@@ -32,7 +32,14 @@ export class AddBlockFormComponent implements OnInit,OnDestroy {
      * Old block name
      */
     oldName:string;
-
+    selectedTemplate: string;
+    /**
+      * Sets a new selected story
+      */
+    @Input()
+    set templateName(name) {
+      this.selectedTemplate = name;
+    }
     /**
       * If blocks are saved 
       */

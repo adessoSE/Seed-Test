@@ -146,7 +146,6 @@ import { StoryService } from './Services/story.service';
      */
     deleteToast(event: Event){
         event.stopPropagation();
-        this.nameComponent = this.apiService.getNameOfComponent();
         switch(this.nameComponent){
           case 'scenario': this.scenarioService.deleteScenarioEmitter();
           break;

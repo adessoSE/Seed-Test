@@ -444,7 +444,8 @@ function calcDate(value) {
 // "Radio"
 When('I select {string} from the selection {string}', async function clickRadioButton(radioname, label) {
 	const world = this;
-	const identifiers = [`//*[@${label}='${radioname}']`, `//*[contains(@${label}, '${radioname}')]`];
+	const identifiers = [`//input[@${label}='${radioname}']/following-sibling::label[1]`, `//input[contains(@${label}, '${radioname}')]/following-sibling::label[1]`, `//label[contains(text(), '${label}')]/following::input[@value='${radioname}']/following-sibling::label[1]
+	`, `//input[@name='${label}' and @value='${radioname}']/following-sibling::label[1]`, `//input[contains(@*,'${label}')]/following-sibling::label[contains(text(), '${radioname}')]`, `${radioname}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
@@ -829,8 +830,8 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 
 	await Promise.any(promises)
-		.then((elem) => {
-			expect(elem.isSelected()).to.equal(checked);
+		.then(async (elem) => {
+			expect(await elem.isSelected()).to.equal(checked);
 		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
@@ -843,7 +844,7 @@ Then('So the checkbox {string} is set to {string} [true OR false]', async functi
 
 Then('So on element {string} the css property {string} is {string}', async function cssIs(element, property, value) {
 	const world = this;
-	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `//*[@*='${element}']`, `//*[contains(@*, '${element}')]`, `//*[contains(@id, '${element}')]`, `${element}`];
 	const promises = [];
 	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
 	await Promise.any(promises)
@@ -855,7 +856,32 @@ Then('So on element {string} the css property {string} is {string}', async funct
 				const hex = `#${r}${g}${b}`;
 				expect(value.toString()).to.equal(hex.toString(), `actual ${hex} does not match ${value}`);
 			} else expect(value.toString()).to.equal(actual.toString(), `actual ${actual} does not match ${value}`);
+		}).catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			throw Error(e);
 		});
+	await driver.sleep(100 + currentParameters.waitTime);
+});
+
+Then('So the element {string} has the tool-tip {string}', async function toolTipIs(element, value) {
+	const world = this;
+	const identifiers = [`//*[contains(text(),'${element}')]`, `//*[@id='${element}']`, `\\*[@*='${element} and @role=tooltip]`, `//*[contains(@*, '${element}')]`, `//*[@*='${element}']`, `//*[contains(@id, '${element}')]`, `${element}`];
+	const promises = [];
+	for (const idString of identifiers) promises.push(driver.wait(until.elementLocated(By.xpath(idString)), searchTimeout, `Timed out after ${searchTimeout} ms`, 100));
+	await Promise.any(promises)
+		.then(async (elem) => {
+			const actual = await elem.getAttribute('title');
+			expect(actual).to.equal(value);
+		}).catch(async (e) => {
+			await driver.takeScreenshot().then(async (buffer) => {
+				world.attach(buffer, 'image/png');
+			});
+			if (Object.keys(e).length === 0) throw NotFoundError(`The Element ${element} could not be found (check tool-tip).`);
+			throw Error(e);
+		});
+		await driver.sleep(100 + currentParameters.waitTime);
 });
 
 // Closes the webdriver (Browser)

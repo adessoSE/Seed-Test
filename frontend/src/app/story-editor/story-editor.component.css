@@ -264,10 +264,12 @@
   :host ::ng-deep .uk-nav > li > .dropdownStep {
     color: var(--ocean-blue);
   }
-.uk-drop.uk-dropdown.uk-open{
-  top: 40px !important;
-  left: 400px !important;
-}
+
+  .uk-drop.uk-dropdown.uk-open{
+    display: block !important;
+    position: absolute !important;
+    top: 10px !important;
+  }
   /* :host ::ng-deep .darkTheme .uk-nav > li > .dropdownStep {
     color: var(--light-blue);
   }
@@ -297,11 +299,6 @@
     visibility: hidden;
     background:#dddddd
   }
-
-  .darkTheme .disabledButton {
-    background: var(--buttonDisabled) !important;
-  }
-
 
   #loading{
     /* text-align: center;
@@ -476,9 +473,6 @@
 
 .uk-icon {
   background-color: transparent !important;
-}
-.mat-mdc-form-field + .mat-mdc-form-field {
-  margin-left: 8px;
 }
 
 .mat-expansion-panel{
