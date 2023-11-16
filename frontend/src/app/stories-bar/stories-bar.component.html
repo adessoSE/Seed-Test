@@ -32,7 +32,7 @@
         </span>
       </div>
       <div [hidden]="!showFilter" style="margin-top: 10px;">
-        <mat-form-field appearance="standard" class="filterFormField">
+        <mat-form-field *ngIf="!isCustomStory" appearance="standard" class="filterFormField">
           <mat-label>Assignee</mat-label>
           <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
             <mat-option>--</mat-option>
@@ -64,9 +64,9 @@
       <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
         <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag>
           <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" >
-            <span class="github-avatar">
+            <span *ngIf="!isCustomStory" class="jiraGithubStoryIcons">
               <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
-              <button *ngIf="!isCustomStory" uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
+              <button  uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
                 <mat-icon class="toTicket">launch</mat-icon>
               </button>
               <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
