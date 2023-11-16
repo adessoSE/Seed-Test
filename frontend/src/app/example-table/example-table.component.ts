@@ -304,7 +304,6 @@ export class ExampleTableComponent implements OnInit {
     }
     this.regexInStory = false
       if(this.example_input){
-        console.log('example exist')
         this.example_input.forEach(in_field => {  
           this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
         });
