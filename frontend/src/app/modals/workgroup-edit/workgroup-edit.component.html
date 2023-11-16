@@ -71,9 +71,9 @@
                         </option>
                     </select>
 
+                    <!-- Open Window Size Component-->
 
-                    <!-- Window-Size -->
-                    <button class="normalButton" (click)="openDialog();">Window Size</button>
+                    <app-window-size #windoSizeModal [width]="repoWidth" [height]="repoHeight" (sizeChange)="handleSizeChange($event)"></app-window-size>
 
                     <!-- Apply Settings -->
                     <div class="applySettingsDiv">

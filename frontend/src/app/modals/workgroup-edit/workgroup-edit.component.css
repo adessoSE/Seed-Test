@@ -154,7 +154,7 @@ th.mat-mdc-header-cell:first-of-type {
 
 .applySettingsDiv {
     margin-top: 10px;
-    
+
 }
 
 .applySettingsText {
@@ -165,20 +165,17 @@ th.mat-mdc-header-cell:first-of-type {
     margin-left: 5px;
 }
 
-/* Zentriert die Tab-Liste im Container */
 .nav-tabs {
     display: flex;
     justify-content: center;
-  }
-  
-  /* Styling für inaktive Tabs */
-  .nav-link {
-    color: #6c757d; /* Grauton für inaktive Tabs */
+}
+
+.nav-link {
+    color: #6c757d;
     margin: 5px;
-  }
-  
-  /* Styling für den aktiven Tab */
-  .nav-link.active {
-    color: black; 
-   
-  }
+}
+
+.nav-link.active {
+    color: black;
+
+}

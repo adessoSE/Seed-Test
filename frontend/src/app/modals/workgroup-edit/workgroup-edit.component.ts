@@ -11,7 +11,6 @@ import { RepoSwichComponent } from '../repo-swich/repo-swich.component';
 import { Subscription } from 'rxjs';
 import { MatSelect } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogData, WindowSizeDialogComponent } from '../../window-size-dialog/window-size-dialog.component';
 
 @Component({
   selector: 'app-workgroup-edit',
@@ -52,6 +51,10 @@ export class WorkgroupEditComponent {
   userId = '';
   repos: RepositoryContainer[];
 
+  /**
+   * varibales to work with settings 
+   */
+
   gecko_enabled;
 
   chromium_enabled;
@@ -62,12 +65,17 @@ export class WorkgroupEditComponent {
 
   waitBetweenSteps: number;
 
-  width: number;
+  repoWidth: number;
 
-  height: number;
+  repoHeight: number;
 
   applyGlobalSettings: boolean;
 
+  windowSizeEnabled: boolean = false;
+
+  /**
+   * To navigiate between tabs, initial tab on global settings
+   */
   currentTab: string = 'globalSettings';
 
   /**
@@ -133,14 +141,14 @@ export class WorkgroupEditComponent {
       next: (settings) => {
         if (settings) {
           this.applyGlobalSettings = settings.activated !== undefined ? settings.activated : false;
-          if(settings.emulator){
+          if (settings.emulator) {
             this.emulator_enabled = true
             this.emulator = settings.emulator;
           }
           this.waitBetweenSteps = settings.stepWaitTime || 0;
           this.browser = settings.browser || 'Chrome';
-          this.height = settings.height || 0;
-          this.width = settings.width || 0;
+          this.repoHeight = settings.height;
+          this.repoWidth = settings.width;
         } else {
           console.warn('No global settings found, default settings are used.');
           this.applyDefaultSettings();
@@ -153,30 +161,22 @@ export class WorkgroupEditComponent {
     });
   }
 
+  /**
+   * default settings if no previous settings were set for the project
+   */
+
   applyDefaultSettings() {
     this.applyGlobalSettings = false;
     this.waitBetweenSteps = 0;
     this.browser = 'Chrome';
   }
 
-  openDialog(): void {
-    const dialogData: DialogData = { 
-      width: this.width || 0, 
-      height: this.height || 0 
-    };
-
-    const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
-      width: '250px',
-      data: dialogData
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.width = result.width;
-        this.height = result.height;
-      }
-    });
-}
+  handleSizeChange(event: { width: number, height: number }) {
+    this.repoWidth = event.width;
+    this.repoHeight = event.height;
+    // Hier können Sie nun die aktualisierten Werte zur Datenbank senden.
+  }
+  
   /**
      * Opens the workgroup edit modal
      */
@@ -280,6 +280,10 @@ export class WorkgroupEditComponent {
     }
   }
 
+  /**
+   * Updates project and passes settings variables
+   * @param project 
+   */
   updateRepository(project: RepositoryContainer) {
 
     project.settings = {
@@ -288,8 +292,8 @@ export class WorkgroupEditComponent {
       browser: this.browser,
       emulator: this.emulator,
       activated: this.applyGlobalSettings,
-      width: this.width,
-      height: this.height
+      width: this.repoWidth,
+      height: this.repoHeight
     };
 
     this.projectService.updateRepository(project._id, project.value, this.userId, project.settings).subscribe(_resp => {
@@ -300,8 +304,9 @@ export class WorkgroupEditComponent {
 
 
   async saveProject() {
-    console.log('bla')
     this.updateRepository(this.workgroupProject)
+    localStorage.setItem("global_settings", this.applyGlobalSettings.toString())
+    this.modalReference.close();
   }
 
   showDeleteRepositoryToast() {
@@ -355,8 +360,8 @@ export class WorkgroupEditComponent {
     this.currentTab = tabName;
   }
 
-  // ------------------------------- EMULATOR --------------------------------
 
+  // ------------------------------- EMULATOR --------------------------------
   /**
    * To store emulator
    */

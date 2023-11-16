@@ -26,7 +26,6 @@ import { StepDefinition } from '../model/StepDefinition';
 import { BlockService } from '../Services/block.service';
 import { InfoWarningToast } from '../info-warning-toast';
 import { MatDialog } from '@angular/material/dialog';
-import { WindowSizeDialogComponent, DialogData} from '../window-size-dialog/window-size-dialog.component';
 
 
 /**
@@ -232,6 +231,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   chromium_enabled;
   edge_enabled;
 
+  /**
+   * global settings indicator
+   */
+  globalSettings: boolean;
+
+  width: number;
+
+  height: number;
+
   lastToFocus;
 
   showDaisy = false;
@@ -330,35 +338,44 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
     this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+    this.checkGlobalSettings();
   } 
 
-  openDialog(): void {
-    const dialogData: DialogData = { 
-      width: this.selectedScenario.width || 0, 
-      height: this.selectedScenario.height || 0 
-    };
+//   openDialog(): void {
+//     const dialogData: DialogData = { 
+//       width: this.selectedScenario.width || 0, 
+//       height: this.selectedScenario.height || 0 
+//     };
 
-    const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
-      width: '250px',
-      data: dialogData
-    });
+//     const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
+//       width: '250px',
+//       data: dialogData
+//     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.selectedScenario.width = result.width;
-        this.selectedScenario.height = result.height;
+//     dialogRef.afterClosed().subscribe(result => {
+//       if (result) {
+//         this.selectedScenario.width = result.width;
+//         this.selectedScenario.height = result.height;
 
-        // Speichere das aktualisierte Szenario im Backend
-        this.scenarioService.updateScenario(this.selectedStory._id, this.selectedScenario)
-          .subscribe(response => {
-            console.log('Scenario erfolgreich aktualisiert!', response);
-          }, error => {
-            console.error('Fehler beim Aktualisieren des Szenarios', error);
-          });
-      }
-    });
+//         // Speichere das aktualisierte Szenario im Backend
+//         this.scenarioService.updateScenario(this.selectedStory._id, this.selectedScenario)
+//           .subscribe(response => {
+//             console.log('Scenario erfolgreich aktualisiert!', response);
+//           }, error => {
+//             console.error('Fehler beim Aktualisieren des Szenarios', error);
+//           });
+//       }
+//     });
+// }
+
+handleSizeChange(event: { width: number, height: number }) {
+  if((this.width !== event.width) || (this.height !== event.height)){
+    this.selectedScenario.saved = false;
+  }
+  this.width = event.width;
+  this.height = event.height;
+  
 }
-
 
     ngAfterViewChecked(){
       this.openBlockModal = undefined
@@ -771,8 +788,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     if (scenario.emulator) this.emulator_enabled = true 
     // nicht besser als wenn man im html entweder oder macht (267)
     if (!scenario.browser) this.selectedScenario.browser = 'chrome' 
-    if (scenario.width) this.selectedScenario.width = scenario.width;
-    if (scenario.height) this.selectedScenario.height = scenario.height;    
+    if (scenario.width){
+      this.selectedScenario.width = scenario.width 
+    } else 1920;
+    if (scenario.height){
+      this.selectedScenario.height = scenario.height;  
+    } else 1080;
   }
 
   /**
@@ -957,6 +978,18 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     this.selectedScenario.browser = newBrowser;
     this.setEmulatorEnabled(false);
     this.selectedScenario.saved = false;
+  }
+
+  /**
+   *  Check for global settings
+   */
+  checkGlobalSettings(){
+    const globalSettingsString = localStorage.getItem("global_settings")
+    if(globalSettingsString === "true"){
+        this.globalSettings = true;
+    } else {
+        this.globalSettings = false;
+    }
   }
 
   // ------------------------------- EMULATOR --------------------------------
