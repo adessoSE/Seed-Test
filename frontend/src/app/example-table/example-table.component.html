@@ -38,7 +38,7 @@ cdkDropListData="data"
 				</div>
 				<div *ngIf="!first">
 						<!--ng-template viewMode-->
-							<div class="contentEditableElement" contenteditable="true" #example_input (input)="highlightMatches(example_input, columnIndex, rowIndex, false)">{{element[column]}}</div>
+							<div class="contentEditableElement" contenteditable="true" #example_input (input)="highlightRegex(example_input, columnIndex, rowIndex, false)">{{element[column]}}</div>
 							<!--label *ngIf="element[column]===''" id="nullValue">[--null--]</label-->
 						<!--/ng-template-->
 						<!--ng-template editMode >

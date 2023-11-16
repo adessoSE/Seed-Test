@@ -2013,21 +2013,7 @@ export class BaseEditorComponent {
 
 
   //TODO
-  //multiple scenario
   //beim hinzufügen von blöcken oder kopierten wird nicht gehighlighted
-  //zentrale Bloeke -> geht aber in ansicht ohne feld schwarz
-  //higlighting start @@ und ende whitespace oder zeile
-
-  //span.setAttribute('class', 'regexStyling'); -> wie funktioniert darkmode
-  /*.regexStyling {
-  color: var(--ocean-blue);
-  font-weight: bold;
-}
-
-.darkTheme .regexStyling em{
-  color: var(--light-blue) !important;
-  font-weight: bold;
-}*/
 
 
   /**
@@ -2039,7 +2025,7 @@ export class BaseEditorComponent {
    * @param stepType for addToValue
    * @param step for addToValue
    * @param stepPre pre text of step
-   * @param initialCall if call is from ngAfterViewInit
+   * @param initialCall if call is from ngDoCheck
    */
     highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
       const regexPattern = /@@[^ ]+/g;// Regex pattern to recognize and highlight regex expressions -> start with @@

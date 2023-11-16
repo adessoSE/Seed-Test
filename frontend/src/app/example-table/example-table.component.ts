@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 import { DeleteToast } from './../delete-toast';
 import { NewExampleComponent } from './../modals/new-example/new-example.component';
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { UntypedFormGroup, UntypedFormArray, UntypedFormControl } from '@angular/forms';
 import { Scenario } from '../model/Scenario';
 import { ToastrService } from 'ngx-toastr';
@@ -144,6 +144,11 @@ export class ExampleTableComponent implements OnInit {
   @Output()
   deleteExampleEvent: EventEmitter<Scenario> = new EventEmitter();
 
+  regexInStory: boolean = false;
+  initialRegex: boolean = true;
+
+  @ViewChildren('example_input') example_input: QueryList<ElementRef>;
+
     /**
    * @ignore
    */
@@ -179,6 +184,17 @@ export class ExampleTableComponent implements OnInit {
     }
     if (!this.updateExampleTableObservable.closed) {
       this.updateExampleTableObservable.unsubscribe();
+    }
+  }
+
+  ngDoCheck(){
+    if(this.initialRegex){
+      this.regexInStory = false
+      if(this.example_input){
+        this.example_input.forEach(in_field => {  
+        this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
+        });
+      }
     }
   }
 
@@ -239,7 +255,7 @@ export class ExampleTableComponent implements OnInit {
    * @param rowIndex index of the row of the changed value
    * @param column name of the changed value column
    */
-  updateField(columnIndex: number, rowIndex: number, column) {
+  /*updateField(columnIndex: number, rowIndex: number, column) {
     const control = this.getControl(rowIndex, column);
     if (control.valid) {
       const getCircularReplacer = () => {
@@ -260,7 +276,7 @@ export class ExampleTableComponent implements OnInit {
     } else {
       console.log('CONTROL NOT VALID');
     }
-   }
+   }*/
 
    /**
     * Get the controls of a specific cell
@@ -268,10 +284,10 @@ export class ExampleTableComponent implements OnInit {
     * @param fieldName name of the cell column
     * @returns FormControl of the cell
     */
-  getControl(rowIndex: number, fieldName: string): UntypedFormControl {
+  /*getControl(rowIndex: number, fieldName: string): UntypedFormControl {
     this.selectedScenario.saved = false;
     return this.controls.at(rowIndex).get(fieldName) as UntypedFormControl;
-  }
+  }*/
 
   /**
    * Updates the table controls and data
@@ -392,7 +408,15 @@ export class ExampleTableComponent implements OnInit {
     }
   }
 
-  private highlightMatches(el, columnIndex, rowIndex, initialCall) {
+  /**
+   * Add value and highlight regex, Style regex in value and add value in selectedScenario
+   * Value is in textContent and style is in innerHTML
+   * @param el HTML element of contentedible div
+   * @param columnIndex index of changed value in values
+   * @param rowIndex index of changed value in example
+   * @param initialCall if call is from ngDoCheck
+   */
+  private highlightRegex(el, columnIndex, rowIndex, initialCall) {
     const regex = /@@[^ ]+/g;
     const inputValue: string = el.textContent;
     const offset = this.getCaretCharacterOffsetWithin(el)
@@ -400,23 +424,11 @@ export class ExampleTableComponent implements OnInit {
     if(!initialCall){
       this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = inputValue
     }
-    const trailingWhitepace = inputValue.slice(-1) == ' '
-    console.log('inputValue', el.innerHTML.slice(-1))
-    console.log('textContent',el.textContent.slice(-1))
-    console.log(trailingWhitepace)
-      
-    const highlightedText = inputValue.replace(regex, (match) => `<span style="color: blue">${match}</span>`);
+    if(!initialCall){
+      this.initialRegex = false;
+    }
 
-    const textIsRegex = regex.test(inputValue);
-    console.log(inputValue)
-    //if (trailingWhitepace){
-      //highlightedText.concat(' ')
-    //}
-    console.log(highlightedText)
-    el.innerHTML = highlightedText
-    console.log(el)
-
-    /*var regexDetected = false;
+    var regexDetected = false;
     let textIsRegex = false;
 
       const matches: RegExpExecArray[] = [];
@@ -463,7 +475,15 @@ export class ExampleTableComponent implements OnInit {
   
       el.appendChild(fragment);
 
-      console.log(el)*/
+      console.log(el)
+
+      if(initialCall && regexDetected) {
+        this.regexInStory = true
+      }
+      if(regexDetected && !this.regexInStory){
+        this.regexInStory = true
+        this.toastr.info('Regex Highlight');
+      }
 
     // Set cursor to correct position
     if(!initialCall){
