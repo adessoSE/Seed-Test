@@ -147,7 +147,7 @@
                         context: {$implicit: currentStep}">
                       </ng-template>
                     </div>
-                    {{currentStep.pre}}
+                    &nbsp;<div #step_type_pre>{{currentStep.pre}}</div>
                     <div style="display: flex; overflow: hidden; align-items: center;" *ngIf="currentStep.values.length > 0">
                       <div
                         *ngIf="(currentStep.selectionValue === undefined || currentStep.selectionValue === null) || currentStep.selectionValue!= 0"
