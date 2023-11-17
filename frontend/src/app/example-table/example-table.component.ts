@@ -417,7 +417,9 @@ export class ExampleTableComponent implements OnInit {
    * @param initialCall if call is from ngDoCheck
    */
   private highlightRegex(el, columnIndex, rowIndex, initialCall) {
-    const regex = /@@[^ ]+/g;
+    const regexPattern1 =/\[Regex:(.*?)](?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with [Regex: and end with ]
+    const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
+    const regex = new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
     const inputValue: string = el.textContent;
     const offset = this.getCaretCharacterOffsetWithin(el)
 
