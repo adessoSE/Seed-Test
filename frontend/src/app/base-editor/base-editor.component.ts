@@ -269,6 +269,9 @@ export class BaseEditorComponent {
     if (!this.copyExampleOptionObservable.closed) {
       this.copyExampleOptionObservable.unsubscribe();
     }
+    if (!this.themeObservable.closed) {
+      this.themeObservable.unsubscribe();
+    }
 
   }
 
@@ -2014,6 +2017,9 @@ export class BaseEditorComponent {
   /**
    * Add value and highlight regex, Style regex in value and give value to addToValue() function
    * Value is in textContent and style is in innerHTML
+   * If initialCall only check if a regex is already there and hightlight it
+   * Only hightlights regex in first field of regexSteps, only then steps for now. Gets checked with stepPre
+   * Get cursor position with getCaretCharacterOffsetWithin Helper and set position again, else it is lost because of overwriting and changing the HTML Element in case of hightlighting
    * @param element id of HTML div
    * @param stepIndex for addToValue
    * @param valueIndex for addToValue
@@ -2063,6 +2069,7 @@ export class BaseEditorComponent {
         }
   
         const span = document.createElement('span');
+        //only first value of step and only Steps in regexSteps
         if(0==valueIndex && regexSteps.includes(stepPre)){
           regexDetected = true;
           if(this.isDark){
@@ -2099,8 +2106,6 @@ export class BaseEditorComponent {
         this.regexInStory = true
         this.toastr.info('Regex Highlight');
       }
-
-
 
       // Set cursor to correct position
       if(!initialCall){
@@ -2176,13 +2181,12 @@ export class BaseEditorComponent {
      */
     regexHightlightOnInit(){
       // Regex Highlight on init
-    //if(callBoolean){
       this.regexInStory = false
       //Logic currently not needed since regex only in then step
       /*if(this.step_type_input){ //background
         this.step_type_input.forEach(in_field => {  
           this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
-          });
+        });
       }*/
       if(this.step_type_input1){ //scenario
         const stepTypePre = this.step_type_pre.toArray()
@@ -2198,7 +2202,6 @@ export class BaseEditorComponent {
         this.highlightRegex(in_field.nativeElement.id,undefined,2,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
         });*/
       }
-    //}
     }
 
 }

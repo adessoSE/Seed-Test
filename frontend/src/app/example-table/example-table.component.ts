@@ -186,6 +186,9 @@ export class ExampleTableComponent implements OnInit {
     if (!this.updateExampleTableObservable.closed) {
       this.updateExampleTableObservable.unsubscribe();
     }
+    if (!this.themeObservable.closed) {
+      this.themeObservable.unsubscribe();
+    }
   }
 
   ngDoCheck(){
@@ -243,6 +246,7 @@ export class ExampleTableComponent implements OnInit {
       }
       this.data.push(js);
     }
+    this.regexHightlightOnInit();
   }
 
   /**
@@ -298,7 +302,6 @@ export class ExampleTableComponent implements OnInit {
     } else {
       this.exampleThere = false;
     }
-    this.regexHightlightOnInit();
   }
 
   /**
@@ -419,7 +422,8 @@ export class ExampleTableComponent implements OnInit {
     const offset = this.getCaretCharacterOffsetWithin(el)
 
     if(!initialCall){
-      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = inputValue
+      this.selectedScenario.stepDefinitions.example[rowIndex + 1].values[columnIndex-1] = inputValue;
+      this.selectedScenario.saved = false;
     }
     if(!initialCall){
       this.initialRegex = false;
@@ -427,74 +431,25 @@ export class ExampleTableComponent implements OnInit {
       
     let highlightedText;
     if(this.isDark){
-      highlightedText = inputValue.replace(regex, (match) => `<span style="color: white; font-weight: bold">${match}</span>`);
+      highlightedText = inputValue.replace(regex, (match) => `<span style="color: var(--light-blue); font-weight: bold">${match}</span>`);
     } else{
       highlightedText = inputValue.replace(regex, (match) => `<span style="color: var(--ocean-blue); font-weight: bold">${match}</span>`);
     }
 
-    const textIsRegex = regex.test(inputValue);
     const regexDetected = regex.test(inputValue);
     el.innerHTML = highlightedText
 
-
-    /*var regexDetected = false;
-    let textIsRegex = false;
-
-      const matches: RegExpExecArray[] = [];
-      let match: RegExpExecArray | null;
-  
-      while ((match = regex.exec(inputValue)) !== null) {
-        matches.push(match);
-        textIsRegex = true;
-      }
-  
-      const fragment = document.createDocumentFragment();
-      let currentIndex = 0;
-  
-      // Create span with style for every regex match
-      for (const match of matches) {
-        const nonRegexPart = inputValue.substring(currentIndex, match.index);
-        const matchText = match[0];
-  
-        if (nonRegexPart) {
-          const nonRegexNode = document.createTextNode(nonRegexPart);
-          fragment.appendChild(nonRegexNode);
-        }
-  
-        const span = document.createElement('span');
-          regexDetected = true;
-          span.style.color = 'var(--ocean-blue)';
-          span.style.fontWeight = 'bold';
-        
-        span.appendChild(document.createTextNode(matchText));
-        fragment.appendChild(span);
-  
-        currentIndex = match.index + matchText.length;
-      }
-  
-      const remainingText = inputValue.substring(currentIndex);
-      if (remainingText) {
-        const remainingTextNode = document.createTextNode(remainingText);
-        fragment.appendChild(remainingTextNode);
-      }
-  
-      while (el.firstChild) {
-        el.removeChild(el.firstChild);
-      }
-  
-      el.appendChild(fragment);*/
-
-      if(initialCall && regexDetected) {
-        this.regexInStory = true
-      }
-      if(regexDetected && !this.regexInStory){
-        this.regexInStory = true
-        this.toastr.info('Regex Highlight');
-      }
+    if(initialCall && regexDetected) {
+      this.regexInStory = true
+    }
+    if(regexDetected && !this.regexInStory){
+      this.regexInStory = true
+      this.toastr.info('Regex Highlight');
+    }
 
     // Set cursor to correct position
     if(!initialCall){
-      if (textIsRegex){ //maybe not needed
+      if (regexDetected){ //maybe not needed
         const selection = window.getSelection();
         selection.removeAllRanges()
 
