@@ -950,6 +950,7 @@ export class BaseEditorComponent {
 
       case 'scenario':
         this.checkOnIteration(this.selectedScenario.stepDefinitions, this.allChecked);
+        this.disableSaveBlock()
         break;
 
       case 'example':
@@ -1082,7 +1083,7 @@ export class BaseEditorComponent {
           step.checked = checkValue;
         } else {
           step.checked = !step.checked;
-          this.disableSaveBlock(step);
+          this.disableSaveBlock();
         }
         this.areAllStepsChecked();
         break;
@@ -1092,7 +1093,7 @@ export class BaseEditorComponent {
   /**
    * Enables/disables "Save steps as Block" if only reference-block-steps selected
    */
-  disableSaveBlock(step) {
+  disableSaveBlock() {
     let allSelectedSteps = 0;
     let onlyReferenceSteps = 0;
     if (this.templateName === 'scenario') {

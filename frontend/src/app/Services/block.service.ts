@@ -200,7 +200,7 @@ export class BlockService {
     this.referenceScenarios = [];
     stories = stories.filter((s) => s !== null);
     stories.flatMap((story) => story.scenarios
-      .filter((scenario) => scenario !== null && scenario.hasRefBlock))
+      .filter((scenario) => scenario.hasRefBlock))
       .forEach((scenario) => this.referenceScenarios.push(scenario));
       
     this.referenceStories = this.referenceScenarios
@@ -307,7 +307,7 @@ export class BlockService {
     if (this.findRefBlockInScenarios(block, stories, 'updateRefName')) {
       this.updateReferenceStories();
     } else {
-      console.error('No found');
+      console.error('Reference block not found');
     }
   }
   /**
