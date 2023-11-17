@@ -2029,7 +2029,10 @@ export class BaseEditorComponent {
    * @param initialCall if call is from ngDoCheck
    */
     highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
-      const regexPattern = /@@[^ ]+/g;// Regex pattern to recognize and highlight regex expressions -> start with @@
+      const regexPattern1 =/\[Regex:(.*?)](?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with [Regex: and end with ]
+      const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
+      const regexPattern = new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
+
       const textField = document.getElementById(element);
       const textContent = textField.textContent;
       //Get current cursor position
