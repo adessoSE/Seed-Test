@@ -446,7 +446,7 @@ export class ExampleTableComponent implements OnInit {
     }
     if(regexDetected && !this.regexInStory){
       this.regexInStory = true
-      this.toastr.info('Regex Highlight');
+      this.toastr.info('View our Documentation for more Info','Regular Expression detected!');
     }
 
     // Set cursor to correct position
