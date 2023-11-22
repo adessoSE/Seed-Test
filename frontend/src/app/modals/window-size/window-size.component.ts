@@ -1,5 +1,6 @@
 import { Input, Component, ViewChild, Output, EventEmitter, OnInit } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
+// import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
   selector: 'app-window-size',
@@ -13,32 +14,28 @@ export class WindowSizeComponent implements OnInit {
   @Input() height: number;
   @Output() sizeChange = new EventEmitter<{ width: number, height: number }>
 
-  tempWidth: number;
-  tempHeight: number;
+  tempWidth: number = null;
+  tempHeight: number = null;
+
 
   ngOnInit() {
     this.tempWidth = this.width;
     this.tempHeight = this.height;
   }
 
-  public openMenu() {
-    if (this.menuTrigger) {
-      this.menuTrigger.openMenu();
-    } else {
-      console.error('MatMenuTrigger is not available');
-    }
-  }
-
   setDefaultWindowSize(): void {
+    console.log('Menu Trigger:', this.menuTrigger);
     this.tempWidth = 1920;
     this.tempHeight = 1080;
   }
 
   saveWindowSize(event: Event): void {
-    event.stopPropagation();
     this.sizeChange.emit({ width: this.tempWidth, height: this.tempHeight })
     if (this.menuTrigger) {
-      this.menuTrigger.closeMenu();
+      console.log('Menu Trigger:', this.menuTrigger);
+      event.stopPropagation();
+     this.menuTrigger.closeMenu();
+     event.stopPropagation();
     } else {
       console.error('MatMenuTrigger is not available');
     }  
