@@ -7,7 +7,7 @@
   <ng-template #actionBar>
     <div class="scenarioBarContainer" [ngStyle]="{'margin': (name==='example') ? '0px' : ''}">
       <div class="actionBarButtonGroup">
-        <input type="checkbox" class="checkbox" id="checkbox_all" (change)="checkAllSteps()" [checked]="this.allChecked"
+        <input type="checkbox" class="checkbox" id="{{name+'_checkbox_all'}}" (change)="checkAllSteps()" [checked]="this.allChecked"
           uk-tooltip title="Check All Steps" />
         <div [class.disabled]="!this.activeActionBar">
           <button *ngIf="name !== 'example' && name !== 'block-editor'" id="{{name+'_addBlock_step_'}}"

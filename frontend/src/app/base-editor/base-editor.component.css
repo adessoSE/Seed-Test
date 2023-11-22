@@ -27,7 +27,7 @@
   padding: 0 !important;
 }
 
-:host ::ng-deep #checkbox_all_example {
+:host ::ng-deep #example_checkbox_all {
   margin-left: 10px;
 }
 
