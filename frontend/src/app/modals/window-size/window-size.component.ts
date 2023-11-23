@@ -1,6 +1,5 @@
 import { Input, Component, ViewChild, Output, EventEmitter, OnInit } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
-// import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
   selector: 'app-window-size',
@@ -26,7 +25,6 @@ export class WindowSizeComponent implements OnInit {
   }
 
   setDefaultWindowSize(): void {
-    console.log('Menu Trigger:', this.menuTrigger);
     this.tempWidth = 1920;
     this.tempHeight = 1080;
   }
@@ -38,6 +36,7 @@ export class WindowSizeComponent implements OnInit {
   }
   
   saveWindowSize(event: Event): void {
+    console.log(this.tempWidth, this.tempHeight)
     this.sizeChange.emit({ width: this.tempWidth, height: this.tempHeight })
     this.shouldStopPropagation = false;
   }

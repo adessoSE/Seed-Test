@@ -8,12 +8,14 @@
         <div class="inputFields">
             <mat-form-field appearance="fill">
                 <mat-label>Width</mat-label>
-                <input matInput ngModel [value]="this.tempWidth">
+                <!-- <input matInput ngModel [value]="this.tempWidth"> -->
+                <input matInput [(ngModel)]="this.tempWidth">
             </mat-form-field>
 
             <mat-form-field appearance="fill">
                 <mat-label>Height</mat-label>
-                <input matInput ngModel [value]="this.tempHeight">
+                <!-- <input matInput ngModel [value]="this.tempHeight"> -->
+                <input matInput [(ngModel)]="this.tempHeight">
             </mat-form-field>
         </div>
         <hr>

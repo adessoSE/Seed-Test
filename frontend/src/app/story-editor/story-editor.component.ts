@@ -341,39 +341,12 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
     this.checkGlobalSettings();
   } 
 
-//   openDialog(): void {
-//     const dialogData: DialogData = { 
-//       width: this.selectedScenario.width || 0, 
-//       height: this.selectedScenario.height || 0 
-//     };
-
-//     const dialogRef = this.dialog.open(WindowSizeDialogComponent, {
-//       width: '250px',
-//       data: dialogData
-//     });
-
-//     dialogRef.afterClosed().subscribe(result => {
-//       if (result) {
-//         this.selectedScenario.width = result.width;
-//         this.selectedScenario.height = result.height;
-
-//         // Speichere das aktualisierte Szenario im Backend
-//         this.scenarioService.updateScenario(this.selectedStory._id, this.selectedScenario)
-//           .subscribe(response => {
-//             console.log('Scenario erfolgreich aktualisiert!', response);
-//           }, error => {
-//             console.error('Fehler beim Aktualisieren des Szenarios', error);
-//           });
-//       }
-//     });
-// }
-
 handleSizeChange(event: { width: number, height: number }) {
   if((this.width !== event.width) || (this.height !== event.height)){
     this.selectedScenario.saved = false;
   }
-  this.width = event.width;
-  this.height = event.height;
+  this.selectedScenario.width = event.width;
+  this.selectedScenario.height = event.height;
   
 }
 

@@ -16,8 +16,8 @@
 
 .modal-body.modal-xl {
     padding: 10px;
-    margin-bottom: 30px;
-    margin-top: 20px
+    margin-bottom: 5px;
+    margin-top: 10px
 }
 
 input.wrongEmail {
@@ -115,6 +115,26 @@ th.mat-mdc-header-cell:first-of-type {
 
 ::-webkit-scrollbar-thumb {
     background: #90CAF9;
+}
+
+.globalSettings{
+    display: block;
+}
+
+.browserDiv {
+    margin-bottom: 20px;
+}
+
+.windowSizeDiv {
+    margin-bottom: 20px;
+}
+
+.waitTimeDiv {
+    margin-bottom: 20px;
+}
+
+.emulatorDiv {
+    margin-bottom: 20px;
 }
 
 .section-header {

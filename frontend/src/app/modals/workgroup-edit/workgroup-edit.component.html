@@ -33,47 +33,57 @@
                 <div class="globalSettings">
 
                     <!-- Wait Between Steps -->
-                    <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
-                    <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime" type="number" min=0
-                        max=25000 step=200>
-                    <label class="selectLabel SmallIcontext">Browser:</label>
+                    <div class="waitTimeDiv">
+                        <label class="selectLabel SmallIcontext">Wait between steps (ms):</label>
+                        <input [(ngModel)]="waitBetweenSteps" id="defaultWaitTimeInput" class="waitTime" type="number"
+                            min=0 max=25000 step=200>
+                    </div>
 
+                    <!-- Browser -->
+                    <div class="browserDiv">
+                        <label class="selectLabel SmallIcontext">Browser:</label>
+                        <select name="browser" class="select" id="browserSelect"
+                            (change)="setBrowser($event.target.value)">
+                            <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
+                                [selected]="this.browser === 'chrome'">Chrome</option>
+                            <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
+                                [selected]="this.browser === 'firefox'">Firefox</option>
+                            <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
+                                [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
+                        </select>
+                    </div>
+                    
                     <!-- Emulator -->
-                    <select name="browser" class="select" id="browserSelect" (change)="setBrowser($event.target.value)">
-                        <option *ngIf="this.chromium_enabled" id="chrome_browser" value="chrome"
-                            [selected]="this.browser === 'chrome'">Chrome</option>
-                        <option *ngIf="this.gecko_enabled" id="firefox_browser" value="firefox"
-                            [selected]="this.browser === 'firefox'">Firefox</option>
-                        <option *ngIf="this.edge_enabled" id="MicrosoftEdge_browser" value="MicrosoftEdge"
-                            [selected]="this.browser === 'MicrosoftEdge'">Edge</option>
-                    </select>
+                    <div class="emulatorDiv">
+                        <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
+                        <dfn class="def" [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }">
+                            <input class="def"
+                                [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }"
+                                type="checkbox" id="emulatorCheck" (change)="setEmulatorEnabled(!emulator_enabled)"
+                                [checked]="emulator_enabled" [disabled]="getAvaiableEmulators().length < 1" />
+                            <span *ngIf="getAvaiableEmulators().length < 1" rel="def" style="font-weight: normal">
+                                No emulators available for the selected browser!
+                            </span>
+                        </dfn>
 
-                    <label class="selectLabel SmallIcontext" for="emulatorCheck">Emulator:</label>
-
-                    <dfn class="def" [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }">
-                        <input class="def"
-                            [ngStyle]="{ cursor: getAvaiableEmulators().length < 1 ? 'help' : 'default' }"
-                            type="checkbox" id="emulatorCheck" (change)="setEmulatorEnabled(!emulator_enabled)"
-                            [checked]="emulator_enabled" [disabled]="getAvaiableEmulators().length < 1" />
-                        <span *ngIf="getAvaiableEmulators().length < 1" rel="def" style="font-weight: normal">
-                            No emulators available for the selected browser!
-                        </span>
-                    </dfn>
-
-                    <select *ngIf="emulator_enabled" name="emulator" class="select" id="emulatorSelect"
-                        (change)="setEmulator($event.target.value)" [(ngModel)]="emulator">
-                        <option *ngIf="getAvaiableEmulators().length === 0" [value]="undefined">
-                            No emulator available
-                        </option>
-                        <option *ngFor="let emulator of getAvaiableEmulators()" [value]="emulator"
-                            id="{{emulator}}_option">
-                            {{ emulator }}
-                        </option>
-                    </select>
+                        <select *ngIf="emulator_enabled" name="emulator" class="select" id="emulatorSelect"
+                            (change)="setEmulator($event.target.value)" [(ngModel)]="emulator">
+                            <option *ngIf="getAvaiableEmulators().length === 0" [value]="undefined">
+                                No emulator available
+                            </option>
+                            <option *ngFor="let emulator of getAvaiableEmulators()" [value]="emulator"
+                                id="{{emulator}}_option">
+                                {{ emulator }}
+                            </option>
+                        </select>
+                    </div>
 
                     <!-- Open Window Size Component-->
-
-                    <app-window-size #windoSizeModal [width]="repoWidth" [height]="repoHeight" (sizeChange)="handleSizeChange($event)"></app-window-size>
+                    <div class="windowSizeDiv">
+                        <app-window-size #windoSizeModal [width]="repoWidth" [height]="repoHeight"
+                            (sizeChange)="handleSizeChange($event)"></app-window-size>
+                    </div>
+                    <hr>
 
                     <!-- Apply Settings -->
                     <div class="applySettingsDiv">

@@ -174,7 +174,6 @@ export class WorkgroupEditComponent {
   handleSizeChange(event: { width: number, height: number }) {
     this.repoWidth = event.width;
     this.repoHeight = event.height;
-    // Hier können Sie nun die aktualisierten Werte zur Datenbank senden.
   }
   
   /**

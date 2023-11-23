@@ -61,7 +61,7 @@
 
 .storyInfoCenter{
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 5px;
   align-items: center;
 }
@@ -549,4 +549,18 @@ button#background_up {
   z-index: 2;
   left: -7em;
   top:auto;
+}
+
+.storyInOneSessionDiv {
+  margin-left: 5px;
+}
+
+.globalSettingsText {
+  display: flex;
+  margin-top: 10px;
+  font-weight: normal;
+}
+
+.warningIcon{
+ color: gray !important;
 }
