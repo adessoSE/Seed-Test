@@ -2094,7 +2094,7 @@ export class BaseEditorComponent {
           }
           //document.getElementById(element).setAttribute("data-uk-tooltip","Tooltip content for all spans");
           //span1.setAttribute("data-uk-tooltip","")
-          span2.setAttribute("data-uk-tooltip","Regular Expression detected!")
+          span2.setAttribute("uk-tooltip","title:Regular Expression detected!;pos:right")
           //span3.setAttribute("data-uk-tooltip","")
           span2.appendChild(document.createTextNode(match1[2]));
           span1.appendChild(document.createTextNode(match1[1]));
