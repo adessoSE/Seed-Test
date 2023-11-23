@@ -37,7 +37,7 @@ mat-tab-group{
 }
 
 .storyListDivWithFilter{
-  height: calc(100% - 235px);
+  height: calc(100% - 185px);
 }
 
 .itemListDiv>ul, .storyListDivNotCustom>ul, .storyListDivWithFilter>ul{
