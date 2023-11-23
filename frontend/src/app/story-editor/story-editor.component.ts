@@ -253,6 +253,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   checkReferenceObservable: Subscription;
   deleteReferenceObservable: Subscription;
   unpackBlockObservable: Subscription;
+  updateNameRefObservable: Subscription;
 
   @Input() isDark: boolean;
 
@@ -436,7 +437,10 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.blocks = resp;
-          this.blockService.checkBlockOnReference(this.blocks, this.stories, blockReferenceId)
+          if (this.blocks){
+            let referenceBlock = this.blocks.find((block) => block._id == blockReferenceId);
+            this.blockService.checkBlockOnReference(this.blocks, this.stories, referenceBlock)
+          }
         });
       });
       //Event when the entire reference block is deleted. Unpacking steps in all relevant stories
@@ -449,10 +453,14 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
         const id = localStorage.getItem('id');
         this.blockService.getBlocks(id).subscribe((resp) => {
           this.blocks = resp;
-          this.blockService.checkBlockOnReference(this.blocks, this.stories, block._id)
+          this.blockService.checkBlockOnReference(this.blocks, this.stories, block)
         });
         this.selectedScenario.saved = false;
       });
+      //Event to update a reference block name
+      this.updateNameRefObservable = this.blockService.updateNameRefEvent.subscribe((block)=> 
+        this.blockService.updateNameReference(block, this.stories)
+      );
       this.applyBackgroundChangesObservable = this.backgroundService.applyChangesBackgroundEvent.subscribe(option => {
         if (option == 'toCurrentBackground') {
           this.toastr.info('Please enter a new Background name to save your changes');
