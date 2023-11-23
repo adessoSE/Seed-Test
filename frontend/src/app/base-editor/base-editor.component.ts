@@ -246,7 +246,7 @@ export class BaseEditorComponent {
     this.isDark = this.themeService.isDarkMode();
     this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
       this.isDark = this.themeService.isDarkMode();
-      this.regexHightlightOnInit();
+      this.regexHighlightOnInit();
     });  
   }
 
@@ -307,7 +307,7 @@ export class BaseEditorComponent {
     } 
 
     if(this.initialRegex){
-      this.regexHightlightOnInit()
+      this.regexHighlightOnInit()
     }
   }
 
@@ -1619,7 +1619,7 @@ export class BaseEditorComponent {
               });
             }
           });
-          this.regexHightlightOnInit();
+          this.regexHighlightOnInit();
           this.markUnsaved();
         }
         break;
@@ -1704,7 +1704,7 @@ export class BaseEditorComponent {
         this.insertCopiedExamples(block)
       }
     });
-    this.regexHightlightOnInit();
+    this.regexHighlightOnInit();
     this.markUnsaved();
 
   }
@@ -1728,7 +1728,7 @@ export class BaseEditorComponent {
         });
       }
     });
-    this.regexHightlightOnInit();
+    this.regexHighlightOnInit();
     this.markUnsaved();
   }
 
@@ -2029,9 +2029,9 @@ export class BaseEditorComponent {
    * @param initialCall if call is from ngDoCheck
    */
     highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
-      const regexPattern1 =/\[Regex:(.*?)](?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with [Regex: and end with ]
-      const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
-      const regexPattern = new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
+      const regexPattern =/\{Regex:(.*?)}(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with [Regex: and end with ]
+      //const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
+      //const regexPattern = new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
 
       const textField = document.getElementById(element);
       const textContent = textField.textContent;
@@ -2071,21 +2071,45 @@ export class BaseEditorComponent {
           fragment.appendChild(nonRegexNode);
         }
   
-        const span = document.createElement('span');
+        //const span = document.createElement('span');
         //only first value of step and only Steps in regexSteps
         if(0==valueIndex && regexSteps.includes(stepPre)){
           regexDetected = true;
+          const div = document.createElement('div');
+          const span1 = document.createElement('span');
+          const span2 = document.createElement('span');
+          const span3 = document.createElement('span');
+          const regex =/^(\{Regex:)(.*?)(\})$/;
+          const match1 = matchText.match(regex);
           if(this.isDark){
-            span.style.color = 'white';
-            span.style.fontWeight = 'bold';
+            span2.style.color = 'white';
+            span2.style.fontWeight = 'bold';
           } else{
-            span.style.color = 'var(--ocean-blue)';
-            span.style.fontWeight = 'bold';
+            span2.style.color = 'var(--ocean-blue)';
+            span2.style.fontWeight = 'bold';
+            span1.style.color = 'var(--brown-grey)';
+            span1.style.fontWeight = 'bold';
+            span3.style.color = 'var(--brown-grey)';
+            span3.style.fontWeight = 'bold';
           }
+          //document.getElementById(element).setAttribute("data-uk-tooltip","Tooltip content for all spans");
+          //span1.setAttribute("data-uk-tooltip","")
+          span2.setAttribute("data-uk-tooltip","Regular Expression detected!")
+          //span3.setAttribute("data-uk-tooltip","")
+          span2.appendChild(document.createTextNode(match1[2]));
+          span1.appendChild(document.createTextNode(match1[1]));
+          span3.appendChild(document.createTextNode(match1[3]));
+          div.appendChild(span1);
+          div.appendChild(span2);
+          div.appendChild(span3);
+          fragment.appendChild(span1);
+          fragment.appendChild(span2);
+          fragment.appendChild(span3);
+        } else {
+          const span = document.createElement('span');
+          span.appendChild(document.createTextNode(matchText));
+          fragment.appendChild(span);
         }
-        span.appendChild(document.createTextNode(matchText));
-        fragment.appendChild(span);
-  
         currentIndex = match.index + matchText.length;
       }
   
@@ -2182,7 +2206,7 @@ export class BaseEditorComponent {
     /**
      * Helper for inital hightlighting
      */
-    regexHightlightOnInit(){
+    regexHighlightOnInit(){
       // Regex Highlight on init
       this.regexInStory = false
       //Logic currently not needed since regex only in then step
