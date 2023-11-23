@@ -19,10 +19,10 @@ cdkDropListData="data"
 				<div *ngIf="!first">
 					{{column}}
 					<span *ngIf="editMode">
-						<button id="inputExample" class="scenarioTitle" (click)="renameExample(columnIndex)">
+						<button id="rename_example" class="scenarioTitle" (click)="renameExample(columnIndex)">
 							<em class="material-icons">edit</em>
 						</button>
-						<button id="inputExample" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
+						<button id="delete_example" class="scenarioTitle" (click)="deleteExample($event, columnIndex)">
 							<em class="material-icons">delete</em>
 						</button>
 					</span>
