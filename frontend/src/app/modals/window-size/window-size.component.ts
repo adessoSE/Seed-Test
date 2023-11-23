@@ -9,6 +9,8 @@ import { MatMenuTrigger } from '@angular/material/menu';
 })
 export class WindowSizeComponent implements OnInit {
 
+  shouldStopPropagation: boolean = true;
+
   @ViewChild('appMenu') menuTrigger: MatMenuTrigger;
   @Input() width: number;
   @Input() height: number;
@@ -29,16 +31,15 @@ export class WindowSizeComponent implements OnInit {
     this.tempHeight = 1080;
   }
 
+  handleFormClick(event: Event) {
+    if (this.shouldStopPropagation) {
+        event.stopPropagation();
+    }
+  }
+  
   saveWindowSize(event: Event): void {
     this.sizeChange.emit({ width: this.tempWidth, height: this.tempHeight })
-    if (this.menuTrigger) {
-      console.log('Menu Trigger:', this.menuTrigger);
-      event.stopPropagation();
-     this.menuTrigger.closeMenu();
-     event.stopPropagation();
-    } else {
-      console.error('MatMenuTrigger is not available');
-    }  
+    this.shouldStopPropagation = false;
   }
 
 }

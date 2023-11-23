@@ -1,5 +1,5 @@
 <mat-menu #appMenu="matMenu" class="custom-menu">
-    <form (click)="$event.stopPropagation()">
+    <form (click)="handleFormClick($event)">
         <div class="menu-header">
             <mat-label class="selectLabel SmallIcontext showCurrentSize">Current size: {{
                 width }} x {{ height }}</mat-label>
