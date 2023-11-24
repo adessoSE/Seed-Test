@@ -118,7 +118,7 @@ async function registerUser(user) {
 	let result;
 	if (dbUser !== null) throw Error('User already exists');
 	else
-		if (user.userId) result = await collection.update({ _id: new ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
+		if (user.userId) result = await collection.updateOne({ _id: new ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
 		else {
 			delete user.userId;
 			result = await collection.insertOne(user);

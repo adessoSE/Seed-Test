@@ -161,7 +161,7 @@ async function registerUser(user) {
 		let result;
 		if (dbUser !== null) throw Error('User already exists');
 		else if (user.userId) { // update in register? attacker with userId could re-set anything
-			result = await collection.update({ _id: new ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
+			result = await collection.updateOne({ _id: new ObjectId(user.userId) }, { $set: { email: user.email, password: user.password } });
 		} else {
 			delete user.userId;
 			const query = { email: user.email.toString(), password: user.password };
