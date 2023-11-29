@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import {Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy} from '@angular/core';
+import { Component, OnInit, Input, ViewChild, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { ApiService } from '../Services/api.service';
 import { Story } from '../model/Story';
 import { Scenario } from '../model/Scenario';
@@ -31,7 +31,7 @@ import { MatDialog } from '@angular/material/dialog';
 /**
  * Empty background
  */
-const emptyBackground: Background = {name: 'New Background',stepDefinitions: {when: []}};
+const emptyBackground: Background = { name: 'New Background', stepDefinitions: { when: [] } };
 
 /**
  * Component for the Story editor
@@ -39,30 +39,30 @@ const emptyBackground: Background = {name: 'New Background',stepDefinitions: {wh
 @Component({
   selector: 'app-story-editor',
   templateUrl: './story-editor.component.html',
-  styleUrls: ['../base-editor/base-editor.component.css','./story-editor.component.css']
+  styleUrls: ['../base-editor/base-editor.component.css', './story-editor.component.css']
 })
-export class StoryEditorComponent implements OnInit, OnDestroy{
+export class StoryEditorComponent implements OnInit, OnDestroy {
 
   /**
    * set new currently selected scenario
    */
   @Input()
   set newSelectedScenario(scenario: Scenario) {
-      this.selectedScenario = scenario;
-      if (this.selectedStory && scenario) {
-          this.selectScenario(scenario);
-      }       
+    this.selectedScenario = scenario;
+    if (this.selectedStory && scenario) {
+      this.selectScenario(scenario);
+    }
   }
-    
+
   /**
     * set new stories
     */
   @Input()
   set newStories(stories: Story[]) {
-      if (stories) {
-            this.stories = stories;
-        }    
+    if (stories) {
+      this.stories = stories;
     }
+  }
 
   /**
    * set new currently selected story
@@ -94,15 +94,15 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * List of stories
    */
   stories: Story[];
-    
+
   /**
    * List of backgrounds
    */
   backgrounds: Background[];
-   /**
-   * List of filtered backgrounds
-   */
-   filteredBackgrounds: Background[];
+  /**
+  * List of filtered backgrounds
+  */
+  filteredBackgrounds: Background[];
 
   /**
    * Currently selected story
@@ -122,7 +122,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    * Currently retrieved projects
    */
   repositories: RepositoryContainer[];
-  
+
   /**
    * If the results should be shown
    */
@@ -185,7 +185,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   /**
    * Currently retrieved blocks
    */
-  blocks: Block [];
+  blocks: Block[];
   /**
    * Converted blocks as backgrounds
    */
@@ -193,7 +193,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   /**
    *If the modal Save background as a block open
    */
-   openBlockModal;
+  openBlockModal;
   /**
     * if the background should be saved and then the test run
     */
@@ -217,7 +217,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   /**
    * Name for a new step
    */
-    newStepName = 'New Step';
+  newStepName = 'New Step';
 
   /**
    * if the Panel is open.
@@ -269,13 +269,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
   /**
    * View child of the scenario editor
    */
-    @ViewChild('scenarioChild') scenarioChild;
+  @ViewChild('scenarioChild') scenarioChild;
   /**
    * View child of the modals component
    */
-    @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent; 
-    @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
-    @ViewChild('renameBackgroundModal') renameBackgroundModal: RenameBackgroundComponent;
+  @ViewChild('renameStoryModal') renameStoryModal: RenameStoryComponent;
+  @ViewChild('createScenarioForm') createScenarioForm: CreateScenarioComponent;
+  @ViewChild('renameBackgroundModal') renameBackgroundModal: RenameBackgroundComponent;
 
   /**
    * Event emitter to change to the report history component
@@ -291,35 +291,35 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
    */
   @Output() report: EventEmitter<any> = new EventEmitter();
 
-    /**
-     * Stories bar component
-     */
-    constructor(
-        public apiService: ApiService,
-        public toastr: ToastrService,
-        public themeService: ThemingService,
-        public backgroundService: BackgroundService,
-        public storyService: StoryService,
-        public scenarioService: ScenarioService,
-        public reportService: ReportService,
-        public router: Router,    
-        public projectService: ProjectService,
-        public loginService: LoginService,
-        public blockService: BlockService,
-        public dialog: MatDialog
-    ) {
-        if (this.apiService.urlReceived) {
-            this.loadStepTypes();
-        } else {
-          this.apiService.getBackendInfo();
-        }        
-  
+  /**
+   * Stories bar component
+   */
+  constructor(
+    public apiService: ApiService,
+    public toastr: ToastrService,
+    public themeService: ThemingService,
+    public backgroundService: BackgroundService,
+    public storyService: StoryService,
+    public scenarioService: ScenarioService,
+    public reportService: ReportService,
+    public router: Router,
+    public projectService: ProjectService,
+    public loginService: LoginService,
+    public blockService: BlockService,
+    public dialog: MatDialog
+  ) {
+    if (this.apiService.urlReceived) {
+      this.loadStepTypes();
+    } else {
+      this.apiService.getBackendInfo();
+    }
+
     if (this.selectedStory) {
       this.storiesLoaded = true;
       this.storiesError = false;
     }
-        const version = localStorage.getItem('version');
-        if (version === 'DAISY' || version === 'HEROKU' || !version) {
+    const version = localStorage.getItem('version');
+    if (version === 'DAISY' || version === 'HEROKU' || !version) {
       this.daisyVersion = true;
     } else {
       this.daisyVersion = false;
@@ -331,35 +331,35 @@ export class StoryEditorComponent implements OnInit, OnDestroy{
 
     this.gecko_emulators = localStorage.getItem("gecko_emulators");
     this.gecko_emulators =
-    this.gecko_emulators === "" ? [] : this.gecko_emulators.split(",");
+      this.gecko_emulators === "" ? [] : this.gecko_emulators.split(",");
     this.chromium_emulators = localStorage.getItem("chromium_emulators");
     this.chromium_emulators =
-    this.chromium_emulators === "" ? [] : this.chromium_emulators.split(",");
+      this.chromium_emulators === "" ? [] : this.chromium_emulators.split(",");
     this.edge_emulators = localStorage.getItem("edge_emulators");
     this.edge_emulators =
-    this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
+      this.edge_emulators === "" ? [] : this.edge_emulators.split(",");
     this.checkGlobalSettings();
-  } 
-
-handleSizeChange(event: { width: number, height: number }) {
-  if((this.width !== event.width) || (this.height !== event.height)){
-    this.selectedScenario.saved = false;
   }
-  this.selectedScenario.width = event.width;
-  this.selectedScenario.height = event.height;
-  
-}
 
-    ngAfterViewChecked(){
-      this.openBlockModal = undefined
+  handleSizeChange(event: { width: number, height: number }) {
+    if ((this.width !== event.width) || (this.height !== event.height)) {
+      this.selectedScenario.saved = false;
+    }
+    this.selectedScenario.width = event.width;
+    this.selectedScenario.height = event.height;
+
+  }
+
+  ngAfterViewChecked() {
+    this.openBlockModal = undefined
     /**
      * when loading for group is displayed scroll to it
      */
-    if (this.testRunningGroup === true){
+    if (this.testRunningGroup === true) {
       const loadingScreen = document.getElementById('loading');
       loadingScreen.scrollIntoView();
     }
-    if (this.selectedStory !== undefined){
+    if (this.selectedStory !== undefined) {
       this.storeCurrentBackground(this.selectedStory.background);
       this.backgrounds = this.stories.filter((s) => s !== null).map((s) => s.background);
       this.blockAsBackground = [];
@@ -380,7 +380,7 @@ handleSizeChange(event: { width: number, height: number }) {
   ngOnInit() {
 
     // in event that stories are already loaded
-    if(this.stories){
+    if (this.stories) {
       this.storiesLoaded = true;
     }
     if (this.loginService.isLoggedIn()) {
@@ -390,137 +390,137 @@ handleSizeChange(event: { width: number, height: number }) {
         this.error = err.error;
       });
     }
-        this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe((stories: Story[]) => {
-        this.storiesLoaded = true;
-        this.storiesError = false;
-        this.showEditor = false;
-        this.setStories(stories);
-            this.db = localStorage.getItem('source') === 'db' ;
-        });
+    this.getStoriesObservable = this.storyService.getStoriesEvent.subscribe((stories: Story[]) => {
+      this.storiesLoaded = true;
+      this.storiesError = false;
+      this.showEditor = false;
+      this.setStories(stories);
+      this.db = localStorage.getItem('source') === 'db';
+    });
 
-        this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(() => {
-        this.showEditor = false;
-        this.storyDeleted();
-        });
+    this.deleteStoryObservable = this.storyService.deleteStoryEvent.subscribe(() => {
+      this.showEditor = false;
+      this.storyDeleted();
+    });
 
     this.storiesErrorObservable = this.apiService.storiesErrorEvent.subscribe(_ => {
       this.storiesError = true;
       this.showEditor = false;
 
       window.localStorage.removeItem('login')
-      this.router.navigate(['/login']);  
+      this.router.navigate(['/login']);
     });
 
-        this.deleteScenarioObservable = this.scenarioService.deleteScenarioEvent.subscribe(() => {
-        this.deleteScenario(this.selectedScenario);
-      });
+    this.deleteScenarioObservable = this.scenarioService.deleteScenarioEvent.subscribe(() => {
+      this.deleteScenario(this.selectedScenario);
+    });
 
-        this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
-            if (option === 'run') {
-          this.runUnsaved = true;
-          this.runOption();
-        }
-            if (option === 'saveRun') {
-          this.saveBackgroundAndRun = true;
-          this.updateBackground();
-        }
-          });
+    this.runSaveOptionObservable = this.apiService.runSaveOptionEvent.subscribe(option => {
+      if (option === 'run') {
+        this.runUnsaved = true;
+        this.runOption();
+      }
+      if (option === 'saveRun') {
+        this.saveBackgroundAndRun = true;
+        this.updateBackground();
+      }
+    });
 
-        this.renameStoryObservable = this.storyService.renameStoryEvent.subscribe((changedValues) =>
-            this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
-            this.isDark = this.themeService.isDarkMode();
-            this.themeObservable = this.themeService.themeChanged.subscribe(() => {
-            this.isDark = this.themeService.isDarkMode();
-        });
+    this.renameStoryObservable = this.storyService.renameStoryEvent.subscribe((changedValues) =>
+      this.renameStory(changedValues.newStoryTitle, changedValues.newStoryDescription));
+    this.isDark = this.themeService.isDarkMode();
+    this.themeObservable = this.themeService.themeChanged.subscribe(() => {
+      this.isDark = this.themeService.isDarkMode();
+    });
 
-      this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {       
-        this.loadStepTypes();
-      }); 
+    this.getBackendUrlObservable = this.apiService.getBackendUrlEvent.subscribe(() => {
+      this.loadStepTypes();
+    });
 
-        this.renameBackgroundObservable = this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
-        this.renameBackground(newName);
-      });    
+    this.renameBackgroundObservable = this.backgroundService.renameBackgroundEvent.subscribe((newName) => {
+      this.renameBackground(newName);
+    });
     // get blocks
+    const id = localStorage.getItem('id');
+    this.blockService.getBlocks(id).subscribe((resp) => {
+      this.blocks = resp;
+    });
+    this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
       const id = localStorage.getItem('id');
       this.blockService.getBlocks(id).subscribe((resp) => {
         this.blocks = resp;
+        console.log("Updated blocks:", this.blocks);
       });
-      this.updateObservable = this.blockService.updateBlocksEvent.subscribe(_ => {
-        const id = localStorage.getItem('id');
-        this.blockService.getBlocks(id).subscribe((resp) => {
-          this.blocks = resp;
-          console.log("Updated blocks:", this.blocks);
-        });
+    });
+    //Event when deleting references among steps
+    this.checkReferenceObservable = this.blockService.checkRefOnRemoveEvent.subscribe(blockReferenceId => {
+      const id = localStorage.getItem('id');
+      this.blockService.getBlocks(id).subscribe((resp) => {
+        this.blocks = resp;
+        this.blockService.removeReferenceForStep(this.blocks, this.stories, blockReferenceId)
       });
-      //Event when deleting references among steps
-      this.checkReferenceObservable = this.blockService.checkRefOnRemoveEvent.subscribe(blockReferenceId => {
-        const id = localStorage.getItem('id');
-        this.blockService.getBlocks(id).subscribe((resp) => {
-          this.blocks = resp;
-          this.blockService.removeReferenceForStep(this.blocks, this.stories, blockReferenceId)
-        });
+    });
+    //Event when the entire reference block is deleted. Unpacking steps in all stories
+    this.deleteReferenceObservable = this.blockService.deleteReferenceEvent.subscribe(block => {
+      this.blockService.deteleBlockReference(block, this.stories);
+    });
+    //Event when unpacking steps
+    this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((block) => {
+      this.blockService.unpackScenarioWithBlock(block, this.selectedScenario);
+      const id = localStorage.getItem('id');
+      this.blockService.getBlocks(id).subscribe((resp) => {
+        this.blocks = resp;
+        this.blockService.removeReferenceForStep(this.blocks, this.stories, block._id)
       });
-      //Event when the entire reference block is deleted. Unpacking steps in all stories
-      this.deleteReferenceObservable = this.blockService.deleteReferenceEvent.subscribe(block => {
-        this.blockService.deteleBlockReference(block, this.stories);
-      });
-      //Event when unpacking steps
-      this.unpackBlockObservable = this.blockService.unpackBlockEvent.subscribe((block) => {
-        this.blockService.unpackScenarioWithBlock(block, this.selectedScenario);
-        const id = localStorage.getItem('id');
-        this.blockService.getBlocks(id).subscribe((resp) => {
-          this.blocks = resp;
-          this.blockService.removeReferenceForStep(this.blocks, this.stories, block._id)
-        });
-        this.selectedScenario.saved = false;
-      });
-      this.applyBackgroundChangesObservable = this.backgroundService.applyChangesBackgroundEvent.subscribe(option => {
-        if (option == 'toCurrentBackground') {
-          this.toastr.info('Please enter a new Background name to save your changes');
-          this.changeBackgroundTitle();
-        } else if (option == 'centrally'){
-          this.applyChangesToBackgrounds(this.selectedStory.background);
-        }
-      
-      });
-  }
-    ngOnDestroy() {
-        if (!this.deleteStoryObservable.closed) {
-            this.deleteStoryObservable.unsubscribe();
-        }
-        if (!this.storiesErrorObservable.closed) {
-            this.storiesErrorObservable.unsubscribe();
-        }
-        if (!this.deleteScenarioObservable.closed) {
-            this.deleteScenarioObservable.unsubscribe();
-        }
-        if (!this.runSaveOptionObservable.closed) {
-            this.runSaveOptionObservable.unsubscribe();
-        }
+      this.selectedScenario.saved = false;
+    });
+    this.applyBackgroundChangesObservable = this.backgroundService.applyChangesBackgroundEvent.subscribe(option => {
+      if (option == 'toCurrentBackground') {
+        this.toastr.info('Please enter a new Background name to save your changes');
+        this.changeBackgroundTitle();
+      } else if (option == 'centrally') {
+        this.applyChangesToBackgrounds(this.selectedStory.background);
+      }
 
-        if (!this.renameStoryObservable.closed) {
-            this.renameStoryObservable.unsubscribe();
-        }
-        if (!this.themeObservable.closed) {
-            this.themeObservable.unsubscribe();
-        }
-        if (!this.getBackendUrlObservable.closed) {
-            this.getBackendUrlObservable.unsubscribe();
-        }
-        if (!this.getStoriesObservable.closed) {
-            this.getStoriesObservable.unsubscribe();
-        }
-        if (!this.renameBackgroundObservable.closed) {
-            this.renameBackgroundObservable.unsubscribe();
-        }
-        if (!this.applyBackgroundChangesObservable.closed) {
-          this.applyBackgroundChangesObservable.unsubscribe();
-      }
-      if (!this.unpackBlockObservable.closed) {
-        this.unpackBlockObservable.unsubscribe();
-      }
+    });
+  }
+  ngOnDestroy() {
+    if (!this.deleteStoryObservable.closed) {
+      this.deleteStoryObservable.unsubscribe();
     }
-  
+    if (!this.storiesErrorObservable.closed) {
+      this.storiesErrorObservable.unsubscribe();
+    }
+    if (!this.deleteScenarioObservable.closed) {
+      this.deleteScenarioObservable.unsubscribe();
+    }
+    if (!this.runSaveOptionObservable.closed) {
+      this.runSaveOptionObservable.unsubscribe();
+    }
+
+    if (!this.renameStoryObservable.closed) {
+      this.renameStoryObservable.unsubscribe();
+    }
+    if (!this.themeObservable.closed) {
+      this.themeObservable.unsubscribe();
+    }
+    if (!this.getBackendUrlObservable.closed) {
+      this.getBackendUrlObservable.unsubscribe();
+    }
+    if (!this.getStoriesObservable.closed) {
+      this.getStoriesObservable.unsubscribe();
+    }
+    if (!this.renameBackgroundObservable.closed) {
+      this.renameBackgroundObservable.unsubscribe();
+    }
+    if (!this.applyBackgroundChangesObservable.closed) {
+      this.applyBackgroundChangesObservable.unsubscribe();
+    }
+    if (!this.unpackBlockObservable.closed) {
+      this.unpackBlockObservable.unsubscribe();
+    }
+  }
+
 
   /**
    * Runs the test without saving it
@@ -544,16 +544,16 @@ handleSizeChange(event: { width: number, height: number }) {
   }
 
 
-    /**
-     * Select a new currently used scenario
-     * @param scenario
-     */
-    selectNewScenario(scenario: Scenario) {
-      this.selectedScenario = scenario;
-      if (this.selectedStory && scenario) {
-          this.selectScenario(scenario);
-      }
+  /**
+   * Select a new currently used scenario
+   * @param scenario
+   */
+  selectNewScenario(scenario: Scenario) {
+    this.selectedScenario = scenario;
+    if (this.selectedStory && scenario) {
+      this.selectScenario(scenario);
     }
+  }
 
   /**
    * Change to the report history component
@@ -566,11 +566,11 @@ handleSizeChange(event: { width: number, height: number }) {
    * load the step types
    */
   loadStepTypes() {
-        this.storyService
-            .getStepTypes()
-            .subscribe((resp: StepType[]) => {
-      this.originalStepTypes = resp;
-    });
+    this.storyService
+      .getStepTypes()
+      .subscribe((resp: StepType[]) => {
+        this.originalStepTypes = resp;
+      });
   }
 
   setOneDriver() {
@@ -599,8 +599,8 @@ handleSizeChange(event: { width: number, height: number }) {
    */
   deleteScenario(scenario: Scenario) {
     this.scenarioService
-            .deleteScenario(this.selectedStory._id, scenario)
-            .subscribe(_ => {
+      .deleteScenario(this.selectedStory._id, scenario)
+      .subscribe(_ => {
         this.scenarioDeleted();
         this.toastr.error('', 'Scenario deleted');
       });
@@ -614,8 +614,8 @@ handleSizeChange(event: { width: number, height: number }) {
     if (indexScenario !== -1) {
       this.selectedStory.scenarios.splice(indexScenario, 1);
     }
-    
-    if (this.selectedStory.scenarios.length > 0) { 
+
+    if (this.selectedStory.scenarios.length > 0) {
       this.selectScenario(this.selectedStory.scenarios.slice(-1)[0]);
     } else {
       this.showEditor = false;
@@ -631,7 +631,7 @@ handleSizeChange(event: { width: number, height: number }) {
       .subscribe((resp: Scenario) => {
         this.selectScenario(resp);
         this.selectedStory.scenarios.push(resp);
-            this.toastr.info('', 'Scenario added');
+        this.toastr.info('', 'Scenario added');
       });
   }
   /**
@@ -647,65 +647,65 @@ handleSizeChange(event: { width: number, height: number }) {
       });
     });
     const usingBackground = this.checkStoriesForBack();
-    if (usingBackground.length > 1 && this.backgroundService.backgroundReplaced == undefined && (this.selectedStory.background.saved == undefined || !this.selectedStory.background.saved)){
+    if (usingBackground.length > 1 && this.backgroundService.backgroundReplaced == undefined && (this.selectedStory.background.saved == undefined || !this.selectedStory.background.saved)) {
       this.backgroundChecks();
     }
     else {
       this.changeBackgroundBlock();
       delete this.selectedStory.background.saved;
       this.backgroundService
-      .updateBackground(this.selectedStory._id, this.selectedStory.background)
-      .subscribe(_ => {
-        this.backgroundService.backgroundChangedEmitter();
-        this.toastr.success('successfully saved', 'Background');
-        if (this.saveBackgroundAndRun) {
-          this.apiService.runSaveOption('saveScenario');
-          this.saveBackgroundAndRun = false;
-        }
-      });
+        .updateBackground(this.selectedStory._id, this.selectedStory.background)
+        .subscribe(_ => {
+          this.backgroundService.backgroundChangedEmitter();
+          this.toastr.success('successfully saved', 'Background');
+          if (this.saveBackgroundAndRun) {
+            this.apiService.runSaveOption('saveScenario');
+            this.saveBackgroundAndRun = false;
+          }
+        });
     }
   }
   /**
     * Check: if the same background is used in different stories
     */
-  checkStoriesForBack(){
-    const usingBackground = this.stories.filter((s)=> s !== null && s.background.name == this.selectedStory.background.name && s.background.name !== "New Background" && s.background.stepDefinitions.when.length !== 0)
+  checkStoriesForBack() {
+    const usingBackground = this.stories.filter((s) => s !== null && s.background.name == this.selectedStory.background.name && s.background.name !== "New Background" && s.background.stepDefinitions.when.length !== 0)
     return usingBackground;
   }
 
   /**
     * Change Block if background
     */
-  changeBackgroundBlock(){
-    this.blocks.forEach((block)=> {
-      if(block.isBackground && this.backgroundService.backgroundReplaced == undefined && block.name == this.selectedStory.background.name && block.stepDefinitions != this.selectedStory.background.stepDefinitions){
+  changeBackgroundBlock() {
+    this.blocks.forEach((block) => {
+      if (block.isBackground && this.backgroundService.backgroundReplaced == undefined && block.name == this.selectedStory.background.name && block.stepDefinitions != this.selectedStory.background.stepDefinitions) {
         block.stepDefinitions.when = this.selectedStory.background.stepDefinitions.when;
-          this.blockService.updateBlock(block).subscribe(_=>
-            this.blockService.updateBlocksEmitter()
-          )
+        this.blockService.updateBlock(block).subscribe(_ =>
+          this.blockService.updateBlocksEmitter()
+        )
       }
     })
   }
-    /**
-    * Toastr: background changes in multiple Stories or in current background
-    */
-  backgroundChecks(){
+  /**
+  * Toastr: background changes in multiple Stories or in current background
+  */
+  backgroundChecks() {
     this.apiService.nameOfComponent('applyBackgroundChanges');
     this.apiService.setToastrOptions('Save Changes for All Stories', 'Save as New Background');
-     this.toastr.info("", 'You are about to save a Background used in multiple Stories. How should the changes apply?', {
-        toastComponent: InfoWarningToast,
-        timeOut: 10000,
-        extendedTimeOut: 3000
-      });
-    }
+    this.toastr.info("", 'You are about to save a Background used in multiple Stories. How should the changes apply?', {
+      toastComponent: InfoWarningToast,
+      timeOut: 10000,
+      extendedTimeOut: 3000
+    });
+  }
   /**
     * Applying changes for all relevant backgrounds in repository
     */
-  applyChangesToBackgrounds(background){
+  applyChangesToBackgrounds(background) {
     delete this.selectedStory.background.saved;
     const storyId = [];
-    this.stories.forEach(story=>{
-      if(story.background.name === background.name){
+    this.stories.forEach(story => {
+      if (story.background.name === background.name) {
         story.background.stepDefinitions = background.stepDefinitions;
         storyId.push(story._id);
       }
@@ -729,20 +729,20 @@ handleSizeChange(event: { width: number, height: number }) {
    */
   deleteBackground() {
     this.backgroundService
-    .deleteBackground(this.selectedStory._id)
-    .subscribe(_ => {
-      this.showBackground = false;
-      let blockBackgrounds = this.blocks.filter((b)=> b.isBackground)
-      if (blockBackgrounds){
-        for(const block of this.blocks){
-          if(block.name == this.selectedStory.background.name){
-            this.blockService.checkBackgroundsOnDelete(block, this.stories)
+      .deleteBackground(this.selectedStory._id)
+      .subscribe(_ => {
+        this.showBackground = false;
+        let blockBackgrounds = this.blocks.filter((b) => b.isBackground)
+        if (blockBackgrounds) {
+          for (const block of this.blocks) {
+            if (block.name == this.selectedStory.background.name) {
+              this.blockService.checkBackgroundsOnDelete(block, this.stories)
+            }
           }
         }
-      }
-      this.selectedStory.background = emptyBackground;
-      this.selectedStory.background.saved = true;
-    });
+        this.selectedStory.background = emptyBackground;
+        this.selectedStory.background.saved = true;
+      });
   }
 
   /**
@@ -758,14 +758,14 @@ handleSizeChange(event: { width: number, height: number }) {
     this.testDone = false;
     this.emulator_enabled = false;
 
-    if (scenario.emulator) this.emulator_enabled = true 
+    if (scenario.emulator) this.emulator_enabled = true
     // nicht besser als wenn man im html entweder oder macht (267)
-    if (!scenario.browser) this.selectedScenario.browser = 'chrome' 
-    if (scenario.width){
-      this.selectedScenario.width = scenario.width 
+    if (!scenario.browser) this.selectedScenario.browser = 'chrome'
+    if (scenario.width) {
+      this.selectedScenario.width = scenario.width
     } else 1920;
-    if (scenario.height){
-      this.selectedScenario.height = scenario.height;  
+    if (scenario.height) {
+      this.selectedScenario.height = scenario.height;
     } else 1080;
   }
 
@@ -773,75 +773,75 @@ handleSizeChange(event: { width: number, height: number }) {
    * Sort the backgrounds of stories in a list
    * @returns 
    */
-    sortedBackgrounds() {
-      if (this.backgrounds !== undefined){
-        this.filteredBackgrounds = [];
-        this.filteredBackgrounds = this.backgrounds
+  sortedBackgrounds() {
+    if (this.backgrounds !== undefined) {
+      this.filteredBackgrounds = [];
+      this.filteredBackgrounds = this.backgrounds
         .filter((s) => s.name !== this.selectedStory.background.name && s.name !== 'New Background' && s.stepDefinitions.when.length !== 0)
         .map((s) => s)
-        let uniqueChars = [];
-        this.filteredBackgrounds.forEach((e) => {
-          if (!uniqueChars.some((x) => x.name === e.name)) {
-            uniqueChars.push(e);
-          }
-        });
-        if (uniqueChars.length == 0 || (uniqueChars.length == 1 && uniqueChars[0] == this.backgroundService.currentBackground)){
-          return undefined
-        }else 
+      let uniqueChars = [];
+      this.filteredBackgrounds.forEach((e) => {
+        if (!uniqueChars.some((x) => x.name === e.name)) {
+          uniqueChars.push(e);
+        }
+      });
+      if (uniqueChars.length == 0 || (uniqueChars.length == 1 && uniqueChars[0] == this.backgroundService.currentBackground)) {
+        return undefined
+      } else
         return uniqueChars;
-     }
     }
-    /**
-     * Retrive current background
-     */
-    storeCurrentBackground(originalBackground: Background){
-      this.backgroundService.currentBackground = JSON.parse(JSON.stringify(originalBackground));
+  }
+  /**
+   * Retrive current background
+   */
+  storeCurrentBackground(originalBackground: Background) {
+    this.backgroundService.currentBackground = JSON.parse(JSON.stringify(originalBackground));
+  }
+  /**
+  * Select another background to replace
+  */
+  replaceBackground(background: Background) {
+    this.selectedStory.background.stepDefinitions.when = JSON.parse(JSON.stringify(background.stepDefinitions.when));
+    this.selectedStory.background.name = background.name;
+    this.backgroundService.backgroundReplaced = true;
+    const currentStepsLength = this.backgroundService.currentBackground.stepDefinitions.when.length;
+    const found = this.backgrounds.some(background => background.name === this.backgroundService.currentBackground.name);
+    if (!found && currentStepsLength > 0) {
+      this.checkBackgroundLost();
+      this.openBlockModal = true;
     }
-     /**
-     * Select another background to replace
-     */
-    replaceBackground(background: Background){
-      this.selectedStory.background.stepDefinitions.when = JSON.parse(JSON.stringify(background.stepDefinitions.when));
-      this.selectedStory.background.name = background.name;
-      this.backgroundService.backgroundReplaced = true;
-      const currentStepsLength = this.backgroundService.currentBackground.stepDefinitions.when.length;
-      const found = this.backgrounds.some(background => background.name === this.backgroundService.currentBackground.name);
-      if (!found && currentStepsLength > 0) {
-        this.checkBackgroundLost();
-        this.openBlockModal = true;
-      }
-      this.updateBackground();
-    }
+    this.updateBackground();
+  }
 
-    @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
-    checkAllSteps(checkValue?: boolean){
-      //needed by saveBlockModal
-    }
+  @ViewChild('saveBlockModal') saveBlockModal: SaveBlockFormComponent;
+  checkAllSteps(checkValue?: boolean) {
+    //needed by saveBlockModal
+  }
 
-    checkBackgroundLost(){
-      const unsavedBackground =  this.backgroundService.currentBackground
-      if(this.backgrounds.filter((b)=>b === unsavedBackground).length < 2){
-        const stepDefs: StepDefinition = {given:[], then:[], example:[], when:unsavedBackground.stepDefinitions.when}
-        const block: Block = {name: unsavedBackground.name ,stepDefinitions: stepDefs}
-        this.saveBlockModal.openSaveBlockFormModal(block, this, true, this.backgroundService.currentBackground.name);
-      }
-      this.backgroundService.backgroundReplaced = true;
+  checkBackgroundLost() {
+    const unsavedBackground = this.backgroundService.currentBackground
+    if (this.backgrounds.filter((b) => b === unsavedBackground).length < 2) {
+      const stepDefs: StepDefinition = { given: [], then: [], example: [], when: unsavedBackground.stepDefinitions.when }
+      const block: Block = { name: unsavedBackground.name, stepDefinitions: stepDefs }
+      this.saveBlockModal.openSaveBlockFormModal(block, this, true, this.backgroundService.currentBackground.name);
     }
+    this.backgroundService.backgroundReplaced = true;
+  }
 
 
   /**
    * Selects a story and scenario
    * @param story
    */
-	selectStoryScenario(story: Story) { 
-		this.showResults = false;
-		this.selectedStory = story;
+  selectStoryScenario(story: Story) {
+    this.showResults = false;
+    this.selectedStory = story;
     console.log('log aus story editor selectStoryScen', story)
-		if (story.scenarios.length > 0) {
-			this.selectScenario(story.scenarios[0]);
+    if (story.scenarios.length > 0) {
+      this.selectScenario(story.scenarios[0]);
       this.showEditor = true;
-		} else this.showEditor = false;
-	}
+    } else this.showEditor = false;
+  }
 
   /**
    * Make the API Request to run the tests and display the results as a chart
@@ -856,21 +856,20 @@ handleSizeChange(event: { width: number, height: number }) {
         "testFrame"
       ) as HTMLIFrameElement;
       const loadingScreen: HTMLElement = document.getElementById("loading");
-      const browserSelect = (
-        document.getElementById("browserSelect") as HTMLSelectElement
-      ).value;
 
-      const emulatorSelect = document.getElementById(
-        "emulatorSelect"
-      ) as HTMLSelectElement;
-      const emulator =
-        emulatorSelect === null ? undefined : emulatorSelect.value;
+      let browserSelect = null;
+      let emulatorSelect = null;
 
+      if (!this.globalSettings) {
+        browserSelect = document.getElementById("browserSelect") as HTMLSelectElement;
+        emulatorSelect = document.getElementById("emulatorSelect") as HTMLSelectElement;
+      }
+
+      const browser = browserSelect ? browserSelect.value : undefined;
+      const emulator = emulatorSelect ? emulatorSelect.value : undefined;
       // are these values already saved in the Scenario / Story?
       // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
       // const daisyAutoLogout = (document.getElementById('daisyAutoLogout') as HTMLSelectElement).value;
-      console.log("TEST SELECTED SCENARIO")
-      console.log(this.selectedScenario)
       loadingScreen.scrollIntoView();
       this.storyService
         .runTests(
@@ -879,8 +878,8 @@ handleSizeChange(event: { width: number, height: number }) {
           {
             browser: browserSelect,
             emulator: emulator,
-            width: this.selectedScenario.width,
-            height: this.selectedScenario.height,
+            width: this.selectedScenario.width || undefined,
+            height: this.selectedScenario.height || undefined,
             repository: localStorage.getItem("repository"),
             repositoryId: localStorage.getItem("id"),
             source: localStorage.getItem("source"),
@@ -906,9 +905,9 @@ handleSizeChange(event: { width: number, height: number }) {
             this.scenarioService.scenarioStatusChangeEmit(this.selectedStory._id, scenario_id, val); //filteredStories in stories-bar.component is undefined causing an error same file 270
           } else {
             // StoryReport
-              report.scenarioStatuses.forEach(scenario => {
-                this.scenarioService.scenarioStatusChangeEmit(
-                  this.selectedStory._id, scenario.scenarioId, scenario.status);
+            report.scenarioStatuses.forEach(scenario => {
+              this.scenarioService.scenarioStatusChangeEmit(
+                this.selectedStory._id, scenario.scenarioId, scenario.status);
             });
           }
         });
@@ -917,19 +916,19 @@ handleSizeChange(event: { width: number, height: number }) {
       this.currentTestStoryId = this.selectedStory.story_id;
       this.apiService.nameOfComponent('runSaveToast');
       this.apiService.setToastrOptions('Save and Run', 'Run Test');
-				this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
-						toastComponent: InfoWarningToast
-				});
-		}
+      this.toastr.info('Do you want to save before running the test?', 'Scenario was not saved', {
+        toastComponent: InfoWarningToast
+      });
+    }
   }
 
-    /**
-     * Download the test report
-     */
-    downloadFile() {
-        const blob = new Blob([this.htmlReport], {type: 'text/html'});
-            saveAs(blob, this.selectedStory.title + '.html');
-    }
+  /**
+   * Download the test report
+   */
+  downloadFile() {
+    const blob = new Blob([this.htmlReport], { type: 'text/html' });
+    saveAs(blob, this.selectedStory.title + '.html');
+  }
 
   /**
    * Set the time to wait between the steps
@@ -956,12 +955,12 @@ handleSizeChange(event: { width: number, height: number }) {
   /**
    *  Check for global settings
    */
-  checkGlobalSettings(){
+  checkGlobalSettings() {
     const globalSettingsString = localStorage.getItem("global_settings")
-    if(globalSettingsString === "true"){
-        this.globalSettings = true;
+    if (globalSettingsString === "true") {
+      this.globalSettings = true;
     } else {
-        this.globalSettings = false;
+      this.globalSettings = false;
     }
   }
 
@@ -1036,7 +1035,7 @@ handleSizeChange(event: { width: number, height: number }) {
    */
 
   storySaved() {
-		return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
+    return this.runUnsaved || ((this.scenarioChild.selectedScenario.saved === undefined || this.scenarioChild.selectedScenario.saved) && (this.selectedStory.background.saved === undefined || this.selectedStory.background.saved));
   }
 
   /**
@@ -1047,11 +1046,13 @@ handleSizeChange(event: { width: number, height: number }) {
 
   unsaveReport(reportId) {
     this.reportIsSaved = false;
-		return new Promise<void>((resolve, _reject) => {this.reportService
-		.unsaveReport(reportId)
-		.subscribe(_resp => {
-        resolve();
-		}); });
+    return new Promise<void>((resolve, _reject) => {
+      this.reportService
+        .unsaveReport(reportId)
+        .subscribe(_resp => {
+          resolve();
+        });
+    });
   }
 
   /**
@@ -1062,11 +1063,13 @@ handleSizeChange(event: { width: number, height: number }) {
 
   saveReport(reportId) {
     this.reportIsSaved = true;
-		return new Promise<void>((resolve, _reject) => {this.reportService
-		.saveReport(reportId)
-		.subscribe(_resp => {
-        resolve();
-		}); });
+    return new Promise<void>((resolve, _reject) => {
+      this.reportService
+        .saveReport(reportId)
+        .subscribe(_resp => {
+          resolve();
+        });
+    });
   }
 
   /**
@@ -1074,7 +1077,7 @@ handleSizeChange(event: { width: number, height: number }) {
    * @param newStoryTitle
    */
   changeStoryTitle() {
-		this.renameStoryModal.openRenameStoryModal(this.stories, this.selectedStory);
+    this.renameStoryModal.openRenameStoryModal(this.stories, this.selectedStory);
   }
 
   /**
@@ -1083,38 +1086,38 @@ handleSizeChange(event: { width: number, height: number }) {
    * @param newStoryDescription
    */
   renameStory(newStoryTitle, newStoryDescription) {
-		if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
+    if (newStoryTitle && newStoryTitle.replace(/\s/g, '').length > 0) {
       this.selectedStory.title = newStoryTitle;
     }
-		if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
+    if (newStoryDescription && newStoryDescription.replace(/\s/g, '').length > 0) {
       this.selectedStory.body = newStoryDescription;
     }
     this.updateStory();
   }
 
-	renameBackground(newBackgroundName) {
-		this.selectedStory.background.name = newBackgroundName;
-	}
-  
-	/**
+  renameBackground(newBackgroundName) {
+    this.selectedStory.background.name = newBackgroundName;
+  }
+
+  /**
      * Updates the story
      *
      */
-	updateStory() {
+  updateStory() {
     this.storyService
-			.updateStory(this.selectedStory)
-			.subscribe(_resp => {
-				this.toastr.success('successfully saved', 'Story');
-			}); 
-    }
+      .updateStory(this.selectedStory)
+      .subscribe(_resp => {
+        this.toastr.success('successfully saved', 'Story');
+      });
+  }
 
-    storyLink() {
-        return 'https://'+ window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
-    }
+  storyLink() {
+    return 'https://' + window.location.hostname + ':' + window.location.port + '/story/' + this.selectedStory._id;
+  }
 
-    showStoryLinkToast() {
-        this.toastr.success('', 'Successfully added Link to Clipboard!');
-    }
+  showStoryLinkToast() {
+    this.toastr.success('', 'Successfully added Link to Clipboard!');
+  }
 
   /**
    * Opens the delete story toast
@@ -1123,16 +1126,16 @@ handleSizeChange(event: { width: number, height: number }) {
 
   showDeleteStoryToast() {
     this.apiService.nameOfComponent('story');
-		this.toastr.warning('Are your sure you want to delete this story? It cannot be restored.', 'Delete Story?', {
-				toastComponent: DeleteToast
-		 });
-    }
-    
+    this.toastr.warning('Are your sure you want to delete this story? It cannot be restored.', 'Delete Story?', {
+      toastComponent: DeleteToast
+    });
+  }
+
 
   downloadFeature() {
     const id = this.selectedStory._id;
-		this.storyService.downloadStoryFeatureFile(id).subscribe(ret => {
-				saveAs(ret, this.selectedStory.title + this.selectedStory._id  + '.feature');
+    this.storyService.downloadStoryFeatureFile(id).subscribe(ret => {
+      saveAs(ret, this.selectedStory.title + this.selectedStory._id + '.feature');
     });
   }
 
@@ -1145,16 +1148,16 @@ handleSizeChange(event: { width: number, height: number }) {
     this.deleteStoryEvent.emit(this.selectedStory);
   }
 
-  
+
   /**
    * Removes the selected story
    */
   storyDeleted() {
-		if (this.stories.find(x => x === this.selectedStory)) {
-		this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
+    if (this.stories.find(x => x === this.selectedStory)) {
+      this.stories.splice(this.stories.findIndex(x => x === this.selectedStory), 1);
     }
   }
-  
+
 
   /**
    * Opens modal to rename background
@@ -1162,9 +1165,9 @@ handleSizeChange(event: { width: number, height: number }) {
   changeBackgroundTitle() {
     const background = this.selectedStory.background;
     let storiesWithBlock;
-    const blockToRename = this.blocks.find((b)=> b.isBackground && b.name === this.selectedStory.background.name)
-    if(blockToRename){
-     storiesWithBlock = this.stories.filter((s)=> s!== null && s.background.name == blockToRename.name);
+    const blockToRename = this.blocks.find((b) => b.isBackground && b.name === this.selectedStory.background.name)
+    if (blockToRename) {
+      storiesWithBlock = this.stories.filter((s) => s !== null && s.background.name == blockToRename.name);
     }
     this.renameBackgroundModal.openRenameBackgroundModal(this.backgrounds, background, this.selectedStory, this.saveBackgroundAndRun, blockToRename, storiesWithBlock);
   }

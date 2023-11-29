@@ -1,29 +1,27 @@
 <mat-menu #appMenu="matMenu" class="custom-menu">
+    <div class="modal-header">
+        <span id="windowSizeHeader" class="SmallSubline1H4 modal-title">Change Window-Size</span>
+        <button type="button" class="close" aria-label="Close" (click)="closeMenu()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
     <form (click)="handleFormClick($event)">
-        <div class="menu-header">
-            <mat-label class="selectLabel SmallIcontext showCurrentSize">Current size: {{
-                width }} x {{ height }}</mat-label>
-        </div>
-        <hr>
         <div class="inputFields">
             <mat-form-field appearance="fill">
                 <mat-label>Width</mat-label>
-                <!-- <input matInput ngModel [value]="this.tempWidth"> -->
-                <input matInput [(ngModel)]="this.tempWidth">
+                <input [(ngModel)]="this.width" name="Width" matInput>
             </mat-form-field>
 
             <mat-form-field appearance="fill">
                 <mat-label>Height</mat-label>
-                <!-- <input matInput ngModel [value]="this.tempHeight"> -->
-                <input matInput [(ngModel)]="this.tempHeight">
+                <input [(ngModel)]="this.height" name="Height" matInput>
             </mat-form-field>
         </div>
         <hr>
         <div class="menu-actions">
-            <button class="normalButton defaultButton" mat-button
-                (click)="saveWindowSize($event)">Save</button>
-            <button class="normalButton defaultButton" mat-button
-                (click)="setDefaultWindowSize()">Restore default size</button>
+            <button class="normalButton defaultButton" mat-button (click)="saveWindowSize($event)">Save</button>
+            <button class="normalButton defaultButton" mat-button (click)="setDefaultWindowSize()">Restore default
+                size</button>
         </div>
     </form>
 </mat-menu>

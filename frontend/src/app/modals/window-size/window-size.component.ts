@@ -15,18 +15,13 @@ export class WindowSizeComponent implements OnInit {
   @Input() height: number;
   @Output() sizeChange = new EventEmitter<{ width: number, height: number }>
 
-  tempWidth: number = null;
-  tempHeight: number = null;
-
-
   ngOnInit() {
-    this.tempWidth = this.width;
-    this.tempHeight = this.height;
+    console.log(this.width, this.height)
   }
 
   setDefaultWindowSize(): void {
-    this.tempWidth = 1920;
-    this.tempHeight = 1080;
+    this.width = 1920;
+    this.height = 1080;
   }
 
   handleFormClick(event: Event) {
@@ -36,8 +31,12 @@ export class WindowSizeComponent implements OnInit {
   }
   
   saveWindowSize(event: Event): void {
-    console.log(this.tempWidth, this.tempHeight)
-    this.sizeChange.emit({ width: this.tempWidth, height: this.tempHeight })
+    console.log(this.width, this.height)
+    this.sizeChange.emit({ width: this.width, height: this.height })
+    this.shouldStopPropagation = false;
+  }
+
+  closeMenu():void {
     this.shouldStopPropagation = false;
   }
 
