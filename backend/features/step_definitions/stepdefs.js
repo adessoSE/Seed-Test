@@ -475,25 +475,25 @@ When('I select the option {string} from the drop-down-menue {string}', async fun
 			100
 		)
 	);
-	promises.push(new Promise(async (res, rej) => {
-		const dropdownLocator = By.xpath(`//*[contains(text(),"${dropd}") or contains(@id, "${dropd}") or contains(@*, "${dropd}")]`);
-
-		// Find and click on the dropdown element
-		const dropdownElement = await driver.findElement(dropdownLocator).catch((e) => rej(e));
-		await dropdownElement.click();
-
-		// Wait for the dropdown options to be visible
-		await driver.wait(until.elementIsVisible(driver.findElement(By.xpath(`(//*[contains(text(),'${dropd}') or contains(@id, '${dropd}') or contains(@*, '${dropd}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
-		`)))).catch((e) => rej(e));
-
-		// Select the option from the dropdown
-		const optionLocator = By.xpath(`(//*[contains(text(),'${dropd}') or contains(@id, '${dropd}') or contains(@*, '${dropd}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])`);
-		const optionElement = await driver.findElement(optionLocator).catch((e) => rej(e));
-		res(optionElement);
-	}));
 
 	await Promise.any(promises)
 		.then((elem) => elem.click())
+		.catch(async (e) => {
+			const dropdownLocator = By.xpath(`//*[contains(text(),"${dropd}") or contains(@id, "${dropd}") or contains(@*, "${dropd}")]`);
+	
+			// Find and click on the dropdown element
+			const dropdownElement = await driver.findElement(dropdownLocator).catch((e) => { throw e; });
+			await dropdownElement.click();
+	
+			// Wait for the dropdown options to be visible
+			await driver.wait(until.elementIsVisible(driver.findElement(By.xpath(`(//*[contains(text(),'${dropd}') or contains(@id, '${dropd}') or contains(@*, '${dropd}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])
+			`)))).catch((e) => { throw e; });
+	
+			// Select the option from the dropdown
+			const optionLocator = By.xpath(`(//*[contains(text(),'${dropd}') or contains(@id, '${dropd}') or contains(@*, '${dropd}')]/option) | (//*[@role='listbox']//*[ancestor::*[@role='option']//*[contains(text(),'${value}')]])`);
+			const optionElement = await driver.findElement(optionLocator).catch((e) => { throw e; });
+			await optionElement.click();
+		})
 		.catch(async (e) => {
 			await driver.takeScreenshot().then(async (buffer) => {
 				world.attach(buffer, 'image/png');
