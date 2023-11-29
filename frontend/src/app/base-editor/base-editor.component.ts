@@ -172,6 +172,7 @@ export class BaseEditorComponent {
 
   regexInStory: boolean = false;
   initialRegex: boolean = true;
+  targetOffset = 0;
 
   @Input() isDark: boolean;
 
@@ -2029,7 +2030,7 @@ export class BaseEditorComponent {
    * @param initialCall if call is from ngDoCheck
    */
     highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
-      const regexPattern =/\{Regex:(.*?)}(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with [Regex: and end with ]
+      const regexPattern =/(\{Regex:)(.*?)(\})(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with {Regex: and end with }
       //const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
       //const regexPattern = new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
 
@@ -2039,6 +2040,7 @@ export class BaseEditorComponent {
       const offset = this.getCaretCharacterOffsetWithin(textField)
       const regexSteps = ['So I can see the text', 'So I can see the text:', 'So I can\'t see the text:', 'So I can\'t see text in the textbox:']
       let textIsRegex = false;
+      var regexDetected = false;
 
       if(!initialCall){
         this.addToValues(textContent, stepIndex, valueIndex, stepType, step)
@@ -2048,42 +2050,35 @@ export class BaseEditorComponent {
         this.initialRegex = false;
       }
 
-      var regexDetected = false;
-
-      const matches: RegExpExecArray[] = [];
-      let match: RegExpExecArray | null;
-  
-      while ((match = regexPattern.exec(textContent)) !== null) {
-        matches.push(match);
-        textIsRegex = true;
-      }
-  
+      const matches = textContent.matchAll(regexPattern);
       const fragment = document.createDocumentFragment();
       let currentIndex = 0;
   
       // Create span with style for every regex match
+      // match structure: [{Regex:<reg>}, {Regex:, <reg>, }]
       for (const match of matches) {
+        textIsRegex = true;
         const nonRegexPart = textContent.substring(currentIndex, match.index);
-        const matchText = match[0];
   
         if (nonRegexPart) {
           const nonRegexNode = document.createTextNode(nonRegexPart);
           fragment.appendChild(nonRegexNode);
         }
   
-        //const span = document.createElement('span');
-        //only first value of step and only Steps in regexSteps
+        //only first value of step and only steps in regexSteps
         if(0==valueIndex && regexSteps.includes(stepPre)){
           regexDetected = true;
-          const div = document.createElement('div');
+          const div = document.createElement('span');
           const span1 = document.createElement('span');
           const span2 = document.createElement('span');
           const span3 = document.createElement('span');
-          const regex =/^(\{Regex:)(.*?)(\})$/;
-          const match1 = matchText.match(regex);
           if(this.isDark){
-            span2.style.color = 'white';
+            span2.style.color = 'var(--light-blue)';
             span2.style.fontWeight = 'bold';
+            span1.style.color = 'var(--light-grey)';
+            span1.style.fontWeight = 'bold';
+            span3.style.color = 'var(--light-grey)';
+            span3.style.fontWeight = 'bold';
           } else{
             span2.style.color = 'var(--ocean-blue)';
             span2.style.fontWeight = 'bold';
@@ -2092,25 +2087,20 @@ export class BaseEditorComponent {
             span3.style.color = 'var(--brown-grey)';
             span3.style.fontWeight = 'bold';
           }
-          //document.getElementById(element).setAttribute("data-uk-tooltip","Tooltip content for all spans");
-          //span1.setAttribute("data-uk-tooltip","")
-          span2.setAttribute("uk-tooltip","title:Regular Expression detected!;pos:right")
-          //span3.setAttribute("data-uk-tooltip","")
-          span2.appendChild(document.createTextNode(match1[2]));
-          span1.appendChild(document.createTextNode(match1[1]));
-          span3.appendChild(document.createTextNode(match1[3]));
+          div.setAttribute("uk-tooltip","title:Regular Expression detected!;pos:right")
+          span1.appendChild(document.createTextNode(match[1]));
+          span2.appendChild(document.createTextNode(match[2]));
+          span3.appendChild(document.createTextNode(match[3]));
           div.appendChild(span1);
           div.appendChild(span2);
           div.appendChild(span3);
-          fragment.appendChild(span1);
-          fragment.appendChild(span2);
-          fragment.appendChild(span3);
+          fragment.appendChild(div);
         } else {
           const span = document.createElement('span');
-          span.appendChild(document.createTextNode(matchText));
+          span.appendChild(document.createTextNode(match[0]));
           fragment.appendChild(span);
         }
-        currentIndex = match.index + matchText.length;
+        currentIndex = match.index + match[0].length;
       }
   
       const remainingText = textContent.substring(currentIndex);
@@ -2140,30 +2130,23 @@ export class BaseEditorComponent {
         const selection = window.getSelection();
         selection.removeAllRanges()
 
-        // Check in which node the cursor is and set new offsetIndex to position in that node
-        let length = 0;
-        let preLength = 0;
-        let node=0;
-        let offsetIndex=0;
-        for(let i = 0; i<= textField.childNodes.length; i++) {
-          length = textField.childNodes[i].textContent.length
-          if (preLength+length>=offset){
-            offsetIndex = offset-preLength
-            node=i
-            break;
-          }
-          else {
-            preLength = preLength+length
-          }
-        }
+        // Call the function to find the correct node and offset
+        this.targetOffset = offset
+        const result = this.findNodeAndOffset(textField);
+        console.log(result)
 
-        requestAnimationFrame(() => {
-        if (textField.childNodes[node].nodeType == 3){ // in case childNode is text
-          selection.setBaseAndExtent(textField.childNodes[node], offsetIndex, textField.childNodes[node], offsetIndex)
-        } else { // in case childNode is span, childNode of span is text
-          selection.setBaseAndExtent(textField.childNodes[node].childNodes[0], offsetIndex, textField.childNodes[node].childNodes[0], offsetIndex)
+        if (result !== null) {
+          const [node, offsetIndex] = result;
+          requestAnimationFrame(() => {
+            if (node.nodeType === 3) {
+              // Text node
+              selection.setBaseAndExtent(node, offsetIndex, node, offsetIndex);
+            } else if (node.nodeType === 1 && node.childNodes.length > 0) {
+              // Element node with child nodes (e.g., <span>)
+              selection.setBaseAndExtent(node.childNodes[0], offsetIndex, node.childNodes[0], offsetIndex);
+            }
+          });
         }
-      })
       } else {
         requestAnimationFrame(() => {
         const selection = window.getSelection();
@@ -2172,6 +2155,29 @@ export class BaseEditorComponent {
         })
       }
       }
+    }
+
+    findNodeAndOffset(element: Node): [Node, number] | null {
+      if (element.nodeType === 3) {
+        // Text node
+        const textLength = (element.nodeValue || "").length;
+        if (this.targetOffset <= textLength) {
+          return [element, this.targetOffset];
+        } else {
+          this.targetOffset -= textLength;
+        }
+      } else if (element.nodeType === 1){
+        // Element node
+        for (let i = 0; i < element.childNodes.length; i++) {
+          console.log(element.childNodes.length)
+          const child = element.childNodes[i];
+          const result = this.findNodeAndOffset(child);
+          if (result !== null) {
+            return result;
+          }
+        }
+      }
+      return null;
     }
 
     /**
