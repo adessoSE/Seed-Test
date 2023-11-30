@@ -1,26 +1,26 @@
 <mat-menu #appMenu="matMenu" class="custom-menu">
     <div class="modal-header">
         <span id="windowSizeHeader" class="SmallSubline1H4 modal-title">Change Window-Size</span>
-        <button type="button" class="close" aria-label="Close" (click)="closeMenu()">
+        <button type="button" class="close" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <form (click)="handleFormClick($event)">
-        <div class="inputFields">
+    <form (keydown.tab)="$event.stopPropagation()">
+        <div class="inputFields" (click)="$event.stopPropagation()">
             <mat-form-field appearance="fill">
                 <mat-label>Width</mat-label>
-                <input [(ngModel)]="this.width" name="Width" matInput>
+                <input [(ngModel)]="this.width" name="Width" matInput tabindex="1">
             </mat-form-field>
 
             <mat-form-field appearance="fill">
                 <mat-label>Height</mat-label>
-                <input [(ngModel)]="this.height" name="Height" matInput>
+                <input [(ngModel)]="this.height" name="Height" matInput tabindex="2">
             </mat-form-field>
         </div>
         <hr>
         <div class="menu-actions">
             <button class="normalButton defaultButton" mat-button (click)="saveWindowSize($event)">Save</button>
-            <button class="normalButton defaultButton" mat-button (click)="setDefaultWindowSize()">Restore default
+            <button class="normalButton defaultButton" mat-button (click)="setDefaultWindowSize()" (click)="$event.stopPropagation()">Restore default
                 size</button>
         </div>
     </form>
