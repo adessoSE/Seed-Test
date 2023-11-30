@@ -229,14 +229,14 @@
             </span>
           </dfn>
           <!-- Window Size -->
-          <app-window-size #windoSizeModal [width]="this.width" [height]="this.height"
+          <app-window-size #windoSizeModal [width]="this.selectedScenario.width" [height]="this.selectedScenario.height"
             (sizeChange)="handleSizeChange($event)"></app-window-size>
         </div>
 
         <div *ngIf="this.globalSettings">
-          <div class="globalSettingsText">
+          <div class="globalSettingsDiv">
             <em class="material-icons warningIcon">warning</em>
-            <p>Global Settings are currently activated for this Scenario.</p>
+            <p class="globalSettingsText">Global Settings are currently activated for this Scenario.</p>
             <em class="material-icons warningIcon">warning</em>
           </div>
         </div>

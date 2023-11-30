@@ -555,12 +555,28 @@ button#background_up {
   margin-left: 5px;
 }
 
-.globalSettingsText {
+.globalSettingsDiv {
   display: flex;
   margin-top: 10px;
   font-weight: normal;
 }
 
+.globalSettingsText {
+  padding-top: 2px;
+}
+
 .warningIcon{
  color: gray !important;
+ margin-left: 10px; 
+ margin-right: 10px;
+}
+
+::ng-deep .mat-menu-content {
+  padding: 0px;
+}
+
+::ng-deep .mat-mdc-menu-content {
+	margin: 0;
+	padding: 0px !important;
+	list-style-type: none;
 }

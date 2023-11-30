@@ -147,8 +147,8 @@ export class WorkgroupEditComponent {
           }
           this.waitBetweenSteps = settings.stepWaitTime || 0;
           this.browser = settings.browser || 'Chrome';
-          this.repoHeight = settings.height;
-          this.repoWidth = settings.width;
+          this.repoHeight = settings.height || undefined;
+          this.repoWidth = settings.width || undefined;
         } else {
           console.warn('No global settings found, default settings are used.');
           this.applyDefaultSettings();
@@ -169,6 +169,10 @@ export class WorkgroupEditComponent {
     this.applyGlobalSettings = false;
     this.waitBetweenSteps = 0;
     this.browser = 'Chrome';
+    this.emulator_enabled = false;
+    this.emulator = undefined;
+    this.repoHeight = undefined;
+    this.repoWidth = undefined;
   }
 
   handleSizeChange(event: { width: number, height: number }) {
@@ -184,6 +188,7 @@ export class WorkgroupEditComponent {
     this.userId = userId;
     this.workgroupList = [];
     this.workgroupProject = project;
+    this.loadGlobalSettings();
     this.modalReference = this.modalService.open(this.workgroupEditModal, { ariaLabelledBy: 'modal-basic-titles' });
     const header = document.getElementById('workgroupHeader') as HTMLSpanElement;
     header.textContent = 'Project: ' + project.value;
@@ -193,7 +198,7 @@ export class WorkgroupEditComponent {
       this.workgroupList = res.member;
       this.workgroupOwner = res.owner.email;
     });
-    this.loadGlobalSettings();
+    console.log("TEST ME BABY", this.repoHeight, this.repoWidth)
   }
 
   transferedOwnership(newOwner) {
@@ -304,7 +309,6 @@ export class WorkgroupEditComponent {
 
   async saveProject() {
     this.updateRepository(this.workgroupProject)
-    localStorage.setItem("global_settings", this.applyGlobalSettings.toString())
     this.modalReference.close();
   }
 

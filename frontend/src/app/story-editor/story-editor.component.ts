@@ -956,13 +956,21 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
    *  Check for global settings
    */
   checkGlobalSettings() {
-    const globalSettingsString = localStorage.getItem("global_settings")
-    if (globalSettingsString === "true") {
-      this.globalSettings = true;
-    } else {
-      this.globalSettings = false;
-    }
-  }
+    const repoId = localStorage.getItem("id")
+    this.projectService.getRepositorySettings(repoId).subscribe({
+        next: (settings) => {
+            if (settings && settings.activated) {
+                this.globalSettings = true;
+            } else {
+                this.globalSettings = false;
+            }
+        },
+        error: (err) => {
+            console.error('Fehler beim Abrufen der Repository Settings:', err);
+            this.globalSettings = false; 
+        }
+    });
+}
 
   // ------------------------------- EMULATOR --------------------------------
 
