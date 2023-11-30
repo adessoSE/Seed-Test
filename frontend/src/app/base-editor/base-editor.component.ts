@@ -172,7 +172,7 @@ export class BaseEditorComponent {
 
   regexInStory: boolean = false;
   initialRegex: boolean = true;
-  targetOffset = 0;
+  targetOffset: number = 0;
 
   @Input() isDark: boolean;
 
@@ -2015,6 +2015,8 @@ export class BaseEditorComponent {
     this.markUnsaved();
   }
 
+    //TODO code redundanz, tooltip mouseposition, story/scenario highlight wenn wechsel (directives?), example
+
   /**
    * Add value and highlight regex, Style regex in value and give value to addToValue() function
    * Value is in textContent and style is in innerHTML
@@ -2039,7 +2041,6 @@ export class BaseEditorComponent {
       //Get current cursor position
       const offset = this.getCaretCharacterOffsetWithin(textField)
       const regexSteps = ['So I can see the text', 'So I can see the text:', 'So I can\'t see the text:', 'So I can\'t see text in the textbox:']
-      let textIsRegex = false;
       var regexDetected = false;
 
       if(!initialCall){
@@ -2050,70 +2051,28 @@ export class BaseEditorComponent {
         this.initialRegex = false;
       }
 
-      const matches = textContent.matchAll(regexPattern);
-      const fragment = document.createDocumentFragment();
-      let currentIndex = 0;
-  
-      // Create span with style for every regex match
-      // match structure: [{Regex:<reg>}, {Regex:, <reg>, }]
-      for (const match of matches) {
-        textIsRegex = true;
-        const nonRegexPart = textContent.substring(currentIndex, match.index);
-  
-        if (nonRegexPart) {
-          const nonRegexNode = document.createTextNode(nonRegexPart);
-          fragment.appendChild(nonRegexNode);
+      let highlightedText;
+      if(0==valueIndex && regexSteps.includes(stepPre)){
+        if(this.isDark){
+          highlightedText = textContent.replace(regexPattern, (match, match1, match2, match3) => {
+            regexDetected = true;
+            return `<span uk-tooltip="title:Regular Expression detected!;pos:right">`+
+            `<span style="color: var(--light-grey); font-weight: bold">${match1}</span>`+
+            `<span style="color: var(--light-blue); font-weight: bold">${match2}</span>`+
+            `<span style="color: var(--light-grey); font-weight: bold">${match3}</span></span>`;
+          });
+        } else{
+          highlightedText = textContent.replace(regexPattern, (match, match1, match2, match3) => {
+            regexDetected = true;
+            return `<span uk-tooltip="title:Regular Expression detected!;pos:right">`+
+            `<span style="color: var(--brown-grey); font-weight: bold">${match1}</span>`+
+            `<span style="color: var(--ocean-blue); font-weight: bold">${match2}</span>`+
+            `<span style="color: var(--brown-grey); font-weight: bold">${match3}</span></span>`;
+          });
         }
-  
-        //only first value of step and only steps in regexSteps
-        if(0==valueIndex && regexSteps.includes(stepPre)){
-          regexDetected = true;
-          const div = document.createElement('span');
-          const span1 = document.createElement('span');
-          const span2 = document.createElement('span');
-          const span3 = document.createElement('span');
-          if(this.isDark){
-            span2.style.color = 'var(--light-blue)';
-            span2.style.fontWeight = 'bold';
-            span1.style.color = 'var(--light-grey)';
-            span1.style.fontWeight = 'bold';
-            span3.style.color = 'var(--light-grey)';
-            span3.style.fontWeight = 'bold';
-          } else{
-            span2.style.color = 'var(--ocean-blue)';
-            span2.style.fontWeight = 'bold';
-            span1.style.color = 'var(--brown-grey)';
-            span1.style.fontWeight = 'bold';
-            span3.style.color = 'var(--brown-grey)';
-            span3.style.fontWeight = 'bold';
-          }
-          div.setAttribute("uk-tooltip","title:Regular Expression detected!;pos:right")
-          span1.appendChild(document.createTextNode(match[1]));
-          span2.appendChild(document.createTextNode(match[2]));
-          span3.appendChild(document.createTextNode(match[3]));
-          div.appendChild(span1);
-          div.appendChild(span2);
-          div.appendChild(span3);
-          fragment.appendChild(div);
-        } else {
-          const span = document.createElement('span');
-          span.appendChild(document.createTextNode(match[0]));
-          fragment.appendChild(span);
-        }
-        currentIndex = match.index + match[0].length;
       }
-  
-      const remainingText = textContent.substring(currentIndex);
-      if (remainingText) {
-        const remainingTextNode = document.createTextNode(remainingText);
-        fragment.appendChild(remainingTextNode);
-      }
-  
-      while (textField.firstChild) {
-        textField.removeChild(textField.firstChild);
-      }
-  
-      textField.appendChild(fragment);
+
+      textField.innerHTML = highlightedText
 
       // Toastr logic
       if(initialCall && regexDetected) {
@@ -2126,37 +2085,41 @@ export class BaseEditorComponent {
 
       // Set cursor to correct position
       if(!initialCall){
-      if (textIsRegex){ //maybe not needed
-        const selection = window.getSelection();
-        selection.removeAllRanges()
+        if (regexDetected) { //maybe not needed
+          const selection = window.getSelection();
+          selection.removeAllRanges()
 
-        // Call the function to find the correct node and offset
-        this.targetOffset = offset
-        const result = this.findNodeAndOffset(textField);
-        console.log(result)
+          // Call the function to find the correct node and offset
+          this.targetOffset = offset
+          const result = this.findNodeAndOffset(textField);
 
-        if (result !== null) {
-          const [node, offsetIndex] = result;
+          if (result !== null) {
+            const [node, offsetIndex] = result;
+            requestAnimationFrame(() => {
+              if (node.nodeType === 3) {
+                // Text node
+                selection.setBaseAndExtent(node, offsetIndex, node, offsetIndex);
+              } else if (node.nodeType === 1 && node.childNodes.length > 0) {
+                // Element node with child nodes (e.g., <span>)
+                selection.setBaseAndExtent(node.childNodes[0], offsetIndex, node.childNodes[0], offsetIndex);
+              }
+            });
+          }
+        } else {
           requestAnimationFrame(() => {
-            if (node.nodeType === 3) {
-              // Text node
-              selection.setBaseAndExtent(node, offsetIndex, node, offsetIndex);
-            } else if (node.nodeType === 1 && node.childNodes.length > 0) {
-              // Element node with child nodes (e.g., <span>)
-              selection.setBaseAndExtent(node.childNodes[0], offsetIndex, node.childNodes[0], offsetIndex);
-            }
-          });
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.setBaseAndExtent(textField.firstChild, offset, textField.firstChild, offset)
+          })
         }
-      } else {
-        requestAnimationFrame(() => {
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.setBaseAndExtent(textField.firstChild, offset, textField.firstChild, offset)
-        })
-      }
       }
     }
 
+  /**
+   * Helper for Regex Highlighter, find right node and index for current cursor position
+   * @param element HTMLElement
+   * @returns node: node with cursor, number: offest of cursor in node
+   */
     findNodeAndOffset(element: Node): [Node, number] | null {
       if (element.nodeType === 3) {
         // Text node
@@ -2169,7 +2132,6 @@ export class BaseEditorComponent {
       } else if (element.nodeType === 1){
         // Element node
         for (let i = 0; i < element.childNodes.length; i++) {
-          console.log(element.childNodes.length)
           const child = element.childNodes[i];
           const result = this.findNodeAndOffset(child);
           if (result !== null) {

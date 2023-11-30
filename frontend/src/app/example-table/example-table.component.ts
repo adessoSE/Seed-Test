@@ -146,6 +146,7 @@ export class ExampleTableComponent implements OnInit {
 
   regexInStory: boolean = false;
   initialRegex: boolean = true;
+  targetOffset: number = 0;
 
   @ViewChildren('example_input') example_input: QueryList<ElementRef>;
 
@@ -419,7 +420,7 @@ export class ExampleTableComponent implements OnInit {
   private highlightRegex(el, columnIndex, rowIndex, initialCall) {
     const regexPattern1 =/\[Regex:(.*?)](?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with [Regex: and end with ]
     const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
-    const regex = new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
+    const regex = /(\{Regex:)(.*?)(\})(?=\s|$)/g;//new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
     const inputValue: string = el.textContent;
     const offset = this.getCaretCharacterOffsetWithin(el)
 
@@ -431,14 +432,26 @@ export class ExampleTableComponent implements OnInit {
       this.initialRegex = false;
     }
       
-    let highlightedText;
+    let highlightedText: string;
+    var regexDetected = false;
     if(this.isDark){
-      highlightedText = inputValue.replace(regex, (match) => `<span style="color: var(--light-blue); font-weight: bold">${match}</span>`);
+      highlightedText = inputValue.replace(regex, (match, match1, match2, match3) => {
+        regexDetected = true;
+        return `<span uk-tooltip="title:Regular Expression detected!;pos:right">`+
+        `<span style="color: var(--light-grey); font-weight: bold">${match1}</span>`+
+        `<span style="color: var(--light-blue); font-weight: bold">${match2}</span>`+
+        `<span style="color: var(--light-grey); font-weight: bold">${match3}</span></span>`;
+      });
     } else{
-      highlightedText = inputValue.replace(regex, (match) => `<span style="color: var(--ocean-blue); font-weight: bold">${match}</span>`);
+      highlightedText = inputValue.replace(regex, (match, match1, match2, match3) => {
+        regexDetected = true;
+        return `<span uk-tooltip="title:Regular Expression detected!;pos:right">`+
+        `<span style="color: var(--brown-grey); font-weight: bold">${match1}</span>`+
+        `<span style="color: var(--ocean-blue); font-weight: bold">${match2}</span>`+
+        `<span style="color: var(--brown-grey); font-weight: bold">${match3}</span></span>`;
+      });
     }
 
-    const regexDetected = regex.test(inputValue);
     el.innerHTML = highlightedText
 
     if(initialCall && regexDetected) {
@@ -455,30 +468,22 @@ export class ExampleTableComponent implements OnInit {
         const selection = window.getSelection();
         selection.removeAllRanges()
 
-        // Check in which node the cursor is and set new offsetIndex to position in that node
-        let length = 0;
-        let preLength = 0;
-        let node=0;
-        let offsetIndex=0;
-        for(let i = 0; i<= el.childNodes.length; i++) {
-          length = el.childNodes[i].textContent.length
-          if (preLength+length>=offset){
-            offsetIndex = offset-preLength
-            node=i
-            break;
-          }
-          else {
-            preLength = preLength+length
-          }
-        }
+        // Call the function to find the correct node and offset
+        this.targetOffset = offset
+        const result = this.findNodeAndOffset(el);
 
-        requestAnimationFrame(() => {
-        if (el.childNodes[node].nodeType == 3){ // in case childNode is text
-          selection.setBaseAndExtent(el.childNodes[node], offsetIndex, el.childNodes[node], offsetIndex)
-        } else { // in case childNode is span, childNode of span is text
-          selection.setBaseAndExtent(el.childNodes[node].childNodes[0], offsetIndex, el.childNodes[node].childNodes[0], offsetIndex)
+        if (result !== null) {
+          const [node, offsetIndex] = result;
+          requestAnimationFrame(() => {
+            if (node.nodeType === 3) {
+              // Text node
+              selection.setBaseAndExtent(node, offsetIndex, node, offsetIndex);
+            } else if (node.nodeType === 1 && node.childNodes.length > 0) {
+              // Element node with child nodes (e.g., <span>)
+              selection.setBaseAndExtent(node.childNodes[0], offsetIndex, node.childNodes[0], offsetIndex);
+            }
+          });
         }
-      })
       } else {
         requestAnimationFrame(() => {
         const selection = window.getSelection();
@@ -487,8 +492,33 @@ export class ExampleTableComponent implements OnInit {
         })
       }
       }
+  }
 
-    
+  /**
+   * Helper for Regex Highlighter, find right node and index for current cursor position
+   * @param element HTMLElement
+   * @returns node: node with cursor, number: offest of cursor in node
+   */
+  findNodeAndOffset(element: Node): [Node, number] | null {
+    if (element.nodeType === 3) {
+      // Text node
+      const textLength = (element.nodeValue || "").length;
+      if (this.targetOffset <= textLength) {
+        return [element, this.targetOffset];
+      } else {
+        this.targetOffset -= textLength;
+      }
+    } else if (element.nodeType === 1){
+      // Element node
+      for (let i = 0; i < element.childNodes.length; i++) {
+        const child = element.childNodes[i];
+        const result = this.findNodeAndOffset(child);
+        if (result !== null) {
+          return result;
+        }
+      }
+    }
+    return null;
   }
 
   /**
