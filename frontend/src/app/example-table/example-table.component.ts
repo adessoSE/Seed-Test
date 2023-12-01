@@ -132,6 +132,7 @@ export class ExampleTableComponent implements OnInit {
   set newSelectedScenario(scenario: Scenario) {
     this.selectedScenario = scenario;
     this.updateTable();
+    this.initialRegex = true;
   }
 
   @Input() isDark: boolean;
@@ -175,7 +176,7 @@ export class ExampleTableComponent implements OnInit {
     this.isDark = this.themeService.isDarkMode();
     this.themeObservable = this.themeService.themeChanged.subscribe((changedTheme) => {
       this.isDark = this.themeService.isDarkMode();
-      this.regexHightlightOnInit();
+      this.regexHighlightOnInit();
   });
   }
  
@@ -192,9 +193,17 @@ export class ExampleTableComponent implements OnInit {
     }
   }
 
-  ngDoCheck(){
+  ngAfterViewInit(){
+    this.regexDOMChangesHelper();
     if(this.initialRegex){
-      this.regexHightlightOnInit();
+      this.regexHighlightOnInit()
+    }
+  }
+
+  ngAfterViewChecked(){
+    this.regexDOMChangesHelper();
+    if(this.initialRegex){
+      this.regexHighlightOnInit()
     }
   }
 
@@ -247,7 +256,7 @@ export class ExampleTableComponent implements OnInit {
       }
       this.data.push(js);
     }
-    this.regexHightlightOnInit();
+    this.regexHighlightOnInit();
   }
 
   /**
@@ -418,9 +427,7 @@ export class ExampleTableComponent implements OnInit {
    * @param initialCall if call is from ngDoCheck
    */
   private highlightRegex(el, columnIndex, rowIndex, initialCall) {
-    const regexPattern1 =/\[Regex:(.*?)](?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with [Regex: and end with ]
-    const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
-    const regex = /(\{Regex:)(.*?)(\})(?=\s|$)/g;//new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
+    const regex = /(\{Regex:)(.*?)(\})(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with {Regex: and end with }
     const inputValue: string = el.textContent;
     const offset = this.getCaretCharacterOffsetWithin(el)
 
@@ -553,12 +560,20 @@ export class ExampleTableComponent implements OnInit {
   /**
      * Helper for inital hightlighting
      */
-  regexHightlightOnInit(){
+  regexHighlightOnInit(){
     this.regexInStory = false
-      if(this.example_input){
-        this.example_input.forEach(in_field => {  
-        this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
-        });
-      }
+    this.initialRegex = false
+    if(this.example_input){
+      this.example_input.forEach(in_field => {  
+      this.highlightRegex(in_field.nativeElement, undefined, undefined, true)
+      });
+    }
+  }
+
+   /**
+     * Helper for DOM change subscription
+     */
+   regexDOMChangesHelper(){
+    this.example_input.changes.subscribe(_ => {});
   }
 }

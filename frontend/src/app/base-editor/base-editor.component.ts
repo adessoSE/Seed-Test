@@ -78,6 +78,7 @@ export class BaseEditorComponent {
       this.checkAllSteps(false);
     }
     this.selectedScenario = scenario;
+    this.initialRegex = true;
   }
 
   @Input()
@@ -93,6 +94,7 @@ export class BaseEditorComponent {
   @Input()
   set newlySelectedStory(story: Story) {
     this.selectedStory = story;
+    this.initialRegex = true;
   }
 
   /**
@@ -230,6 +232,7 @@ export class BaseEditorComponent {
     this.renameExampleObservable = this.exampleService.renameExampleEvent.subscribe(value => { this.renameExample(value.name, value.column); });
     this.scenarioChangedObservable = this.scenarioService.scenarioChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
+      this.initialRegex = true;
     });
     this.backgroundChangedObservable = this.backgroundService.backgroundChangedEvent.subscribe(() => {
       this.checkAllSteps(false);
@@ -276,10 +279,6 @@ export class BaseEditorComponent {
 
   }
 
-  ngOnChanges(){
-    this.initialRegex = true;
-  }
-
   /**
     * retrieves the saved block from the session storage
     */
@@ -306,29 +305,20 @@ export class BaseEditorComponent {
     if (this.allChecked) {
       this.checkAllSteps(this.allChecked);
     } 
+  }
 
+  ngAfterViewChecked(){
+    this.regexDOMChangesHelper()
     if(this.initialRegex){
       this.regexHighlightOnInit()
     }
   }
 
   ngAfterViewInit(): void {
-    this.step_type_input.changes.subscribe(_ => {
-      this.step_type_input.forEach(in_field => {
-        if (in_field.nativeElement.id === this.lastToFocus) {
-          in_field.nativeElement.focus();
-        }
-      });
-      this.lastToFocus = '';
-    });
-    this.step_type_input1.changes.subscribe(_ => {
-      this.step_type_input1.forEach(in_field => {
-        if (in_field.nativeElement.id === this.lastToFocus) {
-          in_field.nativeElement.focus();
-        }
-      });
-      this.lastToFocus = '';
-    });
+    this.regexDOMChangesHelper()
+    if(this.initialRegex){
+      this.regexHighlightOnInit()
+    }
 
     if (this.exampleChildren.last != undefined) {
       this.exampleChild = this.exampleChildren.last;
@@ -2015,28 +2005,24 @@ export class BaseEditorComponent {
     this.markUnsaved();
   }
 
-    //TODO code redundanz, tooltip mouseposition, story/scenario highlight wenn wechsel (directives?), example
-
   /**
    * Add value and highlight regex, Style regex in value and give value to addToValue() function
    * Value is in textContent and style is in innerHTML
    * If initialCall only check if a regex is already there and hightlight it
    * Only hightlights regex in first field of regexSteps, only then steps for now. Gets checked with stepPre
    * Get cursor position with getCaretCharacterOffsetWithin Helper and set position again, else it is lost because of overwriting and changing the HTML Element in case of hightlighting
-   * @param element id of HTML div
+   * @param element HTML element of contentedible div
    * @param stepIndex for addToValue
    * @param valueIndex for addToValue
    * @param stepType for addToValue
    * @param step for addToValue
    * @param stepPre pre text of step
-   * @param initialCall if call is from ngDoCheck
+   * @param initialCall if call is from ngAfterView
    */
-    highlightRegex(element:string, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
+    highlightRegex(element, stepIndex?: number, valueIndex?: number, stepType?: string, step?:StepType, stepPre?: string, initialCall?:boolean) {
       const regexPattern =/(\{Regex:)(.*?)(\})(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with {Regex: and end with }
-      //const regexPattern2 =/\/\^.*?\$\/(?:\s*\/\^.*?\$\/)*(?=\s|$)/g;// Regex pattern to recognize and highlight regex expressions -> start with /^ and end with $/
-      //const regexPattern = new RegExp(`${regexPattern1.source}|${regexPattern2.source}`, 'g');
 
-      const textField = document.getElementById(element);
+      const textField = element//document.getElementById(element);
       const textContent = textField.textContent;
       //Get current cursor position
       const offset = this.getCaretCharacterOffsetWithin(textField)
@@ -2071,7 +2057,6 @@ export class BaseEditorComponent {
           });
         }
       }
-
       textField.innerHTML = highlightedText
 
       // Toastr logic
@@ -2176,27 +2161,81 @@ export class BaseEditorComponent {
      */
     regexHighlightOnInit(){
       // Regex Highlight on init
-      this.regexInStory = false
+      this.regexInStory = false;
+      this.initialRegex = false;
       //Logic currently not needed since regex only in then step
       /*if(this.step_type_input){ //background
         this.step_type_input.forEach(in_field => {  
           this.highlightRegex(in_field.nativeElement.id,undefined,undefined,undefined,undefined,true)
         });
       }*/
-      if(this.step_type_input1){ //scenario
+      if(this.step_type_input1){ //scenario first input value
         const stepTypePre = this.step_type_pre.toArray()
         this.step_type_input1.forEach((in_field, index) => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,0,undefined,undefined,stepTypePre[index].nativeElement.innerText, true)
+          this.highlightRegex(in_field.nativeElement,undefined,0,undefined,undefined,stepTypePre[index].nativeElement.innerText, true)
         });
 
         //Logic currently not needed since regex only in first input field
-        /*this.step_type_input2.forEach((in_field, index) => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,1,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
+        /*this.step_type_input2.forEach((in_field, index) => {  //scenario second input value
+          this.highlightRegex(in_field.nativeElement.id,undefined,1,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
         });
-        this.step_type_input3.forEach((in_field, index) => {  
-        this.highlightRegex(in_field.nativeElement.id,undefined,2,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
+        this.step_type_input3.forEach((in_field, index) => {  //scenario third input value
+          this.highlightRegex(in_field.nativeElement.id,undefined,2,undefined,undefined,stepTypePre1[index].nativeElement.innerText, true)
         });*/
       }
+    }
+
+    /**
+     * Helper for DOM change subscription
+     */
+    regexDOMChangesHelper(){
+
+      //Logic currently not needed
+      /*this.step_type_input.changes.subscribe(_ => { //background
+        this.step_type_input.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });*/
+
+      this.step_type_pre.changes.subscribe(_ => { //scenario text before first input value
+        this.step_type_pre.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });
+
+      this.step_type_input1.changes.subscribe(_ => { //scenario first input value
+        this.step_type_input1.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });
+      
+      //Logic currently not needed
+      /*this.step_type_input2.changes.subscribe(_ => { //scenario second input value
+        this.step_type_input2.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });
+      this.step_type_input3.changes.subscribe(_ => { //scenario third input value
+        this.step_type_input3.forEach(in_field => {
+          if (in_field.nativeElement.id === this.lastToFocus) {
+            in_field.nativeElement.focus();
+          }
+        });
+        this.lastToFocus = '';
+      });*/
+
     }
 
 }

@@ -159,7 +159,7 @@
                             type="text" value="{{currentStep.values[0]}}"
                             on-input="addToValues(step_type_input1.value, j, 0, currentStep.stepType)"
                             style="padding-left: 5px; padding-right: 5px;min-width: 100px; padding-bottom: 1px;" /-->
-                            <div class="scenario contentEditableElement inputEditableDiv" #step_type_input1 id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input1.id, j, 0, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[0]}}</div>
+                            <div class="scenario contentEditableElement inputEditableDiv" #step_type_input1 id="{{name+'_' + i + '_input_pre_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input1, j, 0, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[0]}}</div>
                         </div>
                         <div
                           *ngIf="currentStep.isExample[0] == true && stepDefs.example[i].isExample[0] == true && name!=='block-editor'"
@@ -210,7 +210,7 @@
                               value="{{currentStep.values[1]}}"
                               on-input="addToValues(step_type_input2.value, j, 1, currentStep.stepType)"
                               style="padding-left: 5px; padding-right: 5px;min-width: 100px" /-->
-                              <div class="scenario contentEditableElement inputEditableDiv" #step_type_input2 id="{{name+'_' + i + '_input_mid_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input2.id, j, 1, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[1]}}</div>
+                              <div class="scenario contentEditableElement inputEditableDiv" #step_type_input2 id="{{name+'_' + i + '_input_mid_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input2, j, 1, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[1]}}</div>
                           </div>
                           <div
                             *ngIf="currentStep.isExample[1] == true && stepDefs.example[i].isExample[0] == true && name!=='block-editor'"
@@ -263,7 +263,7 @@
                             value="{{currentStep.values[2]}}"
                             on-input="addToValues(step_type_input3.value, j , 2, currentStep.stepType)"
                             style="padding-left: 5px; padding-right: 5px;min-width: 100px" /-->
-                            <div class="scenario contentEditableElement inputEditableDiv" #step_type_input3 id="{{name+'_' + i + '_input_post_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input3.id, j, 2, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[2]}}</div>
+                            <div class="scenario contentEditableElement inputEditableDiv" #step_type_input3 id="{{name+'_' + i + '_input_post_' + j}}" contenteditable="true" (input)="highlightRegex(step_type_input3, j, 2, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[2]}}</div>
                         </div>
                         <div
                           *ngIf="currentStep.isExample[2] == true && stepDefs.example[i].isExample[0] == true && name!=='block-editor'"
@@ -411,7 +411,7 @@
                         value="{{currentStep.values[0]}}"
                         on-input="addToValues(step_type_input.value, j,0,currentStep.stepType)"
                         style="padding-left: 5px; padding-right: 5px;min-width: 100px" /-->
-                        <div class="scenario contentEditableElement inputEditableDiv" #step_type_input id="{{name+'_step_input_pre_' + j}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" (input)="highlightRegex(step_type_input.id, j, 0, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[0]}}</div>
+                        <div class="scenario contentEditableElement inputEditableDiv" #step_type_input id="{{name+'_step_input_pre_' + j}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" (input)="highlightRegex(step_type_input, j, 0, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[0]}}</div>
                     </div>
                     {{currentStep.mid}}
                     <div>
@@ -420,7 +420,7 @@
                         *ngIf="currentStep.values[1] != null" type="text" value="{{currentStep.values[1]}}"
                         on-input="addToValues(step_type_input.value,j,1,currentStep.stepType)"
                         style="padding-left: 5px; padding-right: 5px;min-width: 100px" /-->
-                        <div class="scenario contentEditableElement inputEditableDiv" *ngIf="currentStep.values[1] != null" #step_type_input id="{{name+'_step_input_mid_' + j}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" (input)="highlightRegex(step_type_input.id, j, 1, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[1]}}</div>
+                        <div class="scenario contentEditableElement inputEditableDiv" *ngIf="currentStep.values[1] != null" #step_type_input id="{{name+'_step_input_mid_' + j}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" (input)="highlightRegex(step_type_input, j, 1, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[1]}}</div>
                     </div>
                     {{currentStep.post}}
                     <div>
@@ -429,7 +429,7 @@
                         *ngFor="let value of currentStep.values | slice:2; let n = index" type="text" value="{{value}}"
                         on-input="addToValues(step_type_input.value,j , n + 2, currentStep.stepType)"
                         style="padding-left: 5px; padding-right: 5px;min-width: 100px" /-->
-                        <div class="scenario contentEditableElement inputEditableDiv" *ngIf="currentStep.values[2] != null" #step_type_input id="{{name+'_step_input_post_' + j}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" (input)="highlightRegex(step_type_input.id, j, 2, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[2]}}</div>
+                        <div class="scenario contentEditableElement inputEditableDiv" *ngIf="currentStep.values[2] != null" #step_type_input id="{{name+'_step_input_post_' + j}}" [containerEl]="backgroundContainerEl" [parentEl]="backgroundParentEl" contenteditable="true" (input)="highlightRegex(step_type_input, j, 2, currentStep.stepType, currentStep, currentStep.pre)" style="padding-left: 5px; padding-right: 5px; min-width: 100px; padding-bottom: 1px;" >{{currentStep.values[2]}}</div>
                     </div>
                     <div *ngIf="currentStep.outdated">
                       <dfn class="def"><span class="infoIcon uk-icon" uk-icon="info"></span>
