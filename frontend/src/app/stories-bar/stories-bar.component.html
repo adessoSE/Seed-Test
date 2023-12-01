@@ -32,7 +32,7 @@
         </span>
       </div>
       <div [hidden]="!showFilter" style="margin-top: 10px;">
-        <mat-form-field appearance="standard" class="filterFormField">
+        <mat-form-field *ngIf="!isCustomStory" appearance="standard" class="filterFormField">
           <mat-label>Assignee</mat-label>
           <mat-select [(ngModel)]="assigneeModel" (selectionChange)="filter()">
             <mat-option>--</mat-option>
@@ -61,44 +61,43 @@
         </mat-form-field>
       </div>
       <hr>
-      <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
-        <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag>
-          <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" >
-            <span class="github-avatar">
-              <!--<img src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">-->
-              <button *ngIf="!isCustomStory" uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
+      <div [class.itemListDiv]="this.stories?.length !== 0 && isCustomStory" [class.storyListDivNotCustom]="this.stories?.length !== 0 && !isCustomStory" [class.storyListDivWithFilter]="showFilter">   
+        <ul uk-accordion (cdkDropListDropped)="dropStory($event)" cdkDropList cdkDropListLockAxis="y">
+          <li *ngFor="let s of getSortedStories(); let i = index" cdkDrag > 
+            <div id="storyList" (click)="selectStoryScenario(s)" class="Mediumaccordeon2 uk-accordion-title" >
+            <span *ngIf="!isCustomStory" class="jiraGithubStoryIcons">
+              <button  uk-tooltip="Go to Jira/Github" class="toTicket" (click)="toTicket(s.issue_number)">
                 <mat-icon class="toTicket">launch</mat-icon>
               </button>
               <img *ngIf="s.assignee_avatar_url == null || this.daisyVersion" src="assets/unassigned_avatar.png" alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="Unassigned">
               <img *ngIf="!this.daisyVersion && s.assignee_avatar_url != null  " [src]=s.assignee_avatar_url alt="assignee github avatar" width="20px" height="20px" uk-tooltip="pos:right; delay: 200" title="{{s.assignee}}">
             </span>
-            <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-            <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
-              {{s.issue_number}}. {{s.title}}
-            </a>
-          </div>
-          <div id="scenarioList" class="uk-accordion-content">
-            <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
-              <li *ngFor="let scen of s.scenarios; let c = index">
-                <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
-                  <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                  #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
-                  <mat-icon class="icon passed" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
-                  <mat-icon class="icon notPassed" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
-                  <mat-icon class="icon undefined" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
-                </a>
-              </li>
-            </ul>
-            <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length>0)" (click)="openCreateNewScenarioModal()">Create First Scenario</button>
-            <button id="add_scenario" *ngIf="s.scenarios.length>0" class="material-icons" uk-tooltip="Add New Scenario" (click)="openCreateNewScenarioModal()">add</button>
-          </div>
-        </li>
-      </ul>
-      <div *ngIf="isCustomStory" id="createNewStoryDiv">
-        <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
+              <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+              <a class="storyListLink" maxlength="10" id="{{'story' + i}}" uk-tooltip="pos:right; delay: 200" title="{{s.title}}">
+                {{s.issue_number}}. {{s.title}}
+              </a>
+            </div>
+            <div id="scenarioList" class="uk-accordion-content">
+              <ul (cdkDropListDropped)="dropScenario($event, s)" cdkDropList cdkDropListLockAxis="y">
+                <li *ngFor="let scen of s.scenarios; let c = index">
+                  <a class="Largecaption scenarioListItem" [class.notPassed]="!scen.lastTestPassed && scen.lastTestPassed != undefined" [class.passed]="scen.lastTestPassed && scen.lastTestPassed != undefined" [class.notTested] ="" (click)="selectScenario(scen);" id="{{'scenario' + c}}" cdkDrag>
+                    <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                    #{{s.issue_number}}.{{c+1}} {{scen.name | titlecase}}
+                    <mat-icon class="icon passed" *ngIf="scen.lastTestPassed && scen.lastTestPassed != undefined">check_circle_outline</mat-icon>
+                    <mat-icon class="icon notPassed" *ngIf="!scen.lastTestPassed && (scen.lastTestPassed != undefined)">report</mat-icon>
+                    <mat-icon class="icon undefined" *ngIf="scen.lastTestPassed == undefined">watch_later</mat-icon>
+                  </a>
+                </li>
+              </ul>
+              <button id="add_first_scenario" class="SmallButton" *ngIf="!(s.scenarios.length>0)" (click)="openCreateNewScenarioModal()">Create First Scenario</button>
+              <button id="add_scenario" *ngIf="s.scenarios.length>0" class="material-icons" uk-tooltip="Add New Scenario" (click)="openCreateNewScenarioModal()">add</button>
+            </div>
+          </li>
+        </ul>
       </div>
-      <br>
-      <hr>
+        <div *ngIf="isCustomStory" id="createNewStoryDiv">
+          <button class="normalButton" (click)="openCreateNewStoryModal()">Create New Story</button>
+        </div>
     </mat-tab>
     <mat-tab label="Groups">
       <ng-template mat-tab-label>
@@ -116,34 +115,37 @@
           <em class="material-icons" id="eraseIcon" (click)="eraseSearchTerm('group')">close</em>  
       </div>
       <hr>
-      <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
-        <li *ngFor="let g of getSortedGroups(); let i = index " class="{{liGroupList[i]}}" cdkDrag>
-          <div id="groupList" class=" Mediumaccordeon2 uk-accordion-title" (click)="selectFirstStoryOfGroup(g)">
-            <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
-              title="{{g.name}}">
-              <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-              {{g.name}}
-            </a>
-            <span class="groupIconSpan">
-              <em class="material-icons" uk-tooltip title="Run Tests in Group" (click)="selectFirstStoryOfGroup(g);runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
-              <em class="material-icons" uk-tooltip title="Update Group" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
-            </span>
-          </div>
-          <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
-              <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
-              <a class="Largecaption scenarioListItem" cdkDrag>
-                  <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
-                  {{stor.title | titlecase}}
-                </a>
-              </li>
-            </ul>
-        </li>
-      </ul>
+      <div [class.itemListDiv]="this.groups?.length !== 0 && this.groups?.length !== null">
+        <ul uk-accordion (cdkDropListDropped)="dropGroup($event)" cdkDropList cdkDropListLockAxis="y">
+          <li *ngFor="let g of getSortedGroups(); let i = index " class="{{liGroupList[i]}}" cdkDrag>
+            <div id="groupList" class=" Mediumaccordeon2 uk-accordion-title" (click)="selectFirstStoryOfGroup(g)">
+              <a class="storyListLink groupLinkList" maxlength="10" id="{{'group' + i}}" uk-tooltip="pos:right; delay: 200"
+                title="{{g.name}}">
+                <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                {{g.name}}
+              </a>
+              <span class="groupIconSpan">
+                <em class="material-icons" uk-tooltip title="Run Tests in Group" (click)="selectFirstStoryOfGroup(g);runGroup(g);$event.stopPropagation();" id="groupPlay">play_arrow</em>
+                <em class="material-icons" uk-tooltip title="Update Group" (click)="openUpdateGroupModal(g);$event.stopPropagation();" id="groupEdit">edit</em>
+              </span>
+            </div>
+            <ul class="uk-accordion-content" (cdkDropListDropped)="dropGroupStory($event, g)" cdkDropList cdkDropListLockAxis="y">
+                <li *ngFor="let stor of g.member_stories" (click)="selectStoryOfGroup(stor._id)">
+                <a class="Largecaption scenarioListItem" cdkDrag>
+                    <em class="drag-handle material-icons" size="18px" cdkDragHandle>drag_handle</em>
+                    {{stor.title | titlecase}}
+                  </a>
+                </li>
+              </ul>
+          </li>
+        </ul>
+      </div>
       <div id="createNewGroupDiv">
         <button class="normalButton" (click)="openCreateNewGroupModal()">Create New Group</button>
       </div>
     </mat-tab>
   </mat-tab-group>
+  <hr>
 </div>
 <app-create-new-group #createNewGroup></app-create-new-group>
 <app-create-new-story #createNewStory></app-create-new-story>

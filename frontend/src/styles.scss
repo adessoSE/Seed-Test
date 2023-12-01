@@ -1029,6 +1029,10 @@ a:hover {
   background: map-get($mat-brown-palette, 200);
 }
 
+.mdc-menu-surface::-webkit-scrollbar-thumb   {
+  background: none !important;
+}
+
 .darkTheme ::-webkit-scrollbar-thumb,
 .darkTheme::-webkit-scrollbar-thumb {
   background: map-get($mat-blue-gray-palette, 200) !important;
