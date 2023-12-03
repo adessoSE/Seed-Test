@@ -152,14 +152,8 @@ th.mat-mdc-header-cell:first-of-type {
 }
 
 #emulatorInfoIcon {
-    /* margin-right: 10px;
-    margin-bottom: 7px; */
     width: 13px;
     vertical-align: baseline;
-}
-
-.selectLabel {
-    margin-right: 3px;
 }
 
 .select {

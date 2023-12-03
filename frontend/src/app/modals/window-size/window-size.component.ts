@@ -1,4 +1,4 @@
-import { Input, Component, ViewChild, Output, EventEmitter, OnInit } from '@angular/core';
+import { Input, Component, ViewChild, Output, EventEmitter } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
 @Component({

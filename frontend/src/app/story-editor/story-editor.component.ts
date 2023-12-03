@@ -761,12 +761,13 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
     if (scenario.emulator) this.emulator_enabled = true
     // nicht besser als wenn man im html entweder oder macht (267)
     if (!scenario.browser) this.selectedScenario.browser = 'chrome'
-    if (scenario.width) {
+    if (scenario.width && scenario.height) {
       this.selectedScenario.width = scenario.width
-    } else 1920;
-    if (scenario.height) {
       this.selectedScenario.height = scenario.height;
-    } else 1080;
+    } else {
+      this.selectedScenario.width = 1920;
+      this.selectedScenario.height = 1080;
+    }
   }
 
   /**
@@ -865,7 +866,7 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
         emulatorSelect = document.getElementById("emulatorSelect") as HTMLSelectElement;
       }
 
-      const browser = browserSelect ? browserSelect.value : undefined;
+      // const browser = browserSelect ? browserSelect.value : undefined;
       const emulator = emulatorSelect ? emulatorSelect.value : undefined;
       // are these values already saved in the Scenario / Story?
       // const defaultWaitTimeInput = (document.getElementById('defaultWaitTimeInput') as HTMLSelectElement).value;
@@ -958,19 +959,19 @@ export class StoryEditorComponent implements OnInit, OnDestroy {
   checkGlobalSettings() {
     const repoId = localStorage.getItem("id")
     this.projectService.getRepositorySettings(repoId).subscribe({
-        next: (settings) => {
-            if (settings && settings.activated) {
-                this.globalSettings = true;
-            } else {
-                this.globalSettings = false;
-            }
-        },
-        error: (err) => {
-            console.error('Fehler beim Abrufen der Repository Settings:', err);
-            this.globalSettings = false; 
+      next: (settings) => {
+        if (settings && settings?.activated) {
+          this.globalSettings = true;
+        } else {
+          this.globalSettings = false;
         }
+      },
+      error: (err) => {
+        console.error('Fehler beim Abrufen der Repository Settings:', err);
+        this.globalSettings = false;
+      }
     });
-}
+  }
 
   // ------------------------------- EMULATOR --------------------------------
 
